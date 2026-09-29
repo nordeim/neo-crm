@@ -107,16 +107,14 @@ Stage Summary:
 ---
 Task ID: 6
 Agent: main (Super Z)
-Task: Session 4 — DOM-level parity audit, pixel-grade hardening, docs + skill refresh, push
+Task: Session 5 — interactive-layer parity remediation on neo-crm
 
 Work Log:
-- git pull to aa6395e; full docs review (AGENTS/CLAUDE/README/PAD/neo-crm_SKILL, session_3 + session3 plan + worklog); baseline gate verified green (lint 0/0, tsc, 65/65 unit); .env/DATABASE_URL/db-folder/vitest+playwright configs all confirmed correct
-- Fresh live-site audit (login, all pages, desktop + mobile): reference still zero-data; audit method upgraded from VLM screenshots to live-DOM extraction (getComputedStyle, lucide classes, outerHTML) — overturned several session-3 VLM conclusions (sparkline colors, sort icons, trending icons, card anatomies)
-- Wrote + validated docs/plans/2026-09-29-session4-parity-remediation.md (G-1..G-15, all DOM-verified)
-- TDD execution: new tests/constants.test.ts (red->green) pinning stage chart hex + -400 bar family; then all 15 gaps fixed — pipeline Proposal yellow-500/Won grey-400, sparkline palette, revenue chart dual areas + 7-month window, BarStatCard for accounts/activities (trending icons), ArrowUpDown/Chevron sort system, calendar solid blue-600 selected cell + h2, tabs grid variants (segmented/pill), reports legendless revenue chart, by-type chart 5 categories, contacts gradient+trend row, profile rebuilt to DOM truth (blue-100 avatar, camera upload, black save, 4 chip cards)
-- Caught: Tailwind v4 dynamic grid-cols template pitfall (static GRID_COLS map); stale dev-server module graph (clean restart required); calendar selected cell = bg-sidebar not bg-primary
-- Full gate green: lint 0/0 · tsc · 68/68 unit · build · 21/21 e2e; every G-item DOM-re-verified on the running clone at 1512x945 + 390x844 (mobile drawer regression intact)
-- 12 screenshots refreshed; AGENTS/CLAUDE/README/PAD realigned (counts + conventions); neo-crm_SKILL.md v1.1.0 (session-4 entry + DOM-extraction methodology lesson)
+- Pulled to b9f388f; reviewed all docs + session-4 plan; baseline gate green (68/68)
+- Live-site audit (DOM extraction, both viewports): 16 evidence-backed gaps beyond session-4's visual pass — dialog field sets/vocabularies, table density, responsive column hiding, stat-card subtexts, per-page currency variants, card typography
+- TDD execution: 7 red-first checks → constants (unqualified stage, 4 lead sources, 5 emoji contact sources, 6 event types) + formatCompactCurrency({decimals, upper}); 75/75 unit
+- Implemented S5-1…S5-16 across table/card/page-parts/dialogs/schema (Event.relatedType, Activity.relatedType+relatedName)/seed; full gate green (lint 0/0 · tsc · 75/75 · build · 21/21 e2e)
+- DOM re-verified every item; 12 screenshots; five docs + SKILL v1.2.0 realigned; plan addendum
 
 Stage Summary:
-- Next: commit on main + SSH-wrapper push
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
