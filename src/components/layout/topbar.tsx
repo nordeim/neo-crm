@@ -1,17 +1,15 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Mail, Search } from "lucide-react";
-import { Avatar } from "@/components/ui/avatar";
-import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
+import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { MobileNavTrigger } from "./mobile-nav";
 import { useCrmStore } from "@/stores/crm-store";
-import type { User as AppUser } from "@/types";
-import { cn } from "@/lib/utils";
+import { TOPBAR_LAYOUT } from "@/lib/page-layout";
 import { STAGE_META } from "@/lib/constants";
 import { formatCompactCurrency } from "@/lib/format";
+import type { User as AppUser } from "@/types";
 
 interface TopbarProps {
   user: AppUser | null;
@@ -19,6 +17,13 @@ interface TopbarProps {
   mobileNavOpen: boolean;
 }
 
+/**
+ * Topbar — session-7 reference model (TOPBAR_LAYOUT contracts): a STATIC
+ * `py-4` header (it never scrolls because `main` owns scrolling) with a
+ * `justify-between` inner row. The global search hides below `sm` on the
+ * reference; ours keeps the functional results dropdown and the e2e-pinned
+ * aria-label. The hamburger is our mobile-nav fix (visible below `md`).
+ */
 export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
   const router = useRouter();
   const logout = useCrmStore((s) => s.logout);
@@ -67,104 +72,97 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
     results && (results.accounts.length > 0 || results.contacts.length > 0 || results.leads.length > 0);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b border-line bg-surface px-4 sm:gap-4 sm:px-8">
-      <MobileNavTrigger onClick={onOpenMobileNav} expanded={mobileNavOpen} />
+    <header className={TOPBAR_LAYOUT.header}>
+      <div className={TOPBAR_LAYOUT.inner}>
+        {/* Our mobile-nav fix — the reference ships no navigation below md. */}
+        <MobileNavTrigger onClick={onOpenMobileNav} expanded={mobileNavOpen} />
 
-      {/* Global search */}
-      <div ref={boxRef} className="relative min-w-0 flex-1 sm:max-w-md">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => hasResults && setOpen(true)}
-            placeholder="Search Anything..."
-            aria-label="Search accounts, contacts and leads"
-            className="h-9 w-full rounded-lg border border-line bg-white pl-9 pr-4 text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-        {open && hasResults && (
-          <div className="absolute left-0 right-0 top-11 z-[60] overflow-hidden rounded-xl border border-line bg-surface p-1.5 shadow-lg animate-in fade-in-0 zoom-in-95">
-            {results!.accounts.length > 0 && (
-              <>
-                <p className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-subtle">Accounts</p>
-                {results!.accounts.map((a) => (
-                  <SearchResultRow key={a.id} label={a.name} onClick={() => { setOpen(false); router.push("/accounts"); }} />
-                ))}
-              </>
-            )}
-            {results!.contacts.length > 0 && (
-              <>
-                <p className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-subtle">Contacts</p>
-                {results!.contacts.map((c) => (
-                  <SearchResultRow key={c.id} label={c.name} onClick={() => { setOpen(false); router.push("/contacts"); }} />
-                ))}
-              </>
-            )}
-            {results!.leads.length > 0 && (
-              <>
-                <p className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-subtle">Leads</p>
-                {results!.leads.map((l) => (
-                  <SearchResultRow
-                    key={l.id}
-                    label={l.name}
-                    hint={`${STAGE_META[l.stage]?.label ?? l.stage} · ${formatCompactCurrency(l.value)}`}
-                    onClick={() => { setOpen(false); router.push("/leads"); }}
-                  />
-                ))}
-              </>
+        {/* Global search — hidden below sm (reference behavior). */}
+        <div className={TOPBAR_LAYOUT.searchBlock}>
+          <div ref={boxRef} className={TOPBAR_LAYOUT.searchWrap}>
+            <Search
+              className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${TOPBAR_LAYOUT.searchIcon}`}
+            />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => hasResults && setOpen(true)}
+              placeholder="Search Anything..."
+              aria-label="Search accounts, contacts and leads"
+              className={TOPBAR_LAYOUT.searchInput}
+            />
+            {open && hasResults && (
+              <div className="absolute left-0 right-0 top-11 z-[60] overflow-hidden rounded-xl border border-line bg-surface p-1.5 shadow-lg animate-in fade-in-0 zoom-in-95">
+                {results!.accounts.length > 0 && (
+                  <>
+                    <p className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-subtle">Accounts</p>
+                    {results!.accounts.map((a) => (
+                      <SearchResultRow key={a.id} label={a.name} onClick={() => { setOpen(false); router.push("/accounts"); }} />
+                    ))}
+                  </>
+                )}
+                {results!.contacts.length > 0 && (
+                  <>
+                    <p className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-subtle">Contacts</p>
+                    {results!.contacts.map((c) => (
+                      <SearchResultRow key={c.id} label={c.name} onClick={() => { setOpen(false); router.push("/contacts"); }} />
+                    ))}
+                  </>
+                )}
+                {results!.leads.length > 0 && (
+                  <>
+                    <p className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-subtle">Leads</p>
+                    {results!.leads.map((l) => (
+                      <SearchResultRow
+                        key={l.id}
+                        label={l.name}
+                        hint={`${STAGE_META[l.stage]?.label ?? l.stage} · ${formatCompactCurrency(l.value)}`}
+                        onClick={() => { setOpen(false); router.push("/leads"); }}
+                      />
+                    ))}
+                  </>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
 
-      <div className="ml-auto flex items-center gap-1 sm:gap-2">
-        <button
-          type="button"
-          aria-label="Messages"
-          className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex"
-        >
-          <Mail className="h-[18px] w-[18px]" strokeWidth={1.8} />
-        </button>
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex"
-        >
-          <Bell className="h-[18px] w-[18px]" strokeWidth={1.8} />
-        </button>
+        <div className={TOPBAR_LAYOUT.rightGroup}>
+          <button type="button" aria-label="Messages" className={TOPBAR_LAYOUT.iconButton}>
+            <Mail className={TOPBAR_LAYOUT.iconClass} />
+          </button>
+          <button type="button" aria-label="Notifications" className={TOPBAR_LAYOUT.iconButton}>
+            <Bell className={TOPBAR_LAYOUT.iconClass} />
+          </button>
 
-        {user && (
-          <Dropdown>
-            <DropdownTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-full p-1 pr-2 transition-colors hover:bg-line-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-                aria-label="Account menu"
-              >
-                <span className="hidden max-w-[140px] truncate text-sm text-muted sm:inline">
-                  Hi, <span className="font-medium text-foreground">{user.name.split(" ")[0] || user.email.split("@")[0]}</span>
-                </span>
-                <Avatar name={user.name} color={user.avatarColor} size="md" />
-                <ChevronDown className="h-3.5 w-3.5 text-subtle" />
-              </button>
-            </DropdownTrigger>
-            <DropdownContent className="min-w-[11rem]">
-              <DropdownItem onClick={() => router.push("/profile")}>Profile</DropdownItem>
-              <DropdownSeparator />
-              <DropdownItem
-                destructive
-                onClick={async () => {
-                  await logout();
-                  router.push("/login");
-                  router.refresh();
-                }}
-              >
-                Logout
-              </DropdownItem>
-            </DropdownContent>
-          </Dropdown>
-        )}
+          {user && (
+            <Dropdown>
+              <DropdownTrigger asChild>
+                <button type="button" className={TOPBAR_LAYOUT.userButton} aria-label="Account menu">
+                  <span className={TOPBAR_LAYOUT.userLabel}>
+                    Hi, {user.name || user.email.split("@")[0]}
+                  </span>
+                  <span className={TOPBAR_LAYOUT.userAvatar} aria-hidden="true">
+                    {(user.name || user.email).charAt(0).toUpperCase()}
+                  </span>
+                  <ChevronDown className={TOPBAR_LAYOUT.userChevron} />
+                </button>
+              </DropdownTrigger>
+              <DropdownContent className={TOPBAR_LAYOUT.userMenu}>
+                <DropdownItem onClick={() => router.push("/profile")}>Profile</DropdownItem>
+                <DropdownItem
+                  onClick={async () => {
+                    await logout();
+                    router.push("/login");
+                    router.refresh();
+                  }}
+                >
+                  Logout
+                </DropdownItem>
+              </DropdownContent>
+            </Dropdown>
+          )}
+        </div>
       </div>
     </header>
   );
@@ -182,5 +180,3 @@ function SearchResultRow({ label, hint, onClick }: { label: string; hint?: strin
     </button>
   );
 }
-
-export { cn };

@@ -25,7 +25,7 @@ import { useCrmStore } from "@/stores/crm-store";
 import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
 import { endOfDay, formatDate, formatTime, startOfDay, timeAgo, timeUntil } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
+import { ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
 import type { Activity } from "@/types";
 
 /** Reference shows exactly four type checkboxes (Call/Email/Meeting/
@@ -276,8 +276,9 @@ export default function ActivitiesPage() {
               with a p-4 border-b toolbar holding title + More + tab track. */}
           <Card className={cn(TABLE_CARD.card)}>
             <div className={TABLE_CARD.toolbar}>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Priority Activities</CardTitle>
+              {/* Session-7 (S7-17): h2 text-lg title + mb-4 row (live pins). */}
+              <div className={ACTIVITY_CARD.priorityRow}>
+                <h2 className={ACTIVITY_CARD.title}>Priority Activities</h2>
                 <Button variant="ghost" size="sm">
                   More
                 </Button>
@@ -300,7 +301,7 @@ export default function ActivitiesPage() {
             <CardContent>
               <div role="tabpanel">
                 {tabRows.length === 0 ? (
-                  <p className="py-10 text-center text-sm text-muted">
+                  <p className={ACTIVITY_CARD.emptyPanel}>
                     {tab === "overdue" ? "No overdue activities" : tab === "dueToday" ? "Nothing due today" : tab === "upcoming" ? "No upcoming activities" : "No completed activities"}
                   </p>
                 ) : (
@@ -355,17 +356,18 @@ export default function ActivitiesPage() {
             </CardContent>
           </Card>
 
-          {/* Timeline — session-6: bg-surface rounded-lg shadow p-6. */}
+          {/* Timeline — session-7 (S7-17): plain mb-6 header row inside the
+              p-6 card, h2 text-lg title, ghost h-8 "•••" TEXT button. */}
           <Card className={cn(TABLE_CARD.card, "p-6")}>
-            <CardHeader className="flex-row items-center justify-between px-0 pt-0">
-              <CardTitle>Activity Timeline</CardTitle>
-              <Button variant="ghost" size="iconSm" aria-label="More actions">
-                <MoreHorizontal className="h-4 w-4" />
+            <div className={ACTIVITY_CARD.timelineRow}>
+              <h2 className={ACTIVITY_CARD.title}>Activity Timeline</h2>
+              <Button variant="ghost" size="sm" aria-label="More actions">
+                {ACTIVITY_CARD.dotsLabel}
               </Button>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5 px-0 pb-0 pt-5">
+            </div>
+            <CardContent className="flex flex-col gap-5 px-0 pb-0 pt-0">
               {timeline.length === 0 ? (
-                <p className="py-10 text-center text-sm text-muted">No activities found</p>
+                <p className={ACTIVITY_CARD.emptyTimeline}>No activities found</p>
               ) : (
                 timeline.map(([date, rows]) => (
                   <div key={date}>

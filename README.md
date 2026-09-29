@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-113%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-133%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -40,7 +40,7 @@ first boot.
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate — the fix the reference app never shipped |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
-| 🧪 Tested | 92 Vitest unit checks + 21 Playwright E2E checks, including a 5-check mobile-nav regression suite |
+| 🧪 Tested | 112 Vitest unit checks + 21 Playwright E2E checks, including a 5-check mobile-nav regression suite |
 
 ## Architecture
 
@@ -109,7 +109,7 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 8 Vitest suites (92 checks)
+│   ├── 📄 *.test.ts                  # 8 Vitest suites (112 checks)
 │   └── 📂 e2e/                       # Playwright (21 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
@@ -142,8 +142,9 @@ bun run dev            # → http://localhost:3000
 3. Sign in with the demo credentials — **`sepnetflix2023@outlook.com` /
    `$Abcd1234`** — and land on a dashboard with 24 seeded leads, live charts
    and a Recent Deals table.
-4. Shrink the window below 1024px: the hamburger (top-left) opens the
-   navigation drawer with all 8 destinations.
+4. Shrink the window below 768px: the hamburger (top-left) opens the
+   navigation drawer with all 8 destinations (the desktop sidebar itself
+   appears from 768px, mirroring the reference).
 
 ## Environment Variables
 
@@ -156,7 +157,7 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 92 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit)
+bun run test          # 112 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit)
 bun run build         # E2E runs against the standalone production build
 bun run test:e2e      # 21 Playwright checks on :3100 with its own db/e2e.db
 ```

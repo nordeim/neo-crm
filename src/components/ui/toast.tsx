@@ -72,7 +72,9 @@ function Toaster() {
     <div
       aria-label="Notifications"
       role="region"
-      className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-[calc(100vw-2rem)] max-w-sm flex-col gap-2"
+      // Session-7 live pin: the reference viewport is top-of-screen on
+      // phones and bottom-right from sm (sonner-style), max-w-[420px] at md.
+      className="pointer-events-none fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"
     >
       {items.map((t) => (
         <ToastCard key={t.id} item={t} />

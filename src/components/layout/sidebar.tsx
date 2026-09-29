@@ -3,11 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS, NAV_FOOTER_ITEMS } from "./nav-config";
+import { NAV_LAYOUT } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 
 /**
  * Shared navigation list — rendered inside BOTH the desktop sidebar and the
  * mobile drawer so the two stay in lockstep.
+ *
+ * Session-7 re-pin (NAV_LAYOUT contracts): links are `px-4 py-3` with
+ * `hover:bg-white/5` and a flat `bg-white/10` active state (no bold bump),
+ * icons are uniform `h-5 w-5` stroke-2, and the footer group (Settings)
+ * is pinned to the sidebar bottom via `mt-auto` with a `border-t`
+ * divider. Our focus-visible ring is a deliberate a11y superset.
  */
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -15,63 +22,46 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
+  const renderLink = (item: (typeof NAV_ITEMS)[number], active: boolean) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        active ? NAV_LAYOUT.linkActive : NAV_LAYOUT.link,
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+      )}
+    >
+      <item.icon className={cn(NAV_LAYOUT.icon, "shrink-0")} strokeWidth={2} />
+      <span className={cn(NAV_LAYOUT.label, "truncate")}>{item.label}</span>
+    </Link>
+  );
+
   return (
-    <nav aria-label="Main navigation" className="flex h-full flex-col gap-1 px-3">
-      <div className="flex flex-col gap-0.5">
-        {NAV_ITEMS.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors",
-                "hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
-                active && "bg-white/15 font-semibold text-white",
-              )}
-            >
-              <item.icon className="h-[18px] w-[18px] shrink-0" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="truncate">{item.label}</span>
-            </Link>
-          );
-        })}
+    <nav aria-label="Main navigation" className={NAV_LAYOUT.container}>
+      <div className={NAV_LAYOUT.group}>
+        {NAV_ITEMS.map((item) => renderLink(item, isActive(item.href)))}
       </div>
-      {/* Reference layout: a thin divider, then Settings directly below — not
-          pinned to the sidebar bottom. */}
-      <div className="my-2 h-px bg-white/15" aria-hidden="true" />
-      <div className="flex flex-col gap-0.5">
-        {NAV_FOOTER_ITEMS.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/85 transition-colors",
-                "hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
-                active && "bg-white/15 font-semibold text-white",
-              )}
-            >
-              <item.icon className="h-[18px] w-[18px] shrink-0" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="truncate">{item.label}</span>
-            </Link>
-          );
-        })}
+      {/* Reference layout (session-7 re-pin): the Settings group is pinned
+          to the sidebar bottom (mt-auto) behind a border-t divider. */}
+      <div className={NAV_LAYOUT.footerGroup}>
+        {NAV_FOOTER_ITEMS.map((item) => renderLink(item, isActive(item.href)))}
       </div>
     </nav>
   );
 }
 
-/** Brand mark — white ring + CRM wordmark (matches the reference). */
+/** Brand mark — 40px white circle holding a 24px blue dot + the CRM
+ *  wordmark at text-2xl (session-7 live pins: `p-6 flex items-center
+ *  gap-3`). */
 export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-2.5 px-5 py-5">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white" aria-hidden="true" />
-      {!compact && <span className="text-lg font-bold tracking-wide text-white">CRM</span>}
+    <div className={NAV_LAYOUT.brand}>
+      <div className={NAV_LAYOUT.brandLogoOuter} aria-hidden="true">
+        <div className={NAV_LAYOUT.brandLogoInner} />
+      </div>
+      {!compact && <span className={NAV_LAYOUT.brandWordmark}>CRM</span>}
     </div>
   );
 }

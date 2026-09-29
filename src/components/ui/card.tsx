@@ -2,9 +2,11 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
+  // Session-7: the reference's bordered cards (settings picklists, calendar
+  // cards, KPI stat cards, filter rails) carry `shadow`, not `shadow-sm`.
   return (
     <div
-      className={cn("rounded-xl border border-line bg-surface shadow-sm", className)}
+      className={cn("rounded-xl border border-line bg-surface shadow", className)}
       {...props}
     />
   );

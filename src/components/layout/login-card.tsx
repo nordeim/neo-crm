@@ -4,11 +4,21 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LOGIN_LAYOUT } from "@/lib/page-layout";
 import { toast } from "@/components/ui/toast";
 
 type Mode = "signin" | "signup";
 
+/**
+ * Login card — session-7 re-pin (LOGIN_LAYOUT contracts): the reference's
+ * slate design. A borderless glass card (`bg-white/95 backdrop-blur-sm
+ * shadow-2xl`) with a gradient accent strip, centered logo/title column,
+ * white Google button, `h-11 sm:h-12` slate inputs and a slate-900 submit.
+ * The logo is a CSS brand mark (the reference hotlinks a screenshot image;
+ * we reproduce the white-circle + blue-dot shape with no external asset).
+ * Kept beyond parity: the demo-credentials hint, the inline error alert
+ * and the signup mode (label ids + button names stay e2e-pinned).
+ */
 export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
   const router = useRouter();
   const [email, setEmail] = React.useState("");
@@ -48,142 +58,157 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-2xl border border-line bg-surface p-8 shadow-xl">
-        {/* Brand */}
-        <div className="mb-6 flex flex-col items-center gap-2">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sidebar">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white">
-              <span className="h-1.5 w-1.5 rounded-full bg-white" />
-            </span>
-          </span>
-          <div className="text-center">
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
-              Welcome to <span className="text-primary">NEO CRM</span>
-            </h1>
-            <p className="mt-0.5 text-sm text-muted">{isSignup ? "Create your account" : "Sign in to continue"}</p>
-          </div>
-        </div>
+      <div className={LOGIN_LAYOUT.card}>
+        {/* Gradient accent strip along the card's top edge. */}
+        <div className={LOGIN_LAYOUT.accent} aria-hidden="true" />
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
-          <Button
-            type="button"
-            variant="secondary"
-            className="h-10 w-full"
-            onClick={() =>
-              toast.info(
-                "Google sign-in not configured",
-                "This self-hosted clone uses email and password sign-in. Use the demo credentials below.",
-              )
-            }
-          >
-            <GoogleIcon />
-            Continue with Google
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-line" />
+        <div className={LOGIN_LAYOUT.inner}>
+          <div className={LOGIN_LAYOUT.centered}>
+            {/* Logo — CSS brand mark (white circle + blue dot) with a soft
+                slate glow, ringed and shadowed like the reference avatar. */}
+            <div className={LOGIN_LAYOUT.logoWrap}>
+              <div className={LOGIN_LAYOUT.logoGlow} aria-hidden="true" />
+              <span className={LOGIN_LAYOUT.logo} aria-hidden="true">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sidebar sm:h-12 sm:w-12" />
+              </span>
             </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-surface px-3 text-xs font-medium uppercase tracking-widest text-subtle">or</span>
-            </div>
-          </div>
 
-          {isSignup && (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-sm font-medium text-foreground">
-                Name
-              </label>
-              <div className="relative">
-                <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-                <input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  autoComplete="name"
-                  placeholder="Your name"
-                  className="h-10 w-full rounded-lg border border-line bg-white pl-9 pr-3 text-sm placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
+            <div className="space-y-2 sm:space-y-3">
+              <h1 className={LOGIN_LAYOUT.title}>Welcome to NEO CRM</h1>
+              <p className={LOGIN_LAYOUT.subtitle}>{isSignup ? "Create your account" : "Sign in to continue"}</p>
+            </div>
+
+            {/* Google sign-in — the reference's white rounded-xl button. */}
+            <div className="w-full">
+              <button
+                type="button"
+                className={LOGIN_LAYOUT.google}
+                onClick={() =>
+                  toast.info(
+                    "Google sign-in not configured",
+                    "This self-hosted clone uses email and password sign-in. Use the demo credentials below.",
+                  )
+                }
+              >
+                <div className={LOGIN_LAYOUT.googleIcon}>
+                  <GoogleIcon />
+                </div>
+                <span>Continue with Google</span>
+              </button>
+            </div>
+
+            <div className={LOGIN_LAYOUT.divider} aria-hidden="true">
+              <div className="absolute inset-0 flex items-center">
+                <div className={LOGIN_LAYOUT.dividerLine} />
+              </div>
+              <div className={LOGIN_LAYOUT.dividerLabel}>
+                <span className={LOGIN_LAYOUT.dividerLabelSpan}>or</span>
               </div>
             </div>
-          )}
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm font-medium text-foreground">
-              Email
-            </label>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                placeholder="you@example.com"
-                className="h-10 w-full rounded-lg border border-line bg-white pl-9 pr-3 text-sm placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+            <form onSubmit={onSubmit} className={LOGIN_LAYOUT.form} noValidate>
+              <div className={LOGIN_LAYOUT.fields}>
+                {isSignup && (
+                  <div className={LOGIN_LAYOUT.field}>
+                    <label htmlFor="name" className={LOGIN_LAYOUT.label}>
+                      Name
+                    </label>
+                    <div className={LOGIN_LAYOUT.inputWrap}>
+                      <User className={LOGIN_LAYOUT.inputIcon} />
+                      <input
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        autoComplete="name"
+                        placeholder="Your name"
+                        className={LOGIN_LAYOUT.input}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className={LOGIN_LAYOUT.field}>
+                  <label htmlFor="email" className={LOGIN_LAYOUT.label}>
+                    Email
+                  </label>
+                  <div className={LOGIN_LAYOUT.inputWrap}>
+                    <Mail className={LOGIN_LAYOUT.inputIcon} />
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      className={LOGIN_LAYOUT.input}
+                    />
+                  </div>
+                </div>
+
+                <div className={LOGIN_LAYOUT.field}>
+                  <label htmlFor="password" className={LOGIN_LAYOUT.label}>
+                    Password
+                  </label>
+                  <div className={LOGIN_LAYOUT.inputWrap}>
+                    <Lock className={LOGIN_LAYOUT.inputIcon} />
+                    <input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={isSignup ? 8 : undefined}
+                      autoComplete={isSignup ? "new-password" : "current-password"}
+                      placeholder="••••••••"
+                      className={LOGIN_LAYOUT.input}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {error && (
+                <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
+                  {error}
+                </p>
+              )}
+
+              <div className="space-y-3">
+                <button type="submit" disabled={pending} className={LOGIN_LAYOUT.submit}>
+                  {pending ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
+                </button>
+                <div className={LOGIN_LAYOUT.footer}>
+                  {!isSignup ? (
+                    <button type="button" className={`${LOGIN_LAYOUT.footerLink} font-medium`}>
+                      Forgot password?
+                    </button>
+                  ) : (
+                    <span />
+                  )}
+                  {!isSignup ? (
+                    <Link href="/signup" className={LOGIN_LAYOUT.footerLink}>
+                      Need an account? <span className={LOGIN_LAYOUT.footerLinkStrong}>Sign up</span>
+                    </Link>
+                  ) : (
+                    <Link href="/login" className={LOGIN_LAYOUT.footerLink}>
+                      Already have an account?{" "}
+                      <span className={LOGIN_LAYOUT.footerLinkStrong}>Sign in</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+
+          {!isSignup && (
+            <div className="mt-6 rounded-xl bg-slate-50 px-3 py-2.5 text-center text-xs text-slate-500">
+              Demo login:{" "}
+              <span className="font-medium text-slate-700">sepnetflix2023@outlook.com</span> ·{" "}
+              <span className="font-medium text-slate-700">$Abcd1234</span>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-medium text-foreground">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={isSignup ? 8 : undefined}
-                autoComplete={isSignup ? "new-password" : "current-password"}
-                placeholder="••••••••"
-                className="h-10 w-full rounded-lg border border-line bg-white pl-9 pr-3 text-sm placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <p role="alert" className="rounded-lg bg-danger-soft px-3 py-2 text-xs font-medium text-danger">
-              {error}
-            </p>
           )}
-
-          <Button type="submit" disabled={pending} className="h-10 w-full bg-gray-900 text-white hover:bg-gray-800">
-            {pending ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
-          </Button>
-
-          <div className="flex items-center justify-between text-xs text-muted">
-            {!isSignup ? (
-              <Link href="/login" className="font-medium text-primary hover:underline" onClick={(e) => e.preventDefault()}>
-                Forgot password?
-              </Link>
-            ) : (
-              <span />
-            )}
-            {!isSignup ? (
-              <Link href="/signup" className="font-medium text-primary hover:underline">
-                Need an account? Sign up
-              </Link>
-            ) : (
-              <Link href="/login" className="font-medium text-primary hover:underline">
-                Already have an account? Sign in
-              </Link>
-            )}
-          </div>
-        </form>
-
-        {!isSignup && (
-          <div className="mt-5 rounded-lg bg-line-soft px-3 py-2.5 text-center text-xs text-muted">
-            Demo login: <span className="font-medium text-foreground">sepnetflix2023@outlook.com</span> ·{" "}
-            <span className="font-medium text-foreground">$Abcd1234</span>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -191,7 +216,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
 
 function GoogleIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
       <path
         fill="#4285F4"
         d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.3h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7c2-1.9 3.1-4.7 3.1-8.1v-.6z"

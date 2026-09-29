@@ -105,7 +105,9 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 transition-[visibility] duration-300 lg:hidden",
+        // md, not lg — the desktop sidebar appears from md (session-7
+        // live pin), so the drawer only covers phone/narrow-tablet widths.
+        "fixed inset-0 z-50 transition-[visibility] duration-300 md:hidden",
         open ? "visible" : "invisible pointer-events-none",
       )}
       role="dialog"
@@ -157,7 +159,7 @@ export function MobileNavTrigger({ onClick, expanded }: { onClick: () => void; e
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-line-soft hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 lg:hidden"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 md:hidden"
       aria-label="Open navigation menu"
       aria-haspopup="dialog"
       aria-expanded={expanded}

@@ -10,12 +10,14 @@
 --------------------------------------------------------------------------- */
 
 @theme {
-  /* Brand palette (measured from the reference app) */
+  /* Brand palette (measured from the reference app; session-7 live
+     computed-color probe: primary buttons render rgb(37,99,235) = blue-600
+     with blue-700 hover — NOT blue-500 as pinned in earlier sessions). */
   --color-sidebar: #2563eb;
   --color-sidebar-hover: #3b6ff0;
   --color-sidebar-active: #4d7ef5;
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
   --color-primary-foreground: #ffffff;
 
   /* Neutrals */

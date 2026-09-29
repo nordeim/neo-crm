@@ -136,3 +136,21 @@ Work Log:
 Stage Summary:
 - Gate: lint 0/0 · typecheck clean · 92/92 unit · build clean · 21/21 e2e; rails 320px at 1024; zero horizontal overflow at 390 on all routes
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+---
+Task ID: 8
+Agent: main (Super Z)
+Task: Session 7 — app-chrome & identity-layer parity remediation on neo-crm
+
+Work Log:
+- Pulled to 29f0f84 (user-pushed docs/session_7.md = session-6 transcript); full docs + codebase review; baseline gate green (92/92 unit, 21/21 e2e); .env/db/test configs verified
+- Live-site audit at 1512/900/700/390 (fresh login, saved live-auth-s7.json): reference demo data STILL zeroed. 24 DOM-verified gaps (S7-1..S7-24) concentrated in the never-audited chrome layer + reference regressions since session 6 (calendar header search RE-ADDED, reports Reset RE-ADDED, bar buttons h-8, select leading icons)
+- Key discoveries: sidebar is hidden md:flex (768px, in-flow flex child of a flex h-screen root — NOT fixed/lg as pinned since session 1); primary token is blue-600 #2563eb (live-comcomputed rgb(37,99,235), ours was blue-500); deltas are green-600/red-600; login card never re-pinned (full slate redesign); main must be the ONLY scroller (ours window-scrolled with inert overflow-auto)
+- TDD: 20 new layout-contract pins (37 total) -> page-layout.ts gained SHELL_LAYOUT/NAV_LAYOUT/TOPBAR_LAYOUT/LOGIN_LAYOUT/STAT_CARD/ACTIVITY_CARD/DASHBOARD_CARD/SETTINGS_PICKLIST + subtitleSm + REPORTS_FILTER_BAR re-pin
+- Implemented S7-1..S7-24: shell restructure (in-flow md sidebar, h-screen root, main true scroller), sidebar brand/nav/footer-group, topbar (static py-4, search hidden <sm, rounded-md icon buttons, rectangular user button, plain menu), drawer range lg->md, calendar (header search + outline nav buttons + subtitleSm + TrendStatCard re-pin), reports (Reset + h-8 icon buttons + icon select wraps), activities h2 headers + "•••" text button + empty states, dashboard card-header buttons (blue Adds, h-8 w-8 ellipsis), settings picklists (plain empty state, primary add, industrie typo), login card (full LOGIN_LAYOUT slate redesign + gradient page wrapper), toasts (top on mobile -> bottom-right sm), tokens (primary #2563eb/#1d4ed8, delta green-600/red-600, Card shadow, Input rounded-md)
+- Full gate green at every checkpoint: lint 0/0 · tsc · 112/112 unit · build · 21/21 e2e (mobile-nav 5/5)
+- DOM re-verification: shell (mainScrollable=true, windowScrolls=false), reports sticky bar sticks to main (programmatic scroll test), Reset functional (This Month -> This Quarter), drawer dual lock engages/releases, breakpoints 1024/900/768/700/390 exact (sidebar from 768, rails from 1024, no overflow), login card classes pin-exact, VLM spot-comparison (login + calendar) zero structural findings
+- 12 screenshots refreshed; .env.example verified tracked + matching; docs realigned (AGENTS, CLAUDE, README, PAD, neo-crm_SKILL v1.4.0, plan addendum)
+
+Stage Summary:
+- Gate: lint 0/0 · typecheck clean · 112/112 unit · build clean · 21/21 e2e; sidebar from md on all breakpoints; main is the sole scroller
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone, Plus, Target, User } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone, Plus, Search, Target, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Checkbox, Label } from "@/components/ui/label";
 import { PageHeader, TrendStatCard } from "@/components/shared/page-parts";
 import { EventDialog } from "@/components/shared/entity-dialogs";
@@ -69,6 +70,7 @@ export default function CalendarPage() {
   const [cursor, setCursor] = React.useState(() => new Date()); // any date inside the visible month
   const [selectedDay, setSelectedDay] = React.useState(() => new Date());
   const [filters, setFilters] = React.useState<Record<string, boolean>>({});
+  const [query, setQuery] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<CrmEvent | null>(null);
   const [defaultStart, setDefaultStart] = React.useState<Date | null>(null);
@@ -90,9 +92,14 @@ export default function CalendarPage() {
       events.filter((e) => {
         if (activeTypes.length > 0 && !activeTypes.includes(e.type)) return false;
         if (activeDates.length > 0 && !activeDates.some((d) => inRange(new Date(e.startAt), d))) return false;
+        // Session-7: the reference re-added a header search ("Search
+        // events...") — ours filters by event title (functional superset;
+        // the live control is inert at zero data).
+        const q = query.trim().toLowerCase();
+        if (q && !e.title.toLowerCase().includes(q)) return false;
         return true;
       }),
-    [events, activeTypes, activeDates],
+    [events, activeTypes, activeDates, query],
   );
 
   // Sunday-anchored grid with leading days, trimmed to whole weeks actually
@@ -158,42 +165,62 @@ export default function CalendarPage() {
       <PageHeader
         title="Calendar"
         subtitle="Manage your schedule and events"
+        subtitleSize="sm"
         actions={
-          <Button onClick={() => openNewEvent()}>
-            <Plus className="h-4 w-4" /> New Event
-          </Button>
+          <>
+            {/* Session-7 (S7-13): the reference re-added a header search —
+                `relative flex-1 sm:flex-none sm:w-64` wrapper, pl-9 h-9 input. */}
+            <div className="relative flex-1 sm:flex-none sm:w-64">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search events..."
+                aria-label="Search events"
+                className="h-9 pl-9"
+              />
+            </div>
+            <Button onClick={() => openNewEvent()}>
+              <Plus className="h-4 w-4 mr-2" /> New Event
+            </Button>
+          </>
         }
       />
 
-      {/* Reference stat cards: icon chip top-left, green trend top-right. */}
+      {/* Session-7 stat-card re-pin (STAT_CARD contracts): 40px -50 chips,
+          h-5 w-5 icons, green-600 trends, label under the value. */}
       <div className={PAGE_KPI_GRIDS.calendar}>
         <TrendStatCard
           label="Today's Events"
           value={todaysEvents.length}
           trend={trend(todaysEvents.length, yesterdaysEvents)}
-          icon={<CalendarDays className="h-4 w-4" />}
-          color="#3b82f6"
+          icon={<CalendarDays className="h-5 w-5" />}
+          chipBg="bg-blue-50"
+          chipIconClass="text-blue-600"
         />
         <TrendStatCard
           label="Total Events"
           value={visible.length}
           trend={`+${visible.length}`}
-          icon={<Target className="h-4 w-4" />}
-          color="#14b8a6"
+          icon={<Target className="h-5 w-5" />}
+          chipBg="bg-green-50"
+          chipIconClass="text-green-600"
         />
         <TrendStatCard
           label="Meetings This Week"
           value={meetingsThisWeek}
           trend={trend(meetingsThisWeek, meetingsLastWeek)}
-          icon={<User className="h-4 w-4" />}
-          color="#8b5cf6"
+          icon={<User className="h-5 w-5" />}
+          chipBg="bg-purple-50"
+          chipIconClass="text-purple-600"
         />
         <TrendStatCard
           label="Calls This Week"
           value={callsThisWeek}
           trend={trend(callsThisWeek, callsLastWeek)}
-          icon={<Phone className="h-4 w-4" />}
-          color="#f97316"
+          icon={<Phone className="h-5 w-5" />}
+          chipBg="bg-orange-50"
+          chipIconClass="text-orange-600"
         />
       </div>
 
@@ -208,12 +235,14 @@ export default function CalendarPage() {
           <CardHeader className="flex-row items-center justify-between px-0 pt-0">
             <h2 className="text-lg font-semibold text-foreground">{formatMonthYear(cursor)}</h2>
             <div className="flex items-center gap-1">
-              <Button variant="secondary" size="iconSm" aria-label="Previous month" onClick={() => setCursor(new Date(year, month - 1, 1))}>
+              {/* Session-7: outline h-9 w-9 nav icons; Today is outline and
+                  hidden below sm (live pins). */}
+              <Button variant="outline" size="icon" aria-label="Previous month" onClick={() => setCursor(new Date(year, month - 1, 1))}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button
-                variant="secondary"
-                size="sm"
+                variant="outline"
+                className="hidden sm:flex"
                 onClick={() => {
                   const now = new Date();
                   setCursor(now);
@@ -222,7 +251,7 @@ export default function CalendarPage() {
               >
                 Today
               </Button>
-              <Button variant="secondary" size="iconSm" aria-label="Next month" onClick={() => setCursor(new Date(year, month + 1, 1))}>
+              <Button variant="outline" size="icon" aria-label="Next month" onClick={() => setCursor(new Date(year, month + 1, 1))}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

@@ -3,29 +3,34 @@
 import * as React from "react";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PAGE_HEADER, type PageHeaderVariant } from "@/lib/page-layout";
+import { PAGE_HEADER, STAT_CARD, type PageHeaderVariant } from "@/lib/page-layout";
 
 /** Page title row with actions — mirrors the reference page headers
  *  (session-6 anatomy): the standard/leads variants STACK on phones
  *  (`flex-col` → `sm:flex-row`, actions `w-full sm:w-auto`); contacts is the
- *  flat variant (fixed `text-3xl` title, plain row, `gap-3` actions). */
+ *  flat variant (fixed `text-3xl` title, plain row, `gap-3` actions).
+ *  Session-7: `subtitleSize="sm"` renders the 14px subtitle the reference
+ *  ships on calendar + reports (every other page is 16px). */
 export function PageHeader({
   title,
   subtitle,
+  subtitleSize,
   actions,
   variant = "standard",
 }: {
   title: string;
   subtitle?: string;
+  subtitleSize?: "base" | "sm";
   actions?: React.ReactNode;
   variant?: PageHeaderVariant;
 }) {
   const spec = PAGE_HEADER[variant];
+  const subtitleClass = subtitleSize === "sm" ? spec.subtitleSm : spec.subtitle;
   return (
     <div className={spec.row}>
       <div>
         <h1 className={spec.title}>{title}</h1>
-        {subtitle && <p className={spec.subtitle}>{subtitle}</p>}
+        {subtitle && <p className={subtitleClass}>{subtitle}</p>}
       </div>
       {actions && <div className={spec.actions}>{actions}</div>}
     </div>
@@ -54,7 +59,10 @@ export function DeltaText({
     <span
       className={cn(
         "text-xs font-medium",
-        neutral ? "text-muted" : good ? "text-success" : "text-danger",
+        // Session-7 live probes: reference deltas are green-600/red-600
+        // (rgb(22,163,74) / rgb(220,38,38)) — one shade deeper than the
+        // old success/danger tokens.
+        neutral ? "text-muted" : good ? "text-green-600" : "text-red-600",
         className,
       )}
     >
@@ -85,7 +93,7 @@ export function DeltaBadgeText({
     <span
       className={cn(
         "flex items-center gap-1 text-xs",
-        tone === "success" ? "text-success" : tone === "danger" ? "text-danger" : "text-muted",
+        tone === "success" ? "text-green-600" : tone === "danger" ? "text-red-600" : "text-muted",
       )}
     >
       {icon && <Glyph className="h-3 w-3" aria-hidden="true" />}
@@ -122,7 +130,7 @@ export function KpiCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+    <div className="rounded-xl border border-line bg-surface p-4 shadow sm:p-6">
       <p className="text-xs text-muted sm:text-sm">{label}</p>
       <div className="mt-2 flex flex-wrap items-end gap-2">
         <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
@@ -205,7 +213,7 @@ export function BarStatCard({
   const tone = deltaTone ?? (deltaIcon === "down" ? "danger" : "success");
   const pct = (v: number) => Math.max(Math.round((v / Math.max(...bars, 1)) * 100), 12);
   return (
-    <div className={cn("rounded-xl border border-line bg-surface p-4 shadow-sm", className)}>
+    <div className={cn("rounded-xl border border-line bg-surface p-4 shadow", className)}>
       <div className="mb-3 flex items-start justify-between gap-2">
         <span className="text-xs text-muted">{label}</span>
         {delta != null && (
@@ -304,7 +312,7 @@ export function IconStatCard({
         <p className="text-sm font-medium text-muted">{label}</p>
         <p className="mb-2 mt-2 text-3xl font-bold leading-none tracking-tight text-foreground">{value}</p>
         {trend !== undefined && (
-          <span className="flex items-center gap-1 text-sm font-medium text-success">
+          <span className="flex items-center gap-1 text-sm font-medium text-green-600">
             <TrendingUp className="h-4 w-4" aria-hidden="true" />
             {trend}
           </span>
@@ -393,38 +401,45 @@ export function TableEmptyRow({
 }
 
 /**
- * Calendar stat card: icon chip top-left, green trend text (with the small
- * reference arrow) top-right, big value in the middle, label at the bottom.
+ * Calendar stat card — session-7 re-pin (STAT_CARD contracts): `p-4`
+ * body, `mb-3` top row, 40px `-50` tinted chip with an `h-5 w-5` icon,
+ * `text-green-600` trend with a `w-3 h-3` trending-up glyph, label under
+ * the `text-2xl font-bold` value. Chip colors arrive as class pairs
+ * (`chipBg="bg-blue-50"` + `chipIconClass="text-blue-600"`) matching the
+ * reference's -50/-600 pairs.
  */
 export function TrendStatCard({
   label,
   value,
   trend,
   icon,
-  color,
+  chipBg,
+  chipIconClass,
 }: {
   label: string;
   value: React.ReactNode;
   trend?: string;
   icon: React.ReactNode;
-  color: string;
+  chipBg: string;
+  chipIconClass: string;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-2">
-        <IconChip icon={icon} bg={`${color}1a`} color={color} className="h-9 w-9" />
-        {trend && (
-          <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-success">
-            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M7 17L17 7" />
-              <path d="M8 7h9v9" />
-            </svg>
-            {trend}
-          </span>
-        )}
+    <div className={STAT_CARD.card}>
+      <div className={STAT_CARD.body}>
+        <div className={STAT_CARD.topRow}>
+          <div className={cn(STAT_CARD.chip, chipBg)}>
+            <span className={cn(STAT_CARD.chipIcon, chipIconClass)}>{icon}</span>
+          </div>
+          {trend && (
+            <span className={STAT_CARD.trend}>
+              <TrendingUp className={STAT_CARD.trendIcon} aria-hidden="true" />
+              <span>{trend}</span>
+            </span>
+          )}
+        </div>
+        <div className={STAT_CARD.value}>{value}</div>
+        <div className={STAT_CARD.label}>{label}</div>
       </div>
-      <p className="mt-3 text-[26px] font-semibold leading-none tracking-tight text-foreground">{value}</p>
-      <p className="mt-2 text-xs font-medium text-muted">{label}</p>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/shared/page-parts";
+import { SETTINGS_PICKLIST } from "@/lib/page-layout";
 import { Tabs } from "@/components/ui/tabs";
 import { useCrmStore } from "@/stores/crm-store";
 import { toast } from "@/components/ui/toast";
@@ -29,32 +30,36 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
+      <CardContent className="p-6 pt-0">
+        {/* Session-7 (S7-19): live pins — items `space-y-2 mb-4`, empty state
+            a plain `text-sm text-center py-4` paragraph (no dashed box). */}
         {items.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-line px-3 py-4 text-center text-xs text-muted">
-            No items yet
-          </p>
+          <div className={SETTINGS_PICKLIST.items}>
+            <p className={SETTINGS_PICKLIST.empty}>No items yet</p>
+          </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
-            {items.map((item, i) => (
-              <span
-                key={`${item}-${i}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-line-soft py-1 pl-3 pr-1.5 text-xs font-medium text-foreground"
-              >
-                {item}
-                <button
-                  type="button"
-                  onClick={() => onRemove(i)}
-                  className="rounded-full p-0.5 text-subtle transition-colors hover:bg-danger-soft hover:text-danger"
-                  aria-label={`Remove ${item}`}
+          <div className={SETTINGS_PICKLIST.items}>
+            <div className="flex flex-wrap gap-2">
+              {items.map((item, i) => (
+                <span
+                  key={`${item}-${i}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-line bg-line-soft py-1 pl-3 pr-1.5 text-xs font-medium text-foreground"
                 >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
+                  {item}
+                  <button
+                    type="button"
+                    onClick={() => onRemove(i)}
+                    className="rounded-full p-0.5 text-subtle transition-colors hover:bg-danger-soft hover:text-danger"
+                    aria-label={`Remove ${item}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
         )}
-        <div className="flex gap-2">
+        <div className={SETTINGS_PICKLIST.addRow}>
           <Input
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -68,12 +73,13 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
             placeholder={placeholder}
             aria-label={`Add new ${title.toLowerCase()} item`}
           />
+          {/* Session-7: the add action is a PRIMARY h-9 icon-only Plus
+              button on the reference (not a dark square). */}
           <Button
-            variant="secondary"
-            size="icon"
+            size="sm"
+            className="h-9 w-auto px-4 py-2"
             disabled={!value.trim()}
             aria-label="Add item"
-            className="border-transparent bg-gray-800 text-white hover:bg-gray-700"
             onClick={() => {
               if (value.trim()) {
                 onAdd(value.trim());
@@ -267,10 +273,12 @@ function ConfigEditor({ settings }: { settings: Settings }) {
           onAdd={(v) => mutate("accountTiers", (a) => [...a, v])}
           onRemove={(i) => mutate("accountTiers", (a) => a.filter((_, x) => x !== i))}
         />
+        {/* "Add new industrie" mirrors the reference's placeholder typo
+            (like "Conversion Funnel") — SETTINGS_PICKLIST pins it. */}
         <ListEditor
           title="Industries"
           items={lists.industries}
-          placeholder="Add new industry"
+          placeholder="Add new industrie"
           onAdd={(v) => mutate("industries", (a) => [...a, v])}
           onRemove={(i) => mutate("industries", (a) => a.filter((_, x) => x !== i))}
         />

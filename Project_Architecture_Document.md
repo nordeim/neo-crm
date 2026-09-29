@@ -39,9 +39,10 @@ should read sections 1–3 then skim 9; anyone debugging auth, the SQLite path
 resolution, or the mobile navigation should read sections 3.3 and 6 in full.
 
 The clone deliberately diverges from the reference in exactly one behavioral
-area: **mobile navigation**. The reference app hides its sidebar below `lg`
-and ships no replacement — phone users cannot reach any page. NEO CRM
-implements a focus-trapped slide-out drawer and pins it with a dedicated E2E
+area: **mobile navigation**. The reference app hides its sidebar below `md`
+(768px — session-7 live verification at 900/700px) and ships no replacement
+— phone users cannot reach any page. NEO CRM implements a focus-trapped
+slide-out drawer (covering `< md` only) and pins it with a dedicated E2E
 regression suite.
 
 ### 1.2 Technology Stack Summary
@@ -189,7 +190,7 @@ regression suite.
 
 **ADR-006: Mobile navigation drawer (deliberate fix over the reference)**
 
-- **Context:** Verified on the live reference at 390×844: below `lg` the
+- **Context:** Verified on the live reference at 390×844: below `md` the
   sidebar vanishes and the only interactive chrome is the avatar dropdown
   (Profile/Logout). No hamburger, no drawer — the app is unusable on phones.
 - **Decision:** `src/components/layout/mobile-nav.tsx` — always-mounted
@@ -200,8 +201,9 @@ regression suite.
   `main` scroller — since session 6 `main` is the app's scroll container),
   close-on-route-change via
   adjust-during-render (React 19 lint-safe), and auto-close when the viewport
-  grows past `lg`. Pinned by `tests/e2e/mobile-navigation.spec.ts`
-  (5 checks).
+  grows past `md` (session-7: the drawer and trigger are `md:hidden`,
+  matching the reference sidebar's `hidden md:flex`). Pinned by
+  `tests/e2e/mobile-navigation.spec.ts` (5 checks, 390px viewport).
 - **Rationale:** Restores the primary navigation affordance the reference
   lost; every behavior maps to a documented Tailwind-v4/React-19 failure
   class in the skills research (overlay clipping, z-index wars, scroll-lock
@@ -239,7 +241,7 @@ regression suite.
 ```mermaid
 flowchart TB
   subgraph Client["Client Layer"]
-    Desktop["Desktop browser ≥1024px<br/>fixed sidebar + topbar"]
+    Desktop["Desktop browser ≥768px<br/>in-flow sidebar + topbar (main scrolls)"]
     Mobile["Mobile browser <1024px<br/>hamburger → drawer"]
   end
 
@@ -348,7 +350,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 8 Vitest suites — 92 checks
+│   ├── *.test.ts                # 8 Vitest suites — 112 checks
 │   └── e2e/                     # global-setup, auth.setup, 4 spec files — 21 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -657,7 +659,7 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — csv | 1 | 8 | `tests/csv.test.ts` | Vitest |
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned) | 1 | 8 | `tests/constants.test.ts` | Vitest |
-| Unit — layout contracts (DOM-pinned, session-6) | 1 | 17 | `tests/page-layout.test.ts` | Vitest |
+| Unit — layout + chrome contracts (DOM-pinned, sessions 6–7) | 1 | 37 | `tests/page-layout.test.ts` | Vitest |
 | E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path | 1 | 12 | `tests/e2e/crm.spec.ts` | Playwright |
@@ -811,11 +813,11 @@ files. Push via the SSH wrapper (§8.4).
 | `src/lib/db.ts` | 22 | `globalThis` Prisma singleton (the only sanctioned constructor) |
 | `src/lib/format.ts` | 221 | Currency/date/relative-time/calendar-grid pure helpers |
 | `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |
-| `src/lib/page-layout.ts` | 132 | DOM-pinned layout contracts (KPI grids, page headers, rails, filter bars) consumed by every page — session-6 |
+| `src/lib/page-layout.ts` | 300 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards) consumed by every page — sessions 6–7 |
 | `src/lib/csv.ts` | 74 | RFC-4180 serializer/parser (export + import) |
 | `src/lib/rate-limit.ts` | 47 | Fixed-window limiter with sweeper |
 | `src/components/layout/mobile-nav.tsx` | 170 | THE mobile drawer fix (focus trap, dual scroll lock, inert) |
-| `src/components/layout/app-shell.tsx` | 49 | Chrome composition + store bootstrap; `main.flex-1.overflow-auto` is the scroll container (session-6 reference model) |
+| `src/components/layout/app-shell.tsx` | 55 | Chrome composition + store bootstrap; session-7 reference model: in-flow `hidden md:flex` sidebar, `flex h-screen` root, `main` the only scroller |
 | `src/components/shared/entity-dialogs.tsx` | ~810 | Five entity forms, remount-via-key pattern |
 | `src/app/globals.css` | 171 | Tailwind v4 `@theme` tokens + `@utility` definitions |
 | `src/app/(app)/layout.tsx` | 12 | Session guard for every authenticated page |

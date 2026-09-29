@@ -2,7 +2,7 @@
 
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
-import { Bookmark, Download, FileText, Users, Target, TrendingUp, TrendingDown, Percent } from "lucide-react";
+import { Bookmark, Calendar as CalendarIcon, Download, FileText, RotateCcw, Target, TrendingDown, TrendingUp, User as UserIcon, Users, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -58,6 +58,7 @@ export default function ReportsPage() {
       <PageHeader
         title="Reports & Analytics"
         subtitle="Comprehensive CRM reporting hub"
+        subtitleSize="sm"
         actions={
           <Button
             variant="outline"
@@ -68,31 +69,37 @@ export default function ReportsPage() {
         }
       />
 
-      {/* Session-6 (S6-11): sticky filter bar — rounded-xl border + shadow-md,
-          sticky to the top of the scrolling main (z-10). Stacks on phones
-          (flex-col lg:flex-row gap-4 items-center); the reference's Export
-          CSV here is PRIMARY blue with PDF outline (Reset removed — quirk
-          register). Selects are stock h-9 w-44 with no leading icons. */}
+      {/* Session-7 (S7-14): sticky filter bar — the reference RE-ADDED the
+          Reset button (absent during the session-6 audit) and dropped the
+          bar buttons to h-8 with mr-2 leading icons; the first two selects
+          (period / owner) wrap in flex items-center gap-2 rows with
+          calendar / user leading icons. Export CSV is primary, PDF outline. */}
       <div className={REPORTS_FILTER_BAR.bar}>
         <div className={REPORTS_FILTER_BAR.row}>
           <div className={REPORTS_FILTER_BAR.selectsWrap}>
-            <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {REPORT_PERIODS.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={ownerId} onValueChange={setOwnerId}>
-              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Owners</SelectItem>
-                {users.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className={REPORTS_FILTER_BAR.selectWrap}>
+              <CalendarIcon className={REPORTS_FILTER_BAR.selectIcon} />
+              <Select value={period} onValueChange={setPeriod}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {REPORT_PERIODS.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className={REPORTS_FILTER_BAR.selectWrap}>
+              <UserIcon className={REPORTS_FILTER_BAR.selectIcon} />
+              <Select value={ownerId} onValueChange={setOwnerId}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Owners</SelectItem>
+                  {users.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Select value={stage} onValueChange={setStage}>
               <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -113,11 +120,23 @@ export default function ReportsPage() {
             </Select>
           </div>
           <div className={REPORTS_FILTER_BAR.actions}>
-            <Button onClick={() => downloadFile("/api/export?type=leads&download=1")}>
-              <Download className="h-4 w-4" /> Export CSV
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setPeriod("this_quarter");
+                setOwnerId("all");
+                setStage("all");
+                setStatus("all");
+              }}
+            >
+              <RotateCcw className={REPORTS_FILTER_BAR.barBtnIcon} /> Reset
             </Button>
-            <Button variant="outline" onClick={exportPdf}>
-              <FileText className="h-4 w-4" /> PDF
+            <Button size="sm" onClick={() => downloadFile("/api/export?type=leads&download=1")}>
+              <Download className={REPORTS_FILTER_BAR.barBtnIcon} /> Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportPdf}>
+              <FileText className={REPORTS_FILTER_BAR.barBtnIcon} /> PDF
             </Button>
           </div>
         </div>

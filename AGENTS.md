@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (92 checks)          | `bun run test`                         |
+| Unit tests (112 checks)         | `bun run test`                         |
 | Browser E2E (21 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (92) → `bun run build` → `bun run test:e2e` (21). There is no
+`bun run test` (112) → `bun run build` → `bun run test:e2e` (21). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -81,13 +81,22 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   not exist). `bun run db:seed` is idempotent — it wipes domain tables and
   reseeds IN PLACE (never delete the `.db` file itself; a running server keeps
   reading the deleted inode — this bit the e2e suite once).
+- **The app shell is an `h-screen` flex row (session-7 reference model)** —
+  the sidebar is an IN-FLOW `hidden md:flex w-64` child (visible from 768px,
+  NOT lg — live-verified at 900/700px), the main column is
+  `flex-1 flex flex-col overflow-hidden`, and `main.flex-1.overflow-auto`
+  is the ONLY scroller (the window never scrolls — verified:
+  mainScrollable=true, windowScrolls=false). All chrome contracts live in
+  `src/lib/page-layout.ts` (`SHELL_LAYOUT`, `NAV_LAYOUT`, `TOPBAR_LAYOUT`,
+  `LOGIN_LAYOUT`, `STAT_CARD`, …) and are pinned by
+  `tests/page-layout.test.ts`.
 - **The mobile navigation drawer is a deliberate fix** — the reference app
-  hides its sidebar below `lg` and ships no replacement, leaving phone users
-  stranded. `src/components/layout/mobile-nav.tsx` is the drawer: focus trap,
-  Escape, dual scroll-lock (body + the `main` scroller — `main` is the
-  scroll container since session 6), close-on-route-change, `inert` +
-  `visibility:hidden` when closed. `tests/e2e/mobile-navigation.spec.ts`
-  (5 checks) is the regression suite — do not weaken it.
+  ships no navigation below `md`. `src/components/layout/mobile-nav.tsx`
+  covers `< md` only (the trigger and overlay are `md:hidden`): focus trap,
+  Escape, dual scroll-lock (body + the `main` scroller), close-on-route-
+  change, `inert` + `visibility:hidden` when closed.
+  `tests/e2e/mobile-navigation.spec.ts` (5 checks, 390px viewport) is the
+  regression suite — do not weaken it.
 - **File downloads use `downloadFile()`** (`src/lib/download.ts`) — a single
   centralized `window.location.href` for `Content-Disposition: attachment`
   responses. Next's `no-location-assign` lint rule fires on raw assignments;
@@ -158,9 +167,9 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `$0.0k` on the dashboard, `$0.0K`/`$0K` on reports, `$0` on leads).
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
   `format.ts`, `csv.ts`, `rate-limit.ts`, `avatar` helpers, the chart
-  palette (`constants.test.ts`), the dialog/filter vocabularies, the layout
-  contracts (`tests/page-layout.test.ts`, session-6) — 92 Vitest
-  checks). Route handlers
+  palette (`constants.test.ts`), the dialog/filter vocabularies, the
+  layout+chrome contracts (`tests/page-layout.test.ts`, 37 pins across
+  sessions 6–7) — 112 Vitest checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place
   reseed) on port 3100 against the standalone build.
@@ -173,7 +182,11 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `src/lib/api.ts`). No schema library — zod was deliberately pruned.
 - Charts are recharts with empty-state fallbacks (`src/components/charts/`);
   every chart must render a friendly placeholder when its data is all-zero.
-- Icons are lucide-react; nav chrome strokes at 1.8, content at 2.
+- Icons are lucide-react. Session-7 re-pin: sidebar nav icons are
+  uniform `h-5 w-5` stroke-2 (no active/inactive stroke variation), as are
+  the topbar mail/bell and search icons; content icons stay `h-4 w-4`.
+- Delta texts are `text-green-600` / `text-red-600` (live-computed probes,
+  session-7) — not the `success`/`danger` tokens (those stay on badges).
 - z-index stays on the flat scale: topbar z-40, drawer/dialogs z-50, dropdown
   portals z-[60], toasts z-[100]. No ad-hoc `z-[9999]`.
 - ESLint ignores `skills/` (the operator's skill catalog, not app code) plus

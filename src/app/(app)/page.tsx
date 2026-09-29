@@ -1,7 +1,7 @@
 "use client";
 
 import { downloadFile } from "@/lib/download";
-import { PAGE_KPI_GRIDS, FILTER_BAR } from "@/lib/page-layout";
+import { DASHBOARD_CARD, PAGE_KPI_GRIDS, FILTER_BAR } from "@/lib/page-layout";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -257,7 +257,8 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Top Performing Sales Reps</CardTitle>
-            <Button variant="ghost" size="iconSm" aria-label="More actions">
+            {/* Session-7 (S7-18): ellipsis actions are ghost h-8 w-8. */}
+            <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </CardHeader>
@@ -298,8 +299,14 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Lead Sources</CardTitle>
-            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setQuickCreate("lead")}>
-              <Plus className="h-3.5 w-3.5" /> Add
+            {/* Session-7 (S7-18): ghost h-8 blue-text Add with mr-1 plus. */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={DASHBOARD_CARD.addBtn}
+              onClick={() => setQuickCreate("lead")}
+            >
+              <Plus className={DASHBOARD_CARD.addIcon} /> Add
             </Button>
           </CardHeader>
           <CardContent>
@@ -332,8 +339,13 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Upcoming Activities</CardTitle>
-            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setQuickCreate("activity")}>
-              <Plus className="h-3.5 w-3.5" /> Add
+            <Button
+              variant="ghost"
+              size="sm"
+              className={DASHBOARD_CARD.addBtn}
+              onClick={() => setQuickCreate("activity")}
+            >
+              <Plus className={DASHBOARD_CARD.addIcon} /> Add
             </Button>
           </CardHeader>
           <CardContent>
@@ -372,7 +384,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Recent Deals</CardTitle>
-          <Button variant="ghost" size="iconSm" aria-label="More actions">
+          <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </CardHeader>

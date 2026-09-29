@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.3.0
+version: 1.4.0
 last_updated: 2026-09-29
-project_state: 92 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts); table density + card typography + dialog contract + the full layout system aligned to the live reference (session-6)
+project_state: 112 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (shell/sidebar/topbar/login, session-7) aligned to the live reference
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.3.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.4.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -308,10 +308,13 @@ renders sidebar + topbar + page children.
 ### 5.4 The mobile navigation drawer (the headline fix)
 
 `src/components/layout/mobile-nav.tsx` (170 lines). The reference app
-simply hides its sidebar below `lg` and ships NO replacement — phone users
-cannot navigate. The clone ships a proper drawer:
+simply hides its sidebar below `md` (768px — session-7 live verification)
+and ships NO replacement — phone users cannot navigate. The clone ships a
+proper drawer:
 
-- hamburger trigger (`MobileNavTrigger`) visible below `lg`
+- hamburger trigger (`MobileNavTrigger`) visible below `md` (the drawer
+  and trigger are `md:hidden`, matching the reference sidebar's
+  `hidden md:flex`)
 - slide-in panel with backdrop, `role="dialog"`, `aria-modal`
 - focus trap (Tab/Shift+Tab cycling), Escape to close + focus restore
 - **dual scroll lock** while open (session-6): `document.body` AND the
@@ -338,13 +341,20 @@ Do not weaken it; extend it when the drawer changes.
 | Filter rails hidden below `lg` — phone users cannot filter | Mirrored (structural parity), documented as a reference accessibility regression |
 | Rail card titles stay 16px while other card titles scale | Pinned via `FILTER_RAIL.title` (`text-base sm:text-base`) — deliberate |
 | KPI labels uppercase in clones that copy the template | Title Case, matching the reference |
+| Reference REGRESSIONES between sessions: the calendar header search and the reports-bar Reset button disappear and reappear on redeployes | Re-extract every chrome detail each session; session-7 restored both (the Reset actually resets filters, the search filters by event title — functional supersets over the live-dead controls) |
+| Reference sidebar nav hrefs are `/Dashboard` (capitalized) | Canonical `/` routes kept |
+| Reference login logo is a hotlinked Supabase screenshot | CSS brand mark (white circle + blue dot) — same shape, no external asset |
+| Reference CardTitle is a `<div>` (no heading semantics) | Ours stays `<h3>` — a11y superset, e2e asserts heading roles |
+| Reference placeholder typo "Add new industrie" (settings) | Mirrored (like "Conversion Funnel") — SETTINGS_PICKLIST pins it |
 
-### 5.6 The layout system — `src/lib/page-layout.ts` (session-6)
+### 5.6 The layout + chrome system — `src/lib/page-layout.ts` (sessions 6–7)
 
-Every page-level layout class string lives in ONE test-pinned module
-(132 lines; `tests/page-layout.test.ts`, 17 checks). Pages import records —
-they never hand-write layout classes. Reference token mapping: gray-50 →
-`background`, white → `surface`, gray-200 → `line`, gray-500 → `muted`.
+Every page-level layout AND app-chrome class string lives in ONE
+test-pinned module (300 lines; `tests/page-layout.test.ts`, 37 checks).
+Pages and chrome components import records — they never hand-write layout
+classes. Reference token mapping: gray-50 → `background`, white →
+`surface`, gray-200 → `line`, gray-500 → `muted`, gray-600/700 use the
+literal Tailwind palette (not in the token set).
 
 - **`PAGE_KPI_GRIDS`** — every KPI ladder starts at `grid-cols-1` (phones)
   and climbs: dashboard/leads/activities `sm:2 lg:3 xl:6`, accounts
@@ -353,7 +363,9 @@ they never hand-write layout classes. Reference token mapping: gray-50 →
 - **`PAGE_HEADER`** — standard stacks on phones (`flex-col sm:flex-row`,
   `mb-6 gap-4`, h1 `text-2xl sm:text-3xl font-bold`, actions
   `w-full sm:w-auto`); contacts is the flat variant (`text-3xl`, plain row,
-  `gap-3`); leads adds `sm:mb-8`. Subtitles are **16px** (no text-sm).
+  `gap-3`); leads adds `sm:mb-8`. Subtitles split by page (session-7):
+  contacts/leads/settings/profile render **16px**, calendar + reports
+  render **14px** (`subtitleSm` — pages pass `subtitleSize="sm"`).
 - **`RAIL_LAYOUT`** — accounts/calendar/activities are `flex gap-6` rows:
   `flex-1 min-w-0` content + `hidden lg:block w-80` rail. The `min-w-0`
   is load-bearing (flexbox `min-width: auto` lets a wide table squeeze the
@@ -373,10 +385,65 @@ they never hand-write layout classes. Reference token mapping: gray-50 →
   card (`mb-6 p-4`); reports bar is `sticky top-0 z-10 shadow-md` (works
   because `main` is the scroll container).
 
-**Shell scroll model (the session-6 restructure):** static topbar
-(`bg-white border-b px-4 sm:px-8 py-4`); `main.flex-1.overflow-auto` is the
-scroll container; content wrapper `p-4 sm:p-8 min-h-screen`, NO max-width
-(the old `max-w-[1400px]` cap is gone — full-bleed like the reference).
+**Shell scroll model (the session-7 reference truth):** the root is
+`flex h-screen` (SHELL_LAYOUT) — the window NEVER scrolls. The sidebar is
+an IN-FLOW `hidden md:flex w-64` flex child; the main column is
+`flex-1 flex flex-col overflow-hidden`; `main.flex-1.overflow-auto` is the
+ONLY scroller (verified: mainScrollable=true, windowScrolls=false); content
+wrapper `p-4 sm:p-8 min-h-screen`, NO max-width. The static topbar
+(`bg-white border-b px-4 sm:px-8 py-4`) sits in the column above main, so
+it never moves; the reports sticky bar sticks to MAIN's top, not the
+window's.
+
+**Session-7 chrome records** (all live-extracted):
+
+- **`NAV_LAYOUT`** — brand `p-6 gap-3` (40px white circle + 24px blue dot
+  + `text-2xl font-bold` wordmark); links `px-4 py-3` + `hover:bg-white/5`
+  + flat active `bg-white/10` (no bold bump); icons uniform `h-5 w-5`
+  stroke-2; footer group `mt-auto space-y-1 pt-4 border-t border-white/10`
+  (bottom-pinned).
+- **`TOPBAR_LAYOUT`** — static header + `justify-between gap-4` inner row;
+  search hidden below `sm` (`flex-1 max-w-xl` block, icon `h-5 w-5`,
+  input `h-9 rounded-md pl-10 bg-gray-50`); mail/bell `h-9 w-9 rounded-md`
+  + `h-5 w-5` icons; right group `gap-2 sm:gap-4`; user button a
+  RECTANGULAR ghost h-9 (`px-4 py-2 gap-1 sm:gap-2`) with a
+  `text-gray-700` label, 32px `bg-gray-200 text-gray-600` initial avatar
+  and `h-4 w-4` chevron; user menu `min-w-[8rem]`, plain Profile/Logout
+  (no separator, no destructive red).
+- **`LOGIN_LAYOUT`** — the reference's slate login: gradient page wrapper,
+  borderless `bg-white/95 backdrop-blur-sm shadow-2xl` card with an `h-1`
+  gradient accent strip, centered column (CSS logo `h-20 w-20 sm:h-24
+  sm:w-24 ring-4 ring-white/50` + glow, h1 `text-2xl sm:text-3xl
+  text-slate-900`), white Google button (`px-5 py-3.5 rounded-xl
+  text-[16px]`), `my-6` divider, `h-11 sm:h-12` slate-50/50 inputs,
+  slate-900 submit, slate footer links.
+- **`STAT_CARD`** — TrendStatCard (calendar KPIs): `p-4` body, `mb-3` top
+  row, 40px `-50` tinted chips (`bg-blue-50` + `text-blue-600` icon
+  `h-5 w-5`), trend `flex items-center gap-1 text-xs text-green-600` with
+  a `w-3 h-3` trending-up glyph, label `text-xs text-muted mt-1` under the
+  `text-2xl font-bold` value.
+- **`ACTIVITY_CARD`** — activities card titles are literal
+  `<h2 class="text-lg font-semibold">` elements (Priority row `mb-4`,
+  Timeline row `mb-6` inside the `p-6` card); the Timeline action is a
+  ghost h-8 button with the literal "•••" TEXT (three middle dots, not an
+  SVG glyph); empty states `py-8` (panels) / `py-12` (Timeline) at 16px.
+- **`DASHBOARD_CARD`** — the Lead Sources / Upcoming Activities Add
+  buttons are ghost h-8 with `text-primary` (blue-600) + `Plus h-4 w-4
+  mr-1`; the ellipsis actions are ghost `h-8 w-8`.
+- **`SETTINGS_PICKLIST`** — items `space-y-2 mb-4`; empty state a plain
+  `text-sm text-center py-4` paragraph (no dashed box); add action a
+  PRIMARY h-9 icon-only Plus; "Add new industrie" typo mirrored.
+- **`REPORTS_FILTER_BAR` re-pins (session-7)** — the bar buttons dropped
+  to h-8 (`barBtn`) with `mr-2` leading icons (`barBtnIcon`); the Reset
+  button is BACK on the reference (functional here — resets the four
+  selects); the first two selects (period/owner) wrap in
+  `flex items-center gap-2` rows with calendar/user leading icons.
+- **Design tokens (session-7)** — `--color-primary` is `#2563eb`
+  (blue-600, live-computed `rgb(37,99,235)`; blue-700 hover), NOT blue-500
+  as earlier sessions pinned; delta texts are `text-green-600` /
+  `text-red-600` (live-computed `rgb(22,163,74)` / `rgb(220,38,38)`); the
+  bordered Card family carries `shadow` (not shadow-sm); the base Input is
+  stock `rounded-md`.
 
 ## 6. Client-Side Effects Deep Dive
 
@@ -1010,12 +1077,12 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 | db-path | `tests/db-path.test.ts` | 16 | ~10 ms |
 | auth | `tests/auth.test.ts` | 9 | ~210 ms (scrypt KDF) |
 | format | `tests/format.test.ts` | 23 | ~19 ms |
-| page-layout | `tests/page-layout.test.ts` | 17 | ~7 ms |
+| page-layout | `tests/page-layout.test.ts` | 37 | ~8 ms |
 | csv | `tests/csv.test.ts` | 8 | ~6 ms |
 | constants | `tests/constants.test.ts` | 8 | ~5 ms |
 | rate-limit | `tests/rate-limit.test.ts` | 6 | ~29 ms |
 | avatar | `tests/avatar.test.ts` | 5 | ~4 ms |
-| **unit total** | 8 files | **92** | **<1 s** |
+| **unit total** | 8 files | **112** | **<1 s** |
 | e2e auth (logged out) | `tests/e2e/auth.spec.ts` | 3 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
 | e2e golden path | `tests/e2e/crm.spec.ts` | 12 | — |
@@ -1213,6 +1280,40 @@ bytes were always the valid `xl:grid-cols-[minmax(…)]` — the terminal ate
 vs the reference's flex + `lg` rail. Rule: **class-string findings must be
 re-read from the file (Read tool / python) before entering a remediation
 plan.**
+
+**Session 7 (app-chrome & identity-layer parity)** — planned in
+`docs/plans/2026-09-29-session7-parity-remediation.md`, executed TDD
+(20 new pins, 112/112 unit). The audit targeted the one layer never
+systematically extracted — the app chrome — plus the reference's
+REGRESSIONS since session 6 (the calendar header search is back, the
+reports Reset button is back). 24 DOM-verified gaps (S7-1…S7-24):
+
+- **Shell truth (S7-2/S7-3)**: the reference root is `flex h-screen` with
+  an IN-FLOW `hidden md:flex w-64` sidebar (768px breakpoint, verified at
+  900/700px) — ours was a fixed sidebar at `lg` with window scrolling.
+  Restructured to the live model; `main` is now the true scroller
+  (mainScrollable=true, windowScrolls=false) and the drawer covers `< md`.
+- **Primary token corrected (S7-1)**: live-computed `rgb(37,99,235)` =
+  blue-600 — the old `#3b82f6` (blue-500) pin was one shade light. Deltas
+  re-pinned to green-600/red-600 the same way (computed-color probes).
+- **Chrome re-pins**: sidebar brand/nav/footer-group anatomy, topbar
+  (static py-4 header, search hidden below sm, rounded-md icon buttons,
+  rectangular ghost user button, plain user menu), login card (full slate
+  redesign — it had never been re-pinned since session 1), TrendStatCard,
+  activities card headers (h2 titles, "•••" text button), dashboard
+  card-header buttons (blue ghost Adds), settings picklists, toast
+  viewport position, calendar nav buttons (outline h-9, Today hidden below
+  sm), subtitle size split (calendar/reports 14px).
+- **Gate**: lint 0/0 · typecheck clean · **112/112 unit** · build clean ·
+  **21/21 e2e**; DOM re-verification at 1512/1024/900/768/700/390 (sidebar
+  from 768, rails from 1024, drawer below 768, dual scroll lock engages);
+  VLM spot-comparison (login + calendar) found zero structural deltas.
+- **Lesson — compute colors, don't read them**: the blue-500 primary pin
+  survived four sessions because class extractions showed `bg-blue-600`
+  only where the reference hand-wrote it (New Event) while our token
+  mapped to a different hex. A `getComputedStyle` probe settled it in one
+  command. Rule: **any token whose reference value matters gets a
+  computed-color probe, not a class-name inference.**
 
 **Session-6 lesson #2 — flexbox `min-width: auto` breaks fixed rails.**
 A `w-80` rail beside `flex-1` content collapsed to 186px at exactly
