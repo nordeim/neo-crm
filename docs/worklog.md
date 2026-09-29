@@ -87,3 +87,22 @@ Work Log:
 
 Stage Summary:
 - Next: git commit (main only) + push via docs/ssh_git_wrapper_v3.py with paramiko shim
+
+---
+Task ID: 5
+Agent: main (Super Z)
+Task: Session 3 — parity hardening vs fresh live-site audit, TDD remediation, docs, push
+
+Work Log:
+- git pull refreshed workspace to c4a48c1 (docs/session_2.md + docs/worklog.md from the operator)
+- Reviewed AGENTS.md, CLAUDE.md, README.md, PAD, neo-crm_SKILL.md, session_2.md, session-2 remediation plan; validated understanding against the codebase (structure, db handles at <repo>/db/custom.db, gate green at 58/58 + 20/20)
+- Fresh login audit of https://neo-crm-8ab2c17c.base44.app/: captured all 9 pages at 1512x945 + mobile 390x844; KEY FINDING: the reference's demo data has been RESET TO ZERO (all KPIs 0, empty tables) — it was also zero at session-1 capture time — so parity targets STRUCTURE, not data
+- VLM + a11y + crop-zoom audit produced the session-3 remediation plan (docs/plans/2026-09-29-session3-parity-remediation.md, P-1..P-17), validated against the codebase before execution
+- TDD Phase A: failing tests first (currency $ contract, avatar luminance ink, sunday-anchored grid) then implementations
+- Executed P-1..P-16: topbar identity (Hi, sepnetflix2023 + grey S avatar, no bell dot, text-only Profile/Logout dropdown, white bordered search), sidebar (User/CircleUserRound icons, ring-only brand, Settings after divider), $-attached currency display everywhere, KpiCard plain-text deltas + line/area/bar sparkline variants, IconStatCard/CircleStatCard/TrendStatCard family, count-axis pipeline chart + $ legends, area-filled revenue chart, Title-Case table headers + chevron sorters, contacts solid-icon cards + ScanLine + funnel Filters, leads tinted-icon cards + New/Qualified/Won/Lost chart, calendar search + trend cards + Sunday grid + Type/Date filters, activities 6-card row + green WhatsApp + segmented tabs + by-type recharts + More Filters/Filter, reports Saved Reports (0) + white filter card + pill tabs + circle KPI cards, settings instant-save + segmented tabs, profile rebuilt to reference layout + new PATCH /api/users
+- Mid-execution fixes: devIndicators false (clean captures), contacts default sort lastActivity desc, profile keyed-remount (caught by first e2e run), seed role "user"
+- Final gate: lint 0/0, tsc clean, 65/65 unit (6 suites), build clean, 21/21 e2e (incl. 5-check mobile-nav regression + new profile/auth pins)
+- Live verification at both widths; 12 screenshots refreshed in docs/screenshots/; docs realigned (AGENTS/CLAUDE/README/PAD/SKILL); plan addendum written
+
+Stage Summary:
+- Next: git commit (main only) + push via docs/ssh_git_wrapper_v3.py with paramiko shim

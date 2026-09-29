@@ -4,9 +4,9 @@ import { downloadFile } from "@/lib/download";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
-  ChevronDown,
   Download,
   Filter,
+  MoreHorizontal,
   Phone,
   Plus,
   Search,
@@ -29,14 +29,14 @@ import { PipelineBarChart, RevenueLineChart } from "@/components/charts/charts";
 import { AccountDialog, ActivityDialog, ContactDialog, EventDialog, LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { STAGE_META, CHART_COLORS, LEAD_SOURCES } from "@/lib/constants";
-import { formatCompactCurrency, formatDate, timeUntil, timeAgo } from "@/lib/format";
+import { formatCompactCurrency, formatDate, timeUntil } from "@/lib/format";
 import { ACTIVITY_TYPE_META } from "@/lib/constants";
 
 type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { dashboard, leads, users, hydrated, fetchDashboard } = useCrmStore();
+  const { dashboard, users, hydrated, fetchDashboard } = useCrmStore();
   const [stage, setStage] = React.useState("all");
   const [source, setSource] = React.useState("all");
   const [owner, setOwner] = React.useState("all");
@@ -76,8 +76,9 @@ export default function DashboardPage() {
           <>
             <Dropdown>
               <DropdownTrigger asChild>
+                {/* Reference trigger: plus icon + "Add" only — no chevron. */}
                 <Button variant="secondary">
-                  <Plus className="h-4 w-4" /> Add <ChevronDown className="h-3.5 w-3.5" />
+                  <Plus className="h-4 w-4" /> Add
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">
@@ -126,26 +127,38 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-          <KpiCard label="Total Leads" value={k.totalLeads} delta={k.totalLeadsDelta ?? undefined} hint="vs. last month" />
-          <KpiCard label="Deals Closed" value={formatCompactCurrency(k.dealsClosedValue)} hint={`${k.dealsClosed} won deals`}>
+          <KpiCard label="Total Leads" value={k.totalLeads} delta={k.totalLeadsDelta ?? undefined}>
+            <Sparkline values={sparkWon} color={CHART_COLORS.teal} variant="line" />
+          </KpiCard>
+          <KpiCard label="Deals Closed" value={formatCompactCurrency(k.dealsClosedValue)}>
             <Sparkline values={sparkWon} color={CHART_COLORS.cyan} />
           </KpiCard>
-          <KpiCard label="Revenue This Month" value={formatCompactCurrency(k.revenueThisMonth)} delta={k.revenueDelta ?? undefined} hint="vs. last month">
+          <KpiCard label="Revenue This Month" value={formatCompactCurrency(k.revenueThisMonth)} delta={k.revenueDelta ?? undefined}>
             <Sparkline values={sparkWon} color={CHART_COLORS.green} />
           </KpiCard>
           <KpiCard
             label="Sales Target"
             value={formatCompactCurrency(k.salesTarget)}
-            hint={`${k.salesTargetProgress}% of monthly target`}
+            delta={k.salesTargetProgress}
           >
             <Sparkline
               values={rev.map((r) => Math.max(r.won, r.target))}
-              color={CHART_COLORS.orange}
               colorFor={(_, i) => (rev[i].won >= rev[i].target ? CHART_COLORS.blue : CHART_COLORS.orange)}
+              color={CHART_COLORS.orange}
             />
           </KpiCard>
-          <KpiCard label="Conversion Rate" value={`${k.conversionRate}%`} hint="won ÷ all leads" />
-          <KpiCard label="Avg. Sales Cycle" value={`${k.avgSalesCycleDays} days`} delta={k.avgSalesCycleDelta ?? undefined} deltaSuffix="d" invertDelta hint="creation → won" />
+          <KpiCard label="Conversion Rate" value={`${k.conversionRate}%`}>
+            <Sparkline values={sparkWon} color={CHART_COLORS.violet} variant="area" />
+          </KpiCard>
+          <KpiCard
+            label="Avg. Sales Cycle"
+            value={<>{k.avgSalesCycleDays}<span className="ml-1 text-sm font-medium text-muted">days</span></>}
+            delta={k.avgSalesCycleDelta ?? undefined}
+            deltaSuffix="d"
+            invertDelta
+          >
+            <Sparkline values={sparkWon} color={CHART_COLORS.teal} variant="line" />
+          </KpiCard>
         </div>
       )}
 
@@ -204,14 +217,6 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <PipelineBarChart data={dashboard?.pipeline ?? []} />
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-              {(dashboard?.pipeline ?? []).map((p) => (
-                <span key={p.stage} className="flex items-center gap-1.5 text-xs text-muted">
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
-                  {p.label}: <span className="font-medium text-foreground">{formatCompactCurrency(p.value)}</span>
-                </span>
-              ))}
-            </div>
           </CardContent>
         </Card>
         <Card className="xl:col-span-2">
@@ -224,18 +229,21 @@ export default function DashboardPage() {
               data={dashboard?.revenueOverTime ?? []}
               series={[
                 { key: "won", label: "Won", color: CHART_COLORS.green },
-                { key: "target", label: "Target", color: CHART_COLORS.red, dashed: true },
+                { key: "target", label: "Target", color: CHART_COLORS.red, filled: true },
               ]}
             />
           </CardContent>
         </Card>
       </div>
 
-      {/* Lists row */}
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Lists row — reference ships exactly three cards here. */}
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Top Performing Sales Reps</CardTitle>
+            <Button variant="ghost" size="iconSm" aria-label="More actions">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
           </CardHeader>
           <CardContent className="px-2.5">
             {(dashboard?.topReps ?? []).length === 0 ? (
@@ -243,9 +251,10 @@ export default function DashboardPage() {
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-subtle">
+                  <tr className="text-left text-[11px] tracking-wide text-subtle">
                     <th className="px-2.5 pb-2 font-medium">Sales Rep</th>
                     <th className="px-2.5 pb-2 text-right font-medium">Deals</th>
+                    <th className="px-2.5 pb-2 font-medium">Owner</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -261,6 +270,7 @@ export default function DashboardPage() {
                         <span className="font-semibold text-foreground">{r.deals}</span>
                         <span className="block text-[11px] text-muted">{formatCompactCurrency(r.value)}</span>
                       </td>
+                      <td className="px-2.5 py-2 text-xs text-muted">{r.name}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -272,8 +282,8 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Lead Sources</CardTitle>
-            <Button variant="ghost" size="iconSm" onClick={() => setQuickCreate("lead")} aria-label="Add lead">
-              <Plus className="h-4 w-4" />
+            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setQuickCreate("lead")}>
+              <Plus className="h-3.5 w-3.5" /> Add
             </Button>
           </CardHeader>
           <CardContent>
@@ -306,8 +316,8 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Upcoming Activities</CardTitle>
-            <Button variant="ghost" size="iconSm" onClick={() => setQuickCreate("activity")} aria-label="Add activity">
-              <Plus className="h-4 w-4" />
+            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setQuickCreate("activity")}>
+              <Plus className="h-3.5 w-3.5" /> Add
             </Button>
           </CardHeader>
           <CardContent>
@@ -336,28 +346,14 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
-
-        <Card className="md:col-span-2 xl:col-span-1">
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Activity Snapshot</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-3">
-              <SnapshotRow label="Open pipeline" value={formatCompactCurrency((dashboard?.pipeline ?? []).filter((p) => p.stage !== "won").reduce((s, p) => s + p.value, 0))} />
-              <SnapshotRow label="Won this month" value={formatCompactCurrency(k?.revenueThisMonth ?? 0)} />
-              <SnapshotRow label="Recent deal" value={dashboard?.recentDeals[0]?.name ?? "—"} sub={dashboard?.recentDeals[0] ? timeAgo(dashboard.recentDeals[0].updatedAt) : undefined} />
-              <SnapshotRow label="Total tracked" value={`${leads.length} leads`} />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Recent deals */}
       <Card className="mt-4">
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Recent Deals</CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => router.push("/leads")}>
-            View all
+          <Button variant="ghost" size="iconSm" aria-label="More actions">
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
         </CardHeader>
         <CardContent className="px-0 pb-2">
@@ -407,18 +403,6 @@ export default function DashboardPage() {
       <AccountDialog open={quickCreate === "account"} onOpenChange={(o) => !o && setQuickCreate(null)} />
       <EventDialog open={quickCreate === "event"} onOpenChange={(o) => !o && setQuickCreate(null)} />
       <ActivityDialog open={quickCreate === "activity"} onOpenChange={(o) => !o && setQuickCreate(null)} />
-    </div>
-  );
-}
-
-function SnapshotRow({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-xs text-muted">{label}</span>
-      <span className="truncate text-right text-xs font-semibold text-foreground">
-        {value}
-        {sub && <span className="block text-[11px] font-normal text-muted">{sub}</span>}
-      </span>
     </div>
   );
 }

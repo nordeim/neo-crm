@@ -10,7 +10,7 @@ description: >
   replicate this architecture.
 version: 1.0.0
 last_updated: 2026-09-29
-project_state: 58 unit checks + 20 e2e checks green; database pinned to <repo>/db/custom.db
+project_state: 65 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db
 ---
 
 # NEO CRM — Engineering Skill (SKILL.md v1.0.0)
@@ -113,6 +113,13 @@ Exact versions from `package.json` (bun lockfile; `bun.lock` + regenerated
 | E2E tests | @playwright/test | `1.63.x` | Chromium project + setup project; standalone server on :3100 |
 | Animations | `tw-animate-css` | `^1` (devDep) | **Vendored** at `src/app/vendor/tw-animate.css` — the npm import breaks Turbopack (§9 bug #3) |
 | Runtime | bun | `1.3.x` | Runs scripts, tests, the Prisma CLI; **rewrites `.env` relative `file:` URLs** — see §9 bug #8 |
+
+**Currency display convention (session 3):** every amount renders with an
+attached dollar sign — `formatCurrency` → `$12,500`,
+`formatCompactCurrency` → `$145.0k` / `$1.4M` (lowercase `k`, uppercase
+`M`). The reference app ignores its own Settings "Default Currency" value
+(stored as `AED`); the clone mirrors that behavior exactly, so the Settings
+field is data-only. Never reintroduce an `AED `-prefixed display.
 
 Runtime dependencies (19 total — two unused scaffold packages,
 `tailwindcss-animate` and `z-ai-web-dev-sdk`, were removed in the session-2
@@ -501,7 +508,7 @@ identity matters.
 **Symptom:** default Reports view showed zeros until a filter was touched.
 **Root cause:** `/api/reports` treated the UI sentinel `"all"` as a
 literal ownerId/stage/status.
-**Fix:** `notAll()` normalization + e2e assertion (stable AED 542.0K).
+**Fix:** `notAll()` normalization + e2e assertion (stable $542.0k).
 **Lesson:** sentinel values must be normalized at the boundary.
 
 ### Bug #7: Invalid `eslint` key in next.config (Low)
@@ -555,7 +562,7 @@ and `curl` against the envelope (`{"ok":true,"data":…}`) for API truth.
 ```bash
 bun run lint         # 0 errors, 0 warnings
 bun run typecheck    # clean (the REAL type gate — build ignores errors)
-bun run test         # 58/58
+bun run test         # 65/65
 bun run build        # standalone build succeeds
 bun run test:e2e     # 20/20 (build first; boots :3100 with db/e2e.db)
 ```
@@ -948,7 +955,7 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 | format | `tests/format.test.ts` | 19 | ~17 ms |
 | csv | `tests/csv.test.ts` | 8 | ~6 ms |
 | rate-limit | `tests/rate-limit.test.ts` | 6 | ~25 ms |
-| **unit total** | 5 files | **58** | **<1 s** |
+| **unit total** | 6 files | **65** | **<1 s** |
 | e2e auth (logged out) | `tests/e2e/auth.spec.ts` | 3 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
 | e2e golden path | `tests/e2e/crm.spec.ts` | 11 | — |
@@ -984,9 +991,35 @@ before the final push.
 - Visual-parity iteration (VLM-verified): KPI label casing, sparklines on
   dashboard + accounts KPI cards, the reference's three-button header row,
   working All-Owners filter, "More..." link.
-- Gate after remediation: lint 0/0 · typecheck clean · 58/58 unit ·
-  build clean · 20/20 e2e; both db files inside the repo; mobile drawer
+- Gate after remediation: lint 0/0 · typecheck clean · 65/65 unit ·
+  build clean · 21/21 e2e; both db files inside the repo; mobile drawer
   re-verified live at 390px.
+
+**Session 3 (parity hardening)** — planned in
+`docs/plans/2026-09-29-session3-parity-remediation.md` (P-1…P-17),
+executed TDD after a fresh-login audit revealed the reference's demo data
+had been reset to zero (both current and session-1 captures are zero-data,
+so structure — not data — is the parity target):
+
+- P-1…P-4: reference identity + display chrome — demo user renamed to
+  `sepnetflix2023` with the light-grey avatar (luminance-aware ink in
+  `avatar.tsx`), bell dot removed, user dropdown reduced to text-only
+  Profile/Logout, sidebar icons (Accounts → `User`, Contacts →
+  `CircleUserRound`), ring-only brand, Settings below a divider (not
+  bottom-pinned), `$`-attached currency everywhere (`$145.0k`/`$1.4M`).
+- P-5…P-16: per-page anatomy — plain-text deltas + line/area/bar sparkline
+  variants (`page-parts.tsx` stat-card family: KpiCard, IconStatCard,
+  CircleStatCard, TrendStatCard), count-axis pipeline chart with `$`
+  legends, area-filled revenue chart, Title-Case table headers + chevron
+  sort indicators, contacts/leads/reports/calendar stat-card iconography,
+  Sunday-anchored calendar grid + search + Type/Date filters panel,
+  activities six-card row + segmented tabs + recharts by-type chart,
+  reports Saved-Reports button + white filter card + pill tabs, settings
+  instant-save picklists, profile page rebuilt to the reference layout
+  (Personal Information form + four stacked account cards, new
+  `PATCH /api/users`).
+- Gate after session 3: lint 0/0 · typecheck clean · 65/65 unit ·
+  build clean · 21/21 e2e (mobile-nav regression intact).
 
 ## Appendix D: Live-Site Validation Methodology
 

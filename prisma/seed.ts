@@ -48,10 +48,10 @@ async function main() {
     db.user.create({
       data: {
         email: "sepnetflix2023@outlook.com",
-        name: "Sep Netflix",
+        name: "sepnetflix2023",
         passwordHash: hashPassword("$Abcd1234"),
-        avatarColor: "#2563eb",
-        role: "admin",
+        avatarColor: "#e5e7eb", // light grey + dark "S" — mirrors the reference avatar
+        role: "user", // matches the reference account's role display
       },
     }),
     db.user.create({

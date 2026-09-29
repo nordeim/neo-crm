@@ -8,10 +8,10 @@ import {
   MessageCircle,
   MoreHorizontal,
   Phone,
-  Plus,
   Trash2,
   Video,
 } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,10 +19,10 @@ import { Avatar } from "@/components/ui/avatar";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs } from "@/components/ui/tabs";
-import { KpiCard, PageHeader } from "@/components/shared/page-parts";
+import { PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META } from "@/lib/constants";
+import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
 import { endOfDay, formatDate, formatTime, startOfDay, timeAgo, timeUntil } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/types";
@@ -31,8 +31,55 @@ const QUICK_LOG = [
   { type: "call", label: "Log Call", icon: Phone },
   { type: "email", label: "Log Email", icon: Mail },
   { type: "meeting", label: "Log Meeting", icon: Video },
-  { type: "whatsapp", label: "Log WhatsApp", icon: MessageCircle },
-];
+  { type: "whatsapp", label: "Log WhatsApp", icon: MessageCircle, green: true },
+] as const;
+
+/**
+ * Reference stat card: label (+ optional top-right delta), big value with the
+ * bar strip to its RIGHT, optional sub text under the value.
+ */
+function ActivityStatCard({
+  label,
+  value,
+  sub,
+  delta,
+  deltaTone = "muted",
+  bars,
+  barColor,
+}: {
+  label: string;
+  value: React.ReactNode;
+  sub?: string;
+  delta?: string;
+  deltaTone?: "success" | "danger" | "muted";
+  bars: number[];
+  barColor: string;
+}) {
+  return (
+    <div className="rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-medium tracking-wide text-muted">{label}</p>
+        {delta && (
+          <span
+            className={cn(
+              "shrink-0 text-xs font-semibold",
+              deltaTone === "success" ? "text-success" : deltaTone === "danger" ? "text-danger" : "text-muted",
+            )}
+          >
+            {delta}
+          </span>
+        )}
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <p className="text-[26px] font-semibold leading-none tracking-tight text-foreground">
+          {value}
+          {sub && <span className="mt-1 block text-xs font-normal text-muted">{sub}</span>}
+        </p>
+        <Sparkline values={bars} color={barColor} className="w-16 shrink-0" />
+      </div>
+    </div>
+  );
+}
 
 export default function ActivitiesPage() {
   const { activities, users, hydrated, fetchActivities, updateActivity, deleteActivity } = useCrmStore();
@@ -40,6 +87,7 @@ export default function ActivitiesPage() {
   const [typeFilters, setTypeFilters] = React.useState<Record<string, boolean>>({});
   const [ownerId, setOwnerId] = React.useState("all");
   const [range, setRange] = React.useState("7");
+  const [showMoreFilters, setShowMoreFilters] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [defaultType, setDefaultType] = React.useState("call");
   const [editing, setEditing] = React.useState<Activity | null>(null);
@@ -73,6 +121,46 @@ export default function ActivitiesPage() {
   const tabRows = { overdue, dueToday, upcoming, completed }[tab] ?? [];
 
   const todayCount = activities.filter((a) => new Date(a.createdAt ?? a.dueAt ?? a.createdAt) >= startOfDay(today)).length;
+  const yesterdayCount = activities.filter((a) => {
+    const d = new Date(a.createdAt ?? a.dueAt ?? a.createdAt);
+    return d >= startOfDay(new Date(today.getTime() - 86400000)) && d < startOfDay(today);
+  }).length;
+  const todayDelta =
+    yesterdayCount === 0
+      ? `+${todayCount}`
+      : `${todayCount >= yesterdayCount ? "+" : ""}${Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100)}%`;
+
+  // "2h overdue"-style label: hours since the most overdue activity.
+  const oldestOverdue = overdue.reduce<number | null>((acc, a) => {
+    const t = a.dueAt ? new Date(a.dueAt).getTime() : null;
+    if (t === null) return acc;
+    return acc === null ? t : Math.min(acc, t);
+  }, null);
+  const overdueLabel =
+    oldestOverdue === null ? "0h overdue" : `${Math.max(0, Math.floor((now.getTime() - oldestOverdue) / 3600000))}h overdue`;
+
+  const emailsToday = activities.filter((a) => a.type === "email" && new Date(a.createdAt) >= startOfDay(today)).length;
+  const callsToday = activities.filter((a) => a.type === "call" && new Date(a.createdAt) >= startOfDay(today)).length;
+  const upcomingMeetings = baseFiltered.filter((a) => a.type === "meeting" && a.status === "scheduled" && a.dueAt && new Date(a.dueAt) >= now);
+  const meetingMinutes = upcomingMeetings.reduce((s, a) => {
+    const start = a.dueAt ? new Date(a.dueAt).getTime() : 0;
+    const end = a.completedAt ? new Date(a.completedAt).getTime() : start + 45 * 60000;
+    return s + Math.max(0, end - start) / 60000;
+  }, 0);
+  const meetingDuration = `${Math.floor(meetingMinutes / 60) || 0}h ${Math.round(meetingMinutes % 60)}m`;
+
+  const barsFor = (type: string, n = 7) =>
+    Array.from({ length: n }, (_, i) => {
+      const day = new Date(today);
+      day.setDate(day.getDate() - (n - 1 - i));
+      return activities.filter((a) => a.type === type && a.createdAt >= startOfDay(day).toISOString() && a.createdAt < endOfDay(day).toISOString()).length;
+    });
+
+  const allBars = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(today);
+    day.setDate(day.getDate() - (6 - i));
+    return activities.filter((a) => new Date(a.createdAt) >= startOfDay(day) && new Date(a.createdAt) < endOfDay(day)).length;
+  });
 
   // Timeline grouped by date (createdAt), most recent first.
   const timeline = React.useMemo(() => {
@@ -88,10 +176,10 @@ export default function ActivitiesPage() {
 
   const byType = Object.keys(ACTIVITY_TYPE_META).map((t) => ({
     label: ACTIVITY_TYPE_META[t].label,
+    type: t,
     count: baseFiltered.filter((a) => a.type === t).length,
     color: ACTIVITY_TYPE_META[t].color,
   }));
-  const maxType = Math.max(1, ...byType.map((t) => t.count));
 
   async function toggleComplete(a: Activity) {
     await updateActivity(a.id, { status: a.status === "completed" ? "scheduled" : "completed" });
@@ -108,6 +196,7 @@ export default function ActivitiesPage() {
                 key={q.type}
                 variant="secondary"
                 size="sm"
+                className={"green" in q && q.green ? "border-transparent bg-[#16a34a] text-white hover:bg-[#15803d]" : undefined}
                 onClick={() => {
                   setEditing(null);
                   setDefaultType(q.type);
@@ -117,28 +206,56 @@ export default function ActivitiesPage() {
                 <q.icon className="h-4 w-4" /> <span className="hidden sm:inline">{q.label}</span>
               </Button>
             ))}
-            <Button
-              size="sm"
-              onClick={() => {
-                setEditing(null);
-                setDefaultType("call");
-                setDialogOpen(true);
-              }}
-            >
-              <Plus className="h-4 w-4" /> <span className="hidden sm:inline">New</span>
-            </Button>
           </>
         }
       />
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
-        <KpiCard label="Activities Today" value={todayCount} delta={23} hint="logged today" />
-        <KpiCard label="Overdue" value={overdue.length} hint="past due" />
-        <KpiCard label="Due now" value={dueToday.length} hint="before midnight" />
-        <KpiCard label="Emails Sent" value={activities.filter((a) => a.type === "email").length} hint="all time" />
-        <KpiCard label="Calls Logged" value={activities.filter((a) => a.type === "call").length} hint="all time" />
-        <KpiCard label="Meetings" value={activities.filter((a) => a.type === "meeting").length} hint="all time" />
-        <KpiCard label="WhatsApp" value={activities.filter((a) => a.type === "whatsapp").length} hint="all time" />
+      {/* Reference: six stat cards, value + colored bar strip side by side. */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <ActivityStatCard
+          label="Activities Today"
+          value={todayCount}
+          delta={todayDelta}
+          deltaTone="success"
+          bars={allBars}
+          barColor={CHART_COLORS.blue}
+        />
+        <ActivityStatCard
+          label="Overdue Activities"
+          value={overdue.length}
+          sub={`Due now ${dueToday.length}`}
+          delta={overdueLabel}
+          deltaTone="danger"
+          bars={allBars.map((v) => Math.max(0, v - 1))}
+          barColor={CHART_COLORS.red}
+        />
+        <ActivityStatCard
+          label="Emails Sent"
+          value={activities.filter((a) => a.type === "email").length}
+          delta={`+${emailsToday} today`}
+          bars={barsFor("email")}
+          barColor={CHART_COLORS.cyan}
+        />
+        <ActivityStatCard
+          label="Calls Logged"
+          value={activities.filter((a) => a.type === "call").length}
+          delta={`+${callsToday} today`}
+          bars={barsFor("call")}
+          barColor={CHART_COLORS.green}
+        />
+        <ActivityStatCard
+          label="Meetings Scheduled"
+          value={upcomingMeetings.length}
+          delta={meetingDuration}
+          bars={barsFor("meeting")}
+          barColor={CHART_COLORS.gray}
+        />
+        <ActivityStatCard
+          label="WhatsApp"
+          value={activities.filter((a) => a.type === "whatsapp").length}
+          bars={barsFor("whatsapp")}
+          barColor="#22c55e"
+        />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -153,13 +270,14 @@ export default function ActivitiesPage() {
             </CardHeader>
             <CardContent>
               <Tabs
+                variant="segmented"
                 value={tab}
                 onValueChange={setTab}
                 tabs={[
-                  { id: "overdue", label: "Overdue", count: overdue.length },
-                  { id: "dueToday", label: "Due Today", count: dueToday.length },
-                  { id: "upcoming", label: "Upcoming", count: upcoming.length },
-                  { id: "completed", label: "Completed", count: completed.length },
+                  { id: "overdue", label: "Overdue" },
+                  { id: "dueToday", label: "Due Today" },
+                  { id: "upcoming", label: "Upcoming" },
+                  { id: "completed", label: "Completed" },
                 ]}
               >
                 {tabRows.length === 0 ? (
@@ -222,6 +340,9 @@ export default function ActivitiesPage() {
           <Card>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle>Activity Timeline</CardTitle>
+              <Button variant="ghost" size="iconSm" aria-label="More actions">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
             </CardHeader>
             <CardContent className="flex flex-col gap-5">
               {timeline.length === 0 ? (
@@ -229,7 +350,7 @@ export default function ActivitiesPage() {
               ) : (
                 timeline.map(([date, rows]) => (
                   <div key={date}>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-subtle">{date}</p>
+                    <p className="mb-2 text-xs font-semibold tracking-wide text-subtle">{date}</p>
                     <div className="relative flex flex-col gap-3 border-l border-line pl-5">
                       {rows.map((a) => {
                         const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call;
@@ -280,8 +401,11 @@ export default function ActivitiesPage() {
         {/* Filters + chart */}
         <div className="flex flex-col gap-4">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex-row items-center justify-between">
               <CardTitle>Filters</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setTypeFilters({})}>
+                Save All
+              </Button>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
@@ -319,26 +443,66 @@ export default function ActivitiesPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {showMoreFilters && (
+                <div className="flex flex-col gap-2 rounded-lg bg-line-soft/60 p-3">
+                  <Label className="text-muted">More Filters</Label>
+                  <Checkbox
+                    checked={typeFilters["task"] ?? false}
+                    onChange={(e) => setTypeFilters((f) => ({ ...f, task: e.target.checked }))}
+                    label={ACTIVITY_TYPE_META.task.label}
+                  />
+                  <Checkbox
+                    checked={typeFilters["note"] ?? false}
+                    onChange={(e) => setTypeFilters((f) => ({ ...f, note: e.target.checked }))}
+                    label={ACTIVITY_TYPE_META.note.label}
+                  />
+                </div>
+              )}
+              <div className="flex flex-col gap-2">
+                <Button variant="secondary" size="sm" aria-expanded={showMoreFilters} onClick={() => setShowMoreFilters((v) => !v)}>
+                  More Filters ({showMoreFilters ? 2 : 1})
+                </Button>
+                <Button size="sm" onClick={() => fetchActivities()}>
+                  Filter
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex-row items-center justify-between">
               <CardTitle>Activities by Type</CardTitle>
+              <Button variant="ghost" size="iconSm" aria-label="More actions">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <p className="text-xs text-muted">Last {range === "all" ? "all time" : `${range} days`}</p>
-              {byType.map((t) => (
-                <div key={t.label}>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-foreground">{t.label}</span>
-                    <span className="text-muted">{t.count}</span>
-                  </div>
-                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-line-soft">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((t.count / maxType) * 100)}%`, backgroundColor: t.color }} />
-                  </div>
-                </div>
-              ))}
+              <div className="h-[180px] chart-no-outline">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={byType} margin={{ top: 8, right: 4, left: -20, bottom: 0 }}>
+                    <CartesianGrid stroke="#f3f4f6" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} interval={0} />
+                    <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <Tooltip
+                      cursor={{ fill: "rgba(59,130,246,0.06)" }}
+                      content={({ active, payload }) =>
+                        active && payload && payload.length > 0 ? (
+                          <div className="rounded-lg border border-line bg-white px-3 py-2 text-xs shadow-lg">
+                            <p className="font-semibold text-foreground">{payload[0]?.payload?.label}</p>
+                            <p className="text-muted">{payload[0]?.value} logged</p>
+                          </div>
+                        ) : null
+                      }
+                    />
+                    <Bar dataKey="count" name="Logged" radius={[6, 6, 0, 0]} maxBarSize={36}>
+                      {byType.map((t) => (
+                        <Cell key={t.type} fill={t.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>

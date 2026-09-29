@@ -3,16 +3,21 @@
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
 import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
+  CalendarDays,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Download,
+  Filter,
   MoreHorizontal,
+  Percent,
   Pencil,
   Plus,
   Search,
   Target,
+  TrendingUp,
   Trash2,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +28,7 @@ import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState, Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
-import { KpiCard, PageHeader } from "@/components/shared/page-parts";
+import { IconStatCard, PageHeader } from "@/components/shared/page-parts";
 import { ConversionFunnel, PipelineBarChart, WonLostLineChart } from "@/components/charts/charts";
 import { LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -88,7 +93,8 @@ export default function LeadsPage() {
     won.map((l) => l.closedAt ?? l.createdAt),
   );
 
-  const pipelineByStage = LEAD_STAGES.filter((s) => s !== "lost").map((s) => ({
+  // Reference chart vocabulary: New / Qualified / Won / Lost on a count axis.
+  const pipelineByStage = ["new", "qualified", "won", "lost"].map((s) => ({
     label: STAGE_META[s].label,
     stage: s,
     count: filtered.filter((l) => l.stage === s).length,
@@ -164,17 +170,31 @@ export default function LeadsPage() {
         }
       />
 
+      {/* Reference stat cards: light tinted icon chips on the right. */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-        <KpiCard label="Total Leads" value={leads.length} hint="all time" />
-        <KpiCard label="Open Leads" value={open.length} hint="active pipeline" />
-        <KpiCard label="Won Deals" value={won.length} hint={formatCompactCurrency(won.reduce((s, l) => s + l.value, 0))} />
-        <KpiCard label="Dropped Deals" value={lost.length} hint={formatCompactCurrency(lost.reduce((s, l) => s + l.value, 0))} />
-        <KpiCard
+        <IconStatCard label="Total Leads" value={leads.length} icon={<TrendingUp className="h-5 w-5" />} color="#3b82f6" />
+        <IconStatCard label="Open Leads" value={open.length} icon={<Target className="h-5 w-5" />} color="#f97316" />
+        <IconStatCard
+          label="Won Deals"
+          value={won.length}
+          subValue={formatCompactCurrency(won.reduce((s, l) => s + l.value, 0))}
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          color="#10b981"
+        />
+        <IconStatCard
+          label="Dropped Deals"
+          value={lost.length}
+          subValue={formatCompactCurrency(lost.reduce((s, l) => s + l.value, 0))}
+          icon={<XCircle className="h-5 w-5" />}
+          color="#ef4444"
+        />
+        <IconStatCard
           label="Conversion Rate"
           value={`${leads.length ? Math.round((won.length / leads.length) * 1000) / 10 : 0}%`}
-          hint="won ÷ total"
+          icon={<Percent className="h-5 w-5" />}
+          color="#8b5cf6"
         />
-        <KpiCard label="Avg. Sales Cycle" value={`${avgCycle} days`} hint="creation → won" />
+        <IconStatCard label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<CalendarDays className="h-5 w-5" />} color="#14b8a6" />
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -183,7 +203,7 @@ export default function LeadsPage() {
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search leads..." className="pl-9" aria-label="Search leads" />
         </div>
         <Button variant="secondary" size="sm" className="h-9" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
-          Filters
+          <Filter className="h-3.5 w-3.5" /> Filters
         </Button>
       </div>
 
@@ -362,18 +382,18 @@ function SortHead({
     <TableHead>
       <button
         type="button"
-        className="inline-flex items-center gap-1 uppercase tracking-wide"
+        className="inline-flex items-center gap-1 tracking-wide"
         onClick={() => onToggle(k)}
       >
         {label}
         {active ? (
           dir === "asc" ? (
-            <ArrowUp className="h-3 w-3" />
+            <ChevronUp className="h-3 w-3" />
           ) : (
-            <ArrowDown className="h-3 w-3" />
+            <ChevronDown className="h-3 w-3" />
           )
         ) : (
-          <ArrowUpDown className="h-3 w-3 opacity-40" />
+          <ChevronDown className="h-3 w-3 opacity-40" />
         )}
       </button>
     </TableHead>

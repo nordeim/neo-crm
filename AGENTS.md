@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (58 checks)          | `bun run test`                         |
+| Unit tests (65 checks)          | `bun run test`                         |
 | Browser E2E (20 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (58) → `bun run build` → `bun run test:e2e` (20). There is no
+`bun run test` (65) → `bun run build` → `bun run test:e2e` (21). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -97,8 +97,15 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   (`STAGE_META`, `ACCOUNT_STATUS_META`, `ACTIVITY_TYPE_META`,
   `EVENT_TYPE_META`, `PRIORITY_META`). Extend the meta maps when you extend a
   vocabulary.
+- **Currency display is `$`-attached** (`src/lib/format.ts`):
+  `formatCurrency` → `$12,500`, `formatCompactCurrency` → `$145.0k` /
+  `$1.4M` (lowercase k, uppercase M) — exactly the reference app's display,
+  which ignores its own "Default Currency" setting (the Settings field stays
+  and stores `AED`; the formatter mirrors the reference by always printing
+  `$`).
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
-  `format.ts`, `csv.ts`, `rate-limit.ts` — 58 Vitest checks). Route handlers
+  `format.ts`, `csv.ts`, `rate-limit.ts`, `avatar` helpers — 65 Vitest
+  checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place
   reseed) on port 3100 against the standalone build.

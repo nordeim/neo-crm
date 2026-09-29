@@ -1,7 +1,7 @@
 import {
   LayoutDashboard,
-  Building2,
-  Users,
+  CircleUserRound,
+  User,
   Target,
   CalendarDays,
   Activity,
@@ -16,16 +16,16 @@ export interface NavItem {
   icon: LucideIcon;
 }
 
-/** Main nav (mirrors the reference app's sidebar order). */
+/** Main nav (mirrors the reference app's sidebar order + icon shapes). */
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/accounts", label: "Accounts", icon: Building2 },
-  { href: "/contacts", label: "Contacts", icon: Users },
+  { href: "/accounts", label: "Accounts", icon: User },
+  { href: "/contacts", label: "Contacts", icon: CircleUserRound },
   { href: "/leads", label: "Leads", icon: Target },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/activities", label: "Activities", icon: Activity },
   { href: "/reports", label: "Reports", icon: BarChart3 },
 ];
 
-/** Pinned to the sidebar bottom. */
+/** Rendered directly below a thin divider (reference layout — not pinned to the bottom). */
 export const NAV_FOOTER_ITEMS: NavItem[] = [{ href: "/settings", label: "Settings", icon: Settings }];

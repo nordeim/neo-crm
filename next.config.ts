@@ -10,6 +10,9 @@ import path from "node:path";
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.resolve(import.meta.dirname),
+  // Hide the Next.js dev-tools indicator (the floating "N" button) so dev
+  // server screenshots stay clean — it never ships in production anyway.
+  devIndicators: false,
   // The scaffold family keeps the explicit `bun run typecheck` step as the
   // type gate; build errors stay visible without breaking container builds.
   typescript: {

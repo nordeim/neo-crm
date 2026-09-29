@@ -2,7 +2,7 @@
 
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
-import { Download, FileText, RotateCcw } from "lucide-react";
+import { Bookmark, CalendarDays, Download, FileText, RotateCcw, User, Users, Target, TrendingUp, TrendingDown, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/misc";
 import { Tabs } from "@/components/ui/tabs";
-import { KpiCard, PageHeader } from "@/components/shared/page-parts";
+import { CircleStatCard, KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { ConversionFunnel, DonutChart, PipelineBarChart, RevenueLineChart, WonLostLineChart } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
 import { LEAD_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
@@ -65,58 +65,77 @@ export default function ReportsPage() {
         title="Reports & Analytics"
         subtitle="Comprehensive CRM reporting hub"
         actions={
-          <>
-            <Button variant="secondary" onClick={resetFilters}>
-              <RotateCcw className="h-4 w-4" /> Reset
-            </Button>
-            <Button variant="secondary" onClick={() => downloadFile("/api/export?type=leads&download=1")}>
-              <Download className="h-4 w-4" /> Export CSV
-            </Button>
-            <Button onClick={exportPdf}>
-              <FileText className="h-4 w-4" /> PDF
-            </Button>
-          </>
+          <Button
+            variant="secondary"
+            onClick={() => toast.info("Saved reports", "You have no saved reports yet — configure filters and save one from here.")}
+          >
+            <Bookmark className="h-4 w-4" /> Saved Reports (0)
+          </Button>
         }
       />
 
-      {/* Filter strip */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {REPORT_PERIODS.map((p) => (
-              <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={ownerId} onValueChange={setOwnerId}>
-          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Owners</SelectItem>
-            {users.map((u) => (
-              <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={stage} onValueChange={setStage}>
-          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Stages</SelectItem>
-            {LEAD_STAGES.map((s) => (
-              <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="open">Open</SelectItem>
-            <SelectItem value="closed_won">Closed Won</SelectItem>
-            <SelectItem value="closed_lost">Closed Lost</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Reference filter strip: a white card carrying the four selects plus
+          Reset (ghost) / Export CSV (primary) / PDF (ghost) inline. */}
+      <Card className="mb-4">
+        <CardContent className="flex flex-wrap items-center gap-2 py-4">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[160px]">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-muted" />
+                <SelectValue />
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              {REPORT_PERIODS.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={ownerId} onValueChange={setOwnerId}>
+            <SelectTrigger className="w-[160px]">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <User className="h-3.5 w-3.5 shrink-0 text-muted" />
+                <SelectValue />
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Owners</SelectItem>
+              {users.map((u) => (
+                <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={stage} onValueChange={setStage}>
+            <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Stages</SelectItem>
+              {LEAD_STAGES.map((s) => (
+                <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="open">Open</SelectItem>
+              <SelectItem value="closed_won">Closed Won</SelectItem>
+              <SelectItem value="closed_lost">Closed Lost</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <Button variant="secondary" onClick={resetFilters}>
+              <RotateCcw className="h-4 w-4" /> Reset
+            </Button>
+            <Button onClick={() => downloadFile("/api/export?type=leads&download=1")}>
+              <Download className="h-4 w-4" /> Export CSV
+            </Button>
+            <Button variant="secondary" onClick={exportPdf}>
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {loading && !data ? (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
@@ -126,17 +145,46 @@ export default function ReportsPage() {
         </div>
       ) : (
         <>
+          {/* Reference KPI row: tinted circle icons on the left, sparkline
+              strips at the bottom, $ sub-values inline. */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-            <KpiCard label="Total Leads" value={k?.totalLeads ?? 0} hint={REPORT_PERIODS.find((p) => p.id === period)?.label} />
-            <KpiCard label="Open Leads" value={k?.openLeads ?? 0} hint="active pipeline" />
-            <KpiCard label="Won Deals" value={k?.wonDeals ?? 0} hint={formatCompactCurrency(k?.wonValue ?? 0)} delta={k?.wonDelta ?? undefined} />
-            <KpiCard label="Lost Deals" value={k?.lostDeals ?? 0} hint={formatCompactCurrency(k?.lostValue ?? 0)} delta={k?.lostDelta ?? undefined} />
-            <KpiCard label="Conversion Rate" value={`${k?.conversionRate ?? 0}%`} hint="won ÷ total" />
+            <CircleStatCard label="Total Leads" value={k?.totalLeads ?? 0} icon={<Target className="h-5 w-5" />} color="#3b82f6">
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#3b82f6" variant="line" className="h-6" />
+            </CircleStatCard>
+            <CircleStatCard label="Open Leads" value={k?.openLeads ?? 0} icon={<Users className="h-5 w-5" />} color="#f97316">
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#f97316" variant="line" className="h-6" />
+            </CircleStatCard>
+            <CircleStatCard
+              label="Won Deals"
+              value={k?.wonDeals ?? 0}
+              subValue={formatCompactCurrency(k?.wonValue ?? 0)}
+              icon={<TrendingUp className="h-5 w-5" />}
+              color="#10b981"
+            >
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#10b981" variant="line" className="h-6" />
+            </CircleStatCard>
+            <CircleStatCard
+              label="Lost Deals"
+              value={k?.lostDeals ?? 0}
+              subValue={formatCompactCurrency(k?.lostValue ?? 0)}
+              icon={<TrendingDown className="h-5 w-5" />}
+              color="#ef4444"
+            >
+              <Sparkline values={data?.wonVsLostOverTime?.map((r) => r.lost) ?? []} color="#ef4444" variant="line" className="h-6" />
+            </CircleStatCard>
+            <CircleStatCard
+              label="Conversion Rate"
+              value={`${k?.conversionRate ?? 0}%`}
+              icon={<Percent className="h-5 w-5" />}
+              color="#8b5cf6"
+            >
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#8b5cf6" variant="line" className="h-6" />
+            </CircleStatCard>
           </div>
 
           <Card className="mt-6">
             <CardContent className="py-4">
-              <Tabs value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
+              <Tabs variant="pill" value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
                 {loading ? (
                   <div className="grid gap-4 py-6 md:grid-cols-2">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -172,7 +220,7 @@ function SalesTab({ data }: { data: ReportsData | null }) {
             data={data?.revenueOverTime ?? []}
             series={[
               { key: "won", label: "Won", color: CHART_COLORS.green },
-              { key: "target", label: "Target", color: CHART_COLORS.red, dashed: true },
+              { key: "target", label: "Target", color: CHART_COLORS.red, filled: true },
             ]}
           />
         </ChartCard>
@@ -269,10 +317,10 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard label="Open Pipeline" value={formatCompactCurrency(open.reduce((s, p) => s + p.value, 0))} hint={`${open.reduce((s, p) => s + p.count, 0)} deals`} />
-        <KpiCard label="Weighted Forecast" value={formatCompactCurrency(weighted)} hint="stage-probability model" />
-        <KpiCard label="Best Case" value={formatCompactCurrency(open.reduce((s, p) => s + p.value, 0) + (data?.kpis.wonValue ?? 0))} hint="open + won YTD" />
-        <KpiCard label="Avg. Deal Size" value={formatCompactCurrency(pipeline.length ? pipeline.reduce((s, p) => s + p.value, 0) / pipeline.reduce((s, p) => s + p.count, 0) : 0)} hint="all stages" />
+        <KpiCard label="Open Pipeline" value={formatCompactCurrency(open.reduce((s, p) => s + p.value, 0))} />
+        <KpiCard label="Weighted Forecast" value={formatCompactCurrency(weighted)} />
+        <KpiCard label="Best Case" value={formatCompactCurrency(open.reduce((s, p) => s + p.value, 0) + (data?.kpis.wonValue ?? 0))} />
+        <KpiCard label="Avg. Deal Size" value={formatCompactCurrency(pipeline.length ? pipeline.reduce((s, p) => s + p.value, 0) / pipeline.reduce((s, p) => s + p.count, 0) : 0)} />
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard title="Pipeline by Stage">

@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-78%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-86%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -35,11 +35,12 @@ first boot.
 | 📅 Calendar | Month grid with per-type event chips, day agenda, upcoming events, type filters |
 | ⚡ Activities | Call/email/meeting/WhatsApp quick-log, priority tabs (overdue / due today / upcoming / completed), activity timeline |
 | 📈 Reports | 5 analytics tabs — sales overview, pipeline & weighted forecast, activity & productivity, lead sources, account health |
-| ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries), workspace defaults, data export + danger-zone reset |
+| ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save, workspace defaults, data export + danger-zone reset |
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate — the fix the reference app never shipped |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login |
-| 🧪 Tested | 58 Vitest unit checks + 20 Playwright E2E checks, including a 5-check mobile-nav regression suite |
+| 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
+| 🧪 Tested | 65 Vitest unit checks + 21 Playwright E2E checks, including a 5-check mobile-nav regression suite |
 
 ## Architecture
 
@@ -108,8 +109,8 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 5 Vitest suites (58 checks)
-│   └── 📂 e2e/                       # Playwright (20 checks)
+│   ├── 📄 *.test.ts                  # 6 Vitest suites (65 checks)
+│   └── 📂 e2e/                       # Playwright (21 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
@@ -155,9 +156,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 58 Vitest unit checks (auth, db-path, format, csv, rate-limit)
+bun run test          # 65 Vitest unit checks (auth, avatar, db-path, format, csv, rate-limit)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 20 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 21 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials), the

@@ -38,7 +38,10 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </div>
-      <div className="mt-auto flex flex-col gap-0.5 pb-2">
+      {/* Reference layout: a thin divider, then Settings directly below — not
+          pinned to the sidebar bottom. */}
+      <div className="my-2 h-px bg-white/15" aria-hidden="true" />
+      <div className="flex flex-col gap-0.5">
         {NAV_FOOTER_ITEMS.map((item) => {
           const active = isActive(item.href);
           return (
@@ -63,13 +66,11 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-/** Brand mark — white target-ring + CRM wordmark (matches the reference). */
+/** Brand mark — white ring + CRM wordmark (matches the reference). */
 export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5 px-5 py-5">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full border-[2.5px] border-white">
-        <span className="h-2.5 w-2.5 rounded-full bg-white" />
-      </span>
+      <span className="flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white" aria-hidden="true" />
       {!compact && <span className="text-lg font-bold tracking-wide text-white">CRM</span>}
     </div>
   );

@@ -1,21 +1,26 @@
 // Pure formatting/date helpers (unit-tested seam — tests/format.test.ts).
 
-export function formatCurrency(value: number | null | undefined, currency = "AED"): string {
+/**
+ * Currency display follows the reference app exactly: a dollar sign
+ * attached to the amount. (The reference keeps a "Default Currency" setting
+ * on its Settings page but its formatters ignore it — mirrored here.)
+ */
+export function formatCurrency(value: number | null | undefined): string {
   const v = value ?? 0;
   const abs = Math.abs(v);
   const sign = v < 0 ? "-" : "";
   const num = abs.toLocaleString("en-US", { maximumFractionDigits: 0 });
-  return `${sign}${currency} ${num}`;
+  return `${sign}$${num}`;
 }
 
-/** $1.2K / $34K / $1.4M compact form used by KPI cards. */
-export function formatCompactCurrency(value: number | null | undefined, currency = "AED"): string {
+/** $1.2k / $34k / $1.4M compact form used by KPI cards (lowercase k, uppercase M). */
+export function formatCompactCurrency(value: number | null | undefined): string {
   const v = value ?? 0;
   const abs = Math.abs(v);
   const sign = v < 0 ? "-" : "";
-  if (abs >= 1_000_000) return `${sign}${currency} ${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${sign}${currency} ${(abs / 1_000).toFixed(1)}K`;
-  return `${sign}${currency} ${Math.round(abs)}`;
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(1)}k`;
+  return `${sign}$${Math.round(abs)}`;
 }
 
 export function formatCompactNumber(value: number | null | undefined): string {

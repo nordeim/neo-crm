@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, ChevronDown, LogOut, Mail, Search, User } from "lucide-react";
+import { Bell, ChevronDown, Mail, Search } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { MobileNavTrigger } from "./mobile-nav";
@@ -80,7 +80,7 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
             onFocus={() => hasResults && setOpen(true)}
             placeholder="Search Anything..."
             aria-label="Search accounts, contacts and leads"
-            className="h-9 w-full rounded-full border-0 bg-line-soft pl-9 pr-4 text-sm text-foreground placeholder:text-subtle focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="h-9 w-full rounded-lg border border-line bg-white pl-9 pr-4 text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
         {open && hasResults && (
@@ -129,10 +129,9 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
         <button
           type="button"
           aria-label="Notifications"
-          className="relative hidden h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex"
+          className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex"
         >
           <Bell className="h-[18px] w-[18px]" strokeWidth={1.8} />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-danger" />
         </button>
 
         {user && (
@@ -151,15 +150,7 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
               </button>
             </DropdownTrigger>
             <DropdownContent className="min-w-[11rem]">
-              <div className="border-b border-line px-2.5 pb-2 pt-1.5">
-                <p className="truncate text-sm font-medium text-foreground">{user.name}</p>
-                <p className="truncate text-xs text-muted">{user.email}</p>
-              </div>
-              <DropdownItem onClick={() => router.push("/profile")} className="mt-1">
-                <>
-                  <User className="h-4 w-4 text-muted" /> Profile
-                </>
-              </DropdownItem>
+              <DropdownItem onClick={() => router.push("/profile")}>Profile</DropdownItem>
               <DropdownSeparator />
               <DropdownItem
                 destructive
@@ -169,7 +160,7 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                   router.refresh();
                 }}
               >
-                <LogOut className="h-4 w-4" /> Logout
+                Logout
               </DropdownItem>
             </DropdownContent>
           </Dropdown>

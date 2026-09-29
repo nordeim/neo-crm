@@ -82,16 +82,30 @@ test("reports page loads analytics tabs with seeded data", async ({ page }) => {
   await page.goto("/reports");
   await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Sales Overview" })).toBeVisible();
+  // Parity pin: the Saved Reports bookmark button ships in the header.
+  await expect(page.getByRole("button", { name: "Saved Reports (0)" })).toBeVisible();
 
   // Regression: the "all" filter sentinel must not leak into the query —
   // the default view (period=quarter, owner/stage/status=all) must show the
   // seeded pipeline, not zeros. (Won-deal value is stable: the lead created
   // by the earlier test is stage "new" and never reaches this quarter's
   // won total.)
-  await expect(page.getByText("AED 542.0K").first()).toBeVisible();
+  await expect(page.getByText("$542.0k").first()).toBeVisible();
 
   await page.getByRole("tab", { name: "Account Health" }).click();
   await expect(page.getByText("Account Health Distribution")).toBeVisible();
+});
+
+test("profile page shows the reference Personal Information layout", async ({ page }) => {
+  await page.goto("/profile");
+  await expect(page.getByRole("heading", { name: "Profile & Settings" })).toBeVisible();
+  await expect(page.getByText("Personal Information")).toBeVisible();
+  await expect(page.getByLabel("Full Name")).toHaveValue("sepnetflix2023");
+  await expect(page.getByLabel("Email")).toBeDisabled();
+  await expect(page.getByText("Email cannot be changed")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save Changes" })).toBeVisible();
+  await expect(page.getByText("Email Verified")).toBeVisible();
+  await expect(page.getByText("Protected")).toBeVisible();
 });
 
 test("settings page exposes the three configuration tabs", async ({ page }) => {
@@ -118,4 +132,10 @@ test("unauthenticated API access is rejected", async () => {
   const port = process.env.E2E_PORT ?? "3100";
   const res = await fetch(`http://localhost:${port}/api/accounts`);
   expect(res.status).toBe(401);
+  const patch = await fetch(`http://localhost:${port}/api/users`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "intruder" }),
+  });
+  expect(patch.status).toBe(401);
 });

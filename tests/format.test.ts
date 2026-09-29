@@ -16,24 +16,31 @@ import {
 } from "@/lib/format";
 
 describe("currency formatting", () => {
-  it("formats plain amounts with the currency code", () => {
-    expect(formatCurrency(12500, "AED")).toBe("AED 12,500");
-    expect(formatCurrency(0, "AED")).toBe("AED 0");
+  it("formats plain amounts with the reference dollar style", () => {
+    expect(formatCurrency(12500)).toBe("$12,500");
+    expect(formatCurrency(0)).toBe("$0");
   });
 
   it("keeps negatives signed", () => {
-    expect(formatCurrency(-1250, "AED")).toBe("-AED 1,250");
+    expect(formatCurrency(-1250)).toBe("-$1,250");
   });
 
-  it("compacts thousands and millions", () => {
-    expect(formatCompactCurrency(145_000, "AED")).toBe("AED 145.0K");
-    expect(formatCompactCurrency(1_400_000, "AED")).toBe("AED 1.4M");
-    expect(formatCompactCurrency(950, "AED")).toBe("AED 950");
+  it("compacts thousands and millions like the reference ($0.0k / $8.2M)", () => {
+    expect(formatCompactCurrency(145_000)).toBe("$145.0k");
+    expect(formatCompactCurrency(1_400_000)).toBe("$1.4M");
+    expect(formatCompactCurrency(950)).toBe("$950");
+    expect(formatCompactCurrency(0)).toBe("$0");
   });
 
   it("handles null/undefined as zero", () => {
-    expect(formatCompactCurrency(null, "AED")).toBe("AED 0");
-    expect(formatCurrency(undefined, "AED")).toBe("AED 0");
+    expect(formatCompactCurrency(null)).toBe("$0");
+    expect(formatCurrency(undefined)).toBe("$0");
+  });
+
+  it("uses lowercase k and uppercase M at the exact boundaries", () => {
+    expect(formatCompactCurrency(1_000)).toBe("$1.0k");
+    expect(formatCompactCurrency(999)).toBe("$999");
+    expect(formatCompactCurrency(1_000_000)).toBe("$1.0M");
   });
 });
 
@@ -93,8 +100,19 @@ describe("relative time", () => {
 describe("calendarGrid", () => {
   it("produces whole weeks anchored on Monday", () => {
     const days = calendarGrid(2026, 8, "monday", true); // Sep 2026
+    expect(days[0]).toEqual(new Date(2026, 7, 31)); // Monday Aug 31
     expect(days.length % 7).toBe(0);
     expect(days[0]!.getDay()).toBe(1); // Monday
+  });
+
+  it("anchors sunday-first grids like the reference calendar", () => {
+    const days = calendarGrid(2026, 8, "sunday", true); // Sep 2026
+    // Sep 1 2026 is a Tuesday -> the grid opens on Sunday Aug 30.
+    expect(days[0]).toEqual(new Date(2026, 7, 30));
+    expect(days[1]).toEqual(new Date(2026, 7, 31));
+    expect(days[2]).toEqual(new Date(2026, 8, 1));
+    expect(days.length % 7).toBe(0);
+    expect(days[0]!.getDay()).toBe(0); // Sunday
   });
 
   it("starts the grid in the previous month when needed", () => {

@@ -3,16 +3,19 @@
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
 import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  CreditCard,
+  Award,
+  ChevronDown,
+  ChevronUp,
+  CircleAlert,
   Download,
+  Filter,
   MoreHorizontal,
   Pencil,
   Plus,
+  ScanLine,
   Search,
   Trash2,
+  TrendingUp,
   Upload,
   Users,
 } from "lucide-react";
@@ -34,7 +37,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
-import { KpiCard, PageHeader } from "@/components/shared/page-parts";
+import { IconStatCard, PageHeader } from "@/components/shared/page-parts";
 import { ContactDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { PRIORITY_META } from "@/lib/constants";
@@ -51,8 +54,8 @@ export default function ContactsPage() {
   const [priority, setPriority] = React.useState("all");
   const [ownerId, setOwnerId] = React.useState("all");
   const [source, setSource] = React.useState("all");
-  const [sortKey, setSortKey] = React.useState<SortKey>("name");
-  const [sortDir, setSortDir] = React.useState<SortDir>("asc");
+  const [sortKey, setSortKey] = React.useState<SortKey>("lastActivity");
+  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
   const [showFilters, setShowFilters] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Contact | null>(null);
@@ -148,7 +151,7 @@ export default function ContactsPage() {
               <Download className="h-4 w-4" /> Export CSV
             </Button>
             <Button variant="secondary" onClick={() => setScanOpen(true)}>
-              <CreditCard className="h-4 w-4" /> Scan Card
+              <ScanLine className="h-4 w-4" /> Scan Card
             </Button>
             <Button variant="secondary" onClick={() => setImportOpen(true)}>
               <Upload className="h-4 w-4" /> Import
@@ -165,11 +168,37 @@ export default function ContactsPage() {
         }
       />
 
+      {/* Reference stat cards: solid colored icon chips on the right. */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard label="Total Contacts" value={contacts.length} hint="in this workspace" />
-        <KpiCard label="New This Month" value={contacts.filter((c) => new Date(c.createdAt) >= monthStart).length} hint="vs. previous month" />
-        <KpiCard label="Top Decision Makers" value={contacts.filter((c) => c.priority === "hot").length} hint="hot priority" />
-        <KpiCard label="No Recent Activity" value={contacts.filter((c) => !c.lastActivityAt || new Date(c.lastActivityAt) < new Date(Date.now() - 30 * 86400000)).length} hint="30+ days quiet" />
+        <IconStatCard
+          label="Total Contacts"
+          value={contacts.length}
+          icon={<Users className="h-5 w-5" />}
+          tone="solid"
+          color="#3b82f6"
+        />
+        <IconStatCard
+          label="New This Month"
+          value={contacts.filter((c) => new Date(c.createdAt) >= monthStart).length}
+          subValue={<span className="font-medium text-success">+{contacts.filter((c) => new Date(c.createdAt) >= monthStart).length}</span>}
+          icon={<TrendingUp className="h-5 w-5" />}
+          tone="solid"
+          color="#10b981"
+        />
+        <IconStatCard
+          label="Top Decision Makers"
+          value={contacts.filter((c) => c.priority === "hot").length}
+          icon={<Award className="h-5 w-5" />}
+          tone="solid"
+          color="#f59e0b"
+        />
+        <IconStatCard
+          label="No Recent Activity"
+          value={contacts.filter((c) => !c.lastActivityAt || new Date(c.lastActivityAt) < new Date(Date.now() - 30 * 86400000)).length}
+          icon={<CircleAlert className="h-5 w-5" />}
+          tone="solid"
+          color="#ef4444"
+        />
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -178,7 +207,7 @@ export default function ContactsPage() {
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contacts..." className="pl-9" aria-label="Search contacts" />
         </div>
         <Button variant="secondary" size="sm" className="h-9" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
-          Filters
+          <Filter className="h-3.5 w-3.5" /> Filters
         </Button>
       </div>
 
@@ -244,24 +273,24 @@ export default function ContactsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>
-                    <button type="button" className="inline-flex items-center gap-1 uppercase tracking-wide" onClick={() => toggleSort("name")}>
+                    <button type="button" className="inline-flex items-center gap-1 tracking-wide" onClick={() => toggleSort("name")}>
                       Name
                       {sortKey === "name" ? (
-                        sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                        sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
                       ) : (
-                        <ArrowUpDown className="h-3 w-3 opacity-40" />
+                        <ChevronDown className="h-3 w-3 opacity-40" />
                       )}
                     </button>
                   </TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Priority</TableHead>
                   <TableHead>
-                    <button type="button" className="inline-flex items-center gap-1 uppercase tracking-wide" onClick={() => toggleSort("lastActivity")}>
+                    <button type="button" className="inline-flex items-center gap-1 tracking-wide" onClick={() => toggleSort("lastActivity")}>
                       Last Activity
                       {sortKey === "lastActivity" ? (
-                        sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                        sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
                       ) : (
-                        <ArrowUpDown className="h-3 w-3 opacity-40" />
+                        <ChevronDown className="h-3 w-3 opacity-40" />
                       )}
                     </button>
                   </TableHead>
@@ -334,7 +363,7 @@ export default function ContactsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-xl border border-dashed border-line bg-line-soft px-6 py-10 text-center">
-            <CreditCard className="mx-auto h-8 w-8 text-subtle" />
+            <ScanLine className="mx-auto h-8 w-8 text-subtle" />
             <p className="mt-3 text-sm font-medium text-foreground">Camera not available</p>
             <p className="mt-1 text-xs text-muted">
               Card scanning requires a device camera. On desktop, use Import (CSV) or New Contact instead.

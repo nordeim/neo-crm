@@ -140,6 +140,7 @@ export const REPORT_PERIODS = [
 export const CHART_COLORS = {
   blue: "#3b82f6",
   cyan: "#06b6d4",
+  teal: "#14b8a6",
   amber: "#f59e0b",
   orange: "#f97316",
   green: "#10b981",

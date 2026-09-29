@@ -1,31 +1,75 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone, Plus, Search, Target, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/label";
-import { KpiCard, PageHeader } from "@/components/shared/page-parts";
+import { Input } from "@/components/ui/input";
+import { PageHeader, TrendStatCard } from "@/components/shared/page-parts";
 import { EventDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { EVENT_TYPE_META, EVENT_STATUS_META } from "@/lib/constants";
-import { calendarGrid, endOfDay, formatDate, formatMonthYear, formatTime, isSameDay, monthName, startOfWeek, timeUntil } from "@/lib/format";
+import {
+  addDays,
+  calendarGrid,
+  endOfDay,
+  formatDate,
+  formatMonthYear,
+  formatTime,
+  isSameDay,
+  startOfWeek,
+  timeUntil,
+} from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CrmEvent } from "@/types";
 
+/** Reference filter vocabulary — six type options (incl. Reminders/Demos). */
 const TYPE_FILTERS = [
   { id: "appointment", label: "Appointments" },
   { id: "call", label: "Calls" },
   { id: "meeting", label: "Meetings" },
   { id: "task", label: "Tasks" },
+  { id: "reminder", label: "Reminders" },
+  { id: "demo", label: "Demos" },
 ];
+
+const DATE_FILTERS = [
+  { id: "today", label: "Today" },
+  { id: "tomorrow", label: "Tomorrow" },
+  { id: "this_week", label: "This Week" },
+  { id: "next_week", label: "Next Week" },
+] as const;
+
+type DateFilter = (typeof DATE_FILTERS)[number]["id"];
+
+function inRange(day: Date, filter: DateFilter): boolean {
+  const today = new Date();
+  switch (filter) {
+    case "today":
+      return isSameDay(day, today);
+    case "tomorrow":
+      return isSameDay(day, addDays(today, 1));
+    case "this_week": {
+      const start = startOfWeek(today, "sunday");
+      const end = addDays(start, 7);
+      return day >= start && day < end;
+    }
+    case "next_week": {
+      const start = addDays(startOfWeek(today, "sunday"), 7);
+      const end = addDays(start, 7);
+      return day >= start && day < end;
+    }
+  }
+}
 
 export default function CalendarPage() {
   const { events, hydrated, fetchEvents, deleteEvent } = useCrmStore();
   const [cursor, setCursor] = React.useState(() => new Date()); // any date inside the visible month
   const [selectedDay, setSelectedDay] = React.useState(() => new Date());
   const [filters, setFilters] = React.useState<Record<string, boolean>>({});
+  const [search, setSearch] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<CrmEvent | null>(null);
   const [defaultStart, setDefaultStart] = React.useState<Date | null>(null);
@@ -41,12 +85,30 @@ export default function CalendarPage() {
   }, [hydrated, year, month, fetchEvents]);
 
   const activeTypes = TYPE_FILTERS.filter((t) => filters[t.id]).map((t) => t.id);
+  const activeDates = DATE_FILTERS.filter((d) => filters[d.id]).map((d) => d.id);
   const visible = React.useMemo(
-    () => (activeTypes.length > 0 ? events.filter((e) => activeTypes.includes(e.type)) : events),
-    [events, activeTypes],
+    () =>
+      events.filter((e) => {
+        if (activeTypes.length > 0 && !activeTypes.includes(e.type)) return false;
+        if (activeDates.length > 0 && !activeDates.some((d) => inRange(new Date(e.startAt), d))) return false;
+        if (search.trim()) {
+          const q = search.trim().toLowerCase();
+          if (!(e.title.toLowerCase().includes(q) || (e.location ?? "").toLowerCase().includes(q))) return false;
+        }
+        return true;
+      }),
+    [events, activeTypes, activeDates, search],
   );
 
-  const days = React.useMemo(() => calendarGrid(year, month, "monday", false), [year, month]);
+  // Sunday-anchored grid with leading days, trimmed to whole weeks actually
+  // needed (the reference shows previous-month days like Aug 30/31).
+  const days = React.useMemo(() => {
+    const grid = calendarGrid(year, month, "sunday", true);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const lead = grid.findIndex((d) => d.getMonth() === month && d.getDate() === 1);
+    const weeks = Math.max(Math.ceil((lead + daysInMonth) / 7), 4);
+    return grid.slice(0, weeks * 7);
+  }, [year, month]);
   const today = new Date();
 
   const eventsOn = React.useCallback(
@@ -54,9 +116,9 @@ export default function CalendarPage() {
     [visible],
   );
 
-  const weekStart = startOfWeek(today, "monday");
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 7);
+  const weekStart = startOfWeek(today, "sunday");
+  const weekEnd = addDays(weekStart, 7);
+  const lastWeekStart = addDays(weekStart, -7);
 
   const upcoming = visible
     .filter((e) => new Date(e.startAt) >= today && e.status !== "cancelled")
@@ -64,6 +126,25 @@ export default function CalendarPage() {
     .slice(0, 6);
 
   const dayAgenda = eventsOn(selectedDay);
+
+  // Green trend texts (reference shows "^ +N" deltas per card).
+  const trend = (current: number, previous: number) =>
+    current === previous ? "±0" : current > previous ? `+${current - previous}` : `-${previous - current}`;
+
+  const todaysEvents = eventsOn(today);
+  const yesterdaysEvents = events.filter((e) => isSameDay(new Date(e.startAt), addDays(today, -1))).length;
+  const meetingsThisWeek = visible.filter(
+    (e) => e.type === "meeting" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd,
+  ).length;
+  const meetingsLastWeek = events.filter(
+    (e) => e.type === "meeting" && new Date(e.startAt) >= lastWeekStart && new Date(e.startAt) < weekStart,
+  ).length;
+  const callsThisWeek = visible.filter(
+    (e) => e.type === "call" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd,
+  ).length;
+  const callsLastWeek = events.filter(
+    (e) => e.type === "call" && new Date(e.startAt) >= lastWeekStart && new Date(e.startAt) < weekStart,
+  ).length;
 
   function openNewEvent(day?: Date) {
     const start = day ? new Date(day) : new Date();
@@ -83,24 +164,47 @@ export default function CalendarPage() {
         title="Calendar"
         subtitle="Manage your schedule and events"
         actions={
-          <Button onClick={() => openNewEvent()}>
-            <Plus className="h-4 w-4" /> New Event
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[200px] flex-1 sm:max-w-xs">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search events..." className="pl-9" aria-label="Search events" />
+            </div>
+            <Button onClick={() => openNewEvent()}>
+              <Plus className="h-4 w-4" /> New Event
+            </Button>
+          </div>
         }
       />
 
+      {/* Reference stat cards: icon chip top-left, green trend top-right. */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard label="Today's Events" value={eventsOn(today).length} hint="scheduled today" />
-        <KpiCard label="Total Events" value={events.length} hint="in view" />
-        <KpiCard
-          label="Meetings This Week"
-          value={visible.filter((e) => e.type === "meeting" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd).length}
-          hint="Mon – Sun"
+        <TrendStatCard
+          label="Today's Events"
+          value={todaysEvents.length}
+          trend={trend(todaysEvents.length, yesterdaysEvents)}
+          icon={<CalendarDays className="h-4 w-4" />}
+          color="#3b82f6"
         />
-        <KpiCard
+        <TrendStatCard
+          label="Total Events"
+          value={visible.length}
+          trend={`+${visible.length}`}
+          icon={<Target className="h-4 w-4" />}
+          color="#14b8a6"
+        />
+        <TrendStatCard
+          label="Meetings This Week"
+          value={meetingsThisWeek}
+          trend={trend(meetingsThisWeek, meetingsLastWeek)}
+          icon={<User className="h-4 w-4" />}
+          color="#8b5cf6"
+        />
+        <TrendStatCard
           label="Calls This Week"
-          value={visible.filter((e) => e.type === "call" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd).length}
-          hint="Mon – Sun"
+          value={callsThisWeek}
+          trend={trend(callsThisWeek, callsLastWeek)}
+          icon={<Phone className="h-4 w-4" />}
+          color="#f97316"
         />
       </div>
 
@@ -131,8 +235,8 @@ export default function CalendarPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-7 gap-1 text-center">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-                <span key={d} className="pb-1 text-[11px] font-semibold uppercase tracking-wide text-subtle">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+                <span key={d} className="pb-1 text-[11px] font-semibold tracking-wide text-subtle">
                   {d}
                 </span>
               ))}
@@ -278,6 +382,15 @@ export default function CalendarPage() {
                   checked={filters[t.id] ?? false}
                   onChange={(e) => setFilters((f) => ({ ...f, [t.id]: e.target.checked }))}
                   label={t.label}
+                />
+              ))}
+              <p className="mt-2 text-xs font-medium text-muted">Date</p>
+              {DATE_FILTERS.map((d) => (
+                <Checkbox
+                  key={d.id}
+                  checked={filters[d.id] ?? false}
+                  onChange={(e) => setFilters((f) => ({ ...f, [d.id]: e.target.checked }))}
+                  label={d.label}
                 />
               ))}
             </CardContent>

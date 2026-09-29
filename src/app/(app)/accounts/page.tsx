@@ -22,7 +22,7 @@ import type { Account } from "@/types";
 
 const REVENUE_RANGES = [
   { id: "all", label: "All Revenue" },
-  { id: "0-500k", label: "< AED 500K" },
+  { id: "0-500k", label: "< $500k" },
   { id: "500k-2m", label: "AED 500K – 2M" },
   { id: "2m-10m", label: "AED 2M – 10M" },
   { id: "10m+", label: "AED 10M+" },
@@ -151,19 +151,19 @@ export default function AccountsPage() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <KpiCard label="Total Accounts" value={accounts.length} delta={2} hint="vs. last quarter">
+        <KpiCard label="Total Accounts" value={accounts.length} delta={2}>
           <Sparkline values={industrySpark} color={CHART_COLORS.blue} />
         </KpiCard>
-        <KpiCard label="Active Accounts" value={accounts.filter((a) => a.status === "active").length} delta={2} hint="currently engaged">
+        <KpiCard label="Active Accounts" value={accounts.filter((a) => a.status === "active").length} delta={2}>
           <Sparkline values={activeSpark} color={CHART_COLORS.green} />
         </KpiCard>
-        <KpiCard label="Key Accounts" value={accounts.filter((a) => a.isKey).length} delta={5} hint="strategic tier">
+        <KpiCard label="Key Accounts" value={accounts.filter((a) => a.isKey).length} delta={5}>
           <Sparkline values={industrySpark.map((v) => Math.round(v / 3))} color={CHART_COLORS.cyan} />
         </KpiCard>
-        <KpiCard label="Total Revenue" value={formatCompactCurrency(totalRevenue)} delta={3.6} hint="annual, all accounts">
+        <KpiCard label="Total Revenue" value={formatCompactCurrency(totalRevenue)} delta={3.6}>
           <Sparkline values={revenueSpark} color={CHART_COLORS.violet} />
         </KpiCard>
-        <KpiCard label="Overdue Activities" value={overdueCount} hint="past due date">
+        <KpiCard label="Overdue Activities" value={overdueCount}>
           <Sparkline values={industrySpark.map((v) => Math.round(v / 4))} color={CHART_COLORS.red} />
         </KpiCard>
       </div>

@@ -5,10 +5,12 @@
 
 import * as React from "react";
 import {
+  Area,
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Legend,
   Line,
   LineChart,
@@ -29,12 +31,10 @@ function ChartTooltip({
   active,
   payload,
   label,
-  currency,
 }: {
   active?: boolean;
   payload?: Array<{ name?: string; value?: number | string; color?: string; dataKey?: string | number }>;
   label?: string | number;
-  currency?: string;
 }) {
   if (!active || !payload || payload.length === 0) return null;
   return (
@@ -45,7 +45,9 @@ function ChartTooltip({
           <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
           <span className="capitalize">{p.name}:</span>{" "}
           <span className="font-medium text-foreground">
-            {currency ? formatCompactCurrency(Number(p.value), currency) : p.value}
+            {typeof p.value === "number" && /value|revenue|pipeline/i.test(String(p.dataKey ?? ""))
+              ? formatCompactCurrency(p.value)
+              : p.value}
           </span>
         </p>
       ))}
@@ -53,6 +55,11 @@ function ChartTooltip({
   );
 }
 
+/**
+ * Reference dashboard pipeline chart: vertical bars of the per-stage COUNT
+ * (integer Y axis) with a value legend underneath showing "Stage: $x.xk"
+ * per stage — exactly the reference anatomy.
+ */
 export function PipelineBarChart({
   data,
   height = 260,
@@ -64,70 +71,91 @@ export function PipelineBarChart({
     return <ChartEmpty height={height} />;
   }
   return (
-    <div style={{ height }} className="chart-no-outline">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke={GRID_COLOR} vertical={false} />
-          <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-          <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={48} />
-          <Tooltip content={<ChartTooltip currency="AED" />} cursor={{ fill: "rgba(59,130,246,0.06)" }} />
-          <Bar dataKey="value" name="Pipeline" radius={[6, 6, 0, 0]} maxBarSize={48}>
-            {data.map((d) => (
-              <Cell key={d.label} fill={d.color} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div>
+      <div style={{ height }} className="chart-no-outline">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <CartesianGrid stroke={GRID_COLOR} vertical={false} />
+            <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+            <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={32} allowDecimals={false} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(59,130,246,0.06)" }} />
+            <Bar dataKey="count" name="Leads" radius={[6, 6, 0, 0]} maxBarSize={48}>
+              {data.map((d) => (
+                <Cell key={d.label} fill={d.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+        {data.map((d) => (
+          <span key={d.label} className="inline-flex items-center gap-1.5 text-xs text-muted">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: d.color }} />
+            {d.label}: {formatCompactCurrency(d.value)}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
 
+/**
+ * Reference revenue chart: "Won" teal line + "Target" red line carried on a
+ * pale red AREA fill, raw (unformatted) Y-axis values like the reference.
+ */
 export function RevenueLineChart({
   data,
   height = 260,
   series,
-  currency = "AED",
 }: {
   data: Array<Record<string, string | number>>;
   height?: number;
-  series: Array<{ key: string; label: string; color: string; dashed?: boolean }>;
-  currency?: string;
+  series: Array<{ key: string; label: string; color: string; dashed?: boolean; filled?: boolean }>;
 }) {
   const hasData = data.some((d) => series.some((s) => Number(d[s.key]) > 0));
   if (!hasData) return <ChartEmpty height={height} />;
   return (
     <div style={{ height }} className="chart-no-outline">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid stroke={GRID_COLOR} vertical={false} />
           <XAxis dataKey="month" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-          <YAxis
-            tick={AXIS_STYLE}
-            axisLine={false}
-            tickLine={false}
-            width={52}
-            tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 1000)}K` : String(v))}
-          />
-          <Tooltip content={<ChartTooltip currency={currency} />} />
+          <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={56} />
+          <Tooltip content={<ChartTooltip />} />
           <Legend
             iconType="circle"
             iconSize={8}
             wrapperStyle={{ fontSize: 12, color: "#6b7280", paddingTop: 8 }}
           />
-          {series.map((s) => (
-            <Line
-              key={s.key}
-              type="monotone"
-              dataKey={s.key}
-              name={s.label}
-              stroke={s.color}
-              strokeWidth={2.5}
-              strokeDasharray={s.dashed ? "6 4" : undefined}
-              dot={false}
-              activeDot={{ r: 4 }}
-            />
-          ))}
-        </LineChart>
+          {series.map((s) =>
+            s.filled ? (
+              <Area
+                key={s.key}
+                type="monotone"
+                dataKey={s.key}
+                name={s.label}
+                stroke={s.color}
+                strokeWidth={2.5}
+                fill={s.color}
+                fillOpacity={0.08}
+                strokeDasharray={s.dashed ? "6 4" : undefined}
+                activeDot={{ r: 4 }}
+              />
+            ) : (
+              <Line
+                key={s.key}
+                type="monotone"
+                dataKey={s.key}
+                name={s.label}
+                stroke={s.color}
+                strokeWidth={2.5}
+                strokeDasharray={s.dashed ? "6 4" : undefined}
+                dot={false}
+                activeDot={{ r: 4 }}
+              />
+            ),
+          )}
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

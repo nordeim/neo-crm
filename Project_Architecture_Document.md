@@ -285,10 +285,11 @@ Layer 1: RSC pages + (app) layout — resolve the session server-side,
          redirect unauthenticated visits, render client islands with props.
          Rule: no data fetching happens here beyond the session; pages own
          their data through the store.
-Layer 2: API route handlers — 22 files, all `force-dynamic`, all guarded by
-         `requireSession()` (except auth/login, auth/signup, health, search's
-         public shell). Rule: hand-rolled validation at the boundary; return
-         the envelope, never throw across it.
+Layer 2: API route handlers — 22 files / 34 handlers (incl. `PATCH
+         /api/users` for the profile Full-Name edit), all `force-dynamic`,
+         all guarded by `requireSession()` (except auth/login, auth/signup,
+         health, search's public shell). Rule: hand-rolled validation at the
+         boundary; return the envelope, never throw across it.
 Layer 3: Pure seams (src/lib) — auth, api envelope, db + db-path, format,
          csv, constants, rate-limit, download. Rule: unit-tested; handlers
          and pages import these instead of inlining logic.
@@ -345,8 +346,8 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 5 Vitest suites — 58 checks
-│   └── e2e/                     # global-setup, auth.setup, 4 spec files — 20 checks
+│   ├── *.test.ts                # 6 Vitest suites — 65 checks
+│   └── e2e/                     # global-setup, auth.setup, 4 spec files — 21 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
 └── postcss.config.mjs           # @tailwindcss/postcss — REQUIRED (ADR-005)
@@ -647,14 +648,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | -------- | ----- | ------ | -------- | --------- |
 | Unit — db-path | 1 | 16 | `tests/db-path.test.ts` | Vitest |
 | Unit — auth | 1 | 9 | `tests/auth.test.ts` | Vitest |
-| Unit — format | 1 | 19 | `tests/format.test.ts` | Vitest |
+| Unit — avatar | 1 | 5 | `tests/avatar.test.ts` | Vitest |
+| Unit — format | 1 | 21 | `tests/format.test.ts` | Vitest |
 | Unit — csv | 1 | 8 | `tests/csv.test.ts` | Vitest |
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path | 1 | 11 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path | 1 | 12 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression | 1 | 5 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **9** | **67** | | |
+| **Total** | **10** | **86** | | |
 
 ### 7.2 Test Patterns
 
@@ -684,9 +686,9 @@ must keep all 5 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 58/58
+- [ ] `bun run test` — 65/65
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 20/20
+- [ ] `bun run test:e2e` — 21/21
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`
@@ -752,7 +754,7 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 58 unit checks |
+| `bun run test` | root | 65 unit checks |
 | `bun run test:e2e` | root | 20 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |

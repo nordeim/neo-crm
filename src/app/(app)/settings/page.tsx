@@ -2,7 +2,7 @@
 
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
-import { Download, Plus, Save, Trash2, X } from "lucide-react";
+import { Download, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,6 +73,7 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
             size="icon"
             disabled={!value.trim()}
             aria-label="Add item"
+            className="border-transparent bg-gray-800 text-white hover:bg-gray-700"
             onClick={() => {
               if (value.trim()) {
                 onAdd(value.trim());
@@ -102,6 +103,7 @@ export default function SettingsPage() {
       <PageHeader title="Settings" subtitle="Configure your CRM preferences and defaults" />
 
       <Tabs
+        variant="segmented"
         value={tab}
         onValueChange={setTab}
         tabs={[
@@ -212,7 +214,6 @@ export default function SettingsPage() {
 
 function ConfigEditor({ settings }: { settings: Settings }) {
   const { updateSettings } = useCrmStore();
-  const [saving, setSaving] = React.useState(false);
   const [lists, setLists] = React.useState(() => ({
     contactSources: [...settings.contactSources],
     leadStages: [...settings.leadStages],
@@ -221,25 +222,20 @@ function ConfigEditor({ settings }: { settings: Settings }) {
     industries: [...settings.industries],
   }));
 
+  // The reference has no "Save All" button — every add/remove persists
+  // immediately, so the picklists always mirror the stored settings.
   function mutate(key: keyof typeof lists, fn: (arr: string[]) => string[]) {
-    setLists((l) => ({ ...l, [key]: fn(l[key]) }));
-  }
-
-  async function save() {
-    setSaving(true);
-    const res = await updateSettings(lists);
-    setSaving(false);
-    if (res.ok) toast.success("Configuration saved", "Picklists updated across the workspace.");
-    else toast.error("Could not save", res.error);
+    setLists((l) => {
+      const next = { ...l, [key]: fn(l[key]) };
+      void updateSettings(next).then((res) => {
+        if (!res.ok) toast.error("Could not save", res.error);
+      });
+      return next;
+    });
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button onClick={save} disabled={saving}>
-          <Save className="h-4 w-4" /> {saving ? "Saving…" : "Save All"}
-        </Button>
-      </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ListEditor
           title="Contact Sources"
@@ -283,7 +279,6 @@ function ConfigEditor({ settings }: { settings: Settings }) {
 
 function DefaultsEditor({ settings }: { settings: Settings }) {
   const { updateSettings } = useCrmStore();
-  const [saving, setSaving] = React.useState(false);
   const [defaults, setDefaults] = React.useState(() => ({
     defaultCurrency: settings.defaultCurrency,
     defaultLeadStage: settings.defaultLeadStage,
@@ -293,24 +288,23 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
     firstDayOfWeek: settings.firstDayOfWeek,
   }));
 
-  async function save() {
-    setSaving(true);
-    const res = await updateSettings(defaults);
-    setSaving(false);
-    if (res.ok) toast.success("Defaults saved");
-    else toast.error("Could not save", res.error);
+  // Reference behavior: no save button — each change persists immediately.
+  function set<K extends keyof typeof defaults>(key: K, value: (typeof defaults)[K]) {
+    setDefaults((d) => {
+      const next = { ...d, [key]: value };
+      void updateSettings(next).then((res) => {
+        if (!res.ok) toast.error("Could not save", res.error);
+      });
+      return next;
+    });
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button onClick={save} disabled={saving}>
-          <Save className="h-4 w-4" /> {saving ? "Saving…" : "Save Defaults"}
-        </Button>
-      </div>
       <Card>
         <CardHeader>
           <CardTitle>Default Values</CardTitle>
+          <p className="text-xs text-muted">Set default values for new records</p>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="grid gap-1.5">
@@ -318,7 +312,7 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
             <Input
               id="def-currency"
               value={defaults.defaultCurrency}
-              onChange={(e) => setDefaults({ ...defaults, defaultCurrency: e.target.value.toUpperCase().slice(0, 6) })}
+              onChange={(e) => set("defaultCurrency", e.target.value.toUpperCase().slice(0, 6))}
             />
           </div>
           <div className="grid gap-1.5">
@@ -326,7 +320,7 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
             <Input
               id="def-stage"
               value={defaults.defaultLeadStage}
-              onChange={(e) => setDefaults({ ...defaults, defaultLeadStage: e.target.value })}
+              onChange={(e) => set("defaultLeadStage", e.target.value)}
             />
           </div>
           <div className="grid gap-1.5">
@@ -334,7 +328,7 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
             <Input
               id="def-tier"
               value={defaults.defaultTier}
-              onChange={(e) => setDefaults({ ...defaults, defaultTier: e.target.value.toUpperCase().slice(0, 2) })}
+              onChange={(e) => set("defaultTier", e.target.value.toUpperCase().slice(0, 2))}
             />
           </div>
           <div className="grid gap-1.5">
@@ -345,12 +339,12 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
               min={0}
               max={90}
               value={defaults.followUpDays}
-              onChange={(e) => setDefaults({ ...defaults, followUpDays: Number(e.target.value) || 0 })}
+              onChange={(e) => set("followUpDays", Number(e.target.value) || 0)}
             />
           </div>
           <div className="grid gap-1.5">
             <Label>Default Calendar View</Label>
-            <Select value={defaults.calendarView} onValueChange={(v) => setDefaults({ ...defaults, calendarView: v })}>
+            <Select value={defaults.calendarView} onValueChange={(v) => set("calendarView", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="month">Month</SelectItem>
@@ -361,7 +355,7 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
           </div>
           <div className="grid gap-1.5">
             <Label>First Day of Week</Label>
-            <Select value={defaults.firstDayOfWeek} onValueChange={(v) => setDefaults({ ...defaults, firstDayOfWeek: v })}>
+            <Select value={defaults.firstDayOfWeek} onValueChange={(v) => set("firstDayOfWeek", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="monday">Monday</SelectItem>
