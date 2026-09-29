@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (112 checks)         | `bun run test`                         |
-| Browser E2E (21 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (133 checks)         | `bun run test`                         |
+| Browser E2E (22 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (112) → `bun run build` → `bun run test:e2e` (21). There is no
+`bun run test` (133) → `bun run build` → `bun run test:e2e` (22). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -94,13 +94,27 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   ships no navigation below `md`. `src/components/layout/mobile-nav.tsx`
   covers `< md` only (the trigger and overlay are `md:hidden`): focus trap,
   Escape, dual scroll-lock (body + the `main` scroller), close-on-route-
-  change, `inert` + `visibility:hidden` when closed.
-  `tests/e2e/mobile-navigation.spec.ts` (5 checks, 390px viewport) is the
+  change, close-on-viewport-grow past `md` (`MOBILE_NAV_LAYOUT.autoCloseQuery`
+  MUST stay at 768px — the same breakpoint as `md:hidden`; session-8 fixed a
+  leftover 1024px listener that left the app scroll-locked after resizing
+  past 768 with the drawer open), `inert` + `visibility:hidden` when closed.
+  `tests/e2e/mobile-navigation.spec.ts` (6 checks, 390/700px viewports) is the
   regression suite — do not weaken it.
 - **File downloads use `downloadFile()`** (`src/lib/download.ts`) — a single
   centralized `window.location.href` for `Content-Disposition: attachment`
   responses. Next's `no-location-assign` lint rule fires on raw assignments;
   don't inline them again.
+- **View switchers + the leads filter popover (session-8)**: the reference
+  ships DEAD Table/Cards selects (dashboard filter bar — empty label;
+  accounts toolbar — displays "Table") plus a dead Standard/Detailed select
+  and More button on the accounts toolbar; ours keep the empty/label mirrors
+  but switch for real (Recent Deals / accounts table ↔ card grids). The leads
+  Filters control is a w-80 popover (Status [New/Contacted/Qualified/Won/
+  Lost], Source [Call/Email/Website/Partner/Referral — 5 options, Referral is
+  popover-only], Min Deal Value, Follow-up Date) whose Save View persists via
+  the `src/lib/lead-filters.ts` encode/decode seam (localStorage key
+  `neo-crm.leads.view`); Clear resets. The dashboard has NO owner filter —
+  the old "All Owners" select was a misread of the empty switcher.
 - **Status vocabularies are distinct** — never mix them. Lead stages
   (incl. session-5's `unqualified` — dropped = `lost` + `unqualified` via
   `isDroppedStage()`), account statuses, activity types/statuses, event
@@ -166,10 +180,10 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   were DOM-verified against the reference's zero-state KPIs (it prints
   `$0.0k` on the dashboard, `$0.0K`/`$0K` on reports, `$0` on leads).
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
-  `format.ts`, `csv.ts`, `rate-limit.ts`, `avatar` helpers, the chart
-  palette (`constants.test.ts`), the dialog/filter vocabularies, the
-  layout+chrome contracts (`tests/page-layout.test.ts`, 37 pins across
-  sessions 6–7) — 112 Vitest checks). Route handlers
+  `format.ts`, `csv.ts`, `rate-limit.ts`, `lead-filters.ts`, `avatar` helpers,
+  the chart palette (`constants.test.ts`), the dialog/filter vocabularies, the
+  layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
+  sessions 6–8) — 133 Vitest checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place
   reseed) on port 3100 against the standalone build.

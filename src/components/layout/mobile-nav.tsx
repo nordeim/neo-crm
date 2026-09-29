@@ -23,6 +23,7 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { SidebarNav, BrandMark } from "./sidebar";
+import { MOBILE_NAV_LAYOUT } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 
 interface MobileNavProps {
@@ -43,9 +44,13 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
   }
 
   // Close automatically when the viewport grows past the mobile breakpoint.
+  // S8-P1: the query MUST match the drawer's `md:hidden` range (768px) —
+  // session-7 changed the range but left this listener at 1024px, which
+  // left body + main scroll-locked after resizing from 700 to 800px with
+  // the drawer open (the drawer hid, the locks stayed).
   React.useEffect(() => {
     if (!open) return;
-    const mql = window.matchMedia("(min-width: 1024px)");
+    const mql = window.matchMedia(MOBILE_NAV_LAYOUT.autoCloseQuery);
     const onChange = (e: MediaQueryListEvent) => {
       if (e.matches) onOpenChange(false);
     };
@@ -107,7 +112,9 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
       className={cn(
         // md, not lg — the desktop sidebar appears from md (session-7
         // live pin), so the drawer only covers phone/narrow-tablet widths.
-        "fixed inset-0 z-50 transition-[visibility] duration-300 md:hidden",
+        // MOBILE_NAV_LAYOUT.drawerRange keeps the class and the auto-close
+        // media query in lockstep (session-8 S8-P1).
+        `fixed inset-0 z-50 transition-[visibility] duration-300 ${MOBILE_NAV_LAYOUT.drawerRange}`,
         open ? "visible" : "invisible pointer-events-none",
       )}
       role="dialog"

@@ -262,14 +262,95 @@ export const DASHBOARD_CARD = {
 
 /** Settings picklist cards — items stack `space-y-2 mb-4`, the empty state
  *  is a plain `text-sm text-center py-4` paragraph (no dashed box), and the
- *  add action is a primary h-9 icon-only Plus button. The reference's
+ *  add action is an h-9 icon-only Plus button. Session-8 re-pin: the
+ *  reference's `bg-primary` resolves to the STOCK shadcn zinc-950
+ *  (computed rgb(23,23,23)) — a dark neutral button, not the app's blue
+ *  (same family as the profile Save Changes button). The reference's
  *  "Add new industrie" placeholder typo is mirrored (like "Conversion
  *  Funnel"). */
 export const SETTINGS_PICKLIST = {
   items: "space-y-2 mb-4",
   empty: "text-sm text-muted text-center py-4",
   addRow: "flex gap-2",
+  addButton: "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
   industriesPlaceholder: "Add new industrie",
+} as const;
+
+/** Session-8: mobile-nav drawer contracts. The auto-close media query MUST
+ *  match the drawer's `md:hidden` range (768px) — session-7 moved the drawer
+ *  from lg to md but left the listener at 1024px, so resizing from 700 to
+ *  800px with the drawer open hid the drawer while body + main stayed
+ *  scroll-locked (reproduced on the dev server; e2e regression pinned in
+ *  tests/e2e/mobile-navigation.spec.ts). */
+export const MOBILE_NAV_LAYOUT = {
+  drawerRange: "md:hidden",
+  autoCloseQuery: "(min-width: 768px)",
+} as const;
+
+/** Session-8: dashboard header — the primary Export button renders its
+ *  label as a BARE text node (always visible), unlike the outline Export
+ *  whose label hides below sm. `primaryExportLabelClass: ""` pins the
+ *  absence of a hiding class. */
+export const DASHBOARD_HEADER = {
+  primaryExportLabel: "Export",
+  primaryExportLabelClass: "",
+} as const;
+
+/** Session-8: the reference's Table/Cards view-switcher select. Both live
+ *  instances (dashboard filter-bar middle slot, accounts table toolbar)
+ *  render with an EMPTY placeholder label and are DEAD — picking "Cards"
+ *  changes nothing. Ours keeps the empty default label (mirror) and makes
+ *  the switch real (functional superset). */
+export const VIEW_SWITCHER = {
+  trigger: "w-full sm:w-32",
+  emptyLabel: "",
+  options: ["Table", "Cards"] as const,
+} as const;
+
+/** Session-8: accounts table toolbar — the reference stacks
+ *  [Table switcher][density switcher (Standard/Detailed, empty label, dead)]
+ *  [More outline h-8 dead button] BEFORE the search, then Export CSV. */
+export const TABLE_TOOLBAR = {
+  row: "flex flex-col sm:flex-row gap-3",
+  select: "w-full sm:w-32",
+  densityOptions: ["Standard", "Detailed"] as const,
+  moreBtn: "h-8 rounded-md px-3 text-xs",
+} as const;
+
+/** Session-8: leads search — identical anatomy to contacts (w-5 icon,
+ *  pl-10 input); ours was one size small (h-4 + pl-9). */
+export const LEADS_TOOLBAR = {
+  searchIcon: "h-5 w-5",
+  searchInput: "pl-10",
+} as const;
+
+/** Session-8: leads Filters popover (Radix Popover) — w-80 p-4 content,
+ *  `text-sm font-medium mb-2 block` field labels, h-9 w-full controls
+ *  (Status select, Source select, Min Deal Value number input,
+ *  Follow-up Date date input) and a `flex gap-2 pt-2` footer with outline
+ *  h-9 flex-1 Clear (X icon) + Save View (Save icon) buttons. The trigger
+ *  carries a Filter icon and NO chevron. */
+export const LEADS_FILTERS_POPOVER = {
+  trigger: "h-9 w-full sm:w-auto",
+  triggerIcon: "h-4 w-4 mr-2",
+  content: "w-80 p-4",
+  stack: "space-y-4",
+  fieldLabel: "text-sm font-medium mb-2 block",
+  select: "h-9 w-full",
+  numberInput: "h-9 w-full",
+  dateInput: "h-9 w-full",
+  footer: "flex gap-2 pt-2",
+  footerBtn: "flex-1 h-9 px-4 py-2",
+  footerIcon: "h-4 w-4 mr-2",
+  statusOptions: ["All Status", "New", "Contacted", "Qualified", "Won", "Lost"] as const,
+  sourceOptions: ["All Sources", "Call", "Email", "Website", "Partner", "Referral"] as const,
+} as const;
+
+/** Session-8: activities quick-log row — Log WhatsApp is a SOLID emerald
+ *  button on the reference (bg-emerald-600 hover:bg-emerald-700 + shadow);
+ *  the session-6 "ghost" pin is stale. The other three stay outline h-8. */
+export const ACTIVITY_QUICKLOG = {
+  whatsapp: "bg-emerald-600 hover:bg-emerald-700 text-white shadow",
 } as const;
 
 /** Every exported class string, for regression guards. */
@@ -290,10 +371,19 @@ export function allLayoutClasses(): string[] {
     STAT_CARD,
     ACTIVITY_CARD,
     DASHBOARD_CARD,
+    DASHBOARD_HEADER,
     SETTINGS_PICKLIST,
+    MOBILE_NAV_LAYOUT,
+    VIEW_SWITCHER,
+    TABLE_TOOLBAR,
+    LEADS_TOOLBAR,
+    LEADS_FILTERS_POPOVER,
+    ACTIVITY_QUICKLOG,
   ]) {
-    for (const value of Object.values(group as Record<string, string>)) {
-      out.push(value);
+    for (const value of Object.values(group as Record<string, string | readonly string[]>)) {
+      // Some session-8 records carry option ARRAYS (vocabularies), not class
+      // strings — only string values belong in the class-string guard.
+      if (typeof value === "string") out.push(value);
     }
   }
   return out;

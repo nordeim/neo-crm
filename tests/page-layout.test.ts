@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   ACTIVITY_CARD,
+  ACTIVITY_QUICKLOG,
   DASHBOARD_CARD,
+  DASHBOARD_HEADER,
   FILTER_BAR,
   FILTER_RAIL,
+  LEADS_FILTERS_POPOVER,
+  LEADS_TOOLBAR,
   LOGIN_LAYOUT,
+  MOBILE_NAV_LAYOUT,
   NAV_LAYOUT,
   PAGE_HEADER,
   PAGE_KPI_GRIDS,
@@ -14,7 +19,9 @@ import {
   SHELL_LAYOUT,
   STAT_CARD,
   TABLE_CARD,
+  TABLE_TOOLBAR,
   TOPBAR_LAYOUT,
+  VIEW_SWITCHER,
   allLayoutClasses,
 } from "@/lib/page-layout";
 
@@ -317,6 +324,105 @@ describe("stat/card header parity (session-7 DOM-verified)", () => {
     expect(SETTINGS_PICKLIST.addRow).toBe("flex gap-2");
     // The reference's placeholder typo on the Industries card is mirrored.
     expect(SETTINGS_PICKLIST.industriesPlaceholder).toBe("Add new industrie");
+  });
+});
+
+describe("session-8 parity pins (DOM-verified 2026-09-30)", () => {
+  it("mobile-nav auto-close query matches the drawer's md range (768px, not lg)", () => {
+    // S8-P1: session-7 moved the drawer from lg to md but left the
+    // auto-close media listener at 1024px — resizing from 700 to 800px with
+    // the drawer open left body+main scroll-locked with the drawer hidden.
+    expect(MOBILE_NAV_LAYOUT.autoCloseQuery).toBe("(min-width: 768px)");
+    expect(MOBILE_NAV_LAYOUT.autoCloseQuery).not.toContain("1024");
+    // The drawer/trigger hide from md — the query must fire at the SAME
+    // breakpoint (symmetrical breakpoint strategy).
+    expect(MOBILE_NAV_LAYOUT.drawerRange).toBe("md:hidden");
+  });
+
+  it("dashboard primary Export carries an always-visible label (bare text node)", () => {
+    // S8-1: the reference's third header button renders the label as a BARE
+    // text node — NOT wrapped in `hidden sm:inline` like the outline Export.
+    expect(DASHBOARD_HEADER.primaryExportLabel).toBe("Export");
+    expect(DASHBOARD_HEADER.primaryExportLabelClass).toBe("");
+  });
+
+  it("view switcher: w-full sm:w-32 trigger, empty default label, Table/Cards", () => {
+    // S8-2/S8-3: the reference's Table/Cards switcher renders with an EMPTY
+    // placeholder (never set — dead on the reference); ours keeps the empty
+    // default but switches the view for real.
+    expect(VIEW_SWITCHER.trigger).toBe("w-full sm:w-32");
+    expect(VIEW_SWITCHER.emptyLabel).toBe("");
+    expect(VIEW_SWITCHER.options).toEqual(["Table", "Cards"]);
+  });
+
+  it("accounts table toolbar: switcher + density select + More before the search", () => {
+    // S8-3: [Table select][Standard/Detailed select (empty, dead)][More
+    // outline h-8 dead] then the search and Export CSV.
+    expect(TABLE_TOOLBAR.row).toBe("flex flex-col sm:flex-row gap-3");
+    expect(TABLE_TOOLBAR.select).toBe("w-full sm:w-32");
+    expect(TABLE_TOOLBAR.densityOptions).toEqual(["Standard", "Detailed"]);
+    expect(TABLE_TOOLBAR.moreBtn).toBe("h-8 rounded-md px-3 text-xs");
+  });
+
+  it("leads search uses the contacts anatomy: w-5 icon + pl-10 input", () => {
+    // S8-4: the reference's leads search icon is w-5 h-5 with pl-10 —
+    // identical to contacts (ours was h-4 w-4 + pl-9).
+    expect(LEADS_TOOLBAR.searchIcon).toBe("h-5 w-5");
+    expect(LEADS_TOOLBAR.searchInput).toContain("pl-10");
+    expect(LEADS_TOOLBAR.searchInput).not.toContain("pl-9");
+  });
+
+  it("leads Filters popover: w-80 p-4, four fields, Clear + Save View h-9 flex-1", () => {
+    // S8-5: the reference's Filters button opens a Radix Popover (not an
+    // inline expander) with Status/Source/Min Deal Value/Follow-up Date.
+    expect(LEADS_FILTERS_POPOVER.trigger).toBe("h-9 w-full sm:w-auto");
+    expect(LEADS_FILTERS_POPOVER.triggerIcon).toBe("h-4 w-4 mr-2");
+    expect(LEADS_FILTERS_POPOVER.content).toBe("w-80 p-4");
+    expect(LEADS_FILTERS_POPOVER.stack).toBe("space-y-4");
+    expect(LEADS_FILTERS_POPOVER.fieldLabel).toBe("text-sm font-medium mb-2 block");
+    expect(LEADS_FILTERS_POPOVER.select).toBe("h-9 w-full");
+    expect(LEADS_FILTERS_POPOVER.numberInput).toBe("h-9 w-full");
+    expect(LEADS_FILTERS_POPOVER.dateInput).toBe("h-9 w-full");
+    expect(LEADS_FILTERS_POPOVER.footer).toBe("flex gap-2 pt-2");
+    expect(LEADS_FILTERS_POPOVER.footerBtn).toBe("flex-1 h-9 px-4 py-2");
+    expect(LEADS_FILTERS_POPOVER.footerIcon).toBe("h-4 w-4 mr-2");
+  });
+
+  it("leads Filters popover vocabularies (DOM-pinned option lists)", () => {
+    // Status uses the 6-value filter list; Source has FIVE options — the
+    // popover's Referral is absent from the 4-option create dialog.
+    expect(LEADS_FILTERS_POPOVER.statusOptions).toEqual([
+      "All Status",
+      "New",
+      "Contacted",
+      "Qualified",
+      "Won",
+      "Lost",
+    ]);
+    expect(LEADS_FILTERS_POPOVER.sourceOptions).toEqual([
+      "All Sources",
+      "Call",
+      "Email",
+      "Website",
+      "Partner",
+      "Referral",
+    ]);
+  });
+
+  it("Log WhatsApp is a SOLID emerald button (reference regression since session 6)", () => {
+    // S8-6: bg-emerald-600 hover:bg-emerald-700 + shadow on the live
+    // reference — the session-6 "ghost" pin is stale.
+    expect(ACTIVITY_QUICKLOG.whatsapp).toBe(
+      "bg-emerald-600 hover:bg-emerald-700 text-white shadow",
+    );
+  });
+
+  it("settings picklist add buttons are dark neutral-900 (reference bg-primary = rgb(23,23,23))", () => {
+    // S8-7: the reference's `bg-primary` resolves to the STOCK shadcn
+    // zinc-950 (computed rgb(23,23,23)), not the app's blue-600 token.
+    expect(SETTINGS_PICKLIST.addButton).toBe(
+      "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
+    );
   });
 });
 

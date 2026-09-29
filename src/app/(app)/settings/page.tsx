@@ -73,11 +73,13 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
             placeholder={placeholder}
             aria-label={`Add new ${title.toLowerCase()} item`}
           />
-          {/* Session-7: the add action is a PRIMARY h-9 icon-only Plus
-              button on the reference (not a dark square). */}
+          {/* Session-8 (S8-7, computed-color probe): the reference's add
+              button uses bg-primary where --primary is the STOCK shadcn
+              zinc-950 (rgb(23,23,23)) — a DARK button, not the app's blue
+              (same neutral family as the profile Save Changes button). */}
           <Button
             size="sm"
-            className="h-9 w-auto px-4 py-2"
+            className={SETTINGS_PICKLIST.addButton}
             disabled={!value.trim()}
             aria-label="Add item"
             onClick={() => {

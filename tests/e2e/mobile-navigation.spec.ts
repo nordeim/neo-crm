@@ -73,6 +73,38 @@ test.describe("mobile navigation drawer", () => {
     expect(await page.evaluate(() => document.body.style.overflow)).not.toBe("hidden");
   });
 
+  test("growing past md auto-closes the drawer AND releases both scroll locks", async ({ page }) => {
+    // S8-P1 regression: session-7 moved the drawer from lg to md (768px) but
+    // left the auto-close media listener at 1024px. Resizing from 700 to
+    // 800px with the drawer open hid the drawer (md:hidden) while body AND
+    // main stayed overflow:hidden — the app became unscrollable. The drawer
+    // must close and unlock at the SAME breakpoint it hides (symmetrical
+    // breakpoint strategy).
+    await page.setViewportSize({ width: 700, height: 844 });
+    await page.goto("/");
+
+    await page.getByRole("button", { name: "Open navigation menu" }).click();
+    const dialog = page.getByRole("dialog", { name: "Navigation menu" });
+    await expect(dialog).toBeVisible();
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe("hidden");
+    expect(await page.evaluate(() => document.querySelector("main")?.style.overflow)).toBe("hidden");
+
+    // Grow past md (768px): the drawer element hides via CSS — the state
+    // must close too, releasing the locks.
+    await page.setViewportSize({ width: 800, height: 844 });
+
+    await expect(dialog).toBeHidden();
+    // Both locks released (the desktop sidebar is now the nav).
+    await expect
+      .poll(async () => page.evaluate(() => document.body.style.overflow))
+      .not.toBe("hidden");
+    await expect
+      .poll(async () => page.evaluate(() => document.querySelector("main")?.style.overflow))
+      .not.toBe("hidden");
+    // And the desktop sidebar took over.
+    await expect(page.locator("aside").first()).toBeVisible();
+  });
+
   test("desktop shows the persistent sidebar instead", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");

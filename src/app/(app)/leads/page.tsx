@@ -14,10 +14,12 @@ import {
   Percent,
   Pencil,
   Plus,
+  Save,
   Search,
   Target,
   TrendingUp,
   Trash2,
+  X,
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,17 +27,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
+import { toast } from "@/components/ui/toast";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
-import { FILTER_RAIL, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
+import { LEADS_FILTERS_POPOVER, LEADS_TOOLBAR, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_LEAD_FILTERS,
+  LEAD_FILTERS_STORAGE_KEY,
+  decodeLeadFilters,
+  encodeLeadFilters,
+  leadFiltersEqual,
+  type LeadFilters,
+} from "@/lib/lead-filters";
 import { ConversionFunnel, PipelineBarChart, WonLostLineChart } from "@/components/charts/charts";
 import { LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { LEAD_STAGES, STAGE_META, isDroppedStage } from "@/lib/constants";
+import { STAGE_META, isDroppedStage } from "@/lib/constants";
 import { avgDaysBetween, formatCompactCurrency, formatCurrency, formatDate } from "@/lib/format";
 import type { Lead } from "@/types";
 
@@ -43,21 +53,40 @@ type SortKey = "name" | "email" | "value" | "createdAt";
 type SortDir = "asc" | "desc";
 
 export default function LeadsPage() {
-  const { leads, users, settings, loadingFlags, hydrated, deleteLead, fetchLeads } = useCrmStore();
+  const { leads, loadingFlags, hydrated, deleteLead, fetchLeads } = useCrmStore();
   const [search, setSearch] = React.useState("");
-  const [stage, setStage] = React.useState("all");
-  const [ownerId, setOwnerId] = React.useState("all");
-  const [source, setSource] = React.useState("all");
-  const [openOnly, setOpenOnly] = React.useState(false);
+  // S8-5: the reference's Filters control is a w-80 POPOVER with
+  // Status/Source/Min Deal Value/Follow-up Date — not an inline expander.
+  const [filters, setFilters] = React.useState<LeadFilters>(DEFAULT_LEAD_FILTERS);
   const [sortKey, setSortKey] = React.useState<SortKey>("createdAt");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
-  const [showFilters, setShowFilters] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Lead | null>(null);
 
   React.useEffect(() => {
     if (hydrated) fetchLeads();
   }, [hydrated, fetchLeads]);
+
+  // Restore the saved filter view after mount. The setState is deferred to
+  // a timer callback (React 19 lint: never setState synchronously inside an
+  // effect body) and the first paint uses the defaults, so there is no
+  // hydration mismatch with the server-rendered markup.
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      const saved = decodeLeadFilters(window.localStorage.getItem(LEAD_FILTERS_STORAGE_KEY));
+      if (saved) setFilters((prev) => (leadFiltersEqual(prev, saved) ? prev : saved));
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
+
+  function saveView() {
+    try {
+      window.localStorage.setItem(LEAD_FILTERS_STORAGE_KEY, encodeLeadFilters(filters));
+      toast.success("View saved", "This filter set will be restored on your next visit.");
+    } catch {
+      toast.error("Could not save view", "Browser storage is unavailable.");
+    }
+  }
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -69,12 +98,25 @@ export default function LeadsPage() {
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
+    const statusStage: Record<string, string> = {
+      New: "new",
+      Contacted: "contacted",
+      Qualified: "qualified",
+      Won: "won",
+    };
     const rows = leads.filter((l) => {
       if (q && !`${l.name} ${l.email ?? ""} ${l.company ?? ""}`.toLowerCase().includes(q)) return false;
-      if (stage !== "all" && l.stage !== stage) return false;
-      if (ownerId !== "all" && l.ownerId !== ownerId) return false;
-      if (source !== "all" && l.source !== source) return false;
-      if (openOnly && (l.stage === "won" || isDroppedStage(l.stage))) return false;
+      if (filters.status) {
+        if (filters.status === "Lost") {
+          if (!isDroppedStage(l.stage)) return false;
+        } else if (l.stage !== statusStage[filters.status]) return false;
+      }
+      if (filters.source && (l.source ?? "").toLowerCase() !== filters.source.toLowerCase()) return false;
+      if (filters.minValue != null && l.value < filters.minValue) return false;
+      if (filters.followUpDate) {
+        const fd = l.nextFollowUp ? new Date(l.nextFollowUp).toISOString().slice(0, 10) : null;
+        if (fd !== filters.followUpDate) return false;
+      }
       return true;
     });
     rows.sort((a, b) => {
@@ -86,7 +128,7 @@ export default function LeadsPage() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return rows;
-  }, [leads, search, stage, ownerId, source, openOnly, sortKey, sortDir]);
+  }, [leads, search, filters, sortKey, sortDir]);
 
   const won = leads.filter((l) => l.stage === "won");
   const lost = leads.filter((l) => isDroppedStage(l.stage));
@@ -140,7 +182,6 @@ export default function LeadsPage() {
     return counts.filter((c) => c.count > 0);
   }, [leads]);
 
-  const sources = settings?.contactSources ?? ["Email", "Phone", "Website", "Referral"];
 
   async function onDelete(lead: Lead) {
     if (!window.confirm(`Delete "${lead.name}"? This cannot be undone.`)) return;
@@ -209,72 +250,94 @@ export default function LeadsPage() {
         <IconStatCard variant="leads" label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<CalendarDays className="h-5 w-5" />} color="#14b8a6" />
       </div>
 
-      {/* Session-6 (S6-8): search + Filters toggle + table live in ONE
-          white `rounded-lg shadow` card — header `p-4 border-b space-y-4`
-          (search row flex-col sm:flex-row gap-4, then the outline h-9
-          `w-full sm:w-auto` Filters chevron button), body `overflow-x-auto`. */}
+      {/* Session-8 (S8-4/S8-5, DOM re-pinned): search + a Filters POPOVER
+          trigger live in the card header. The search uses the contacts
+          anatomy (w-5 icon + pl-10); the Filters button is an outline h-9
+          `w-full sm:w-auto` popover trigger with a Filter icon and NO
+          chevron — its w-80 content carries Status / Source / Min Deal
+          Value / Follow-up Date + Clear / Save View (the reference's is
+          inert; ours filters for real and Save View persists to
+          localStorage via the @/lib/lead-filters seam). */}
       <Card className={cn(TABLE_CARD.card, "overflow-hidden")}>
         <div className={cn(TABLE_CARD.toolbar, "space-y-4")}>
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search leads..." className="pl-9" aria-label="Search leads" />
+              <Search className={cn("pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-subtle", LEADS_TOOLBAR.searchIcon)} />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search leads..." className={LEADS_TOOLBAR.searchInput} aria-label="Search leads" />
             </div>
           </div>
-          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:gap-4">
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto"
-              aria-expanded={showFilters}
-              onClick={() => setShowFilters((v) => !v)}
-            >
-              <Filter className="h-4 w-4" /> Filters
-              {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-4">
+            <Dropdown>
+              <DropdownTrigger asChild>
+                <Button variant="outline" className={LEADS_FILTERS_POPOVER.trigger} aria-label="Open lead filters">
+                  <Filter className={LEADS_FILTERS_POPOVER.triggerIcon} /> Filters
+                </Button>
+              </DropdownTrigger>
+              <DropdownContent align="start" className={cn("rounded-md", LEADS_FILTERS_POPOVER.content)}>
+                <div className={LEADS_FILTERS_POPOVER.stack}>
+                  <div>
+                    <span className={LEADS_FILTERS_POPOVER.fieldLabel}>Status</span>
+                    <Select value={filters.status} onValueChange={(v) => setFilters((f) => ({ ...f, status: v === "All Status" ? "" : v }))}>
+                      <SelectTrigger className={LEADS_FILTERS_POPOVER.select} aria-label="Filter by status">
+                        <SelectValue placeholder="All Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LEADS_FILTERS_POPOVER.statusOptions.map((o) => (
+                          <SelectItem key={o} value={o}>{o}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <span className={LEADS_FILTERS_POPOVER.fieldLabel}>Source</span>
+                    <Select value={filters.source} onValueChange={(v) => setFilters((f) => ({ ...f, source: v === "All Sources" ? "" : v }))}>
+                      <SelectTrigger className={LEADS_FILTERS_POPOVER.select} aria-label="Filter by source">
+                        <SelectValue placeholder="All Sources" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LEADS_FILTERS_POPOVER.sourceOptions.map((o) => (
+                          <SelectItem key={o} value={o}>{o}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <span className={LEADS_FILTERS_POPOVER.fieldLabel}>Min Deal Value</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      className={LEADS_FILTERS_POPOVER.numberInput}
+                      aria-label="Minimum deal value"
+                      value={filters.minValue ?? ""}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        setFilters((f) => ({ ...f, minValue: raw === "" ? null : Math.max(0, Math.floor(Number(raw))) }));
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <span className={LEADS_FILTERS_POPOVER.fieldLabel}>Follow-up Date</span>
+                    <Input
+                      type="date"
+                      className={LEADS_FILTERS_POPOVER.dateInput}
+                      aria-label="Follow-up date"
+                      value={filters.followUpDate}
+                      onChange={(e) => setFilters((f) => ({ ...f, followUpDate: e.target.value }))}
+                    />
+                  </div>
+                  <div className={LEADS_FILTERS_POPOVER.footer}>
+                    <Button variant="outline" className={LEADS_FILTERS_POPOVER.footerBtn} onClick={() => setFilters(DEFAULT_LEAD_FILTERS)}>
+                      <X className={LEADS_FILTERS_POPOVER.footerIcon} /> Clear
+                    </Button>
+                    <Button variant="outline" className={LEADS_FILTERS_POPOVER.footerBtn} onClick={saveView}>
+                      <Save className={LEADS_FILTERS_POPOVER.footerIcon} /> Save View
+                    </Button>
+                  </div>
+                </div>
+              </DropdownContent>
+            </Dropdown>
           </div>
-          {showFilters && (
-            <div className="flex flex-wrap items-end gap-4">
-              <div className="grid gap-1.5">
-                <Label className={FILTER_RAIL.groupLabel}>Stage</Label>
-                <Select value={stage} onValueChange={setStage}>
-                  <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Stages</SelectItem>
-                    {LEAD_STAGES.map((s) => (
-                      <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-1.5">
-                <Label className={FILTER_RAIL.groupLabel}>Owner</Label>
-                <Select value={ownerId} onValueChange={setOwnerId}>
-                  <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Owners</SelectItem>
-                    {users.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-1.5">
-                <Label className={FILTER_RAIL.groupLabel}>Source</Label>
-                <Select value={source} onValueChange={setSource}>
-                  <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sources</SelectItem>
-                    {sources.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="pb-1">
-                <Checkbox checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} label="Open leads only" />
-              </div>
-            </div>
-          )}
         </div>
         <div className={TABLE_CARD.scrollArea}>
         <CardContent className="px-0 py-0">

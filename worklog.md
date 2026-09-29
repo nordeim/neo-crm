@@ -154,3 +154,20 @@ Work Log:
 Stage Summary:
 - Gate: lint 0/0 · typecheck clean · 112/112 unit · build clean · 21/21 e2e; sidebar from md on all breakpoints; main is the sole scroller
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+---
+Task ID: 9
+Agent: main (Super Z)
+Task: Session 8 — functional-layer parity + mobile-nav lock bug on neo-crm
+
+Work Log:
+- Pulled fresh clone at 667bd3e; full docs + codebase review; baseline gate green (112/112 unit); .env rebuilt with DATABASE_URL="file:../db/custom.db" (db/ at repo root), seeded, dev server healthy; scandihaven skills catalog reviewed (mobile-nav debugging taxonomy, Tailwind v4 pitfalls, tdd, agent-browser, clone-app-pat-pro)
+- Live-site audit (fresh login, 1512/900/700/390): reference demo data STILL zero. 9 DOM-verified findings: S8-P1 real bug (mobile-nav auto-close mql stuck at 1024px after session-7's lg->md drawer move — resize 700->800 with drawer open left body+main scroll-locked; reproduced), dashboard primary Export label regression, dashboard middle select is a DEAD Table/Cards switcher misread as "All Owners", accounts toolbar missing [Table][Standard/Detailed][More] + text-only Export CSV, leads search icon one size small, leads Filters is a w-80 popover (Status/Source/MinValue/FollowUpDate + Clear/Save View), Log WhatsApp solid emerald-600, settings add buttons dark rgb(23,23,23), login md padding (already pinned)
+- Plan written + validated against codebase (docs/plans/2026-09-30-session8-parity-remediation.md); e2e dependencies mapped (none broken)
+- TDD: 21 new page-layout pins + tests/lead-filters.test.ts (10 checks) RED first; e2e resize regression written BEFORE the fix (reproduced the bug); then implemented S8-P1 fix (MOBILE_NAV_LAYOUT.autoCloseQuery 768px shared contract), Export label, functional view switchers (dashboard Recent Deals + accounts table <-> card grids), accounts toolbar trio, leads search re-pin, leads Filters popover with Save View localStorage persistence (src/lib/lead-filters.ts pure seam), emerald Log WhatsApp, dark settings add buttons
+- VLM round 2 refinements: accounts Export CSV text-only, switcher defaults to "Table", leads Filters button on its own row below search; 4 VLM false-positives disproven by DOM probes
+- Full gate green: lint 0/0 · tsc · 133/133 unit · build · 22/22 e2e (mobile-nav 6/6 incl. resize lock-release); DOM re-verified at 6 breakpoints; zero overflow at 390 on all 9 routes; 12 screenshots refreshed; .env.example verified; docs realigned (README, AGENTS, CLAUDE, PAD, SKILL v1.5.0, plan addendum, session_9.md log, worklog)
+
+Stage Summary:
+- Gate: lint 0/0 · typecheck clean · 133/133 unit · build clean · 22/22 e2e; drawer closes+unlocks at md exactly like it hides; view switchers + filters popover functional
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

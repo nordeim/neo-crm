@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.4.0
-last_updated: 2026-09-29
-project_state: 112 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (shell/sidebar/topbar/login, session-7) aligned to the live reference
+version: 1.5.0
+last_updated: 2026-09-30
+project_state: 133 unit checks + 22 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.4.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.5.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1082,7 +1082,7 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 | constants | `tests/constants.test.ts` | 8 | ~5 ms |
 | rate-limit | `tests/rate-limit.test.ts` | 6 | ~29 ms |
 | avatar | `tests/avatar.test.ts` | 5 | ~4 ms |
-| **unit total** | 8 files | **112** | **<1 s** |
+| **unit total** | 9 files | **133** | **<1 s** |
 | e2e auth (logged out) | `tests/e2e/auth.spec.ts` | 3 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
 | e2e golden path | `tests/e2e/crm.spec.ts` | 12 | — |
@@ -1306,6 +1306,45 @@ reports Reset button is back). 24 DOM-verified gaps (S7-1…S7-24):
   sm), subtitle size split (calendar/reports 14px).
 - **Gate**: lint 0/0 · typecheck clean · **112/112 unit** · build clean ·
   **21/21 e2e**; DOM re-verification at 1512/1024/900/768/700/390 (sidebar
+
+### Session 8 (2026-09-30) — functional-layer parity + mobile-nav lock bug
+
+- **Audit focus:** the control layer prior sessions could not verify at zero
+  data (view switchers, filter popovers, toolbar anatomy) + a full mobile-nav
+  re-test at every breakpoint. Reference demo data STILL zero (4th session).
+- **Real bug found & fixed (S8-P1):** the drawer's auto-close listener was
+  still `matchMedia("(min-width: 1024px)")` after session-7 moved the drawer
+  to `md:hidden` — resizing from 700 to 800px with the drawer open left body
+  + main scroll-locked with the drawer invisible (unscrollable app until a
+  route change). Fixed via the new `MOBILE_NAV_LAYOUT.autoCloseQuery`
+  ("(min-width: 768px)") contract; e2e resize regression added (6th
+  mobile-nav check). Lesson: when a breakpoint changes, grep for EVERY
+  consumer of the old value — CSS classes AND JS media listeners.
+- **Parity gaps closed (all DOM-verified):** dashboard primary Export
+  regained its always-visible label; the dashboard "All Owners" select was
+  re-identified as the reference's DEAD Table/Cards view-switcher (empty
+  label) and replaced (functional: Recent Deals ↔ card grid); accounts
+  toolbar gained its [Table switcher][Standard/Detailed (dead mirror)][More
+  (dead mirror)] row + text-only Export CSV; leads search re-pinned to the
+  contacts anatomy (w-5 + pl-10); the leads inline filter expander was
+  rebuilt as the reference's w-80 Filters POPOVER (Status/Source/Min Deal
+  Value/Follow-up Date + Clear/Save View — ours filters for real, Save View
+  persists via src/lib/lead-filters.ts, localStorage `neo-crm.leads.view`);
+  Log WhatsApp re-pinned to solid emerald-600 (session-6 ghost pin was
+  stale); settings picklist add buttons re-pinned to the reference's
+  computed rgb(23,23,23) dark (bg-primary on stock shadcn tokens ≠ the app's
+  blue-600).
+- **VLM false-positives disproven by DOM probes:** "leads omits bottom
+  charts" (viewport cutoff), "contacts Priority column absent" (header
+  exists), "sidebar active state more opaque" (both compute white/10),
+  "Last Activity header wraps" (both 40px single-line). Always re-verify
+  VLM findings against the DOM before acting.
+- **Gate**: lint 0/0 · typecheck clean · **133/133 unit** (21 new
+  page-layout pins + 10 lead-filters checks) · build clean · **22/22 e2e**
+  (mobile-nav 6/6 including the resize lock-release regression); DOM
+  re-verified at 1512/1024/900/768/700/390; zero horizontal overflow at 390
+  on all nine routes; 12 screenshots refreshed; docs realigned + SKILL
+  v1.5.0.
   from 768, rails from 1024, drawer below 768, dual scroll lock engages);
   VLM spot-comparison (login + calendar) found zero structural deltas.
 - **Lesson — compute colors, don't read them**: the blue-500 primary pin

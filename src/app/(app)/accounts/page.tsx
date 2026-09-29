@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
-import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
+import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD, TABLE_TOOLBAR, VIEW_SWITCHER } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -42,6 +42,10 @@ export default function AccountsPage() {
   const [tierC, setTierC] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Account | null>(null);
+  // S8-3: the reference's toolbar view-switcher — dead there, functional
+  // here. The reference's trigger DISPLAYS "Table" (its value is set),
+  // unlike the dashboard's middle select which renders empty.
+  const [view, setView] = React.useState<string>("Table");
 
   React.useEffect(() => {
     if (hydrated) fetchAccounts();
@@ -204,11 +208,40 @@ export default function AccountsPage() {
         <div className={RAIL_LAYOUT.content}>
         {/* Reference wrapper: bg-white rounded-lg shadow — NO border (session-5). */}
         <Card className={cn(TABLE_CARD.card, "overflow-hidden")}>
-          {/* Toolbar — reference: p-4 border-b + flex flex-col sm:flex-row
-              gap-3; the dead "Table"/empty view-switcher selects are a
-              reference stub we do not copy (quirk register). */}
+          {/* Toolbar — session-8 (S8-3) re-pinned from the live DOM:
+              [Table/Cards switcher][Standard/Detailed density select (empty
+              label)][More outline h-8] BEFORE the search, then Export CSV.
+              The switcher is functional here (dead on the reference); the
+              density select and More button are mirrored dead affordances
+              (same treatment as the topbar mail/bell buttons — quirk
+              register). */}
           <div className={TABLE_CARD.toolbar}>
-            <div className={TABLE_CARD.toolbarRow}>
+            <div className={TABLE_TOOLBAR.row}>
+              <Select value={view} onValueChange={setView}>
+                <SelectTrigger className={VIEW_SWITCHER.trigger} aria-label="Accounts view">
+                  <SelectValue placeholder={VIEW_SWITCHER.emptyLabel} />
+                </SelectTrigger>
+                <SelectContent>
+                  {VIEW_SWITCHER.options.map((o) => (
+                    <SelectItem key={o} value={o}>{o}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* Dead density switcher — the reference renders it with an
+                  empty label and never sets a value. */}
+              <Select value="" onValueChange={() => {}}>
+                <SelectTrigger className={TABLE_TOOLBAR.select} aria-label="Row density">
+                  <SelectValue placeholder="" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TABLE_TOOLBAR.densityOptions.map((o) => (
+                    <SelectItem key={o} value={o}>{o}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" className={TABLE_TOOLBAR.moreBtn} aria-label="More">
+                More
+              </Button>
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
                 <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search accounts..." className="pl-9" aria-label="Search accounts" />
@@ -216,13 +249,58 @@ export default function AccountsPage() {
               <Button
                 variant="outline"
                 size="sm"
+                className={TABLE_TOOLBAR.moreBtn}
                 disabled={filtered.length === 0}
                 onClick={() => downloadFile("/api/export?type=accounts&download=1")}
               >
-                <Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Export CSV</span>
+                Export CSV
               </Button>
             </div>
           </div>
+          {view === "Cards" ? (
+            /* S8-3 functional superset: the reference's switcher is dead;
+               Cards renders the account list as a card grid at all widths. */
+            <CardContent className="p-4">
+              {filtered.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted">No accounts found</p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {filtered.map((a) => (
+                    <div key={a.id} className="rounded-lg border border-line bg-surface p-4 transition-colors hover:bg-line-soft/40">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar name={a.name} color="#e5e7eb" size="md" className="!text-gray-600" />
+                          <div className="min-w-0">
+                            <p className="truncate font-medium text-foreground">{a.name}</p>
+                            <p className="truncate text-xs text-muted">{a.industry ?? "—"}</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className={ACCOUNT_STATUS_META[a.status]?.badge}>
+                          {ACCOUNT_STATUS_META[a.status]?.label ?? a.status}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Badge variant="outline" className={TIER_META[a.tier]?.badge}>{a.tier}</Badge>
+                          {a.isKey && <Badge variant="warning">Key</Badge>}
+                        </span>
+                        <span className="text-sm font-semibold text-foreground">
+                          {a.annualRevenue != null ? formatCompactCurrency(a.annualRevenue) : "—"}
+                        </span>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between border-t border-line pt-3 text-xs text-muted">
+                        <span className="flex items-center gap-1.5">
+                          {a.owner && <Avatar name={a.owner.name} color={a.owner.avatarColor} size="sm" />}
+                          {a.owner?.name ?? "Unassigned"}
+                        </span>
+                        <span>{timeAgo(a.lastActivityAt ?? a.createdAt)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          ) : (
           <div className={TABLE_CARD.scrollArea}>
           <CardContent className="px-0 py-0">
             <Table>
@@ -317,6 +395,7 @@ export default function AccountsPage() {
             </Table>
           </CardContent>
           </div>
+          )}
         </Card>
         </div>
 

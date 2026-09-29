@@ -1,7 +1,13 @@
 "use client";
 
 import { downloadFile } from "@/lib/download";
-import { DASHBOARD_CARD, PAGE_KPI_GRIDS, FILTER_BAR } from "@/lib/page-layout";
+import {
+  DASHBOARD_CARD,
+  DASHBOARD_HEADER,
+  PAGE_KPI_GRIDS,
+  FILTER_BAR,
+  VIEW_SWITCHER,
+} from "@/lib/page-layout";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -36,12 +42,16 @@ type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { dashboard, users, hydrated, fetchDashboard } = useCrmStore();
+  const { dashboard, hydrated, fetchDashboard } = useCrmStore();
   const [stage, setStage] = React.useState("all");
   const [source, setSource] = React.useState("all");
-  const [owner, setOwner] = React.useState("all");
   const [search, setSearch] = React.useState("");
   const [quickCreate, setQuickCreate] = React.useState<QuickCreate>(null);
+  // S8-2: the reference's middle filter-bar select is a dead Table/Cards
+  // view-switcher rendered with an EMPTY label. Ours keeps the empty default
+  // (mirror) and actually switches the Recent Deals section (functional
+  // superset). "" behaves as Table until the user picks one.
+  const [dealsView, setDealsView] = React.useState<string>("");
 
   React.useEffect(() => {
     if (hydrated) fetchDashboard();
@@ -52,7 +62,6 @@ export default function DashboardPage() {
     let rows = dashboard?.recentDeals ?? [];
     if (stage !== "all") rows = rows.filter((l) => l.stage === stage);
     if (source !== "all") rows = rows.filter((l) => l.source === source);
-    if (owner !== "all") rows = rows.filter((l) => l.ownerId === owner);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       rows = rows.filter(
@@ -60,7 +69,7 @@ export default function DashboardPage() {
       );
     }
     return rows;
-  }, [dashboard, stage, source, owner, search]);
+  }, [dashboard, stage, source, search]);
 
   const k = dashboard?.kpis;
   // Monthly won revenue — feeds the KPI sparklines (Deals Closed / Revenue /
@@ -109,15 +118,18 @@ export default function DashboardPage() {
                 <DropdownItem onClick={() => downloadFile("/api/export?type=activities&download=1")}>Activities</DropdownItem>
               </DropdownContent>
             </Dropdown>
+            {/* Session-8 (S8-1): the reference's primary Export renders its
+                label as a BARE always-visible text node (not hidden below
+                sm like the outline Export) — re-pinned from the live DOM. */}
             <Button
               variant="default"
               size="sm"
-              aria-label="Export leads"
               onClick={() => {
                 downloadFile("/api/export?type=leads&download=1");
               }}
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4 mr-2" />
+              {DASHBOARD_HEADER.primaryExportLabel}
             </Button>
           </>
         }
@@ -189,14 +201,18 @@ export default function DashboardPage() {
             ))}
           </SelectContent>
         </Select>
-        {/* Owner filter — the reference renders this dropdown with an empty
-            label (its own defect); here it is a real, working control. */}
-        <Select value={owner} onValueChange={setOwner}>
-          <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
+        {/* Session-8 (S8-2): the reference's middle select is a dead
+            Table/Cards view-switcher with an EMPTY label (the session-2
+            "All Owners" reading was a misinterpretation of that empty
+            trigger). Mirror the empty default; make the switch real for
+            the Recent Deals section below. */}
+        <Select value={dealsView} onValueChange={setDealsView}>
+          <SelectTrigger className={VIEW_SWITCHER.trigger} aria-label="Recent deals view">
+            <SelectValue placeholder={VIEW_SWITCHER.emptyLabel} />
+          </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Owners</SelectItem>
-            {users.map((u) => (
-              <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+            {VIEW_SWITCHER.options.map((o) => (
+              <SelectItem key={o} value={o}>{o}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -391,6 +407,35 @@ export default function DashboardPage() {
         <CardContent>
           {filteredDeals.length === 0 ? (
             <p className="py-10 text-center text-sm text-muted">No deals match the current filters</p>
+          ) : dealsView === "Cards" ? (
+            /* S8-2 functional superset: the reference's view-switcher is
+               dead; picking Cards here renders a compact card grid instead
+               of the compact table. */
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredDeals.map((l) => (
+                <div
+                  key={l.id}
+                  className="rounded-lg border border-line bg-surface p-4 transition-colors hover:bg-line-soft/40"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-medium text-foreground">{l.name}</p>
+                    <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
+                      {STAGE_META[l.stage]?.label ?? l.stage}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted">{l.company ?? "—"}</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">
+                      {formatCompactCurrency(l.value)}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs text-muted">
+                      {l.owner && <Avatar name={l.owner.name} color={l.owner.avatarColor} size="sm" />}
+                      {l.owner?.name ?? "Unassigned"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">

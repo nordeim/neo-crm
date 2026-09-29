@@ -24,8 +24,8 @@ import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
 import { endOfDay, formatDate, formatTime, startOfDay, timeAgo, timeUntil } from "@/lib/format";
+import { ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
-import { ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
 import type { Activity } from "@/types";
 
 /** Reference shows exactly four type checkboxes (Call/Email/Meeting/
@@ -195,13 +195,16 @@ export default function ActivitiesPage() {
         title="Activities"
         actions={
           <>
-            {/* Session-6: reference quick-log row = outline h-8 x3 plus a
-                plain GHOST Log WhatsApp (no green fill), labels visible. */}
+            {/* Session-8 (S8-6, re-pinned from the live DOM): the quick-log
+                row is outline h-8 x3 plus a SOLID emerald Log WhatsApp
+                (bg-emerald-600 hover:bg-emerald-700 + shadow) — the
+                session-6 "ghost" pin was stale. */}
             {QUICK_LOG.map((q) => (
               <Button
                 key={q.type}
                 variant={q.type === "whatsapp" ? "ghost" : "outline"}
                 size="sm"
+                className={q.type === "whatsapp" ? ACTIVITY_QUICKLOG.whatsapp : undefined}
                 onClick={() => {
                   setEditing(null);
                   setDefaultType(q.type);
