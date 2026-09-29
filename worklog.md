@@ -72,21 +72,34 @@ Stage Summary:
 ---
 Task ID: 4
 Agent: main (Super Z)
-Task: Session 2 — review docs/session_1.md, remediate audit findings, iterate visual parity, distill neo-crm_SKILL.md, push
+Task: Session 2 — remediation, parity iteration, SKILL distillation, push
 
 Work Log:
-- Refreshed workspace (git pull 9eb86eb); reviewed all root docs + session_1.md + both distill skills; validated understanding against the codebase
-- Audit found R-1..R-7 (plan: docs/plans/2026-09-29-session2-remediation.md)
-- R-1 [CRITICAL] db outside repo: root-caused via controlled experiments E1-E21 — bun absolutizes .env-relative file: URLs against the .env dir; absolute URLs bypass the resolver; first-boot existence guards fell through. TDD fix stack in src/lib/db-path.ts (urlForRoot mkdir-on-demand, parseEnvFile, effectiveDatabaseUrl bun-signature re-anchoring, runtimeDatabaseUrl) + consumers rewired (db.ts, seed.ts, new scripts/prisma-env.ts wrapper for db:push) + dead db:migrate/db:reset removed. Live-verified: dev server fds now at <repo>/db/custom.db
-- R-2/R-3: .env.example postgres example (neo_crm) + vitest.config comment fixed
-- R-4: unused deps tailwindcss-animate + z-ai-web-dev-sdk removed (package.json, install script, both lockfiles)
-- Visual parity iteration (VLM-verified vs target captures): KPI labels Title Case, sparklines on dashboard (cyan/green/orange-blue) + accounts (blue/green/cyan/violet/red) KPI cards, reference 3-button header row (Add outline / Export outline menu / Export filled), working All-Owners filter (reference renders it empty), More... link to /leads — dashboard + accounts HIGH parity verdicts
-- Mobile drawer re-verified live at 390px: opens, 8 destinations navigate, Escape closes, scroll lock engages/releases
-- All 11 dev-server screenshots refreshed post-remediation
-- Docs realigned: AGENTS.md (db-path facts + counts), CLAUDE.md (counts + anti-pattern), README (badge/troubleshooting/features), PAD (ADR-002 rewritten with bun hazard + verified alternatives; test distribution corrected)
-- Created neo-crm_SKILL.md (1,019 lines, 20 sections + 4 appendices) per skills/to-distill-project-into-skill six-phase process; every claim spot-verified (paths, line counts, tokens, test counts)
+- git pull refreshed workspace to 9eb86eb (session_1.md, prompt-to-review.md, repo worklog)
+- Full doc + codebase review; audit produced remediation plan (docs/plans/2026-09-29-session2-remediation.md) with R-1..R-7, validated against codebase before execution
+- TDD execution: 9 new failing tests first (urlForRoot/parseEnvFile/effectiveDatabaseUrl/runtimeDatabaseUrl), then the fix
+- Root cause chase for the db-location bug: 21 controlled experiments isolated bun's .env-relative absolutization of file: URLs (process env = schema-relative; .env-loaded = .env-dir-relative; bun absolutizes; prisma/.env doesn't help; bun --env-file doesn't chain; bunshell doesn't source)
+- Fix stack: db-path seam (182 lines) + db.ts/seed.ts rewiring + scripts/prisma-env.ts wrapper for db:push; live fd verification passed
+- Dependency hygiene: removed tailwindcss-animate + z-ai-web-dev-sdk everywhere
+- Parity iteration via VLM comparison loop: sparklines, KPI casing, 3-button header, owner filter, More... link — HIGH parity verdicts on dashboard + accounts
+- 11 screenshots refreshed; 4 root docs realigned; neo-crm_SKILL.md distilled (1,019 lines, verified claims)
+- Final gate: lint 0/0, tsc clean, 58/58 unit, build clean, 20/20 e2e
 
 Stage Summary:
-- Gate: lint 0/0 · typecheck clean · 58/58 unit (+11 new db-path checks) · build clean · 20/20 e2e (mobile-nav regression intact)
-- db/ at repo root with custom.db + e2e.db both in-repo; stray parent-dir db removed
-- Ready for final commit + push via SSH wrapper
+- Next: git commit (main only) + push via docs/ssh_git_wrapper_v3.py with paramiko shim
+
+---
+Task ID: 5
+Agent: main (Super Z)
+Task: Session 3 — parity hardening vs fresh live-site audit, TDD remediation, docs, push
+
+Work Log:
+- git pull to c4a48c1; full docs + codebase review and alignment check
+- Fresh live-site audit (login, all pages, desktop + mobile): reference demo data reset to zero — parity targets structure
+- Wrote + validated docs/plans/2026-09-29-session3-parity-remediation.md (P-1..P-17)
+- TDD execution: currency $ contract, avatar luminance ink, sunday grid (red -> green), then all 17 parity items across topbar/sidebar/dashboard/accounts/contacts/leads/calendar/activities/reports/settings/profile
+- New: PATCH /api/users, stat-card component family, chart variants, segmented/pill tabs, 12 refreshed screenshots
+- Final gate green: lint 0/0 · tsc · 65/65 unit · build · 21/21 e2e
+
+Stage Summary:
+- Next: commit on main + SSH-wrapper push
