@@ -1,0 +1,171 @@
+@import "tailwindcss";
+@import "./vendor/tw-animate.css";
+
+/* ---------------------------------------------------------------------------
+   NEO CRM design tokens — Tailwind CSS v4 CSS-first configuration.
+   Rules (validated against docs/Tailwind-V4-Validation-Report.md):
+   - No tailwind.config.js — everything lives in @theme.
+   - No var() chains inside @theme — semantic tokens are LITERAL hex values.
+   - tw-animate-css provides the Radix data-[state=open] animations.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* Brand palette (measured from the reference app) */
+  --color-sidebar: #2563eb;
+  --color-sidebar-hover: #3b6ff0;
+  --color-sidebar-active: #4d7ef5;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-foreground: #ffffff;
+
+  /* Neutrals */
+  --color-background: #f9fafb;
+  --color-surface: #ffffff;
+  --color-foreground: #111827;
+  --color-muted: #6b7280;
+  --color-subtle: #9ca3af;
+  --color-line: #e5e7eb;
+  --color-line-soft: #f3f4f6;
+
+  /* Feedback */
+  --color-success: #10b981;
+  --color-success-soft: #ecfdf5;
+  --color-warning: #f59e0b;
+  --color-warning-soft: #fffbeb;
+  --color-danger: #ef4444;
+  --color-danger-soft: #fef2f2;
+  --color-info: #06b6d4;
+  --color-info-soft: #ecfeff;
+
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Radius scale */
+  --radius-card: 0.75rem;
+  --radius-button: 0.5rem;
+  --radius-pill: 9999px;
+
+  /* Chart palette */
+  --color-chart-1: #3b82f6;
+  --color-chart-2: #06b6d4;
+  --color-chart-3: #f59e0b;
+  --color-chart-4: #f97316;
+  --color-chart-5: #10b981;
+  --color-chart-6: #ef4444;
+
+  /* Animations for Radix primitives */
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-slide-in-right: slide-in-right 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Base layer
+--------------------------------------------------------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+
+  ::selection {
+    background-color: rgb(59 130 246 / 0.18);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Custom utilities (v4 native @utility — NOT @layer utilities)
+--------------------------------------------------------------------------- */
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 9999px;
+  }
+}
+
+/* Recharts focus outlines are noisy in dialogs */
+@utility chart-no-outline {
+  & .recharts-wrapper:focus,
+  & .recharts-surface:focus {
+    outline: none;
+  }
+}
+
+/* Native date/datetime inputs inherit the app control look */
+@utility input-base {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-line);
+  background-color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.12);
+  }
+
+  &::placeholder {
+    color: var(--color-subtle);
+  }
+
+  &:disabled {
+    background-color: var(--color-line-soft);
+    color: var(--color-muted);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

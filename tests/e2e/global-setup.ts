@@ -1,33 +1,22 @@
 import { execSync } from "node:child_process";
-import path from "node:path";
 
-/**
- * Playwright global setup: guarantee the isolated e2e database exists and
- * carries the demo seed, so every spec run starts from the same state.
- *
- * The database lives at <repo>/db/e2e.db (gitignored like every db/*.db).
- * `DATABASE_URL="file:../db/e2e.db"` resolves against prisma/ for the CLI
- * and against the schema anchor at runtime — one file, both tools.
- */
-export default function globalSetup(): void {
-  const repo = path.resolve(__dirname, "..", "..");
-  const env = {
-    ...process.env,
-    DATABASE_URL: "file:../db/e2e.db",
-  } as NodeJS.ProcessEnv;
+// Global setup: prepare an isolated SQLite database for the E2E run
+// (db/e2e.db — schema-pushed + seeded), independent of the dev database.
+//
+// IMPORTANT: never DELETE the db file between runs. `reuseExistingServer`
+// may keep the standalone server (and its open SQLite handle) alive —
+// swapping the file underneath leaves the server reading a deleted inode
+// (stale data) while later clients read the fresh file. The seed script is
+// idempotent IN PLACE (deleteMany + create), which every reader observes.
+// NOTE: no import.meta here — Playwright loads this file as CJS.
 
-  // Prefer bun (the documented runtime); fall back to npx tsx for npm users.
-  const run = (cmd: string) =>
-    execSync(cmd, { cwd: repo, env, stdio: "pipe" }).toString();
-
-  try {
-    run("bunx prisma db push --skip-generate");
-  } catch {
-    run("npx prisma db push --skip-generate");
-  }
-  try {
-    run("bun prisma/seed.ts");
-  } catch {
-    run("npx tsx prisma/seed.ts");
-  }
+export default function globalSetup() {
+  execSync("bunx prisma db push --accept-data-loss --skip-generate", {
+    stdio: "inherit",
+    env: { ...process.env, DATABASE_URL: "file:../db/e2e.db" },
+  });
+  execSync("bun prisma/seed.ts", {
+    stdio: "inherit",
+    env: { ...process.env, DATABASE_URL: "file:../db/e2e.db" },
+  });
 }

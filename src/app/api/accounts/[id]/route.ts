@@ -1,0 +1,63 @@
+import { db } from "@/lib/db";
+import { ok, ERR, asString, asNumber, asInt, isGuarded, requireSession } from "@/lib/api";
+import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
+
+export const dynamic = "force-dynamic";
+
+type Params = { params: Promise<{ id: string }> };
+
+export async function PUT(req: Request, { params }: Params) {
+  const guard = await requireSession();
+  if (isGuarded(guard)) return guard.response;
+  const { id } = await params;
+
+  const existing = await db.account.findUnique({ where: { id } });
+  if (!existing) return ERR.NOT_FOUND("Account");
+
+  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!body) return ERR.BAD_REQUEST("Invalid request body");
+
+  const data: Record<string, unknown> = {};
+  if ("name" in body) {
+    const name = asString(body.name, { max: 120 });
+    if (!name) return ERR.BAD_REQUEST("Account name is required");
+    data.name = name;
+  }
+  if ("industry" in body) data.industry = asString(body.industry, { optional: true, max: 80 }) ?? null;
+  if ("email" in body) data.email = asString(body.email, { optional: true, max: 160 }) ?? null;
+  if ("phone" in body) data.phone = asString(body.phone, { optional: true, max: 40 }) ?? null;
+  if ("website" in body) data.website = asString(body.website, { optional: true, max: 200 }) ?? null;
+  if ("annualRevenue" in body) data.annualRevenue = asNumber(body.annualRevenue) ?? null;
+  if ("employees" in body) data.employees = asInt(body.employees) ?? null;
+  if ("isKey" in body) data.isKey = body.isKey === true;
+  if ("ownerId" in body) data.ownerId = asString(body.ownerId, { optional: true }) ?? null;
+  if ("status" in body) {
+    const status = asString(body.status) ?? "active";
+    if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
+    data.status = status;
+  }
+  if ("tier" in body) {
+    const tier = asString(body.tier) ?? "B";
+    if (!(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Invalid tier");
+    data.tier = tier;
+  }
+
+  const account = await db.account.update({
+    where: { id },
+    data,
+    include: { owner: { select: { id: true, name: true, avatarColor: true } } },
+  });
+  return ok(account);
+}
+
+export async function DELETE(_req: Request, { params }: Params) {
+  const guard = await requireSession();
+  if (isGuarded(guard)) return guard.response;
+  const { id } = await params;
+
+  const existing = await db.account.findUnique({ where: { id } });
+  if (!existing) return ERR.NOT_FOUND("Account");
+
+  await db.account.delete({ where: { id } });
+  return ok({ deleted: id });
+}

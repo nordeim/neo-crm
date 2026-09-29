@@ -1,13 +1,20 @@
-import { expect, test as setup } from "@playwright/test";
-import { DEMO_EMAIL, DEMO_PASSWORD } from "./helpers";
+import { expect, test } from "@playwright/test";
 
-// One authenticated session for the whole run — saved as a storageState and
-// replayed into every main-project context (see playwright.config.ts for why
-// per-test logins are not an option: the auth rate limiter).
-setup("sign the demo user in", async ({ request }) => {
-  const res = await request.post("/api/auth/login", {
-    data: { email: DEMO_EMAIL, password: DEMO_PASSWORD },
-  });
-  expect(res.ok(), `login failed: ${res.status()} ${await res.text()}`).toBeTruthy();
-  await request.storageState({ path: "tests/e2e/.auth/user.json" });
+// Sign the demo user in ONCE through the real login UI and persist the
+// browser storage state for the whole chromium project (the auth endpoints
+// are rate-limited 10/15min — per-test logins would trip the limiter).
+
+const STORAGE = "tests/e2e/.auth/user.json";
+
+test("authenticate demo user", async ({ page }) => {
+  await page.goto("/login");
+
+  await page.getByLabel("Email").fill("sepnetflix2023@outlook.com");
+  await page.getByLabel("Password").fill("$Abcd1234");
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  await page.waitForURL("/");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+
+  await page.context().storageState({ path: STORAGE });
 });

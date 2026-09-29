@@ -1,0 +1,70 @@
+import { db } from "@/lib/db";
+import { ok, ERR, asString, asDate, isGuarded, requireSession } from "@/lib/api";
+import { EVENT_TYPES } from "@/lib/constants";
+
+export const dynamic = "force-dynamic";
+
+type Params = { params: Promise<{ id: string }> };
+
+export async function PUT(req: Request, { params }: Params) {
+  const guard = await requireSession();
+  if (isGuarded(guard)) return guard.response;
+  const { id } = await params;
+
+  const existing = await db.event.findUnique({ where: { id } });
+  if (!existing) return ERR.NOT_FOUND("Event");
+
+  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!body) return ERR.BAD_REQUEST("Invalid request body");
+
+  const data: Record<string, unknown> = {};
+  if ("title" in body) {
+    const title = asString(body.title, { max: 160 });
+    if (!title) return ERR.BAD_REQUEST("Event title is required");
+    data.title = title;
+  }
+  if ("description" in body) data.description = asString(body.description, { optional: true, max: 1000 }) ?? null;
+  if ("location" in body) data.location = asString(body.location, { optional: true, max: 200 }) ?? null;
+  if ("allDay" in body) data.allDay = body.allDay === true;
+  if ("accountId" in body) data.accountId = asString(body.accountId, { optional: true }) ?? null;
+  if ("contactId" in body) data.contactId = asString(body.contactId, { optional: true }) ?? null;
+  if ("startAt" in body) {
+    const startAt = asDate(body.startAt);
+    if (!startAt) return ERR.BAD_REQUEST("Start date and time are required");
+    data.startAt = startAt;
+  }
+  if ("endAt" in body) data.endAt = asDate(body.endAt) ?? null;
+  if ("type" in body) {
+    const type = asString(body.type) ?? "meeting";
+    if (!(EVENT_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid event type");
+    data.type = type;
+  }
+  if ("status" in body) {
+    const status = asString(body.status) ?? "scheduled";
+    if (!["scheduled", "completed", "cancelled"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
+    data.status = status;
+  }
+
+  const event = await db.event.update({
+    where: { id },
+    data,
+    include: {
+      account: { select: { id: true, name: true } },
+      contact: { select: { id: true, name: true } },
+      owner: { select: { id: true, name: true, avatarColor: true } },
+    },
+  });
+  return ok(event);
+}
+
+export async function DELETE(_req: Request, { params }: Params) {
+  const guard = await requireSession();
+  if (isGuarded(guard)) return guard.response;
+  const { id } = await params;
+
+  const existing = await db.event.findUnique({ where: { id } });
+  if (!existing) return ERR.NOT_FOUND("Event");
+
+  await db.event.delete({ where: { id } });
+  return ok({ deleted: id });
+}
