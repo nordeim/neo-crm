@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/misc";
@@ -28,7 +27,7 @@ import { KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { PipelineBarChart, RevenueLineChart } from "@/components/charts/charts";
 import { AccountDialog, ActivityDialog, ContactDialog, EventDialog, LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { STAGE_META, CHART_COLORS, LEAD_SOURCES } from "@/lib/constants";
+import { STAGE_META, CHART_COLORS, LEAD_SOURCES, PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
 import { formatCompactCurrency, formatDate, timeUntil } from "@/lib/format";
 import { ACTIVITY_TYPE_META } from "@/lib/constants";
 
@@ -152,7 +151,8 @@ export default function DashboardPage() {
           </KpiCard>
           <KpiCard
             label="Avg. Sales Cycle"
-            value={<>{k.avgSalesCycleDays}<span className="ml-1 text-sm font-medium text-muted">days</span></>}
+            value={k.avgSalesCycleDays}
+            suffix="days"
             delta={k.avgSalesCycleDelta ?? undefined}
             deltaSuffix="d"
             invertDelta
@@ -167,12 +167,15 @@ export default function DashboardPage() {
         <Button variant="secondary" size="sm" className="h-9">
           <Filter className="h-3.5 w-3.5" /> Filter
         </Button>
+        {/* Session-5: the reference's All Stages filter offers the PIPELINE
+            stages (Prospecting/Qualification/Proposal/Negotiation/Won) — the
+            same labels the pipeline chart above it renders. */}
         <Select value={stage} onValueChange={setStage}>
           <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Stages</SelectItem>
-            {["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"].map((s) => (
-              <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+            {PIPELINE_STAGES.map((s) => (
+              <SelectItem key={s} value={s}>{PIPELINE_LABELS[s] ?? s}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -350,7 +353,11 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Recent deals */}
+      {/* Recent deals — session-5: the reference renders this as a COMPACT
+          custom table (tr text-xs text-gray-500, th py-2 font-medium, no
+          horizontal cell padding — the card's p-6 provides the gutters) plus
+          a trailing w-8 action column. The reference's DUPLICATE "Status"
+          column is a defect we do not copy (documented). */}
       <Card className="mt-4">
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Recent Deals</CardTitle>
@@ -358,43 +365,47 @@ export default function DashboardPage() {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent className="px-0 pb-2">
+        <CardContent>
           {filteredDeals.length === 0 ? (
             <p className="py-10 text-center text-sm text-muted">No deals match the current filters</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Lead</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Deal Value</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Owner</TableHead>
-                  <TableHead>Close Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredDeals.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell className="font-medium text-foreground">{l.name}</TableCell>
-                    <TableCell className="text-muted">{l.company ?? "—"}</TableCell>
-                    <TableCell className="font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
-                        {STAGE_META[l.stage]?.label ?? l.stage}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="flex items-center gap-2">
-                        {l.owner && <Avatar name={l.owner.name} color={l.owner.avatarColor} size="sm" />}
-                        <span className="text-muted">{l.owner?.name ?? "Unassigned"}</span>
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-muted">{formatDate(l.closedAt ?? l.expectedCloseDate)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-line text-xs text-muted">
+                    <th className="py-2 text-left font-medium">Lead</th>
+                    <th className="py-2 text-left font-medium">Company</th>
+                    <th className="py-2 text-left font-medium">Deal Value</th>
+                    <th className="py-2 text-left font-medium">Status</th>
+                    <th className="py-2 text-left font-medium">Owner</th>
+                    <th className="py-2 text-left font-medium">Close Date</th>
+                    <th className="w-8" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDeals.map((l) => (
+                    <tr key={l.id} className="border-b border-line text-xs text-muted transition-colors hover:bg-line-soft/60">
+                      <td className="py-2 font-medium text-foreground">{l.name}</td>
+                      <td className="py-2">{l.company ?? "—"}</td>
+                      <td className="py-2 font-semibold text-foreground">{formatCompactCurrency(l.value)}</td>
+                      <td className="py-2">
+                        <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
+                          {STAGE_META[l.stage]?.label ?? l.stage}
+                        </Badge>
+                      </td>
+                      <td className="py-2">
+                        <span className="flex items-center gap-2">
+                          {l.owner && <Avatar name={l.owner.name} color={l.owner.avatarColor} size="sm" />}
+                          <span>{l.owner?.name ?? "Unassigned"}</span>
+                        </span>
+                      </td>
+                      <td className="py-2">{formatDate(l.closedAt ?? l.expectedCloseDate)}</td>
+                      <td className="w-8" />
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardContent>
       </Card>

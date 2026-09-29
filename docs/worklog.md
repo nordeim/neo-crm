@@ -106,3 +106,22 @@ Work Log:
 
 Stage Summary:
 - Next: git commit (main only) + push via docs/ssh_git_wrapper_v3.py with paramiko shim
+
+---
+Task ID: 6
+Agent: main (Super Z)
+Task: Session 5 — interactive-layer parity, TDD remediation, docs, push
+
+Work Log:
+- git pull refreshed workspace to b9f388f (docs/session_5.md — the session-4 transcript, saved by the operator)
+- Reviewed all root docs + session_4.md, the session-4 plan and both worklogs; baseline validated against the codebase (lint 0/0, tsc clean, 68/68 unit, dev server healthy, .env/db/test configs all correct)
+- Fresh live-site audit (login + DOM extraction at 1512×945 + 390×844): reference data still zeroed; mobile nav defect re-confirmed (zero nav elements at 390px); our drawer re-verified end-to-end (open → 8 links → focus into panel → Escape → scroll lock)
+- Session-5 audit went one layer deeper than session 4: opened every create dialog, expanded every listbox, extracted table cell classes — produced S5-1…S5-16 (table density/headers/wrappers/empty states, compact Recent Deals, responsive column hiding, activities subtext deltas, reports/leads card anatomies, card typography, all five dialogs' field sets + option vocabularies, dashboard filter vocabularies, currency variants, Avg-card suffix)
+- Wrote + validated docs/plans/2026-09-29-session5-parity-remediation.md against the codebase before execution
+- TDD Phase A red-first: 7 new failing checks (vocabularies + uppercase-K formatter variants), then green after constants + formatCompactCurrency options; 75/75 unit
+- Phases B–J: Table retuned to stock density (th px-2, td p-2); per-page wrappers/headers/empty rows; compact Recent Deals; leads responsive hiding (Phone md, Company lg, Source xl); activities subtext deltas + w-20 bars; reports CircleStatCard rebuilt (square chip, inline count+amount, $542.0K/$196K); leads compact cards + full $687,000 currency; card primitives (p-6, text-base sm:text-lg titles); all five create dialogs mirrored to the reference (incl. unqualified stage, 4 lead sources, 5 emoji contact sources, 6 event types, Related To fields on event + activity); schema += Event.relatedType + Activity.relatedType/relatedName (db push); seed sources remapped with values/stages unchanged; isDroppedStage seam adopted
+- Full gate: lint 0/0 · tsc clean · 75/75 unit · build clean · 21/21 e2e (mobile-nav 5/5 intact)
+- Every S5-item DOM-re-verified on the running clone at 1512×945 + 390/768/1024/1280; 12 screenshots refreshed; AGENTS/CLAUDE/README/PAD realigned; neo-crm_SKILL.md v1.2.0 (session-5 entry + "audit the interactive layer" lesson); plan addendum written
+
+Stage Summary:
+- Next: Conventional Commit on main + push via docs/ssh_git_wrapper_v3.py (paramiko shim, key outside repo, shredded after)

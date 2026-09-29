@@ -93,10 +93,13 @@ export function DeltaBadgeText({
  * the bottom — the reference dashboard anatomy (DOM-verified:
  * `p-4 sm:p-6`, label `text-xs sm:text-sm`, value `text-2xl sm:text-3xl
  * font-bold`, delta `text-xs …-600 mb-1`, value row `flex items-end gap-2`).
+ * Session-5: `suffix` renders as a SIBLING `text-xs text-gray-600 mb-1` span
+ * (the reference's Avg. Sales Cycle "days" anatomy), not a nested text-sm.
  */
 export function KpiCard({
   label,
   value,
+  suffix,
   delta,
   deltaSuffix = "%",
   invertDelta = false,
@@ -104,16 +107,19 @@ export function KpiCard({
 }: {
   label: string;
   value: React.ReactNode;
+  /** Small gray unit suffix next to the value ("days"). */
+  suffix?: string;
   delta?: number | null;
   deltaSuffix?: string;
   invertDelta?: boolean;
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
+    <div className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
       <p className="text-xs text-muted sm:text-sm">{label}</p>
       <div className="mt-2 flex flex-wrap items-end gap-2">
         <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
+        {suffix && <span className="mb-1 text-xs text-muted">{suffix}</span>}
         <DeltaText delta={delta} suffix={deltaSuffix} invert={invertDelta} className="mb-1" />
       </div>
       {children && <div className="mt-2">{children}</div>}
@@ -157,6 +163,10 @@ function IconChip({
  * (bold value + optional sub-text left, `h-10` mini-bar strip right).
  * DOM-verified: bars are `flex-1 rounded-sm bg-{color}-400` with percentage
  * heights inside `h-10 w-24` (accounts) / `h-10 w-20` (activities).
+ * Session-5: header deltas carry ONLY the reference's two icon-deltas
+ * (green trending-up percentages, red trending-down "Xh overdue"); the
+ * "+N today" / "+Xh Ym" / "Due now" annotations render as gray `text-xs
+ * mt-1` SUBTEXTS UNDER the value instead.
  */
 export function BarStatCard({
   label,
@@ -168,6 +178,7 @@ export function BarStatCard({
   bars,
   barColor,
   barColorFor,
+  barWidth = "w-20",
   className,
 }: {
   label: string;
@@ -180,12 +191,14 @@ export function BarStatCard({
   bars: number[];
   barColor: string;
   barColorFor?: (value: number, index: number) => string;
+  /** `w-20` (activities) or `w-24` (accounts) — no responsive growth. */
+  barWidth?: "w-20" | "w-24";
   className?: string;
 }) {
   const tone = deltaTone ?? (deltaIcon === "down" ? "danger" : "success");
   const pct = (v: number) => Math.max(Math.round((v / Math.max(...bars, 1)) * 100), 12);
   return (
-    <div className={cn("rounded-xl border border-line bg-surface p-4 shadow-sm transition-shadow hover:shadow-md", className)}>
+    <div className={cn("rounded-xl border border-line bg-surface p-4 shadow-sm", className)}>
       <div className="mb-3 flex items-start justify-between gap-2">
         <span className="text-xs text-muted">{label}</span>
         {delta != null && (
@@ -199,7 +212,7 @@ export function BarStatCard({
           <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
           {subValue !== undefined && <p className="mt-1 text-xs text-muted">{subValue}</p>}
         </div>
-        <div className="flex h-10 w-20 shrink-0 items-end gap-0.5 sm:w-24" aria-hidden="true">
+        <div className={cn("flex h-10 shrink-0 items-end gap-0.5", barWidth)} aria-hidden="true">
           {bars.map((v, i) => (
             <span
               key={i}
@@ -220,11 +233,15 @@ export function BarStatCard({
 /**
  * Contacts / leads stat card: label top-left, big value (plus optional
  * sub-value line) bottom-left, icon chip on the far right — the reference
- * layout. `tone: "solid"` renders a colored chip with a white glyph
- * (contacts, bg-{c}-500); `tone: "tint"` renders a light chip with a colored
- * glyph (leads). Contacts cards carry the reference gradient
- * (`bg-gradient-to-br from-white to-gray-50`) + an optional trend row
- * (trending-up icon + green text, the "New This Month" anatomy).
+ * layout. Two DOM-verified variants (session-5):
+ * - `contacts` (default): gradient card (`bg-gradient-to-br from-white
+ *   to-gray-50`), `p-6`, label `text-sm font-medium text-gray-600`, value
+ *   `text-3xl font-bold`, solid `bg-{c}-500` chip (`tone: "solid"`) with a
+ *   white glyph, optional trend row (trending-up + green text).
+ * - `leads`: plain white card, `p-4 sm:p-6`, header `flex items-center
+ *   justify-between mb-2`, label `text-xs sm:text-sm` plain, value
+ *   `text-xl sm:text-2xl font-bold`, tinted `rounded-lg bg-{c}-50` chip
+ *   `w-8 h-8 sm:w-10 sm:h-10`, no hover shadow.
  */
 export function IconStatCard({
   label,
@@ -234,6 +251,7 @@ export function IconStatCard({
   icon,
   tone = "tint",
   gradient = false,
+  variant = "contacts",
   color,
 }: {
   label: string;
@@ -244,12 +262,34 @@ export function IconStatCard({
   icon: React.ReactNode;
   tone?: "solid" | "tint";
   gradient?: boolean;
+  /** "contacts" (gradient/p6/text-3xl) or "leads" (p4-sm:p6/text-xl-2xl). */
+  variant?: "contacts" | "leads";
   color: string;
 }) {
+  if (variant === "leads") {
+    return (
+      <div className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs text-muted sm:text-sm">{label}</span>
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10"
+            style={{ backgroundColor: `${color}1a`, color }}
+            aria-hidden="true"
+          >
+            {icon}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xl font-bold text-foreground sm:text-2xl">{value}</span>
+          {subValue !== undefined && <span className="text-sm font-medium text-muted">{subValue}</span>}
+        </div>
+      </div>
+    );
+  }
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-3 rounded-xl border border-line p-6 shadow-sm transition-shadow hover:shadow-md",
+        "flex items-center justify-between gap-3 rounded-xl border border-line p-6 shadow-sm",
         gradient ? "bg-gradient-to-br from-white to-gray-50" : "bg-surface",
       )}
     >
@@ -274,9 +314,12 @@ export function IconStatCard({
 }
 
 /**
- * Reports stat card: light tinted circle icon on the far left, label and
- * value (plus optional inline $ sub-value) to its right, optional sparkline
- * at the bottom — the reference "Sales Overview" KPI row.
+ * Reports stat card — session-5 DOM-verified anatomy: header row
+ * (`flex items-center gap-3`, mb-3) with a SQUARE `w-10 h-10 rounded-lg
+ * bg-{c}-50` tinted chip, label `text-xs text-gray-500 mb-1` and the count
+ * + amount INLINE in one `text-2xl font-bold` value ("6 $542.0K"); optional
+ * sparkline below. The card keeps its hover shadow (the reference reports
+ * cards are the one place `hover:shadow-md` appears).
  */
 export function CircleStatCard({
   label,
@@ -288,25 +331,57 @@ export function CircleStatCard({
 }: {
   label: string;
   value: React.ReactNode;
+  /** Inline amount rendered INSIDE the big bold value (same size/weight). */
   subValue?: React.ReactNode;
   icon: React.ReactNode;
   color: string;
   children?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-center gap-3.5">
-        <IconChip icon={icon} bg={`${color}1a`} color={color} rounded="rounded-full" className="h-12 w-12" />
-        <div className="min-w-0">
-          <p className="text-xs font-medium tracking-wide text-muted">{label}</p>
-          <p className="mt-0.5 flex flex-wrap items-baseline gap-1.5 text-2xl font-semibold leading-tight tracking-tight text-foreground">
-            {value}
-            {subValue !== undefined && <span className="text-sm font-medium text-muted">{subValue}</span>}
-          </p>
+    <div className="rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
+      <div className="mb-3 flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: `${color}1a`, color }}
+            aria-hidden="true"
+          >
+            {icon}
+          </span>
+          <div className="min-w-0">
+            <p className="mb-1 text-xs text-muted">{label}</p>
+            <p className="flex flex-wrap items-baseline gap-1.5 text-2xl font-bold leading-tight text-foreground">
+              {value}
+              {subValue !== undefined && <span>{subValue}</span>}
+            </p>
+          </div>
         </div>
       </div>
-      {children && <div className="mt-1">{children}</div>}
+      {children && <div className="flex-1">{children}</div>}
     </div>
+  );
+}
+
+/**
+ * Centered empty-state cell for entity tables — the reference renders
+ * `text-center py-8 text-gray-500` (accounts/leads) / `py-12` (contacts)
+ * inside the first td, spanning every column.
+ */
+export function TableEmptyRow({
+  colSpan,
+  message,
+  padding = "py-8",
+}: {
+  colSpan: number;
+  message: string;
+  padding?: "py-8" | "py-12";
+}) {
+  return (
+    <tr>
+      <td colSpan={colSpan} className={cn("p-2 text-center text-muted", padding)}>
+        {message}
+      </td>
+    </tr>
   );
 }
 

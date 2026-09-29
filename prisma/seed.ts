@@ -121,6 +121,33 @@ async function main() {
   }
 
   // ---- contacts ---------------------------------------------------------------
+  // Session-5: sources follow the reference's dialog vocabularies — leads
+  // use Call/Email/Website/Partner; contacts use the five "How did you
+  // meet?" emoji options. Old working values map onto the new lists.
+  const LEAD_SOURCE_MAP: Record<string, string> = {
+    Referral: "Partner",
+    Event: "Partner",
+    "Social Media": "Partner",
+    Advertisement: "Partner",
+    Partner: "Partner",
+    Phone: "Call",
+    "Cold Call": "Call",
+    Call: "Call",
+    Website: "Website",
+    Email: "Email",
+  };
+  const CONTACT_SOURCE_MAP: Record<string, string> = {
+    Email: "\u2709\ufe0f Email",
+    Phone: "\ud83d\udcde Phone Call",
+    "Cold Call": "\ud83d\udcde Phone Call",
+    Website: "\ud83c\udf10 Website",
+    Referral: "\ud83e\udd1d Partner Referral",
+    Partner: "\ud83e\udd1d Partner Referral",
+    Event: "\ud83d\udc65 Personal Referral",
+    "Social Media": "\ud83d\udc65 Personal Referral",
+    Advertisement: "\ud83d\udc65 Personal Referral",
+  };
+
   const contactSeed = [
     { name: "Khalid Al Mansoori", position: "Chief Procurement Officer", priority: "hot", company: "Emirates Global Trading", source: "Referral" },
     { name: "Priya Raghavan", position: "IT Director", priority: "hot", company: "Gulf Tech Solutions", source: "Event" },
@@ -151,7 +178,7 @@ async function main() {
           phone: `+971 5${i} ${100 + i} ${2000 + i * 13}`,
           company: c.company,
           position: c.position,
-          source: c.source,
+          source: CONTACT_SOURCE_MAP[c.source] ?? c.source,
           priority: c.priority,
           accountId: account?.id ?? null,
           ownerId: pick(i + 1).id,
@@ -212,7 +239,7 @@ async function main() {
         company: l.company,
         value: l.value,
         stage: l.stage,
-        source: l.source,
+        source: LEAD_SOURCE_MAP[l.source] ?? l.source,
         status: closed ? (l.stage === "won" ? "closed_won" : "closed_lost") : "open",
         createdAt: iso(l.created, 9 + (i % 8)),
         closedAt: closed ? iso(l.closed ?? -30, 15) : null,

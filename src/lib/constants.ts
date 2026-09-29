@@ -5,6 +5,7 @@ export const LEAD_STAGES = [
   "new",
   "contacted",
   "qualified",
+  "unqualified",
   "proposal",
   "negotiation",
   "won",
@@ -12,7 +13,15 @@ export const LEAD_STAGES = [
 ] as const;
 export type LeadStage = (typeof LEAD_STAGES)[number];
 
-export const OPEN_STAGES: readonly LeadStage[] = ["new", "contacted", "qualified", "proposal", "negotiation"];
+export const OPEN_STAGES: readonly string[] = ["new", "contacted", "qualified", "proposal", "negotiation"];
+
+/** Stages that end a deal — "Dropped Deals" counts both (session-5). */
+export const DROPPED_STAGES: readonly string[] = ["lost", "unqualified"];
+
+/** True when a lead stage ends the deal (lost or unqualified). */
+export function isDroppedStage(stage: string): boolean {
+  return DROPPED_STAGES.includes(stage);
+}
 
 export const PIPELINE_STAGES: readonly LeadStage[] = [
   "new",
@@ -41,6 +50,11 @@ export const STAGE_META: Record<string, StageMeta> = {
   // the reference itself splits chart vs badge colors this way.
   won: { label: "Won", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", color: "#9ca3af" },
   lost: { label: "Lost", badge: "bg-rose-50 text-rose-700 border-rose-200", color: "#ef4444" },
+  // Session-5: the reference's Create Lead dialog offers Unqualified as a
+  // fourth status (live listbox: New/Contacted/Qualified/Unqualified). Grey
+  // badge — the reference renders no badge for it we can extract, so it
+  // shares the neutral pill.
+  unqualified: { label: "Unqualified", badge: "bg-gray-100 text-gray-600 border-gray-200", color: "#9ca3af" },
 };
 
 /** Dashboard funnel uses friendlier names for two stages. */
@@ -52,20 +66,23 @@ export const PIPELINE_LABELS: Record<string, string> = {
   negotiation: "Negotiation",
   won: "Won",
   lost: "Lost",
+  unqualified: "Unqualified",
 };
 
-export const LEAD_SOURCES = [
-  "Email",
-  "Phone",
-  "Website",
-  "Referral",
-  "Event",
-  "Social Media",
-  "Cold Call",
-  "Advertisement",
-] as const;
+// Session-5: the reference's Create Lead dialog + dashboard "All Sources"
+// filter hardcode exactly these four sources (live listbox extraction).
+export const LEAD_SOURCES = ["Call", "Email", "Website", "Partner"] as const;
 
-export const CONTACT_SOURCES = LEAD_SOURCES;
+// Session-5: the reference's Create Contact dialog labels its source select
+// "How did you meet?" and ships emoji-prefixed options (the trigger itself
+// renders "✉️ Email"). Stored values include the emoji — mirrored exactly.
+export const CONTACT_SOURCES = [
+  "📞 Phone Call",
+  "✉️ Email",
+  "🌐 Website",
+  "🤝 Partner Referral",
+  "👥 Personal Referral",
+] as const;
 
 export const ACCOUNT_TIERS = ["A", "B", "C"] as const;
 
@@ -100,14 +117,19 @@ export const ACTIVITY_STATUS_META: Record<string, { label: string; badge: string
   completed: { label: "Completed", badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
 };
 
-export const EVENT_TYPES = ["appointment", "call", "meeting", "task"] as const;
+// Session-5: the reference's New Event dialog lists exactly these six event
+// types in this order (live listbox: Meeting/Call/Demo/Task/Reminder/
+// Appointment).
+export const EVENT_TYPES = ["meeting", "call", "demo", "task", "reminder", "appointment"] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
 export const EVENT_TYPE_META: Record<string, { label: string; color: string }> = {
-  appointment: { label: "Appointment", color: "#8b5cf6" },
-  call: { label: "Call", color: "#3b82f6" },
   meeting: { label: "Meeting", color: "#f59e0b" },
+  call: { label: "Call", color: "#3b82f6" },
+  demo: { label: "Demo", color: "#22d3ee" },
   task: { label: "Task", color: "#10b981" },
+  reminder: { label: "Reminder", color: "#f97316" },
+  appointment: { label: "Appointment", color: "#8b5cf6" },
 };
 
 export const EVENT_STATUS_META: Record<string, { label: string; badge: string }> = {
@@ -162,7 +184,7 @@ export const CHART_COLORS = {
 };
 
 export const DEFAULT_SETTINGS = {
-  contactSources: ["Email", "Phone", "Website", "Referral", "Event", "Social Media"],
+  contactSources: [...CONTACT_SOURCES],
   leadStages: [...LEAD_STAGES],
   activityTypes: [...ACTIVITY_TYPES],
   accountTiers: [...ACCOUNT_TIERS],

@@ -11,9 +11,9 @@ import { Avatar } from "@/components/ui/avatar";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { EmptyState, Skeleton } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
-import { BarStatCard, PageHeader } from "@/components/shared/page-parts";
+import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACCOUNT_STATUS_META, TIER_META, CHART_COLORS } from "@/lib/constants";
@@ -158,6 +158,7 @@ export default function AccountsPage() {
           delta="+2%"
           bars={industrySpark}
           barColor={CHART_COLORS.blue400}
+          barWidth="w-24"
         />
         <BarStatCard
           label="Active Accounts"
@@ -165,6 +166,7 @@ export default function AccountsPage() {
           delta="+2%"
           bars={activeSpark}
           barColor={CHART_COLORS.green400}
+          barWidth="w-24"
         />
         <BarStatCard
           label="Key Accounts"
@@ -172,6 +174,7 @@ export default function AccountsPage() {
           delta="+5%"
           bars={industrySpark.map((v) => Math.round(v / 3))}
           barColor={CHART_COLORS.cyan400}
+          barWidth="w-24"
         />
         <BarStatCard
           label="Total Revenue"
@@ -179,12 +182,14 @@ export default function AccountsPage() {
           delta="+3.6%"
           bars={revenueSpark}
           barColor={CHART_COLORS.purple400}
+          barWidth="w-24"
         />
         <BarStatCard
           label="Overdue Activities"
           value={overdueCount}
           bars={industrySpark.map((v) => Math.round(v / 4))}
           barColor={CHART_COLORS.red400}
+          barWidth="w-24"
         />
       </div>
 
@@ -216,37 +221,39 @@ export default function AccountsPage() {
 
       {/* Table + filters */}
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
-        <Card>
+        {/* Reference wrapper: bg-white rounded-lg shadow — NO border (session-5). */}
+        <Card className="rounded-lg border-0 shadow">
           <CardContent className="px-0 py-0">
-            {loadingFlags.accounts && accounts.length === 0 ? (
-              <div className="flex flex-col gap-2 p-5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12" />
-                ))}
-              </div>
-            ) : filtered.length === 0 ? (
-              <EmptyState
-                icon={<Building2 className="h-5 w-5" />}
-                title="No accounts found"
-                description="Try adjusting your search or filters, or create your first account."
-              />
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Account Name</TableHead>
-                    <TableHead>Industry</TableHead>
-                    <TableHead>Revenue</TableHead>
-                    <TableHead>Tier</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Last Activity</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-10" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((a) => (
-                    <TableRow key={a.id}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Account Name</TableHead>
+                  <TableHead>Industry</TableHead>
+                  <TableHead>Revenue</TableHead>
+                  <TableHead>Tier</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Last Activity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-10" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loadingFlags.accounts && accounts.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="p-2">
+                      <div className="flex flex-col gap-2 p-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Skeleton key={i} className="h-12" />
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <TableEmptyRow colSpan={8} message="No accounts found" />
+                ) : (
+                  <>
+                    {filtered.map((a) => (
+                      <TableRow key={a.id}>
                       <TableCell>
                         <div className="flex items-center gap-2.5">
                           <Avatar name={a.name} color="#e5e7eb" size="md" className="!text-gray-600" />
@@ -302,10 +309,11 @@ export default function AccountsPage() {
                         </Dropdown>
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                    ))}
+                  </>
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 

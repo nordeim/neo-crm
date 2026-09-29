@@ -24,6 +24,8 @@ export async function PUT(req: Request, { params }: Params) {
     data.subject = subject;
   }
   if ("notes" in body) data.notes = asString(body.notes, { optional: true, max: 2000 }) ?? null;
+  if ("relatedType" in body) data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
+  if ("relatedName" in body) data.relatedName = asString(body.relatedName, { optional: true, max: 160 }) ?? null;
   if ("dueAt" in body) data.dueAt = asDate(body.dueAt) ?? null;
   if ("priority" in body) {
     const priority = asString(body.priority) ?? "normal";

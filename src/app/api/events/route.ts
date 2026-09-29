@@ -66,6 +66,7 @@ export async function POST(req: Request) {
       endAt,
       allDay: body.allDay === true,
       location: asString(body.location, { optional: true, max: 200 }) ?? null,
+      relatedType: asString(body.relatedType, { optional: true, max: 40 }) ?? null,
       accountId: asString(body.accountId, { optional: true }) ?? null,
       contactId,
       ownerId: guard.user.id,

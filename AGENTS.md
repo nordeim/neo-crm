@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (68 checks)          | `bun run test`                         |
+| Unit tests (75 checks)          | `bun run test`                         |
 | Browser E2E (21 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (68) → `bun run build` → `bun run test:e2e` (21). There is no
+`bun run test` (75) → `bun run build` → `bun run test:e2e` (21). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -91,12 +91,16 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   centralized `window.location.href` for `Content-Disposition: attachment`
   responses. Next's `no-location-assign` lint rule fires on raw assignments;
   don't inline them again.
-- **Status vocabularies are distinct** — never mix them. Lead stages, account
-  statuses, activity types/statuses, event types/statuses, contact priorities
-  each have canonical label/color metadata in `src/lib/constants.ts`
-  (`STAGE_META`, `ACCOUNT_STATUS_META`, `ACTIVITY_TYPE_META`,
-  `EVENT_TYPE_META`, `PRIORITY_META`). Extend the meta maps when you extend a
-  vocabulary.
+- **Status vocabularies are distinct** — never mix them. Lead stages
+  (incl. session-5's `unqualified` — dropped = `lost` + `unqualified` via
+  `isDroppedStage()`), account statuses, activity types/statuses, event
+  types (six — meeting/call/demo/task/reminder/appointment), contact
+  priorities each have canonical label/color metadata in
+  `src/lib/constants.ts` (`STAGE_META`, `ACCOUNT_STATUS_META`,
+  `ACTIVITY_TYPE_META`, `EVENT_TYPE_META`, `PRIORITY_META`), plus the
+  DOM-pinned source vocabularies (`LEAD_SOURCES` = Call/Email/Website/
+  Partner; `CONTACT_SOURCES` = the five emoji "How did you meet?"
+  options). Extend the meta maps when you extend a vocabulary.
 - **Chart colors are DOM-pinned, not aesthetic** — `tests/constants.test.ts`
   freezes the palette against the live reference: pipeline stage hex (Proposal
   = yellow `#eab308`, Won = grey `#9ca3af` — chart hex only, badges stay
@@ -105,26 +109,55 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   #f87171`, `amber400 #fbbf24`) used by stat-card mini bars. Sparkline lines
   on the dashboard are `#10b981`. Re-extract from the reference before
   changing any of these — do not "fix" the tests to match the code.
-- **Two stat-card anatomies, never mixed**: the dashboard `KpiCard` (label /
-  value + inline delta / full-width sparkline below) vs the `BarStatCard`
-  (label + trending-icon delta on top, bold value left + `h-10` bar strip
-  right — accounts & activities). Contacts/leads use `IconStatCard`
-  (gradient card + solid -500 icon chip, optional trend row); reports uses
-  `CircleStatCard`.
+- **Stat-card families, never mixed** (session-5 refinements): the dashboard
+  `KpiCard` (label / value + optional `text-xs` suffix span + inline delta /
+  sparkline below); `BarStatCard` (accounts `w-24` / activities `w-20` bars,
+  header deltas ONLY for the green % + red "Xh overdue", everything else as
+  gray `mt-1` subtexts under the value); `IconStatCard` with two variants —
+  `contacts` (gradient, p-6, text-3xl, solid -500 chip) and `leads`
+  (p-4 sm:p-6, text-xl sm:text-2xl, tinted square chip, no hover); reports'
+  `CircleStatCard` (square `rounded-lg` tinted chip, count + amount inline
+  in one `text-2xl font-bold` value — the only card with a hover shadow).
 - **Sort icons**: inactive sortable headers show `ArrowUpDown` (h-4); the
   active sort column shows a directional `ChevronDown/Up`. Sortability is
   per-table (leads: Lead Name/Email/Value; contacts: Last Activity only;
   accounts: none) — mirror the reference, don't add sort headers it doesn't
   ship.
-- **Currency display is `$`-attached** (`src/lib/format.ts`):
-  `formatCurrency` → `$12,500`, `formatCompactCurrency` → `$145.0k` /
-  `$1.4M` (lowercase k, uppercase M) — exactly the reference app's display,
-  which ignores its own "Default Currency" setting (the Settings field stays
-  and stores `AED`; the formatter mirrors the reference by always printing
-  `$`).
+- **Entity tables use the stock density** (`src/components/ui/table.tsx`):
+  th `h-10 px-2` (size inherited from the table's `text-sm`), td `p-2` —
+  NOT px-4/py-3. Per-page overlays: contacts headers are
+  `font-semibold text-gray-700` with a `w-64 cursor-pointer` Name column
+  (dead affordance mirrored from the reference); accounts + leads table
+  cards are `rounded-lg border-0 shadow` (no border) while contacts keeps
+  the bordered `rounded-xl` wrapper with `overflow-hidden`. Empty states
+  render as in-table centered rows (`TableEmptyRow`: py-8 accounts/leads,
+  py-12 contacts). The leads table hides columns progressively (Phone
+  `hidden md:table-cell`, Company `hidden lg:table-cell`, Source `hidden
+  xl:table-cell`). The dashboard Recent Deals is a separate COMPACT table
+  (`py-2` cells, tr `text-xs text-muted`, trailing `w-8` th) — do not
+  convert it to the shared Table.
+- **Dialog contract (session-5)**: CREATE dialogs mirror the reference's
+  field sets exactly (Lead: Name*/Email/Phone/Company/Estimated Value/
+  Status [New/Contacted/Qualified/Unqualified]/Source [Call/Email/Website/
+  Partner] — no dates; Account: 8 fields ending at Status; Contact:
+  required Email + "How did you meet?" [the five emoji sources] — no
+  Priority; Event: Related To [None/Contact/Account/Opportunity/Lead];
+  Activity: Related To (Type) + freeform (Name) — no Status select).
+  EDIT dialogs keep our full superset (dates, all stages, Tier/Owner/
+  Priority) — the reference's edit surfaces are unverifiable at zero data.
+  All single-column, `max-w-lg`.
+- **Currency display is `$`-attached with per-page variants**
+  (`src/lib/format.ts`, pinned by `tests/format.test.ts`): the dashboard
+  renders the lowercase compact form — `formatCompactCurrency` → `$145.0k` /
+  `$1.4M`; the REPORTS page renders the uppercase-K variant —
+  `formatCompactCurrency(v, { upper: true })` → `$542.0K` (won, one
+  decimal) and `{ upper: true, decimals: 0 }` → `$196K` (lost); the LEADS
+  page renders the FULL form — `formatCurrency` → `$687,000`. All three
+  were DOM-verified against the reference's zero-state KPIs (it prints
+  `$0.0k` on the dashboard, `$0.0K`/`$0K` on reports, `$0` on leads).
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
   `format.ts`, `csv.ts`, `rate-limit.ts`, `avatar` helpers, the chart
-  palette (`constants.test.ts`) — 68 Vitest
+  palette (`constants.test.ts`), the dialog/filter vocabularies — 75 Vitest
   checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place

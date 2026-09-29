@@ -145,8 +145,9 @@ export default function ReportsPage() {
         </div>
       ) : (
         <>
-          {/* Reference KPI row: tinted circle icons on the left, sparkline
-              strips at the bottom, $ sub-values inline. */}
+          {/* Reference KPI row (session-5 anatomy): square rounded-lg tinted
+              chips, count + amount INLINE in one text-2xl font-bold value,
+              uppercase-K currency on this page ($542.0K won / $196K lost). */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
             <CircleStatCard label="Total Leads" value={k?.totalLeads ?? 0} icon={<Target className="h-5 w-5" />} color="#3b82f6">
               <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#3b82f6" variant="line" className="h-6" />
@@ -156,8 +157,7 @@ export default function ReportsPage() {
             </CircleStatCard>
             <CircleStatCard
               label="Won Deals"
-              value={k?.wonDeals ?? 0}
-              subValue={formatCompactCurrency(k?.wonValue ?? 0)}
+              value={<>{" "}{k?.wonDeals ?? 0} {formatCompactCurrency(k?.wonValue ?? 0, { upper: true })}</>}
               icon={<TrendingUp className="h-5 w-5" />}
               color="#10b981"
             >
@@ -165,8 +165,7 @@ export default function ReportsPage() {
             </CircleStatCard>
             <CircleStatCard
               label="Lost Deals"
-              value={k?.lostDeals ?? 0}
-              subValue={formatCompactCurrency(k?.lostValue ?? 0)}
+              value={<>{" "}{k?.lostDeals ?? 0} {formatCompactCurrency(k?.lostValue ?? 0, { upper: true, decimals: 0 })}</>}
               icon={<TrendingDown className="h-5 w-5" />}
               color="#ef4444"
             >

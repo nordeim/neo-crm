@@ -220,36 +220,33 @@ export default function ActivitiesPage() {
         <ActivityStatCard
           label="Overdue Activities"
           value={overdue.length}
-          sub={`Due now ${dueToday.length}`}
+          sub="Due now"
           delta={overdueLabel}
           deltaIcon="down"
           bars={allBars.map((v) => Math.max(0, v - 1))}
           barColor={CHART_COLORS.red400}
         />
+        {/* Session-5: "+N today" renders as a gray SUBTEXT under the value
+            (the reference's only header deltas are the green % and the red
+            "Xh overdue"). */}
         <ActivityStatCard
           label="Emails Sent"
           value={activities.filter((a) => a.type === "email").length}
-          delta={`+${emailsToday} today`}
-          deltaIcon={null}
-          deltaTone="success"
+          sub={`+${emailsToday} today`}
           bars={barsFor("email")}
           barColor={CHART_COLORS.cyan400}
         />
         <ActivityStatCard
           label="Calls Logged"
           value={activities.filter((a) => a.type === "call").length}
-          delta={`+${callsToday} today`}
-          deltaIcon={null}
-          deltaTone="success"
+          sub={`+${callsToday} today`}
           bars={barsFor("call")}
           barColor={CHART_COLORS.green400}
         />
         <ActivityStatCard
           label="Meetings Scheduled"
           value={upcomingMeetings.length}
-          delta={meetingDuration}
-          deltaIcon={null}
-          deltaTone="muted"
+          sub={`+${meetingDuration}`}
           bars={barsFor("meeting")}
           barColor={CHART_COLORS.gray}
         />
@@ -312,7 +309,7 @@ export default function ActivitiesPage() {
                             </p>
                             <p className="text-xs text-muted">
                               {meta.label}
-                              {a.contact ? ` · ${a.contact.name}` : ""}
+                              {a.relatedName ? ` · ${a.relatedName}` : a.contact ? ` · ${a.contact.name}` : ""}
                               {a.dueAt ? ` · due ${formatDate(a.dueAt)} ${formatTime(a.dueAt)}` : ""}
                               {a.status === "scheduled" && a.dueAt ? ` (${timeUntil(a.dueAt)})` : ""}
                             </p>
@@ -369,7 +366,7 @@ export default function ActivitiesPage() {
                                 <p className="truncate text-sm font-medium text-foreground">{a.subject}</p>
                                 <p className="mt-0.5 text-xs text-muted">
                                   {meta.label} · {timeAgo(a.createdAt)}
-                                  {a.contact ? ` · ${a.contact.name}` : ""}
+                                  {a.relatedName ? ` · ${a.relatedName}` : a.contact ? ` · ${a.contact.name}` : ""}
                                   {a.status === "completed" ? " · completed" : a.dueAt ? ` · due ${formatDate(a.dueAt)}` : ""}
                                 </p>
                                 {a.notes && <p className="mt-1 line-clamp-2 text-xs text-muted">{a.notes}</p>}

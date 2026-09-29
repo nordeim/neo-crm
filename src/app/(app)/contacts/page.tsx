@@ -28,7 +28,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { EmptyState, Skeleton } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/misc";
 import {
   Dialog,
   DialogContent,
@@ -38,7 +38,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
-import { IconStatCard, PageHeader } from "@/components/shared/page-parts";
+import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { ContactDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { PRIORITY_META } from "@/lib/constants";
@@ -260,46 +260,51 @@ export default function ContactsPage() {
         </Card>
       )}
 
-      <Card className="mt-4">
+      {/* Reference wrapper: rounded-xl + border + shadow-sm + overflow-hidden
+          (session-5) — contacts is the one bordered table wrapper. */}
+      <Card className="mt-4 overflow-hidden">
         <CardContent className="px-0 py-0">
-          {loadingFlags.contacts && contacts.length === 0 ? (
-            <div className="flex flex-col gap-2 p-5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12" />
-              ))}
-            </div>
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              icon={<Users className="h-5 w-5" />}
-              title="No contacts found"
-              description="Try adjusting your search or filters"
-            />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {/* Reference: only Last Activity is sortable (chevron-down
-                      default desc); Name renders as a plain header. */}
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>
-                    <button type="button" className="inline-flex items-center gap-1 tracking-wide" onClick={() => toggleSort("lastActivity")}>
-                      Last Activity
-                      {sortKey === "lastActivity" ? (
-                        sortDir === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ArrowUpDown className="h-4 w-4 text-subtle" />
-                      )}
-                    </button>
-                  </TableHead>
-                  <TableHead>Engagement</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead className="w-10">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {/* Reference: contacts headers are font-semibold text-gray-700
+                    (bolder than other tables); Name is w-64 cursor-pointer with
+                    NO sort icon (dead affordance mirrored); only Last Activity
+                    is sortable (chevron-down default desc). */}
+                <TableHead className="w-64 cursor-pointer font-semibold text-gray-700">Name</TableHead>
+                <TableHead className="font-semibold text-gray-700">Role</TableHead>
+                <TableHead className="font-semibold text-gray-700">Priority</TableHead>
+                <TableHead className="font-semibold text-gray-700">
+                  <button type="button" className="inline-flex items-center gap-1" onClick={() => toggleSort("lastActivity")}>
+                    Last Activity
+                    {sortKey === "lastActivity" ? (
+                      sortDir === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ArrowUpDown className="h-4 w-4 text-subtle" />
+                    )}
+                  </button>
+                </TableHead>
+                <TableHead className="font-semibold text-gray-700">Engagement</TableHead>
+                <TableHead className="font-semibold text-gray-700">Company</TableHead>
+                <TableHead className="font-semibold text-gray-700">Source</TableHead>
+                <TableHead className="w-10 font-semibold text-gray-700">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loadingFlags.contacts && contacts.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-2">
+                    <div className="flex flex-col gap-2 p-2">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12" />
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <TableEmptyRow colSpan={8} message="No contacts found" padding="py-12" />
+              ) : (
+                <>
                 {filtered.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell>
@@ -346,9 +351,10 @@ export default function ContactsPage() {
                     </TableCell>
                   </TableRow>
                 ))}
-              </TableBody>
-            </Table>
-          )}
+                </>
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 

@@ -13,13 +13,27 @@ export function formatCurrency(value: number | null | undefined): string {
   return `${sign}$${num}`;
 }
 
-/** $1.2k / $34k / $1.4M compact form used by KPI cards (lowercase k, uppercase M). */
-export function formatCompactCurrency(value: number | null | undefined): string {
+/**
+ * $1.2k / $34k / $1.4M compact form used by KPI cards (lowercase k, uppercase
+ * M). Session-5 variants, DOM-verified per page: the reports page renders an
+ * UPPERCASE-K form (`$0.0K` won with one decimal, `$0K` lost with zero) —
+ * pass `{ upper: true }` / `{ decimals: 0 }`.
+ */
+export function formatCompactCurrency(
+  value: number | null | undefined,
+  options?: { decimals?: number; upper?: boolean },
+): string {
+  const decimals = options?.decimals ?? 1;
+  const suffixK = options?.upper ? "K" : "k";
   const v = value ?? 0;
   const abs = Math.abs(v);
   const sign = v < 0 ? "-" : "";
-  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(1)}k`;
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(decimals)}M`;
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(decimals)}${suffixK}`;
+  // Sub-1000: the legacy default keeps the bare rounded number (pinned by
+  // tests); the variant form (options passed — the reports cards) always
+  // carries the suffix, matching the reference's "$0.0K"/"$0K" zero KPIs.
+  if (options) return `${sign}$${abs.toFixed(decimals)}${suffixK}`;
   return `${sign}$${Math.round(abs)}`;
 }
 

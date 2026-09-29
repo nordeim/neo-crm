@@ -27,14 +27,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { EmptyState, Skeleton } from "@/components/ui/misc";
+import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
-import { IconStatCard, PageHeader } from "@/components/shared/page-parts";
+import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { ConversionFunnel, PipelineBarChart, WonLostLineChart } from "@/components/charts/charts";
 import { LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { LEAD_STAGES, STAGE_META } from "@/lib/constants";
-import { avgDaysBetween, formatCompactCurrency, formatDate } from "@/lib/format";
+import { LEAD_STAGES, STAGE_META, isDroppedStage } from "@/lib/constants";
+import { avgDaysBetween, formatCompactCurrency, formatCurrency, formatDate } from "@/lib/format";
 import type { Lead } from "@/types";
 
 type SortKey = "name" | "email" | "value" | "createdAt";
@@ -72,7 +72,7 @@ export default function LeadsPage() {
       if (stage !== "all" && l.stage !== stage) return false;
       if (ownerId !== "all" && l.ownerId !== ownerId) return false;
       if (source !== "all" && l.source !== source) return false;
-      if (openOnly && (l.stage === "won" || l.stage === "lost")) return false;
+      if (openOnly && (l.stage === "won" || isDroppedStage(l.stage))) return false;
       return true;
     });
     rows.sort((a, b) => {
@@ -87,8 +87,8 @@ export default function LeadsPage() {
   }, [leads, search, stage, ownerId, source, openOnly, sortKey, sortDir]);
 
   const won = leads.filter((l) => l.stage === "won");
-  const lost = leads.filter((l) => l.stage === "lost");
-  const open = leads.filter((l) => l.stage !== "won" && l.stage !== "lost");
+  const lost = leads.filter((l) => isDroppedStage(l.stage));
+  const open = leads.filter((l) => l.stage !== "won" && !isDroppedStage(l.stage));
   const avgCycle = avgDaysBetween(
     won.map((l) => l.createdAt),
     won.map((l) => l.closedAt ?? l.createdAt),
@@ -171,31 +171,38 @@ export default function LeadsPage() {
         }
       />
 
-      {/* Reference stat cards: light tinted icon chips on the right. */}
+      {/* Reference stat cards (session-5 anatomy): plain white card,
+          p-4 sm:p-6, label text-xs sm:text-sm, value text-xl sm:text-2xl,
+          tinted square chip w-8 h-8 sm:w-10 sm:h-10 on the right. The Won/
+          Dropped amounts render in FULL currency form (the reference's
+          zero-state shows "$0" where the dashboard shows "$0.0k"). */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-        <IconStatCard label="Total Leads" value={leads.length} icon={<TrendingUp className="h-5 w-5" />} color="#3b82f6" />
-        <IconStatCard label="Open Leads" value={open.length} icon={<Target className="h-5 w-5" />} color="#f97316" />
+        <IconStatCard variant="leads" label="Total Leads" value={leads.length} icon={<TrendingUp className="h-5 w-5" />} color="#3b82f6" />
+        <IconStatCard variant="leads" label="Open Leads" value={open.length} icon={<Target className="h-5 w-5" />} color="#f97316" />
         <IconStatCard
+          variant="leads"
           label="Won Deals"
           value={won.length}
-          subValue={formatCompactCurrency(won.reduce((s, l) => s + l.value, 0))}
+          subValue={formatCurrency(won.reduce((s, l) => s + l.value, 0))}
           icon={<CheckCircle2 className="h-5 w-5" />}
           color="#10b981"
         />
         <IconStatCard
+          variant="leads"
           label="Dropped Deals"
           value={lost.length}
-          subValue={formatCompactCurrency(lost.reduce((s, l) => s + l.value, 0))}
+          subValue={formatCurrency(lost.reduce((s, l) => s + l.value, 0))}
           icon={<XCircle className="h-5 w-5" />}
           color="#ef4444"
         />
         <IconStatCard
+          variant="leads"
           label="Conversion Rate"
           value={`${leads.length ? Math.round((won.length / leads.length) * 1000) / 10 : 0}%`}
           icon={<Percent className="h-5 w-5" />}
           color="#8b5cf6"
         />
-        <IconStatCard label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<CalendarDays className="h-5 w-5" />} color="#14b8a6" />
+        <IconStatCard variant="leads" label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<CalendarDays className="h-5 w-5" />} color="#14b8a6" />
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -254,45 +261,53 @@ export default function LeadsPage() {
         </Card>
       )}
 
-      <Card className="mt-4">
+      {/* Reference wrapper: bg-white rounded-lg shadow — NO border (session-5). */}
+      <Card className="mt-4 rounded-lg border-0 shadow">
         <CardContent className="px-0 py-0">
-          {loadingFlags.leads && leads.length === 0 ? (
-            <div className="flex flex-col gap-2 p-5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12" />
-              ))}
-            </div>
-          ) : filtered.length === 0 ? (
-            <EmptyState icon={<Target className="h-5 w-5" />} title="No leads found" description="Try adjusting your search or filters" />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <SortHead label="Lead Name" k="name" active={sortKey === "name"} dir={sortDir} onToggle={toggleSort} />
-                  <SortHead label="Email" k="email" active={sortKey === "email"} dir={sortDir} onToggle={toggleSort} />
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Company</TableHead>
-                  <SortHead label="Value" k="value" active={sortKey === "value"} dir={sortDir} onToggle={toggleSort} />
-                  <TableHead>Status</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Next Follow-up</TableHead>
-                  <TableHead className="w-10" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          {/* Reference (session-5): leads hides columns progressively —
+              Phone below md, Company below lg, Source below xl. */}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <SortHead label="Lead Name" k="name" active={sortKey === "name"} dir={sortDir} onToggle={toggleSort} />
+                <SortHead label="Email" k="email" active={sortKey === "email"} dir={sortDir} onToggle={toggleSort} />
+                <TableHead className="hidden md:table-cell">Phone</TableHead>
+                <TableHead className="hidden lg:table-cell">Company</TableHead>
+                <SortHead label="Value" k="value" active={sortKey === "value"} dir={sortDir} onToggle={toggleSort} />
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden xl:table-cell">Source</TableHead>
+                <TableHead>Next Follow-up</TableHead>
+                <TableHead className="w-10" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loadingFlags.leads && leads.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="p-2">
+                    <div className="flex flex-col gap-2 p-2">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12" />
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <TableEmptyRow colSpan={9} message="No leads found" />
+              ) : (
+                <>
                 {filtered.map((l) => (
                   <TableRow key={l.id}>
                     <TableCell className="font-medium text-foreground">{l.name}</TableCell>
                     <TableCell className="text-muted">{l.email ?? "—"}</TableCell>
-                    <TableCell className="text-muted">{l.phone ?? "—"}</TableCell>
-                    <TableCell className="text-muted">{l.company ?? "—"}</TableCell>
+                    <TableCell className="hidden text-muted md:table-cell">{l.phone ?? "—"}</TableCell>
+                    <TableCell className="hidden text-muted lg:table-cell">{l.company ?? "—"}</TableCell>
                     <TableCell className="font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
                         {STAGE_META[l.stage]?.label ?? l.stage}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted">{l.source ?? "—"}</TableCell>
+                    <TableCell className="hidden text-muted xl:table-cell">{l.source ?? "—"}</TableCell>
                     <TableCell className="text-muted">{formatDate(l.nextFollowUp)}</TableCell>
                     <TableCell>
                       <Dropdown>
@@ -327,9 +342,10 @@ export default function LeadsPage() {
                     </TableCell>
                   </TableRow>
                 ))}
-              </TableBody>
-            </Table>
-          )}
+                </>
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 

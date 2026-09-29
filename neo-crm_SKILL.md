@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-09-29
-project_state: 68 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette DOM-pinned by tests/constants.test.ts
+project_state: 75 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies DOM-pinned by tests/constants.test.ts; table density + card typography + dialog contract aligned to the live reference (session-5)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.1.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.2.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1081,6 +1081,50 @@ mentioned, and inactive sort headers are `arrow-up-down` (not chevrons).
 Rule: **VLM for layout/what-is-there, `getComputedStyle` + outerHTML for
 exact colors/icons/anatomy.** A VLM claim about a color or icon is a
 hypothesis until the DOM confirms it.
+
+**Session 5 (interactive-layer parity)** — planned in
+`docs/plans/2026-09-29-session5-parity-remediation.md` (S5-1…S5-16),
+executed TDD. The audit went one layer deeper than session 4: beyond
+static anatomy into dialogs, option vocabularies, table density and
+responsive column hiding:
+
+- **Table system**: shared Table retuned to the stock shadcn density (th
+  `h-10 px-2`, td `p-2`); contacts headers `font-semibold text-gray-700`
+  with the reference's dead `w-64 cursor-pointer` Name column; per-page
+  wrappers (accounts/leads `rounded-lg border-0 shadow`, contacts
+  bordered `rounded-xl` + `overflow-hidden`); in-table centered
+  `TableEmptyRow` empty states (py-8/py-12); leads hides columns
+  progressively (Phone md, Company lg, Source xl).
+- **Dialogs**: CREATE forms mirror the reference's exact field sets and
+  hardcoded option lists (Lead Status = New/Contacted/Qualified/
+  Unqualified, Lead Source = Call/Email/Website/Partner, Contact
+  "How did you meet?" = the five emoji options with required Email,
+  Account = 8 fields, Event gains Related To [None/Contact/Account/
+  Opportunity/Lead] + six event types, Activity gains Related To
+  (Type) + freeform (Name) and drops its Status select). EDIT keeps the
+  full superset. New `Event.relatedType` + `Activity.relatedType`/
+  `relatedName` columns.
+- **Stat cards**: activities subtext deltas ("+N today", "+0h 45m",
+  "Due now") under the value; reports CircleStatCard rebuilt (square
+  tinted chip, count + amount inline `text-2xl font-bold`, uppercase-K
+  currency `$542.0K`/`$196K`); leads cards get the compact variant
+  (text-xl sm:text-2xl values, full `$687,000` currency); card
+  primitives retuned (p-6 headers, `text-base sm:text-lg` titles).
+- **Vocabulary model**: `unqualified` stage added (dropped = lost +
+  unqualified via `isDroppedStage()`); seed sources remapped onto the
+  reference vocabularies with values/stages unchanged.
+- Gate after session 5: lint 0/0 · typecheck clean · **75/75 unit** ·
+  build clean · **21/21 e2e** (mobile-nav regression intact); every
+  S5-item re-verified in the live DOM at 1512×945 + 390/768/1024/1280
+  widths.
+
+**Session-5 lesson — audit the interactive layer, not just the pixels.**
+Four sessions of visual hardening had left every create dialog, filter
+vocabulary and table-density convention divergent, because screenshot
+comparisons of zero-data pages never open the dialogs. Rule: **parity
+audits must CLICK things** — open every dialog, expand every listbox,
+and read the option lists, because a dialog's option vocabulary is as
+visible as its colors.
 
 ## Appendix D: Live-Site Validation Methodology
 

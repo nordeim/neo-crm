@@ -25,6 +25,7 @@ export async function PUT(req: Request, { params }: Params) {
   }
   if ("description" in body) data.description = asString(body.description, { optional: true, max: 1000 }) ?? null;
   if ("location" in body) data.location = asString(body.location, { optional: true, max: 200 }) ?? null;
+  if ("relatedType" in body) data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
   if ("allDay" in body) data.allDay = body.allDay === true;
   if ("accountId" in body) data.accountId = asString(body.accountId, { optional: true }) ?? null;
   if ("contactId" in body) data.contactId = asString(body.contactId, { optional: true }) ?? null;

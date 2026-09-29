@@ -8,6 +8,7 @@ import {
   ACCOUNT_STATUS_META,
   CHART_COLORS,
   REPORT_PERIODS,
+  isDroppedStage,
 } from "@/lib/constants";
 import { addMonths, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
 import type { ReportsData } from "@/types";
@@ -71,8 +72,10 @@ export async function GET(req: Request) {
   ]);
 
   const wonLeads = leads.filter((l) => l.stage === "won" && (l.closedAt ?? l.createdAt) >= from);
+  // "Lost Deals" keeps the strict lost filter (the card is labeled Lost);
+  // open excludes every dropped stage (lost + unqualified).
   const lostLeads = leads.filter((l) => l.stage === "lost" && (l.closedAt ?? l.createdAt) >= from);
-  const openLeads = leads.filter((l) => l.stage !== "won" && l.stage !== "lost");
+  const openLeads = leads.filter((l) => l.stage !== "won" && !isDroppedStage(l.stage));
 
   // Previous period for deltas
   const prevFrom = period === "all_time" ? new Date(0) : periodStart(period, addMonths(now, -3));

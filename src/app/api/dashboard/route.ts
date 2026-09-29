@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { ok, isGuarded, requireSession } from "@/lib/api";
-import { PIPELINE_STAGES, STAGE_META, PIPELINE_LABELS, CHART_COLORS } from "@/lib/constants";
+import { PIPELINE_STAGES, STAGE_META, PIPELINE_LABELS, CHART_COLORS, isDroppedStage } from "@/lib/constants";
 import { addMonths, startOfMonth } from "@/lib/format";
 import type { DashboardData } from "@/types";
 
@@ -22,8 +22,8 @@ export async function GET() {
   ]);
 
   const wonLeads = leads.filter((l) => l.stage === "won");
-  const lostLeads = leads.filter((l) => l.stage === "lost");
-  const openLeads = leads.filter((l) => l.stage !== "won" && l.stage !== "lost");
+  const lostLeads = leads.filter((l) => isDroppedStage(l.stage));
+  const openLeads = leads.filter((l) => l.stage !== "won" && !isDroppedStage(l.stage));
 
   // ---- KPIs ----
   const totalLeads = leads.length;

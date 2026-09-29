@@ -117,12 +117,13 @@ model Event {
   id          String   @id @default(cuid())
   title       String
   description String?
-  type        String   @default("meeting") // appointment | call | meeting | task
+  type        String   @default("meeting") // meeting | call | demo | task | reminder | appointment
   status      String   @default("scheduled") // scheduled | completed | cancelled
   startAt     DateTime
   endAt       DateTime?
   allDay      Boolean  @default(false)
   location    String?
+  relatedType String? // session-5: the reference's "Related To" picker (none | contact | account | opportunity | lead)
   accountId   String?
   contactId   String?
   ownerId     String?
@@ -146,6 +147,8 @@ model Activity {
   priority    String    @default("normal") // high | normal | low
   dueAt       DateTime?
   completedAt DateTime?
+  relatedType String? // session-5: the reference's "Related To (Type)" picker
+  relatedName String? // session-5: the reference's freeform "Related To (Name)" input
   accountId   String?
   contactId   String?
   ownerId     String?

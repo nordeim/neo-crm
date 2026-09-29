@@ -42,6 +42,23 @@ describe("currency formatting", () => {
     expect(formatCompactCurrency(999)).toBe("$999");
     expect(formatCompactCurrency(1_000_000)).toBe("$1.0M");
   });
+
+  // Session-5 DOM-verified per-page variants: the reports page renders an
+  // UPPERCASE-K compact form — its zero-state KPIs show "$0.0K" (won, one
+  // decimal) and "$0K" (lost, zero decimals) while the dashboard shows
+  // "$0.0k" lowercase.
+  it("supports the reports uppercase-K variant (1 decimal won / 0 decimals lost)", () => {
+    expect(formatCompactCurrency(687_000, { upper: true })).toBe("$687.0K");
+    expect(formatCompactCurrency(196_000, { upper: true, decimals: 0 })).toBe("$196K");
+    expect(formatCompactCurrency(0, { upper: true, decimals: 0 })).toBe("$0K");
+    expect(formatCompactCurrency(0, { upper: true })).toBe("$0.0K");
+    expect(formatCompactCurrency(1_400_000, { upper: true })).toBe("$1.4M");
+  });
+
+  it("keeps the dashboard lowercase default unchanged when options are passed", () => {
+    expect(formatCompactCurrency(542_000, { decimals: 1 })).toBe("$542.0k");
+    expect(formatCompactCurrency(542_000)).toBe("$542.0k");
+  });
 });
 
 describe("date formatting", () => {

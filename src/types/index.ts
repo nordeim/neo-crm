@@ -81,6 +81,7 @@ export interface CrmEvent {
   endAt: string | null;
   allDay: boolean;
   location: string | null;
+  relatedType: string | null;
   accountId: string | null;
   account?: { id: string; name: string } | null;
   contactId: string | null;
@@ -100,6 +101,8 @@ export interface Activity {
   priority: string;
   dueAt: string | null;
   completedAt: string | null;
+  relatedType: string | null;
+  relatedName: string | null;
   accountId: string | null;
   account?: { id: string; name: string } | null;
   contactId: string | null;

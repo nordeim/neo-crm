@@ -52,6 +52,8 @@ export async function POST(req: Request) {
       priority,
       dueAt: asDate(body.dueAt) ?? new Date(),
       completedAt: status === "completed" ? new Date() : null,
+      relatedType: asString(body.relatedType, { optional: true, max: 40 }) ?? null,
+      relatedName: asString(body.relatedName, { optional: true, max: 160 }) ?? null,
       accountId: asString(body.accountId, { optional: true }) ?? null,
       contactId,
       ownerId: guard.user.id,
