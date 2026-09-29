@@ -3,12 +3,12 @@
 // instance and exhaust SQLite handles).
 
 import { PrismaClient } from "@prisma/client";
-import { resolveDatabaseUrl } from "./db-path";
+import { runtimeDatabaseUrl } from "./db-path";
 
 const globalForPrisma = globalThis as unknown as { __neoCrmPrisma?: PrismaClient };
 
 function createClient(): PrismaClient {
-  const url = resolveDatabaseUrl(process.env.DATABASE_URL ?? "file:../db/custom.db");
+  const url = runtimeDatabaseUrl();
   return new PrismaClient({
     datasources: { db: { url } },
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],

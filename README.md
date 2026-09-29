@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-67%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-78%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -28,7 +28,7 @@ first boot.
 
 | Feature | Description |
 | ------- | ----------- |
-| 📊 Dashboard | 6 KPI cards with deltas, pipeline bar chart, revenue-vs-target line chart, top reps, lead sources, upcoming activities, recent deals |
+| 📊 Dashboard | 6 KPI cards with deltas and sparkline strips, pipeline bar chart, revenue-vs-target line chart, top reps, lead sources, upcoming activities, recent deals |
 | 🏢 Accounts | Tiered company records (A/B/C + key accounts), industry/revenue/owner filters, CSV export |
 | 👥 Contacts | Hot/warm/cold priorities, sortable columns, CSV import, business-card scan flow (honest degradation on desktop) |
 | 🎯 Leads | 7-stage pipeline, deal values, follow-up dates, pipeline/won-lost/funnel charts |
@@ -39,7 +39,7 @@ first boot.
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate — the fix the reference app never shipped |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login |
-| 🧪 Tested | 47 Vitest unit checks + 20 Playwright E2E checks, including a 5-check mobile-nav regression suite |
+| 🧪 Tested | 58 Vitest unit checks + 20 Playwright E2E checks, including a 5-check mobile-nav regression suite |
 
 ## Architecture
 
@@ -108,7 +108,7 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 5 Vitest suites (47 checks)
+│   ├── 📄 *.test.ts                  # 5 Vitest suites (58 checks)
 │   └── 📂 e2e/                       # Playwright (20 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
@@ -155,7 +155,7 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 47 Vitest unit checks (auth, db-path, format, csv, rate-limit)
+bun run test          # 58 Vitest unit checks (auth, db-path, format, csv, rate-limit)
 bun run build         # E2E runs against the standalone production build
 bun run test:e2e      # 20 Playwright checks on :3100 with its own db/e2e.db
 ```
@@ -184,6 +184,7 @@ proxy; session cookies are marked `Secure` whenever `NODE_ENV=production`.
 
 | Issue | Cause | Fix |
 | ----- | ----- | --- |
+| Database created OUTSIDE the repo (e.g. `<parent>/db/custom.db`) | bun absolutizes a relative `file:` `DATABASE_URL` from `.env` against the `.env` location, and the Prisma engine resolves raw relative URLs against the process CWD | Already handled by `runtimeDatabaseUrl()` (`src/lib/db-path.ts`) and the `db:push` wrapper — if you see it, make sure `db.ts`/`seed.ts`/`scripts/prisma-env.ts` derive the URL through that seam |
 | Pages render unstyled (raw HTML look) | `postcss.config.mjs` missing or lacking `@tailwindcss/postcss` | Restore the config — Tailwind v4 directives (`@theme`, `@utility`) are only compiled through the plugin |
 | `Can't resolve 'tw-animate-css'` | The package only exposes the `style` export condition, unsupported by Turbopack | Keep the vendored copy at `src/app/vendor/tw-animate.css` and import that |
 | E2E sees stale data after reseeding | The db file was deleted under a running server (deleted-inode handle) | Never delete `db/e2e.db`; the seed wipes and reseeds **in place** |

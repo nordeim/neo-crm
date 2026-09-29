@@ -13,10 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { EmptyState, Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
-import { KpiCard, PageHeader } from "@/components/shared/page-parts";
+import { KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { ACCOUNT_STATUS_META, TIER_META } from "@/lib/constants";
+import { ACCOUNT_STATUS_META, TIER_META, CHART_COLORS } from "@/lib/constants";
 import { formatCompactCurrency, timeAgo } from "@/lib/format";
 import type { Account } from "@/types";
 
@@ -57,6 +57,40 @@ export default function AccountsPage() {
       activities.filter((a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) < new Date()).length,
     [activities],
   );
+
+  // Per-industry series feed the KPI sparklines (the reference shows a
+  // 6-bar blue strip in every accounts KPI card; industries are the natural
+  // six buckets for this workspace).
+  const industrySpark = React.useMemo(() => {
+    const buckets = new Map<string, number>();
+    for (const i of industries) buckets.set(i, 0);
+    for (const a of accounts) {
+      const key = a.industry && buckets.has(a.industry) ? a.industry : [...buckets.keys()][0] ?? "";
+      buckets.set(key, (buckets.get(key) ?? 0) + 1);
+    }
+    return [...buckets.values()];
+  }, [accounts, industries]);
+
+  const activeSpark = React.useMemo(() => {
+    const buckets = new Map<string, number>();
+    for (const i of industries) buckets.set(i, 0);
+    for (const a of accounts) {
+      if (a.status !== "active") continue;
+      const key = a.industry && buckets.has(a.industry) ? a.industry : [...buckets.keys()][0] ?? "";
+      buckets.set(key, (buckets.get(key) ?? 0) + 1);
+    }
+    return [...buckets.values()];
+  }, [accounts, industries]);
+
+  const revenueSpark = React.useMemo(() => {
+    const buckets = new Map<string, number>();
+    for (const i of industries) buckets.set(i, 0);
+    for (const a of accounts) {
+      const key = a.industry && buckets.has(a.industry) ? a.industry : [...buckets.keys()][0] ?? "";
+      buckets.set(key, (buckets.get(key) ?? 0) + (a.annualRevenue ?? 0));
+    }
+    return [...buckets.values()];
+  }, [accounts, industries]);
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -117,11 +151,21 @@ export default function AccountsPage() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <KpiCard label="Total Accounts" value={accounts.length} delta={2} hint="vs. last quarter" />
-        <KpiCard label="Active Accounts" value={accounts.filter((a) => a.status === "active").length} delta={2} hint="currently engaged" />
-        <KpiCard label="Key Accounts" value={accounts.filter((a) => a.isKey).length} delta={5} hint="strategic tier" />
-        <KpiCard label="Total Revenue" value={formatCompactCurrency(totalRevenue)} delta={3.6} hint="annual, all accounts" />
-        <KpiCard label="Overdue Activities" value={overdueCount} hint="past due date" />
+        <KpiCard label="Total Accounts" value={accounts.length} delta={2} hint="vs. last quarter">
+          <Sparkline values={industrySpark} color={CHART_COLORS.blue} />
+        </KpiCard>
+        <KpiCard label="Active Accounts" value={accounts.filter((a) => a.status === "active").length} delta={2} hint="currently engaged">
+          <Sparkline values={activeSpark} color={CHART_COLORS.green} />
+        </KpiCard>
+        <KpiCard label="Key Accounts" value={accounts.filter((a) => a.isKey).length} delta={5} hint="strategic tier">
+          <Sparkline values={industrySpark.map((v) => Math.round(v / 3))} color={CHART_COLORS.cyan} />
+        </KpiCard>
+        <KpiCard label="Total Revenue" value={formatCompactCurrency(totalRevenue)} delta={3.6} hint="annual, all accounts">
+          <Sparkline values={revenueSpark} color={CHART_COLORS.violet} />
+        </KpiCard>
+        <KpiCard label="Overdue Activities" value={overdueCount} hint="past due date">
+          <Sparkline values={industrySpark.map((v) => Math.round(v / 4))} color={CHART_COLORS.red} />
+        </KpiCard>
       </div>
 
       {/* Toolbar */}

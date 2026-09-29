@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (47 checks)          | `bun run test`                         |
+| Unit tests (58 checks)          | `bun run test`                         |
 | Browser E2E (20 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (47) → `bun run build` → `bun run test:e2e` (20). There is no
+`bun run test` (58) → `bun run build` → `bun run test:e2e` (20). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -67,8 +67,16 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `tests/db-path.test.ts`): relative `file:` URLs resolve against
   `prisma/schema.prisma` — the same rule as the Prisma CLI — so the CLI,
   `next dev`, and the standalone build all land on `<repo>/db/custom.db`
-  regardless of the process working directory. Always import `db` from
-  `@/lib/db`; never construct `PrismaClient` directly.
+  regardless of the process working directory. Two hazards are handled
+  there: (1) **bun rewrites relative `file:` DATABASE_URL values loaded
+  from `.env` into absolute paths resolved against the `.env` file's own
+  directory** — with the root contract `file:../db/custom.db` that is one
+  directory OUTSIDE the repo; `runtimeDatabaseUrl()` detects exactly that
+  signature and re-anchors on the schema rule. (2) First boot: validated
+  anchors `mkdir -p` the `db/` folder instead of falling through to the
+  raw relative URL. `db:push` routes through the `scripts/prisma-env.ts`
+  wrapper so the Prisma CLI gets the same treatment. Always import `db`
+  from `@/lib/db`; never construct `PrismaClient` directly.
 - **Schema changes use `db push`, not migrations** (`prisma/migrations/` does
   not exist). `bun run db:seed` is idempotent — it wipes domain tables and
   reseeds IN PLACE (never delete the `.db` file itself; a running server keeps
@@ -90,7 +98,7 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `EVENT_TYPE_META`, `PRIORITY_META`). Extend the meta maps when you extend a
   vocabulary.
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
-  `format.ts`, `csv.ts`, `rate-limit.ts` — 47 Vitest checks). Route handlers
+  `format.ts`, `csv.ts`, `rate-limit.ts` — 58 Vitest checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place
   reseed) on port 3100 against the standalone build.

@@ -6,8 +6,14 @@
 
 import { PrismaClient, type Account, type Contact } from "@prisma/client";
 import { scryptSync, randomBytes } from "crypto";
+import { runtimeDatabaseUrl } from "../src/lib/db-path";
 
-const db = new PrismaClient();
+// Explicit datasource URL: never let the Prisma engine (or bun's .env
+// absolutization) pick the database location — the shared resolver pins
+// every consumer to <repo>/db/<name> (see src/lib/db-path.ts).
+const db = new PrismaClient({
+  datasources: { db: { url: runtimeDatabaseUrl() } },
+});
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex");

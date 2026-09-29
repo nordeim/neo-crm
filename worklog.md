@@ -68,3 +68,25 @@ Work Log:
 Stage Summary:
 - Remote git@github.com:nordeim/neo-crm.git main @ 7f71cca with: complete clone codebase, 4 architecture docs, 11 screenshots
 - Deliverable state: dev server on :3000, demo login sepnetflix2023@outlook.com / $Abcd1234, 67 automated checks green
+
+---
+Task ID: 4
+Agent: main (Super Z)
+Task: Session 2 — review docs/session_1.md, remediate audit findings, iterate visual parity, distill neo-crm_SKILL.md, push
+
+Work Log:
+- Refreshed workspace (git pull 9eb86eb); reviewed all root docs + session_1.md + both distill skills; validated understanding against the codebase
+- Audit found R-1..R-7 (plan: docs/plans/2026-09-29-session2-remediation.md)
+- R-1 [CRITICAL] db outside repo: root-caused via controlled experiments E1-E21 — bun absolutizes .env-relative file: URLs against the .env dir; absolute URLs bypass the resolver; first-boot existence guards fell through. TDD fix stack in src/lib/db-path.ts (urlForRoot mkdir-on-demand, parseEnvFile, effectiveDatabaseUrl bun-signature re-anchoring, runtimeDatabaseUrl) + consumers rewired (db.ts, seed.ts, new scripts/prisma-env.ts wrapper for db:push) + dead db:migrate/db:reset removed. Live-verified: dev server fds now at <repo>/db/custom.db
+- R-2/R-3: .env.example postgres example (neo_crm) + vitest.config comment fixed
+- R-4: unused deps tailwindcss-animate + z-ai-web-dev-sdk removed (package.json, install script, both lockfiles)
+- Visual parity iteration (VLM-verified vs target captures): KPI labels Title Case, sparklines on dashboard (cyan/green/orange-blue) + accounts (blue/green/cyan/violet/red) KPI cards, reference 3-button header row (Add outline / Export outline menu / Export filled), working All-Owners filter (reference renders it empty), More... link to /leads — dashboard + accounts HIGH parity verdicts
+- Mobile drawer re-verified live at 390px: opens, 8 destinations navigate, Escape closes, scroll lock engages/releases
+- All 11 dev-server screenshots refreshed post-remediation
+- Docs realigned: AGENTS.md (db-path facts + counts), CLAUDE.md (counts + anti-pattern), README (badge/troubleshooting/features), PAD (ADR-002 rewritten with bun hazard + verified alternatives; test distribution corrected)
+- Created neo-crm_SKILL.md (1,019 lines, 20 sections + 4 appendices) per skills/to-distill-project-into-skill six-phase process; every claim spot-verified (paths, line counts, tokens, test counts)
+
+Stage Summary:
+- Gate: lint 0/0 · typecheck clean · 58/58 unit (+11 new db-path checks) · build clean · 20/20 e2e (mobile-nav regression intact)
+- db/ at repo root with custom.db + e2e.db both in-repo; stray parent-dir db removed
+- Ready for final commit + push via SSH wrapper

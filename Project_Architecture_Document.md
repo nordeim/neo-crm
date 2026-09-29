@@ -87,21 +87,39 @@ regression suite.
   `prisma/schema.prisma`, but the runtime resolves them against the process
   CWD — and the standalone server chdirs into `.next/standalone`. Without
   normalization, dev, CLI and production land on three different database
-  files (this failure was observed live during E2E bring-up).
+  files (this failure was observed live during E2E bring-up). A second
+  hazard surfaced in the session-2 audit: **bun loads `.env` for every
+  `bun run`/`bun x` process and rewrites a relative `file:` DATABASE_URL
+  into an absolute path resolved against the `.env` file's own directory** —
+  with the root contract `file:../db/custom.db` that is one directory
+  OUTSIDE the repo, and absolute URLs pass through the resolver untouched
+  (observed live: the dev server opened `<parent-of-repo>/db/custom.db`).
 - **Decision:** `src/lib/db-path.ts` re-implements the CLI rule at runtime
   (anchor order: standalone-CWD detector → module repo-root validator →
-  plain CWD). `src/lib/db.ts` exposes a `globalThis` singleton client built
-  on the resolved URL; `db push` (no migrations folder) + idempotent in-place
-  seed.
+  plain CWD with an existence guard). Validated anchors `mkdir -p` the
+  `db/` folder (first boot). `runtimeDatabaseUrl()` additionally parses the
+  `.env` at the process CWD and, when the env var is exactly bun's
+  absolutization of the `.env` value, re-derives the URL from the RAW value
+  via the schema rule; any other env value (e2e override, postgres, an
+  intentional absolute path) wins untouched. `src/lib/db.ts`,
+  `prisma/seed.ts` and the `scripts/prisma-env.ts` wrapper (`db:push`) all
+  derive their URL through this seam, so every consumer lands on
+  `<repo>/db/<name>`.
 - **Rationale:** Keeps `DATABASE_URL=file:../db/custom.db` working
   identically across `next dev`, `next build`, `next start`, Prisma CLI and
-  the Playwright webServer — pinned by `tests/db-path.test.ts`.
+  the Playwright webServer — pinned by `tests/db-path.test.ts` (16 checks:
+  urlForRoot first-boot mkdir, parseEnvFile, effectiveDatabaseUrl
+  re-anchoring, runtimeDatabaseUrl discovery, plus the original passthrough
+  and anchoring contract).
 - **Consequences:** + Zero-config dev, no migration ceremony. − SQLite is
   single-writer; swapping to PostgreSQL later means changing the datasource
   block and re-verifying the path seam.
 - **Alternatives Rejected:** Drizzle + Postgres 17 (scandihaven stack) —
   requires a running database service; absolute production paths in `.env` —
-  cwd-fragile in containers.
+  cwd-fragile in containers; `prisma/.env` split — bun keeps loading the
+  root `.env` first, so the split does not remove the hazard (verified
+  empirically); `bun --env-file` in scripts — the flag does not chain into
+  `bun x prisma` invocations.
 
 **ADR-003: Hand-rolled scrypt + HMAC cookie sessions (no auth library)**
 
@@ -327,7 +345,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 5 Vitest suites — 47 checks
+│   ├── *.test.ts                # 5 Vitest suites — 58 checks
 │   └── e2e/                     # global-setup, auth.setup, 4 spec files — 20 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -627,11 +645,11 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 
 | Category | Files | Checks | Location | Framework |
 | -------- | ----- | ------ | -------- | --------- |
-| Unit — db-path | 1 | 5 | `tests/db-path.test.ts` | Vitest |
+| Unit — db-path | 1 | 16 | `tests/db-path.test.ts` | Vitest |
 | Unit — auth | 1 | 9 | `tests/auth.test.ts` | Vitest |
-| Unit — format | 1 | 17 | `tests/format.test.ts` | Vitest |
-| Unit — csv | 1 | 7 | `tests/csv.test.ts` | Vitest |
-| Unit — rate-limit | 1 | 9 | `tests/rate-limit.test.ts` | Vitest |
+| Unit — format | 1 | 19 | `tests/format.test.ts` | Vitest |
+| Unit — csv | 1 | 8 | `tests/csv.test.ts` | Vitest |
+| Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path | 1 | 11 | `tests/e2e/crm.spec.ts` | Playwright |
@@ -666,7 +684,7 @@ must keep all 5 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 47/47
+- [ ] `bun run test` — 58/58
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 20/20
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -734,7 +752,7 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 47 unit checks |
+| `bun run test` | root | 58 unit checks |
 | `bun run test:e2e` | root | 20 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |
@@ -781,7 +799,7 @@ files. Push via the SSH wrapper (§8.4).
 | `src/stores/crm-store.ts` | 296 | Single Zustand store: hydrate, slices, CRUD actions, `call()` envelope client |
 | `src/lib/auth.ts` | 129 | scrypt hashing, HMAC session tokens, cookie lifecycle, `getSessionUser` |
 | `src/lib/api.ts` | 75 | `ok`/`fail`/`ERR` envelope, `requireSession` guard, validation coercers |
-| `src/lib/db-path.ts` | 70 | SQLite URL normalization (CLI-rule mirroring, standalone-safe) |
+| `src/lib/db-path.ts` | 175 | SQLite URL normalization (CLI-rule mirroring, bun-absolutization re-anchoring, .env parsing, standalone-safe) |
 | `src/lib/db.ts` | 22 | `globalThis` Prisma singleton (the only sanctioned constructor) |
 | `src/lib/format.ts` | 221 | Currency/date/relative-time/calendar-grid pure helpers |
 | `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |

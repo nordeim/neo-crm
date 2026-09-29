@@ -1,18 +1,16 @@
 {
   "name": "neo-crm",
   "version": "1.0.0",
-  "description": "NEO CRM — Next.js 16 + React 19 + Prisma/SQLite CRM application",
+  "description": "NEO CRM \u2014 Next.js 16 + React 19 + Prisma/SQLite CRM application",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
-    "db:push": "prisma db push --accept-data-loss",
+    "db:push": "bun scripts/prisma-env.ts db push --accept-data-loss",
     "db:generate": "prisma generate",
     "db:seed": "bun prisma/seed.ts",
-    "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
@@ -37,8 +35,6 @@
     "react-dom": "^19.3.0",
     "recharts": "^2.15.4",
     "tailwind-merge": "^3.7.0",
-    "tailwindcss-animate": "^1.0.7",
-    "z-ai-web-dev-sdk": "^0.0.18",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

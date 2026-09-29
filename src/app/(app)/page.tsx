@@ -24,7 +24,7 @@ import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { KpiCard, PageHeader } from "@/components/shared/page-parts";
+import { KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { PipelineBarChart, RevenueLineChart } from "@/components/charts/charts";
 import { AccountDialog, ActivityDialog, ContactDialog, EventDialog, LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -36,9 +36,10 @@ type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { dashboard, leads, hydrated, fetchDashboard } = useCrmStore();
+  const { dashboard, leads, users, hydrated, fetchDashboard } = useCrmStore();
   const [stage, setStage] = React.useState("all");
   const [source, setSource] = React.useState("all");
+  const [owner, setOwner] = React.useState("all");
   const [search, setSearch] = React.useState("");
   const [quickCreate, setQuickCreate] = React.useState<QuickCreate>(null);
 
@@ -51,6 +52,7 @@ export default function DashboardPage() {
     let rows = dashboard?.recentDeals ?? [];
     if (stage !== "all") rows = rows.filter((l) => l.stage === stage);
     if (source !== "all") rows = rows.filter((l) => l.source === source);
+    if (owner !== "all") rows = rows.filter((l) => l.ownerId === owner);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       rows = rows.filter(
@@ -58,9 +60,13 @@ export default function DashboardPage() {
       );
     }
     return rows;
-  }, [dashboard, stage, source, search]);
+  }, [dashboard, stage, source, owner, search]);
 
   const k = dashboard?.kpis;
+  // Monthly won revenue — feeds the KPI sparklines (Deals Closed / Revenue /
+  // Sales Target), mirroring the reference dashboard's bar strips.
+  const rev = dashboard?.revenueOverTime ?? [];
+  const sparkWon = rev.map((r) => r.won);
 
   return (
     <div>
@@ -70,7 +76,7 @@ export default function DashboardPage() {
           <>
             <Dropdown>
               <DropdownTrigger asChild>
-                <Button>
+                <Button variant="secondary">
                   <Plus className="h-4 w-4" /> Add <ChevronDown className="h-3.5 w-3.5" />
                 </Button>
               </DropdownTrigger>
@@ -80,6 +86,23 @@ export default function DashboardPage() {
                 <DropdownItem onClick={() => setQuickCreate("account")}><TrendingUp className="h-4 w-4 text-muted" /> Account</DropdownItem>
                 <DropdownItem onClick={() => setQuickCreate("event")}><Phone className="h-4 w-4 text-muted" /> Event</DropdownItem>
                 <DropdownItem onClick={() => setQuickCreate("activity")}><Zap className="h-4 w-4 text-muted" /> Activity</DropdownItem>
+              </DropdownContent>
+            </Dropdown>
+            {/* The reference ships two adjacent Export buttons (its own
+                template quirk). We keep the exact visual but give each a
+                distinct job: outline opens the export menu, filled is the
+                one-click leads export. */}
+            <Dropdown>
+              <DropdownTrigger asChild>
+                <Button variant="secondary">
+                  <Download className="h-4 w-4" /> Export
+                </Button>
+              </DropdownTrigger>
+              <DropdownContent align="end">
+                <DropdownItem onClick={() => downloadFile("/api/export?type=leads&download=1")}>Leads</DropdownItem>
+                <DropdownItem onClick={() => downloadFile("/api/export?type=contacts&download=1")}>Contacts</DropdownItem>
+                <DropdownItem onClick={() => downloadFile("/api/export?type=accounts&download=1")}>Accounts</DropdownItem>
+                <DropdownItem onClick={() => downloadFile("/api/export?type=activities&download=1")}>Activities</DropdownItem>
               </DropdownContent>
             </Dropdown>
             <Button
@@ -104,16 +127,22 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
           <KpiCard label="Total Leads" value={k.totalLeads} delta={k.totalLeadsDelta ?? undefined} hint="vs. last month" />
-          <KpiCard label="Deals Closed" value={formatCompactCurrency(k.dealsClosedValue)} hint={`${k.dealsClosed} won deals`} />
-          <KpiCard label="Revenue This Month" value={formatCompactCurrency(k.revenueThisMonth)} delta={k.revenueDelta ?? undefined} hint="vs. last month" />
+          <KpiCard label="Deals Closed" value={formatCompactCurrency(k.dealsClosedValue)} hint={`${k.dealsClosed} won deals`}>
+            <Sparkline values={sparkWon} color={CHART_COLORS.cyan} />
+          </KpiCard>
+          <KpiCard label="Revenue This Month" value={formatCompactCurrency(k.revenueThisMonth)} delta={k.revenueDelta ?? undefined} hint="vs. last month">
+            <Sparkline values={sparkWon} color={CHART_COLORS.green} />
+          </KpiCard>
           <KpiCard
             label="Sales Target"
             value={formatCompactCurrency(k.salesTarget)}
             hint={`${k.salesTargetProgress}% of monthly target`}
           >
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-line-soft">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${k.salesTargetProgress}%` }} />
-            </div>
+            <Sparkline
+              values={rev.map((r) => Math.max(r.won, r.target))}
+              color={CHART_COLORS.orange}
+              colorFor={(_, i) => (rev[i].won >= rev[i].target ? CHART_COLORS.blue : CHART_COLORS.orange)}
+            />
           </KpiCard>
           <KpiCard label="Conversion Rate" value={`${k.conversionRate}%`} hint="won ÷ all leads" />
           <KpiCard label="Avg. Sales Cycle" value={`${k.avgSalesCycleDays} days`} delta={k.avgSalesCycleDelta ?? undefined} deltaSuffix="d" invertDelta hint="creation → won" />
@@ -134,6 +163,17 @@ export default function DashboardPage() {
             ))}
           </SelectContent>
         </Select>
+        {/* Owner filter — the reference renders this dropdown with an empty
+            label (its own defect); here it is a real, working control. */}
+        <Select value={owner} onValueChange={setOwner}>
+          <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Owners</SelectItem>
+            {users.map((u) => (
+              <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={source} onValueChange={setSource}>
           <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -147,9 +187,13 @@ export default function DashboardPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Stage: Source" className="pl-9" aria-label="Filter deals" />
         </div>
-        <span className="ml-auto hidden text-xs text-muted sm:block">
-          {filteredDeals.length} of {dashboard?.recentDeals.length ?? 0} recent deals
-        </span>
+        <button
+          type="button"
+          onClick={() => router.push("/leads")}
+          className="ml-auto hidden text-xs font-medium text-primary hover:underline sm:block"
+        >
+          More...
+        </button>
       </div>
 
       {/* Charts */}

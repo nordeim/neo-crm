@@ -52,7 +52,7 @@ export function KpiCard({
   return (
     <div className="rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
+        <p className="text-xs font-medium tracking-wide text-muted">{label}</p>
         {icon && <span className="text-subtle">{icon}</span>}
       </div>
       <div className="mt-2 flex flex-wrap items-baseline gap-2">
@@ -84,4 +84,40 @@ export function KpiCard({
 /** Secondary label used inside cards ("Last 6 months", etc.). */
 export function CardCaption({ children }: { children: React.ReactNode }) {
   return <span className="text-xs text-muted">{children}</span>;
+}
+
+/**
+ * Mini bar sparkline for KPI cards — pure CSS bars, no chart library.
+ * Mirrors the reference dashboard: an 8-bar strip under the KPI value
+ * (Deals Closed = cyan, Revenue = green, Sales Target = orange/blue mix).
+ */
+export function Sparkline({
+  values,
+  color,
+  colorFor,
+  className,
+}: {
+  values: number[];
+  color: string;
+  /** Per-bar override (e.g. blue when the monthly target was met). */
+  colorFor?: (value: number, index: number) => string;
+  className?: string;
+}) {
+  const max = Math.max(...values, 1);
+  if (values.length === 0) return null;
+  return (
+    <div className={cn("flex h-8 items-end gap-1", className)} aria-hidden="true">
+      {values.map((v, i) => (
+        <span
+          key={i}
+          className="w-1.5 flex-1 rounded-[2px]"
+          style={{
+            height: `${Math.max((v / max) * 100, 8)}%`,
+            backgroundColor: colorFor ? colorFor(v, i) : color,
+            opacity: v > 0 ? 1 : 0.35,
+          }}
+        />
+      ))}
+    </div>
+  );
 }

@@ -14,14 +14,34 @@
 //     on disk — the standalone bundle rewrites import.meta.url into a
 //     virtual path that must be ignored).
 //  3. process.cwd() as a last resort.
+//
+// Anchors 1–2 are VALIDATED (a prisma/schema.prisma really exists at the
+// root they report), so their candidate is accepted unconditionally and the
+// database folder is created on demand (first boot). Falling through with
+// the raw relative URL instead would hand the path to the Prisma engine,
+// which resolves it against the process CWD — landing one directory
+// OUTSIDE the repo. That exact bug shipped once: the dev server opened
+// /home/z/my-project/db/custom.db while the repo expected
+// <repo>/db/custom.db.
+//
+// BUN ABSOLUTIZATION (the second half of that same bug): when bun runs a
+// script (`bun run dev`, `bun run db:seed`, `bun x prisma …`) it loads the
+// repo .env AND rewrites a relative `file:` DATABASE_URL into an ABSOLUTE
+// path resolved against THE .ENV FILE'S OWN DIRECTORY. With the mandated
+// root contract DATABASE_URL="file:../db/custom.db" that absolute path is
+// <parent-of-repo>/db/custom.db — outside the repo — and it sails through
+// resolveDatabaseUrl untouched (absolute URLs are passed through by
+// design, e.g. for production deployments). effectiveDatabaseUrl detects
+// exactly that signature (env var == absolutization of the .env value) and
+// re-derives the URL from the RAW .env value via the schema rule. Any other
+// env value (a caller override such as the e2e suite's file:../db/e2e.db,
+// a postgres URL, a production absolute path) is respected as-is.
 
-import { existsSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
-function basename(p: string): string {
-  return p.split(/[\\/]/).filter(Boolean).pop() ?? "";
-}
+export const DEFAULT_DATABASE_URL = "file:../db/custom.db";
 
 function repoRootFromModule(): string | null {
   try {
@@ -47,24 +67,116 @@ function repoRootFromStandaloneCwd(): string | null {
   return null;
 }
 
+/**
+ * Absolute `file:` URL for a schema-relative reference, anchored at a
+ * VALIDATED repo root. Creates the database's parent directory on demand
+ * (first boot) so the Prisma engine never receives a relative URL from a
+ * proven anchor.
+ */
+export function urlForRoot(root: string, ref: string): string {
+  const candidate = join(root, "prisma", ref); // mirror the CLI rule
+  mkdirSync(dirname(candidate), { recursive: true });
+  return `file:${candidate}`;
+}
+
 export function resolveDatabaseUrl(rawUrl: string): string {
   if (!rawUrl.startsWith("file:")) return rawUrl; // postgres etc. — pass through
   const ref = rawUrl.slice("file:".length);
   if (!ref || ref.startsWith("/")) return rawUrl; // absolute or in-memory
 
-  const anchors: Array<() => string | null> = [
+  // Validated anchors: trust them even on first boot (db/ may not exist
+  // yet) — urlForRoot creates the folder.
+  const validated: Array<() => string | null> = [
     repoRootFromStandaloneCwd,
     repoRootFromModule,
-    () => process.cwd(),
   ];
-
-  for (const anchor of anchors) {
+  for (const anchor of validated) {
     const root = anchor();
-    if (!root) continue;
-    const candidate = join(root, "prisma", ref); // mirror the CLI rule
-    if (existsSync(candidate) || existsSync(dirname(candidate))) {
-      return `file:${candidate}`;
-    }
+    if (root) return urlForRoot(root, ref);
+  }
+
+  // Unvalidated last resort: only accept when the target already exists —
+  // never mkdir from an unproven root (a stray CWD must not grow a db/).
+  const candidate = join(process.cwd(), "prisma", ref);
+  if (existsSync(candidate) || existsSync(dirname(candidate))) {
+    return `file:${candidate}`;
   }
   return rawUrl;
+}
+
+/** Minimal dotenv parser: quotes stripped, comments/blanks skipped. */
+export function parseEnvFile(contents: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const line of contents.split(/\r?\n/)) {
+    const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+    if (!match) continue; // comment or blank line
+    let value = match[2].trim();
+    const first = value[0];
+    const last = value[value.length - 1];
+    if (
+      value.length >= 2 &&
+      ((first === '"' && last === '"') || (first === "'" && last === "'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    out[match[1]] = value;
+  }
+  return out;
+}
+
+function isRelativeFileUrl(url: string | undefined): url is string {
+  if (!url) return false;
+  if (!url.startsWith("file:")) return false;
+  const ref = url.slice("file:".length);
+  return ref.length > 0 && !ref.startsWith("/");
+}
+
+/**
+ * The URL Bun would export for a relative `file:` value loaded from a .env
+ * file: the value resolved against the .env file's own directory.
+ */
+function bunAbsolutized(envFileUrl: string, envFileDir: string): string {
+  const ref = envFileUrl.slice("file:".length);
+  return `file:${resolve(envFileDir, ref)}`;
+}
+
+/**
+ * Pick the effective database URL from the two places it can come from:
+ * the process environment (possibly rewritten by bun) and the raw .env
+ * file. A process-env value that is exactly bun's absolutization of the
+ * .env value is treated as derived (re-anchored on the schema rule);
+ * anything else wins as an intentional override.
+ */
+export function effectiveDatabaseUrl(input: {
+  envUrl?: string | undefined;
+  envFileUrl?: string | undefined;
+  envFileDir: string;
+}): string {
+  const { envUrl, envFileUrl, envFileDir } = input;
+  if (envUrl && isRelativeFileUrl(envFileUrl)) {
+    if (envUrl === bunAbsolutized(envFileUrl, envFileDir)) {
+      return resolveDatabaseUrl(envFileUrl);
+    }
+  }
+  return resolveDatabaseUrl(envUrl ?? envFileUrl ?? DEFAULT_DATABASE_URL);
+}
+
+/**
+ * Runtime convenience: combines process.env.DATABASE_URL with the .env
+ * file at `cwd` (if any) through effectiveDatabaseUrl. Used by the Prisma
+ * client singleton (src/lib/db.ts), the seed script (prisma/seed.ts) and
+ * the CLI wrapper (scripts/prisma-env.ts) so every consumer applies the
+ * same rules.
+ */
+export function runtimeDatabaseUrl(cwd: string = process.cwd()): string {
+  let envFileUrl: string | undefined;
+  const envPath = join(cwd, ".env");
+  if (existsSync(envPath)) {
+    envFileUrl = parseEnvFile(readFileSync(envPath, "utf8")).DATABASE_URL;
+  }
+  return effectiveDatabaseUrl({
+    envUrl: process.env.DATABASE_URL,
+    envFileUrl,
+    envFileDir: cwd,
+  });
 }

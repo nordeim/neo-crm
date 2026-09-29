@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (47) → `bun run build` → `bun run test:e2e` (20). For UI
+   `bun run test` (58) → `bun run build` → `bun run test:e2e` (20). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -103,7 +103,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (47 checks)                |
+| `bun run test`      | Vitest unit suites (58 checks)                |
 | `bun run test:e2e`  | Playwright E2E (20 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
@@ -112,7 +112,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 47 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 58 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`. Node environment; `@` alias resolved.
 - **E2E (Playwright, 20 checks)** — `tests/e2e/`: `auth.spec.ts`
@@ -137,7 +137,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 47).
+the seam (currently 58).
 
 ## Code Quality Standards
 
@@ -216,7 +216,11 @@ React-hooks rules that matter here (violations are errors):
 - Prisma + SQLite; schema at `prisma/schema.prisma`; `db push` (no
   migrations); seed is idempotent in place.
 - Singleton client via `globalThis` in `src/lib/db.ts`; path resolution in
-  `src/lib/db-path.ts` mirrors the Prisma CLI's schema-relative rule.
+  `src/lib/db-path.ts` mirrors the Prisma CLI's schema-relative rule —
+  including undoing bun's `.env`-relative absolutization of
+  `DATABASE_URL` (see `runtimeDatabaseUrl()`) — and `db:push` goes through
+  the `scripts/prisma-env.ts` wrapper so the CLI lands on the same
+  `<repo>/db/custom.db` file.
 - Models: User, Account, Contact, Lead, Activity, Event, SavedReport,
   Setting (singleton row).
 
@@ -234,6 +238,9 @@ React-hooks rules that matter here (violations are errors):
   adjust-during-render, or yield-before-setState patterns instead.
 - **`tailwind.config.js`** — dead config in v4; tokens belong in `@theme`.
 - **Deleting the SQLite file under a running server** — reseed in place.
+- **Trusting bun's `DATABASE_URL` at face value** — bun absolutizes
+  relative `file:` values from `.env` against the `.env` location (one dir
+  outside the repo); always derive through `runtimeDatabaseUrl()`.
 - **Weakening the mobile-navigation e2e suite** — it pins the app's headline
   fix over the reference app's defect.
 - **Inventing status vocabularies** — extend the `*_META` maps in
