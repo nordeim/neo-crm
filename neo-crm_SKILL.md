@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.2.0
+version: 1.3.0
 last_updated: 2026-09-29
-project_state: 75 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies DOM-pinned by tests/constants.test.ts; table density + card typography + dialog contract aligned to the live reference (session-5)
+project_state: 92 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts); table density + card typography + dialog contract + the full layout system aligned to the live reference (session-6)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.2.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.3.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -307,14 +307,17 @@ renders sidebar + topbar + page children.
 
 ### 5.4 The mobile navigation drawer (the headline fix)
 
-`src/components/layout/mobile-nav.tsx` (164 lines). The reference app
+`src/components/layout/mobile-nav.tsx` (170 lines). The reference app
 simply hides its sidebar below `lg` and ships NO replacement — phone users
 cannot navigate. The clone ships a proper drawer:
 
 - hamburger trigger (`MobileNavTrigger`) visible below `lg`
 - slide-in panel with backdrop, `role="dialog"`, `aria-modal`
 - focus trap (Tab/Shift+Tab cycling), Escape to close + focus restore
-- body scroll lock while open, released on close
+- **dual scroll lock** while open (session-6): `document.body` AND the
+  `main` scroller get `overflow: hidden` and are restored on close — since
+  session 6 `main.flex-1.overflow-auto` is the app's scroll container, a
+  body-only lock no longer stops scrolling
 - close-on-route-change via the adjust-during-render pattern (§6)
 - `inert` + `visibility:hidden` (with `transition-[visibility]`) when
   closed — never `display:none`, which kills the exit transition
@@ -327,9 +330,53 @@ Do not weaken it; extend it when the drawer changes.
 | Reference defect | Clone's fix |
 |---|---|
 | No mobile navigation at all | The drawer (§5.4) |
-| Dashboard filter bar renders an EMPTY owner dropdown | Working "All Owners" select |
+| Dashboard toolbar's empty Radix select is a DEAD Table/Cards view-switcher (no state persists) | Omitted — toolbars carry only working controls |
+| Dashboard "Filter" button opens nothing (dead) | Omitted from the card; our filter controls all work |
 | Two adjacent identical Export buttons | Same visual row; outline Export opens the export-type menu, filled Export is one-click leads CSV |
+| Activities "More Filters (1)" expander expands nothing (dead) | Same outline button, made functional — reveals the Task/Note type group |
+| Contacts filter card body renders NOTHING below its toolbar (stub) | Same card + toolbar; our Priority/Source/Owner groups expand under the outline Filters button |
+| Filter rails hidden below `lg` — phone users cannot filter | Mirrored (structural parity), documented as a reference accessibility regression |
+| Rail card titles stay 16px while other card titles scale | Pinned via `FILTER_RAIL.title` (`text-base sm:text-base`) — deliberate |
 | KPI labels uppercase in clones that copy the template | Title Case, matching the reference |
+
+### 5.6 The layout system — `src/lib/page-layout.ts` (session-6)
+
+Every page-level layout class string lives in ONE test-pinned module
+(132 lines; `tests/page-layout.test.ts`, 17 checks). Pages import records —
+they never hand-write layout classes. Reference token mapping: gray-50 →
+`background`, white → `surface`, gray-200 → `line`, gray-500 → `muted`.
+
+- **`PAGE_KPI_GRIDS`** — every KPI ladder starts at `grid-cols-1` (phones)
+  and climbs: dashboard/leads/activities `sm:2 lg:3 xl:6`, accounts
+  `sm:2 lg:5`, contacts `md:2 lg:4`, calendar `sm:2 lg:4`, reports
+  `sm:2 lg:3 xl:5` — all `gap-4 mb-6`.
+- **`PAGE_HEADER`** — standard stacks on phones (`flex-col sm:flex-row`,
+  `mb-6 gap-4`, h1 `text-2xl sm:text-3xl font-bold`, actions
+  `w-full sm:w-auto`); contacts is the flat variant (`text-3xl`, plain row,
+  `gap-3`); leads adds `sm:mb-8`. Subtitles are **16px** (no text-sm).
+- **`RAIL_LAYOUT`** — accounts/calendar/activities are `flex gap-6` rows:
+  `flex-1 min-w-0` content + `hidden lg:block w-80` rail. The `min-w-0`
+  is load-bearing (flexbox `min-width: auto` lets a wide table squeeze the
+  rail to 186px at exactly 1024px).
+- **`FILTER_RAIL`** — the rail card anatomy. The stock CardHeader keeps its
+  column direction, so the action row is a CHILD
+  (`flex justify-between items-center` → title + ghost `h-8 px-3 text-xs`
+  "Save All" on accounts/activities). Calendar is the outlier: the TITLE
+  element itself carries `flex items-center justify-between` and its action
+  is a blue text link (`text-xs text-blue-600 hover:text-blue-700
+  font-normal` "Clear All"). Select-group labels `mb-2`, checkbox-group
+  labels `mb-3` (both `text-sm font-semibold block`); groups are plain
+  divs; checkbox stacks `space-y-2`; titles fixed 16px.
+- **`TABLE_CARD`** — `bg-surface rounded-lg shadow` (NO border), toolbar
+  `p-4 border-b` (`flex flex-col sm:flex-row gap-3`), body `overflow-x-auto`.
+- **`FILTER_BAR` / `REPORTS_FILTER_BAR`** — dashboard filter bar is a white
+  card (`mb-6 p-4`); reports bar is `sticky top-0 z-10 shadow-md` (works
+  because `main` is the scroll container).
+
+**Shell scroll model (the session-6 restructure):** static topbar
+(`bg-white border-b px-4 sm:px-8 py-4`); `main.flex-1.overflow-auto` is the
+scroll container; content wrapper `p-4 sm:p-8 min-h-screen`, NO max-width
+(the old `max-w-[1400px]` cap is gone — full-bleed like the reference).
 
 ## 6. Client-Side Effects Deep Dive
 
@@ -753,18 +800,23 @@ deploys it needs a shared store.)
 | hardcoded status color | extend the `*_META` map |
 | `z-[9999]` | the flat z-scale (§18) |
 | `rm db/*.db` under a live server | reseed in place |
+| passing a row class to CardHeader (`cn` can't reset flex-col) | child row div — `FILTER_RAIL.headerRow` (§5.6) |
+| `flex-1` content beside a wide table, no `min-w-0` | `RAIL_LAYOUT.content` — else the w-80 rail collapses at 1024px |
+| wrapper divs inside a `space-y-*` body | spacing on the element itself (label `mb-2`/`mb-3`) — wrappers double-space |
+| hand-writing page-level layout classes | import from `@/lib/page-layout` (single test-pinned source) |
+| trusting a terminal echo containing `[m…` | read file bytes — ANSI display artifacts eat `[m` (session-6 lesson) |
 
 ## 17. Responsive Breakpoint Reference
 
 Tailwind defaults (no custom config). Layout-critical usage:
 
-| Breakpoint | What changes |
+| Breakpoint | What changes (all `PAGE_KPI_GRIDS`-pinned, §5.6) |
 |---|---|
-| base (<640) | 1-col lists; 2-col KPI grid; drawer replaces sidebar; topbar hamburger + compact search |
-| `sm` (≥640) | search input widens; "More…" link visible |
-| `md` (≥768) | KPI grid 3-col; two-col list rows |
-| `lg` (≥1024) | **the switch**: persistent sidebar appears, hamburger hides; charts side-by-side |
-| `xl` (≥1280) | KPI grid 6-col (dashboard) / 5-col (accounts); 4-col list row; charts 3:2 split |
+| base (<640) | EVERY KPI grid 1-col; drawer replaces sidebar; topbar hamburger + compact search; filter rails hidden |
+| `sm` (≥640) | KPI 2-col on the sm-ladder pages (contacts waits for md); page headers go horizontal; header-button labels appear (`hidden sm:inline`) |
+| `md` (≥768) | contacts KPI 2-col |
+| `lg` (≥1024) | **the switch**: persistent sidebar, hamburger hides; `hidden lg:block w-80` rails appear; charts side-by-side (dashboard 2-col, leads 3-col); KPI: accounts 5-col, contacts/calendar 4-col, others 3-col; `lg:hidden` mobile card lists (contacts/leads) drop out |
+| `xl` (≥1280) | dashboard/leads/activities KPI 6-col; reports 5-col |
 
 Mobile verification width: **390px** (iPhone-class) — the e2e
 mobile-nav suite and the reference defect both key off this width.
@@ -955,17 +1007,20 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 
 | Suite | File | Checks | Runtime |
 |---|---|---|---|
-| db-path | `tests/db-path.test.ts` | 16 | ~6 ms |
-| auth | `tests/auth.test.ts` | 9 | ~200 ms (scrypt KDF) |
-| format | `tests/format.test.ts` | 19 | ~17 ms |
+| db-path | `tests/db-path.test.ts` | 16 | ~10 ms |
+| auth | `tests/auth.test.ts` | 9 | ~210 ms (scrypt KDF) |
+| format | `tests/format.test.ts` | 23 | ~19 ms |
+| page-layout | `tests/page-layout.test.ts` | 17 | ~7 ms |
 | csv | `tests/csv.test.ts` | 8 | ~6 ms |
-| rate-limit | `tests/rate-limit.test.ts` | 6 | ~25 ms |
-| **unit total** | 6 files | **65** | **<1 s** |
+| constants | `tests/constants.test.ts` | 8 | ~5 ms |
+| rate-limit | `tests/rate-limit.test.ts` | 6 | ~29 ms |
+| avatar | `tests/avatar.test.ts` | 5 | ~4 ms |
+| **unit total** | 8 files | **92** | **<1 s** |
 | e2e auth (logged out) | `tests/e2e/auth.spec.ts` | 3 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
-| e2e golden path | `tests/e2e/crm.spec.ts` | 11 | — |
+| e2e golden path | `tests/e2e/crm.spec.ts` | 12 | — |
 | e2e mobile nav regression | `tests/e2e/mobile-navigation.spec.ts` | 5 | — |
-| **e2e total** | 4 files | **20** | **~22 s** (incl. server boot) |
+| **e2e total** | 4 files | **21** | **~25 s** (incl. server boot) |
 
 Full gate wall-clock: lint ~10 s, typecheck ~8 s, unit <1 s, build ~40 s,
 e2e ~25 s → roughly 90 s end-to-end. Costs worth knowing: e2e reseeds
@@ -1125,6 +1180,48 @@ comparisons of zero-data pages never open the dialogs. Rule: **parity
 audits must CLICK things** — open every dialog, expand every listbox,
 and read the option lists, because a dialog's option vocabulary is as
 visible as its colors.
+
+### Session 6 — layout-system parity (commit pending)
+
+Audit layer: the layout system itself — the one stratum no previous
+session systematically extracted. 14 DOM-verified gaps (S6-1…S6-14):
+app-shell scroll model (sticky topbar + window scroll → static topbar +
+`main` as scroll container, no max-width), PageHeader anatomy (+contacts/
+leads variants), per-page header-button sizing/labels/disabled states,
+KPI ladders (2-col phone base → 1-col + sm/lg/xl climbs), dashboard
+filter card, accounts/calendar/activities flex+w-80 rails, contacts
+mobile card list, leads merged card, reports sticky bar, settings/profile
+max-width wrappers, topbar padding, dual scroll lock.
+
+- **Method**: all layout classes distilled into `src/lib/page-layout.ts`
+  (TDD red-first, 17 pins) and consumed by every page — the layout system
+  has a single test-pinned source of truth.
+- **Gate**: lint 0/0 · typecheck clean · **92/92 unit** · build clean ·
+  **21/21 e2e**; DOM re-verification at 1512/1280/1024/768/390 on all
+  9 routes; rails exactly 320px at 1024; zero horizontal overflow at 390.
+- **Post-VLM refinement round**: rail headers re-pinned (Save All ghost vs
+  calendar's blue Clear All link, title-as-row outlier), label spacing
+  split (select mb-2 / checkbox mb-3), activities 4-checkbox + functional
+  More Filters (1) expander, contacts toolbar re-extraction (max-w-md
+  search + outline Filters button), 16px rail titles.
+
+**Session-6 lesson #1 — verify "broken class" claims against file bytes.**
+The audit terminal displayed `xl:grid-cols-inmax(…)` (missing `[m`) for
+three rail pages and the finding went into the plan as a bug. The file
+bytes were always the valid `xl:grid-cols-[minmax(…)]` — the terminal ate
+`[m` as an ANSI escape sequence. The REAL gap was the xl-single-grid model
+vs the reference's flex + `lg` rail. Rule: **class-string findings must be
+re-read from the file (Read tool / python) before entering a remediation
+plan.**
+
+**Session-6 lesson #2 — flexbox `min-width: auto` breaks fixed rails.**
+A `w-80` rail beside `flex-1` content collapsed to 186px at exactly
+1024px because the content column's intrinsic min-width (a wide table
+inside `overflow-x-auto`) overrode the rail's fixed width. Fix:
+`min-w-0` on the content column (`RAIL_LAYOUT.content`). Rule: **every
+`flex-1` sibling of a fixed-width column needs `min-w-0`** — and rail
+widths must be asserted at the rail's entry breakpoint (1024), not just
+at desktop width.
 
 ## Appendix D: Live-Site Validation Methodology
 

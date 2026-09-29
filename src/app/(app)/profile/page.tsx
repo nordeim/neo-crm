@@ -23,8 +23,10 @@ export default function ProfilePage() {
   const { user, users, fetchUsers } = useCrmStore();
 
   return (
-    <div>
-      <PageHeader title="Profile & Settings" subtitle="Manage your account information" />
+    // Session-6 (S6-12): reference wraps profile content in max-w-4xl
+    // mx-auto with the leads-style header (mb-6 sm:mb-8).
+    <div className="mx-auto max-w-4xl">
+      <PageHeader title="Profile & Settings" subtitle="Manage your account information" variant="leads" />
 
       {!user ? (
         <p className="py-10 text-center text-sm text-muted">Loading profile…</p>
@@ -93,9 +95,10 @@ function ProfileForm({
   const roleLabel = user.role === "admin" ? "Admin" : "User";
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-      {/* Personal information */}
-      <Card>
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+      {/* Personal information — session-6: spans two of the three lg
+          columns (reference DOM). */}
+      <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
         </CardHeader>
@@ -155,7 +158,7 @@ function ProfileForm({
       </Card>
 
       {/* Right column — four small cards, each with a tinted icon chip. */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 sm:gap-6">
         <Card className="h-fit">
           <CardContent className="flex flex-col items-center p-6 text-center">
             <span

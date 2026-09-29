@@ -25,7 +25,15 @@ import { useCrmStore } from "@/stores/crm-store";
 import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
 import { endOfDay, formatDate, formatTime, startOfDay, timeAgo, timeUntil } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
 import type { Activity } from "@/types";
+
+/** Reference shows exactly four type checkboxes (Call/Email/Meeting/
+ *  WhatsApp) plus a "More Filters (1)" outline expander — on the live site
+ *  the expander is a dead stub; ours expands the remaining two types
+ *  (Task/Note) as a functional superset (fix-over-defect). */
+const VISIBLE_TYPE_FILTERS = ["call", "email", "meeting", "whatsapp"] as const;
+const MORE_TYPE_FILTERS = ["task", "note"] as const;
 
 const QUICK_LOG = [
   { type: "call", label: "Log Call", icon: Phone },
@@ -77,9 +85,9 @@ export default function ActivitiesPage() {
   const { activities, users, hydrated, fetchActivities, updateActivity, deleteActivity } = useCrmStore();
   const [tab, setTab] = React.useState("overdue");
   const [typeFilters, setTypeFilters] = React.useState<Record<string, boolean>>({});
+  const [showMoreFilters, setShowMoreFilters] = React.useState(false);
   const [ownerId, setOwnerId] = React.useState("all");
   const [range, setRange] = React.useState("7");
-  const [showMoreFilters, setShowMoreFilters] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [defaultType, setDefaultType] = React.useState("call");
   const [editing, setEditing] = React.useState<Activity | null>(null);
@@ -187,19 +195,20 @@ export default function ActivitiesPage() {
         title="Activities"
         actions={
           <>
+            {/* Session-6: reference quick-log row = outline h-8 x3 plus a
+                plain GHOST Log WhatsApp (no green fill), labels visible. */}
             {QUICK_LOG.map((q) => (
               <Button
                 key={q.type}
-                variant="secondary"
+                variant={q.type === "whatsapp" ? "ghost" : "outline"}
                 size="sm"
-                className={"green" in q && q.green ? "border-transparent bg-[#16a34a] text-white hover:bg-[#15803d]" : undefined}
                 onClick={() => {
                   setEditing(null);
                   setDefaultType(q.type);
                   setDialogOpen(true);
                 }}
               >
-                <q.icon className="h-4 w-4" /> <span className="hidden sm:inline">{q.label}</span>
+                <q.icon className="h-4 w-4" /> {q.label}
               </Button>
             ))}
           </>
@@ -208,7 +217,7 @@ export default function ActivitiesPage() {
 
       {/* Reference: six stat cards, value + colored bar strip side by side
           (delta rows carry trending icons — DOM-verified). */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+      <div className={PAGE_KPI_GRIDS.activities}>
         <ActivityStatCard
           label="Activities Today"
           value={todayCount}
@@ -258,17 +267,21 @@ export default function ActivitiesPage() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="flex flex-col gap-4">
-          {/* Priority activities */}
-          <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>Priority Activities</CardTitle>
-              <Button variant="ghost" size="sm">
-                More
-              </Button>
-            </CardHeader>
-            <CardContent>
+      {/* Session-6 (S6-10): reference layout = flex gap-6 with flex-1
+          space-y-6 (Priority card + Timeline) and a w-80 space-y-6 rail
+          (Filters + Activities by Type), rail visible from lg. */}
+      <div className={RAIL_LAYOUT.row}>
+        <div className={RAIL_LAYOUT.contentStack}>
+          {/* Priority activities — session-6: bg-surface rounded-lg shadow
+              with a p-4 border-b toolbar holding title + More + tab track. */}
+          <Card className={cn(TABLE_CARD.card)}>
+            <div className={TABLE_CARD.toolbar}>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Priority Activities</CardTitle>
+                <Button variant="ghost" size="sm">
+                  More
+                </Button>
+              </div>
               <Tabs
                 variant="segmented"
                 cols={4}
@@ -281,6 +294,11 @@ export default function ActivitiesPage() {
                   { id: "completed", label: "Completed" },
                 ]}
               >
+                {null}
+              </Tabs>
+            </div>
+            <CardContent>
+              <div role="tabpanel">
                 {tabRows.length === 0 ? (
                   <p className="py-10 text-center text-sm text-muted">
                     {tab === "overdue" ? "No overdue activities" : tab === "dueToday" ? "Nothing due today" : tab === "upcoming" ? "No upcoming activities" : "No completed activities"}
@@ -333,19 +351,19 @@ export default function ActivitiesPage() {
                     })}
                   </ul>
                 )}
-              </Tabs>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Timeline */}
-          <Card>
-            <CardHeader className="flex-row items-center justify-between">
+          {/* Timeline — session-6: bg-surface rounded-lg shadow p-6. */}
+          <Card className={cn(TABLE_CARD.card, "p-6")}>
+            <CardHeader className="flex-row items-center justify-between px-0 pt-0">
               <CardTitle>Activity Timeline</CardTitle>
               <Button variant="ghost" size="iconSm" aria-label="More actions">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </CardHeader>
-            <CardContent className="flex flex-col gap-5">
+            <CardContent className="flex flex-col gap-5 px-0 pb-0 pt-5">
               {timeline.length === 0 ? (
                 <p className="py-10 text-center text-sm text-muted">No activities found</p>
               ) : (
@@ -399,29 +417,54 @@ export default function ActivitiesPage() {
           </Card>
         </div>
 
-        {/* Filters + chart */}
-        <div className="flex flex-col gap-4">
+        {/* Filters + chart rail — session-6: w-80 space-y-6, from lg. The
+            rail card pins the live anatomy: header row with a ghost
+            "Save All", four visible type checkboxes + a "More Filters (1)"
+            outline expander (dead on the live site; ours reveals the
+            Task/Note group — fix-over-defect), Owner/Status selects with
+            mb-2 labels, and the pt-2 wrapper holding expander + primary
+            Filter (mt-2). */}
+        <div className={RAIL_LAYOUT.railStack}>
           <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>Filters</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setTypeFilters({})}>
-                Save All
-              </Button>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <Label>Activity Type</Label>
-                {["call", "email", "meeting", "whatsapp"].map((t) => (
-                  <Checkbox
-                    key={t}
-                    checked={typeFilters[t] ?? false}
-                    onChange={(e) => setTypeFilters((f) => ({ ...f, [t]: e.target.checked }))}
-                    label={ACTIVITY_TYPE_META[t].label}
-                  />
-                ))}
+            <CardHeader className={FILTER_RAIL.headerPad}>
+              <div className={FILTER_RAIL.headerRow}>
+                <CardTitle className={FILTER_RAIL.title}>Filters</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setTypeFilters({})}>
+                  Save All
+                </Button>
               </div>
-              <div className="grid gap-1.5">
-                <Label>Owner</Label>
+            </CardHeader>
+            <CardContent className={FILTER_RAIL.body}>
+              <div>
+                <Label className={FILTER_RAIL.groupLabel}>Activity Type</Label>
+                <div className={FILTER_RAIL.checkboxStack}>
+                  {VISIBLE_TYPE_FILTERS.map((t) => (
+                    <Checkbox
+                      key={t}
+                      checked={typeFilters[t] ?? false}
+                      onChange={(e) => setTypeFilters((f) => ({ ...f, [t]: e.target.checked }))}
+                      label={ACTIVITY_TYPE_META[t].label}
+                    />
+                  ))}
+                </div>
+              </div>
+              {showMoreFilters && (
+                <div>
+                  <Label className={FILTER_RAIL.groupLabel}>More Types</Label>
+                  <div className={FILTER_RAIL.checkboxStack}>
+                    {MORE_TYPE_FILTERS.map((t) => (
+                      <Checkbox
+                        key={t}
+                        checked={typeFilters[t] ?? false}
+                        onChange={(e) => setTypeFilters((f) => ({ ...f, [t]: e.target.checked }))}
+                        label={ACTIVITY_TYPE_META[t].label}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <Label className={FILTER_RAIL.groupLabelSelect}>Owner</Label>
                 <Select value={ownerId} onValueChange={setOwnerId}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -432,8 +475,8 @@ export default function ActivitiesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-1.5">
-                <Label>Status</Label>
+              <div>
+                <Label className={FILTER_RAIL.groupLabelSelect}>Status</Label>
                 <Select value={range} onValueChange={setRange}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -444,26 +487,19 @@ export default function ActivitiesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              {showMoreFilters && (
-                <div className="flex flex-col gap-2 rounded-lg bg-line-soft/60 p-3">
-                  <Label className="text-muted">More Filters</Label>
-                  <Checkbox
-                    checked={typeFilters["task"] ?? false}
-                    onChange={(e) => setTypeFilters((f) => ({ ...f, task: e.target.checked }))}
-                    label={ACTIVITY_TYPE_META.task.label}
-                  />
-                  <Checkbox
-                    checked={typeFilters["note"] ?? false}
-                    onChange={(e) => setTypeFilters((f) => ({ ...f, note: e.target.checked }))}
-                    label={ACTIVITY_TYPE_META.note.label}
-                  />
-                </div>
-              )}
-              <div className="flex flex-col gap-2">
-                <Button variant="secondary" size="sm" aria-expanded={showMoreFilters} onClick={() => setShowMoreFilters((v) => !v)}>
-                  More Filters ({showMoreFilters ? 2 : 1})
+              {/* pt-2 wrapper holds both actions (live anatomy): the
+                  outline More Filters (1) expander + the full-width primary
+                  Filter button with mt-2. */}
+              <div className={FILTER_RAIL.filterButtonWrap}>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  aria-expanded={showMoreFilters}
+                  onClick={() => setShowMoreFilters((v) => !v)}
+                >
+                  More Filters (1)
                 </Button>
-                <Button size="sm" onClick={() => fetchActivities()}>
+                <Button className="w-full mt-2" onClick={() => fetchActivities()}>
                   Filter
                 </Button>
               </div>

@@ -30,6 +30,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
+import { FILTER_RAIL, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
+import { cn } from "@/lib/utils";
 import { ConversionFunnel, PipelineBarChart, WonLostLineChart } from "@/components/charts/charts";
 import { LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -150,11 +152,13 @@ export default function LeadsPage() {
       <PageHeader
         title="Leads"
         subtitle="Manage your sales leads"
+        variant="leads"
         actions={
           <>
+            {/* Session-6: the reference's leads Export is ENABLED even at
+                zero data (unlike accounts/contacts) — mirrored. */}
             <Button
-              variant="secondary"
-              disabled={filtered.length === 0}
+              variant="outline"
               onClick={() => downloadFile("/api/export?type=leads&download=1")}
             >
               <Download className="h-4 w-4" /> Export
@@ -176,7 +180,7 @@ export default function LeadsPage() {
           tinted square chip w-8 h-8 sm:w-10 sm:h-10 on the right. The Won/
           Dropped amounts render in FULL currency form (the reference's
           zero-state shows "$0" where the dashboard shows "$0.0k"). */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+      <div className={PAGE_KPI_GRIDS.leads}>
         <IconStatCard variant="leads" label="Total Leads" value={leads.length} icon={<TrendingUp className="h-5 w-5" />} color="#3b82f6" />
         <IconStatCard variant="leads" label="Open Leads" value={open.length} icon={<Target className="h-5 w-5" />} color="#f97316" />
         <IconStatCard
@@ -205,64 +209,74 @@ export default function LeadsPage() {
         <IconStatCard variant="leads" label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<CalendarDays className="h-5 w-5" />} color="#14b8a6" />
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[200px] flex-1 sm:max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search leads..." className="pl-9" aria-label="Search leads" />
+      {/* Session-6 (S6-8): search + Filters toggle + table live in ONE
+          white `rounded-lg shadow` card — header `p-4 border-b space-y-4`
+          (search row flex-col sm:flex-row gap-4, then the outline h-9
+          `w-full sm:w-auto` Filters chevron button), body `overflow-x-auto`. */}
+      <Card className={cn(TABLE_CARD.card, "overflow-hidden")}>
+        <div className={cn(TABLE_CARD.toolbar, "space-y-4")}>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search leads..." className="pl-9" aria-label="Search leads" />
+            </div>
+          </div>
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:gap-4">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              aria-expanded={showFilters}
+              onClick={() => setShowFilters((v) => !v)}
+            >
+              <Filter className="h-4 w-4" /> Filters
+              {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </div>
+          {showFilters && (
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="grid gap-1.5">
+                <Label className={FILTER_RAIL.groupLabel}>Stage</Label>
+                <Select value={stage} onValueChange={setStage}>
+                  <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Stages</SelectItem>
+                    {LEAD_STAGES.map((s) => (
+                      <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-1.5">
+                <Label className={FILTER_RAIL.groupLabel}>Owner</Label>
+                <Select value={ownerId} onValueChange={setOwnerId}>
+                  <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Owners</SelectItem>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-1.5">
+                <Label className={FILTER_RAIL.groupLabel}>Source</Label>
+                <Select value={source} onValueChange={setSource}>
+                  <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    {sources.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="pb-1">
+                <Checkbox checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} label="Open leads only" />
+              </div>
+            </div>
+          )}
         </div>
-        <Button variant="secondary" size="sm" className="h-9" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
-          <Filter className="h-3.5 w-3.5" /> Filters
-        </Button>
-      </div>
-
-      {showFilters && (
-        <Card className="mt-3">
-          <CardContent className="flex flex-wrap items-end gap-4 py-4">
-            <div className="grid gap-1.5">
-              <Label>Stage</Label>
-              <Select value={stage} onValueChange={setStage}>
-                <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Stages</SelectItem>
-                  {LEAD_STAGES.map((s) => (
-                    <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-1.5">
-              <Label>Owner</Label>
-              <Select value={ownerId} onValueChange={setOwnerId}>
-                <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Owners</SelectItem>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-1.5">
-              <Label>Source</Label>
-              <Select value={source} onValueChange={setSource}>
-                <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
-                  {sources.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="pb-1">
-              <Checkbox checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} label="Open leads only" />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Reference wrapper: bg-white rounded-lg shadow — NO border (session-5). */}
-      <Card className="mt-4 rounded-lg border-0 shadow">
+        <div className={TABLE_CARD.scrollArea}>
         <CardContent className="px-0 py-0">
           {/* Reference (session-5): leads hides columns progressively —
               Phone below md, Company below lg, Source below xl. */}
@@ -347,9 +361,12 @@ export default function LeadsPage() {
             </TableBody>
           </Table>
         </CardContent>
+        </div>
       </Card>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+      {/* Session-6: charts row = grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6
+          mt-6 (three equal cards — no 2/3 ladder). */}
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Pipeline Value by Stage</CardTitle>

@@ -118,3 +118,21 @@ Work Log:
 
 Stage Summary:
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+---
+Task ID: 7
+Agent: main (Super Z)
+Task: Session 6 — layout-system parity remediation on neo-crm
+
+Work Log:
+- Pulled to 1555c8d; full docs + codebase review; baseline gate green (75/75 unit, 21/21 e2e); .env/db/vitest+playwright configs verified
+- Live-site audit (1512x945 + 390x844, class-list extraction): 14 DOM-verified gaps in the layout layer (S6-1..S6-14) — app-shell scroll model, PageHeader anatomy + variants, header-button sizing/labels/disabled states, KPI ladders, dashboard filter card, flex+w-80 rails (accounts/calendar/activities), contacts mobile card list, leads merged card, reports sticky bar, settings/profile wrappers, topbar padding, dual scroll lock
+- TDD: 17 red-first pins in tests/page-layout.test.ts -> src/lib/page-layout.ts (132 lines) — every page-level layout class now lives in one test-pinned module consumed by all 9 pages
+- Implemented S6-1..S6-14 across app-shell/topbar/mobile-nav/button/page-parts + all 9 pages; full gate green (lint 0/0, tsc, 92/92 unit, build, 21/21 e2e)
+- DOM re-verification at 1512/1280/1024/768/390; fixed the flexbox min-width:auto rail squeeze at 1024 (min-w-0 on content); VLM spot-comparison flagged 3 rail details -> re-pinned live (Save All ghost vs calendar blue Clear All link, select mb-2 / checkbox mb-3 labels, activities 4 checkboxes + functional More Filters (1) expander, contacts toolbar max-w-md search + outline Filters button, 16px rail titles)
+- Corrected the audit's "broken grid-cols class" finding — a terminal display artifact (ANSI escape ate `[m`); file bytes were always valid; plan doc + test comments fixed
+- 12 screenshots refreshed (4 re-captured after the rail refinement round); .env.example verified tracked + matching; docs realigned (README, AGENTS, CLAUDE, Project_Architecture_Document, neo-crm_SKILL v1.3.0)
+
+Stage Summary:
+- Gate: lint 0/0 · typecheck clean · 92/92 unit · build clean · 21/21 e2e; rails 320px at 1024; zero horizontal overflow at 390 on all routes
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

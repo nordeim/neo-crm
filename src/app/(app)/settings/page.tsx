@@ -99,7 +99,8 @@ export default function SettingsPage() {
   }, [hydrated, fetchSettings]);
 
   return (
-    <div>
+    // Session-6 (S6-12): reference wraps settings content in max-w-6xl mx-auto.
+    <div className="mx-auto max-w-6xl">
       <PageHeader title="Settings" subtitle="Configure your CRM preferences and defaults" />
 
       <Tabs

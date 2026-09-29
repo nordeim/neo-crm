@@ -34,10 +34,15 @@ export function AppShell({ user, children }: { user: AppUser; children: React.Re
       {/* Mobile drawer */}
       <MobileNav open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
 
-      {/* Content column */}
+      {/* Content column. Session-6 shell parity: `main` is the scroll
+          container (reference: `flex-1 overflow-auto bg-gray-50`) and the
+          padding lives on an inner full-bleed wrapper (`p-4 sm:p-8`) — no
+          max-width cap, and sticky bars (reports) stick to main's top. */}
       <div className="flex min-h-screen flex-col lg:pl-64">
         <Topbar user={user} onOpenMobileNav={() => setMobileNavOpen(true)} mobileNavOpen={mobileNavOpen} />
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="flex-1 overflow-auto bg-background">
+          <div className="min-h-screen p-4 sm:p-8">{children}</div>
+        </main>
       </div>
     </div>
   );

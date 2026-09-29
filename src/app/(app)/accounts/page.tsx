@@ -4,7 +4,7 @@ import { downloadFile } from "@/lib/download";
 import * as React from "react";
 import { Building2, Download, MoreHorizontal, Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
+import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
+import { cn } from "@/lib/utils";
 import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACCOUNT_STATUS_META, TIER_META, CHART_COLORS } from "@/lib/constants";
@@ -29,7 +31,7 @@ const REVENUE_RANGES = [
 ];
 
 export default function AccountsPage() {
-  const { accounts, users, activities, settings, loadingFlags, hydrated, deleteAccount, fetchAccounts } = useCrmStore();
+  const { accounts, users, activities, settings, loadingFlags, hydrated, hydrate, deleteAccount, fetchAccounts } = useCrmStore();
   const [search, setSearch] = React.useState("");
   const [ownerId, setOwnerId] = React.useState("all");
   const [industry, setIndustry] = React.useState("all");
@@ -38,7 +40,6 @@ export default function AccountsPage() {
   const [tierA, setTierA] = React.useState(false);
   const [tierB, setTierB] = React.useState(false);
   const [tierC, setTierC] = React.useState(false);
-  const [showFilters, setShowFilters] = React.useState(true);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Account | null>(null);
 
@@ -131,13 +132,15 @@ export default function AccountsPage() {
         actions={
           <>
             <Button
-              variant="secondary"
+              variant="outline"
+              size="sm"
               disabled={filtered.length === 0}
               onClick={() => downloadFile("/api/export?type=accounts&download=1")}
             >
-              <Download className="h-4 w-4" /> Export CSV
+              <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export CSV</span>
             </Button>
             <Button
+              size="sm"
               onClick={() => {
                 setEditing(null);
                 setDialogOpen(true);
@@ -151,7 +154,7 @@ export default function AccountsPage() {
 
       {/* KPI cards — reference anatomy: label + trending-icon delta on top,
           bold value left + h-10 mini-bar strip right (DOM-verified). */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+      <div className={PAGE_KPI_GRIDS.accounts}>
         <BarStatCard
           label="Total Accounts"
           value={accounts.length}
@@ -193,36 +196,34 @@ export default function AccountsPage() {
         />
       </div>
 
-      {/* Toolbar */}
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <Select defaultValue="table">
-          <SelectTrigger className="w-[110px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="table">Table</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="secondary" size="sm" className="h-9" onClick={() => setShowFilters((v) => !v)}>
-          More
-        </Button>
-        <div className="relative min-w-[200px] flex-1 sm:max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search accounts..." className="pl-9" aria-label="Search accounts" />
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-9"
-          disabled={filtered.length === 0}
-          onClick={() => downloadFile("/api/export?type=accounts&download=1")}
-        >
-          <Download className="h-3.5 w-3.5" /> Export CSV
-        </Button>
-      </div>
-
-      {/* Table + filters */}
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
+      {/* Session-6: reference layout = `flex gap-6` with the table card on
+          `flex-1` (toolbar INSIDE the card as p-4 border-b) and a w-80
+          filter rail visible from lg (rail hidden on phones — reference
+          behavior, documented in the plan quirk register). */}
+      <div className={RAIL_LAYOUT.row}>
+        <div className={RAIL_LAYOUT.content}>
         {/* Reference wrapper: bg-white rounded-lg shadow — NO border (session-5). */}
-        <Card className="rounded-lg border-0 shadow">
+        <Card className={cn(TABLE_CARD.card, "overflow-hidden")}>
+          {/* Toolbar — reference: p-4 border-b + flex flex-col sm:flex-row
+              gap-3; the dead "Table"/empty view-switcher selects are a
+              reference stub we do not copy (quirk register). */}
+          <div className={TABLE_CARD.toolbar}>
+            <div className={TABLE_CARD.toolbarRow}>
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search accounts..." className="pl-9" aria-label="Search accounts" />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={filtered.length === 0}
+                onClick={() => downloadFile("/api/export?type=accounts&download=1")}
+              >
+                <Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Export CSV</span>
+              </Button>
+            </div>
+          </div>
+          <div className={TABLE_CARD.scrollArea}>
           <CardContent className="px-0 py-0">
             <Table>
               <TableHeader>
@@ -315,14 +316,19 @@ export default function AccountsPage() {
               </TableBody>
             </Table>
           </CardContent>
+          </div>
         </Card>
+        </div>
 
-        {/* Filters panel */}
-        {showFilters && (
-          <Card className="h-fit">
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-foreground">Filters</p>
+        {/* Filter rail — session-6: reference renders a persistent w-80 rail
+            (hidden below lg) as a Card with a Filters/Save-All header row,
+            plain-div groups (select labels mb-2, checkbox label mb-3), and
+            a full-width primary Filter button in a pt-2 wrapper. */}
+        <div className={RAIL_LAYOUT.rail}>
+          <Card>
+            <CardHeader className={FILTER_RAIL.headerPad}>
+              <div className={FILTER_RAIL.headerRow}>
+                <CardTitle className={FILTER_RAIL.title}>Filters</CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -339,10 +345,12 @@ export default function AccountsPage() {
                   Save All
                 </Button>
               </div>
-              <div className="grid gap-1.5">
-                <Label>Owner</Label>
+            </CardHeader>
+            <CardContent className={FILTER_RAIL.body}>
+              <div>
+                <Label className={FILTER_RAIL.groupLabelSelect}>Owner</Label>
                 <Select value={ownerId} onValueChange={setOwnerId}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Owners</SelectItem>
                     {users.map((u) => (
@@ -351,10 +359,10 @@ export default function AccountsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-1.5">
-                <Label>Industry</Label>
+              <div>
+                <Label className={FILTER_RAIL.groupLabelSelect}>Industry</Label>
                 <Select value={industry} onValueChange={setIndustry}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Industries</SelectItem>
                     {industries.map((i) => (
@@ -363,10 +371,10 @@ export default function AccountsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-1.5">
-                <Label>Revenue Range</Label>
+              <div>
+                <Label className={FILTER_RAIL.groupLabelSelect}>Revenue Range</Label>
                 <Select value={revenue} onValueChange={setRevenue}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {REVENUE_RANGES.map((r) => (
                       <SelectItem key={r.id} value={r.id}>{r.label}</SelectItem>
@@ -374,18 +382,24 @@ export default function AccountsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-1.5">
-                <Label>Tier</Label>
-                <div className="flex flex-col gap-2 pt-0.5">
+              <div>
+                <Label className={FILTER_RAIL.groupLabel}>Tier</Label>
+                <div className={FILTER_RAIL.checkboxStack}>
                   <Checkbox checked={tierKey} onChange={(e) => setTierKey(e.target.checked)} label="Key Account" />
                   <Checkbox checked={tierA} onChange={(e) => setTierA(e.target.checked)} label="A" />
                   <Checkbox checked={tierB} onChange={(e) => setTierB(e.target.checked)} label="B" />
                   <Checkbox checked={tierC} onChange={(e) => setTierC(e.target.checked)} label="C" />
                 </div>
               </div>
+              {/* Full-width primary Filter button (reference anatomy). With
+                  live filtering it re-hydrates the data under the current
+                  filters — a real refresh action (fix-over-defect). */}
+              <div className={FILTER_RAIL.filterButtonWrap}>
+                <Button className="w-full" onClick={() => void hydrate()}>Filter</Button>
+              </div>
             </CardContent>
           </Card>
-        )}
+        </div>
       </div>
 
       <AccountDialog open={dialogOpen} onOpenChange={setDialogOpen} account={editing} />

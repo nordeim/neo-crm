@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (75 checks)          | `bun run test`                         |
+| Unit tests (92 checks)          | `bun run test`                         |
 | Browser E2E (21 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (75) → `bun run build` → `bun run test:e2e` (21). There is no
+`bun run test` (92) → `bun run build` → `bun run test:e2e` (21). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -84,7 +84,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
 - **The mobile navigation drawer is a deliberate fix** — the reference app
   hides its sidebar below `lg` and ships no replacement, leaving phone users
   stranded. `src/components/layout/mobile-nav.tsx` is the drawer: focus trap,
-  Escape, body scroll-lock, close-on-route-change, `inert` +
+  Escape, dual scroll-lock (body + the `main` scroller — `main` is the
+  scroll container since session 6), close-on-route-change, `inert` +
   `visibility:hidden` when closed. `tests/e2e/mobile-navigation.spec.ts`
   (5 checks) is the regression suite — do not weaken it.
 - **File downloads use `downloadFile()`** (`src/lib/download.ts`) — a single
@@ -157,7 +158,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `$0.0k` on the dashboard, `$0.0K`/`$0K` on reports, `$0` on leads).
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
   `format.ts`, `csv.ts`, `rate-limit.ts`, `avatar` helpers, the chart
-  palette (`constants.test.ts`), the dialog/filter vocabularies — 75 Vitest
+  palette (`constants.test.ts`), the dialog/filter vocabularies, the layout
+  contracts (`tests/page-layout.test.ts`, session-6) — 92 Vitest
   checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place

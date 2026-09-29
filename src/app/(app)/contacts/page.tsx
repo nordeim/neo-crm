@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/dialog";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
+import { FILTER_RAIL, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
+import { cn } from "@/lib/utils";
 import { ContactDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { PRIORITY_META } from "@/lib/constants";
@@ -139,23 +141,27 @@ export default function ContactsPage() {
 
   return (
     <div>
+      {/* Session-6: contacts is the flat header variant (text-3xl title,
+          plain row, gap-3 actions); buttons are h-9 outline with hidden-sm
+          labels on Scan Card/Import; Export CSV is disabled at zero data. */}
       <PageHeader
         title="Contacts"
         subtitle="Manage your contacts"
+        variant="contacts"
         actions={
           <>
             <Button
-              variant="secondary"
+              variant="outline"
               disabled={filtered.length === 0}
               onClick={() => downloadFile("/api/export?type=contacts&download=1")}
             >
               <Download className="h-4 w-4" /> Export CSV
             </Button>
-            <Button variant="secondary" onClick={() => setScanOpen(true)}>
-              <ScanLine className="h-4 w-4" /> Scan Card
+            <Button variant="outline" onClick={() => setScanOpen(true)}>
+              <ScanLine className="h-4 w-4" /> <span className="hidden sm:inline">Scan Card</span>
             </Button>
-            <Button variant="secondary" onClick={() => setImportOpen(true)}>
-              <Upload className="h-4 w-4" /> Import
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload className="h-4 w-4" /> <span className="hidden sm:inline">Import</span>
             </Button>
             <Button
               onClick={() => {
@@ -171,7 +177,7 @@ export default function ContactsPage() {
 
       {/* Reference stat cards: gradient card, solid -500 icon chips, trend
           row on "New This Month" (DOM-verified). */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className={PAGE_KPI_GRIDS.contacts}>
         <IconStatCard
           label="Total Contacts"
           value={contacts.length}
@@ -207,62 +213,75 @@ export default function ContactsPage() {
         />
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[200px] flex-1 sm:max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contacts..." className="pl-9" aria-label="Search contacts" />
+      {/* Session-6: the reference renders a white `rounded-lg shadow` card
+          whose `p-4 border-b` toolbar holds a max-w-md search + an
+          outline "Filters" button (live DOM; the live body below the
+          border-b renders nothing at zero data). We mirror the toolbar
+          exactly and keep our working filter groups in the expandable
+          body (functional superset, documented). */}
+      <div className={cn(TABLE_CARD.card, "mb-6")}>
+        <div className={cn(TABLE_CARD.toolbar, "flex gap-3")}>
+          <div className="relative flex-1 max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-subtle" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contacts..." className="pl-10" aria-label="Search contacts" />
+          </div>
+          <Button
+            variant="outline"
+            aria-expanded={showFilters}
+            onClick={() => setShowFilters((v) => !v)}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
         </div>
-        <Button variant="secondary" size="sm" className="h-9" aria-expanded={showFilters} onClick={() => setShowFilters((v) => !v)}>
-          <Filter className="h-3.5 w-3.5" /> Filters
-        </Button>
+        {showFilters && (
+          <div className="p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex-1 sm:max-w-[180px]">
+                <Label className={FILTER_RAIL.groupLabelSelect}>Priority</Label>
+                <Select value={priority} onValueChange={setPriority}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="hot">Hot</SelectItem>
+                    <SelectItem value="warm">Warm</SelectItem>
+                    <SelectItem value="cold">Cold</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1 sm:max-w-[180px]">
+                <Label className={FILTER_RAIL.groupLabelSelect}>Source</Label>
+                <Select value={source} onValueChange={setSource}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    {sources.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1 sm:max-w-[180px]">
+                <Label className={FILTER_RAIL.groupLabelSelect}>Owner</Label>
+                <Select value={ownerId} onValueChange={setOwnerId}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Owners</SelectItem>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {showFilters && (
-        <Card className="mt-3">
-          <CardContent className="flex flex-wrap items-end gap-4 py-4">
-            <div className="grid gap-1.5">
-              <Label>Priority</Label>
-              <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="hot">Hot</SelectItem>
-                  <SelectItem value="warm">Warm</SelectItem>
-                  <SelectItem value="cold">Cold</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-1.5">
-              <Label>Source</Label>
-              <Select value={source} onValueChange={setSource}>
-                <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
-                  {sources.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-1.5">
-              <Label>Owner</Label>
-              <Select value={ownerId} onValueChange={setOwnerId}>
-                <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Owners</SelectItem>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Reference wrapper: rounded-xl + border + shadow-sm + overflow-hidden
-          (session-5) — contacts is the one bordered table wrapper. */}
-      <Card className="mt-4 overflow-hidden">
+          (session-5) — contacts is the one bordered table wrapper (mb-6
+          spacing per session-6). */}
+      <Card className="mb-6 overflow-hidden">
         <CardContent className="px-0 py-0">
           <Table>
             <TableHeader>
@@ -357,6 +376,46 @@ export default function ContactsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Session-6 (S6-7): the reference ships an `lg:hidden mt-6 space-y-4`
+          mobile card list below the (horizontally scrolling) table — phone
+          users get compact cards instead of squashed columns. Empty at zero
+          data on the reference; here it mirrors `filtered` exactly. */}
+      <div className="mt-6 space-y-4 lg:hidden">
+        {loadingFlags.contacts && contacts.length === 0 ? (
+          <>{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</>
+        ) : filtered.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted">No contacts found</p>
+        ) : (
+          filtered.map((c) => (
+            <div key={c.id} className="rounded-xl border border-line bg-surface p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <Avatar name={c.name} color="#2563eb" size="md" />
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-foreground">{c.name}</p>
+                    <p className="truncate text-xs text-muted">{c.email ?? "—"}</p>
+                  </div>
+                </div>
+                <Badge variant="outline" className={PRIORITY_META[c.priority]?.badge}>
+                  {PRIORITY_META[c.priority]?.label ?? c.priority}
+                </Badge>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+                <span>{c.position ?? "—"}</span>
+                <span>{c.company ?? c.account?.name ?? "—"}</span>
+                <span>{c.source ?? "—"}</span>
+                <span className="sm:hidden">{timeAgo(c.lastActivityAt ?? c.createdAt)}</span>
+              </div>
+              <div className="mt-3 flex justify-end">
+                <Button variant="ghost" size="sm" onClick={() => { setEditing(c); setDialogOpen(true); }}>
+                  <Pencil className="h-3.5 w-3.5" /> Edit
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
 
       {/* Scan card */}
       <Dialog open={scanOpen} onOpenChange={setScanOpen}>

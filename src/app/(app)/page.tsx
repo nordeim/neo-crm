@@ -1,6 +1,7 @@
 "use client";
 
 import { downloadFile } from "@/lib/download";
+import { PAGE_KPI_GRIDS, FILTER_BAR } from "@/lib/page-layout";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -75,9 +76,12 @@ export default function DashboardPage() {
           <>
             <Dropdown>
               <DropdownTrigger asChild>
-                {/* Reference trigger: plus icon + "Add" only — no chevron. */}
-                <Button variant="secondary">
-                  <Plus className="h-4 w-4" /> Add
+                {/* Session-6 anatomy: outline h-8 px-3 text-xs with the label
+                    hidden below sm (reference: border-input bg-background
+                    shadow-sm h-8 rounded-md px-3 text-xs + span.hidden
+                    sm:inline). */}
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Add</span>
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">
@@ -94,8 +98,8 @@ export default function DashboardPage() {
                 one-click leads export. */}
             <Dropdown>
               <DropdownTrigger asChild>
-                <Button variant="secondary">
-                  <Download className="h-4 w-4" /> Export
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export</span>
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">
@@ -107,11 +111,13 @@ export default function DashboardPage() {
             </Dropdown>
             <Button
               variant="default"
+              size="sm"
+              aria-label="Export leads"
               onClick={() => {
                 downloadFile("/api/export?type=leads&download=1");
               }}
             >
-              <Download className="h-4 w-4" /> Export
+              <Download className="h-4 w-4" />
             </Button>
           </>
         }
@@ -119,13 +125,13 @@ export default function DashboardPage() {
 
       {/* KPI row */}
       {!k ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <div className={PAGE_KPI_GRIDS.dashboard}>
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-[118px]" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <div className={PAGE_KPI_GRIDS.dashboard}>
           <KpiCard label="Total Leads" value={k.totalLeads} delta={k.totalLeadsDelta ?? undefined}>
             <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
           </KpiCard>
@@ -162,16 +168,20 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Filter bar */}
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <Button variant="secondary" size="sm" className="h-9">
-          <Filter className="h-3.5 w-3.5" /> Filter
+      {/* Filter bar — session-6: the reference wraps these controls in a
+          white card (bg-white rounded-lg shadow mb-6 p-4) whose contents
+          stack on phones (flex flex-col sm:flex-row gap-3); Filter = outline
+          h-8 with a hidden-sm label. */}
+      <div className={FILTER_BAR.card}>
+        <div className={FILTER_BAR.row}>
+        <Button variant="outline" size="sm" className="w-full sm:w-auto">
+          <Filter className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Filter</span>
         </Button>
         {/* Session-5: the reference's All Stages filter offers the PIPELINE
             stages (Prospecting/Qualification/Proposal/Negotiation/Won) — the
             same labels the pipeline chart above it renders. */}
         <Select value={stage} onValueChange={setStage}>
-          <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Stages</SelectItem>
             {PIPELINE_STAGES.map((s) => (
@@ -182,7 +192,7 @@ export default function DashboardPage() {
         {/* Owner filter — the reference renders this dropdown with an empty
             label (its own defect); here it is a real, working control. */}
         <Select value={owner} onValueChange={setOwner}>
-          <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Owners</SelectItem>
             {users.map((u) => (
@@ -191,7 +201,7 @@ export default function DashboardPage() {
           </SelectContent>
         </Select>
         <Select value={source} onValueChange={setSource}>
-          <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Sources</SelectItem>
             {LEAD_SOURCES.map((s) => (
@@ -199,22 +209,22 @@ export default function DashboardPage() {
             ))}
           </SelectContent>
         </Select>
-        <div className="relative min-w-[180px] flex-1 sm:max-w-xs">
+        <div className={FILTER_BAR.searchWrap}>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Stage: Source" className="pl-9" aria-label="Filter deals" />
         </div>
-        <button
-          type="button"
-          onClick={() => router.push("/leads")}
-          className="ml-auto hidden text-xs font-medium text-primary hover:underline sm:block"
-        >
+        {/* Session-6: "More..." is a ghost h-8 button on the reference
+            (hover:bg-accent h-8 px-3 text-xs) — not a text link. */}
+        <Button variant="ghost" size="sm" className="sm:ml-auto" onClick={() => router.push("/leads")}>
           More...
-        </button>
+        </Button>
+        </div>
       </div>
 
-      {/* Charts */}
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-5">
-        <Card className="xl:col-span-3">
+      {/* Charts — session-6: plain lg:grid-cols-2 gap-6 (the reference has
+          no 3/2 col-span split). */}
+      <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
+        <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Sales Pipeline by Stage</CardTitle>
           </CardHeader>
@@ -222,7 +232,7 @@ export default function DashboardPage() {
             <PipelineBarChart data={dashboard?.pipeline ?? []} />
           </CardContent>
         </Card>
-        <Card className="xl:col-span-2">
+        <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Revenue Over Time</CardTitle>
             <span className="text-xs text-muted">Last 6 months</span>
@@ -241,8 +251,9 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Lists row — reference ships exactly three cards here. */}
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Lists row — reference ships exactly three cards here (session-6:
+          lg:grid-cols-3 gap-6 mb-6). */}
+      <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Top Performing Sales Reps</CardTitle>
@@ -358,7 +369,7 @@ export default function DashboardPage() {
           horizontal cell padding — the card's p-6 provides the gutters) plus
           a trailing w-8 action column. The reference's DUPLICATE "Status"
           column is a defect we do not copy (documented). */}
-      <Card className="mt-4">
+      <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Recent Deals</CardTitle>
           <Button variant="ghost" size="iconSm" aria-label="More actions">

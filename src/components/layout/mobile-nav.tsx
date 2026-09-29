@@ -53,12 +53,17 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
     return () => mql.removeEventListener("change", onChange);
   }, [open, onOpenChange]);
 
-  // Body scroll lock + Escape + focus trap + focus restore.
+  // Body + main-scroller scroll lock + Escape + focus trap + focus restore.
+  // Session-6: `main` is now the scroll container (overflow-auto), so the
+  // lock must clamp it too — body alone would leave main scrollable.
   React.useEffect(() => {
     if (!open) return;
     previouslyFocused.current = document.activeElement as HTMLElement | null;
     const prevOverflow = document.body.style.overflow;
+    const scroller = document.querySelector<HTMLElement>("main");
+    const prevScrollerOverflow = scroller?.style.overflow ?? "";
     document.body.style.overflow = "hidden";
+    if (scroller) scroller.style.overflow = "hidden";
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -91,6 +96,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
+      if (scroller) scroller.style.overflow = prevScrollerOverflow;
       cancelAnimationFrame(raf);
       previouslyFocused.current?.focus?.();
     };

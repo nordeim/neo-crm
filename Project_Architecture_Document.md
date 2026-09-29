@@ -196,7 +196,9 @@ regression suite.
   drawer (`inert` + `visibility:hidden` when closed so it is removed from
   tab order and from Playwright/AT visibility), CSS-transform slide
   animation, focus trap with Tab cycling, Escape close with focus restore,
-  body scroll-lock with original-value cleanup, close-on-route-change via
+  dual scroll-lock with original-value cleanup (`document.body` AND the
+  `main` scroller — since session 6 `main` is the app's scroll container),
+  close-on-route-change via
   adjust-during-render (React 19 lint-safe), and auto-close when the viewport
   grows past `lg`. Pinned by `tests/e2e/mobile-navigation.spec.ts`
   (5 checks).
@@ -346,7 +348,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 7 Vitest suites — 75 checks
+│   ├── *.test.ts                # 8 Vitest suites — 92 checks
 │   └── e2e/                     # global-setup, auth.setup, 4 spec files — 21 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -655,11 +657,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — csv | 1 | 8 | `tests/csv.test.ts` | Vitest |
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned) | 1 | 8 | `tests/constants.test.ts` | Vitest |
+| Unit — layout contracts (DOM-pinned, session-6) | 1 | 17 | `tests/page-layout.test.ts` | Vitest |
 | E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path | 1 | 12 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression | 1 | 5 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **11** | **96** | | |
+| **Total** | **12** | **113** | | |
 
 ### 7.2 Test Patterns
 
@@ -808,10 +811,11 @@ files. Push via the SSH wrapper (§8.4).
 | `src/lib/db.ts` | 22 | `globalThis` Prisma singleton (the only sanctioned constructor) |
 | `src/lib/format.ts` | 221 | Currency/date/relative-time/calendar-grid pure helpers |
 | `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |
+| `src/lib/page-layout.ts` | 132 | DOM-pinned layout contracts (KPI grids, page headers, rails, filter bars) consumed by every page — session-6 |
 | `src/lib/csv.ts` | 74 | RFC-4180 serializer/parser (export + import) |
 | `src/lib/rate-limit.ts` | 47 | Fixed-window limiter with sweeper |
-| `src/components/layout/mobile-nav.tsx` | 164 | THE mobile drawer fix (focus trap, scroll lock, inert) |
-| `src/components/layout/app-shell.tsx` | 44 | Chrome composition + store bootstrap |
+| `src/components/layout/mobile-nav.tsx` | 170 | THE mobile drawer fix (focus trap, dual scroll lock, inert) |
+| `src/components/layout/app-shell.tsx` | 49 | Chrome composition + store bootstrap; `main.flex-1.overflow-auto` is the scroll container (session-6 reference model) |
 | `src/components/shared/entity-dialogs.tsx` | ~810 | Five entity forms, remount-via-key pattern |
 | `src/app/globals.css` | 171 | Tailwind v4 `@theme` tokens + `@utility` definitions |
 | `src/app/(app)/layout.tsx` | 12 | Session guard for every authenticated page |

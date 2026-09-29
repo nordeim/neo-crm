@@ -67,7 +67,7 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
     results && (results.accounts.length > 0 || results.contacts.length > 0 || results.leads.length > 0);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b border-line bg-surface px-4 sm:gap-4 sm:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b border-line bg-surface px-4 sm:gap-4 sm:px-8">
       <MobileNavTrigger onClick={onOpenMobileNav} expanded={mobileNavOpen} />
 
       {/* Global search */}

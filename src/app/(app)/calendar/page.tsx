@@ -1,12 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone, Plus, Search, Target, User } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone, Plus, Target, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Checkbox, Label } from "@/components/ui/label";
 import { PageHeader, TrendStatCard } from "@/components/shared/page-parts";
 import { EventDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -23,6 +22,7 @@ import {
   timeUntil,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT } from "@/lib/page-layout";
 import type { CrmEvent } from "@/types";
 
 /** Reference filter vocabulary — six type options (incl. Reminders/Demos). */
@@ -69,7 +69,6 @@ export default function CalendarPage() {
   const [cursor, setCursor] = React.useState(() => new Date()); // any date inside the visible month
   const [selectedDay, setSelectedDay] = React.useState(() => new Date());
   const [filters, setFilters] = React.useState<Record<string, boolean>>({});
-  const [search, setSearch] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<CrmEvent | null>(null);
   const [defaultStart, setDefaultStart] = React.useState<Date | null>(null);
@@ -91,13 +90,9 @@ export default function CalendarPage() {
       events.filter((e) => {
         if (activeTypes.length > 0 && !activeTypes.includes(e.type)) return false;
         if (activeDates.length > 0 && !activeDates.some((d) => inRange(new Date(e.startAt), d))) return false;
-        if (search.trim()) {
-          const q = search.trim().toLowerCase();
-          if (!(e.title.toLowerCase().includes(q) || (e.location ?? "").toLowerCase().includes(q))) return false;
-        }
         return true;
       }),
-    [events, activeTypes, activeDates, search],
+    [events, activeTypes, activeDates],
   );
 
   // Sunday-anchored grid with leading days, trimmed to whole weeks actually
@@ -164,20 +159,14 @@ export default function CalendarPage() {
         title="Calendar"
         subtitle="Manage your schedule and events"
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative min-w-[200px] flex-1 sm:max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search events..." className="pl-9" aria-label="Search events" />
-            </div>
-            <Button onClick={() => openNewEvent()}>
-              <Plus className="h-4 w-4" /> New Event
-            </Button>
-          </div>
+          <Button onClick={() => openNewEvent()}>
+            <Plus className="h-4 w-4" /> New Event
+          </Button>
         }
       />
 
       {/* Reference stat cards: icon chip top-left, green trend top-right. */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className={PAGE_KPI_GRIDS.calendar}>
         <TrendStatCard
           label="Today's Events"
           value={todaysEvents.length}
@@ -208,11 +197,15 @@ export default function CalendarPage() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+      {/* Session-6 (S6-9): reference layout = flex gap-6 — flex-1 column
+          (month card p-4 sm:p-6 mb-6, then Upcoming/Agenda in
+          lg:grid-cols-2) + a w-80 Filters rail visible from lg. */}
+      <div className={RAIL_LAYOUT.row}>
+        <div className={RAIL_LAYOUT.content}>
         {/* Month grid — reference renders the month heading as an h2
-            (a11y-verified level 2). */}
-        <Card>
-          <CardHeader className="flex-row items-center justify-between">
+            (a11y-verified level 2); card padding p-4 sm:p-6. */}
+        <Card className="mb-6 p-4 sm:p-6">
+          <CardHeader className="flex-row items-center justify-between px-0 pt-0">
             <h2 className="text-lg font-semibold text-foreground">{formatMonthYear(cursor)}</h2>
             <div className="flex items-center gap-1">
               <Button variant="secondary" size="iconSm" aria-label="Previous month" onClick={() => setCursor(new Date(year, month - 1, 1))}>
@@ -234,7 +227,7 @@ export default function CalendarPage() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0 pb-0 pt-4">
             <div className="grid grid-cols-7 gap-1 text-center">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
                 <span key={d} className="pb-1 text-[11px] font-semibold tracking-wide text-subtle">
@@ -293,8 +286,9 @@ export default function CalendarPage() {
           </CardContent>
         </Card>
 
-        {/* Sidebar */}
-        <div className="flex flex-col gap-4">
+        {/* Upcoming + Agenda — session-6: lg:grid-cols-2 gap-6 inside the
+            flex-1 column (below the month card). */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Upcoming Events</CardTitle>
@@ -370,33 +364,50 @@ export default function CalendarPage() {
               )}
             </CardContent>
           </Card>
+        </div>
+        </div>
 
+        {/* Filter rail — session-6: w-80, visible from lg (reference). The
+            calendar header is the outlier: the title element ITSELF carries
+            the flex row (no nested headerRow div) and its action is a blue
+            text link (Clear All), not a ghost button. */}
+        <div className={RAIL_LAYOUT.rail}>
           <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>Filters</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setFilters({})}>
-                Clear All
-              </Button>
+            <CardHeader className={FILTER_RAIL.headerPad}>
+              <CardTitle className={FILTER_RAIL.titleWithAction}>
+                Filters
+                <button type="button" className={FILTER_RAIL.clearAllLink} onClick={() => setFilters({})}>
+                  Clear All
+                </button>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col gap-2.5">
-              <p className="text-xs font-medium text-muted">Type</p>
-              {TYPE_FILTERS.map((t) => (
-                <Checkbox
-                  key={t.id}
-                  checked={filters[t.id] ?? false}
-                  onChange={(e) => setFilters((f) => ({ ...f, [t.id]: e.target.checked }))}
-                  label={t.label}
-                />
-              ))}
-              <p className="mt-2 text-xs font-medium text-muted">Date</p>
-              {DATE_FILTERS.map((d) => (
-                <Checkbox
-                  key={d.id}
-                  checked={filters[d.id] ?? false}
-                  onChange={(e) => setFilters((f) => ({ ...f, [d.id]: e.target.checked }))}
-                  label={d.label}
-                />
-              ))}
+            <CardContent className={FILTER_RAIL.body}>
+              <div>
+                <Label className={FILTER_RAIL.groupLabel}>Type</Label>
+                <div className={FILTER_RAIL.checkboxStack}>
+                  {TYPE_FILTERS.map((t) => (
+                    <Checkbox
+                      key={t.id}
+                      checked={filters[t.id] ?? false}
+                      onChange={(e) => setFilters((f) => ({ ...f, [t.id]: e.target.checked }))}
+                      label={t.label}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label className={FILTER_RAIL.groupLabel}>Date</Label>
+                <div className={FILTER_RAIL.checkboxStack}>
+                  {DATE_FILTERS.map((d) => (
+                    <Checkbox
+                      key={d.id}
+                      checked={filters[d.id] ?? false}
+                      onChange={(e) => setFilters((f) => ({ ...f, [d.id]: e.target.checked }))}
+                      label={d.label}
+                    />
+                  ))}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

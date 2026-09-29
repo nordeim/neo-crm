@@ -2,7 +2,7 @@
 
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
-import { Bookmark, CalendarDays, Download, FileText, RotateCcw, User, Users, Target, TrendingUp, TrendingDown, Percent } from "lucide-react";
+import { Bookmark, Download, FileText, Users, Target, TrendingUp, TrendingDown, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/misc";
 import { Tabs } from "@/components/ui/tabs";
 import { CircleStatCard, KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
+import { PAGE_KPI_GRIDS, REPORTS_FILTER_BAR } from "@/lib/page-layout";
 import { ConversionFunnel, DonutChart, PipelineBarChart, RevenueLineChart, WonLostLineChart } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
 import { LEAD_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
@@ -45,13 +46,6 @@ export default function ReportsPage() {
     };
   }, [hydrated, period, ownerId, stage, status, fetchReports]);
 
-  function resetFilters() {
-    setPeriod("this_quarter");
-    setOwnerId("all");
-    setStage("all");
-    setStatus("all");
-  }
-
   function exportPdf() {
     window.print();
     toast.info("Print dialog opened", "Choose “Save as PDF” to export this report.");
@@ -66,7 +60,7 @@ export default function ReportsPage() {
         subtitle="Comprehensive CRM reporting hub"
         actions={
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={() => toast.info("Saved reports", "You have no saved reports yet — configure filters and save one from here.")}
           >
             <Bookmark className="h-4 w-4" /> Saved Reports (0)
@@ -74,71 +68,63 @@ export default function ReportsPage() {
         }
       />
 
-      {/* Reference filter strip: a white card carrying the four selects plus
-          Reset (ghost) / Export CSV (primary) / PDF (ghost) inline. */}
-      <Card className="mb-4">
-        <CardContent className="flex flex-wrap items-center gap-2 py-4">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-[160px]">
-              <span className="flex min-w-0 items-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-muted" />
-                <SelectValue />
-              </span>
-            </SelectTrigger>
-            <SelectContent>
-              {REPORT_PERIODS.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={ownerId} onValueChange={setOwnerId}>
-            <SelectTrigger className="w-[160px]">
-              <span className="flex min-w-0 items-center gap-1.5">
-                <User className="h-3.5 w-3.5 shrink-0 text-muted" />
-                <SelectValue />
-              </span>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Owners</SelectItem>
-              {users.map((u) => (
-                <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={stage} onValueChange={setStage}>
-            <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Stages</SelectItem>
-              {LEAD_STAGES.map((s) => (
-                <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="closed_won">Closed Won</SelectItem>
-              <SelectItem value="closed_lost">Closed Lost</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="ml-auto flex flex-wrap items-center gap-2">
-            <Button variant="secondary" onClick={resetFilters}>
-              <RotateCcw className="h-4 w-4" /> Reset
-            </Button>
+      {/* Session-6 (S6-11): sticky filter bar — rounded-xl border + shadow-md,
+          sticky to the top of the scrolling main (z-10). Stacks on phones
+          (flex-col lg:flex-row gap-4 items-center); the reference's Export
+          CSV here is PRIMARY blue with PDF outline (Reset removed — quirk
+          register). Selects are stock h-9 w-44 with no leading icons. */}
+      <div className={REPORTS_FILTER_BAR.bar}>
+        <div className={REPORTS_FILTER_BAR.row}>
+          <div className={REPORTS_FILTER_BAR.selectsWrap}>
+            <Select value={period} onValueChange={setPeriod}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {REPORT_PERIODS.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={ownerId} onValueChange={setOwnerId}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Owners</SelectItem>
+                {users.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={stage} onValueChange={setStage}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Stages</SelectItem>
+                {LEAD_STAGES.map((s) => (
+                  <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="closed_won">Closed Won</SelectItem>
+                <SelectItem value="closed_lost">Closed Lost</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className={REPORTS_FILTER_BAR.actions}>
             <Button onClick={() => downloadFile("/api/export?type=leads&download=1")}>
               <Download className="h-4 w-4" /> Export CSV
             </Button>
-            <Button variant="secondary" onClick={exportPdf}>
+            <Button variant="outline" onClick={exportPdf}>
               <FileText className="h-4 w-4" /> PDF
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {loading && !data ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className={PAGE_KPI_GRIDS.reports}>
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-[118px]" />
           ))}
@@ -148,7 +134,7 @@ export default function ReportsPage() {
           {/* Reference KPI row (session-5 anatomy): square rounded-lg tinted
               chips, count + amount INLINE in one text-2xl font-bold value,
               uppercase-K currency on this page ($542.0K won / $196K lost). */}
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+          <div className={PAGE_KPI_GRIDS.reports}>
             <CircleStatCard label="Total Leads" value={k?.totalLeads ?? 0} icon={<Target className="h-5 w-5" />} color="#3b82f6">
               <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#3b82f6" variant="line" className="h-6" />
             </CircleStatCard>

@@ -3,24 +3,31 @@
 import * as React from "react";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PAGE_HEADER, type PageHeaderVariant } from "@/lib/page-layout";
 
-/** Page title row with actions — mirrors the reference page headers. */
+/** Page title row with actions — mirrors the reference page headers
+ *  (session-6 anatomy): the standard/leads variants STACK on phones
+ *  (`flex-col` → `sm:flex-row`, actions `w-full sm:w-auto`); contacts is the
+ *  flat variant (fixed `text-3xl` title, plain row, `gap-3` actions). */
 export function PageHeader({
   title,
   subtitle,
   actions,
+  variant = "standard",
 }: {
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  variant?: PageHeaderVariant;
 }) {
+  const spec = PAGE_HEADER[variant];
   return (
-    <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+    <div className={spec.row}>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+        <h1 className={spec.title}>{title}</h1>
+        {subtitle && <p className={spec.subtitle}>{subtitle}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className={spec.actions}>{actions}</div>}
     </div>
   );
 }
