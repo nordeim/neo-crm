@@ -78,10 +78,18 @@ test("activities page renders priority tabs and timeline", async ({ page }) => {
   await expect(page.getByText("Activity Timeline")).toBeVisible();
 });
 
-test("reports page loads analytics tabs", async ({ page }) => {
+test("reports page loads analytics tabs with seeded data", async ({ page }) => {
   await page.goto("/reports");
   await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Sales Overview" })).toBeVisible();
+
+  // Regression: the "all" filter sentinel must not leak into the query —
+  // the default view (period=quarter, owner/stage/status=all) must show the
+  // seeded pipeline, not zeros. (Won-deal value is stable: the lead created
+  // by the earlier test is stage "new" and never reaches this quarter's
+  // won total.)
+  await expect(page.getByText("AED 542.0K").first()).toBeVisible();
+
   await page.getByRole("tab", { name: "Account Health" }).click();
   await expect(page.getByText("Account Health Distribution")).toBeVisible();
 });

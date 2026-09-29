@@ -36,9 +36,12 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const period = asString(url.searchParams.get("period")) ?? "this_quarter";
   if (!REPORT_PERIODS.some((p) => p.id === period)) return ERR.BAD_REQUEST("Invalid period");
-  const ownerId = asString(url.searchParams.get("ownerId"), { optional: true }) ?? null;
-  const stage = asString(url.searchParams.get("stage"), { optional: true }) ?? null;
-  const status = asString(url.searchParams.get("status"), { optional: true }) ?? null;
+  // "all" is the UI's "no filter" sentinel — normalize to null so it never
+  // reaches Prisma as a literal value.
+  const notAll = (v: string | null) => (v && v !== "all" ? v : null);
+  const ownerId = notAll(url.searchParams.get("ownerId"));
+  const stage = notAll(url.searchParams.get("stage"));
+  const status = notAll(url.searchParams.get("status"));
 
   const now = new Date();
   const from = periodStart(period, now);
