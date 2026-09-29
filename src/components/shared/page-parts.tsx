@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Page title row with actions — mirrors the reference page headers. */
@@ -26,7 +27,7 @@ export function PageHeader({
 
 /**
  * Plain colored delta text — the reference renders deltas as bare inline
- * text (green / red / grey) with no pill and no arrow icon.
+ * text-xs (green / red / grey) with no pill (dashboard cards).
  */
 export function DeltaText({
   delta,
@@ -45,7 +46,7 @@ export function DeltaText({
   return (
     <span
       className={cn(
-        "text-sm font-medium",
+        "text-xs font-medium",
         neutral ? "text-muted" : good ? "text-success" : "text-danger",
         className,
       )}
@@ -58,9 +59,40 @@ export function DeltaText({
 }
 
 /**
- * KPI card for the dashboard / accounts pages: label on top, big value with
- * an inline plain-text delta, mini chart at the bottom — the reference
- * anatomy (no hint line, no pill badges).
+ * Delta row with the reference's trending icon — accounts/activities stat
+ * cards render `flex items-center gap-1 text-xs text-{green|red}-600` with a
+ * w-3 h-3 lucide trending-up (positive) / trending-down (negative) glyph.
+ * Text deltas that the reference renders bare ("+4 today") pass `icon={null}`.
+ */
+export function DeltaBadgeText({
+  children,
+  tone = "success",
+  icon = "up",
+}: {
+  children: React.ReactNode;
+  tone?: "success" | "danger" | "muted";
+  icon?: "up" | "down" | null;
+}) {
+  const Glyph = icon === "down" ? TrendingDown : TrendingUp;
+  return (
+    <span
+      className={cn(
+        "flex items-center gap-1 text-xs",
+        tone === "success" ? "text-success" : tone === "danger" ? "text-danger" : "text-muted",
+      )}
+    >
+      {icon && <Glyph className="h-3 w-3" aria-hidden="true" />}
+      <span>{children}</span>
+    </span>
+  );
+}
+
+/**
+ * KPI card for the dashboard: label on top, big bold value with an inline
+ * plain-text delta (text-xs, aligned to the value's baseline), mini chart at
+ * the bottom — the reference dashboard anatomy (DOM-verified:
+ * `p-4 sm:p-6`, label `text-xs sm:text-sm`, value `text-2xl sm:text-3xl
+ * font-bold`, delta `text-xs …-600 mb-1`, value row `flex items-end gap-2`).
  */
 export function KpiCard({
   label,
@@ -78,13 +110,13 @@ export function KpiCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
-      <p className="text-xs font-medium tracking-wide text-muted">{label}</p>
-      <div className="mt-2 flex flex-wrap items-baseline gap-2">
-        <p className="text-[28px] font-semibold leading-none tracking-tight text-foreground">{value}</p>
-        <DeltaText delta={delta} suffix={deltaSuffix} invert={invertDelta} />
+    <div className="rounded-xl border border-line bg-surface p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
+      <p className="text-xs text-muted sm:text-sm">{label}</p>
+      <div className="mt-2 flex flex-wrap items-end gap-2">
+        <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
+        <DeltaText delta={delta} suffix={deltaSuffix} invert={invertDelta} className="mb-1" />
       </div>
-      {children && <div className="mt-3">{children}</div>}
+      {children && <div className="mt-2">{children}</div>}
     </div>
   );
 }
@@ -120,32 +152,116 @@ function IconChip({
 }
 
 /**
+ * Accounts / activities stat card — the side-by-side reference anatomy:
+ * header row (label left, delta-with-trending-icon right), footer row
+ * (bold value + optional sub-text left, `h-10` mini-bar strip right).
+ * DOM-verified: bars are `flex-1 rounded-sm bg-{color}-400` with percentage
+ * heights inside `h-10 w-24` (accounts) / `h-10 w-20` (activities).
+ */
+export function BarStatCard({
+  label,
+  value,
+  subValue,
+  delta,
+  deltaIcon = "up",
+  deltaTone,
+  bars,
+  barColor,
+  barColorFor,
+  className,
+}: {
+  label: string;
+  value: React.ReactNode;
+  subValue?: React.ReactNode;
+  delta?: React.ReactNode;
+  deltaIcon?: "up" | "down" | null;
+  /** Derived from the icon direction when omitted. */
+  deltaTone?: "success" | "danger" | "muted";
+  bars: number[];
+  barColor: string;
+  barColorFor?: (value: number, index: number) => string;
+  className?: string;
+}) {
+  const tone = deltaTone ?? (deltaIcon === "down" ? "danger" : "success");
+  const pct = (v: number) => Math.max(Math.round((v / Math.max(...bars, 1)) * 100), 12);
+  return (
+    <div className={cn("rounded-xl border border-line bg-surface p-4 shadow-sm transition-shadow hover:shadow-md", className)}>
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <span className="text-xs text-muted">{label}</span>
+        {delta != null && (
+          <DeltaBadgeText tone={tone} icon={deltaIcon}>
+            {delta}
+          </DeltaBadgeText>
+        )}
+      </div>
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
+          {subValue !== undefined && <p className="mt-1 text-xs text-muted">{subValue}</p>}
+        </div>
+        <div className="flex h-10 w-20 shrink-0 items-end gap-0.5 sm:w-24" aria-hidden="true">
+          {bars.map((v, i) => (
+            <span
+              key={i}
+              className="flex-1 rounded-sm"
+              style={{
+                height: `${pct(v)}%`,
+                backgroundColor: barColorFor ? barColorFor(v, i) : barColor,
+                opacity: v > 0 ? 1 : 0.4,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Contacts / leads stat card: label top-left, big value (plus optional
  * sub-value line) bottom-left, icon chip on the far right — the reference
  * layout. `tone: "solid"` renders a colored chip with a white glyph
- * (contacts); `tone: "tint"` renders a light chip with a colored glyph
- * (leads).
+ * (contacts, bg-{c}-500); `tone: "tint"` renders a light chip with a colored
+ * glyph (leads). Contacts cards carry the reference gradient
+ * (`bg-gradient-to-br from-white to-gray-50`) + an optional trend row
+ * (trending-up icon + green text, the "New This Month" anatomy).
  */
 export function IconStatCard({
   label,
   value,
   subValue,
+  trend,
   icon,
   tone = "tint",
+  gradient = false,
   color,
 }: {
   label: string;
   value: React.ReactNode;
   subValue?: React.ReactNode;
+  /** Optional trend row under the value: trending-up icon + green text. */
+  trend?: React.ReactNode;
   icon: React.ReactNode;
   tone?: "solid" | "tint";
+  gradient?: boolean;
   color: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div
+      className={cn(
+        "flex items-center justify-between gap-3 rounded-xl border border-line p-6 shadow-sm transition-shadow hover:shadow-md",
+        gradient ? "bg-gradient-to-br from-white to-gray-50" : "bg-surface",
+      )}
+    >
       <div className="min-w-0">
-        <p className="text-xs font-medium tracking-wide text-muted">{label}</p>
-        <p className="mt-2 text-[26px] font-semibold leading-none tracking-tight text-foreground">{value}</p>
+        <p className="text-sm font-medium text-muted">{label}</p>
+        <p className="mb-2 mt-2 text-3xl font-bold leading-none tracking-tight text-foreground">{value}</p>
+        {trend !== undefined && (
+          <span className="flex items-center gap-1 text-sm font-medium text-success">
+            <TrendingUp className="h-4 w-4" aria-hidden="true" />
+            {trend}
+          </span>
+        )}
         {subValue !== undefined && <p className="mt-1.5 text-sm font-medium text-muted">{subValue}</p>}
       </div>
       <IconChip

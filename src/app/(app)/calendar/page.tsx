@@ -209,10 +209,11 @@ export default function CalendarPage() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Month grid */}
+        {/* Month grid — reference renders the month heading as an h2
+            (a11y-verified level 2). */}
         <Card>
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className="text-base">{formatMonthYear(cursor)}</CardTitle>
+            <h2 className="text-lg font-semibold text-foreground">{formatMonthYear(cursor)}</h2>
             <div className="flex items-center gap-1">
               <Button variant="secondary" size="iconSm" aria-label="Previous month" onClick={() => setCursor(new Date(year, month - 1, 1))}>
                 <ChevronLeft className="h-4 w-4" />
@@ -252,10 +253,13 @@ export default function CalendarPage() {
                     onClick={() => setSelectedDay(day)}
                     onDoubleClick={() => openNewEvent(day)}
                     className={cn(
-                      "flex min-h-[72px] flex-col items-stretch rounded-lg border p-1.5 text-left transition-colors",
+                      "flex min-h-20 flex-col items-stretch rounded-lg border p-1 text-left transition-colors sm:min-h-24 sm:p-2",
                       "hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
                       inMonth ? "border-line bg-white" : "border-transparent bg-line-soft/50 text-subtle",
-                      isSelected && "border-primary ring-1 ring-primary/30",
+                      // Reference: the selected day's whole cell is a solid
+                      // blue-600 block with white text (DOM-verified
+                      // rgb(37,99,235) — the sidebar blue, not primary-500).
+                      isSelected && "border-sidebar bg-sidebar text-white",
                     )}
                     aria-label={`${formatDate(day)} — ${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}`}
                     aria-pressed={isSelected}
@@ -264,19 +268,19 @@ export default function CalendarPage() {
                       <span
                         className={cn(
                           "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
-                          isToday ? "bg-primary text-white" : inMonth ? "text-foreground" : "text-subtle",
+                          isToday && !isSelected ? "bg-primary text-white" : isSelected ? "text-white" : inMonth ? "text-foreground" : "text-subtle",
                         )}
                       >
                         {day.getDate()}
                       </span>
-                      {dayEvents.length > 2 && <span className="text-[10px] text-muted">+{dayEvents.length - 2}</span>}
+                      {dayEvents.length > 2 && <span className={cn("text-[10px]", isSelected ? "text-white/80" : "text-muted")}>+{dayEvents.length - 2}</span>}
                     </span>
                     <span className="mt-auto flex flex-col gap-0.5">
                       {dayEvents.slice(0, 2).map((e) => (
                         <span
                           key={e.id}
                           className="truncate rounded px-1 py-0.5 text-[10px] font-medium leading-tight text-white"
-                          style={{ backgroundColor: EVENT_TYPE_META[e.type]?.color ?? "#6b7280" }}
+                          style={{ backgroundColor: isSelected ? (inMonth ? "rgba(255,255,255,0.25)" : undefined) : (EVENT_TYPE_META[e.type]?.color ?? "#6b7280") }}
                         >
                           {formatTime(e.startAt)} {e.title}
                         </span>

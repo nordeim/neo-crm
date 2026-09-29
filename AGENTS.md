@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (65 checks)          | `bun run test`                         |
-| Browser E2E (20 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (68 checks)          | `bun run test`                         |
+| Browser E2E (21 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (65) → `bun run build` → `bun run test:e2e` (21). There is no
+`bun run test` (68) → `bun run build` → `bun run test:e2e` (21). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -97,6 +97,25 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   (`STAGE_META`, `ACCOUNT_STATUS_META`, `ACTIVITY_TYPE_META`,
   `EVENT_TYPE_META`, `PRIORITY_META`). Extend the meta maps when you extend a
   vocabulary.
+- **Chart colors are DOM-pinned, not aesthetic** — `tests/constants.test.ts`
+  freezes the palette against the live reference: pipeline stage hex (Proposal
+  = yellow `#eab308`, Won = grey `#9ca3af` — chart hex only, badges stay
+  emerald) and the tailwind **-400 bar family** (`blue400 #60a5fa`,
+  `green400 #4ade80`, `cyan400 #22d3ee`, `purple400 #c084fc`, `red400
+  #f87171`, `amber400 #fbbf24`) used by stat-card mini bars. Sparkline lines
+  on the dashboard are `#10b981`. Re-extract from the reference before
+  changing any of these — do not "fix" the tests to match the code.
+- **Two stat-card anatomies, never mixed**: the dashboard `KpiCard` (label /
+  value + inline delta / full-width sparkline below) vs the `BarStatCard`
+  (label + trending-icon delta on top, bold value left + `h-10` bar strip
+  right — accounts & activities). Contacts/leads use `IconStatCard`
+  (gradient card + solid -500 icon chip, optional trend row); reports uses
+  `CircleStatCard`.
+- **Sort icons**: inactive sortable headers show `ArrowUpDown` (h-4); the
+  active sort column shows a directional `ChevronDown/Up`. Sortability is
+  per-table (leads: Lead Name/Email/Value; contacts: Last Activity only;
+  accounts: none) — mirror the reference, don't add sort headers it doesn't
+  ship.
 - **Currency display is `$`-attached** (`src/lib/format.ts`):
   `formatCurrency` → `$12,500`, `formatCompactCurrency` → `$145.0k` /
   `$1.4M` (lowercase k, uppercase M) — exactly the reference app's display,
@@ -104,7 +123,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   and stores `AED`; the formatter mirrors the reference by always printing
   `$`).
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
-  `format.ts`, `csv.ts`, `rate-limit.ts`, `avatar` helpers — 65 Vitest
+  `format.ts`, `csv.ts`, `rate-limit.ts`, `avatar` helpers, the chart
+  palette (`constants.test.ts`) — 68 Vitest
   checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place

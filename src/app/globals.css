@@ -46,12 +46,14 @@
   --radius-button: 0.5rem;
   --radius-pill: 9999px;
 
-  /* Chart palette */
+  /* Chart palette (display tokens; the working hex lives in
+     src/lib/constants.ts — CHART_COLORS / *_META — and is DOM-pinned by
+     tests/constants.test.ts: Proposal = yellow-500, Won = grey-400). */
   --color-chart-1: #3b82f6;
   --color-chart-2: #06b6d4;
-  --color-chart-3: #f59e0b;
+  --color-chart-3: #eab308;
   --color-chart-4: #f97316;
-  --color-chart-5: #10b981;
+  --color-chart-5: #9ca3af;
   --color-chart-6: #ef4444;
 
   /* Animations for Radix primitives */

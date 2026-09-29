@@ -128,13 +128,13 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
           <KpiCard label="Total Leads" value={k.totalLeads} delta={k.totalLeadsDelta ?? undefined}>
-            <Sparkline values={sparkWon} color={CHART_COLORS.teal} variant="line" />
+            <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
           </KpiCard>
           <KpiCard label="Deals Closed" value={formatCompactCurrency(k.dealsClosedValue)}>
-            <Sparkline values={sparkWon} color={CHART_COLORS.cyan} />
+            <Sparkline values={sparkWon} color={CHART_COLORS.cyan400} />
           </KpiCard>
           <KpiCard label="Revenue This Month" value={formatCompactCurrency(k.revenueThisMonth)} delta={k.revenueDelta ?? undefined}>
-            <Sparkline values={sparkWon} color={CHART_COLORS.green} />
+            <Sparkline values={sparkWon} color={CHART_COLORS.green400} />
           </KpiCard>
           <KpiCard
             label="Sales Target"
@@ -143,8 +143,8 @@ export default function DashboardPage() {
           >
             <Sparkline
               values={rev.map((r) => Math.max(r.won, r.target))}
-              colorFor={(_, i) => (rev[i].won >= rev[i].target ? CHART_COLORS.blue : CHART_COLORS.orange)}
-              color={CHART_COLORS.orange}
+              colorFor={(_, i) => (rev[i].won >= rev[i].target ? CHART_COLORS.blue : CHART_COLORS.amber400)}
+              color={CHART_COLORS.amber400}
             />
           </KpiCard>
           <KpiCard label="Conversion Rate" value={`${k.conversionRate}%`}>
@@ -157,7 +157,7 @@ export default function DashboardPage() {
             deltaSuffix="d"
             invertDelta
           >
-            <Sparkline values={sparkWon} color={CHART_COLORS.teal} variant="line" />
+            <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
           </KpiCard>
         </div>
       )}
@@ -228,7 +228,9 @@ export default function DashboardPage() {
             <RevenueLineChart
               data={dashboard?.revenueOverTime ?? []}
               series={[
-                { key: "won", label: "Won", color: CHART_COLORS.green },
+                // Both series are filled Areas on the reference (DOM-verified
+                // recharts-area-area ×2: Won #10b981, Target #ef4444).
+                { key: "won", label: "Won", color: CHART_COLORS.emerald, filled: true },
                 { key: "target", label: "Target", color: CHART_COLORS.red, filled: true },
               ]}
             />

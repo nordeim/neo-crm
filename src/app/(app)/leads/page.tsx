@@ -3,6 +3,7 @@
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
 import {
+  ArrowUpDown,
   CalendarDays,
   CheckCircle2,
   ChevronDown,
@@ -386,14 +387,16 @@ function SortHead({
         onClick={() => onToggle(k)}
       >
         {label}
+        {/* Reference: inactive sortable headers show lucide arrow-up-down
+            (w-4); the active sort flips to a directional chevron. */}
         {active ? (
           dir === "asc" ? (
-            <ChevronUp className="h-3 w-3" />
+            <ChevronUp className="h-4 w-4" />
           ) : (
-            <ChevronDown className="h-3 w-3" />
+            <ChevronDown className="h-4 w-4" />
           )
         ) : (
-          <ChevronDown className="h-3 w-3 opacity-40" />
+          <ArrowUpDown className="h-4 w-4 text-subtle" />
         )}
       </button>
     </TableHead>

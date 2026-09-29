@@ -74,15 +74,17 @@ export async function GET() {
     };
   });
 
-  // ---- Revenue over time (last 6 months + current) ----
+  // ---- Revenue over time: 7 ticks = current month + 6 back. The reference
+  // renders 7 month labels under its "Last 6 months" caption (DOM-verified
+  // Nov..May) — "last 6 months" excluding today's partial month.
   const revenueOverTime: DashboardData["revenueOverTime"] = [];
-  for (let i = 5; i >= 0; i -= 1) {
+  for (let i = 6; i >= 0; i -= 1) {
     const m = addMonths(monthStart, -i);
     const next = addMonths(m, 1);
     const won = wonLeads
       .filter((l) => l.closedAt && l.closedAt >= m && l.closedAt < next)
       .reduce((s, l) => s + l.value, 0);
-    const target = Math.round(salesTarget * (0.8 + 0.05 * (5 - i)));
+    const target = Math.round(salesTarget * (0.8 + 0.05 * (6 - i)));
     revenueOverTime.push({
       month: m.toLocaleString("en-US", { month: "short" }),
       won,

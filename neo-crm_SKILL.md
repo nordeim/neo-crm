@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-09-29
-project_state: 65 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db
+project_state: 68 unit checks + 21 e2e checks green; database pinned to <repo>/db/custom.db; chart palette DOM-pinned by tests/constants.test.ts
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.0.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.1.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -223,10 +223,15 @@ as LITERAL hex values — no `var()` chains inside `@theme`, no
   --radius-button: 0.5rem;  /* rounded-lg — buttons, inputs */
   --radius-pill: 9999px;    /* delta chips, search pill */
 
-  /* Chart palette */
+  /* Chart palette — NOTE: the live constants live in src/lib/constants.ts
+     (CHART_COLORS / *_META hex); the tokens below are the base family.
+     Session-4 DOM extraction re-pinned two stage hexes: Proposal renders
+     yellow-500 #eab308 and Won renders grey-400 #9ca3af on the reference
+     dashboard pipeline (badges stay emerald); stat-card mini bars use the
+     tailwind -400 family (see §4). */
   --color-chart-1: #3b82f6;  --color-chart-2: #06b6d4;
-  --color-chart-3: #f59e0b;  --color-chart-4: #f97316;
-  --color-chart-5: #10b981;  --color-chart-6: #ef4444;
+  --color-chart-3: #eab308;  --color-chart-4: #f97316;
+  --color-chart-5: #9ca3af;  --color-chart-6: #ef4444;
 
   /* Animations (Radix data-[state] transitions) */
   --animate-fade-in: fade-in 0.2s ease-out;
@@ -1021,10 +1026,70 @@ so structure — not data — is the parity target):
 - Gate after session 3: lint 0/0 · typecheck clean · 65/65 unit ·
   build clean · 21/21 e2e (mobile-nav regression intact).
 
+**Session 4 (pixel-grade parity hardening)** — planned in
+`docs/plans/2026-09-29-session4-parity-remediation.md` (G-1…G-15), executed
+TDD. The audit method itself leveled up: instead of VLM screenshot reads,
+every finding was extracted from the **live reference's DOM** (computed
+styles, lucide class names, outerHTML anatomy) — which overturned several
+session-3 VLM-based conclusions (see the lesson below):
+
+- G-1/G-2: **chart palette re-pinned** — pipeline Proposal = `#eab308`
+  (yellow-500) and Won = `#9ca3af` (grey-400, chart hex only — badges stay
+  emerald); dashboard sparklines: Total Leads + Avg. Sales Cycle = LINE
+  `#10b981`, Deals Closed bars `#22d3ee`, Revenue bars `#4ade80`, Sales
+  Target two-tone `#fbbf24`/`#3b82f6`, Conversion Rate area `#8b5cf6`.
+  All frozen by the new `tests/constants.test.ts` (3 checks).
+- G-3: revenue chart = BOTH series filled recharts Areas (Won `#10b981` +
+  Target `#ef4444`), 7-tick month window (current + 6 back) under the
+  "Last 6 months" caption.
+- G-4/G-6: **two stat-card anatomies formalized** — new `BarStatCard`
+  (label + trending-icon delta top / bold value left + `h-10` mini-bar
+  strip right, bars from the tailwind -400 family) replaces the accounts
+  KpiCards and backs the activities cards; `trending-up` glyphs on %
+  deltas, `trending-down` on overdue.
+- G-5: sort icons — `ArrowUpDown` (h-4) on inactive sortable headers,
+  directional chevron on the active one; sortability per table (leads:
+  Lead Name/Email/Value; contacts: Last Activity only; accounts: none).
+- G-7: profile rebuilt to DOM truth — blue-100 80/96px avatar circle with
+  a user glyph, camera-icon Upload Photo, near-black Save Changes
+  (rgb(23,23,23)), four right-column cards each with a 48px tinted chip
+  (blue-100/user, green-100/mail, purple-100/shield).
+- G-8/G-10: tab variants — segmented track is `h-9 grid w-full
+  grid-cols-N` (activities ×4, settings ×3); reports pill track is a
+  white bordered `grid-cols-2 lg:grid-cols-N` with active `bg-blue-50
+  text-blue-700`.
+- G-9: reports revenue chart drops its legend. G-11: by-type chart
+  categories = Call/Email/Meeting/Task/Note (WhatsApp is quick-log only).
+- G-12: calendar selected day = solid `bg-sidebar` (blue-600) cell with
+  white text; month heading promoted to `h2`. G-13: contacts cards get
+  the reference gradient + trend row (trending-up + green "+N"); New This
+  Month chip = green-500 `#22c55e`. G-14: KpiCard typography matched
+  (p-4 sm:p-6, text-2xl sm:text-3xl font-bold, delta text-xs mb-1).
+- **Tailwind v4 pitfall caught mid-implementation**: dynamic
+  `` `grid-cols-${cols}` `` template strings never compile (v4 scans for
+  literal class names) — `tabs.tsx` uses a static `GRID_COLS` record.
+- Gate after session 4: lint 0/0 · typecheck clean · **68/68 unit** ·
+  build clean · **21/21 e2e**; every G-item re-verified in the live DOM
+  of the running clone (colors, icons, tab classes, sort icons, selected
+  day cell) at 1512×945 and 390×844.
+
+**Session-4 lesson — DOM extraction beats VLM reads.** Session 3 had
+"verified" teal-line/purple-area sparkline types and single-chevron sort
+glyphs from VLM screenshot reads; the DOM showed the line sparklines were
+`#10b981` (not teal), several cards carry trending icons the VLM never
+mentioned, and inactive sort headers are `arrow-up-down` (not chevrons).
+Rule: **VLM for layout/what-is-there, `getComputedStyle` + outerHTML for
+exact colors/icons/anatomy.** A VLM claim about a color or icon is a
+hypothesis until the DOM confirms it.
+
 ## Appendix D: Live-Site Validation Methodology
 
 The parity loop that caught the sparkline/casing/button drift — reuse it
-for any visual change:
+for any visual change. **Session-4 upgrade: when you need EXACT colors,
+icon names or anatomy, skip step 3 for that detail and extract it from
+the live DOM instead** (`agent-browser eval` + `getComputedStyle`,
+`svg[class*=lucide]` class names, `outerHTML` of the card in question) —
+VLM reads of colors/icons are hypotheses, DOM values are ground truth.
 
 1. **Capture the reference** (one-time; stored under `docs/` or a local
    `target-app-screenshots/` folder): log in with the demo credentials,

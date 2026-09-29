@@ -19,7 +19,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs } from "@/components/ui/tabs";
-import { PageHeader, Sparkline } from "@/components/shared/page-parts";
+import { BarStatCard, PageHeader } from "@/components/shared/page-parts";
 import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
@@ -35,15 +35,17 @@ const QUICK_LOG = [
 ] as const;
 
 /**
- * Reference stat card: label (+ optional top-right delta), big value with the
- * bar strip to its RIGHT, optional sub text under the value.
+ * Reference stat card: label + delta row on top (trending icon on %
+ * deltas — DOM-verified), big value with the h-10 bar strip to its RIGHT,
+ * optional sub text under the value. Thin wrapper over BarStatCard.
  */
 function ActivityStatCard({
   label,
   value,
   sub,
   delta,
-  deltaTone = "muted",
+  deltaIcon = "up",
+  deltaTone,
   bars,
   barColor,
 }: {
@@ -51,33 +53,23 @@ function ActivityStatCard({
   value: React.ReactNode;
   sub?: string;
   delta?: string;
+  deltaIcon?: "up" | "down" | null;
   deltaTone?: "success" | "danger" | "muted";
   bars: number[];
   barColor: string;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium tracking-wide text-muted">{label}</p>
-        {delta && (
-          <span
-            className={cn(
-              "shrink-0 text-xs font-semibold",
-              deltaTone === "success" ? "text-success" : deltaTone === "danger" ? "text-danger" : "text-muted",
-            )}
-          >
-            {delta}
-          </span>
-        )}
-      </div>
-      <div className="mt-2 flex items-center justify-between gap-3">
-        <p className="text-[26px] font-semibold leading-none tracking-tight text-foreground">
-          {value}
-          {sub && <span className="mt-1 block text-xs font-normal text-muted">{sub}</span>}
-        </p>
-        <Sparkline values={bars} color={barColor} className="w-16 shrink-0" />
-      </div>
-    </div>
+    <BarStatCard
+      label={label}
+      value={value}
+      subValue={sub}
+      delta={delta}
+      deltaIcon={deltaIcon}
+      deltaTone={deltaTone}
+      bars={bars}
+      barColor={barColor}
+      className="p-4"
+    />
   );
 }
 
@@ -174,7 +166,11 @@ export default function ActivitiesPage() {
     return [...groups.entries()];
   }, [baseFiltered]);
 
-  const byType = Object.keys(ACTIVITY_TYPE_META).map((t) => ({
+  // Reference "Activities by Type" categories: Call / Email / Meeting /
+  // Task / Note — WhatsApp is a quick-log type but NOT a chart series
+  // (DOM-verified on the live card).
+  const BY_TYPE_CATEGORIES = ["call", "email", "meeting", "task", "note"] as const;
+  const byType = BY_TYPE_CATEGORIES.map((t) => ({
     label: ACTIVITY_TYPE_META[t].label,
     type: t,
     count: baseFiltered.filter((a) => a.type === t).length,
@@ -210,43 +206,50 @@ export default function ActivitiesPage() {
         }
       />
 
-      {/* Reference: six stat cards, value + colored bar strip side by side. */}
+      {/* Reference: six stat cards, value + colored bar strip side by side
+          (delta rows carry trending icons — DOM-verified). */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         <ActivityStatCard
           label="Activities Today"
           value={todayCount}
           delta={todayDelta}
-          deltaTone="success"
+          deltaIcon="up"
           bars={allBars}
-          barColor={CHART_COLORS.blue}
+          barColor={CHART_COLORS.blue400}
         />
         <ActivityStatCard
           label="Overdue Activities"
           value={overdue.length}
           sub={`Due now ${dueToday.length}`}
           delta={overdueLabel}
-          deltaTone="danger"
+          deltaIcon="down"
           bars={allBars.map((v) => Math.max(0, v - 1))}
-          barColor={CHART_COLORS.red}
+          barColor={CHART_COLORS.red400}
         />
         <ActivityStatCard
           label="Emails Sent"
           value={activities.filter((a) => a.type === "email").length}
           delta={`+${emailsToday} today`}
+          deltaIcon={null}
+          deltaTone="success"
           bars={barsFor("email")}
-          barColor={CHART_COLORS.cyan}
+          barColor={CHART_COLORS.cyan400}
         />
         <ActivityStatCard
           label="Calls Logged"
           value={activities.filter((a) => a.type === "call").length}
           delta={`+${callsToday} today`}
+          deltaIcon={null}
+          deltaTone="success"
           bars={barsFor("call")}
-          barColor={CHART_COLORS.green}
+          barColor={CHART_COLORS.green400}
         />
         <ActivityStatCard
           label="Meetings Scheduled"
           value={upcomingMeetings.length}
           delta={meetingDuration}
+          deltaIcon={null}
+          deltaTone="muted"
           bars={barsFor("meeting")}
           barColor={CHART_COLORS.gray}
         />
@@ -271,6 +274,7 @@ export default function ActivitiesPage() {
             <CardContent>
               <Tabs
                 variant="segmented"
+                cols={4}
                 value={tab}
                 onValueChange={setTab}
                 tabs={[

@@ -104,6 +104,7 @@ export default function SettingsPage() {
 
       <Tabs
         variant="segmented"
+        cols={3}
         value={tab}
         onValueChange={setTab}
         tabs={[

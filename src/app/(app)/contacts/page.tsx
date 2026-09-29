@@ -4,6 +4,7 @@ import { downloadFile } from "@/lib/download";
 import * as React from "react";
 import {
   Award,
+  ArrowUpDown,
   ChevronDown,
   ChevronUp,
   CircleAlert,
@@ -168,28 +169,32 @@ export default function ContactsPage() {
         }
       />
 
-      {/* Reference stat cards: solid colored icon chips on the right. */}
+      {/* Reference stat cards: gradient card, solid -500 icon chips, trend
+          row on "New This Month" (DOM-verified). */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <IconStatCard
           label="Total Contacts"
           value={contacts.length}
           icon={<Users className="h-5 w-5" />}
           tone="solid"
+          gradient
           color="#3b82f6"
         />
         <IconStatCard
           label="New This Month"
           value={contacts.filter((c) => new Date(c.createdAt) >= monthStart).length}
-          subValue={<span className="font-medium text-success">+{contacts.filter((c) => new Date(c.createdAt) >= monthStart).length}</span>}
+          trend={`+${contacts.filter((c) => new Date(c.createdAt) >= monthStart).length}`}
           icon={<TrendingUp className="h-5 w-5" />}
           tone="solid"
-          color="#10b981"
+          gradient
+          color="#22c55e"
         />
         <IconStatCard
           label="Top Decision Makers"
           value={contacts.filter((c) => c.priority === "hot").length}
           icon={<Award className="h-5 w-5" />}
           tone="solid"
+          gradient
           color="#f59e0b"
         />
         <IconStatCard
@@ -197,6 +202,7 @@ export default function ContactsPage() {
           value={contacts.filter((c) => !c.lastActivityAt || new Date(c.lastActivityAt) < new Date(Date.now() - 30 * 86400000)).length}
           icon={<CircleAlert className="h-5 w-5" />}
           tone="solid"
+          gradient
           color="#ef4444"
         />
       </div>
@@ -272,25 +278,18 @@ export default function ContactsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>
-                    <button type="button" className="inline-flex items-center gap-1 tracking-wide" onClick={() => toggleSort("name")}>
-                      Name
-                      {sortKey === "name" ? (
-                        sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
-                      ) : (
-                        <ChevronDown className="h-3 w-3 opacity-40" />
-                      )}
-                    </button>
-                  </TableHead>
+                  {/* Reference: only Last Activity is sortable (chevron-down
+                      default desc); Name renders as a plain header. */}
+                  <TableHead>Name</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Priority</TableHead>
                   <TableHead>
                     <button type="button" className="inline-flex items-center gap-1 tracking-wide" onClick={() => toggleSort("lastActivity")}>
                       Last Activity
                       {sortKey === "lastActivity" ? (
-                        sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                        sortDir === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
                       ) : (
-                        <ChevronDown className="h-3 w-3 opacity-40" />
+                        <ArrowUpDown className="h-4 w-4 text-subtle" />
                       )}
                     </button>
                   </TableHead>

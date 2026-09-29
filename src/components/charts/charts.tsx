@@ -107,10 +107,14 @@ export function RevenueLineChart({
   data,
   height = 260,
   series,
+  hideLegend = false,
 }: {
   data: Array<Record<string, string | number>>;
   height?: number;
   series: Array<{ key: string; label: string; color: string; dashed?: boolean; filled?: boolean }>;
+  /** The reference Reports page ships its revenue chart WITHOUT a legend
+      (DOM-verified) — the dashboard version keeps one. */
+  hideLegend?: boolean;
 }) {
   const hasData = data.some((d) => series.some((s) => Number(d[s.key]) > 0));
   if (!hasData) return <ChartEmpty height={height} />;
@@ -122,11 +126,13 @@ export function RevenueLineChart({
           <XAxis dataKey="month" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
           <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={56} />
           <Tooltip content={<ChartTooltip />} />
-          <Legend
-            iconType="circle"
-            iconSize={8}
-            wrapperStyle={{ fontSize: 12, color: "#6b7280", paddingTop: 8 }}
-          />
+          {!hideLegend && (
+            <Legend
+              iconType="circle"
+              iconSize={8}
+              wrapperStyle={{ fontSize: 12, color: "#6b7280", paddingTop: 8 }}
+            />
+          )}
           {series.map((s) =>
             s.filled ? (
               <Area

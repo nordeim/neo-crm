@@ -103,3 +103,20 @@ Work Log:
 
 Stage Summary:
 - Next: commit on main + SSH-wrapper push
+
+---
+Task ID: 6
+Agent: main (Super Z)
+Task: Session 4 — DOM-level parity audit, pixel-grade hardening, docs + skill refresh, push
+
+Work Log:
+- git pull to aa6395e; full docs review (AGENTS/CLAUDE/README/PAD/neo-crm_SKILL, session_3 + session3 plan + worklog); baseline gate verified green (lint 0/0, tsc, 65/65 unit); .env/DATABASE_URL/db-folder/vitest+playwright configs all confirmed correct
+- Fresh live-site audit (login, all pages, desktop + mobile): reference still zero-data; audit method upgraded from VLM screenshots to live-DOM extraction (getComputedStyle, lucide classes, outerHTML) — overturned several session-3 VLM conclusions (sparkline colors, sort icons, trending icons, card anatomies)
+- Wrote + validated docs/plans/2026-09-29-session4-parity-remediation.md (G-1..G-15, all DOM-verified)
+- TDD execution: new tests/constants.test.ts (red->green) pinning stage chart hex + -400 bar family; then all 15 gaps fixed — pipeline Proposal yellow-500/Won grey-400, sparkline palette, revenue chart dual areas + 7-month window, BarStatCard for accounts/activities (trending icons), ArrowUpDown/Chevron sort system, calendar solid blue-600 selected cell + h2, tabs grid variants (segmented/pill), reports legendless revenue chart, by-type chart 5 categories, contacts gradient+trend row, profile rebuilt to DOM truth (blue-100 avatar, camera upload, black save, 4 chip cards)
+- Caught: Tailwind v4 dynamic grid-cols template pitfall (static GRID_COLS map); stale dev-server module graph (clean restart required); calendar selected cell = bg-sidebar not bg-primary
+- Full gate green: lint 0/0 · tsc · 68/68 unit · build · 21/21 e2e; every G-item DOM-re-verified on the running clone at 1512x945 + 390x844 (mobile drawer regression intact)
+- 12 screenshots refreshed; AGENTS/CLAUDE/README/PAD realigned (counts + conventions); neo-crm_SKILL.md v1.1.0 (session-4 entry + DOM-extraction methodology lesson)
+
+Stage Summary:
+- Next: commit on main + SSH-wrapper push

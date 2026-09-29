@@ -34,9 +34,12 @@ export const STAGE_META: Record<string, StageMeta> = {
   new: { label: "New", badge: "bg-blue-50 text-blue-700 border-blue-200", color: "#3b82f6" },
   contacted: { label: "Contacted", badge: "bg-sky-50 text-sky-700 border-sky-200", color: "#0ea5e9" },
   qualified: { label: "Qualified", badge: "bg-cyan-50 text-cyan-700 border-cyan-200", color: "#06b6d4" },
-  proposal: { label: "Proposal", badge: "bg-amber-50 text-amber-700 border-amber-200", color: "#f59e0b" },
+  proposal: { label: "Proposal", badge: "bg-amber-50 text-amber-700 border-amber-200", color: "#eab308" },
   negotiation: { label: "Negotiation", badge: "bg-orange-50 text-orange-700 border-orange-200", color: "#f97316" },
-  won: { label: "Won", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", color: "#10b981" },
+  // Chart hex is grey-400 on the reference dashboard pipeline (DOM-verified
+  // rgb(156,163,175)); the table BADGE stays emerald via `badge` classes —
+  // the reference itself splits chart vs badge colors this way.
+  won: { label: "Won", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", color: "#9ca3af" },
   lost: { label: "Lost", badge: "bg-rose-50 text-rose-700 border-rose-200", color: "#ef4444" },
 };
 
@@ -147,6 +150,15 @@ export const CHART_COLORS = {
   red: "#ef4444",
   gray: "#9ca3af",
   violet: "#8b5cf6",
+  // Tailwind -400 family — the reference's stat-card mini bars render
+  // bg-{color}-400 (DOM-verified on accounts/activities/dashboard cards).
+  blue400: "#60a5fa",
+  green400: "#4ade80",
+  cyan400: "#22d3ee",
+  purple400: "#c084fc",
+  red400: "#f87171",
+  amber400: "#fbbf24",
+  emerald: "#10b981",
 };
 
 export const DEFAULT_SETTINGS = {

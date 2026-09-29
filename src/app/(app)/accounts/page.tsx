@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { EmptyState, Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
-import { KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
+import { BarStatCard, PageHeader } from "@/components/shared/page-parts";
 import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACCOUNT_STATUS_META, TIER_META, CHART_COLORS } from "@/lib/constants";
@@ -149,23 +149,43 @@ export default function AccountsPage() {
         }
       />
 
-      {/* KPI cards */}
+      {/* KPI cards — reference anatomy: label + trending-icon delta on top,
+          bold value left + h-10 mini-bar strip right (DOM-verified). */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <KpiCard label="Total Accounts" value={accounts.length} delta={2}>
-          <Sparkline values={industrySpark} color={CHART_COLORS.blue} />
-        </KpiCard>
-        <KpiCard label="Active Accounts" value={accounts.filter((a) => a.status === "active").length} delta={2}>
-          <Sparkline values={activeSpark} color={CHART_COLORS.green} />
-        </KpiCard>
-        <KpiCard label="Key Accounts" value={accounts.filter((a) => a.isKey).length} delta={5}>
-          <Sparkline values={industrySpark.map((v) => Math.round(v / 3))} color={CHART_COLORS.cyan} />
-        </KpiCard>
-        <KpiCard label="Total Revenue" value={formatCompactCurrency(totalRevenue)} delta={3.6}>
-          <Sparkline values={revenueSpark} color={CHART_COLORS.violet} />
-        </KpiCard>
-        <KpiCard label="Overdue Activities" value={overdueCount}>
-          <Sparkline values={industrySpark.map((v) => Math.round(v / 4))} color={CHART_COLORS.red} />
-        </KpiCard>
+        <BarStatCard
+          label="Total Accounts"
+          value={accounts.length}
+          delta="+2%"
+          bars={industrySpark}
+          barColor={CHART_COLORS.blue400}
+        />
+        <BarStatCard
+          label="Active Accounts"
+          value={accounts.filter((a) => a.status === "active").length}
+          delta="+2%"
+          bars={activeSpark}
+          barColor={CHART_COLORS.green400}
+        />
+        <BarStatCard
+          label="Key Accounts"
+          value={accounts.filter((a) => a.isKey).length}
+          delta="+5%"
+          bars={industrySpark.map((v) => Math.round(v / 3))}
+          barColor={CHART_COLORS.cyan400}
+        />
+        <BarStatCard
+          label="Total Revenue"
+          value={formatCompactCurrency(totalRevenue)}
+          delta="+3.6%"
+          bars={revenueSpark}
+          barColor={CHART_COLORS.purple400}
+        />
+        <BarStatCard
+          label="Overdue Activities"
+          value={overdueCount}
+          bars={industrySpark.map((v) => Math.round(v / 4))}
+          barColor={CHART_COLORS.red400}
+        />
       </div>
 
       {/* Toolbar */}

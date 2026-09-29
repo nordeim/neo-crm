@@ -340,13 +340,13 @@ neo-crm/
 │   │   │                       # tabs badge label(+checkbox) avatar toast misc
 │   │   ├── charts/charts.tsx    # recharts wrappers + empty-state fallbacks
 │   │   └── shared/
-│   │       ├── page-parts.tsx   # PageHeader, KpiCard
+│   │       ├── page-parts.tsx   # PageHeader, KpiCard, BarStatCard, IconStatCard, CircleStatCard, Sparkline
 │   │       └── entity-dialogs.tsx # remount-via-key forms (ADR-007)
 │   ├── lib/                     # the pure seams (Layer 3)
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 6 Vitest suites — 65 checks
+│   ├── *.test.ts                # 7 Vitest suites — 68 checks
 │   └── e2e/                     # global-setup, auth.setup, 4 spec files — 21 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -571,7 +571,8 @@ dropped by the v4 build (validated in
 | `--color-success` | `#10b981` | Won stage, positive deltas |
 | `--color-warning` | `#f59e0b` | Proposal stage, key-account badges |
 | `--color-danger` | `#ef4444` | Destructive actions, lost stage, overdue |
-| Chart palette | `#3b82f6 #06b6d4 #f59e0b #f97316 #10b981 #ef4444 #8b5cf6 #9ca3af` | Stage/type/status meta colors in `constants.ts` |
+| Chart palette (stage/type hex) | `#3b82f6 #06b6d4 #eab308 #f97316 #9ca3af …` | Meta colors in `constants.ts` (session-4 DOM-pinned: Proposal yellow-500, Won grey-400) |
+| Stat-bar palette (-400 family) | `#60a5fa #4ade80 #22d3ee #c084fc #f87171 #fbbf24` | Stat-card mini bars (accounts/activities/dashboard KPI strips), pinned by `tests/constants.test.ts` |
 
 Contrast: all text pairs (`#111827`, `#6b7280` on `#ffffff`/`#f9fafb`)
 exceed WCAG AA; the sidebar's `#ffffff`-on-`#2563eb` exceeds AA at nav sizes.
@@ -652,11 +653,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — format | 1 | 21 | `tests/format.test.ts` | Vitest |
 | Unit — csv | 1 | 8 | `tests/csv.test.ts` | Vitest |
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
+| Unit — chart palette (DOM-pinned) | 1 | 3 | `tests/constants.test.ts` | Vitest |
 | E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path | 1 | 12 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression | 1 | 5 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **10** | **86** | | |
+| **Total** | **11** | **89** | | |
 
 ### 7.2 Test Patterns
 
@@ -686,7 +688,7 @@ must keep all 5 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 65/65
+- [ ] `bun run test` — 68/68
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 21/21
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -754,8 +756,8 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 65 unit checks |
-| `bun run test:e2e` | root | 20 browser checks (build first) |
+| `bun run test` | root | 68 unit checks |
+| `bun run test:e2e` | root | 21 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |
 | `bunx prisma generate` | root | Regenerate client after schema edits |

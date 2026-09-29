@@ -184,7 +184,7 @@ export default function ReportsPage() {
 
           <Card className="mt-6">
             <CardContent className="py-4">
-              <Tabs variant="pill" value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
+              <Tabs variant="pill" cols={5} value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
                 {loading ? (
                   <div className="grid gap-4 py-6 md:grid-cols-2">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -216,10 +216,13 @@ function SalesTab({ data }: { data: ReportsData | null }) {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard title="Revenue Over Time">
+          {/* Reference Sales Overview revenue chart: no legend, both series
+              filled areas (mirrors the dashboard chart). */}
           <RevenueLineChart
+            hideLegend
             data={data?.revenueOverTime ?? []}
             series={[
-              { key: "won", label: "Won", color: CHART_COLORS.green },
+              { key: "won", label: "Won", color: CHART_COLORS.emerald, filled: true },
               { key: "target", label: "Target", color: CHART_COLORS.red, filled: true },
             ]}
           />
