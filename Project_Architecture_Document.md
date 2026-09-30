@@ -662,8 +662,8 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–15) | 1 | 144 | `tests/page-layout.test.ts` | Vitest |
-| Unit — design tokens (shadow/blur/border-split/foreground/base-font re-pins, ring, cursor rule, inks — sessions 9–13) | 1 | 14 | `tests/design-tokens.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–16) | 1 | 160 | `tests/page-layout.test.ts` | Vitest |
+| Unit — design tokens (shadow/blur/border-split/foreground/base-font re-pins, ring, cursor rule, inks, th/td platform reset — sessions 9–16) | 1 | 15 | `tests/design-tokens.test.ts` | Vitest |
 | Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
 | Unit — page-titles (auth absolute titles — session-13) | 1 | 2 | `tests/page-titles.test.ts` | Vitest |
@@ -671,9 +671,9 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — profile-route (the /Profile casing alias — session-14) | 1 | 4 | `tests/profile-route.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry — sessions 10–15) | 1 | 24 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer — sessions 10–16) | 1 | 28 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **19** | **280 unit + 37 e2e** | | |
+| **Total** | **19** | **297 unit + 41 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -827,6 +827,38 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   `bg-blue-600` class compiles to a DIFFERENT oklch blue
   (rgb(21,93,252) ≠ the reference's #2563eb) — a new v4 hazard class
   (literal-palette drift), pinned by the DIALOG_FAMILY contracts.
+
+- **The responsive page-root layer (session-16):** the audit went after
+  the responsive anatomy — the page-ROOT model, the table kit's stock
+  strings, and the calendar card internals. The reference's pages OWN
+  their padding (`p-4 sm:p-8 bg-gray-50 min-h-screen` on six pages, bare
+  `p-4 sm:p-8` on Leads + Profile, the h-calc flex directly under `main`
+  on Contacts) — our blanket AppShell wrapper double-padded the contacts
+  full-height layout (358px box at 390 instead of 390, a 294px table
+  card instead of 326px, 37px of main scroll instead of the 5px mirrored
+  topbar quirk); `PAGE_ROOT` standard/bare + the contacts fullHeight root
+  replaced it. The table kit moved to the STOCK strings (container
+  `relative w-full overflow-auto`, the checkbox variant classes on
+  TableHead/TableCell, `hover:bg-muted/50` → line-soft/50 + the selected
+  state) and the platform's global `th, td { padding: 1px }` reset was
+  mirrored in the base layer (43px header rows, `8px 1px` compact th).
+  FOUR surfaces had a border LEAK — the Card primitive's `border
+  border-line` passes through `cn()` untouched (tailwind-merge replaces
+  same-property classes only), so the accounts/leads/activities table
+  cards + the activities timeline computed a 1px border against the
+  reference's plain borderless `bg-white rounded-lg shadow [p-6]` divs;
+  TABLE_CARD surfaces never render via Card now (source-pinned). The
+  settings picklist grid broke at lg where the reference breaks at md
+  (ONE 580px column at 768-1023px vs two 282px cards — a mid-width-only
+  divergence; always sweep a mid width). The calendar card was rebuilt
+  flat (header row + DOW grid + month grid as three direct children of
+  the padded card, `text-xl sm:text-2xl font-bold text-gray-900` title,
+  `gap-1 sm:gap-2` responsive gaps, 24px/8px spacing). One documented
+  anomaly: a single `/Reports` load served the full demo dataset (an
+  instance with data exists behind the platform's load balancer), then
+  6/6 loads returned the steady zero state — if a future session catches
+  the data instance, the edit-dialog/picklist/upload layers become
+  verifiable.
 
 ### 7.3 Coverage Thresholds
 

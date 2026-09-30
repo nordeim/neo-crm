@@ -40,14 +40,17 @@ export function AppShell({ user, children }: { user: AppUser; children: React.Re
       <MobileNav open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
 
       {/* Main column: topbar + main scroller. The column is
-          overflow-hidden so `main` owns all scrolling; padding lives on
-          the inner full-bleed wrapper (p-4 sm:p-8) — no max-width cap, and
-          sticky bars (reports) stick to main's top. */}
+          overflow-hidden so `main` owns all scrolling. Session-16
+          (S16-P1/P2): NO shell-level padding wrapper — the reference's
+          PAGES own their padding (PAGE_ROOT.standard/bare; contacts
+          ships the full-height layout as its root), and a blanket
+          wrapper here double-padded the contacts h-calc box (16px extra
+          per side at 390, main scrolling 37px instead of the 5px
+          mirrored quirk). Sticky bars (reports) still stick to main's
+          top. */}
       <div className={SHELL_LAYOUT.mainColumn}>
         <Topbar user={user} onOpenMobileNav={() => setMobileNavOpen(true)} mobileNavOpen={mobileNavOpen} />
-        <main className={SHELL_LAYOUT.main}>
-          <div className={SHELL_LAYOUT.inner}>{children}</div>
-        </main>
+        <main className={SHELL_LAYOUT.main}>{children}</main>
       </div>
     </div>
   );

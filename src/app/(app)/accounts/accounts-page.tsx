@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
-import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD, TABLE_TOOLBAR, VIEW_SWITCHER } from "@/lib/page-layout";
+import { FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD, TABLE_TOOLBAR, VIEW_SWITCHER } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -130,7 +130,9 @@ export default function AccountsPage() {
   }
 
   return (
-    <div>
+    // Session-16 (S16-P2): the page owns its padding — the reference's
+    // accounts root is `p-4 sm:p-8 bg-gray-50 min-h-screen`.
+    <div className={PAGE_ROOT.standard}>
       <PageHeader
         title="Accounts"
         actions={
@@ -207,7 +209,12 @@ export default function AccountsPage() {
       <div className={RAIL_LAYOUT.row}>
         <div className={RAIL_LAYOUT.content}>
         {/* Reference wrapper: bg-white rounded-lg shadow — NO border (session-5). */}
-        <Card className={cn(TABLE_CARD.card, "overflow-hidden")}>
+        {/* Session-16 (S16-P5): a PLAIN div, not Card — the Card base
+            ships `border border-line` which cn() cannot remove (the
+            reference's table card is the borderless `bg-white rounded-lg
+            shadow`; ours computed a 1px border + an invented
+            overflow-hidden). */}
+        <div className={TABLE_CARD.card}>
           {/* Toolbar — session-8 (S8-3) re-pinned from the live DOM:
               [Table/Cards switcher][Standard/Detailed density select (empty
               label)][More outline h-8] BEFORE the search, then Export CSV.
@@ -396,7 +403,7 @@ export default function AccountsPage() {
           </CardContent>
           </div>
           )}
-        </Card>
+        </div>
         </div>
 
         {/* Filter rail — session-6: reference renders a persistent w-80 rail

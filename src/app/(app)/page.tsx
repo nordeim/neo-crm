@@ -5,6 +5,7 @@ import {
   DASHBOARD_CARD,
   DASHBOARD_HEADER,
   PAGE_KPI_GRIDS,
+  PAGE_ROOT,
   FILTER_BAR,
   VIEW_SWITCHER,
   EMPTY_STATE,
@@ -81,7 +82,11 @@ export default function DashboardPage() {
   const sparkWon = rev.map((r) => r.won);
 
   return (
-    <div>
+    // Session-16 (S16-P2): the page owns its padding (the shell-level
+    // wrapper retired) — the reference's dashboard root is
+    // `p-4 sm:p-8 bg-gray-50 min-h-screen` (bg-background = #f9fafb
+    // computes equal).
+    <div className={PAGE_ROOT.standard}>
       <PageHeader
         title="Dashboard"
         actions={

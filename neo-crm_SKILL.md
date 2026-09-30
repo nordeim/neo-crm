@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.12.0
+version: 1.13.0
 last_updated: 2026-09-30
 project_state: 280 unit checks + 37 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.12.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.13.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1832,6 +1832,83 @@ fully mapped — outerHTML dumps + computed probes at 1512 and 390.
    until the width settles), and `[role=dialog]` probes must be scoped
    by content — the CLOSED mobile-nav drawer also carries role=dialog
    and matches naive selectors (the s14 lesson, now twice-learned).
+
+## 16h. Session-16 Layer (the responsive page-root model, the table kit's stock strings, the calendar card, the Card-primitive border leak)
+
+**What shipped:** the audit went after the RESPONSIVE anatomy — the
+page-ROOT model at 390/900/1512, the table kit's class strings, and the
+calendar card internals (a surface only ever pinned at the CELL level).
+Seven findings, all DOM-verified on the live reference:
+
+1. **The page-root model (S16-P1/P2).** The reference's pages OWN their
+   padding — `p-4 sm:p-8 bg-gray-50 min-h-screen` on the dashboard,
+   accounts, calendar, activities, reports and settings; BARE
+   `p-4 sm:p-8` on Leads + Profile (its own quirk — main's gray-50
+   fills the gap); the h-calc flex directly under `main` on Contacts.
+   Our AppShell wrapped EVERY page in a blanket `p-4 sm:p-8` div —
+   which DOUBLE-PADDED the contacts full-height layout: the h-calc box
+   rendered 358px wide at 390 (not 390), the table card 294px (not
+   326px), and main scrolled 37px (not the 5px mirrored topbar quirk).
+   Fix: `PAGE_ROOT.standard` / `PAGE_ROOT.bare` contracts, the contacts
+   `CONTACTS_LAYOUT.fullHeight` as its root, and NO shell wrapper
+   (source-pinned: every page renders its own root).
+
+2. **The table kit on stock strings (S16-P3/P4).** The container is the
+   stock `relative w-full overflow-auto` (ours: `overflow-x-auto
+   scrollbar-thin`); TableHead/TableCell carry the stock checkbox
+   variant classes; TableRow ships `hover:bg-muted/50
+   data-[state=selected]:bg-muted` — the reference's muted SURFACE is
+   our line-soft #f5f5f5, and ours had /60 opacity + no selected state.
+   The reference's platform also resets `th, td { padding: 1px }`
+   GLOBALLY — mirrored in our base layer; utility classes override the
+   element selector, so the reset only fills the unclassed axes
+   (standard th compute 1px vertical → 43px header rows; the dashboard
+   compact th compute `8px 1px`).
+
+3. **THE CARD-PRIMITIVE BORDER LEAK (S16-P5 — the session's
+   engineering lesson).** The Card base ships `border border-line`;
+   `cn(TABLE_CARD.card, …)` CANNOT remove it — tailwind-merge replaces
+   same-PROPERTY classes only, and `rounded-lg`/`shadow` replace
+   different properties. Every `<Card className={cn(TABLE_CARD.card,
+   …)}>` computed a 1px border against the reference's plain BORDERLESS
+   `bg-white rounded-lg shadow [p-6]` divs (four surfaces: the
+   accounts/leads/activities table cards + the activities timeline;
+   accounts/leads also carried an invented overflow-hidden). Rule:
+   TABLE_CARD surfaces render as plain divs — never through the Card
+   primitive (source-pinned).
+
+4. **Mid-width-only divergence (S16-P6).** The settings picklist grid
+   broke at lg where the reference breaks at md — at 768-1023px ours
+   rendered ONE 580px column where the reference renders two 282px
+   cards. Invisible to the standing 390/1512 probe widths (both agree
+   there). LESSON: sweep at least one MID width (900px) every session —
+   breakpoint divergences hide between the standard probes.
+
+5. **The calendar card, rebuilt flat (S16-P7).** The reference ships
+   padding ON the card and THREE direct children: the header row
+   (`flex items-center justify-between mb-6`, h2 `text-xl sm:text-2xl
+   font-bold text-gray-900`, nav `flex gap-2`), the DOW grid
+   (`grid grid-cols-7 gap-1 sm:gap-2 mb-2` with seven
+   `text-center text-xs sm:text-sm font-semibold text-gray-600 py-2`
+   divs), and the month grid (`gap-1 sm:gap-2`). Ours had merged the
+   DOW labels + cells into ONE 42-child grid behind a
+   padding-neutralized CardHeader/CardContent pair (16px header gap vs
+   24px, 4px DOW gap vs 8px, an 18px semibold title vs 20/24px bold).
+   The cells keep the CALENDAR_CELL states + the clickable flex-stack
+   superset.
+
+6. **The reports data anomaly.** One `/Reports` load served the FULL
+   demo dataset (Recent Won Deals + Top Deals by Value with the same
+   records our seed mirrors), then 6/6 loads returned the steady zero
+   state — an instance with data EXISTS behind the platform's load
+   balancer. Re-check on login every session; catching the data
+   instance would unlock the edit-dialog/picklist/upload verification.
+
+7. **Measurement discipline.** The `bg-gray-50` literal was
+   canvas-verified BEFORE copying (rgb(249,250,251) on our v4 = the
+   reference's exact value — NO literal-palette drift for that shade,
+   unlike blue-600); the page-root contract uses the `bg-background`
+   token anyway (computed-equal + theme-following).
 
 ## Appendix D: Live-Site Validation Methodology
 

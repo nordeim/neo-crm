@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Camera, Mail, Shield, User } from "lucide-react";
-import { PROFILE_LAYOUT } from "@/lib/page-layout";
+import { PAGE_ROOT, PROFILE_LAYOUT } from "@/lib/page-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,10 +23,12 @@ export default function ProfilePage() {
   const { user, users, fetchUsers } = useCrmStore();
 
   return (
-    // Session-13 (S13-P2): the reference's page root is a plain
-    // `max-w-4xl mx-auto` div (the p-4 sm:p-8 padding wrapper is the
-    // shell's) and the header is a PLAIN `mb-6 sm:mb-8` div — not the
+    // Session-16 (S16-P2): the page owns its padding — the reference's
+    // Profile root is just `p-4 sm:p-8` (NO bg / min-h-screen, like
+    // Leads) with the `max-w-4xl mx-auto` column INSIDE. Session-13
+    // (S13-P2): the header is a PLAIN `mb-6 sm:mb-8` div — not the
     // flex PageHeader row.
+    <div className={PAGE_ROOT.bare}>
     <div className={PROFILE_LAYOUT.root}>
       <div className={PROFILE_LAYOUT.headerRow}>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile &amp; Settings</h1>
@@ -40,6 +42,7 @@ export default function ProfilePage() {
            user snapshot at mount — no setState-in-effect needed. */
         <ProfileForm key={`${user.id}-${user.name}`} user={user} onSaved={fetchUsers} usersTotal={users.length} />
       )}
+    </div>
     </div>
   );
 }

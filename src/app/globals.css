@@ -161,6 +161,18 @@
     cursor: pointer;
   }
 
+  /* Session-16 (S16-P4): the reference's platform resets
+     `th, td { padding: 1px }` globally — the reset surfaces wherever no
+     utility class overrides it: its standard th compute `1px 8px`
+     (header rows 43px vs our 41px) and the dashboard compact th compute
+     `8px 1px` (vs our `8px 0px`). Utility classes (h-10/px-2/p-2/py-8/…)
+     override the element selector, so the reset only fills the unclassed
+     axes — mirroring the platform exactly. */
+  th,
+  td {
+    padding: 1px;
+  }
+
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;

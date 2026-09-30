@@ -33,7 +33,7 @@ import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTri
 import { toast } from "@/components/ui/toast";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import {
-  PAGE_HEADER, LEADS_FILTERS_POPOVER, LEADS_TOOLBAR, PAGE_KPI_GRIDS, TABLE_CARD,
+  PAGE_HEADER, LEADS_FILTERS_POPOVER, LEADS_TOOLBAR, PAGE_KPI_GRIDS, PAGE_ROOT, TABLE_CARD,
   CARD_TITLE_OVERRIDE } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import {
@@ -202,7 +202,10 @@ export default function LeadsPage() {
   }
 
   return (
-    <div>
+    // Session-16 (S16-P2): the page owns its padding — the reference's
+    // Leads root is just `p-4 sm:p-8` (NO bg / min-h-screen — the
+    // reference's own quirk; main's bg fills the gap).
+    <div className={PAGE_ROOT.bare}>
       <PageHeader
         title="Leads"
         subtitle="Manage your sales leads"
@@ -273,7 +276,11 @@ export default function LeadsPage() {
           Value / Follow-up Date + Clear / Save View (the reference's is
           inert; ours filters for real and Save View persists to
           localStorage via the @/lib/lead-filters seam). */}
-      <Card className={cn(TABLE_CARD.card, "overflow-hidden")}>
+      {/* Session-16 (S16-P5): a PLAIN div, not Card — the Card base's
+          `border border-line` leaks through cn() (the reference's card
+          is the borderless bg-white rounded-lg shadow, no
+          overflow-hidden). */}
+      <div className={TABLE_CARD.card}>
         <div className={cn(TABLE_CARD.toolbar, "space-y-4")}>
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
@@ -440,7 +447,7 @@ export default function LeadsPage() {
           </Table>
         </CardContent>
         </div>
-      </Card>
+      </div>
 
       {/* Session-6: charts row = grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6
           mt-6 (three equal cards — no 2/3 ladder). */}

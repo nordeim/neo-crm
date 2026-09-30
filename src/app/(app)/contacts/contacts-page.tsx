@@ -140,17 +140,24 @@ export default function ContactsPage() {
   }
 
   return (
-    <div>
-      {/* Session-11 (S11-P8): the reference's contacts page is the ONLY
-          full-height layout — a `flex h-[calc(100vh-64px)]` wrapper with a
-          `flex-1 overflow-auto` inner scroller and `p-8` content at ALL
-          widths (every other page ships p-4 sm:p-8 — contacts shows 32px
-          at 390px where the others show 16px). The calc's 64px is 5px
-          short of the real 69px topbar (a reference quirk mirrored
-          verbatim — main overflows 5px). */}
-      <div className={CONTACTS_LAYOUT.fullHeight}>
-        <div className={CONTACTS_LAYOUT.innerScroll}>
-          <div className={CONTACTS_LAYOUT.content}>
+    // Session-16 (S16-P1): the full-height layout IS the page root — the
+    // reference renders `main > flex h-[calc(100vh-64px)]` DIRECTLY (no
+    // padding wrapper; ours sat inside the shell's blanket p-4 sm:p-8,
+    // double-padding the box: 358px wide at 390 instead of the full
+    // 390px, the table card 294px instead of 326px, and main scrolling
+    // 37px instead of the 5px mirrored topbar quirk). The padding lives
+    // inside the flex-1 overflow-auto > p-8 scroller. The dialogs below
+    // are portals — layout-independent inside the flex row.
+    // Session-11 (S11-P8): the reference's contacts page is the ONLY
+    // full-height layout — a `flex h-[calc(100vh-64px)]` wrapper with a
+    // `flex-1 overflow-auto` inner scroller and `p-8` content at ALL
+    // widths (every other page ships p-4 sm:p-8 — contacts shows 32px
+    // at 390px where the others show 16px). The calc's 64px is 5px
+    // short of the real 69px topbar (a reference quirk mirrored
+    // verbatim — main overflows 5px).
+    <div className={CONTACTS_LAYOUT.fullHeight}>
+      <div className={CONTACTS_LAYOUT.innerScroll}>
+        <div className={CONTACTS_LAYOUT.content}>
       {/* Session-6: contacts is the flat header variant (text-3xl title,
           plain row, gap-3 actions); buttons are h-9 outline with hidden-sm
           labels on Scan Card/Import; Export CSV is disabled at zero data. */}
@@ -436,7 +443,6 @@ export default function ContactsPage() {
 
       </div>
         </div>
-      </div>
 
       {/* Scan card — portals render outside the full-height wrapper. */}
       <Dialog open={scanOpen} onOpenChange={setScanOpen}>

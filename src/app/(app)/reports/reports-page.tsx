@@ -14,6 +14,7 @@ import { CircleStatCard, KpiCard, PageHeader, Sparkline } from "@/components/sha
 import {
   EMPTY_STATE,
   PAGE_KPI_GRIDS,
+  PAGE_ROOT,
   REPORTS_FILTER_BAR,
   REPORTS_TABLE_CARD,
 } from "@/lib/page-layout";
@@ -54,7 +55,10 @@ export default function ReportsPage() {
   const k = data?.kpis;
 
   return (
-    <div>
+    // Session-16 (S16-P2): the page owns its padding — the reference's
+    // reports root is `p-4 sm:p-8 bg-gray-50 min-h-screen` (the sticky
+    // filter bar still sticks to main's top).
+    <div className={PAGE_ROOT.standard}>
       <PageHeader
         title="Reports & Analytics"
         subtitle="Comprehensive CRM reporting hub"

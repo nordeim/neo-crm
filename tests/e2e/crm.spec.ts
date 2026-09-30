@@ -468,3 +468,109 @@ test("the New Event dialog is the wide family with the blue submit (S15-P12)", a
   // No description line.
   await expect(dialog.getByText("Schedule a meeting, call or appointment.")).toHaveCount(0);
 });
+
+test("the contacts full-height layout is the page root — no double padding (S16-P1)", async ({ page }) => {
+  // Reference at 390: main > flex h-[calc(100vh-64px)] DIRECTLY (the
+  // h-calc box spans the full 390px; padding lives inside its p-8
+  // scroller). The table card computes 326px wide and main scrolls only
+  // the 5px mirrored topbar quirk. Our blanket shell wrapper used to
+  // pad the layout (358px h-calc, 294px card, 37px scroll).
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/contacts");
+
+  const geometry = await page.evaluate(() => {
+    const main = document.querySelector("main");
+    const hcalc = [...document.querySelectorAll("div")].find((d) =>
+      (d.className || "").includes("h-[calc(100vh-64px)]"),
+    );
+    const card = document.querySelector("table")?.closest("[class*=rounded-xl]");
+    return {
+      hcalcW: Math.round(hcalc?.getBoundingClientRect().width ?? 0),
+      isDirectChild: hcalc?.parentElement === main,
+      cardW: Math.round(card?.getBoundingClientRect().width ?? 0),
+      scrollDelta: main ? main.scrollHeight - main.clientHeight : 0,
+    };
+  });
+  expect(geometry.isDirectChild).toBe(true);
+  expect(geometry.hcalcW).toBeGreaterThanOrEqual(389);
+  expect(geometry.cardW).toBe(326);
+  // The 64px calc is 5px short of the real 69px topbar — the mirrored
+  // quirk. Anything beyond ~10px means the double-padding is back.
+  expect(Math.abs(geometry.scrollDelta - 5)).toBeLessThan(10);
+});
+
+test("the settings picklist grid renders 2 columns at tablet width (S16-P6)", async ({ page }) => {
+  // The reference breaks the picklist grid at md (768px), not lg — at
+  // 900px it renders two 282px cards; ours shipped one 580px column.
+  await page.setViewportSize({ width: 900, height: 800 });
+  await page.goto("/settings");
+
+  // The picklist cards render after the settings fetch resolves — wait
+  // for the grid (>= 3 rounded-xl cards) instead of racing hydration.
+  await page.waitForFunction(() => {
+    const grid = [...document.querySelectorAll("div")].find(
+      (d) =>
+        /^grid /.test(d.className || "") &&
+        d.querySelectorAll("[class*=rounded-xl]").length >= 3,
+    );
+    return grid !== undefined;
+  });
+
+  const cols = await page.evaluate(() => {
+    const grid = [...document.querySelectorAll("div")].find(
+      (d) =>
+        /^grid /.test(d.className || "") &&
+        d.querySelectorAll("[class*=rounded-xl]").length >= 3,
+    );
+    return grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").length : 0;
+  });
+  expect(cols).toBe(2);
+});
+
+test("the calendar card ships the split DOW/month grids + the bold title (S16-P7)", async ({ page }) => {
+  await page.goto("/calendar");
+
+  const anatomy = await page.evaluate(() => {
+    const h2 = document.querySelector("main h2");
+    const grids = [...document.querySelectorAll("div")].filter((d) =>
+      /^grid grid-cols-7/.test(d.className || ""),
+    );
+    const dow = grids.find((g) => (g.className || "").includes("mb-2"));
+    const month = grids.find((g) => !(g.className || "").includes("mb-2"));
+    return {
+      titleCls: h2?.className ?? "",
+      dowGridCount: grids.length,
+      dowKids: dow?.children.length ?? 0,
+      monthKids: month?.children.length ?? 0,
+      dowLabelCls: dow?.children[0]?.className ?? "",
+    };
+  });
+  expect(anatomy.titleCls).toBe("text-xl sm:text-2xl font-bold text-gray-900");
+  expect(anatomy.dowGridCount).toBe(2);
+  expect(anatomy.dowKids).toBe(7);
+  expect(anatomy.monthKids).toBeGreaterThanOrEqual(35);
+  expect(anatomy.dowLabelCls).toBe(
+    "text-center text-xs sm:text-sm font-semibold text-gray-600 py-2",
+  );
+});
+
+test("the accounts table card is borderless — no Card-primitive border leak (S16-P5)", async ({ page }) => {
+  // The reference's entity table cards are plain `bg-white rounded-lg
+  // shadow` divs (0px border). Our Card base ships `border border-line`
+  // and cn() cannot remove it — the fix renders plain divs.
+  await page.goto("/accounts");
+
+  const card = await page.evaluate(() => {
+    const el = [...document.querySelectorAll("div")].find(
+      (d) => (d.className || "").includes("rounded-lg shadow") && d.querySelector("table"),
+    );
+    if (!el) return { cls: "NOT FOUND", border: "-1" };
+    return {
+      cls: el.className,
+      border: getComputedStyle(el).borderTopWidth,
+    };
+  });
+  expect(card.border).toBe("0px");
+  expect(card.cls).not.toMatch(/border-line/);
+  expect(card.cls).not.toMatch(/overflow-hidden/);
+});

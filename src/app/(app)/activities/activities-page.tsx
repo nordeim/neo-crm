@@ -24,7 +24,7 @@ import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
 import { endOfDay, formatDate, formatTime, startOfDay, timeAgo, timeUntil } from "@/lib/format";
-import { BY_TYPE_CARD, ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD  } from "@/lib/page-layout";
+import { BY_TYPE_CARD, ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD  } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/types";
 
@@ -195,7 +195,9 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <div>
+    // Session-16 (S16-P2): the page owns its padding — the reference's
+    // activities root is `p-4 sm:p-8 bg-gray-50 min-h-screen`.
+    <div className={PAGE_ROOT.standard}>
       <PageHeader
         title="Activities"
         variant="activities"
@@ -282,8 +284,11 @@ export default function ActivitiesPage() {
       <div className={RAIL_LAYOUT.row}>
         <div className={RAIL_LAYOUT.contentStack}>
           {/* Priority activities — session-6: bg-surface rounded-lg shadow
-              with a p-4 border-b toolbar holding title + More + tab track. */}
-          <Card className={cn(TABLE_CARD.card)}>
+              with a p-4 border-b toolbar holding title + More + tab track.
+              Session-16 (S16-P5): a PLAIN div, not Card — the Card base's
+              border border-line leaks through cn() (the reference's card
+              is borderless). */}
+          <div className={TABLE_CARD.card}>
             <div className={TABLE_CARD.toolbar}>
               {/* Session-7 (S7-17): h2 text-lg title + mb-4 row (live pins). */}
               <div className={ACTIVITY_CARD.priorityRow}>
@@ -363,11 +368,12 @@ export default function ActivitiesPage() {
                 )}
               </div>
             </CardContent>
-          </Card>
+          </div>
 
           {/* Timeline — session-7 (S7-17): plain mb-6 header row inside the
-              p-6 card, h2 text-lg title, ghost h-8 "•••" TEXT button. */}
-          <Card className={cn(TABLE_CARD.card, "p-6")}>
+              p-6 card, h2 text-lg title, ghost h-8 "•••" TEXT button.
+              Session-16 (S16-P5): a PLAIN div, not Card (borderless). */}
+          <div className={cn(TABLE_CARD.card, "p-6")}>
             <div className={ACTIVITY_CARD.timelineRow}>
               <h2 className={ACTIVITY_CARD.title}>Activity Timeline</h2>
               <Button variant="ghost" size="sm" aria-label="More actions">
@@ -425,7 +431,7 @@ export default function ActivitiesPage() {
                 ))
               )}
             </CardContent>
-          </Card>
+          </div>
         </div>
 
         {/* Filters + chart rail — session-6: w-80 space-y-6, from lg. The

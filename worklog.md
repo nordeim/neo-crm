@@ -305,3 +305,25 @@ Work Log:
 Stage Summary:
 - Gate green: lint 0/0 · tsc · 280/280 unit · 37/37 e2e (mobile-nav 7/7); zero 390px overflow; 19 screenshots; docs at SKILL v1.12.0
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+Stage Summary (final):
+- PUSHED: session-15 commit 2f819a4 on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py (explicit --remote; dry-run clean 012071c..2f819a4 fast-forward, then real push with remote verified @ 2f819a4 == local HEAD); all suites green (280 unit / 37 e2e); docs at SKILL v1.12.0; deploy key shredded after verification
+
+---
+Task ID: 17 (repo)
+Agent: main (Super Z)
+Task: Session 16 — the responsive page-root model + the table kit's stock strings + the calendar card rebuild
+
+Work Log:
+- Pulled to 0a7620a (docs/session_24.md = the prior session's transcript); full docs + codebase review; baseline gate green (280/280 unit); env verified (.env file:../db/custom.db + db/ at root + .env.example + vitest/playwright configs — the task book's config asks already satisfied)
+- Re-probed every previously-pinned family FIRST (moving-target rule): NO drift — body 16px/#0a0a0a, KPI cards, dashed grids, radii, sidebar, 404, tab tracks, auth surface (/signup still 404 view); demo data still zero in steady state (12th session) with ONE documented anomaly: a single /Reports load served the full demo dataset (an instance with data exists behind the platform's load balancer; 6/6 subsequent loads zero)
+- Mobile navigation verified three ways: reference at 390 has NO nav (12th session), our 7-check regression LIVE 7/7 PASS, drawer internals swept for v4 hazards (healthy); 390 overflow sweep clean on 11 routes
+- Unprobed-layer audit (responsive anatomy at 390/900/1512 — the 900 MID width was never swept before): SEVEN findings — the page-ROOT model (reference pages own their padding: 6x standard bg+min-h, Leads/Profile bare, Contacts h-calc direct under main; our blanket shell wrapper double-padded contacts: 358px box/294px card/37px scroll vs 390/326/5); the table kit off stock strings (overflow-x-auto+scrollbar-thin container, missing checkbox variants, hover /60 vs /50, no selected state) + the platform's global th,td{padding:1px} reset unmirrored (41 vs 43px header rows); THE CARD-PRIMITIVE BORDER LEAK (border border-line passes through cn() — four TABLE_CARD surfaces computed a 1px border + invented overflow-hidden vs the reference's borderless bg-white rounded-lg shadow divs); the settings picklist grid at lg vs the reference's md (1-col 580px vs 2-col 282px at 768-1023px — a mid-width-only divergence); the calendar card's merged 42-child DOW+month grid + CardHeader/CardContent wrappers + 18px semibold title vs the reference's flat anatomy (bold responsive title, gap-1 sm:gap-2 split grids, 24/8px gaps)
+- Canvas-verified bg-gray-50 computes rgb(249,250,251) on our v4 = the reference's exact value (no literal-palette drift for gray-50; PAGE_ROOT uses the bg-background token anyway)
+- TDD: 18 red-first checks (PAGE_ROOT pair + shell rewrite + per-page-root source pins + contacts-root pin, table-kit stock strings x4, TABLE_CARD plain-div rules x2, CALENDAR_CARD x4, SETTINGS_GRID md, design-tokens th/td reset) -> 297/297 unit (+17 net); +4 e2e (contacts 390 geometry, settings 2-col at 900, calendar split grids + bold title, borderless accounts card) -> 41/41 (mobile-nav 7/7); one mid-flight e2e fix (settings waitForFunction vs the settings-fetch race); three JSX balance slips gate-caught by lint before shipping
+- Full gate: lint 0/0 · tsc · 297/297 unit · build (bun run build) · 41/41 e2e; live DOM re-verified at 1512/900/390 on every touched surface (contacts full-width 390 + 326px card + 5px quirk, borderless cards x4, 43px header rows + 8px 1px compact th, stock overflow-auto, settings 2-col 282px cards at 900, calendar two grids + 24/8px gaps + bold title, page roots, drawer healthy); zero 390px overflow on 11 routes
+- Deliverables: 20 screenshots (19 re-captured with per-shot URL/dialog verification after the first 1512 loop silently failed to navigate + the NEW contacts 390 full-height capture); .env/.env.example verified; docs realigned (README badge 338 + counts + feature rows, AGENTS + session-16 contract blocks + page-root model + th/td reset + border-leak lesson, CLAUDE, PAD matrix 297/41 + notes, SKILL v1.13.0 16h, docs/session_25.md, plan addendum, worklogs)
+
+Stage Summary:
+- Gate green: lint 0/0 · tsc · 297/297 unit · 41/41 e2e (mobile-nav 7/7); zero 390px overflow; 20 screenshots; docs at SKILL v1.13.0
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

@@ -168,7 +168,21 @@ export const SHELL_LAYOUT = {
   sidebar: "hidden md:flex w-64 bg-sidebar text-white flex-col",
   mainColumn: "flex-1 flex flex-col overflow-hidden",
   main: "flex-1 overflow-auto bg-background",
-  inner: "p-4 sm:p-8",
+} as const;
+
+/** S16-P2: the page-ROOT model — every page owns its padding (the
+ *  reference renders NO shell-level wrapper; its page roots carry the
+ *  classes directly). Six pages ship the bg + min-height variant
+ *  (dashboard, accounts, calendar, activities, reports, settings);
+ *  Leads + Profile drop both (the reference's own quirk — main's
+ *  bg-background fills the gap); Contacts ships the full-height
+ *  layout instead (CONTACTS_LAYOUT.fullHeight IS its root, padding
+ *  inside the p-8 scroller). bg-background (#f9fafb) computes equal
+ *  to the reference's literal bg-gray-50 (canvas pixel-verified — no
+ *  literal-palette drift for gray-50 under v4). */
+export const PAGE_ROOT = {
+  standard: "p-4 sm:p-8 bg-background min-h-screen",
+  bare: "p-4 sm:p-8",
 } as const;
 
 /** Sidebar navigation — brand mark, nav links and the bottom-pinned footer
@@ -872,6 +886,31 @@ export const CALENDAR_CELL = {
   current: "border-line bg-white hover:bg-gray-50",
   today: "border-sidebar bg-sidebar text-white",
 } as const;
+
+/** Session-16 (S16-P7): the calendar CARD internals — the reference's
+ *  flat anatomy (padding ON the card, three direct children: the
+ *  header row, the DOW grid, the month grid). Ours had merged the DOW
+ *  labels + month cells into ONE grid (42 children, gap-1 text-center)
+ *  behind a padding-neutralized CardHeader/CardContent pair, with an
+ *  18px semibold title — the reference ships 20/24px BOLD gray-900,
+ *  `gap-1 sm:gap-2` responsive gaps, 24px header→DOW and 8px
+ *  DOW→month spacing. The day CELLS keep the CALENDAR_CELL states +
+ *  our clickable/flex-stack superset. */
+export const CALENDAR_CARD = {
+  root: "mb-6 p-4 sm:p-6",
+  headerRow: "flex items-center justify-between mb-6",
+  title: "text-xl sm:text-2xl font-bold text-gray-900",
+  navRow: "flex gap-2",
+  dowGrid: "grid grid-cols-7 gap-1 sm:gap-2 mb-2",
+  dowLabel: "text-center text-xs sm:text-sm font-semibold text-gray-600 py-2",
+  monthGrid: "grid grid-cols-7 gap-1 sm:gap-2",
+} as const;
+
+/** Session-16 (S16-P6): the settings picklist cards grid breaks at md
+ *  (768px) — the reference renders 2 columns at 768-1023px where ours
+ *  waited for lg (a mid-width-only divergence invisible to 390/1512
+ *  probes). */
+export const SETTINGS_GRID = "grid grid-cols-1 md:grid-cols-2 gap-4" as const;
 
 /** Every exported class string, for regression guards. */
 export function allLayoutClasses(): string[] {

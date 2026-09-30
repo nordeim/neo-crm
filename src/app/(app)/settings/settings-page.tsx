@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/shared/page-parts";
 import { cn } from "@/lib/utils";
-import { CARD_TITLE_OVERRIDE, SETTINGS_DANGER, SETTINGS_DATA, SETTINGS_DEFAULTS, SETTINGS_PICKLIST } from "@/lib/page-layout";
+import { CARD_TITLE_OVERRIDE, PAGE_ROOT, SETTINGS_DANGER, SETTINGS_DATA, SETTINGS_DEFAULTS, SETTINGS_GRID, SETTINGS_PICKLIST } from "@/lib/page-layout";
 import { Tabs } from "@/components/ui/tabs";
 import { useCrmStore } from "@/stores/crm-store";
 import { toast } from "@/components/ui/toast";
@@ -108,7 +108,11 @@ export default function SettingsPage() {
   }, [hydrated, fetchSettings]);
 
   return (
-    // Session-6 (S6-12): reference wraps settings content in max-w-6xl mx-auto.
+    // Session-16 (S16-P2/P6): the page owns its padding — the reference's
+    // settings root is `p-4 sm:p-8 bg-gray-50 min-h-screen` with the
+    // max-w-6xl mx-auto column INSIDE (S6-12). The picklist grid breaks
+    // at md (2 columns from 768px — ours waited for lg).
+    <div className={PAGE_ROOT.standard}>
     <div className="mx-auto max-w-6xl">
       {/* Session-9 (S9-4): plain header variant — the reference renders a
           simple mb-6 div with a non-responsive text-3xl h1 (no header
@@ -234,6 +238,7 @@ export default function SettingsPage() {
         </div>
       </Tabs>
     </div>
+    </div>
   );
 }
 
@@ -261,7 +266,7 @@ function ConfigEditor({ settings }: { settings: Settings }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className={SETTINGS_GRID}>
         <ListEditor
           title="Contact Sources"
           items={lists.contactSources}

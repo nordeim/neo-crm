@@ -24,9 +24,11 @@ import {
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
+  CALENDAR_CARD,
   EMPTY_STATE,
   FILTER_RAIL,
   PAGE_KPI_GRIDS,
+  PAGE_ROOT,
   RAIL_LAYOUT,
 } from "@/lib/page-layout";
 import type { CrmEvent } from "@/types";
@@ -166,7 +168,9 @@ export default function CalendarPage() {
   }
 
   return (
-    <div>
+    // Session-16 (S16-P2): the page owns its padding — the reference's
+    // calendar root is `p-4 sm:p-8 bg-gray-50 min-h-screen`.
+    <div className={PAGE_ROOT.standard}>
       <PageHeader
         title="Calendar"
         subtitle="Manage your schedule and events"
@@ -234,12 +238,21 @@ export default function CalendarPage() {
           lg:grid-cols-2) + a w-80 Filters rail visible from lg. */}
       <div className={RAIL_LAYOUT.row}>
         <div className={RAIL_LAYOUT.content}>
-        {/* Month grid — reference renders the month heading as an h2
-            (a11y-verified level 2); card padding p-4 sm:p-6. */}
-        <Card className="mb-6 p-4 sm:p-6">
-          <CardHeader className="flex-row items-center justify-between px-0 pt-0">
-            <h2 className="text-lg font-semibold text-foreground">{formatMonthYear(cursor)}</h2>
-            <div className="flex items-center gap-1">
+        {/* Month card — Session-16 (S16-P7): the reference's FLAT anatomy
+            (padding ON the card, three direct children): the header row
+            (h2 text-xl sm:text-2xl font-bold text-gray-900 + the gap-2
+            nav), the DOW grid (gap-1 sm:gap-2 mb-2, seven text-xs
+            sm:text-sm font-semibold text-gray-600 py-2 labels), and the
+            month grid (gap-1 sm:gap-2). Ours had merged the DOW labels
+            + the cells into ONE 42-child grid behind a
+            padding-neutralized CardHeader/CardContent pair — 16px
+            header gap vs 24px, 4px DOW gap vs 8px, an 18px semibold
+            title vs 20/24px bold. The month heading stays an h2
+            (a11y-verified level 2). */}
+        <Card className={CALENDAR_CARD.root}>
+          <div className={CALENDAR_CARD.headerRow}>
+            <h2 className={CALENDAR_CARD.title}>{formatMonthYear(cursor)}</h2>
+            <div className={CALENDAR_CARD.navRow}>
               {/* Session-7: outline h-9 w-9 nav icons; Today is outline and
                   hidden below sm (live pins). */}
               <Button variant="outline" size="icon" aria-label="Previous month" onClick={() => setCursor(new Date(year, month - 1, 1))}>
@@ -260,14 +273,15 @@ export default function CalendarPage() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-          </CardHeader>
-          <CardContent className="px-0 pb-0 pt-4">
-            <div className="grid grid-cols-7 gap-1 text-center">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                <span key={d} className="pb-1 text-[11px] font-semibold tracking-wide text-subtle">
-                  {d}
-                </span>
-              ))}
+          </div>
+          <div className={CALENDAR_CARD.dowGrid}>
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+              <div key={d} className={CALENDAR_CARD.dowLabel}>
+                {d}
+              </div>
+            ))}
+          </div>
+          <div className={CALENDAR_CARD.monthGrid}>
               {days.map((day) => {
                 const inMonth = day.getMonth() === month;
                 const isToday = isSameDay(day, today);
@@ -326,8 +340,7 @@ export default function CalendarPage() {
                   </button>
                 );
               })}
-            </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Upcoming + Agenda — session-6: lg:grid-cols-2 gap-6 inside the

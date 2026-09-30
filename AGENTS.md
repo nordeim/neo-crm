@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (280 checks)         | `bun run test`                         |
-| Browser E2E (37 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (297 checks)         | `bun run test`                         |
+| Browser E2E (41 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (280) → `bun run build` → `bun run test:e2e` (37). There is no
+`bun run test` (297) → `bun run build` → `bun run test:e2e` (41). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -124,9 +124,17 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   NOT lg — live-verified at 900/700px), the main column is
   `flex-1 flex flex-col overflow-hidden`, and `main.flex-1.overflow-auto`
   is the ONLY scroller (the window never scrolls — verified:
-  mainScrollable=true, windowScrolls=false). All chrome contracts live in
-  `src/lib/page-layout.ts` (`SHELL_LAYOUT`, `NAV_LAYOUT`, `TOPBAR_LAYOUT`,
-  `LOGIN_LAYOUT`, `STAT_CARD`, …) and are pinned by
+  mainScrollable=true, windowScrolls=false). **Session-16: there is NO
+  shell-level padding wrapper** — every PAGE owns its padding
+  (`PAGE_ROOT.standard` = `p-4 sm:p-8 bg-background min-h-screen` on the
+  dashboard/accounts/calendar/activities/reports/settings; `PAGE_ROOT.bare`
+  = `p-4 sm:p-8` on Leads + Profile, the reference's own quirk; Contacts
+  ships `CONTACTS_LAYOUT.fullHeight` as its root directly — a blanket shell
+  wrapper double-padded the h-calc box: 358px wide at 390 instead of 390,
+  the table card 294px instead of 326px, main scrolling 37px instead of
+  the 5px mirrored topbar quirk). All chrome contracts live in
+  `src/lib/page-layout.ts` (`SHELL_LAYOUT`, `PAGE_ROOT`, `NAV_LAYOUT`,
+  `TOPBAR_LAYOUT`, `LOGIN_LAYOUT`, `STAT_CARD`, …) and are pinned by
   `tests/page-layout.test.ts`.
 - **The mobile navigation drawer is a deliberate fix** — the reference app
   ships no navigation below `md`. `src/components/layout/mobile-nav.tsx`
@@ -340,13 +348,26 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   per-table (leads: Lead Name/Email/Value; contacts: Last Activity only;
   accounts: none) — mirror the reference, don't add sort headers it doesn't
   ship.
-- **Entity tables use the stock density** (`src/components/ui/table.tsx`):
-  th `h-10 px-2` (size inherited from the table's `text-sm`), td `p-2` —
-  NOT px-4/py-3. Per-page overlays: contacts headers are
+- **Entity tables use the stock density + stock strings (session-16)**
+  (`src/components/ui/table.tsx`): the container is the stock
+  `relative w-full overflow-auto` (NOT overflow-x-auto + scrollbar-thin),
+  th `h-10 px-2` + the stock checkbox variant classes, td `p-2` + the
+  same variants, tr `hover:bg-line-soft/50
+  data-[state=selected]:bg-line-soft` (the reference's `hover:bg-muted/50`
+  — its muted SURFACE is our line-soft #f5f5f5; ours shipped /60 opacity
+  + no selected state). The reference's platform ALSO resets
+  `th, td { padding: 1px }` globally — mirrored in our base layer;
+  utility classes override it, so it only fills the unclassed axes
+  (standard th compute 1px vertical → 43px header rows; the dashboard
+  compact th compute `8px 1px`). Per-page overlays: contacts headers are
   `font-semibold text-gray-700` with a `w-64 cursor-pointer` Name column
-  (dead affordance mirrored from the reference); accounts + leads table
-  cards are `rounded-lg border-0 shadow` (no border) while contacts keeps
-  the bordered `rounded-xl` wrapper with `overflow-hidden`. Empty states
+  (dead affordance mirrored from the reference); accounts + leads +
+  activities table cards and the activities timeline are the BORDERLESS
+  `bg-surface rounded-lg shadow [p-6]` PLAIN DIVS (session-16: the Card
+  primitive's `border border-line` LEAKS through `cn()` — tailwind-merge
+  only replaces same-property classes — so TABLE_CARD surfaces NEVER
+  render via Card) while contacts keeps the bordered `rounded-xl` wrapper
+  with `overflow-hidden`. Empty states
   render as in-table centered rows (`TableEmptyRow`: py-8 accounts/leads,
   py-12 contacts). The leads table hides columns progressively (Phone
   `hidden md:table-cell`, Company `hidden lg:table-cell`, Source `hidden
@@ -378,13 +399,15 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 280 Vitest checks across
+  sessions 6–8 + session-10's stock-primitive pins) — 297 Vitest checks across
   15 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
   `/Profile` casing alias; session-15 added the 18-check DIALOG_FAMILY layer
   — the stock chrome + the per-dialog body contracts + the
-  no-description/no-placeholder source rules).
+  no-description/no-placeholder source rules; session-16 added the
+  PAGE_ROOT + page-root-source + table-kit-stock + TABLE_CARD-plain-div +
+  CALENDAR_CARD + SETTINGS_GRID pins + the design-tokens th/td reset).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
@@ -564,6 +587,35 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   TOKEN pair (#2563eb/#1d4ed8 — exactly the reference's v3 blue-600/
   blue-700); never use the literal palette class for the reference's
   blues (`EVENT_DIALOG.submit`).
+- **The page-root model (session-16)** — every page owns its padding:
+  `PAGE_ROOT.standard` (`p-4 sm:p-8 bg-background min-h-screen`) on the
+  dashboard/accounts/calendar/activities/reports/settings,
+  `PAGE_ROOT.bare` (`p-4 sm:p-8`) on Leads + Profile (the reference
+  drops the bg + min-height on exactly those two — main's own bg fills
+  the gap), and `CONTACTS_LAYOUT.fullHeight` as the Contacts root
+  DIRECTLY under `main` (padding inside its `flex-1 overflow-auto > p-8`
+  scroller; the h-calc box is full-width — a blanket shell wrapper had
+  double-padded it to 358px at 390 with a 294px card and 37px of main
+  scroll; the fix restores the full 390px + 326px card + the 5px
+  mirrored topbar quirk).
+- **The settings picklist grid breaks at md (session-16)** —
+  `SETTINGS_GRID` = `grid grid-cols-1 md:grid-cols-2 gap-4` (2 columns
+  from 768px; ours had shipped `lg:grid-cols-2`, rendering ONE 580px
+  column at 768-1023px where the reference renders two 282px cards — a
+  mid-width-only divergence invisible to the standing 390/1512 probe
+  widths; always sweep at least one MID width).
+- **The calendar card is the flat anatomy (session-16)** — `CALENDAR_CARD`:
+  padding ON the card (`mb-6 p-4 sm:p-6`), THREE direct children — the
+  header row `flex items-center justify-between mb-6` with the h2
+  `text-xl sm:text-2xl font-bold text-gray-900` + the `flex gap-2` nav
+  (Today hidden below sm), the DOW grid `grid grid-cols-7 gap-1
+  sm:gap-2 mb-2` with seven `text-center text-xs sm:text-sm font-semibold
+  text-gray-600 py-2` label divs, and the month grid `grid grid-cols-7
+  gap-1 sm:gap-2` (the cells keep the CALENDAR_CELL states + our
+  clickable flex-stack superset). Ours had merged the DOW labels +
+  cells into ONE 42-child grid behind a padding-neutralized
+  CardHeader/CardContent pair (16px header gap vs 24px, 4px DOW gap vs
+  8px, 18px semibold title vs 20/24px bold).
 
 ## Conventions that differ from defaults
 

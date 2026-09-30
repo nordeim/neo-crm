@@ -155,3 +155,17 @@ describe("design tokens: Session 13 body font-size (S13-P12)", () => {
     expect(body).not.toMatch(/font-size:\s*0\.875rem/);
   });
 });
+
+describe("design tokens: Session 16 platform th/td reset (S16-P4)", () => {
+  it("the base layer mirrors the reference's global th, td { padding: 1px }", () => {
+    // The reference's platform ships a global `th, td { padding: 1px }`
+    // reset that surfaces wherever no utility class overrides it: its
+    // standard th compute `1px 8px` (header rows 43px vs our 41px) and
+    // the dashboard compact th compute `8px 1px` (vs our `8px 0px`).
+    // Utility classes (h-10/px-2/p-2/py-8/…) override the element
+    // selector, so the reset only fills the unclassed axes — exactly
+    // the reference's behavior. Strip comments before matching.
+    const noComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(noComments).toMatch(/th,\s*td\s*\{\s*padding:\s*1px;?\s*\}/);
+  });
+});

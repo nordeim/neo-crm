@@ -48,7 +48,9 @@ import {
   NOT_FOUND_LAYOUT,
   PAGE_HEADER,
   PAGE_KPI_GRIDS,
+  PAGE_ROOT,
   PAGE_TITLES,
+  CALENDAR_CARD,
   SEARCH_INPUT,
   SELECT_TRIGGER,
   CHART_GEOMETRY,
@@ -61,6 +63,7 @@ import {
   SETTINGS_DEFAULTS,
   SETTINGS_DANGER,
   SETTINGS_DATA,
+  SETTINGS_GRID,
   SETTINGS_PICKLIST,
   SHELL_LAYOUT,
   STAT_CARD,
@@ -233,13 +236,15 @@ describe("app-shell parity (session-7 DOM-verified)", () => {
     expect(SHELL_LAYOUT.mainColumn).toBe("flex-1 flex flex-col overflow-hidden");
   });
 
-  it("main is the true scroller (window never scrolls) with a p-4 sm:p-8 inner", () => {
+  it("main is the true scroller (window never scrolls); padding belongs to the PAGE roots", () => {
     expect(SHELL_LAYOUT.main).toBe("flex-1 overflow-auto bg-background");
-    // Session-13 re-pin (S13-P2): the reference's inner wrapper is PLAIN
-    // `p-4 sm:p-8` on every page (dashboard + profile walks) — the s7 pin
-    // carried extra bg-background/min-h-screen that the reference does
-    // not render (the scroller main already paints bg-background).
-    expect(SHELL_LAYOUT.inner).toBe("p-4 sm:p-8");
+    // Session-16 (S16-P1/P2): the blanket SHELL_LAYOUT.inner wrapper is
+    // RETIRED — the reference's pages own their padding (PAGE_ROOT), and
+    // the shell wrapper double-padded the contacts full-height layout
+    // (16px extra per side at 390; main scrolled 37px instead of the
+    // 5px mirrored topbar quirk). The s13 "plain p-4 sm:p-8 inner" pin
+    // was a shell-level read of what are actually PER-PAGE roots.
+    expect("inner" in SHELL_LAYOUT).toBe(false);
   });
 });
 
@@ -1566,5 +1571,184 @@ describe("session-15: no description, no invented placeholders (S15-P4/P14)", ()
       "utf8",
     );
     expect(src).not.toMatch(/placeholder="/);
+  });
+});
+
+describe("session-16: the page-root model — padding belongs to the page (S16-P1/P2)", () => {
+  it("PAGE_ROOT.standard: six pages ship p-4 sm:p-8 + bg + min-height", () => {
+    // dashboard, accounts, calendar, activities, reports, settings.
+    // bg-background (#f9fafb) computes equal to the reference's literal
+    // bg-gray-50 — canvas pixel-verified rgb(249,250,251) on both apps
+    // (no literal-palette drift for gray-50 under our v4).
+    expect(PAGE_ROOT.standard).toBe("p-4 sm:p-8 bg-background min-h-screen");
+  });
+
+  it("PAGE_ROOT.bare: Leads + Profile drop the bg + min-height (the reference's own quirk)", () => {
+    // The reference's Leads and Profile roots are just `p-4 sm:p-8` —
+    // main's own gray-50 fills the gap below short content.
+    expect(PAGE_ROOT.bare).toBe("p-4 sm:p-8");
+  });
+
+  it("the AppShell never pads pages (the wrapper retired at the source level)", () => {
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/layout/app-shell.tsx"),
+      "utf8",
+    );
+    expect(src).not.toMatch(/SHELL_LAYOUT\.inner/);
+    expect(src).toMatch(/<main[^>]*>\{children\}/);
+  });
+
+  it("every page renders its own root wrapper (source-level)", () => {
+    const standard = [
+      "../src/app/(app)/page.tsx",
+      "../src/app/(app)/accounts/accounts-page.tsx",
+      "../src/app/(app)/calendar/calendar-page.tsx",
+      "../src/app/(app)/activities/activities-page.tsx",
+      "../src/app/(app)/reports/reports-page.tsx",
+      "../src/app/(app)/settings/settings-page.tsx",
+    ];
+    for (const rel of standard) {
+      const src = readFileSync(path.resolve(import.meta.dirname, rel), "utf8");
+      expect(src, rel).toMatch(/PAGE_ROOT\.standard/);
+    }
+    const bare = [
+      "../src/app/(app)/leads/leads-page.tsx",
+      "../src/app/(app)/profile/profile-page.tsx",
+    ];
+    for (const rel of bare) {
+      const src = readFileSync(path.resolve(import.meta.dirname, rel), "utf8");
+      expect(src, rel).toMatch(/PAGE_ROOT\.bare/);
+    }
+  });
+
+  it("contacts: the full-height layout IS the page root (no padding wrapper)", () => {
+    // Reference: main > flex h-[calc(100vh-64px)] directly — the padding
+    // lives inside its flex-1 overflow-auto > p-8 scroller. Ours wrapped
+    // the h-calc box in the shell padding (the S16-P1 double-pad).
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/contacts/contacts-page.tsx"),
+      "utf8",
+    );
+    // The return opens with the fullHeight div (contract comments may
+    // sit between `return (` and the element — allowed, wrappers are not).
+    expect(src).toMatch(
+      /return \(\s*(?:\/\/[^\n]*\n\s*)*<div className=\{CONTACTS_LAYOUT\.fullHeight\}>/,
+    );
+    expect(src).not.toMatch(/PAGE_ROOT/);
+  });
+});
+
+describe("session-16: the table kit on stock strings (S16-P3/P4)", () => {
+  const tableSrc = readFileSync(
+    path.resolve(import.meta.dirname, "../src/components/ui/table.tsx"),
+    "utf8",
+  );
+
+  it("the Table container is the stock overflow-auto (no scrollbar-thin, no x-only)", () => {
+    // Strip comments first — the contract comments document the retired
+    // classes and must not satisfy (or trip) the source pins.
+    const noComments = tableSrc
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/[^\n]*/g, "");
+    expect(noComments).toMatch(/relative w-full overflow-auto/);
+    expect(noComments).not.toMatch(/overflow-x-auto/);
+    expect(noComments).not.toMatch(/scrollbar-thin/);
+  });
+
+  it("TableHead carries the stock checkbox variant classes", () => {
+    expect(tableSrc).toMatch(
+      /\[&:has\(\[role=checkbox\]\)\]:pr-0 \[&>\[role=checkbox\]\]:translate-y-\[2px\]/,
+    );
+    // The head string still ships the s6 density + the muted ink.
+    expect(tableSrc).toMatch(/h-10 px-2 text-left align-middle font-medium/);
+  });
+
+  it("TableCell carries the stock checkbox variant classes", () => {
+    expect(tableSrc).toMatch(/p-2 align-middle/);
+    expect(tableSrc.match(/\[&:has\(\[role=checkbox\]\)\]:pr-0/g)?.length).toBe(2);
+  });
+
+  it("TableRow: hover /50 + the selected state (the stock pair, token-spelled)", () => {
+    // The reference's stock `hover:bg-muted/50 data-[state=selected]:bg-muted`
+    // — its muted SURFACE is our line-soft (#f5f5f5, the s14 re-pin); ours
+    // shipped /60 opacity and no selected state.
+    expect(tableSrc).toMatch(/hover:bg-line-soft\/50/);
+    expect(tableSrc).toMatch(/data-\[state=selected\]:bg-line-soft/);
+    expect(tableSrc).not.toMatch(/hover:bg-line-soft\/60/);
+  });
+});
+
+describe("session-16: TABLE_CARD surfaces are plain divs (S16-P5)", () => {
+  it("no TABLE_CARD surface renders through the Card primitive (the border leak)", () => {
+    // Card's base ships `border border-line`; cn() never removes it
+    // (tailwind-merge replaces same-property classes only), so every
+    // <Card className={cn(TABLE_CARD.card, …)}> computed a 1px border —
+    // the reference's accounts/leads/activities cards are plain
+    // borderless `bg-white rounded-lg shadow [p-6]` divs.
+    const surfaces = [
+      "../src/app/(app)/accounts/accounts-page.tsx",
+      "../src/app/(app)/leads/leads-page.tsx",
+      "../src/app/(app)/activities/activities-page.tsx",
+    ];
+    for (const rel of surfaces) {
+      const src = readFileSync(path.resolve(import.meta.dirname, rel), "utf8");
+      expect(src, rel).not.toMatch(/<Card className=\{cn\(TABLE_CARD\.card/);
+    }
+  });
+
+  it("the accounts/leads cards drop the invented overflow-hidden", () => {
+    // The reference ships NO overflow-hidden on those cards (the
+    // contacts bordered card is the only overflow-hidden table card).
+    for (const rel of [
+      "../src/app/(app)/accounts/accounts-page.tsx",
+      "../src/app/(app)/leads/leads-page.tsx",
+    ]) {
+      const src = readFileSync(path.resolve(import.meta.dirname, rel), "utf8");
+      expect(src, rel).toMatch(/<div className=\{TABLE_CARD\.card\}>/);
+    }
+  });
+});
+
+describe("session-16: the calendar card internals (S16-P7)", () => {
+  it("header row, title, nav — the flat anatomy", () => {
+    expect(CALENDAR_CARD.headerRow).toBe("flex items-center justify-between mb-6");
+    expect(CALENDAR_CARD.title).toBe("text-xl sm:text-2xl font-bold text-gray-900");
+    expect(CALENDAR_CARD.navRow).toBe("flex gap-2");
+  });
+
+  it("the DOW row is its own grid with responsive labels", () => {
+    expect(CALENDAR_CARD.dowGrid).toBe("grid grid-cols-7 gap-1 sm:gap-2 mb-2");
+    expect(CALENDAR_CARD.dowLabel).toBe(
+      "text-center text-xs sm:text-sm font-semibold text-gray-600 py-2",
+    );
+  });
+
+  it("the month grid is separate with the responsive gap", () => {
+    expect(CALENDAR_CARD.monthGrid).toBe("grid grid-cols-7 gap-1 sm:gap-2");
+  });
+
+  it("the calendar page renders the split grids, not the merged 42-kid grid", () => {
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/calendar/calendar-page.tsx"),
+      "utf8",
+    );
+    expect(src).not.toMatch(/grid grid-cols-7 gap-1 text-center/);
+    expect(src).toMatch(/CALENDAR_CARD\.dowGrid/);
+    expect(src).toMatch(/CALENDAR_CARD\.monthGrid/);
+    expect(src).toMatch(/CALENDAR_CARD\.dowLabel/);
+  });
+});
+
+describe("session-16: the settings picklist grid breaks at md (S16-P6)", () => {
+  it("the grid is md:grid-cols-2 — 2 columns from 768px", () => {
+    // Ours shipped lg:grid-cols-2 (1 column at 768-1023px, 580px cards)
+    // where the reference renders 2 columns (282px cards) — a
+    // mid-width-only divergence invisible to 390/1512 probes.
+    expect(SETTINGS_GRID).toBe("grid grid-cols-1 md:grid-cols-2 gap-4");
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/settings/settings-page.tsx"),
+      "utf8",
+    );
+    expect(src).not.toMatch(/lg:grid-cols-2/);
   });
 });
