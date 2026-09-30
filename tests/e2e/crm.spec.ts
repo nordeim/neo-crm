@@ -118,6 +118,41 @@ test("reports page loads analytics tabs with seeded data", async ({ page }) => {
   await expect(page.getByText("Win Rate by Source (%)")).toBeVisible();
 });
 
+test("reports tabs render bare with gap-6 grids and 300px charts (session-11)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("tab", { name: "Sales Overview" })).toBeVisible();
+
+  // S11-P5: the tab bar is NOT card-wrapped — no bordered card ancestor
+  // between the tab list and the page content wrapper.
+  const tablist = page.getByRole("tablist").first();
+  const wrappedInCard = await tablist.evaluate((el: HTMLElement) => {
+    let node = el.parentElement;
+    while (node && node.tagName !== "MAIN") {
+      if (
+        node.classList.contains("rounded-xl") &&
+        node.classList.contains("border") &&
+        node.querySelector("[role=tablist]")
+      ) {
+        return true;
+      }
+      node = node.parentElement;
+    }
+    return false;
+  });
+  expect(wrappedInCard).toBe(false);
+
+  // S11-P4/S11-P6: tab-1 charts render at 300px in gap-6 grids.
+  const firstChart = page.locator(".recharts-wrapper").first();
+  await expect(firstChart).toBeVisible();
+  const height = await firstChart.evaluate((el: HTMLElement) => el.clientHeight);
+  expect(height).toBe(300);
+  const gridGap = await firstChart.evaluate((el: HTMLElement) => {
+    const grid = el.closest(".grid");
+    return grid ? getComputedStyle(grid).gap : "";
+  });
+  expect(gridGap).toBe("24px");
+});
+
 test("per-page document titles follow the Page | NEO CRM scheme", async ({ page }) => {
   // Session-10 (S10-10): the reference titles every non-dashboard page
   // "X | NEO CRM"; the dashboard + login stay "NEO CRM" (document.title

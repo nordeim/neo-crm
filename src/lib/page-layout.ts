@@ -203,8 +203,12 @@ export const TOPBAR_LAYOUT = {
   // focus-visible ring. The old custom string (pr-4 16px, focus: on click,
   // text-foreground) is retired.
   searchInput: "use shared Input + SEARCH_INPUT.extras",
+  // Session-11 (S11-P10): the reference's mail/bell buttons are
+  // `hidden … sm:flex` (computed display: flex) — ours shipped
+  // sm:inline-flex, visually identical on fixed-size buttons but a
+  // computed diff; aligned.
   iconButton:
-    "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex",
+    "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:flex",
   iconClass: "h-5 w-5",
   rightGroup: "flex items-center gap-2 sm:gap-4",
   userButton:
@@ -565,3 +569,59 @@ export function allLayoutClasses(): string[] {
   }
   return out;
 }
+
+/** Session-11 (S11-P2/P3): the stat-card shadow scale, DOM-verified on the
+ *  reference at 1512 — every stat-card family computes the bare `shadow`
+ *  (0 1px 3px 0.1 + 0 1px 2px -1px 0.1). Our IconStatCard (both variants)
+ *  and CircleStatCard shipped the s9-re-pinned tiny `shadow-sm` — one step
+ *  too light. The dashboard + reports KPI cards additionally carry
+ *  `hover:shadow-md transition-shadow` (the reference's only hover-shadow
+ *  surfaces). */
+export const STAT_SHADOWS = {
+  kpiCard: "shadow",
+  kpiHover: "hover:shadow-md transition-shadow",
+  barStatCard: "shadow",
+  trendStatCard: "shadow",
+  iconStatLeads: "shadow",
+  iconStatContacts: "shadow",
+  circleStat: "shadow",
+} as const;
+
+/** Session-11 (S11-P4): chart heights are per-surface constants measured on
+ *  the reference (`.recharts-wrapper` clientHeight at 1512×945): dashboard
+ *  pipeline + revenue 300; reports tab-1 4×300, tab-2 Forecasting 300 +
+ *  three 300, tabs 3/4 3×300; the leads rail 250 (381px cards); the
+ *  activities by-type 150 (270px rail). Ours shipped 260/240/250 across
+ *  those surfaces — every one short. */
+export const CHART_GEOMETRY = {
+  dashboardHeight: 300,
+  reportsHeight: 300,
+  leadsRailHeight: 250,
+  activitiesByTypeHeight: 150,
+} as const;
+
+/** Session-11 (S11-P8): the contacts page is the reference's ONLY
+ *  full-height layout — main > flex h-[calc(100vh-64px)] > flex-1
+ *  overflow-auto > p-8 > content. The calc's 64px is 5px short of the real
+ *  69px topbar (a reference quirk mirrored verbatim — main overflows 5px);
+ *  the padding is p-8 at ALL widths (every other page ships p-4 sm:p-8, so
+ *  contacts shows 32px at 390px where the others show 16px). The trailing
+ *  mobile-cards container renders nothing at zero data but is part of the
+ *  reference DOM. */
+export const CONTACTS_LAYOUT = {
+  fullHeight: "flex h-[calc(100vh-64px)]",
+  innerScroll: "flex-1 overflow-auto",
+  content: "p-8",
+  mobileCards: "lg:hidden mt-6 space-y-4",
+} as const;
+
+/** Session-11 (S11-P9): the entity table cards' shadow scale — accounts +
+ *  leads ship `bg-white rounded-lg shadow` (standard, no border), while the
+ *  contacts table card is the bordered `rounded-xl shadow-sm
+ *  border-gray-200 overflow-hidden` variant (the TINY shadow — the only
+ *  place the reference uses it on a table card). */
+export const TABLE_SHADOWS = {
+  accounts: "shadow",
+  leads: "shadow",
+  contacts: "shadow-sm",
+} as const;

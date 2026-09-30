@@ -48,7 +48,10 @@ import { formatCompactCurrency } from "@/lib/format";
  */
 export function PipelineBarChart({
   data,
-  height = 260,
+  // Session-11 (S11-P4): the reference's dashboard pipeline renders at
+  // 300px (`.recharts-wrapper` measured 534×300); the leads rail passes
+  // 250 explicitly (381px cards).
+  height = 300,
 }: {
   data: Array<{ label: string; value: number; count: number; color: string }>;
   height?: number;
@@ -88,7 +91,9 @@ export function PipelineBarChart({
  */
 export function RevenueLineChart({
   data,
-  height = 260,
+  // Session-11 (S11-P4): the reference's dashboard revenue chart renders
+  // at 300px (534×300).
+  height = 300,
   series,
   hideLegend = false,
 }: {
@@ -107,13 +112,12 @@ export function RevenueLineChart({
           <XAxis dataKey="month" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} width={56} />
           <Tooltip />
-          {!hideLegend && (
-            <Legend
-              iconType="circle"
-              iconSize={8}
-              wrapperStyle={{ fontSize: 12, color: "#6b7280", paddingTop: 8 }}
-            />
-          )}
+          {/* Session-11 (S11-P7): the reference ships the recharts DEFAULT
+              legend (plainline icons, series-colored text — Won #10b981 /
+              Target #ef4444). Our custom circle-8px/gray variant is retired,
+              same rule as the s10 tooltip sweep: no props where the
+              reference passes none. */}
+          {!hideLegend && <Legend />}
           {series.map((s) =>
             s.filled ? (
               <Area
@@ -150,7 +154,9 @@ export function RevenueLineChart({
 
 export function WonLostLineChart({
   data,
-  height = 240,
+  // Session-11 (S11-P4): the reference's reports tab-1 won-vs-lost renders
+  // at 300px; the leads rail passes 250 explicitly.
+  height = 300,
 }: {
   data: Array<{ month: string; won: number; lost: number }>;
   height?: number;
@@ -163,7 +169,11 @@ export function WonLostLineChart({
           <XAxis dataKey="month" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} width={32} allowDecimals={false} />
           <Tooltip />
-          <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: "#6b7280", paddingTop: 8 }} />
+          {/* Session-11 (S11-P7): default legend — the leads/reports
+              zero-state renders it empty (row-derived series), but the
+              populated style is the recharts default everywhere else we
+              could measure; same no-props rule as the tooltip sweep. */}
+          <Legend />
           <Line type="monotone" dataKey="won" name="Won" stroke={CHART_COLORS.green} strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
           <Line type="monotone" dataKey="lost" name="Lost" stroke={CHART_COLORS.red} strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
         </LineChart>
@@ -181,7 +191,9 @@ export function WonLostLineChart({
  */
 export function ConversionFunnel({
   data,
-  height = 260,
+  // Session-11 (S11-P4): the reference's funnels render at 300px on the
+  // reports tabs (the leads rail passes 250 explicitly).
+  height = 300,
 }: {
   data: Array<{ id: string; label: string; count: number; color: string }>;
   height?: number;

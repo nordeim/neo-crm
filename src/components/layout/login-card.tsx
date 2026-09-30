@@ -3,8 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, User } from "lucide-react";
+import { ArrowLeft, Lock, Mail, User } from "lucide-react";
 import { LOGIN_LAYOUT } from "@/lib/page-layout";
+import { canSubmitReset, LOGIN_RESET_LAYOUT, nextLoginView, type LoginView } from "@/lib/login-reset";
 import { toast } from "@/components/ui/toast";
 
 type Mode = "signin" | "signup";
@@ -26,6 +27,10 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
   const [name, setName] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  // Session-11 (S11-P1): the reference's Forgot-password flow — the card
+  // swaps in place through reset → sent (no URL change; the reference's
+  // demo never sends an email, the confirmation is pure client state).
+  const [view, setView] = React.useState<LoginView>("signin");
 
   const isSignup = mode === "signup";
 
@@ -56,6 +61,24 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
     }
   }
 
+  /** S11-P1: swap the card's view via the login-reset state machine. */
+  function goto(intent: "forgot" | "send" | "back") {
+    setView((v) => nextLoginView(v, intent));
+  }
+
+  /** S11-P1: the reset view's submit — valid email swaps to the sent view
+   *  (the reference renders the confirmation without any network call;
+   *  a real sender can be wired behind canSubmitReset later). */
+  function onSendResetLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSubmitReset(email)) {
+      setError("Enter a valid email address to reset your password.");
+      return;
+    }
+    setError(null);
+    setView("sent");
+  }
+
   return (
     <div className="w-full max-w-md">
       <div className={LOGIN_LAYOUT.card}>
@@ -64,6 +87,91 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
 
         <div className={LOGIN_LAYOUT.inner}>
           <div className={LOGIN_LAYOUT.centered}>
+            {view !== "signin" ? (
+              <>
+                {/* S11-P1: the reset/sent views replace the login column
+                    entirely (no logo, no Google button, no divider —
+                    DOM-verified on the reference). */}
+                <div className={LOGIN_RESET_LAYOUT.viewColumn}>
+                  <div className={LOGIN_RESET_LAYOUT.viewStack}>
+                    {view === "reset" ? (
+                      <>
+                        <button
+                          type="button"
+                          className={LOGIN_RESET_LAYOUT.back}
+                          onClick={() => goto("back")}
+                        >
+                          <ArrowLeft className={LOGIN_RESET_LAYOUT.backIcon} aria-hidden="true" />
+                          Back to sign in
+                        </button>
+                        <div className="text-center space-y-2">
+                          <h2 className={LOGIN_RESET_LAYOUT.title}>Reset your password</h2>
+                          <p className={LOGIN_RESET_LAYOUT.description}>
+                            Enter your email and we&rsquo;ll send you a link to reset your password
+                          </p>
+                        </div>
+                        <form className="space-y-4 sm:space-y-5" onSubmit={onSendResetLink} noValidate>
+                          {error && (
+                            <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
+                              {error}
+                            </p>
+                          )}
+                          <div className={LOGIN_LAYOUT.field}>
+                            <label htmlFor="reset-email" className={LOGIN_LAYOUT.label}>
+                              Email
+                            </label>
+                            <div className={LOGIN_LAYOUT.inputWrap}>
+                              <Mail className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                              <input
+                                id="reset-email"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="email"
+                                placeholder="you@example.com"
+                                className={LOGIN_RESET_LAYOUT.resetInput}
+                              />
+                            </div>
+                          </div>
+                          <button type="submit" className={LOGIN_RESET_LAYOUT.send}>
+                            Send reset link
+                          </button>
+                        </form>
+                      </>
+                    ) : (
+                      <>
+                        <div className={LOGIN_RESET_LAYOUT.sentHeadingStack}>
+                          <div className={LOGIN_RESET_LAYOUT.sentIconWrap} aria-hidden="true">
+                            <Mail className={LOGIN_RESET_LAYOUT.sentIcon} />
+                          </div>
+                          <div className={LOGIN_RESET_LAYOUT.sentTitleStack}>
+                            <h2 className={LOGIN_RESET_LAYOUT.title}>Check your email</h2>
+                            <p className={LOGIN_RESET_LAYOUT.sentEmailLine}>
+                              We&rsquo;ve sent password reset instructions to
+                              <br />
+                              <span className={LOGIN_RESET_LAYOUT.sentEmailSpan}>{email}</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div className={LOGIN_RESET_LAYOUT.sentCallout}>
+                          <div className={LOGIN_RESET_LAYOUT.sentCalloutText}>
+                            <p>
+                              Please check your email for the password reset link. It may take a few
+                              minutes to arrive.
+                            </p>
+                          </div>
+                        </div>
+                        <button type="button" className={LOGIN_RESET_LAYOUT.sentBack} onClick={() => goto("back")}>
+                          <ArrowLeft className={LOGIN_RESET_LAYOUT.backIcon} aria-hidden="true" />
+                          Back to sign in
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
             {/* Logo — CSS brand mark (white circle + blue dot) with a soft
                 slate glow, ringed and shadowed like the reference avatar. */}
             <div className={LOGIN_LAYOUT.logoWrap}>
@@ -180,7 +288,11 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                 </button>
                 <div className={LOGIN_LAYOUT.footer}>
                   {!isSignup ? (
-                    <button type="button" className={`${LOGIN_LAYOUT.footerLink} font-medium`}>
+                    <button
+                      type="button"
+                      className={`${LOGIN_LAYOUT.footerLink} font-medium`}
+                      onClick={() => goto("forgot")}
+                    >
                       Forgot password?
                     </button>
                   ) : (
@@ -199,6 +311,8 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                 </div>
               </div>
             </form>
+              </>
+            )}
           </div>
 
         </div>

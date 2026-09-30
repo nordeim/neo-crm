@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (169 checks)         | `bun run test`                         |
-| Browser E2E (23 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (189 checks)         | `bun run test`                         |
+| Browser E2E (26 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (169) → `bun run build` → `bun run test:e2e` (23). There is no
+`bun run test` (189) → `bun run build` → `bun run test:e2e` (26). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -67,7 +67,15 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   both sides and is NOT overridden. **v4 renamed the blur scale the same
   way** (session-10): v4 `backdrop-blur-sm` compiled 8px where the
   reference's computes 4px — `@theme` re-pins `--blur-sm: 4px` (same test
-  suite). The reference's global stylesheet also ships
+  suite). **v4 also wraps `space-y-*` in `:where()` AND flips its
+  semantics to margin-BOTTOM on `:not(:last-child)`** (session-11): the
+  reference's login reset view ships `-mb-2` on its Back button, which
+  under ITS v3-era space-y (margin-TOP on following siblings) computes a
+  16px gap — but under our v4 a `-mb-2` (0,1,0) WINS the specificity
+  fight against `:where(…)` (0,0,0) and produced an 8px OVERLAP. When
+  mirroring negative margins that ride on space-y gaps, re-derive the
+  class from the reference's COMPUTED gap (`mb-4` there), never copy the
+  class string. The reference's global stylesheet also ships
   `button, [role="button"] { cursor: pointer; }` — mirrored in our base
   layer (ours computed the arrow cursor before session-10).
 - **Stock-primitive inks (session-10)**: the reference's stock Input/Select
@@ -202,6 +210,46 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   Leads by Source / Win Rate by Source (%) / Avg Deal Value by Source
   charts + Leads List by Source + Source Performance Summary
   (Source/Leads/Won/Revenue)).
+- **The login card has a reset-password flow (session-11)** — the
+  reference's "Forgot password?" is NOT dead: it swaps the card IN PLACE
+  (`signin → reset → sent`, URL unchanged; the reference's demo never
+  sends an email — the confirmation is pure client state). The two views
+  replace the login column entirely (no logo / Google button / divider),
+  live in `src/lib/login-reset.ts` (`LOGIN_RESET_LAYOUT` +
+  `nextLoginView()` + `canSubmitReset()`, pinned by
+  `tests/login-reset.test.ts`), and the reset email input ships a
+  LIGHTER placeholder than the sign-in fields (slate-400 vs slate-600 —
+  the reference's own inconsistency, mirrored). The Back button's `mb-4`
+  is the v4-correct expression of the reference's computed 16px gap (see
+  the space-y hazard above).
+- **Chart geometry is a per-surface contract (session-11)** —
+  `CHART_GEOMETRY` in `src/lib/page-layout.ts`: dashboard + all reports
+  tab charts render at **300px** (tab-2 Forecasting Accuracy is the full
+  1142px-wide card), the leads rail charts at **250px**, the activities
+  by-type at **150px**. The charts also ship the recharts DEFAULT
+  `<Legend />` (plainline icons, series-colored text) — the custom
+  circle-8px/gray legends are retired (same no-props rule as the s10
+  tooltips).
+- **Stat-card shadows + hover (session-11)** — every stat-card family
+  carries bare `shadow` (`STAT_SHADOWS`): KpiCard, BarStatCard,
+  TrendStatCard, IconStatCard (both variants) and CircleStatCard. The
+  dashboard + reports KPI cards additionally hover
+  (`hover:shadow-md transition-shadow`). The entity TABLE cards differ:
+  accounts/leads `rounded-lg shadow` (no border) vs the contacts
+  `rounded-xl border shadow-sm overflow-hidden` (the only tiny-shadow
+  table card — `TABLE_SHADOWS`).
+- **The reports tabs are NOT card-wrapped (session-11)** — the pill tab
+  bar + panels render bare in the page (a `space-y-6` container directly
+  under the KPI row; tab content spans the full 1192px at 1512). Every
+  reports tab grid is `gap-6` (charts 2-col on tab 1, 3-col on tabs 2–4,
+  tables 2-col) and the tab bodies are `space-y-6`. The sticky filter
+  card above the KPI row is a separate element and stays.
+- **The contacts page is the reference's only full-height layout
+  (session-11)** — `CONTACTS_LAYOUT`: `main > flex h-[calc(100vh-64px)] >
+  flex-1 overflow-auto > p-8 > content`. The calc's 64px is 5px short of
+  the real 69px topbar (a reference quirk mirrored verbatim — main
+  overflows 5px); the padding is p-8 at ALL widths (32px at 390px where
+  every other page ships p-4 sm:p-8 = 16px).
 - **Per-page document titles (session-10)** — the reference titles every
   non-dashboard page "X | NEO CRM" (dashboard + login stay "NEO CRM").
   Implemented with thin SERVER `page.tsx` wrappers + renamed client parts

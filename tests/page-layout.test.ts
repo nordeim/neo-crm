@@ -21,6 +21,8 @@ import {
   PAGE_TITLES,
   SEARCH_INPUT,
   SELECT_TRIGGER,
+  CHART_GEOMETRY,
+  CONTACTS_LAYOUT,
   PROFILE_LAYOUT,
   RAIL_LAYOUT,
   RECENT_DEALS,
@@ -28,6 +30,8 @@ import {
   REPORTS_TABLE_CARD,
   SETTINGS_PICKLIST,
   SHELL_LAYOUT,
+  STAT_SHADOWS,
+  TABLE_SHADOWS,
   STAT_CARD,
   TABLE_CARD,
   TABLE_TOOLBAR,
@@ -239,8 +243,11 @@ describe("topbar parity (session-7 DOM-verified)", () => {
   });
 
   it("mail/bell are rounded-md h-9 w-9 icon buttons hidden below sm", () => {
+    // Session-11 (S11-P10): the reference ships `sm:flex` here (computed
+    // display: flex); the s7 pin recorded our sm:inline-flex variant —
+    // aligned to the reference's exact class this session.
     expect(TOPBAR_LAYOUT.iconButton).toBe(
-      "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex",
+      "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:flex",
     );
     expect(TOPBAR_LAYOUT.iconClass).toBe("h-5 w-5");
   });
@@ -636,5 +643,73 @@ describe("session-10 stock-primitive pins (DOM-verified 2026-09-30)", () => {
     expect(PAGE_TITLES.reports).toBe("Reports | NEO CRM");
     expect(PAGE_TITLES.settings).toBe("Settings | NEO CRM");
     expect(PAGE_TITLES.profile).toBe("Profile | NEO CRM");
+  });
+});
+
+describe("session-11 stat-card shadow + chart geometry pins (DOM-verified 2026-09-30)", () => {
+  it("every stat-card family carries the reference's bare shadow (not the tiny shadow-sm)", () => {
+    // S11-P2: the reference's stat cards compute 0 1px 3px 0.1 (bare
+    // `shadow`) on ALL families — dashboard KPI, reports KPI, accounts,
+    // leads, activities, calendar AND the contacts gradient cards. Our
+    // IconStatCard (both variants) + CircleStatCard shipped the
+    // s9-re-pinned tiny `shadow-sm` (0 1px 2px 0.05) — one step too
+    // light. KpiCard/BarStatCard/TrendStatCard were already correct.
+    expect(STAT_SHADOWS.kpiCard).toBe("shadow");
+    expect(STAT_SHADOWS.barStatCard).toBe("shadow");
+    expect(STAT_SHADOWS.trendStatCard).toBe("shadow");
+    expect(STAT_SHADOWS.iconStatLeads).toBe("shadow");
+    expect(STAT_SHADOWS.iconStatContacts).toBe("shadow");
+    expect(STAT_SHADOWS.circleStat).toBe("shadow");
+    expect(STAT_SHADOWS.iconStatLeads).not.toContain("shadow-sm");
+    expect(STAT_SHADOWS.circleStat).not.toContain("shadow-sm");
+  });
+
+  it("the dashboard/reports KPI cards hover (S11-P3)", () => {
+    // DOM: `rounded-xl bg-card text-card-foreground shadow border
+    // border-gray-200 hover:shadow-md transition-shadow` on BOTH the
+    // dashboard and the reports KPI rows.
+    expect(STAT_SHADOWS.kpiHover).toBe("hover:shadow-md transition-shadow");
+  });
+
+  it("chart heights are per-surface constants (S11-P4)", () => {
+    // .recharts-wrapper measurements on the reference at 1512×945:
+    // dashboard pipeline + revenue 534×300; reports tab-1 4×534×300;
+    // tab-2 Forecasting 1142×300 + three 331×300; tabs 3/4 331×300;
+    // the leads rail 3×331×250; activities by-type 270×150.
+    expect(CHART_GEOMETRY.dashboardHeight).toBe(300);
+    expect(CHART_GEOMETRY.reportsHeight).toBe(300);
+    expect(CHART_GEOMETRY.leadsRailHeight).toBe(250);
+    expect(CHART_GEOMETRY.activitiesByTypeHeight).toBe(150);
+  });
+
+  it("the contacts page is the reference's full-height architecture (S11-P8)", () => {
+    // The reference's contacts is the ONLY page with
+    // main > DIV.flex.h-[calc(100vh-64px)] > DIV.flex-1.overflow-auto >
+    // DIV.p-8 > content. The calc's 64px is 5px short of the real 69px
+    // topbar (a reference quirk mirrored verbatim); the padding is p-8
+    // at ALL widths (every other page: p-4 sm:p-8 — contacts shows 32px
+    // at 390px where the others show 16px).
+    expect(CONTACTS_LAYOUT.fullHeight).toBe("flex h-[calc(100vh-64px)]");
+    expect(CONTACTS_LAYOUT.innerScroll).toBe("flex-1 overflow-auto");
+    expect(CONTACTS_LAYOUT.content).toBe("p-8");
+    expect(CONTACTS_LAYOUT.mobileCards).toBe("lg:hidden mt-6 space-y-4");
+  });
+
+  it("the contacts table card is the TINY shadow + border variant (S11-P9)", () => {
+    // DOM: `bg-white rounded-xl shadow-sm border border-gray-200
+    // overflow-hidden` — the only entity table card with shadow-sm
+    // (accounts/leads ship `bg-white rounded-lg shadow`, no border).
+    expect(TABLE_SHADOWS.contacts).toBe("shadow-sm");
+    expect(TABLE_SHADOWS.accounts).toBe("shadow");
+    expect(TABLE_SHADOWS.leads).toBe("shadow");
+  });
+
+  it("the topbar icon buttons use the reference's sm:flex (S11-P10)", () => {
+    // DOM: `hidden … sm:flex` (computed display: flex). Ours shipped
+    // sm:inline-flex — visually identical on fixed-size buttons, but the
+    // computed value differs; aligned for exact parity.
+    expect(TOPBAR_LAYOUT.iconButton).toContain("hidden");
+    expect(TOPBAR_LAYOUT.iconButton).toContain("sm:flex");
+    expect(TOPBAR_LAYOUT.iconButton).not.toContain("sm:inline-flex");
   });
 });

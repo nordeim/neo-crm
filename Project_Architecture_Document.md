@@ -339,19 +339,19 @@ neo-crm/
 │   │   │   ├── topbar.tsx       # global search, notifications, user dropdown
 │   │   │   ├── mobile-nav.tsx   # THE drawer fix (ADR-006)
 │   │   │   ├── nav-config.ts    # nav items (single source for both chromes)
-│   │   │   └── login-card.tsx   # signin/signup card with Google parity button
+│   │   │   └── login-card.tsx   # signin/signup card + Google parity button + the in-place reset-password flow (session-11)
 │   │   ├── ui/                  # button input card dialog select dropdown table
 │   │   │                       # tabs badge label(+checkbox) avatar toast misc
-│   │   ├── charts/charts.tsx    # recharts wrappers + empty-state fallbacks
+│   │   ├── charts/charts.tsx    # recharts wrappers at the DOM-pinned per-surface heights (300/250/150) with stock defaults (tooltip + legend)
 │   │   └── shared/
-│   │       ├── page-parts.tsx   # PageHeader, KpiCard, BarStatCard, IconStatCard, CircleStatCard, Sparkline
+│   │       ├── page-parts.tsx   # PageHeader, KpiCard, BarStatCard, TrendStatCard, IconStatCard, CircleStatCard, Sparkline (bare-shadow stat family)
 │   │       └── entity-dialogs.tsx # remount-via-key forms (ADR-007)
 │   ├── lib/                     # the pure seams (Layer 3)
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 10 Vitest suites — 148 checks
-│   └── e2e/                     # global-setup, auth.setup, 4 spec files — 21 checks
+│   ├── *.test.ts                # 12 Vitest suites — 189 checks
+│   └── e2e/                     # global-setup, auth.setup, 3 spec files — 26 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
 └── postcss.config.mjs           # @tailwindcss/postcss — REQUIRED (ADR-005)
@@ -660,14 +660,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–10) | 1 | 63 | `tests/page-layout.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–11) | 1 | 69 | `tests/page-layout.test.ts` | Vitest |
 | Unit — design tokens (shadow/blur re-pins, ring, cursor rule, inks — sessions 9–10) | 1 | 8 | `tests/design-tokens.test.ts` | Vitest |
 | Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
-| E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
+| Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
+| E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs — session-10) | 1 | 13 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry — sessions 10–11) | 1 | 14 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression | 1 | 6 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **15** | **169 unit + 23 e2e** | | |
+| **Total** | **16** | **189 unit + 26 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -691,21 +692,26 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   empty. The session-1 `ChartEmpty` design is retired; recharts defaults
   apply everywhere (tooltip, ticks 12px #666, dashed "3 3" #ccc grid with
   horizontal AND vertical lines).
+- **Login reset flow (session-11):** the reference's "Forgot password?"
+  swaps the login card in place (`signin → reset → sent`, no email is
+  actually sent — the confirmation is pure client state). `auth.spec.ts`
+  drives the full swap on the real build; the view/gating logic is the
+  `src/lib/login-reset.ts` seam pinned by `tests/login-reset.test.ts`.
 
 ### 7.3 Coverage Thresholds
 
 No percentage gate is configured. The working rule: every new pure helper in
 `src/lib/` ships with unit tests in the same PR; every user-visible page
 change extends the golden-path spec; any change touching the mobile drawer
-must keep all 5 regression checks green unmodified.
+must keep all 6 regression checks green unmodified.
 
 ### 7.4 Pre-PR / Pre-Deploy Checklist
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 169/169
+- [ ] `bun run test` — 189/189
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 23/23
+- [ ] `bun run test:e2e` — 26/26
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`
@@ -823,8 +829,9 @@ files. Push via the SSH wrapper (§8.4).
 | `src/lib/format.ts` | 221 | Currency/date/relative-time/calendar-grid pure helpers |
 | `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |
 | `src/lib/lead-filters.ts` | 90 | Leads Filters popover persist/restore seam — `encodeLeadFilters`/`decodeLeadFilters` pure pair (localStorage key `neo-crm.leads.view`), vocabulary-guarded decoding, pinned by `tests/lead-filters.test.ts` (session-8) |
+| `src/lib/login-reset.ts` | 100 | Session-11 login reset-password seam — `LOGIN_RESET_LAYOUT` (the two view contracts: classes for the reset/sent views, the lighter slate-400 placeholder, the `mb-4` v4-correct back-gap), `nextLoginView()` swap table, `canSubmitReset()` gating — pinned by `tests/login-reset.test.ts` |
 | `src/lib/reports-data.ts` | ~120 | Session-10 reports derivations — `agingCounts` (fixed 4-bucket aging), `forecastAccuracySeries` (per-month accuracy + the Average Accuracy caption), `monthsFromEvents` (row-derived month series) — pinned by `tests/reports-data.test.ts` |
-| `src/lib/page-layout.ts` | 390 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint) consumed by every page — sessions 6–8 |
+| `src/lib/page-layout.ts` | 627 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint, stock-primitive pins, CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT) consumed by every page — sessions 6–11 |
 | `src/lib/csv.ts` | 74 | RFC-4180 serializer/parser (export + import) |
 | `src/app/(app)/*/page.tsx` + `*-page.tsx` | — | Session-10 pattern: thin SERVER `page.tsx` wrappers (per-page metadata titles) rendering the renamed client parts — client pages cannot export metadata; per-route `layout.tsx` hit a Next 16 typed-routes bug |
 | `src/lib/rate-limit.ts` | 47 | Fixed-window limiter with sweeper |

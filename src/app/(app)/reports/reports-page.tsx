@@ -190,27 +190,30 @@ export default function ReportsPage() {
             </CircleStatCard>
           </div>
 
-          <Card className="mt-6">
-            <CardContent className="py-4">
-              <Tabs variant="pill" cols={5} value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
-                {loading ? (
-                  <div className="grid gap-4 py-6 md:grid-cols-2">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <Skeleton key={i} className="h-64" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-4">
-                    {tab === "sales" && <SalesTab data={data} />}
-                    {tab === "pipeline" && <PipelineTab data={data} />}
-                    {tab === "activity" && <ActivityTab data={data} />}
-                    {tab === "sources" && <SourcesTab data={data} />}
-                    {tab === "health" && <HealthTab data={data} />}
-                  </div>
-                )}
-              </Tabs>
-            </CardContent>
-          </Card>
+          {/* Session-11 (S11-P5): the reference's tabs are NOT card-wrapped —
+              the pill tab bar + panels render bare in the page (a space-y-6
+              container directly under the KPI row; content spans the full
+              1192px). The session-3 "white card" reading only described the
+              sticky filter bar above. The Tabs' own space-y-6 puts 24px
+              between the bar and the panel (the reference's TabsContent
+              mt-2 is dead CSS under its space-y-6 — same computed gap). */}
+          <Tabs variant="pill" cols={5} className="space-y-6" value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
+            {loading ? (
+              <div className="grid gap-6 py-6 md:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-64" />
+                ))}
+              </div>
+            ) : (
+              <>
+                {tab === "sales" && <SalesTab data={data} />}
+                {tab === "pipeline" && <PipelineTab data={data} />}
+                {tab === "activity" && <ActivityTab data={data} />}
+                {tab === "sources" && <SourcesTab data={data} />}
+                {tab === "health" && <HealthTab data={data} />}
+              </>
+            )}
+          </Tabs>
         </>
       )}
     </div>
@@ -229,8 +232,8 @@ function exportPdf() {
 
 function SalesTab({ data }: { data: ReportsData | null }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title="Revenue Over Time">
           {/* Reference Sales Overview revenue chart: no legend, both series
               filled areas (mirrors the dashboard chart). */}
@@ -260,7 +263,7 @@ function SalesTab({ data }: { data: ReportsData | null }) {
 
 function DealTables({ data }: { data: ReportsData | null }) {
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Recent Won Deals</CardTitle>
@@ -344,7 +347,7 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
   // our old 4 KPI cards + duplicated DealTables are removed).
   const aging = data?.agingPipeline ?? [];
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-6">
       <ChartCard title="Forecasting Accuracy" wide>
         <RevenueLineChart
           height={300}
@@ -355,20 +358,20 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
           Average Accuracy: {data?.forecastingAccuracy.average ?? 0}%
         </p>
       </ChartCard>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Pipeline by Stage">
-          <PipelineBarChart data={(data?.pipelineByStageRows ?? []).map((p) => ({ label: p.label, value: p.value, count: p.count, color: p.color }))} height={250} />
+          <PipelineBarChart data={(data?.pipelineByStageRows ?? []).map((p) => ({ label: p.label, value: p.value, count: p.count, color: p.color }))} height={300} />
         </ChartCard>
         <ChartCard title="Forecast by Probability">
           <PipelineBarChart
             data={(data?.forecastByProbability ?? []).map((f) => ({ label: f.label, value: f.weighted, count: f.weighted, color: CHART_COLORS.blue }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
         <ChartCard title="Aging Pipeline">
           <PipelineBarChart
             data={aging.map((a) => ({ label: a.label, value: a.count, count: a.count, color: CHART_COLORS.blue }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
       </div>
@@ -382,7 +385,7 @@ function DealsTables({ data }: { data: ReportsData | null }) {
   // Activity 14+ Days), each with Export CSV / Export PDF buttons in the
   // card header row. The in-table empty rows carry the exact copy.
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Open Deals by Stage</CardTitle>
@@ -473,28 +476,28 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
   // Activities vs Wins) + the Overdue Activities and Activity Log by Owner
   // tables. The old single donut + calls/emails/meetings table are removed.
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Activities by Type">
           <PipelineBarChart
             data={(data?.activitiesByType ?? []).map((a) => ({ label: a.label, value: a.count, count: a.count, color: a.color }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
         <ChartCard title="Activities Over Time">
           <WonLostLineChart
             data={(data?.activitiesOverTime ?? []).map((m) => ({ month: m.month, won: m.count, lost: 0 }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
         <ChartCard title="Activities vs Wins">
           <WonLostLineChart
             data={(data?.activitiesVsWins ?? []).map((m) => ({ month: m.month, won: m.activities, lost: m.wins }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Overdue Activities</CardTitle>
@@ -569,28 +572,28 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
   // tables (Source/Leads/Won/Revenue, empty row "No data").
   const rows = data?.leadSources ?? [];
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Leads by Source">
           <PipelineBarChart
             data={rows.map((r) => ({ label: r.source, value: r.leads, count: r.leads, color: CHART_COLORS.blue }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
         <ChartCard title="Win Rate by Source (%)">
           <PipelineBarChart
             data={rows.map((r) => ({ label: r.source, value: r.winRate, count: r.winRate, color: CHART_COLORS.green }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
         <ChartCard title="Avg Deal Value by Source">
           <PipelineBarChart
             data={rows.map((r) => ({ label: r.source, value: r.value, count: r.value, color: CHART_COLORS.violet }))}
-            height={250}
+            height={300}
           />
         </ChartCard>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Leads List by Source</CardTitle>
@@ -666,8 +669,8 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
 
 function HealthTab({ data }: { data: ReportsData | null }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title="Account Health Distribution">
           <DonutChart
             data={(data?.accountHealth ?? []).map((a) => ({ name: a.label, value: a.count, color: a.color }))}
@@ -684,7 +687,7 @@ function HealthTab({ data }: { data: ReportsData | null }) {
           />
         </ChartCard>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>At Risk Accounts</CardTitle>

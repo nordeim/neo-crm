@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
-import { FILTER_RAIL, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
+import { CONTACTS_LAYOUT, FILTER_RAIL, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import { ContactDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -141,6 +141,16 @@ export default function ContactsPage() {
 
   return (
     <div>
+      {/* Session-11 (S11-P8): the reference's contacts page is the ONLY
+          full-height layout — a `flex h-[calc(100vh-64px)]` wrapper with a
+          `flex-1 overflow-auto` inner scroller and `p-8` content at ALL
+          widths (every other page ships p-4 sm:p-8 — contacts shows 32px
+          at 390px where the others show 16px). The calc's 64px is 5px
+          short of the real 69px topbar (a reference quirk mirrored
+          verbatim — main overflows 5px). */}
+      <div className={CONTACTS_LAYOUT.fullHeight}>
+        <div className={CONTACTS_LAYOUT.innerScroll}>
+          <div className={CONTACTS_LAYOUT.content}>
       {/* Session-6: contacts is the flat header variant (text-3xl title,
           plain row, gap-3 actions); buttons are h-9 outline with hidden-sm
           labels on Scan Card/Import; Export CSV is disabled at zero data. */}
@@ -280,8 +290,13 @@ export default function ContactsPage() {
 
       {/* Reference wrapper: rounded-xl + border + shadow-sm + overflow-hidden
           (session-5) — contacts is the one bordered table wrapper (mb-6
-          spacing per session-6). */}
-      <Card className="mb-6 overflow-hidden">
+          spacing per session-6). Session-11 (S11-P9): the shadow-sm
+          override is now EXPLICIT — the Card base's bare `shadow` rendered
+          one step heavier than the reference's tiny shadow-sm here (the
+          contacts table is the only entity table with the small shadow;
+          accounts/leads keep the standard one). `cn` is tailwind-merge, so
+          the conflict resolves to shadow-sm. */}
+      <Card className="mb-6 overflow-hidden shadow-sm">
         <CardContent className="px-0 py-0">
           <Table>
             <TableHeader>
@@ -417,7 +432,11 @@ export default function ContactsPage() {
         )}
       </div>
 
-      {/* Scan card */}
+      </div>
+        </div>
+      </div>
+
+      {/* Scan card — portals render outside the full-height wrapper. */}
       <Dialog open={scanOpen} onOpenChange={setScanOpen}>
         <DialogContent>
           <DialogHeader>

@@ -38,9 +38,9 @@ first boot.
 | ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save, workspace defaults, data export + danger-zone reset |
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate — the fix the reference app never shipped |
-| 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login |
+| 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, in-place "Forgot password?" reset flow (mirrors the reference's client-side views) |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
-| 🧪 Tested | 169 Vitest unit checks + 23 Playwright E2E checks, including a 6-check mobile-nav regression suite (resize lock-release included) |
+| 🧪 Tested | 189 Vitest unit checks + 26 Playwright E2E checks, including a 6-check mobile-nav regression suite (resize lock-release included) |
 
 ## Architecture
 
@@ -157,12 +157,13 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 169 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters, design-tokens, reports-data)
+bun run test          # 189 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 23 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 26 Playwright checks on :3100 with its own db/e2e.db
 ```
 
-E2E coverage: logged-out surface (redirects, bad credentials), the
+E2E coverage: logged-out surface (redirects, bad credentials, the login
+card's in-place reset-password flow), the
 authenticated golden path across all 9 pages, lead creation through the real
 dialog, global search, the per-page document titles, the reports tab 2-4
 structure, and the 6-check mobile-navigation regression suite (drawer opens

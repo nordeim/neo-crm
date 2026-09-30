@@ -449,7 +449,7 @@ export default function LeadsPage() {
             <CardTitle>Pipeline Value by Stage</CardTitle>
           </CardHeader>
           <CardContent>
-            <PipelineBarChart data={pipelineByStage} height={240} />
+            <PipelineBarChart data={pipelineByStage} height={250} />
           </CardContent>
         </Card>
         <Card>
@@ -457,7 +457,7 @@ export default function LeadsPage() {
             <CardTitle>Won vs Lost Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <WonLostLineChart data={wonVsLost} height={240} />
+            <WonLostLineChart data={wonVsLost} height={250} />
           </CardContent>
         </Card>
         <Card>
@@ -465,7 +465,7 @@ export default function LeadsPage() {
             <CardTitle>Conversion Funnel</CardTitle>
           </CardHeader>
           <CardContent>
-            <ConversionFunnel data={funnel} height={240} />
+            <ConversionFunnel data={funnel} height={250} />
           </CardContent>
         </Card>
       </div>

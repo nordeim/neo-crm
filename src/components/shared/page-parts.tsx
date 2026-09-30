@@ -138,7 +138,10 @@ export function KpiCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-4 shadow sm:p-6">
+    // Session-11 (S11-P3): the reference's dashboard/reports KPI cards
+    // carry `hover:shadow-md transition-shadow` — the only hover-shadow
+    // stat surfaces.
+    <div className="rounded-xl border border-line bg-surface p-4 shadow transition-shadow hover:shadow-md sm:p-6">
       <p className="text-xs text-muted sm:text-sm">{label}</p>
       <div className="mt-2 flex flex-wrap items-end gap-2">
         <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
@@ -291,7 +294,9 @@ export function IconStatCard({
 }) {
   if (variant === "leads") {
     return (
-      <div className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+      // Session-11 (S11-P2): bare `shadow` — the reference's leads stat
+      // cards compute the standard shadow, not the tiny one.
+      <div className="rounded-xl border border-line bg-surface p-4 shadow sm:p-6">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-xs text-muted sm:text-sm">{label}</span>
           <span
@@ -312,7 +317,9 @@ export function IconStatCard({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-3 rounded-xl border border-line p-6 shadow-sm",
+        // Session-11 (S11-P2): bare `shadow` here too — the reference's
+        // contacts gradient cards compute the standard shadow.
+        "flex items-center justify-between gap-3 rounded-xl border border-line p-6 shadow",
         gradient ? "bg-gradient-to-br from-white to-gray-50" : "bg-surface",
       )}
     >
@@ -361,7 +368,9 @@ export function CircleStatCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
+    // Session-11 (S11-P2): bare `shadow` — the reference's reports KPI
+    // cards compute the standard shadow (hover already matched).
+    <div className="rounded-xl border border-line bg-surface p-5 shadow transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-3">
           <span

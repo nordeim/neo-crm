@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.7.0
+version: 1.8.0
 last_updated: 2026-09-30
-project_state: 169 unit checks + 23 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the FunnelChart funnel, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
+project_state: 189 unit checks + 26 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the FunnelChart funnel, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.7.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.8.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -937,6 +937,63 @@ looks corrupted but the compilers pass, verify with character ORDINALS
 (`[ord(c) for c in line[:30]]`) before touching anything. (This is the
 session-6 "broken grid-cols class" artifact, now understood.)
 
+## 16c. Session-11 Layer (login reset flow, chart geometry, stat shadows, reports de-card, contacts architecture)
+
+**The space-y v4 hazard (the session's one new rename-family bug):** v4
+wraps `space-y-*` in `:where()` AND flips its semantics to margin-BOTTOM
+on `:not(:last-child)`. The reference's login reset view ships `-mb-2` on
+its Back button, which under ITS v3-era space-y (margin-TOP on following
+siblings) computes a 16px gap — under v4 the `-mb-2` (0,1,0) WINS against
+`:where(…)` (0,0,0) and produced an 8px OVERLAP. Rule: when mirroring
+negative margins that ride on space-y gaps, re-derive from the reference's
+COMPUTED gap (`mb-4` there), never copy the class string.
+
+**The login reset flow (S11-P1):** "Forgot password?" is NOT dead on the
+reference — it swaps the card IN PLACE (URL unchanged): signin → reset →
+sent; no email is actually sent (the confirmation is pure client state).
+The two views replace the login column entirely (no logo / Google button /
+divider) and live in `src/lib/login-reset.ts` (`LOGIN_RESET_LAYOUT` +
+`nextLoginView()` + `canSubmitReset()`, pinned by `tests/login-reset.test.ts`).
+The reset email input's placeholder is LIGHTER than the sign-in fields'
+(slate-400 vs slate-600 — the reference's own inconsistency, mirrored), and
+its submit is one size smaller than Sign in's (h-10 sm:h-11 vs h-11
+sm:h-12).
+
+**Chart geometry (S11-P3):** `CHART_GEOMETRY` in page-layout.ts —
+dashboard + all reports tab charts render at **300px** (tab-2 Forecasting
+Accuracy is the full 1142px-wide card), the leads rail charts at **250px**,
+the activities by-type at **150px**. Legends are the recharts DEFAULT
+`<Legend />` (plainline icons, series-colored text) — the custom
+circle-8px/gray legends are retired (same no-props rule as the s10
+tooltips).
+
+**Stat-card shadows (S11-P4/5):** every stat-card family carries bare
+`shadow` (`STAT_SHADOWS`): KpiCard, BarStatCard, TrendStatCard,
+IconStatCard (both variants) and CircleStatCard. The dashboard + reports
+KPI cards additionally hover (`hover:shadow-md transition-shadow`). The
+entity TABLE cards differ: accounts/leads `rounded-lg shadow` (no border)
+vs contacts `rounded-xl border shadow-sm overflow-hidden` (the only
+tiny-shadow table card — `TABLE_SHADOWS`).
+
+**Reports de-card (S11-P7):** the pill tab bar + panels render BARE in the
+page (a `space-y-6` container directly under the KPI row — no Card
+wrapper; content spans the full 1192px at 1512). Every reports tab grid is
+`gap-6` and the tab bodies are `space-y-6`. The sticky filter card above
+the KPI row stays a separate element.
+
+**Contacts architecture (S11-P8/9):** the reference's only full-height
+layout — `CONTACTS_LAYOUT`: `main > flex h-[calc(100vh-64px)] > flex-1
+overflow-auto > p-8 > content`. The calc's 64px is 5px short of the real
+69px topbar (a reference quirk mirrored verbatim — main overflows 5px);
+the padding is p-8 at ALL widths (32px at 390px where every other page
+ships p-4 sm:p-8 = 16px).
+
+**Dead reference surfaces (re-confirmed):** every Export button
+(dashboard/leads/reports/accounts/contacts/activities) and the login
+"Sign up" link are dead on the reference platform (no request / toast /
+download) — mirrored as no-ops. At 390px the topbar hides search + mail +
+bell; only the user menu shows.
+
 ## 17. Responsive Breakpoint Reference
 
 Tailwind defaults (no custom config). Layout-critical usage:
@@ -1143,18 +1200,21 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 | db-path | `tests/db-path.test.ts` | 16 | ~10 ms |
 | auth | `tests/auth.test.ts` | 9 | ~210 ms (scrypt KDF) |
 | format | `tests/format.test.ts` | 23 | ~19 ms |
-| page-layout | `tests/page-layout.test.ts` | 37 | ~8 ms |
+| page-layout | `tests/page-layout.test.ts` | 69 | ~17 ms |
 | csv | `tests/csv.test.ts` | 8 | ~6 ms |
 | constants | `tests/constants.test.ts` | 12 | ~5 ms |
 | rate-limit | `tests/rate-limit.test.ts` | 6 | ~29 ms |
 | avatar | `tests/avatar.test.ts` | 5 | ~4 ms |
-| reports-data (session-10) | `tests/reports-data.test.ts` | 7 | ~8 ms |
-| **unit total** | 11 files | **169** | **<1 s** |
-| e2e auth (logged out) | `tests/e2e/auth.spec.ts` | 3 | — |
+| lead-filters (session-8) | `tests/lead-filters.test.ts` | 12 | ~6 ms |
+| design-tokens (sessions 9–10) | `tests/design-tokens.test.ts` | 8 | ~4 ms |
+| reports-data (session-10) | `tests/reports-data.test.ts` | 7 | ~18 ms |
+| login-reset (session-11) | `tests/login-reset.test.ts` | 14 | ~6 ms |
+| **unit total** | 12 files | **189** | **<1 s** |
+| e2e auth (logged out + reset flow) | `tests/e2e/auth.spec.ts` | 5 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
-| e2e golden path (incl. titles + reports tabs) | `tests/e2e/crm.spec.ts` | 13 | — |
+| e2e golden path (incl. titles, reports tabs, chart geometry) | `tests/e2e/crm.spec.ts` | 14 | — |
 | e2e mobile nav regression | `tests/e2e/mobile-navigation.spec.ts` | 6 | — |
-| **e2e total** | 4 files | **23** | **~25 s** (incl. server boot) |
+| **e2e total** | 4 files | **26** | **~35 s** (incl. server boot) |
 
 Full gate wall-clock: lint ~10 s, typecheck ~8 s, unit <1 s, build ~40 s,
 e2e ~25 s → roughly 90 s end-to-end. Costs worth knowing: e2e reseeds
@@ -1452,6 +1512,29 @@ at desktop width.
   build clean · **23/23 e2e** (mobile-nav 6/6); DOM re-verified at
   1512/1024/768/700/390 + zero 390px overflow on all nine routes; 12
   screenshots refreshed; docs realigned + SKILL v1.7.0.
+
+### Session 11 audit (2026-09-30)
+
+- **Layer:** the login card's reset-password flow (never clicked before —
+  the "dead" Forgot-password button was a live in-card view swap with a
+  full two-view contract), stat-card + table-card shadow scales (computed
+  box-shadows), chart geometry (per-surface heights + the stock recharts
+  legend), the reports tabs container (ours were card-wrapped; the
+  reference's render bare), and the contacts page architecture (the
+  reference's only full-height layout, `h-[calc(100vh-64px)]` with the 5px
+  short-topbar quirk). 10 findings (S11-P1..P10) + one new Tailwind v4
+  rename-family bug (space-y semantics + `:where()` specificity).
+- **VLM rounds:** 2 real fixes (the reset view's space-y/`-mb-2` 8px
+  overlap → the v4-correct `mb-4`; the reset input's placeholder
+  slate-600 → the reference's slate-400) — both verified with
+  computed-style probes before and after; both initially flagged as VLM
+  suspicions, both proven by the DOM.
+- **Gate**: lint 0/0 · typecheck clean · **189/189 unit** (20 new checks:
+  14 login-reset + 6 page-layout geometry/shadow/layout pins) · build
+  clean · **26/26 e2e** (mobile-nav 6/6; +2 auth reset-flow tests, +1 crm
+  chart-geometry test); DOM re-verified at 1512/1024/768/700/390 + zero
+  390px overflow on all nine routes; 12 screenshots refreshed; docs
+  realigned + SKILL v1.8.0.
 
 ## Appendix D: Live-Site Validation Methodology
 

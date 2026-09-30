@@ -205,3 +205,21 @@ Work Log:
 
 Stage Summary:
 - Gate green; ready: commit on main + SSH-wrapper push
+
+---
+Task ID: 12 (repo)
+Agent: main (Super Z)
+Task: Session 11 — login reset flow + chart geometry + stat shadows + reports de-card + contacts architecture parity
+
+Work Log:
+- Pulled to 1982263 (docs/session_14.md = session-10 transcript); full docs + codebase review; baseline gate green (169/169 unit); mobile-nav regression re-verified live before any change (drawer, dual locks, Escape, resize unlock, 390 sweep)
+- Live audit at 1512 targeting the layers below the s6-s10 pins: hover micro-states, Radix select/dialog chrome, export/toast behavior (ALL reference Export buttons + Sign up link confirmed dead platform artifacts), chart legends + geometry, settings control types, mobile topbar at 390, login "Forgot password?" (NOT dead — a full in-card reset flow), dialog titles/submits (all 5), reports container (bare tabs vs our Card wrap), contacts architecture (the reference's only full-height layout), stat-card shadow scales
+- 10 findings (S11-P1..P10) + one new Tailwind v4 rename-family bug: v4 wraps space-y in :where() AND flips it to margin-bottom on :not(:last-child), so the reference's -mb-2 Back button (16px gap under v3 margin-top semantics) became an 8px OVERLAP under v4 — re-derived to mb-4 from the computed gap
+- TDD: tests/login-reset.test.ts (14) + 6 new page-layout pins (CHART_GEOMETRY, STAT_SHADOWS, TABLE_SHADOWS, CONTACTS_LAYOUT, LOGIN_RESET_LAYOUT, iconButton) red-first -> 189/189; +2 auth reset-flow e2e +1 crm chart-geometry e2e -> 26/26
+- Implemented: the two-view reset flow (signin->reset->sent, src/lib/login-reset.ts seam; slate-400 placeholder, one-size-smaller submit), chart heights (dashboard/reports 300px, leads rail 250px, activities 150px) + stock recharts <Legend/>, stat-card bare shadows + KPI hover:shadow-md, reports tabs de-carded (bare space-y-6 container, gap-6 grids, tab bodies space-y-6), contacts full-height layout (h-[calc(100vh-64px)] + 5px-short-topbar quirk + fixed p-8), contacts table card shadow-sm
+- VLM rounds: 2 real fixes (the space-y/-mb-2 overlap -> mb-4; reset placeholder slate-600 -> slate-400), both DOM-proven before+after; reset view re-compared ALIGNED
+- Full gate green: lint 0/0 · tsc · 189/189 unit · build · 26/26 e2e (mobile-nav 6/6); DOM re-verified at 1512/1024/768/700/390; zero 390px overflow on all 9 routes
+- 12 screenshots refreshed; .env.example verified tracked+matching; docs realigned (README, AGENTS + space-y hazard + session-11 contracts, CLAUDE, PAD, SKILL v1.8.0, session_15.md, plan addendum, worklog)
+
+Stage Summary:
+- Gate green; ready: commit on main + SSH-wrapper push

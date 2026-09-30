@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (148) → `bun run build` → `bun run test:e2e` (22). For UI
+   `bun run test` (189) → `bun run build` → `bun run test:e2e` (26). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (148 checks)               |
-| `bun run test:e2e`  | Playwright E2E (22 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (189 checks)               |
+| `bun run test:e2e`  | Playwright E2E (26 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 169 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 189 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -124,15 +124,19 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   `tests/lead-filters.test.ts` (the popover Save View encode/decode seam),
   `tests/reports-data.test.ts` (session-10: aging bucketing, forecast
   accuracy, row-derived month series),
+  `tests/login-reset.test.ts` (session-11: the login card's in-place
+  reset-password flow — view swaps, submit gating, back navigation),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
-  sessions 6–10: KPI ladders, page headers, rails, filter bars, the
+  sessions 6–11: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
   button pins, the mobile-nav breakpoint contract, view switchers, the
-  leads filters popover, and session-10's stock-primitive pins — INPUT_BASE
-  / SELECT_TRIGGER / SEARCH_INPUT / PAGE_TITLES). Node environment; `@`
-  alias resolved.
-- **E2E (Playwright, 23 checks)** — `tests/e2e/`: `auth.spec.ts`
-  (logged-out surface), `auth.setup.ts` (one real login, storageState saved),
+  leads filters popover, session-10's stock-primitive pins — INPUT_BASE
+  / SELECT_TRIGGER / SEARCH_INPUT / PAGE_TITLES, and session-11's
+  CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT /
+  LOGIN_RESET_LAYOUT pins). Node environment; `@` alias resolved.
+- **E2E (Playwright, 26 checks)** — `tests/e2e/`: `auth.spec.ts`
+  (logged-out surface + session-11's login reset-password flow),
+  `auth.setup.ts` (one real login, storageState saved),
   `crm.spec.ts` (authenticated golden path across all 9 pages + the
   session-10 per-page-titles and reports tab 2-4 structure tests),
   `mobile-navigation.spec.ts` (6-check regression suite for the drawer —
@@ -155,7 +159,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 148).
+the seam (currently 189).
 
 ## Code Quality Standards
 
