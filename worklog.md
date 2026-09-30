@@ -243,3 +243,6 @@ Work Log:
 
 Stage Summary:
 - Gate green; ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+Stage Summary (final):
+- PUSHED: session-12 commit 652511b on main -> git@github.com:nordeim/neo-crm.git (first push attempt hit a transient GitHub "fatal error in commit_refs"; retry verified remote @ 652511b == local HEAD); all suites green (206 unit / 28 e2e); docs at SKILL v1.9.0
