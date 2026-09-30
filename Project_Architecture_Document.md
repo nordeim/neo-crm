@@ -352,7 +352,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 14 Vitest suites — 244 checks
+│   ├── *.test.ts                # 15 Vitest suites — 262 checks
 │   └── e2e/                     # global-setup, auth.setup, 3 spec files — 31 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -662,17 +662,18 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–13) | 1 | 112 | `tests/page-layout.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–14) | 1 | 126 | `tests/page-layout.test.ts` | Vitest |
 | Unit — design tokens (shadow/blur/border-split/foreground/base-font re-pins, ring, cursor rule, inks — sessions 9–13) | 1 | 14 | `tests/design-tokens.test.ts` | Vitest |
 | Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
 | Unit — page-titles (auth absolute titles — session-13) | 1 | 2 | `tests/page-titles.test.ts` | Vitest |
 | Unit — charts-contracts (dashed grid + funnel type — session-13) | 1 | 4 | `tests/charts-contracts.test.ts` | Vitest |
+| Unit — profile-route (the /Profile casing alias — session-14) | 1 | 4 | `tests/profile-route.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type — sessions 10–13) | 1 | 18 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias — sessions 10–14) | 1 | 21 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **18** | **244 unit + 31 e2e** | | |
+| **Total** | **19** | **262 unit + 34 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -767,6 +768,44 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   .next/standalone/` — running `next build` bare leaves the standalone
   server without static chunks (all `/_next/static` requests 404 and
   pages never hydrate); always use the package script.
+- **Settings Defaults tab (session-14):** the reference's "Default
+  Values" card is a SINGLE-COLUMN `space-y-4` stack of six `space-y-2`
+  groups with the STOCK CardTitle + the stock CardDescription subtitle
+  (`text-sm text-muted-ink`, 14px/#737373) — ours had shipped a
+  responsive 3-column grid. The s13 "settings (5) text-lg" CardTitle
+  override covers ONLY the five CRM Configuration picklist cards; the
+  Defaults (1) + Data (3) cards ride the stock default.
+- **Settings Data tab + Danger Zone (session-14):** the template card is
+  "Import Templates" (with the prefix); the list bodies are vertical
+  `space-y-2` stacks of stock outline default-size buttons
+  (`w-full sm:w-auto`, download icon `w-4 h-4`); the Danger Zone is the
+  tinted `border-red-200 bg-red-50` surface with the circle-alert
+  `w-5 h-5` title on `text-red-700`, a `max-w-xs` confirm input with the
+  `mt-2` group-control fix, the destructive button BELOW it (fg
+  #fafafa), and NO warning paragraph.
+- **The v4 space-y inline-label no-op (session-14):** Tailwind v4's
+  space-y flip (margin-BOTTOM on `:not(:last-child)`) lands on an INLINE
+  `<label>` — vertical margins on inline elements do not apply, so the
+  label→control gap collapsed to ~3px where the reference's v3 semantics
+  compute 12px (margin-TOP on the block-level control). Fix: literal
+  `space-y-2` group kept + explicit `mt-2` on every control
+  (`SETTINGS_DEFAULTS.controlMt` / `SETTINGS_DANGER.controlMt`); the
+  label-top-to-control-top distance is 28px on both apps.
+- **/Profile casing alias (session-14):** the reference serves both
+  casings (its account menu links to `/Profile`); ours ships a thin
+  `src/app/Profile/page.tsx` that `redirect("/profile")`s — a
+  next.config.ts redirect LOOPS (Next matches redirects
+  case-insensitively; `caseSensitive` is not a valid per-redirect
+  property in Next 16).
+- **line-soft re-pin (session-14):** `--color-line-soft` #f3f4f6 →
+  #f5f5f5 (the reference's muted/accent, computed live on the segmented
+  tab tracks + a bg-accent probe) — the scaffold-era gray-100 was never
+  live-pinned; 27 class usages ride the token.
+- **Reference drift (session-14):** the reference REMOVED its signup
+  flow (the login Sign-up button is dead and `/signup` renders the 404
+  view, SSR title "Signup | NEO CRM") — our functional `/signup` stays
+  the documented superset; its logout leaves it on `/` as "Hi, Guest"
+  (ours redirects to /login — safer, documented).
 
 ### 7.3 Coverage Thresholds
 
@@ -779,7 +818,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 244/244
+- [ ] `bun run test` — 262/262
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 31/31
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)

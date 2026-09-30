@@ -319,6 +319,71 @@ export const SETTINGS_PICKLIST = {
   industriesPlaceholder: "Add new industrie",
 } as const;
 
+/** Session-14 (S14-P1): the settings DEFAULTS tab. The reference's
+ *  "Default Values" card is a SINGLE-COLUMN stack at every width — body
+ *  `p-6 pt-0 space-y-4` (16px between groups, computed), six groups each
+ *  `space-y-2` (12px computed label→control gap) — with the STOCK
+ *  CardTitle and the stock CardDescription subtitle `text-sm
+ *  text-muted-foreground` (14px / #737373). Ours shipped a responsive
+ *  3-column grid (sm:grid-cols-2 lg:grid-cols-3), `grid gap-1.5` groups
+ *  (6px), the settings text-lg title override and a `text-xs text-muted`
+ *  subtitle (12px / #6b7280 — both size and color wrong). */
+export const SETTINGS_DEFAULTS = {
+  body: "p-6 pt-0 space-y-4",
+  group: "space-y-2",
+  /** Session-14: the v4 space-y flip NO-OPS on inline labels. The
+   *  reference's v3-era `space-y-2 > * + *` lands margin-TOP 8px on the
+   *  block-level control (computed inputMT 8px, rect gap 12px); our v4
+   *  `:where(& > :not(:last-child))` lands margin-BOTTOM on the INLINE
+   *  label — and vertical margins on inline elements do not apply, so
+   *  the gap collapsed to ~3px. The explicit mt-2 on every control
+   *  restores the reference's computed geometry (same re-derive-from-
+   *  computed-gap rule as the s11 -mb-2 hazard). */
+  controlMt: "mt-2",
+  cardTitle: "font-semibold leading-none tracking-tight",
+  subtitle: "text-sm text-muted-ink",
+} as const;
+
+/** Session-14 (S14-P2): the settings DATA tab. The template card is
+ *  titled "Import Templates" (the reference carries the 'Import '
+ *  prefix); both list bodies are VERTICAL `p-6 pt-0 space-y-2` stacks of
+ *  stock outline default-size buttons (`w-full sm:w-auto`, download icon
+ *  w-4 h-4 — the mr-2 gap rides BUTTON_BASE.iconGap). Ours shipped
+ *  "Templates", `flex flex-wrap gap-2` bodies and secondary/sm buttons
+ *  (h-8 px-3 text-xs, icon h-3.5, no responsive width). */
+export const SETTINGS_DATA = {
+  importTitle: "Import Templates",
+  listBody: "p-6 pt-0 space-y-2",
+  cardTitle: "font-semibold leading-none tracking-tight",
+  buttonCls: "w-full sm:w-auto",
+  buttonIcon: "h-4 w-4",
+} as const;
+
+/** Session-14 (S14-P3): the Danger Zone card — the reference's TINTED
+ *  warning surface. Card `rounded-xl border … border-red-200 bg-red-50`
+ *  (computed border #fecdd3; ours had the border but not the bg); title
+ *  the STOCK string + `text-red-700 flex items-center gap-2` with a
+ *  circle-alert icon `w-5 h-5` (ours: text-lg text-danger = #ef4444, the
+ *  wrong red, no icon); body `p-6 pt-0 space-y-4` holding ONLY the
+ *  `space-y-2` input group (label 'Type "RESET" to confirm', input
+ *  `max-w-xs` placeholder RESET) and the destructive button BELOW it —
+ *  no warning paragraph (ours shipped extra copy + a flex-row pair). The
+ *  reset foreground is #fafafa (neutral-50), not pure white. */
+export const SETTINGS_DANGER = {
+  card: "rounded-xl border text-card-foreground shadow border-red-200 bg-red-50",
+  title: "font-semibold leading-none tracking-tight text-red-700 flex items-center gap-2",
+  titleIcon: "h-5 w-5",
+  body: "p-6 pt-0 space-y-4",
+  group: "space-y-2",
+  /** Same v4 inline-label fix as SETTINGS_DEFAULTS.controlMt — the
+   *  reference's confirm input computes margin-top 8px (v3 space-y
+   *  semantics); ours needs the explicit mt-2. */
+  controlMt: "mt-2",
+  label: 'Type "RESET" to confirm',
+  inputCls: "max-w-xs",
+  resetFg: "text-neutral-50",
+} as const;
+
 /** Session-8: mobile-nav drawer contracts. The auto-close media query MUST
  *  match the drawer's `md:hidden` range (768px) — session-7 moved the drawer
  *  from lg to md but left the listener at 1024px, so resizing from 700 to
@@ -675,6 +740,9 @@ export function allLayoutClasses(): string[] {
     DASHBOARD_CARD,
     DASHBOARD_HEADER,
     SETTINGS_PICKLIST,
+    SETTINGS_DEFAULTS,
+    SETTINGS_DATA,
+    SETTINGS_DANGER,
     MOBILE_NAV_LAYOUT,
     VIEW_SWITCHER,
     TABLE_TOOLBAR,

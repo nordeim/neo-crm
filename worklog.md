@@ -262,3 +262,24 @@ Work Log:
 Stage Summary:
 - Gate green: lint 0/0 · tsc · 244/244 unit · 31/31 e2e (mobile-nav 7/7); zero 390px overflow all ten routes; 13 screenshots; docs at SKILL v1.10.0
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+---
+Task ID: 15 (repo)
+Agent: main (Super Z)
+Task: Session 14 — settings Defaults/Data tab structure + Danger Zone rebuild + /Profile casing alias + line-soft re-pin + the v4 space-y inline-label no-op fix
+
+Work Log:
+- Pulled to 08ed611 (docs/session_20.md = the prior session's transcript); full docs + codebase review; baseline gate green (244/244 unit); env verified (.env file:../db/custom.db + db/ at root + .env.example + vitest/playwright configs)
+- Re-probed every previously-pinned family FIRST (moving-target rule): NO drift — dashboard KPIs/foreground/base-font/grids/CardTitle map/button radii/calendar cells/account menu/by-type/reports tabs/login family/th-td/borders all stable; demo data still zero (10th session)
+- Mobile-nav regression re-verified LIVE at 390px before changes: 7/7 PASS (trigger hit-test scoped to header button[aria-expanded] — the overlay close button matches naive regexes; focus lands inside the dialog; dual locks; Escape; trap wrap; resize auto-close; route close); 390 sweep clean on 10 routes
+- Unprobed layers audit: settings Defaults/Data tabs (never deep-compared) — REAL findings: 3-col grid vs single-column space-y-4 stack; "Templates" vs "Import Templates"; flex-wrap vs vertical space-y-2 stacks; secondary/sm vs outline default w-full sm:w-auto buttons; Danger Zone missing bg-red-50 tint + circle-alert icon + text-red-700 + max-w-xs + stacked layout + #fafafa fg, with an extra warning paragraph; /Profile 404 vs reference serving both casings; --color-line-soft #f3f4f6 scaffold assumption vs reference muted/accent #f5f5f5 (27 usages)
+- Reference drift documented: signup flow REMOVED on the reference (login Sign-up button dead, /signup renders 404 view) — our functional /signup stays the documented superset; logout leaves the reference on / as "Hi, Guest"; picklist add flow DEAD on the reference (ours functional superset); focus order aligned (our aria-labels = accessible superset)
+- TDD: 18 red-first checks (12 page-layout + 1 design-tokens + 4+1 profile-route/override-scope) -> 262/262 unit; +3 e2e -> 34/34 (mobile-nav 7/7)
+- /Profile alias took 3 gate-caught attempts: (1) separate export async function redirects() silently ignored (routes-manifest empty); (2) in-config redirect LOOPS (Next matches redirects case-insensitively; caseSensitive not a valid per-redirect property in Next 16 -> "Invalid redirect found"); (3) SHIPPED: thin src/app/Profile/page.tsx -> redirect("/profile") outside the (app) group (case-exact by filesystem)
+- Mid-verification root cause (NEW Tailwind v4 hazard, the s11 space-y flip's second face): v4's margin-BOTTOM on :not(:last-child) lands on the INLINE <label> — vertical margins on inline elements DO NOT APPLY — the label->control gap collapsed to ~3px vs the reference's 12px (v3 margin-TOP on the control). Fix: literal space-y-2 kept + mt-2 on every control (controlMt contract, 7 call sites); label-top-to-control-top = 28px BOTH apps after
+- Full gate: lint 0/0 · tsc · 262/262 unit · build (bun run build) · 34/34 e2e; live DOM re-verified at 1512+390 on every touched surface; zero 390px overflow on all ELEVEN routes (incl. /Profile); VLM: 2 usable rounds (ALIGNED/SAME), 2 hallucinated (DOM-discounted)
+- Deliverables: 13 screenshots refreshed; .env/.env.example verified; docs realigned (README badge 296 + counts, AGENTS + 6 session-14 blocks + hazards, CLAUDE, PAD matrix + notes, SKILL v1.11.0 §16f + color table fixed, docs/session_21.md, plan addendum, worklogs)
+
+Stage Summary:
+- Gate green: lint 0/0 · tsc · 262/262 unit · 34/34 e2e (mobile-nav 7/7); zero 390px overflow on 11 routes; 13 screenshots; docs at SKILL v1.11.0
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

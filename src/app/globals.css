@@ -46,7 +46,12 @@
      --color-line-strong carries the explicit family. */
   --color-line: #e5e5e5;
   --color-line-strong: #e5e7eb;
-  --color-line-soft: #f3f4f6;
+  /* Session-14 (S14-P5): re-pinned from the scaffold-era #f3f4f6 (gray-100)
+     to the reference's muted/accent #f5f5f5 (neutral-100) — computed live on
+     the settings segmented tab track (bg-muted) + a bg-accent probe, both
+     rgb(245,245,245). The token rides every muted/accent-role surface: tab
+     tracks, outline/ghost hovers, select/menu focus washes, row hovers. */
+  --color-line-soft: #f5f5f5;
 
   /* Focus ring (session-9 S9-16): the reference's --ring is the stock
      shadcn `0 0% 3.9%` (#0a0a0a) — focused controls render a 1px

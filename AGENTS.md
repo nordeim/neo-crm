@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (244 checks)         | `bun run test`                         |
-| Browser E2E (31 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (262 checks)         | `bun run test`                         |
+| Browser E2E (34 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (244) → `bun run build` → `bun run test:e2e` (31). There is no
+`bun run test` (262) → `bun run build` → `bun run test:e2e` (34). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -75,7 +75,16 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   fight against `:where(…)` (0,0,0) and produced an 8px OVERLAP. When
   mirroring negative margins that ride on space-y gaps, re-derive the
   class from the reference's COMPUTED gap (`mb-4` there), never copy the
-  class string. The reference's global stylesheet also ships
+  class string. **Session-14 found the same flip's second face: when the
+  space-y container's non-last child is an INLINE element (a bare
+  `<label>`), v4's margin-BOTTOM lands on an inline box — vertical
+  margins on inline elements DO NOT APPLY, so the label→control gap
+  silently collapses (measured 3px where the reference computes 12px via
+  its v3 margin-TOP-on-the-control semantics). Fix pattern: keep the
+  literal `space-y-2` group class for parity, add an explicit `mt-2` on
+  every block-level control (`SETTINGS_DEFAULTS.controlMt` /
+  `SETTINGS_DANGER.controlMt`) — the reference's label-top-to-control-top
+  distance is 28px on both apps after the fix. The reference's global stylesheet also ships
   `button, [role="button"] { cursor: pointer; }` — mirrored in our base
   layer (ours computed the arrow cursor before session-10).
 - **Stock-primitive inks (session-10)**: the reference's stock Input/Select
@@ -369,10 +378,11 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 244 Vitest checks across
-  14 suites (session-13 added `tests/page-titles.test.ts` for the auth
+  sessions 6–8 + session-10's stock-primitive pins) — 262 Vitest checks across
+  15 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
-  funnel type).
+  funnel type; session-14 added `tests/profile-route.test.ts` for the
+  `/Profile` casing alias).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
@@ -462,6 +472,44 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
 - **The Label is stock shadcn (session-13)** — `text-sm font-medium
   leading-none` (14px; was a 12px custom), the DialogTitle stock
   `text-lg font-semibold leading-none tracking-tight`.
+- **The settings Defaults tab is a single column (session-14)** — the
+  reference's "Default Values" card: body `p-6 pt-0 space-y-4`, six
+  `space-y-2` groups, STOCK CardTitle, subtitle `text-sm text-muted-ink`
+  (14px/#737373 — the stock CardDescription family), four stock Inputs +
+  two w-full select triggers (`SETTINGS_DEFAULTS`). Ours had shipped a
+  responsive 3-column grid with `grid gap-1.5` groups and the settings
+  text-lg title — the s13 "settings (5) text-lg" pin covered ONLY the CRM
+  Configuration tab's five picklist cards.
+- **The settings Data tab + Danger Zone (session-14)** — the template card
+  is titled "Import Templates"; both list bodies are VERTICAL `space-y-2`
+  stacks of stock outline default-size buttons (`w-full sm:w-auto`,
+  download icon `w-4 h-4`); the Danger Zone is the TINTED surface
+  (`border-red-200 bg-red-50`, circle-alert `w-5 w-5` title on
+  text-red-700, body `space-y-4` with the `max-w-xs` confirm input then
+  the destructive button below — #fafafa foreground, no warning
+  paragraph) (`SETTINGS_DATA` / `SETTINGS_DANGER`).
+- **`/Profile` is a thin alias route (session-14)** — the reference serves
+  BOTH casings (its account menu links to `/Profile`); ours keeps the
+  canonical lowercase `(app)/profile` and aliases the capital casing via
+  `src/app/Profile/page.tsx` (a `redirect("/profile")` server component
+  outside the (app) group). Do NOT convert it to a next.config.ts
+  redirect: Next matches config redirects CASE-INSENSITIVELY, so the rule
+  matches its own destination and loops (ERR_TOO_MANY_REDIRECTS), and
+  `caseSensitive` is not a valid per-redirect property in Next 16
+  ("Invalid redirect found"). Pinned by `tests/profile-route.test.ts`.
+- **`--color-line-soft` is #f5f5f5 (session-14)** — the reference's
+  muted/accent family (computed live on the segmented tab tracks + a
+  bg-accent probe, both rgb(245,245,245)); the scaffold-era #f3f4f6
+  (gray-100) was never live-pinned. The token rides every muted/accent
+  role surface: tab tracks, outline/ghost hovers, select/menu focus
+  washes, row hovers, count badges.
+- **The reference REMOVED its signup flow (session-14 drift)** — its
+  login "Need an account? Sign up" button no longer navigates and
+  `/signup` renders the 404 view (SSR title still "Signup | NEO CRM");
+  our working `/signup` stays the documented functional superset (the
+  dead-exports precedent). The reference also logs out to `/` as
+  "Hi, Guest" without redirecting to /login (ours redirects — the safer
+  behavior, documented).
 
 ## Conventions that differ from defaults
 

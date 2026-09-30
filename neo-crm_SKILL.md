@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.10.0
+version: 1.11.0
 last_updated: 2026-09-30
-project_state: 244 unit checks + 31 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 262 unit checks + 34 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.10.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.11.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1099,13 +1099,14 @@ mirror — fix both if either changes):
 | `primary-foreground` | `#ffffff` | 255 255 255 | `text-primary-foreground` | on-primary text |
 | `background` | `#f9fafb` | 249 250 251 | `bg-background` | app canvas |
 | `surface` | `#ffffff` | 255 255 255 | `bg-surface` | cards, topbar, dialogs |
-| `foreground` | `#111827` | 17 24 39 | `text-foreground` | primary text |
+| `foreground` | `#0a0a0a` | 10 10 10 | `text-foreground` | primary text (session-13 re-pin) |
 | `muted` | `#6b7280` | 107 114 128 | `text-muted` | secondary text |
 | `subtle` | `#9ca3af` | 156 163 175 | `text-subtle` | tertiary text, icons |
 | `ink` | `#0a0a0a` | 10 10 10 | `text-ink` | input/select typed text (session-10) |
 | `muted-ink` | `#737373` | 115 115 115 | `placeholder:text-muted-ink` | placeholders (session-10) |
-| `line` | `#e5e7eb` | 229 231 235 | `border-line` | borders, dividers |
-| `line-soft` | `#f3f4f6` | 243 244 246 | `bg-line-soft` | chips, hover fill, search pill |
+| `line` | `#e5e5e5` | 229 229 229 | `border-line` | borders, dividers (session-12 split) |
+| `line-strong` | `#e5e7eb` | 229 231 235 | `border-line-strong` | the explicit gray-200 family (reports KPI/filter, contacts table, topbar search) |
+| `line-soft` | `#f5f5f5` | 245 245 245 | `bg-line-soft` | tab tracks, hover/focus washes, chips (session-14 re-pin — the reference muted/accent) |
 | `success` / `success-soft` | `#10b981` / `#ecfdf5` | — | `text-success` `bg-success-soft` | positive deltas, won stages |
 | `warning` / `warning-soft` | `#f59e0b` / `#fffbeb` | — | `text-warning` `bg-warning-soft` | due-soon, tier B |
 | `danger` / `danger-soft` | `#ef4444` / `#fef2f2` | — | `text-danger` `bg-danger-soft` | errors, lost, overdue |
@@ -1690,6 +1691,82 @@ at desktop width.
   request 404s, React never hydrates, and the login form degrades to a
   NATIVE GET submit. Symptom in e2e: `auth.setup.ts` times out at
   `waitForURL("/")`. Always build through the package script.
+
+## 16f. Session-14 Layer (settings Defaults/Data tab structure, Danger Zone rebuild, /Profile casing alias, line-soft re-pin, the v4 space-y inline-label no-op)
+
+### Session 14 audit (2026-09-30)
+
+- **Layer:** the settings **Defaults and Data tabs** (only the CRM
+  Configuration tab had ever been deep-compared — the other two tabs
+  carried real structural diffs), the picklist interactive flows, the
+  keyboard focus order, the `/Profile` casing route, and the auth
+  surface. The previously-pinned families were re-probed FIRST (the
+  moving-target rule): **no drift** — dashboard KPIs, foreground, base
+  font, grids, CardTitle map, button radii, calendar cells, account
+  menu, by-type card, reports tabs, login family, th/td, borders all
+  stable. Demo data still zero (10th consecutive session).
+- **Findings (S14-P1..P6):** the Defaults tab shipped a responsive
+  3-COLUMN grid where the reference is a single-column `space-y-4` stack
+  of `space-y-2` groups with the STOCK CardTitle + the stock
+  CardDescription subtitle (14px/#737373 — ours was 12px/#6b7280, both
+  wrong); the Data tab said "Templates" instead of "Import Templates",
+  wrapped its buttons horizontally (`flex flex-wrap gap-2` vs the
+  reference's vertical `space-y-2` stacks) in secondary/sm size (h-8
+  text-xs vs stock outline h-9 px-4 text-sm `w-full sm:w-auto` with the
+  `w-4 h-4` download icon); the Danger Zone missed the `bg-red-50`
+  tint, the circle-alert `w-5 h-5` title icon, the `text-red-700` (ours
+  used the #ef4444 danger token), the `max-w-xs` input, the stacked
+  button-below-input layout and the #fafafa destructive foreground —
+  and shipped an extra warning paragraph the reference does not have;
+  `/Profile` 404ed (the reference serves both casings, its account menu
+  links the capital one); `--color-line-soft` was a scaffold-era
+  #f3f4f6 where the reference's muted/accent computes #f5f5f5 (verified
+  on the live segmented tab tracks + a bg-accent probe; 27 class usages
+  ride the token).
+- **The new Tailwind v4 hazard (the session's root-cause find):** the
+  v4 space-y flip (margin-BOTTOM on `:not(:last-child)`) NO-OPS when
+  the container's non-last child is an INLINE element — a bare
+  `<label>`. Vertical margins on inline elements do not apply, so the
+  label→control gap silently collapsed to ~3px where the reference's
+  v3-era semantics (`margin-top` on the block-level control) compute
+  12px. Fix pattern: KEEP the literal `space-y-2` group class (parity)
+  and add an explicit `mt-2` on every block-level control — after the
+  fix the label-top-to-control-top distance is 28px on BOTH apps (the
+  remaining 1px rect difference is inline-box font-metric rounding).
+  Same re-derive-from-computed-gap rule as the s11 `-mb-2` hazard; this
+  is its second face.
+- **The /Profile implementation lesson:** a next.config.ts redirect is
+  the WRONG tool for casing aliases — Next.js matches config redirects
+  CASE-INSENSITIVELY, so `/Profile -> /profile` also matches the
+  destination itself and loops into ERR_TOO_MANY_REDIRECTS, and the
+  `caseSensitive` escape hatch is not a valid per-redirect property in
+  Next 16 ("Invalid redirect found" at build). The thin route folder
+  (`src/app/Profile/page.tsx` → `redirect("/profile")`, outside the
+  (app) group) is case-exact by filesystem and cannot loop. Both
+  failure modes were caught by the e2e suite before they could ship.
+- **Reference drift (auth):** the reference REMOVED its signup flow —
+  the login "Need an account? Sign up" button no longer navigates and
+  `/signup` renders the 404 view (SSR title still "Signup | NEO CRM").
+  Our functional `/signup` stays the documented superset (the
+  dead-exports precedent). Its logout also leaves it on `/` as
+  "Hi, Guest" (ours redirects to /login — the safer behavior).
+- **Verified-aligned (no action):** the CRM Configuration picklist cards
+  (computed-equal empty state, the #171717 add button, the "Add new
+  industrie" typo); the picklist ADD flow is DEAD on the reference
+  (button + Enter both no-op, no toast) — ours stays the functional
+  superset; keyboard focus order through the dashboard (our aria-labels
+  are the accessible superset); the login footer utility set identical.
+- **TDD + gate:** 18 red-first checks (12 page-layout pins + 1
+  design-tokens re-pin + 4 profile-route + 1 override-scope) →
+  **262/262 unit**; +3 e2e (Defaults single-column, Data tab +
+  Danger Zone structure, /Profile alias) → **34/34 e2e** (mobile-nav
+  7/7); build via `bun run build`; live DOM re-verified at 1512 + 390
+  (the 28px label geometry, the 36px/6px stacked buttons, the tinted
+  Danger Zone, the 307 alias, the #f5f5f5 tracks); zero 390px overflow
+  on all ELEVEN routes (incl. /Profile); two usable VLM rounds
+  (ALIGNED/SAME on the touched tabs — two other rounds hallucinated
+  non-existent elements and were DOM-discounted); 13 screenshots
+  refreshed; docs realigned + SKILL v1.11.0.
 
 ## Appendix D: Live-Site Validation Methodology
 

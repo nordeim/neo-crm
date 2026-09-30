@@ -42,6 +42,9 @@ import {
   RECENT_DEALS,
   REPORTS_FILTER_BAR,
   REPORTS_TABLE_CARD,
+  SETTINGS_DEFAULTS,
+  SETTINGS_DANGER,
+  SETTINGS_DATA,
   SETTINGS_PICKLIST,
   SHELL_LAYOUT,
   STAT_CARD,
@@ -1233,5 +1236,139 @@ describe("session-13: stock Label primitive (S13-P13)", () => {
     );
     expect(src).toContain('"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"');
     expect(src).not.toContain("text-xs font-medium text-foreground/80");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session 14 (S14-P1..P5): settings Defaults/Data tab structure, the Danger
+// Zone rebuild, the /Profile casing redirect and the line-soft re-pin.
+// ---------------------------------------------------------------------------
+
+describe("session-14: settings Defaults tab single-column layout (S14-P1)", () => {
+  it("the Default Values body is a single-column space-y-4 stack", () => {
+    // Reference: body `p-6 pt-0 space-y-4` — one column at ALL widths
+    // (computed g1MT 16px). Ours shipped a 3-col responsive grid.
+    expect(SETTINGS_DEFAULTS.body).toBe("p-6 pt-0 space-y-4");
+    expect(SETTINGS_DEFAULTS.body).not.toMatch(/grid-cols/);
+  });
+
+  it("each Defaults group is space-y-2 (12px computed label gap)", () => {
+    // Reference groups: `space-y-2` (computed label→control gap 12px);
+    // ours shipped `grid gap-1.5` (6px).
+    expect(SETTINGS_DEFAULTS.group).toBe("space-y-2");
+  });
+
+  it("every control carries mt-2 — the v4 space-y flip NO-OPS on inline labels", () => {
+    // The reference's v3-era `space-y-2 > * + *` lands margin-TOP 8px on
+    // the block-level control; Tailwind v4's
+    // `:where(& > :not(:last-child))` lands margin-BOTTOM on the INLINE
+    // label — vertical margins on inline elements do not apply, so the
+    // gap silently collapsed to ~3px. The explicit mt-2 restores the
+    // reference's computed geometry (inputMT 8px, rect gap 12px).
+    expect(SETTINGS_DEFAULTS.controlMt).toBe("mt-2");
+    expect(SETTINGS_DANGER.controlMt).toBe("mt-2");
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/settings/settings-page.tsx"),
+      "utf8",
+    );
+    // 4 Defaults inputs + 2 select triggers + the Danger Zone input.
+    expect(src.match(/SETTINGS_DEFAULTS\.controlMt/g)?.length).toBe(6);
+    expect(src.match(/SETTINGS_DANGER\.controlMt/g)?.length).toBe(1);
+  });
+
+  it("the Defaults CardTitle rides the STOCK string (not the settings text-lg override)", () => {
+    expect(SETTINGS_DEFAULTS.cardTitle).toBe(CARD.title);
+    expect(SETTINGS_DEFAULTS.cardTitle).not.toContain("text-lg");
+  });
+
+  it("the Defaults subtitle is the stock CardDescription family (14px, #737373)", () => {
+    // Reference: `text-sm text-muted-foreground` (computed 14px /
+    // rgb(115,115,115)); ours shipped `text-xs text-muted` (12px/#6b7280).
+    expect(SETTINGS_DEFAULTS.subtitle).toBe("text-sm text-muted-ink");
+    expect(SETTINGS_DEFAULTS.subtitle).not.toContain("text-xs");
+  });
+});
+
+describe("session-14: settings Data tab structure (S14-P2)", () => {
+  it("the template card is titled 'Import Templates'", () => {
+    // The reference's title carries the 'Import ' prefix; ours said just
+    // 'Templates'.
+    expect(SETTINGS_DATA.importTitle).toBe("Import Templates");
+  });
+
+  it("both list bodies are vertical space-y-2 stacks", () => {
+    // Reference: `p-6 pt-0 space-y-2` (buttons stacked, 8px apart);
+    // ours shipped `flex flex-wrap gap-2` (horizontal wrap).
+    expect(SETTINGS_DATA.listBody).toBe("p-6 pt-0 space-y-2");
+    expect(SETTINGS_DATA.listBody).not.toContain("flex-wrap");
+  });
+
+  it("the Data tab buttons are stock outline default-size with w-full sm:w-auto", () => {
+    // Reference: outline variant, h-9 px-4 py-2 text-sm, `w-full
+    // sm:w-auto`, download icon w-4 h-4. Ours shipped secondary/sm
+    // (h-8 px-3 text-xs, icon h-3.5, no responsive width).
+    expect(SETTINGS_DATA.buttonCls).toContain("w-full sm:w-auto");
+    expect(SETTINGS_DATA.buttonIcon).toBe("h-4 w-4");
+  });
+
+  it("the Data tab CardTitles ride the STOCK string", () => {
+    expect(SETTINGS_DATA.cardTitle).toBe(CARD.title);
+    expect(SETTINGS_DATA.cardTitle).not.toContain("text-lg");
+  });
+});
+
+describe("session-14: Danger Zone rebuild (S14-P3)", () => {
+  it("the card is the tinted warning surface (bg-red-50 + red-200 border)", () => {
+    // Reference: `rounded-xl border text-card-foreground shadow
+    // border-red-200 bg-red-50` (computed border #fecdd3 = our
+    // rose-200/red-200 — kept; the bg was missing).
+    expect(SETTINGS_DANGER.card).toContain("border-red-200");
+    expect(SETTINGS_DANGER.card).toContain("bg-red-50");
+  });
+
+  it("the title is stock + text-red-700 + flex + gap with the circle-alert icon", () => {
+    // Reference: `font-semibold leading-none tracking-tight text-red-700
+    // flex items-center gap-2` + lucide circle-alert w-5 h-5. Ours shipped
+    // `text-lg text-danger` (#ef4444 — the WRONG red) with no icon.
+    expect(SETTINGS_DANGER.title).toBe(
+      "font-semibold leading-none tracking-tight text-red-700 flex items-center gap-2",
+    );
+    expect(SETTINGS_DANGER.titleIcon).toBe("h-5 w-5");
+  });
+
+  it("the body stacks the input group then the button (no warning paragraph)", () => {
+    // Reference body: `p-6 pt-0 space-y-4` with ONLY the `space-y-2`
+    // input group (label 'Type "RESET" to confirm' + max-w-xs input) and
+    // the destructive button below it. Ours shipped an extra paragraph +
+    // a flex-row input+button pair.
+    expect(SETTINGS_DANGER.body).toBe("p-6 pt-0 space-y-4");
+    expect(SETTINGS_DANGER.group).toBe("space-y-2");
+    expect(SETTINGS_DANGER.label).toBe('Type "RESET" to confirm');
+    expect(SETTINGS_DANGER.inputCls).toContain("max-w-xs");
+  });
+
+  it("the reset button foreground is #fafafa (neutral-50), not pure white", () => {
+    // Reference destructive-foreground computes rgb(250,250,250); ours
+    // shipped text-white (#ffffff).
+    expect(SETTINGS_DANGER.resetFg).toBe("text-neutral-50");
+  });
+});
+
+describe("session-14: settings CardTitle override scope (S14-P1/P2)", () => {
+  it("the text-lg override stays ONLY on the five CRM Configuration picklist cards", () => {
+    // The s13 pin ('settings (5) text-lg') covered ONLY the CRM
+    // Configuration tab's five picklist cards — the Defaults (1) and Data
+    // (3) cards ride the stock default. The settings-page source must
+    // apply CARD_TITLE_OVERRIDE.settings inside ListEditor but NOT on the
+    // Defaults/Data cards.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/settings/settings-page.tsx"),
+      "utf8",
+    );
+    // ListEditor (the five picklist cards) keeps the override…
+    expect(src).toMatch(/<CardTitle className=\{CARD_TITLE_OVERRIDE\.settings\}>\{title\}/);
+    // …and the Defaults/Data/Danger titles must NOT carry it.
+    expect(src).not.toMatch(/CARD_TITLE_OVERRIDE\.settings\}[^>]*>(Default Values|Import Templates|Export Data|Danger Zone)/);
+    expect(src).not.toMatch(/CARD_TITLE_OVERRIDE\.settings,\s*"text-danger"/);
   });
 });

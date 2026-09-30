@@ -203,6 +203,68 @@ test("settings page exposes the three configuration tabs", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Reset All Data" })).toBeVisible();
 });
 
+test("settings Defaults tab renders the reference's single-column layout (S14-P1)", async ({ page }) => {
+  // The reference's Default Values card is ONE column at every width
+  // (body space-y-4, groups space-y-2) — ours shipped a 3-col grid.
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Defaults" }).click();
+
+  const card = page.locator("main .rounded-xl", { hasText: "Default Currency" });
+  await expect(card).toBeVisible();
+  const body = card.locator(".p-6.pt-0");
+  await expect(body).toHaveClass(/space-y-4/);
+  await expect(body).not.toHaveClass(/grid-cols/);
+
+  // The six groups stack vertically: the last group (First Day of Week)
+  // renders BELOW the first (Default Currency) at desktop width.
+  const first = await card.getByLabel("Default Currency").boundingBox();
+  const last = await card.getByLabel("First Day of Week").boundingBox();
+  expect(first).not.toBeNull();
+  expect(last).not.toBeNull();
+  expect(last!.y).toBeGreaterThan(first!.y);
+});
+
+test("settings Data tab ships Import Templates + stacked outline buttons (S14-P2/P3)", async ({ page }) => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Data" }).click();
+
+  // The template card carries the reference's 'Import ' prefix.
+  await expect(page.getByText("Import Templates")).toBeVisible();
+
+  // The buttons stack vertically (space-y-2) and are default-size
+  // outline (36px tall at the 16px base — not the 32px sm).
+  const tpl = page.locator("main .rounded-xl", { hasText: "Import Templates" });
+  const btn = tpl.getByRole("button", { name: "Download Contacts Template" });
+  await expect(btn).toBeVisible();
+  await expect(btn).toHaveClass(/w-full sm:w-auto/);
+  const box = await btn.boundingBox();
+  expect(Math.round(box?.height ?? 0)).toBe(36);
+
+  // The Danger Zone is the tinted warning surface with the icon title.
+  const dz = page.locator("main .rounded-xl", { hasText: "Danger Zone" });
+  await expect(dz).toHaveClass(/bg-red-50/);
+  await expect(dz.getByText("Danger Zone")).toBeVisible();
+  const reset = dz.getByRole("button", { name: "Reset All Data" });
+  // The reset button sits BELOW the confirm input (stacked, not inline).
+  const input = dz.getByLabel('Type "RESET" to confirm');
+  const ib = await input.boundingBox();
+  const rb = await reset.boundingBox();
+  expect(ib).not.toBeNull();
+  expect(rb).not.toBeNull();
+  expect(rb!.y).toBeGreaterThan(ib!.y);
+});
+
+test("/Profile (capital P) redirects to the profile page (S14-P4)", async ({ page }) => {
+  // The reference serves both casings (its account menu links to
+  // /Profile); ours aliases the uppercase onto the canonical /profile.
+  // 'Personal Information' is a CardTitle <div> (no heading semantics —
+  // the reference ships none either), so assert via text + the page h1.
+  await page.goto("/Profile");
+  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page.getByRole("heading", { name: "Profile & Settings" })).toBeVisible();
+  await expect(page.getByText("Personal Information")).toBeVisible();
+});
+
 test("global search finds a seeded account", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Search accounts, contacts and leads").fill("Northwind");

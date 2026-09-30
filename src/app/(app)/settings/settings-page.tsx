@@ -2,7 +2,7 @@
 
 import { downloadFile } from "@/lib/download";
 import * as React from "react";
-import { Download, Plus, Trash2, X } from "lucide-react";
+import { AlertCircle, Download, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/shared/page-parts";
 import { cn } from "@/lib/utils";
-import { CARD_TITLE_OVERRIDE, SETTINGS_PICKLIST } from "@/lib/page-layout";
+import { CARD_TITLE_OVERRIDE, SETTINGS_DANGER, SETTINGS_DATA, SETTINGS_DEFAULTS, SETTINGS_PICKLIST } from "@/lib/page-layout";
 import { Tabs } from "@/components/ui/tabs";
 import { useCrmStore } from "@/stores/crm-store";
 import { toast } from "@/components/ui/toast";
@@ -146,76 +146,87 @@ export default function SettingsPage() {
 
           {tab === "data" && (
             <div className="flex flex-col gap-4">
+              {/* Session-14 (S14-P2): the reference's template card carries
+                  the 'Import ' prefix, a STOCK CardTitle and a VERTICAL
+                  space-y-2 stack of outline default-size buttons
+                  (`w-full sm:w-auto`, download icon w-4 h-4). */}
               <Card>
                 <CardHeader>
-                  <CardTitle className={CARD_TITLE_OVERRIDE.settings}>Templates</CardTitle>
+                  <CardTitle>{SETTINGS_DATA.importTitle}</CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=contacts")}>
-                    <Download className="h-3.5 w-3.5" /> Download Contacts Template
+                <CardContent className={SETTINGS_DATA.listBody}>
+                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=contacts")}>
+                    <Download className={SETTINGS_DATA.buttonIcon} /> Download Contacts Template
                   </Button>
-                  <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=accounts")}>
-                    <Download className="h-3.5 w-3.5" /> Download Accounts Template
+                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=accounts")}>
+                    <Download className={SETTINGS_DATA.buttonIcon} /> Download Accounts Template
                   </Button>
-                  <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=leads")}>
-                    <Download className="h-3.5 w-3.5" /> Download Leads Template
+                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=leads")}>
+                    <Download className={SETTINGS_DATA.buttonIcon} /> Download Leads Template
                   </Button>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle className={CARD_TITLE_OVERRIDE.settings}>Export Data</CardTitle>
+                  <CardTitle>Export Data</CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=contacts&download=1")}>
+                <CardContent className={SETTINGS_DATA.listBody}>
+                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=contacts&download=1")}>
                     Export Contacts
                   </Button>
-                  <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=accounts&download=1")}>
+                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=accounts&download=1")}>
                     Export Accounts
                   </Button>
-                  <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=leads&download=1")}>
+                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=leads&download=1")}>
                     Export Leads
                   </Button>
-                  <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=activities&download=1")}>
+                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=activities&download=1")}>
                     Export Activities
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card className="border-rose-200">
+              {/* Session-14 (S14-P3): the reference's TINTED warning surface
+                  — border-red-200 + bg-red-50, the circle-alert title on
+                  text-red-700, and a space-y-4 stack of the confirm input
+                  group then the destructive button (no warning paragraph).
+                  The reset foreground is #fafafa (neutral-50), not white. */}
+              <Card className={SETTINGS_DANGER.card}>
                 <CardHeader>
-                  <CardTitle className={cn(CARD_TITLE_OVERRIDE.settings, "text-danger")}>Danger Zone</CardTitle>
+                  <CardTitle className={SETTINGS_DANGER.title}>
+                    <AlertCircle className={SETTINGS_DANGER.titleIcon} aria-hidden="true" />
+                    Danger Zone
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  <p className="text-xs text-muted">
-                    Reset deletes all accounts, contacts, leads, activities, events and saved reports. Users and settings are kept.
-                    Type <span className="font-semibold text-foreground">RESET</span> to confirm.
-                  </p>
-                  <div className="flex max-w-md gap-2">
+                <CardContent className={SETTINGS_DANGER.body}>
+                  <div className={SETTINGS_DANGER.group}>
+                    <Label htmlFor="reset-confirm">{SETTINGS_DANGER.label}</Label>
                     <Input
+                      id="reset-confirm"
                       value={resetText}
                       onChange={(e) => setResetText(e.target.value)}
                       placeholder="RESET"
-                      aria-label="Type RESET to confirm"
-                      className={resetText && resetText !== "RESET" ? "border-rose-300" : ""}
+                      aria-label={SETTINGS_DANGER.label}
+                      className={cn(SETTINGS_DANGER.inputCls, SETTINGS_DANGER.controlMt)}
                     />
-                    <Button
-                      variant="destructive"
-                      disabled={resetText !== "RESET"}
-                      onClick={async () => {
-                        const res = await resetData();
-                        if (res.ok) {
-                          toast.success("Workspace reset", "All domain data deleted. Seed again with `bun run db:seed`.");
-                          setResetText("");
-                        } else {
-                          toast.error("Reset failed", res.error);
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" /> Reset All Data
-                    </Button>
                   </div>
+                  <Button
+                    variant="destructive"
+                    className={SETTINGS_DANGER.resetFg}
+                    disabled={resetText !== "RESET"}
+                    onClick={async () => {
+                      const res = await resetData();
+                      if (res.ok) {
+                        toast.success("Workspace reset", "All domain data deleted. Seed again with `bun run db:seed`.");
+                        setResetText("");
+                      } else {
+                        toast.error("Reset failed", res.error);
+                      }
+                    }}
+                  >
+                    Reset All Data
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -317,40 +328,51 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Session-14 (S14-P1): the reference's Default Values card is a
+          SINGLE-COLUMN space-y-4 stack (16px between groups, every width)
+          with space-y-2 groups (12px computed label→control gap), the
+          STOCK CardTitle and the stock CardDescription subtitle
+          (text-sm text-muted-foreground — 14px/#737373). Ours shipped a
+          responsive 3-col grid with 6px gaps, the text-lg title and a
+          12px subtitle. */}
       <Card>
         <CardHeader>
-          <CardTitle className={CARD_TITLE_OVERRIDE.settings}>Default Values</CardTitle>
-          <p className="text-xs text-muted">Set default values for new records</p>
+          <CardTitle>Default Values</CardTitle>
+          <p className={SETTINGS_DEFAULTS.subtitle}>Set default values for new records</p>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="grid gap-1.5">
+        <CardContent className={SETTINGS_DEFAULTS.body}>
+          <div className={SETTINGS_DEFAULTS.group}>
             <Label htmlFor="def-currency">Default Currency</Label>
             <Input
               id="def-currency"
+              className={SETTINGS_DEFAULTS.controlMt}
               value={defaults.defaultCurrency}
               onChange={(e) => set("defaultCurrency", e.target.value.toUpperCase().slice(0, 6))}
             />
           </div>
-          <div className="grid gap-1.5">
+          <div className={SETTINGS_DEFAULTS.group}>
             <Label htmlFor="def-stage">Default Lead Stage</Label>
             <Input
               id="def-stage"
+              className={SETTINGS_DEFAULTS.controlMt}
               value={defaults.defaultLeadStage}
               onChange={(e) => set("defaultLeadStage", e.target.value)}
             />
           </div>
-          <div className="grid gap-1.5">
+          <div className={SETTINGS_DEFAULTS.group}>
             <Label htmlFor="def-tier">Default Account Tier</Label>
             <Input
               id="def-tier"
+              className={SETTINGS_DEFAULTS.controlMt}
               value={defaults.defaultTier}
               onChange={(e) => set("defaultTier", e.target.value.toUpperCase().slice(0, 2))}
             />
           </div>
-          <div className="grid gap-1.5">
+          <div className={SETTINGS_DEFAULTS.group}>
             <Label htmlFor="def-follow">Follow-up Days After Activity</Label>
             <Input
               id="def-follow"
+              className={SETTINGS_DEFAULTS.controlMt}
               type="number"
               min={0}
               max={90}
@@ -358,10 +380,10 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
               onChange={(e) => set("followUpDays", Number(e.target.value) || 0)}
             />
           </div>
-          <div className="grid gap-1.5">
-            <Label>Default Calendar View</Label>
+          <div className={SETTINGS_DEFAULTS.group}>
+            <Label htmlFor="def-calview">Default Calendar View</Label>
             <Select value={defaults.calendarView} onValueChange={(v) => set("calendarView", v)}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="def-calview" className={cn("w-full", SETTINGS_DEFAULTS.controlMt)}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="month">Month</SelectItem>
                 <SelectItem value="week">Week</SelectItem>
@@ -369,10 +391,10 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid gap-1.5">
-            <Label>First Day of Week</Label>
+          <div className={SETTINGS_DEFAULTS.group}>
+            <Label htmlFor="def-firstday">First Day of Week</Label>
             <Select value={defaults.firstDayOfWeek} onValueChange={(v) => set("firstDayOfWeek", v)}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="def-firstday" className={cn("w-full", SETTINGS_DEFAULTS.controlMt)}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="monday">Monday</SelectItem>
                 <SelectItem value="sunday">Sunday</SelectItem>

@@ -108,11 +108,15 @@ describe("design tokens: Session 12 border split (S12-P3)", () => {
     expect(themeToken("color-line-strong")).toBe("#e5e7eb");
   });
 
-  it("the soft hairline keeps its wash role (unchanged by the split)", () => {
-    // --color-line-soft (#f3f4f6) is the hover wash + segmented track
-    // background — not part of the border-color split; pinned so the
-    // re-pin does not drift it.
-    expect(themeToken("color-line-soft")).toBe("#f3f4f6");
+  it("the soft wash re-pins to the reference's muted/accent #f5f5f5 (S14-P5)", () => {
+    // --color-line-soft was a SCAFFOLD-ERA assumption (#f3f4f6, gray-100)
+    // — computed on the live reference (2026-09-30): the settings
+    // segmented tab track (bg-muted) and a bg-accent probe both render
+    // rgb(245,245,245) = #f5f5f5 (neutral-100). The token rides 27 class
+    // usages, all in the muted/accent role (tab tracks, outline/ghost
+    // hovers, select/menu focus washes, row hovers, count badges) — the
+    // same class of finding as the s13 14px-base-font assumption.
+    expect(themeToken("color-line-soft")).toBe("#f5f5f5");
   });
 });
 
