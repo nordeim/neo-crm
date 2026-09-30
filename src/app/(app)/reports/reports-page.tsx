@@ -156,10 +156,10 @@ export default function ReportsPage() {
               uppercase-K currency on this page ($542.0K won / $196K lost). */}
           <div className={PAGE_KPI_GRIDS.reports}>
             <CircleStatCard label="Total Leads" value={k?.totalLeads ?? 0} icon={<Target className="h-5 w-5" />} color="#3b82f6">
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#3b82f6" variant="line" className="h-6" />
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#3b82f6" variant="line" className="h-full" />
             </CircleStatCard>
             <CircleStatCard label="Open Leads" value={k?.openLeads ?? 0} icon={<Users className="h-5 w-5" />} color="#f97316">
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#f97316" variant="line" className="h-6" />
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#f97316" variant="line" className="h-full" />
             </CircleStatCard>
             <CircleStatCard
               label="Won Deals"
@@ -167,16 +167,17 @@ export default function ReportsPage() {
               icon={<TrendingUp className="h-5 w-5" />}
               color="#10b981"
             >
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#10b981" variant="line" className="h-6" />
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#10b981" variant="line" className="h-full" />
             </CircleStatCard>
+            {/* Session-12 (S12-P6): the reference's LOST DEALS card ships NO
+                sparkline (KPI_SPARK.lostDealsSpark) — only Total Leads /
+                Open Leads / Won Deals / Conversion Rate carry one. */}
             <CircleStatCard
               label="Lost Deals"
               value={<>{" "}{k?.lostDeals ?? 0} {formatCompactCurrency(k?.lostValue ?? 0, { upper: true, decimals: 0 })}</>}
               icon={<TrendingDown className="h-5 w-5" />}
               color="#ef4444"
-            >
-              <Sparkline values={data?.wonVsLostOverTime?.map((r) => r.lost) ?? []} color="#ef4444" variant="line" className="h-6" />
-            </CircleStatCard>
+            />
             {/* Session-10 (S10 VLM round): the reference's Conversion Rate
                 chip icon is lucide-target (same as Total Leads) — ours
                 rendered Percent. */}
@@ -186,7 +187,7 @@ export default function ReportsPage() {
               icon={<Target className="h-5 w-5" />}
               color="#8b5cf6"
             >
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#8b5cf6" variant="line" className="h-6" />
+              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#8b5cf6" variant="line" className="h-full" />
             </CircleStatCard>
           </div>
 

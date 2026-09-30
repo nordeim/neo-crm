@@ -62,6 +62,37 @@ test.describe("mobile navigation drawer", () => {
     await expect(dialog).toBeHidden();
   });
 
+  test("opening the drawer moves focus INTO the drawer (S12-P1)", async ({ page }) => {
+    // S12-P1 regression: the drawer's rAF focus fired while the
+    // transition-[visibility] class flip had not applied yet — focus() on
+    // the still-hidden Close button silently no-opped, so focus stayed on
+    // the burger and keyboard users Tabbed through the BACKGROUND page
+    // behind the aria-modal dialog (WCAG 2.4.3). The fix retries focus
+    // across frames until activeElement lands inside the panel.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+
+    const trigger = page.getByRole("button", { name: "Open navigation menu" });
+    await trigger.click();
+    const dialog = page.getByRole("dialog", { name: "Navigation menu" });
+    await expect(dialog).toBeVisible();
+
+    // Focus must land inside the dialog (retry happens within a few frames;
+    // the assertion itself allows the transition to settle).
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() => {
+            const dialog = document.querySelector(
+              '[role=dialog][aria-label="Navigation menu"]',
+            );
+            return dialog ? dialog.contains(document.activeElement) : false;
+          }),
+        { timeout: 3000 },
+      )
+      .toBe(true);
+  });
+
   test("body scroll is locked while the drawer is open", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");

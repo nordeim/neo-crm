@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.8.0
+version: 1.9.0
 last_updated: 2026-09-30
-project_state: 189 unit checks + 26 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the FunnelChart funnel, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
+project_state: 206 unit checks + 28 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the FunnelChart funnel, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) and the focus-on-open transition-visibility race fixed and e2e-pinned
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.8.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.9.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -828,16 +828,18 @@ Open/close is one `open` boolean driving: panel
 `aria-hidden`, body `overflow:hidden`, and focus trap lifecycle. See
 `mobile-nav.tsx` for the complete reference implementation.
 
-### 15.4 Sparkline (pure CSS, no chart lib)
+### 15.4 Sparkline (recharts monotone for line/area, CSS for bars)
 
 ```tsx
-<Sparkline values={monthlyWon} color={CHART_COLORS.cyan} />
-<Sparkline values={bars} color={CHART_COLORS.orange}
-  colorFor={(_, i) => (won[i] >= target[i] ? CHART_COLORS.blue : CHART_COLORS.orange)} />
+<Sparkline values={monthlyWon} color={CHART_COLORS.cyan} />            // bars
+<Sparkline values={won} color={CHART_COLORS.emerald} variant="line" /> // recharts monotone, sw 2
+<Sparkline values={won} color={CHART_COLORS.violet} variant="area" />  // fill 0.3 + sw 1
 ```
 
-(`src/components/shared/page-parts.tsx` — 8-bar strips mirroring the
-reference KPI cards.)
+(`src/components/shared/page-parts.tsx` — session-12 rebuild: the
+reference renders its line/area sparks as recharts MONOTONE curves in a
+ResponsiveContainer; only the bar strips stay CSS. Geometry pinned as
+`KPI_SPARK` in page-layout.ts.)
 
 ### 15.5 Database URL derivation (THE rule)
 
@@ -993,6 +995,65 @@ ships p-4 sm:p-8 = 16px).
 "Sign up" link are dead on the reference platform (no request / toast /
 download) — mirrored as no-ops. At 390px the topbar hides search + mail +
 bell; only the user menu shows.
+
+## 16d. Session-12 Layer (mobile-nav focus race, border split, tabs anatomy, KPI drift, sparkline rebuild, custom 404)
+
+**The mobile-nav focus race (S12-P1).** The drawer's initial focus RETRIES
+across frames: the rAF callback can run in the SAME frame as the
+`transition-[visibility]` class flip — before the browser has applied the
+now-visible state — and `focus()` on a `visibility:hidden` element
+SILENTLY NO-OPS (instrumented live: focus() WAS called, activeElement
+never moved; keyboard users Tabbed through the background behind the
+aria-modal dialog — WCAG 2.4.3). The fix verifies `activeElement` landed
+inside the panel and re-schedules up to 5 frames (observed: lands frame
+3), with a `cancelled` flag so the effect cleanup stops pending retries.
+The panel also switched `h-full` → `h-dvh` (mobile-nav taxonomy class D).
+`mobile-navigation.spec.ts` grew to 7 checks (focus-entry included).
+
+**The border-color split (S12-P3).** The reference renders TWO border
+grays: its platform DEFAULT is **#e5e5e5** (neutral-200) — every
+bare-`border` surface computes it (ALL stock cards, table rows, the
+tablists, outline buttons, select triggers/contents, dropdown contents,
+dialog content, bare form inputs) — while an EXPLICIT `border-gray-200`
+family (#e5e7eb) covers only the reports KPI cards, the reports sticky
+filter card, the contacts table card and the topbar search input. Login
+keeps its own slate-200 family. `--color-line` re-pins to #e5e5e5 and
+`--color-line-strong` carries #e5e7eb (pinned in design-tokens.test.ts).
+Lesson: a single "border gray" assumption hid a two-gray reality —
+computed border colors must be probed PER SURFACE.
+
+**Tabs anatomy (S12-P4).** The tab strips ship the reference's stock
+Radix classes (`TABS_PILL`/`TABS_SEGMENTED`): tracks carry
+`text-muted-ink` (inactive tabs INHERIT #737373), triggers are
+natural-height with `transition-all`, `ring-offset-background` and
+`data-[state=active]:*` variants riding a `data-state` attribute; the
+ACTIVE pill carries the BARE `shadow` scale (the s6 shadow-sm pin was one
+step light); the pill trigger is `text-xs sm:text-sm`; NO tab ships hover
+classes. The reference's tabs are all `tabIndex=-1` (keyboard-unreachable
+platform defect) — our roving tabindex stays the accessible fix.
+
+**KPI drift + sparks (S12-P5/P6).** The reference MOVED: its dashboard
+KPI cards dropped `hover:shadow-md transition-shadow` (now plain stock
+cards; only the REPORTS KPI family keeps the hover). The KpiCard label
+re-pins to `text-gray-600` (#4b5563) and deltas drop font-medium (neutral
+= gray-600). The sparklines are recharts monotone curves (line sw 2, area
+fill 0.3 + sw 1); dashboard sparks in `mt-2 h-8`, reports sparks in the
+`flex-1 h-12 mr-2` slot capped 176px; the reports LOST DEALS card ships
+NO spark; the icon chips are SOLID color-50s (`KPI_CHIP_BG`).
+
+**The custom 404 (S12-P2).** `not-found.tsx` (server, ABSOLUTE title —
+the root template would double the "| NEO CRM" suffix) +
+`not-found-body.tsx` (client, `usePathname`). VLM round-1 caught what the
+first DOM extraction missed: the 2px×64px slate-200 divider bar under the
+"404", the h2+p in their own `space-y-3` group, the quoted pathname in a
+`font-medium text-slate-700` span, and the `pt-6` button group. Lesson:
+extract ALL children of a container, not just the obvious headings.
+
+**The reference is a MOVING TARGET.** The dashboard KPI hover removal
+happened BETWEEN sessions (the base44 app is live-edited). Standing rule:
+re-probe previously-pinned surfaces when their family is touched, and
+treat any s-pin older than the current audit as provisional until
+re-verified.
 
 ## 17. Responsive Breakpoint Reference
 
@@ -1206,15 +1267,15 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 | rate-limit | `tests/rate-limit.test.ts` | 6 | ~29 ms |
 | avatar | `tests/avatar.test.ts` | 5 | ~4 ms |
 | lead-filters (session-8) | `tests/lead-filters.test.ts` | 12 | ~6 ms |
-| design-tokens (sessions 9–10) | `tests/design-tokens.test.ts` | 8 | ~4 ms |
+| design-tokens (sessions 9–12) | `tests/design-tokens.test.ts` | 11 | ~4 ms |
 | reports-data (session-10) | `tests/reports-data.test.ts` | 7 | ~18 ms |
 | login-reset (session-11) | `tests/login-reset.test.ts` | 14 | ~6 ms |
-| **unit total** | 12 files | **189** | **<1 s** |
+| **unit total** | 12 files | **206** | **<1 s** |
 | e2e auth (logged out + reset flow) | `tests/e2e/auth.spec.ts` | 5 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
-| e2e golden path (incl. titles, reports tabs, chart geometry) | `tests/e2e/crm.spec.ts` | 14 | — |
-| e2e mobile nav regression | `tests/e2e/mobile-navigation.spec.ts` | 6 | — |
-| **e2e total** | 4 files | **26** | **~35 s** (incl. server boot) |
+| e2e golden path (incl. titles, reports tabs, chart geometry, 404) | `tests/e2e/crm.spec.ts` | 15 | — |
+| e2e mobile nav regression (incl. focus entry) | `tests/e2e/mobile-navigation.spec.ts` | 7 | — |
+| **e2e total** | 4 files | **28** | **~35 s** (incl. server boot) |
 
 Full gate wall-clock: lint ~10 s, typecheck ~8 s, unit <1 s, build ~40 s,
 e2e ~25 s → roughly 90 s end-to-end. Costs worth knowing: e2e reseeds
@@ -1535,6 +1596,39 @@ at desktop width.
   chart-geometry test); DOM re-verified at 1512/1024/768/700/390 + zero
   390px overflow on all nine routes; 12 screenshots refreshed; docs
   realigned + SKILL v1.8.0.
+
+### Session 12 audit (2026-09-30)
+
+- **Layer:** the mobile navigation drawer under the focus-lock lens (the
+  user's standing priority — one REAL bug found), the 404 page (never
+  compared), print styles (none on either app — aligned), the settings
+  picklist add-flow re-verification (aligned), the reports-tab keyboard
+  layer (the reference's tabs are all tabIndex=-1 — a platform defect we
+  do NOT mirror), and a full border-color + text-muted token sweep. The
+  reference MOVED since session 11 (its dashboard KPI cards dropped
+  hover:shadow-md + border-gray-200) — current DOM re-pinned.
+- **Findings (S12-P1..P8):** the drawer focus-on-open race (rAF fires in
+  the same frame as the transition-visibility flip; focus() on the
+  still-hidden element silently no-ops — fixed with a bounded retry,
+  e2e-pinned), the custom 404 (slate-50 center + divider bar +
+  quoted-path message + Go Home pill), the border split (#e5e5e5 default
+  vs #e5e7eb explicit family), the stock-Radix tab anatomy (muted-ink
+  tracks, data-state variants, bare-shadow active pills, no hover), the
+  KPI de-hover + gray-600 labels, the recharts monotone sparkline rebuild
+  (+ solid color-50 chips, Lost Deals sparkless), plus documented
+  non-mirrors (dead search/exports, keyboard-inaccessible reference tabs,
+  sonner boilerplate media queries).
+- **VLM rounds:** round 1 caught the 404's divider bar + space-y-3 group
+  split + emphasized pathname span (the first DOM extraction had missed
+  them — capture ALL children, not just headings); round 2 compared
+  ALIGNED. Dashboard/reports diffs were all data-driven (the reference's
+  demo data is still zero — 8th consecutive session).
+- **Gate**: lint 0/0 · typecheck clean · **206/206 unit** (17 new checks:
+  3 design-tokens border-split + 14 page-layout pins) · build clean ·
+  **28/28 e2e** (mobile-nav 7/7 with the focus-entry test; +1 custom-404
+  test); DOM re-verified at 1512/1024/768/700/390 + zero 390px overflow
+  on all ten routes (nine + the 404); 13 screenshots (12 refreshed + the
+  404 capture); docs realigned + SKILL v1.9.0.
 
 ## Appendix D: Live-Site Validation Methodology
 

@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (189 checks)         | `bun run test`                         |
-| Browser E2E (26 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (206 checks)         | `bun run test`                         |
+| Browser E2E (28 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (189) → `bun run build` → `bun run test:e2e` (26). There is no
+`bun run test` (206) → `bun run build` → `bun run test:e2e` (28). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -126,8 +126,17 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   change, close-on-viewport-grow past `md` (`MOBILE_NAV_LAYOUT.autoCloseQuery`
   MUST stay at 768px — the same breakpoint as `md:hidden`; session-8 fixed a
   leftover 1024px listener that left the app scroll-locked after resizing
-  past 768 with the drawer open), `inert` + `visibility:hidden` when closed.
-  `tests/e2e/mobile-navigation.spec.ts` (6 checks, 390/700px viewports) is the
+  past 768 with the drawer open), `inert` + `visibility:hidden` when
+  closed. Session-12 fixed the focus-on-open race: the initial focus
+  RETRIES across frames (bounded rAF loop verifying `activeElement`
+  landed inside the panel) because the rAF can fire in the SAME frame
+  as the `transition-[visibility]` class flip — before the browser
+  applies the visible state — and `focus()` on a still-`visibility:
+  hidden` element SILENTLY NO-OPS (keyboard users Tabbed through the
+  background behind the aria-modal dialog). The panel also uses
+  `h-dvh` (not `h-full`) so it tracks the dynamic viewport on mobile
+  browsers. `tests/e2e/mobile-navigation.spec.ts` (7 checks, 390/700px
+  viewports — the focus-entry test included) is the
   regression suite — do not weaken it.
 - **File downloads use `downloadFile()`** (`src/lib/download.ts`) — a single
   centralized `window.location.href` for `Content-Disposition: attachment`
@@ -230,14 +239,58 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `<Legend />` (plainline icons, series-colored text) — the custom
   circle-8px/gray legends are retired (same no-props rule as the s10
   tooltips).
-- **Stat-card shadows + hover (session-11)** — every stat-card family
-  carries bare `shadow` (`STAT_SHADOWS`): KpiCard, BarStatCard,
-  TrendStatCard, IconStatCard (both variants) and CircleStatCard. The
-  dashboard + reports KPI cards additionally hover
-  (`hover:shadow-md transition-shadow`). The entity TABLE cards differ:
-  accounts/leads `rounded-lg shadow` (no border) vs the contacts
-  `rounded-xl border shadow-sm overflow-hidden` (the only tiny-shadow
-  table card — `TABLE_SHADOWS`).
+- **Stat-card shadows + hover (session-11, revised session-12)** — every
+  stat-card family carries bare `shadow` (`STAT_SHADOWS`): KpiCard,
+  BarStatCard, TrendStatCard, IconStatCard (both variants) and
+  CircleStatCard. The reference MOVED in session-12: its DASHBOARD KPI
+  cards dropped the hover (now plain `rounded-xl border bg-card shadow`),
+  so only the REPORTS KPI family (`CircleStatCard`,
+  `STAT_CARD.reportsCard`) keeps `hover:shadow-md transition-shadow` —
+  do not re-add the dashboard hover without re-probing the live app. The
+  entity TABLE cards differ: accounts/leads `rounded-lg shadow` (no
+  border) vs the contacts `rounded-xl border shadow-sm overflow-hidden`
+  (the only tiny-shadow table card — `TABLE_SHADOWS`).
+- **The border-color split (session-12)** — the reference renders TWO
+  border grays and `--color-line` is NOT gray-200: the platform DEFAULT
+  is **#e5e5e5** (neutral-200) and rides every bare-`border` surface
+  (ALL stock cards, table rows, the tablists, outline buttons, select
+  triggers/contents, dropdowns, dialog content, bare form inputs);
+  the EXPLICIT `border-gray-200` family (#e5e7eb) covers only the
+  reports KPI cards, the reports sticky filter card, the contacts table
+  card (`border-line-strong`) and the topbar search input (literal
+  `border-gray-200`). Login keeps its own slate-200 family. Pinned by
+  `tests/design-tokens.test.ts`; the reference MOVING means computed
+  border colors must be re-probed per surface, never assumed.
+- **The tab strips ship stock Radix classes (session-12)** —
+  `TABS_PILL`/`TABS_SEGMENTED` in `src/lib/page-layout.ts`: the TRACK
+  carries `text-muted-ink` (inactive tabs INHERIT #737373), triggers
+  are natural-height (no h-7), `transition-all`, `ring-offset-background`
+  with `data-[state=active]:*` variants riding a `data-state` attribute,
+  the ACTIVE pill carries the bare `shadow` scale (not shadow-sm), the
+  pill trigger is `text-xs sm:text-sm`, and NO tab ships hover classes.
+  The reference's own tabs are all `tabIndex=-1` (keyboard-unreachable
+  platform defect) — our roving tabindex is the deliberate accessible
+  fix (mobile-nav precedent).
+- **The 404 page is a designed surface (session-12)** —
+  `src/app/not-found.tsx` (server, ABSOLUTE title "This Page Does Not
+  Exist | NEO CRM" — the root template would double the suffix) +
+  `not-found-body.tsx` (client, `usePathname()` for the quoted-path
+  message). `NOT_FOUND_LAYOUT`: bg-slate-50 center, `text-7xl
+  font-light text-slate-300` 404 + a `h-0.5 w-16 bg-slate-200` divider
+  bar, the h2+p in their own `space-y-3` group with the pathname in a
+  `font-medium text-slate-700` span, and the Go Home pill in a `pt-6`
+  group. No app shell. (VLM round-1 caught the divider + span + group
+  split that the first DOM extraction missed — capture ALL children,
+  not just the headings.)
+- **The KPI sparklines are recharts (session-12)** — `Sparkline` in
+  `page-parts.tsx` renders `LineChart`/`AreaChart` with
+  `type="monotone"` inside a `ResponsiveContainer` (line: strokeWidth 2,
+  dot false; area: fillOpacity 0.3 + strokeWidth 1; stock 5px margins).
+  Dashboard sparks sit in `mt-2 h-8` (32px); reports sparks in the
+  `flex items-end justify-between mt-2` row's `flex-1 h-12 mr-2` slot
+  capped `max-w-[176px]`. The reports LOST DEALS card ships NO spark
+  (`KPI_SPARK.lostDealsSpark`). The stat-card icon chips are SOLID
+  color-50s (`KPI_CHIP_BG`), not alpha tints.
 - **The reports tabs are NOT card-wrapped (session-11)** — the pill tab
   bar + panels render bare in the page (a `space-y-6` container directly
   under the KPI row; tab content spans the full 1192px at 1512). Every

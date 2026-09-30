@@ -37,10 +37,11 @@ first boot.
 | 📈 Reports | 5 analytics tabs mirroring the reference structure (Forecasting Accuracy + aging buckets + deals-at-risk tables, activity log by owner, source performance summary) |
 | ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save, workspace defaults, data export + danger-zone reset |
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
-| 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate — the fix the reference app never shipped |
+| 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate, retry-guarded focus entry (transition-visibility race fixed) — the fix the reference app never shipped |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, in-place "Forgot password?" reset flow (mirrors the reference's client-side views) |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
-| 🧪 Tested | 189 Vitest unit checks + 26 Playwright E2E checks, including a 6-check mobile-nav regression suite (resize lock-release included) |
+| 🧭 Custom 404 | The reference's designed not-found page — slate-50 center card, divider bar, quoted-pathname message, Go Home pill |
+| 🧪 Tested | 206 Vitest unit checks + 28 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -157,9 +158,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 189 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset)
+bun run test          # 206 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 26 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 28 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials, the login

@@ -6,16 +6,21 @@ import {
   CARD,
   DASHBOARD_CARD,
   DASHBOARD_HEADER,
+  DELTA_TEXT,
   DIALOG_SUBMIT,
   EMPTY_STATE,
   FILTER_BAR,
   FILTER_RAIL,
   INPUT_BASE,
+  KPI_CARD,
+  KPI_CHIP_BG,
+  KPI_SPARK,
   LEADS_FILTERS_POPOVER,
   LEADS_TOOLBAR,
   LOGIN_LAYOUT,
   MOBILE_NAV_LAYOUT,
   NAV_LAYOUT,
+  NOT_FOUND_LAYOUT,
   PAGE_HEADER,
   PAGE_KPI_GRIDS,
   PAGE_TITLES,
@@ -30,9 +35,11 @@ import {
   REPORTS_TABLE_CARD,
   SETTINGS_PICKLIST,
   SHELL_LAYOUT,
-  STAT_SHADOWS,
-  TABLE_SHADOWS,
   STAT_CARD,
+  STAT_SHADOWS,
+  TABS_PILL,
+  TABS_SEGMENTED,
+  TABLE_SHADOWS,
   TABLE_CARD,
   TABLE_TOOLBAR,
   TOP_REPS,
@@ -142,8 +149,10 @@ describe("filter-bar parity (session-6 DOM-verified)", () => {
   });
 
   it("reports filter bar is sticky with border + shadow-md", () => {
+    // Session-12 (S12-P3): the reference's filter card border is EXPLICIT
+    // border-gray-200 — the strong token, not the #e5e5e5 default.
     expect(REPORTS_FILTER_BAR.bar).toBe(
-      "rounded-xl border border-line bg-surface p-4 mb-6 sticky top-0 z-10 shadow-md",
+      "rounded-xl border border-line-strong bg-surface p-4 mb-6 sticky top-0 z-10 shadow-md",
     );
     expect(REPORTS_FILTER_BAR.row).toBe("flex flex-col lg:flex-row gap-4 items-center");
     expect(REPORTS_FILTER_BAR.selectsWrap).toBe("flex flex-wrap gap-3 flex-1");
@@ -711,5 +720,190 @@ describe("session-11 stat-card shadow + chart geometry pins (DOM-verified 2026-0
     expect(TOPBAR_LAYOUT.iconButton).toContain("hidden");
     expect(TOPBAR_LAYOUT.iconButton).toContain("sm:flex");
     expect(TOPBAR_LAYOUT.iconButton).not.toContain("sm:inline-flex");
+  });
+});
+
+describe("session-12: tabs anatomy (S12-P4)", () => {
+  it("the pill track (reports) carries the reference's full class set", () => {
+    // DOM: `items-center justify-center rounded-lg p-1
+    // text-muted-foreground grid w-full grid-cols-2 lg:grid-cols-5 h-auto
+    // bg-white border`. The track's text-muted-foreground is what makes
+    // inactive tabs inherit #737373 (NOT our gray-500 #6b7280); h-auto is
+    // the reference's explicit height reset.
+    expect(TABS_PILL.track).toContain("text-muted-ink");
+    expect(TABS_PILL.track).toContain("h-auto");
+    expect(TABS_PILL.track).toContain("rounded-lg");
+    expect(TABS_PILL.track).toContain("bg-white");
+    expect(TABS_PILL.track).toContain("grid w-full grid-cols-2");
+    expect(TABS_PILL.track).not.toContain("h-9");
+  });
+
+  it("the pill trigger matches the reference's stock Radix tab classes", () => {
+    // DOM: `inline-flex items-center justify-center whitespace-nowrap
+    // rounded-md px-3 py-1 font-medium ring-offset-background
+    // transition-all … text-xs sm:text-sm data-[state=active]:shadow
+    // data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700`.
+    // No h-7 (natural 28px), no hover: (the reference ships NO hover on
+    // any tab variant), transition-all (not colors-only).
+    expect(TABS_PILL.trigger).toContain("ring-offset-background");
+    expect(TABS_PILL.trigger).toContain("transition-all");
+    expect(TABS_PILL.trigger).toContain("text-xs sm:text-sm");
+    expect(TABS_PILL.trigger).toContain("data-[state=active]:shadow");
+    expect(TABS_PILL.trigger).toContain("data-[state=active]:bg-blue-50");
+    expect(TABS_PILL.trigger).not.toContain("h-7");
+    expect(TABS_PILL.trigger).not.toContain("hover:");
+    expect(TABS_PILL.trigger).not.toContain("transition-colors");
+  });
+
+  it("the segmented track (activities + settings) carries text-muted-ink", () => {
+    // DOM: `h-9 items-center justify-center rounded-lg bg-muted p-1
+    // text-muted-foreground grid w-full grid-cols-{n}` — the same
+    // muted-foreground inheritance as the pill track.
+    expect(TABS_SEGMENTED.track).toContain("h-9");
+    expect(TABS_SEGMENTED.track).toContain("text-muted-ink");
+    expect(TABS_SEGMENTED.track).toContain("rounded-lg bg-line-soft p-1");
+  });
+
+  it("the segmented trigger matches the reference's stock classes", () => {
+    // DOM: `inline-flex items-center justify-center whitespace-nowrap
+    // rounded-md px-3 py-1 text-sm font-medium ring-offset-background
+    // transition-all … data-[state=active]:shadow
+    // data-[state=active]:bg-background data-[state=active]:text-foreground`.
+    // The ACTIVE pill computes the v3 `shadow` scale (0 1px 3px .1 +
+    // 0 1px 2px -1px .1) — the s6 shadow-sm pin was one step light.
+    expect(TABS_SEGMENTED.trigger).toContain("text-sm");
+    expect(TABS_SEGMENTED.trigger).toContain("ring-offset-background");
+    expect(TABS_SEGMENTED.trigger).toContain("transition-all");
+    expect(TABS_SEGMENTED.trigger).toContain("data-[state=active]:shadow");
+    expect(TABS_SEGMENTED.trigger).toContain("data-[state=active]:bg-background");
+    expect(TABS_SEGMENTED.trigger).not.toContain("h-7");
+    expect(TABS_SEGMENTED.trigger).not.toContain("hover:");
+    // the active shadow must be the BARE scale, not shadow-sm (one step light)
+    expect(TABS_SEGMENTED.trigger).not.toContain("data-[state=active]:shadow-sm");
+  });
+});
+
+describe("session-12: dashboard KPI card de-hover + label tokens (S12-P5)", () => {
+  it("the KpiCard drops the stale hover pin (the reference moved)", () => {
+    // The reference's DASHBOARD KPI cards are now plain stock cards —
+    // `rounded-xl border bg-card text-card-foreground shadow` + p-4
+    // sm:p-6, NO hover:shadow-md, NO transition-shadow, NO
+    // border-gray-200 (rides the #e5e5e5 default). The s11 hover pin
+    // applied to a reference state that no longer exists; the REPORTS
+    // KPI family (CircleStatCard) keeps its hover.
+    expect(KPI_CARD.card).toContain("rounded-xl border border-line bg-surface");
+    expect(KPI_CARD.card).toContain("shadow");
+    expect(KPI_CARD.card).not.toContain("hover:shadow-md");
+    expect(KPI_CARD.card).not.toContain("transition-shadow");
+  });
+
+  it("the KpiCard label + neutral delta are gray-600, deltas drop font-medium", () => {
+    // DOM: label `text-xs sm:text-sm text-gray-600` (#4b5563 — one step
+    // darker than our old text-muted #6b7280); deltas `text-xs
+    // text-green-600/text-gray-600 mb-1` with NO font-medium.
+    expect(KPI_CARD.label).toContain("text-xs sm:text-sm");
+    expect(KPI_CARD.label).toContain("text-gray-600");
+    expect(KPI_CARD.label).not.toContain("text-muted");
+    expect(DELTA_TEXT.base).toContain("text-xs");
+    expect(DELTA_TEXT.base).not.toContain("font-medium");
+    expect(DELTA_TEXT.neutral).toBe("text-gray-600");
+    expect(DELTA_TEXT.good).toBe("text-green-600");
+    expect(DELTA_TEXT.bad).toBe("text-red-600");
+  });
+
+  it("the reports KPI cards (CircleStatCard) KEEP hover + gain the strong border", () => {
+    // The reference's reports KPI cards still ship `border-gray-200
+    // hover:shadow-md transition-shadow` — the one stat family with the
+    // hover treatment. The border rides --color-line-strong (#e5e7eb).
+    expect(STAT_CARD.reportsCard).toContain("border-line-strong");
+    expect(STAT_CARD.reportsCard).toContain("hover:shadow-md");
+    expect(STAT_CARD.reportsCard).toContain("transition-shadow");
+  });
+});
+
+describe("session-12: sparkline geometry + chip palette (S12-P6)", () => {
+  it("the dashboard spark container is mt-2 h-8", () => {
+    // DOM: the trend visual lives in `<div class="mt-2 h-8">` inside the
+    // KPI card content (32px tall).
+    expect(KPI_SPARK.dashboardContainer).toBe("mt-2 h-8");
+  });
+
+  it("the reports spark row is the flex-end split with an h-12 slot", () => {
+    // DOM: `<div class="flex items-end justify-between mt-2">` →
+    // `<div class="flex-1 h-12 mr-2">` (48px) wrapping a recharts
+    // ResponsiveContainer whose wrapper caps at max-width 176px.
+    expect(KPI_SPARK.reportsWrapper).toBe("flex items-end justify-between mt-2");
+    expect(KPI_SPARK.reportsSlot).toBe("flex-1 h-12 mr-2");
+    expect(KPI_SPARK.reportsMaxWidth).toBe("max-w-[176px]");
+  });
+
+  it("the sparkline variants carry the recharts geometry contract", () => {
+    // Reference paths are recharts monotone CUBIC curves (type=monotone):
+    // line variant strokeWidth 2, no dots, no axes/grid; area variant
+    // fillOpacity 0.3 + strokeWidth 1 closing at the chart's x-axis.
+    expect(KPI_SPARK.line).toContain("monotone");
+    expect(KPI_SPARK.line).toContain("strokeWidth: 2");
+    expect(KPI_SPARK.line).toContain("dot: false");
+    expect(KPI_SPARK.area).toContain("monotone");
+    expect(KPI_SPARK.area).toContain("strokeWidth: 1");
+    expect(KPI_SPARK.area).toContain("fillOpacity: 0.3");
+  });
+
+  it("the icon chips are SOLID color-50s (not alpha tints)", () => {
+    // Computed: blue-50 #eff6ff / orange-50 #fff7ed / green-50 #f0fdf4 /
+    // red-50 #fef2f2 / violet-50 #faf5ff. Ours shipped 10%-alpha tints
+    // (rgba(59,130,246,.1) ≈ #e8f0fd — a different wash).
+    expect(KPI_CHIP_BG["#3b82f6"]).toBe("#eff6ff");
+    expect(KPI_CHIP_BG["#f97316"]).toBe("#fff7ed");
+    expect(KPI_CHIP_BG["#10b981"]).toBe("#f0fdf4");
+    expect(KPI_CHIP_BG["#ef4444"]).toBe("#fef2f2");
+    expect(KPI_CHIP_BG["#8b5cf6"]).toBe("#faf5ff");
+  });
+
+  it("the reports LOST DEALS card ships NO sparkline", () => {
+    // The reference's reports KPI row sparks Total Leads (blue), Open
+    // Leads (orange), Won Deals (emerald) and Conversion Rate (violet) —
+    // the 4th card (Lost Deals) has NO trend visual.
+    expect(KPI_SPARK.lostDealsSpark).toBe(false);
+  });
+});
+
+describe("session-12: custom 404 page (S12-P2)", () => {
+  it("the not-found page mirrors the reference's slate family", () => {
+    // Reference: root `min-h-screen flex items-center justify-center p-6
+    // bg-slate-50` → `max-w-md w-full` → `text-center space-y-6` →
+    // `space-y-2` heading group; H1 `404` text-7xl font-light
+    // text-slate-300; H2 `Page Not Found` text-2xl font-medium
+    // text-slate-800; P `The page "{path}" could not be found in this
+    // application.` text-slate-600 leading-relaxed.
+    expect(NOT_FOUND_LAYOUT.page).toBe("min-h-screen flex items-center justify-center p-6 bg-slate-50");
+    expect(NOT_FOUND_LAYOUT.card).toBe("max-w-md w-full");
+    expect(NOT_FOUND_LAYOUT.center).toBe("text-center space-y-6");
+    expect(NOT_FOUND_LAYOUT.headingGroup).toBe("space-y-2");
+    expect(NOT_FOUND_LAYOUT.h1).toBe("text-7xl font-light text-slate-300");
+    expect(NOT_FOUND_LAYOUT.h2).toBe("text-2xl font-medium text-slate-800");
+    expect(NOT_FOUND_LAYOUT.p).toBe("text-slate-600 leading-relaxed");
+    // VLM round-1 catches (DOM-verified): a 2px×64px slate-200 divider bar
+    // under the "404", the h2+p in their own space-y-3 group, the quoted
+    // pathname in a font-medium slate-700 span, and the button in a pt-6
+    // group — three children under the space-y-6 center, not two.
+    expect(NOT_FOUND_LAYOUT.divider).toBe("h-0.5 w-16 bg-slate-200 mx-auto");
+    expect(NOT_FOUND_LAYOUT.textGroup).toBe("space-y-3");
+    expect(NOT_FOUND_LAYOUT.pathSpan).toBe("font-medium text-slate-700");
+    expect(NOT_FOUND_LAYOUT.buttonGroup).toBe("pt-6");
+  });
+
+  it("the Go Home button mirrors the reference's white bordered pill", () => {
+    // DOM: `inline-flex items-center px-4 py-2 text-sm font-medium
+    // text-slate-700 bg-white border border-slate-200 rounded-lg
+    // hover:bg-slate-50 hover:border-slate-300 transition-colors
+    // duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+    // focus:ring-slate-500` with a lucide Home icon (w-4 h-4 mr-2),
+    // navigating to `/`.
+    expect(NOT_FOUND_LAYOUT.homeButton).toContain("bg-white border border-slate-200 rounded-lg");
+    expect(NOT_FOUND_LAYOUT.homeButton).toContain("text-slate-700");
+    expect(NOT_FOUND_LAYOUT.homeButton).toContain("focus:ring-slate-500");
+    expect(NOT_FOUND_LAYOUT.homeIcon).toBe("h-4 w-4 mr-2");
+    expect(NOT_FOUND_LAYOUT.homeHref).toBe("/");
   });
 });

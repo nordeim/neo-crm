@@ -87,3 +87,31 @@ describe("design tokens: Session 10 pins (S10-P0, S10-1, S10-2)", () => {
     expect(themeToken("color-muted-ink")).toBe("#737373");
   });
 });
+
+describe("design tokens: Session 12 border split (S12-P3)", () => {
+  it("--color-line re-pins to the reference's platform DEFAULT #e5e5e5", () => {
+    // The reference renders TWO border grays. Its platform DEFAULT (the
+    // `* { border-color }` base + `--input`) is NEUTRAL-200 #e5e5e5 — the
+    // color of every bare-`border` surface: ALL stock cards, table rows,
+    // the reports tablist, outline buttons, select triggers/contents,
+    // dropdown contents, dialog content and every bare form input
+    // (computed probes on all 9 pages, 2026-09-30). Ours shipped gray-200
+    // #e5e7eb everywhere.
+    expect(themeToken("color-line")).toBe("#e5e5e5");
+  });
+
+  it("--color-line-strong carries the reference's EXPLICIT gray-200 family", () => {
+    // The reference's explicit `border-gray-200` surfaces (#e5e7eb): the
+    // reports KPI stat cards, the reports sticky filter card, the contacts
+    // table card (plus the topbar search input, which already ships
+    // literal border-gray-200). A second token keeps the split addressable.
+    expect(themeToken("color-line-strong")).toBe("#e5e7eb");
+  });
+
+  it("the soft hairline keeps its wash role (unchanged by the split)", () => {
+    // --color-line-soft (#f3f4f6) is the hover wash + segmented track
+    // background — not part of the border-color split; pinned so the
+    // re-pin does not drift it.
+    expect(themeToken("color-line-soft")).toBe("#f3f4f6");
+  });
+});

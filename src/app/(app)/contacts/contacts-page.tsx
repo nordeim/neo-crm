@@ -294,9 +294,11 @@ export default function ContactsPage() {
           override is now EXPLICIT — the Card base's bare `shadow` rendered
           one step heavier than the reference's tiny shadow-sm here (the
           contacts table is the only entity table with the small shadow;
-          accounts/leads keep the standard one). `cn` is tailwind-merge, so
-          the conflict resolves to shadow-sm. */}
-      <Card className="mb-6 overflow-hidden shadow-sm">
+          accounts/leads keep the standard one). Session-12 (S12-P3): the
+          reference's border here is EXPLICIT border-gray-200 — the strong
+          token (--color-line-strong), not the #e5e5e5 platform default.
+          `cn` is tailwind-merge, so both conflicts resolve correctly. */}
+      <Card className="mb-6 overflow-hidden shadow-sm border-line-strong">
         <CardContent className="px-0 py-0">
           <Table>
             <TableHeader>

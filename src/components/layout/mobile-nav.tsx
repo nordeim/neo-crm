@@ -70,6 +70,29 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
     document.body.style.overflow = "hidden";
     if (scroller) scroller.style.overflow = "hidden";
 
+    // S12-P1: the initial focus RETRIES across frames. The drawer opens
+    // with a `transition-[visibility]` class flip, and the rAF callback
+    // can run in the SAME frame — BEFORE the browser has applied the
+    // now-visible state (instrumented live: focus() WAS called on the
+    // Close button while its computed visibility was still `hidden`, and
+    // focus() on a not-rendered element SILENTLY NO-OPS — focus stayed on
+    // the burger and keyboard users Tabbed through the background page
+    // behind the aria-modal dialog). Retry until activeElement actually
+    // lands inside the panel (bounded; observed to land on frame 3).
+    let cancelled = false;
+    const focusFirstInPanel = (attempt: number) => {
+      if (cancelled) return;
+      const el = panelRef.current?.querySelector<HTMLElement>(
+        "a[href], button:not([disabled])",
+      );
+      if (!el) return;
+      el.focus();
+      if (document.activeElement !== el && attempt < 5) {
+        requestAnimationFrame(() => focusFirstInPanel(attempt + 1));
+      }
+    };
+    const raf = requestAnimationFrame(() => focusFirstInPanel(0));
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
@@ -94,11 +117,8 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
     };
     document.addEventListener("keydown", onKey);
 
-    const raf = requestAnimationFrame(() => {
-      panelRef.current?.querySelector<HTMLElement>("a[href], button:not([disabled])")?.focus();
-    });
-
     return () => {
+      cancelled = true;
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
       if (scroller) scroller.style.overflow = prevScrollerOverflow;
@@ -133,11 +153,15 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
           open ? "opacity-100" : "opacity-0",
         )}
       />
-      {/* Panel — fixed, own scroll, slides in from the left */}
+      {/* Panel — fixed, own scroll, slides in from the left. Session-12
+          (S12-P1, mobile-nav taxonomy class D): `h-dvh` instead of `h-full`
+          so the panel tracks the DYNAMIC viewport on mobile browsers
+          (h-full on a fixed element resolves to the large-viewport height —
+          the bottom could sit behind the URL bar on iOS Safari). */}
       <div
         ref={panelRef}
         className={cn(
-          "fixed left-0 top-0 flex h-full w-72 max-w-[85vw] flex-col bg-sidebar shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+          "fixed left-0 top-0 flex h-dvh w-72 max-w-[85vw] flex-col bg-sidebar shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >

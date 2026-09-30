@@ -2,15 +2,26 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { TABS_PILL, TABS_SEGMENTED } from "@/lib/page-layout";
 
 // Native-ARIA tab strip. `variant="underline"` matches the reference's
 // plain text tabs; `variant="segmented"` renders the segmented control
 // used by the Activities priority tabs and the Settings tabs — the
-// reference track is `h-9 grid w-full grid-cols-{n} rounded-lg bg-muted p-1`
-// with an equal-width column per tab and the active tab a raised white pill
-// (DOM-verified on both pages); `variant="pill"` renders the Reports tab
-// bar — white bordered container `grid grid-cols-2 lg:grid-cols-{n}`, active
-// tab `bg-blue-50 text-blue-700` (DOM-verified).
+// reference track is `h-9 grid w-full grid-cols-{n} rounded-lg bg-muted
+// p-1 text-muted-foreground` with an equal-width column per tab and the
+// active tab a raised white pill; `variant="pill"` renders the Reports
+// tab bar — white bordered container `grid grid-cols-2 lg:grid-cols-{n}`,
+// active tab `bg-blue-50 text-blue-700`.
+//
+// Session-12 (S12-P4): the tracks carry text-muted-ink (the reference's
+// tablist text-muted-foreground — inactive tabs INHERIT #737373 instead
+// of carrying gray-500) and the triggers are the reference's STOCK Radix
+// classes: natural height (no h-7), transition-all, ring-offset-background,
+// the bare `shadow` on the active state (the s6 shadow-sm pin was one step
+// light), data-[state=active]:* variants riding a data-state attribute,
+// and NO hover classes (the reference ships none on any tab variant).
+// The reference's own tabs are all tabIndex=-1 (keyboard-unreachable
+// platform defect) — our roving tabindex stays the accessible fix.
 
 interface TabsProps {
   tabs: ReadonlyArray<{ id: string; label: string; count?: number }>;
@@ -42,22 +53,15 @@ const GRID_COLS_LG: Record<number, string> = {
 
 function Tabs({ tabs, value, onValueChange, className, variant = "underline", cols, children }: TabsProps) {
   const inTrack = variant === "segmented" || variant === "pill";
-  const activeClass =
-    variant === "segmented"
-      ? "bg-white text-foreground shadow-sm"
-      : "bg-blue-50 text-blue-700";
-  const grid = cols ? GRID_COLS[cols] ?? null : null;
   const trackClass =
     variant === "segmented"
-      ? cn(
-          "h-9 items-center justify-center rounded-lg bg-line-soft p-1",
-          grid && "w-full",
-          grid ?? "flex items-center gap-1 overflow-x-auto scrollbar-thin",
-        )
-      : cn(
-          "items-center justify-center rounded-lg border border-line bg-white p-1",
-          cols ? cn("grid w-full grid-cols-2", GRID_COLS_LG[cols] ?? "") : "flex items-center gap-1 overflow-x-auto scrollbar-thin",
-        );
+      ? cn(TABS_SEGMENTED.track, cols && "w-full", cols ? GRID_COLS[cols] ?? null : "flex items-center gap-1 overflow-x-auto scrollbar-thin")
+      : variant === "pill"
+        ? TABS_PILL.track
+        : cn(
+            "flex items-center gap-1 overflow-x-auto scrollbar-thin border-b border-line",
+          );
+  const triggerClass = variant === "segmented" ? TABS_SEGMENTED.trigger : variant === "pill" ? TABS_PILL.trigger : null;
   if (inTrack) {
     return (
       <div className={cn("w-full", className)}>
@@ -74,13 +78,14 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
                 type="button"
                 role="tab"
                 aria-selected={isActive}
+                data-state={isActive ? "active" : "inactive"}
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => onValueChange(tab.id)}
                 className={cn(
-                  // Session-9 (S9-16): the reference's tabs focus with a 2px
-                // near-black ring + offset (ring-ring ring-offset-2).
-                "inline-flex h-7 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  isActive ? activeClass : "text-muted hover:text-foreground",
+                  // Stock Radix trigger classes from the S12-P4 contracts —
+                  // the active styling rides the data-[state=active]
+                  // variants, so the string is identical on every tab.
+                  triggerClass,
                 )}
               >
                 {tab.label}
@@ -107,7 +112,7 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
       <div
         role="tablist"
         aria-orientation="horizontal"
-        className="flex items-center gap-1 overflow-x-auto scrollbar-thin border-b border-line"
+        className={trackClass}
       >
         {tabs.map((tab) => {
           const isActive = tab.id === value;

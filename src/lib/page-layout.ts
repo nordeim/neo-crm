@@ -117,7 +117,7 @@ export const FILTER_BAR = {
  *  `mr-2` leading icon, and the first two selects (period / owner) wrap in
  *  `flex items-center gap-2` rows with calendar / user leading icons. */
 export const REPORTS_FILTER_BAR = {
-  bar: "rounded-xl border border-line bg-surface p-4 mb-6 sticky top-0 z-10 shadow-md",
+  bar: "rounded-xl border border-line-strong bg-surface p-4 mb-6 sticky top-0 z-10 shadow-md",
   row: "flex flex-col lg:flex-row gap-4 items-center",
   selectsWrap: "flex flex-wrap gap-3 flex-1",
   selectWrap: "flex items-center gap-2",
@@ -260,9 +260,14 @@ export const LOGIN_LAYOUT = {
 
 /** TrendStatCard (calendar KPI cards) — session-7 re-pin: p-4 body, mb-3
  *  top row, 40px `-50` tinted chips with `h-5 w-5` icons, `text-green-600`
- *  trend with a `w-3 h-3` trending-up glyph, label under the value. */
+ *  trend with a `w-3 h-3` trending-up glyph, label under the value.
+ *  Session-12: reportsCard pins the REPORTS KPI family (CircleStatCard)
+ *  — the one stat family that still carries the explicit gray-200 border
+ *  (--color-line-strong) + hover after the reference's dashboard KPI
+ *  cards dropped theirs. */
 export const STAT_CARD = {
   card: "rounded-xl border border-line bg-surface shadow",
+  reportsCard: "rounded-xl border border-line-strong bg-surface p-5 shadow transition-shadow hover:shadow-md",
   body: "p-4",
   topRow: "flex items-start justify-between mb-3",
   chip: "w-10 h-10 rounded-lg flex items-center justify-center",
@@ -560,6 +565,11 @@ export function allLayoutClasses(): string[] {
     LEADS_TOOLBAR,
     LEADS_FILTERS_POPOVER,
     ACTIVITY_QUICKLOG,
+    NOT_FOUND_LAYOUT,
+    TABS_PILL,
+    TABS_SEGMENTED,
+    KPI_CARD,
+    DELTA_TEXT,
   ]) {
     for (const value of Object.values(group as Record<string, string | readonly string[]>)) {
       // Some session-8 records carry option ARRAYS (vocabularies), not class
@@ -625,3 +635,102 @@ export const TABLE_SHADOWS = {
   leads: "shadow",
   contacts: "shadow-sm",
 } as const;
+
+/** Session-12 (S12-P2): the reference's custom 404 page — a designed
+ *  slate-family surface (NOT the stock Next built-in): centered on
+ *  bg-slate-50, "404" display heading in font-light slate-300, "Page Not
+ *  Found" in slate-800, the quoted-pathname message, and a white bordered
+ *  Go Home pill with a lucide Home icon navigating to `/`. No app shell.
+ *  Title: "This Page Does Not Exist | NEO CRM". */
+export const NOT_FOUND_LAYOUT = {
+  page: "min-h-screen flex items-center justify-center p-6 bg-slate-50",
+  card: "max-w-md w-full",
+  center: "text-center space-y-6",
+  headingGroup: "space-y-2",
+  h1: "text-7xl font-light text-slate-300",
+  divider: "h-0.5 w-16 bg-slate-200 mx-auto",
+  textGroup: "space-y-3",
+  h2: "text-2xl font-medium text-slate-800",
+  p: "text-slate-600 leading-relaxed",
+  pathSpan: "font-medium text-slate-700",
+  buttonGroup: "pt-6",
+  homeButton:
+    "inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500",
+  homeIcon: "h-4 w-4 mr-2",
+  homeHref: "/",
+} as const;
+
+/** Session-12 (S12-P4): the tab strips' stock-Radix anatomy, DOM-verified
+ *  on the reference's reports (pill), activities + settings (segmented).
+ *  The TRACK carries text-muted-foreground (our muted-ink #737373) so
+ *  inactive tabs INHERIT it — the reference's tabs carry no text color of
+ *  their own. Triggers: natural height (no h-7 — computes 28px anyway),
+ *  transition-all, ring-offset-background, disabled stock classes, and
+ *  the ACTIVE state adds the bare v3 `shadow` scale (0 1px 3px 0.1 +
+ *  0 1px 2px -1px 0.1 — our segmented shadow-sm was one step light). The
+ *  pill trigger is additionally text-xs sm:text-sm. The reference ships NO
+ *  hover classes on ANY tab variant (our hover:text-foreground retired).
+ *  Its tabs are also all tabIndex=-1 (keyboard-unreachable platform
+ *  defect) — our roving tabindex stays the accessible fix. */
+export const TABS_PILL = {
+  track: "items-center justify-center rounded-lg p-1 text-muted-ink grid w-full grid-cols-2 lg:grid-cols-5 h-auto bg-white border border-line",
+  trigger:
+    "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow text-xs sm:text-sm data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700",
+} as const;
+
+export const TABS_SEGMENTED = {
+  track: "h-9 items-center justify-center rounded-lg bg-line-soft p-1 text-muted-ink grid w-full",
+  trigger:
+    "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow data-[state=active]:bg-background data-[state=active]:text-foreground",
+} as const;
+
+/** Session-12 (S12-P5): the dashboard KPI card de-hover — the reference
+ *  MOVED: its dashboard KPI cards are now plain stock cards (rounded-xl
+ *  border bg-card shadow, no hover/border-gray-200), while the REPORTS
+ *  KPI family keeps `border-gray-200 hover:shadow-md transition-shadow`.
+ *  The dashboard label is text-gray-600 (#4b5563 — one step darker than
+ *  text-muted); deltas are bare text-xs with NO font-medium, neutral in
+ *  text-gray-600. */
+export const KPI_CARD = {
+  card: "rounded-xl border border-line bg-surface p-4 shadow sm:p-6",
+  label: "text-xs sm:text-sm text-gray-600",
+} as const;
+
+export const DELTA_TEXT = {
+  base: "text-xs",
+  good: "text-green-600",
+  bad: "text-red-600",
+  neutral: "text-gray-600",
+} as const;
+
+/** Session-12 (S12-P6): the KPI sparkline geometry, measured on the
+ *  reference. Dashboard: the trend visual sits in a `mt-2 h-8` (32px)
+ *  container. Reports: a `flex items-end justify-between mt-2` row with
+ *  the spark in a `flex-1 h-12 mr-2` (48px) slot whose recharts wrapper
+ *  caps at max-width 176px. The sparks themselves are recharts MONOTONE
+ *  curves (type=monotone) — line variant strokeWidth 2, dot false, no
+ *  axes/grid, stock 5px margins; area variant fillOpacity 0.3 with a 1px
+ *  stroke closing at the chart's x-axis. The reports LOST DEALS card
+ *  ships NO spark (only Total Leads / Open Leads / Won Deals / Conversion
+ *  Rate do). */
+export const KPI_SPARK = {
+  dashboardContainer: "mt-2 h-8",
+  reportsWrapper: "flex items-end justify-between mt-2",
+  reportsSlot: "flex-1 h-12 mr-2",
+  reportsMaxWidth: "max-w-[176px]",
+  line: "monotone, strokeWidth: 2, dot: false",
+  area: "monotone, strokeWidth: 1, fillOpacity: 0.3",
+  lostDealsSpark: false,
+} as const;
+
+/** Session-12 (S12-P6): the stat-card icon chips are SOLID color-50
+ *  surfaces on the reference (computed: #eff6ff / #fff7ed / #f0fdf4 /
+ *  #fef2f2 / #faf5ff) — not 10%-alpha tints of the series color. Keyed
+ *  by the series hex the pages already pass. */
+export const KPI_CHIP_BG: Record<string, string> = {
+  "#3b82f6": "#eff6ff",
+  "#f97316": "#fff7ed",
+  "#10b981": "#f0fdf4",
+  "#ef4444": "#fef2f2",
+  "#8b5cf6": "#faf5ff",
+};

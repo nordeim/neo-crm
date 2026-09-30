@@ -1,9 +1,17 @@
 "use client";
 
 import * as React from "react";
+import { Area, AreaChart, Line, LineChart, ResponsiveContainer } from "recharts";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PAGE_HEADER, STAT_CARD, type PageHeaderVariant } from "@/lib/page-layout";
+import {
+  KPI_CARD,
+  KPI_CHIP_BG,
+  KPI_SPARK,
+  PAGE_HEADER,
+  STAT_CARD,
+  type PageHeaderVariant,
+} from "@/lib/page-layout";
 
 /** Page title row with actions — mirrors the reference page headers
  *  (session-6 anatomy): the standard/leads variants STACK on phones
@@ -66,11 +74,11 @@ export function DeltaText({
   return (
     <span
       className={cn(
-        "text-xs font-medium",
-        // Session-7 live probes: reference deltas are green-600/red-600
-        // (rgb(22,163,74) / rgb(220,38,38)) — one shade deeper than the
-        // old success/danger tokens.
-        neutral ? "text-muted" : good ? "text-green-600" : "text-red-600",
+        // Session-12 (S12-P5): the reference's deltas are BARE text-xs —
+        // no font-medium — green-600/red-600, with the NEUTRAL case in
+        // gray-600 (#4b5563, not gray-500).
+        "text-xs",
+        neutral ? "text-gray-600" : good ? "text-green-600" : "text-red-600",
         className,
       )}
     >
@@ -138,17 +146,18 @@ export function KpiCard({
   children?: React.ReactNode;
 }) {
   return (
-    // Session-11 (S11-P3): the reference's dashboard/reports KPI cards
-    // carry `hover:shadow-md transition-shadow` — the only hover-shadow
-    // stat surfaces.
-    <div className="rounded-xl border border-line bg-surface p-4 shadow transition-shadow hover:shadow-md sm:p-6">
-      <p className="text-xs text-muted sm:text-sm">{label}</p>
+    // Session-12 (S12-P5): the reference MOVED — its dashboard KPI cards
+    // are now PLAIN stock cards (`rounded-xl border bg-card shadow`, no
+    // hover, no border-gray-200; the border rides the #e5e5e5 default).
+    // The REPORTS KPI family (CircleStatCard) keeps the hover treatment.
+    <div className={KPI_CARD.card}>
+      <p className={KPI_CARD.label}>{label}</p>
       <div className="mt-2 flex flex-wrap items-end gap-2">
         <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
         {suffix && <span className="mb-1 text-xs text-muted">{suffix}</span>}
         <DeltaText delta={delta} suffix={deltaSuffix} invert={invertDelta} className="mb-1" />
       </div>
-      {children && <div className="mt-2">{children}</div>}
+      {children && <div className={KPI_SPARK.dashboardContainer}>{children}</div>}
     </div>
   );
 }
@@ -368,14 +377,18 @@ export function CircleStatCard({
   children?: React.ReactNode;
 }) {
   return (
-    // Session-11 (S11-P2): bare `shadow` — the reference's reports KPI
-    // cards compute the standard shadow (hover already matched).
-    <div className="rounded-xl border border-line bg-surface p-5 shadow transition-shadow hover:shadow-md">
+    // Session-12 (S12-P3/P5/P6): the reports KPI family is the one stat
+    // family that still carries the reference's EXPLICIT gray-200 border
+    // (--color-line-strong) + hover:shadow-md after its dashboard KPI
+    // cards dropped theirs; the icon chips are SOLID color-50s
+    // (KPI_CHIP_BG), not alpha tints; the spark row renders the
+    // reference's flex-end split with the h-12 slot.
+    <div className={STAT_CARD.reportsCard}>
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-3">
           <span
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: `${color}1a`, color }}
+            style={{ backgroundColor: KPI_CHIP_BG[color] ?? `${color}1a`, color }}
             aria-hidden="true"
           >
             {icon}
@@ -389,7 +402,12 @@ export function CircleStatCard({
           </div>
         </div>
       </div>
-      {children && <div className="flex-1">{children}</div>}
+      {children && (
+        <div className={KPI_SPARK.reportsWrapper}>
+          <div className={cn(KPI_SPARK.reportsSlot, KPI_SPARK.reportsMaxWidth)}>{children}</div>
+          <div className="flex flex-col items-end" />
+        </div>
+      )}
     </div>
   );
 }
@@ -462,10 +480,13 @@ export function TrendStatCard({
 }
 
 /**
- * Mini sparkline for KPI cards — pure SVG/CSS, no chart library.
- * `variant="bars"` renders the reference bar strips; `"line"` and `"area"`
- * render the polyline/area strips seen on the reference dashboard
- * (Total Leads / Avg. Sales Cycle lines, Conversion Rate area).
+ * Mini sparkline for KPI cards — session-12 (S12-P6) rebuild on recharts:
+ * the reference renders its sparks as recharts MONOTONE curves inside a
+ * ResponsiveContainer (line variant strokeWidth 2, no dots, stock 5px
+ * margins; area variant fillOpacity 0.3 with a 1px stroke closing at the
+ * chart's x-axis). `variant="bars"` keeps the reference's CSS bar strips
+ * (Deals Closed cyan / Revenue green / Sales Target conditional). The
+ * line/area geometry contract is pinned as KPI_SPARK in page-layout.ts.
  */
 export function Sparkline({
   values,
@@ -485,31 +506,36 @@ export function Sparkline({
   if (values.length === 0) return null;
 
   if (variant === "line" || variant === "area") {
-    const w = 100;
-    const h = 32;
-    const step = values.length > 1 ? w / (values.length - 1) : w;
-    const pts = values.map(
-      (v, i) => `${(i * step).toFixed(2)},${(h - Math.max((v / max) * (h - 4) + 2, 2)).toFixed(2)}`,
-    );
-    const line = `M${pts.join(" L")}`;
+    const data = values.map((v, i) => ({ i, v }));
     return (
-      <svg
-        viewBox={`0 0 ${w} ${h}`}
-        preserveAspectRatio="none"
-        className={cn("h-8 w-full", className)}
-        aria-hidden="true"
-      >
-        {variant === "area" && <path d={`${line} L${w},${h} L0,${h} Z`} fill={color} opacity={0.15} />}
-        <path
-          d={line}
-          fill="none"
-          stroke={color}
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
+      <div className={cn("h-8 w-full", className)} aria-hidden="true">
+        <ResponsiveContainer width="100%" height="100%">
+          {variant === "area" ? (
+            <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+              <Area
+                type="monotone"
+                dataKey="v"
+                stroke={color}
+                strokeWidth={1}
+                fill={color}
+                fillOpacity={0.3}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          ) : (
+            <LineChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+              <Line
+                type="monotone"
+                dataKey="v"
+                stroke={color}
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          )}
+        </ResponsiveContainer>
+      </div>
     );
   }
 

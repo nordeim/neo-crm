@@ -329,6 +329,8 @@ neo-crm/
 │   │   │                       # activities events dashboard reports settings
 │   │   │                       # search export reset health — 22 route files
 │   │   ├── login/ signup/       # public auth pages (redirect away when signed in)
+│   │   ├── not-found.tsx        # server 404 wrapper (absolute title) — session-12
+│   │   ├── not-found-body.tsx   # client 404 body (usePathname, quoted-path msg)
 │   │   ├── layout.tsx           # root: Inter font, metadata, Toaster
 │   │   ├── globals.css          # Tailwind v4 @theme tokens + @utility definitions
 │   │   └── vendor/tw-animate.css# vendored animation utilities (ADR-005)
@@ -344,14 +346,14 @@ neo-crm/
 │   │   │                       # tabs badge label(+checkbox) avatar toast misc
 │   │   ├── charts/charts.tsx    # recharts wrappers at the DOM-pinned per-surface heights (300/250/150) with stock defaults (tooltip + legend)
 │   │   └── shared/
-│   │       ├── page-parts.tsx   # PageHeader, KpiCard, BarStatCard, TrendStatCard, IconStatCard, CircleStatCard, Sparkline (bare-shadow stat family)
+│   │       ├── page-parts.tsx   # PageHeader, KpiCard, BarStatCard, TrendStatCard, IconStatCard, CircleStatCard, Sparkline (bare-shadow stat family; recharts monotone sparks — session-12)
 │   │       └── entity-dialogs.tsx # remount-via-key forms (ADR-007)
 │   ├── lib/                     # the pure seams (Layer 3)
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 12 Vitest suites — 189 checks
-│   └── e2e/                     # global-setup, auth.setup, 3 spec files — 26 checks
+│   ├── *.test.ts                # 12 Vitest suites — 206 checks
+│   └── e2e/                     # global-setup, auth.setup, 3 spec files — 28 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
 └── postcss.config.mjs           # @tailwindcss/postcss — REQUIRED (ADR-005)
@@ -660,15 +662,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–11) | 1 | 69 | `tests/page-layout.test.ts` | Vitest |
-| Unit — design tokens (shadow/blur re-pins, ring, cursor rule, inks — sessions 9–10) | 1 | 8 | `tests/design-tokens.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–12) | 1 | 83 | `tests/page-layout.test.ts` | Vitest |
+| Unit — design tokens (shadow/blur/border-split re-pins, ring, cursor rule, inks — sessions 9–12) | 1 | 11 | `tests/design-tokens.test.ts` | Vitest |
 | Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry — sessions 10–11) | 1 | 14 | `tests/e2e/crm.spec.ts` | Playwright |
-| E2E — mobile nav regression | 1 | 6 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **16** | **189 unit + 26 e2e** | | |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404 — sessions 10–12) | 1 | 15 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
+| **Total** | **16** | **206 unit + 28 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -697,6 +699,31 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   actually sent — the confirmation is pure client state). `auth.spec.ts`
   drives the full swap on the real build; the view/gating logic is the
   `src/lib/login-reset.ts` seam pinned by `tests/login-reset.test.ts`.
+- **Mobile-nav focus race (session-12):** the drawer's initial focus
+  RETRIES across frames — the rAF can fire in the same frame as the
+  `transition-[visibility]` class flip, before the browser applies the
+  visible state, and `focus()` on a still-hidden element silently
+  no-ops (keyboard users Tabbed through the background behind the
+  aria-modal dialog). The bounded retry verifies `activeElement` landed
+  inside the panel; `mobile-navigation.spec.ts` pins it.
+- **Border-color split (session-12):** the reference's platform default
+  border is #e5e5e5 (neutral-200 — every bare-`border` surface: stock
+  cards, table rows, tablists, outline buttons, selects, dialogs, bare
+  inputs) with an EXPLICIT gray-200 family (#e5e7eb — reports KPI cards,
+  the reports filter card, the contacts table card, the topbar search).
+  `--color-line` carries the default, `--color-line-strong` the explicit
+  family; login keeps its slate-200 tokens.
+- **Custom 404 (session-12):** `src/app/not-found.tsx` (server,
+  absolute title) + `not-found-body.tsx` (client, `usePathname`) render
+  the reference's designed not-found page — `NOT_FOUND_LAYOUT` pins the
+  slate-50 center, the divider bar, the space-y-3 text group with the
+  emphasized pathname span, and the pt-6 Go Home group.
+- **Tabs + sparkline rebuild (session-12):** the tab strips ship stock
+  Radix classes (`TABS_PILL`/`TABS_SEGMENTED` — muted-ink tracks,
+  data-state variants, bare-shadow active pills, no hover); the KPI
+  sparklines are recharts monotone curves (`KPI_SPARK` — dashboard h-8,
+  reports h-12 slot capped 176px, Lost Deals sparkless; solid color-50
+  chips via `KPI_CHIP_BG`).
 
 ### 7.3 Coverage Thresholds
 
@@ -709,9 +736,9 @@ must keep all 6 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 189/189
+- [ ] `bun run test` — 206/206
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 26/26
+- [ ] `bun run test:e2e` — 28/28
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`

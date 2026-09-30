@@ -223,3 +223,23 @@ Work Log:
 
 Stage Summary:
 - Gate green; ready: commit on main + SSH-wrapper push
+
+---
+Task ID: 13 (repo)
+Agent: main (Super Z)
+Task: Session 12 — mobile-nav focus race + border split + tabs anatomy + KPI drift + sparkline rebuild + custom 404
+
+Work Log:
+- Pulled to 992befe (docs/session_16.md = session-11 completion transcript); baseline gate green (189/189 unit); mobile-nav regression re-verified live BEFORE changes: 9/10 PASS with one REAL BUG
+- S12-P1 root-caused via focus/rAF instrumentation: the drawer's rAF focus() fired in the same frame as the transition-[visibility] class flip — computed visibility still hidden — and focus() on a not-rendered element SILENTLY NO-OPS (keyboard users Tabbed through the background behind the aria-modal dialog; WCAG 2.4.3). Fixed with a bounded retry (verify activeElement, re-schedule ≤5 frames; lands frame 3) + cancelled flag + h-dvh panel; e2e-pinned as the 7th mobile-nav check
+- The reference MOVED since session 11 (dashboard KPI cards dropped hover:shadow-md + border-gray-200) — s11 hover pin re-derived to reports-only; moving-target rule recorded
+- S12-P3 border split: reference default #e5e5e5 (all stock cards, rows, tablists, outline buttons, selects, dialogs, bare inputs) vs explicit gray-200 #e5e7eb (reports KPI + reports filter + contacts table + topbar search); --color-line re-pinned + --color-line-strong added; login slate-200 verified untouched
+- S12-P4 tabs: stock Radix classes (TABS_PILL/TABS_SEGMENTED) — muted-ink tracks (#737373 inactive), natural height, transition-all, ring-offset-background, data-state variants, bare-shadow active pills (segmented shadow-sm was one step light), pill text-xs sm:text-sm, NO hover on any variant; reference's tabIndex=-1 tabs NOT mirrored (accessible roving stays)
+- S12-P5 KPI de-hover + text-gray-600 labels + DeltaText de-medium; S12-P6 sparklines rebuilt on recharts (monotone, line sw2 / area fill 0.3 sw1; dashboard mt-2 h-8, reports flex-1 h-12 mr-2 capped 176px; Lost Deals sparkless; solid color-50 chips via KPI_CHIP_BG)
+- S12-P2 custom 404: not-found.tsx (server, title.absolute to avoid the doubled suffix) + not-found-body.tsx (client usePathname); VLM round-1 caught the divider bar + space-y-3 group + path span + pt-6 group the first extraction missed; round-2 ALIGNED
+- TDD: 17 red-first checks (3 design-tokens + 14 page-layout) -> 206/206; +2 e2e (focus-entry + custom-404) -> 28/28 (mobile-nav 7/7); one s11 e2e re-scoped to [role=tabpanel] (sparks are recharts now)
+- Full gate: lint 0/0, tsc, 206/206 unit, build, 28/28 e2e; DOM re-verified at 1512/1024/768/700/390; zero 390px overflow on all TEN routes; verified-aligned: settings picklist, print (none both), dead search/exports (documented), v4 hazard sweep clean
+- Deliverables: 12 screenshots refreshed + 13-not-found.png; .env.example verified; docs realigned (README, AGENTS + 5 session-12 contract blocks, CLAUDE, PAD, SKILL v1.9.0 §16d, session_17.md, plan addendum, worklog)
+
+Stage Summary:
+- Gate green; ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

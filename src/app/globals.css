@@ -26,7 +26,21 @@
   --color-foreground: #111827;
   --color-muted: #6b7280;
   --color-subtle: #9ca3af;
-  --color-line: #e5e7eb;
+
+  /* Border split (session-12 S12-P3): the reference renders TWO border
+     grays. Its platform DEFAULT — the `* { border-color }` base AND its
+     --input token — is NEUTRAL-200 #e5e5e5, the color every bare-`border`
+     surface computes: ALL stock cards (dashboard/accounts/leads/calendar/
+     activities/settings/profile/contacts-stat + reports table & chart
+     cards), table rows, the reports tablist, outline buttons, select
+     triggers/contents, dropdown contents, dialog content and every bare
+     form input. Its EXPLICIT `border-gray-200` family (#e5e7eb) covers
+     only: the reports KPI stat cards, the reports sticky filter card, the
+     contacts table card and the topbar search input (that one already
+     ships literal border-gray-200). --color-line carries the default;
+     --color-line-strong carries the explicit family. */
+  --color-line: #e5e5e5;
+  --color-line-strong: #e5e7eb;
   --color-line-soft: #f3f4f6;
 
   /* Focus ring (session-9 S9-16): the reference's --ring is the stock
