@@ -25,6 +25,7 @@ export function AppShell({ user, children }: { user: AppUser; children: React.Re
     void hydrate();
   }, [hydrate]);
 
+
   return (
     <div className={SHELL_LAYOUT.root}>
       {/* Desktop sidebar — in-flow flex child, visible from md (768px). */}

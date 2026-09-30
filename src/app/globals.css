@@ -34,6 +34,17 @@
      near-black ring, not the app blue. Consumed by `ring-ring` utilities. */
   --color-ring: #0a0a0a;
 
+  /* Stock-primitive inks (session-10 S10-2): the reference's stock
+     Input/Select carry NO text color class — typed text inherits its
+     --foreground `0 0% 3.9%` = #0a0a0a, and placeholders use its
+     --muted-foreground `0 0% 45.1%` = #737373 (computed probes on the
+     search input: text rgb(10,10,10), ::placeholder rgb(115,115,115)).
+     Ours rendered #111827 (text-foreground) and #9ca3af/#6b7280
+     placeholders. Page-level text keeps --color-foreground #111827 (the
+     reference's h1s/body use gray-900 there). */
+  --color-ink: #0a0a0a;
+  --color-muted-ink: #737373;
+
   /* Shadow scale (session-9 S9-P0 — Tailwind v4 rename bug): v4 renamed
      the scale (v3 shadow-sm → v4 shadow-xs; v3 shadow → v4 shadow-sm), so
      v4's default `shadow-sm` compiles ONE STEP HEAVIER than the reference
@@ -45,6 +56,15 @@
      and skills/avant-garde-design-v4/references/02-tailwind-v4-deep-dive.md
      ("Renamed Utilities"). */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  /* Blur scale (session-10 S10-P0 — the SAME v4 rename family as the
+     shadow bug above): v4 renamed the blur scale (v3 blur-sm 4px → v4
+     blur-xs; v4 blur-sm is the old bare blur 8px), so our login card's
+     `backdrop-blur-sm` glass compiled ONE STEP TOO STRONG — the
+     reference's computes blur(4px), ours computed blur(8px). Re-pin to
+     the reference-computed value. No other blur step is a parity surface
+     (the decorative logo glow's blur-xl was not renamed in v4). */
+  --blur-sm: 4px;
 
   /* Feedback */
   --color-success: #10b981;
@@ -107,6 +127,16 @@
     border-color: var(--color-line);
   }
 
+  /* Session-10 (S10-1): the reference's global stylesheet ships
+     `button, [role="button"] { cursor: pointer; }` — every button (and
+     role=button control) shows the hand cursor. Our buttons computed
+     cursor:default (arrow). Radix menu items keep their own
+     cursor-default via their item classes, exactly like the reference. */
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -160,19 +190,18 @@
   width: 100%;
   border-radius: 0.5rem;
   border: 1px solid var(--color-line);
-  background-color: #ffffff;
+  background-color: transparent;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  color: var(--color-foreground);
+  color: var(--color-ink);
   outline: none;
 
-  &:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.12);
+  &:focus-visible {
+    box-shadow: 0 0 0 1px var(--color-ring);
   }
 
   &::placeholder {
-    color: var(--color-subtle);
+    color: var(--color-muted-ink);
   }
 
   &:disabled {

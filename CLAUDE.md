@@ -77,7 +77,11 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 - **Radix primitives** for dialogs/selects/popovers; `tw-animate-css`
   (vendored at `src/app/vendor/tw-animate.css`) drives `data-[state]`
   animations.
-- **recharts** for charts; every chart ships an empty-state fallback.
+- **recharts** for charts — with recharts DEFAULTS (no custom tooltip
+  content, no tick/grid style overrides) and the REAL chart at all-zero
+  data (session-10 reversal: the session-1 ChartEmpty dashed placeholders
+  are retired; the reference renders real charts in its persistent
+  zero-data state).
 - **lucide-react** icons only.
 
 ## Development Workflow
@@ -112,19 +116,25 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 148 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 169 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
-  `tests/constants.test.ts` (the DOM-pinned chart palette),
+  `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
+  reports vocabularies: the 8 raw slugs, FUNNEL_STAGES, AGING_BUCKETS),
   `tests/lead-filters.test.ts` (the popover Save View encode/decode seam),
+  `tests/reports-data.test.ts` (session-10: aging bucketing, forecast
+  accuracy, row-derived month series),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
-  sessions 6–8: KPI ladders, page headers, rails, filter bars, the
+  sessions 6–10: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
-  button pins, the mobile-nav breakpoint contract, view switchers and the
-  leads filters popover). Node environment; `@` alias resolved.
-- **E2E (Playwright, 22 checks)** — `tests/e2e/`: `auth.spec.ts`
+  button pins, the mobile-nav breakpoint contract, view switchers, the
+  leads filters popover, and session-10's stock-primitive pins — INPUT_BASE
+  / SELECT_TRIGGER / SEARCH_INPUT / PAGE_TITLES). Node environment; `@`
+  alias resolved.
+- **E2E (Playwright, 23 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface), `auth.setup.ts` (one real login, storageState saved),
-  `crm.spec.ts` (authenticated golden path across all 9 pages),
+  `crm.spec.ts` (authenticated golden path across all 9 pages + the
+  session-10 per-page-titles and reports tab 2-4 structure tests),
   `mobile-navigation.spec.ts` (6-check regression suite for the drawer —
   pinned because the reference app ships NO mobile navigation; includes the
   resize-past-md lock-release regression).

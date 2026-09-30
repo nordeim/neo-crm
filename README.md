@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-155%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-192%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -31,16 +31,16 @@ first boot.
 | 📊 Dashboard | 6 KPI cards with deltas and sparkline strips, pipeline bar chart, revenue-vs-target line chart, top reps, lead sources, upcoming activities, recent deals (table/cards view switcher) |
 | 🏢 Accounts | Tiered company records (A/B/C + key accounts), industry/revenue/owner filters, table/cards view switcher, CSV export |
 | 👥 Contacts | Hot/warm/cold priorities, sortable columns, CSV import, business-card scan flow (honest degradation on desktop) |
-| 🎯 Leads | 7-stage pipeline, deal values, follow-up dates, pipeline/won-lost/funnel charts, filters popover (status/source/min value/follow-up) with Save View persistence |
+| 🎯 Leads | 7-stage pipeline, deal values, follow-up dates, pipeline/won-lost charts + the recharts FunnelChart conversion funnel, filters popover (status/source/min value/follow-up) with Save View persistence |
 | 📅 Calendar | Month grid with per-type event chips, day agenda, upcoming events, type filters |
 | ⚡ Activities | Call/email/meeting/WhatsApp quick-log, priority tabs (overdue / due today / upcoming / completed), activity timeline |
-| 📈 Reports | 5 analytics tabs — sales overview, pipeline & weighted forecast, activity & productivity, lead sources, account health |
+| 📈 Reports | 5 analytics tabs mirroring the reference structure (Forecasting Accuracy + aging buckets + deals-at-risk tables, activity log by owner, source performance summary) |
 | ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save, workspace defaults, data export + danger-zone reset |
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate — the fix the reference app never shipped |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
-| 🧪 Tested | 148 Vitest unit checks + 22 Playwright E2E checks, including a 6-check mobile-nav regression suite (resize lock-release included) |
+| 🧪 Tested | 169 Vitest unit checks + 23 Playwright E2E checks, including a 6-check mobile-nav regression suite (resize lock-release included) |
 
 ## Architecture
 
@@ -102,7 +102,7 @@ flowchart TB
 │   │   ├── 📂 ui/                    # button, dialog, select, table, tabs, toast…
 │   │   ├── 📂 charts/                # recharts wrappers with empty states
 │   │   └── 📂 shared/                # KPI cards, page headers, entity dialogs
-│   ├── 📂 lib/                       # auth, api envelope, db(+path), format, csv, constants
+│   ├── 📂 lib/                       # auth, api envelope, db(+path), format, csv, constants, reports-data
 │   ├── 📂 stores/crm-store.ts        # the single Zustand store
 │   └── 📂 types/index.ts             # shared wire types
 ├── 📂 prisma/
@@ -157,16 +157,17 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 148 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters)
+bun run test          # 169 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters, design-tokens, reports-data)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 22 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 23 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials), the
 authenticated golden path across all 9 pages, lead creation through the real
-dialog, global search, and the 5-check mobile-navigation regression suite
-(drawer opens with every destination, link navigation closes it, Escape +
-focus restore, body scroll-lock, desktop sidebar swap).
+dialog, global search, the per-page document titles, the reports tab 2-4
+structure, and the 6-check mobile-navigation regression suite (drawer opens
+with every destination, link navigation closes it, Escape + focus restore,
+body scroll-lock, the resize-past-md lock release, desktop sidebar swap).
 
 ## Deployment
 

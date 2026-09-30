@@ -73,6 +73,75 @@ export const PIPELINE_LABELS: Record<string, string> = {
 // filter hardcode exactly these four sources (live listbox extraction).
 export const LEAD_SOURCES = ["Call", "Email", "Website", "Partner"] as const;
 
+// ---------------------------------------------------------------------------
+// Session-10 vocabulary pins (reports/chart internals — DOM-verified on the
+// live reference at 1512×945, 2026-09-30; pinned by tests/constants.test.ts).
+// ---------------------------------------------------------------------------
+
+/**
+ * S10-6: the reference's reports tab-1 "Pipeline by Stage" chart renders
+ * EIGHT raw slug X ticks — a merged-list quirk (its dashboard aliases
+ * new≡Prospecting and qualified≡Qualification, plus won≡closed_won, all
+ * leaked into one list, raw snake_case, no title-casing). Mirrored per the
+ * strict-mirror precedent ("Add new industrie" typo, dead controls).
+ */
+export const REPORTS_PIPELINE_SLUGS = [
+  "new",
+  "contacted",
+  "qualified",
+  "prospecting",
+  "qualification",
+  "proposal",
+  "negotiation",
+  "closed_won",
+] as const;
+
+/**
+ * S10-6 (zero-data-informed mapping, quirk register): converts per-stage
+ * lead counts (our vocabulary) into the reference's 8-slug bucket list.
+ * The reference's merged list double-reports its new leads under both
+ * "new" and "prospecting" and its qualified leads under both "qualified"
+ * and "qualification"; won maps to closed_won. Counts input uses OUR stage
+ * vocabulary; see /api/reports.
+ */
+export function reportsBucketCounts(
+  counts: Record<string, number>,
+): Array<{ slug: string; count: number }> {
+  const stageCount = (s: string) => counts[s] ?? 0;
+  return REPORTS_PIPELINE_SLUGS.map((slug) => ({
+    slug,
+    count:
+      slug === "prospecting"
+        ? stageCount("new")
+        : slug === "qualification"
+          ? stageCount("qualified")
+          : slug === "closed_won"
+            ? stageCount("won")
+            : stageCount(slug),
+  }));
+}
+
+/**
+ * S10-7: the reference's Conversion Funnel is a recharts FunnelChart with
+ * FOUR trapezoid groups (leads page AND reports tab 1) — the same 4-stage
+ * vocabulary as the leads page's "Pipeline Value by Stage" chart.
+ */
+export const FUNNEL_STAGES = ["new", "qualified", "won", "lost"] as const;
+
+/**
+ * S10-8: the reference's tab-2 "Aging Pipeline" bar chart renders 4 bar
+ * rects at zero — a FIXED bucket list (ticks <30 days / 30-60 days /
+ * >90 days render; the 60-90 label elides at 331px — recharts tick
+ * elision, the DATA list is 4).
+ */
+export const AGING_BUCKETS = [
+  { label: "<30 days", min: 0, max: 30 },
+  { label: "30-60 days", min: 30, max: 60 },
+  { label: "60-90 days", min: 60, max: 90 },
+  { label: ">90 days", min: 90, max: Number.POSITIVE_INFINITY },
+] as const;
+
+
 // Session-5: the reference's Create Contact dialog labels its source select
 // "How did you meet?" and ships emoji-prefixed options (the trigger itself
 // renders "✉️ Email"). Stored values include the emoji — mirrored exactly.

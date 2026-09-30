@@ -12,7 +12,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: {
     default: "NEO CRM",
-    template: "%s · NEO CRM",
+    // Session-10 (S10-10): the reference's separator is a pipe
+    // ("Accounts | NEO CRM" — document.title probes on all 10 routes).
+    template: "%s | NEO CRM",
   },
   description:
     "NEO CRM — manage accounts, contacts, leads, activities and reports in one clean sales workspace.",

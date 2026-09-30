@@ -197,7 +197,7 @@ function AccountForm({
           <div className="grid gap-1.5">
             <Label>Status</Label>
             <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {ACCOUNT_STATUSES.map((s) => (
                   <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
@@ -231,7 +231,7 @@ function AccountForm({
         <div className="grid gap-1.5">
           <Label>Tier</Label>
           <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {ACCOUNT_TIERS.map((t) => (
                 <SelectItem key={t} value={t}>Tier {t}</SelectItem>
@@ -242,7 +242,7 @@ function AccountForm({
         <div className="grid gap-1.5">
           <Label>Status</Label>
           <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {ACCOUNT_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
@@ -253,7 +253,7 @@ function AccountForm({
         <div className="grid gap-1.5">
           <Label>Owner</Label>
           <Select value={form.ownerId || "unassigned"} onValueChange={(v) => setForm({ ...form, ownerId: v === "unassigned" ? "" : v })}>
-            <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue placeholder="Unassigned" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="unassigned">Unassigned</SelectItem>
               {users.map((u) => (
@@ -398,7 +398,7 @@ function ContactForm({
       <div className="grid gap-1.5">
         <Label>How did you meet?</Label>
         <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             {CONTACT_SOURCES.map((s) => (
               <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -410,7 +410,7 @@ function ContactForm({
         <div className="grid gap-1.5">
           <Label>Priority</Label>
           <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {CONTACT_PRIORITIES.map((p) => (
                 <SelectItem key={p} value={p}>{p[0].toUpperCase() + p.slice(1)}</SelectItem>
@@ -547,7 +547,7 @@ function LeadForm({
           <div className="grid gap-1.5">
             <Label>Status</Label>
             <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {CREATE_LEAD_STAGES.map((s) => (
                   <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
@@ -558,7 +558,7 @@ function LeadForm({
           <div className="grid gap-1.5">
             <Label>Source</Label>
             <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {LEAD_SOURCES.map((s) => (
                   <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -588,7 +588,7 @@ function LeadForm({
         <div className="grid gap-1.5">
           <Label>Stage</Label>
           <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {LEAD_STAGES.map((s) => (
                 <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
@@ -599,7 +599,7 @@ function LeadForm({
         <div className="grid gap-1.5">
           <Label>Source</Label>
           <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {LEAD_SOURCES.map((s) => (
                 <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -739,7 +739,7 @@ function EventForm({
       <div className="grid gap-1.5">
         <Label>Event Type *</Label>
         <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             {EVENT_TYPES.map((t) => (
               <SelectItem key={t} value={t}>{EVENT_TYPE_META[t].label}</SelectItem>
@@ -750,7 +750,7 @@ function EventForm({
       <div className="grid gap-1.5">
         <Label>Status</Label>
         <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             {["scheduled", "completed", "cancelled"].map((s) => (
               <SelectItem key={s} value={s} className="capitalize">{s[0].toUpperCase() + s.slice(1)}</SelectItem>
@@ -773,7 +773,7 @@ function EventForm({
       <div className="grid gap-1.5">
         <Label>Related To</Label>
         <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             {EVENT_RELATED_OPTIONS.map((o) => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
@@ -896,7 +896,7 @@ function ActivityForm({
       <div className="grid gap-1.5">
         <Label>Activity Type *</Label>
         <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             {ACTIVITY_TYPES.map((t) => (
               <SelectItem key={t} value={t}>{ACTIVITY_TYPE_META[t].label}</SelectItem>
@@ -915,7 +915,7 @@ function ActivityForm({
       <div className="grid gap-1.5">
         <Label>Related To (Type)</Label>
         <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             {ACTIVITY_RELATED_OPTIONS.map((o) => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>

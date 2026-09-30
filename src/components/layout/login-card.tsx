@@ -16,7 +16,7 @@ type Mode = "signin" | "signup";
  * white Google button, `h-11 sm:h-12` slate inputs and a slate-900 submit.
  * The logo is a CSS brand mark (the reference hotlinks a screenshot image;
  * we reproduce the white-circle + blue-dot shape with no external asset).
- * Kept beyond parity: the demo-credentials hint, the inline error alert
+ * Kept beyond parity: the inline error alert
  * and the signup mode (label ids + button names stay e2e-pinned).
  */
 export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
@@ -86,7 +86,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                 onClick={() =>
                   toast.info(
                     "Google sign-in not configured",
-                    "This self-hosted clone uses email and password sign-in. Use the demo credentials below.",
+                    "This self-hosted clone uses email and password sign-in (demo credentials in the README).",
                   )
                 }
               >
@@ -201,13 +201,6 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
             </form>
           </div>
 
-          {!isSignup && (
-            <div className="mt-6 rounded-xl bg-slate-50 px-3 py-2.5 text-center text-xs text-slate-500">
-              Demo login:{" "}
-              <span className="font-medium text-slate-700">sepnetflix2023@outlook.com</span> ·{" "}
-              <span className="font-medium text-slate-700">$Abcd1234</span>
-            </div>
-          )}
         </div>
       </div>
     </div>

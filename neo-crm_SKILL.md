@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.6.0
+version: 1.7.0
 last_updated: 2026-09-30
-project_state: 148 unit checks + 22 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (button icon-gap, input sizing, card titles, dialog submits, empty states, Tailwind v4 shadow-scale re-pin — session-9) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
+project_state: 169 unit checks + 23 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the FunnelChart funnel, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.6.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.7.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -205,7 +205,12 @@ as LITERAL hex values — no `var()` chains inside `@theme`, no
   --color-surface: #ffffff;         /* cards, topbar */
   --color-foreground: #111827;      /* near-black text */
   --color-muted: #6b7280;           /* secondary text */
-  --color-subtle: #9ca3af;          /* placeholders, icons */
+  --color-subtle: #9ca3af;          /* tertiary text, icons */
+  /* Session-10 stock-primitive inks: typed text in inputs/selects and
+     placeholders — the reference's --foreground 3.9% / --muted-foreground
+     45.1% (computed probes). */
+  --color-ink: #0a0a0a;             /* input/select typed text */
+  --color-muted-ink: #737373;       /* placeholders */
   --color-line: #e5e7eb;            /* borders */
   --color-line-soft: #f3f4f6;       /* chips, hover fills, search pill */
 
@@ -877,6 +882,61 @@ deploys it needs a shared store.)
 | hand-writing page-level layout classes | import from `@/lib/page-layout` (single test-pinned source) |
 | trusting a terminal echo containing `[m…` | read file bytes — ANSI display artifacts eat `[m` (session-6 lesson) |
 
+## 16b. Session-10 Layer (stock primitives, chart internals, reports tabs)
+
+**The blur-scale rename (S10-P0):** the same v3→v4 rename family as the
+shadow bug — v4 `backdrop-blur-sm` compiled 8px where the reference's
+computes 4px. One `@theme` re-pin (`--blur-sm: 4px`), pinned by the
+design-tokens suite. Whenever a reference surface renders visibly
+"heavier/stronger" than ours at class-identical markup, suspect a v4 scale
+rename (shadow, blur — check `rounded-*` and `ring` too).
+
+**The global cursor rule (S10-1):** the reference's platform CSS ships
+`button, [role="button"] { cursor: pointer; }`. Ours computed the arrow
+cursor on every button. Landed in the base layer of globals.css; Radix
+menu items keep their own cursor-default exactly like the reference. The
+mobile drawer overlay keeps its deliberate `cursor-default` (our fix, not
+a parity surface).
+
+**Stock-primitive inks (S10-2):** two tokens — `--color-ink` #0a0a0a
+(the reference's --foreground 3.9% — typed text in inputs/selects/
+textareas) and `--color-muted-ink` #737373 (its --muted-foreground —
+placeholders). Page-level text keeps `--color-foreground` #111827 (the
+reference's h1s/body render gray-900 there). NEVER "fix" the difference
+between the two blacks — it is the reference's own split.
+
+**Chart defaults (S10-4/5/11):** pass NO `content` to Tooltip, NO tick
+style, NO grid style — the reference ships stock recharts (default tooltip
+white/#ccc box, ticks 12px #666, CartesianGrid dashed "3 3" #ccc with
+horizontal AND vertical lines). Charts render the REAL output at all-zero
+data; the ChartEmpty placeholder era is over. The zero-state split:
+FIXED lists render ticks at zero; ROW-DERIVED series
+(`monthsFromEvents`) render empty. The Conversion Funnel is a FunnelChart
+— the `Funnel` takes its own `data` prop with per-datum `fill` (a Cell
+children pattern renders empty trapezoid groups — verified the hard way).
+
+**The 8-slug reports pipeline (S10-6):** `REPORTS_PIPELINE_SLUGS` +
+`reportsBucketCounts` — the reference's merged-list quirk (new≡prospecting
+and qualified≡qualification double-report; won→closed_won; raw snake_case
+labels, no title-casing). Pinned by constants.test.ts.
+
+**Reports tabs 2–4 (S10-8):** rebuilt to the reference's structure — see
+AGENTS.md for the full per-tab contract. The "Average Accuracy: N%"
+caption is a `text-sm text-gray-500` centered <p> UNDER the wide
+Forecasting Accuracy chart. Tab 2 ships NO KPI cards.
+
+**Per-page titles (S10-10):** thin SERVER `page.tsx` wrappers + renamed
+client parts (`*-page.tsx`). Per-route `layout.tsx` metadata hits a Next 16
+typed-routes generation bug (`LayoutRoutes` not assignable to `"/"`) — use
+the wrapper pattern.
+
+**Display-layer artifact (tooling):** raw `cat`/`grep` output can EAT the
+literal two-char sequences `[m` and `[h]` (ANSI escape remnants) —
+`const [mobileNavOpen` displayed as `const obileNavOpen`. When a file
+looks corrupted but the compilers pass, verify with character ORDINALS
+(`[ord(c) for c in line[:30]]`) before touching anything. (This is the
+session-6 "broken grid-cols class" artifact, now understood.)
+
 ## 17. Responsive Breakpoint Reference
 
 Tailwind defaults (no custom config). Layout-critical usage:
@@ -923,7 +983,9 @@ mirror — fix both if either changes):
 | `surface` | `#ffffff` | 255 255 255 | `bg-surface` | cards, topbar, dialogs |
 | `foreground` | `#111827` | 17 24 39 | `text-foreground` | primary text |
 | `muted` | `#6b7280` | 107 114 128 | `text-muted` | secondary text |
-| `subtle` | `#9ca3af` | 156 163 175 | `text-subtle` | placeholders, icons |
+| `subtle` | `#9ca3af` | 156 163 175 | `text-subtle` | tertiary text, icons |
+| `ink` | `#0a0a0a` | 10 10 10 | `text-ink` | input/select typed text (session-10) |
+| `muted-ink` | `#737373` | 115 115 115 | `placeholder:text-muted-ink` | placeholders (session-10) |
 | `line` | `#e5e7eb` | 229 231 235 | `border-line` | borders, dividers |
 | `line-soft` | `#f3f4f6` | 243 244 246 | `bg-line-soft` | chips, hover fill, search pill |
 | `success` / `success-soft` | `#10b981` / `#ecfdf5` | — | `text-success` `bg-success-soft` | positive deltas, won stages |
@@ -1083,15 +1145,16 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 | format | `tests/format.test.ts` | 23 | ~19 ms |
 | page-layout | `tests/page-layout.test.ts` | 37 | ~8 ms |
 | csv | `tests/csv.test.ts` | 8 | ~6 ms |
-| constants | `tests/constants.test.ts` | 8 | ~5 ms |
+| constants | `tests/constants.test.ts` | 12 | ~5 ms |
 | rate-limit | `tests/rate-limit.test.ts` | 6 | ~29 ms |
 | avatar | `tests/avatar.test.ts` | 5 | ~4 ms |
-| **unit total** | 10 files | **148** | **<1 s** |
+| reports-data (session-10) | `tests/reports-data.test.ts` | 7 | ~8 ms |
+| **unit total** | 11 files | **169** | **<1 s** |
 | e2e auth (logged out) | `tests/e2e/auth.spec.ts` | 3 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
-| e2e golden path | `tests/e2e/crm.spec.ts` | 12 | — |
-| e2e mobile nav regression | `tests/e2e/mobile-navigation.spec.ts` | 5 | — |
-| **e2e total** | 4 files | **21** | **~25 s** (incl. server boot) |
+| e2e golden path (incl. titles + reports tabs) | `tests/e2e/crm.spec.ts` | 13 | — |
+| e2e mobile nav regression | `tests/e2e/mobile-navigation.spec.ts` | 6 | — |
+| **e2e total** | 4 files | **23** | **~25 s** (incl. server boot) |
 
 Full gate wall-clock: lint ~10 s, typecheck ~8 s, unit <1 s, build ~40 s,
 e2e ~25 s → roughly 90 s end-to-end. Costs worth knowing: e2e reseeds
@@ -1366,6 +1429,29 @@ inside `overflow-x-auto`) overrode the rail's fixed width. Fix:
 `flex-1` sibling of a fixed-width column needs `min-w-0`** — and rail
 widths must be asserted at the rail's entry breakpoint (1024), not just
 at desktop width.
+
+
+### Session 10 audit (2026-09-30)
+
+- **Layer:** stock-primitive internals + chart rendering internals + the
+  never-audited reports tabs 2-4. 13 findings (S10-P0..13) — one more real
+  Tailwind v4 rename bug (blur scale), the missing global cursor rule,
+  input/select stock internals (transparent bg, ink #0a0a0a, placeholder
+  #737373, Select rounded-md/no-gap/no-base-w-full), the topbar search
+  pill, default tooltips + default ticks/grid, the ChartEmpty reversal
+  (the reference renders REAL charts at its persistent zero state), the
+  8-slug reports pipeline, the FunnelChart funnel, the tabs 2-4 rebuild,
+  row-derived vs fixed series, per-page titles, the activities chart
+  internals, favicon/login-logo notes.
+- **VLM rounds:** 3 real fixes (Conversion Rate icon = lucide-target, the
+  dashed-default grid, the login demo-hint removed); 1 VLM claim disproven
+  by DOM probe ("dotted placeholders on the reference" — `anyDashed:
+  false`); 1 capture-artifact lesson (verify with ordinals when the
+  display eats `[m`/`[h` sequences).
+- **Gate**: lint 0/0 · typecheck clean · **169/169 unit** (21 new checks) ·
+  build clean · **23/23 e2e** (mobile-nav 6/6); DOM re-verified at
+  1512/1024/768/700/390 + zero 390px overflow on all nine routes; 12
+  screenshots refreshed; docs realigned + SKILL v1.7.0.
 
 ## Appendix D: Live-Site Validation Methodology
 

@@ -189,3 +189,19 @@ Work Log:
 Stage Summary:
 - Gate: lint 0/0 · typecheck clean · 148/148 unit · build clean · 22/22 e2e; shadow-sm now computes 0 1px 2px 0.05 like the reference; buttons/inputs/dialogs/empty states/tables anatomy-aligned
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+---
+Task ID: 11 (repo)
+Agent: main (Super Z)
+Task: Session 10 — stock-primitive internals + chart zero-state + reports tab re-mirror
+
+Work Log:
+- Pulled to 203162e; baseline gate green (148/148); mobile-nav regression re-verified live before any change
+- Live audit at 1512: 13 findings (S10-P0 blur rename bug, cursor rule, input/select internals, search pill, default tooltips, chart zero-state reversal, 8-slug reports pipeline, FunnelChart funnel, tabs 2-4 rebuild, row-derived series, per-page titles, activities chart internals, favicon/login-logo notes)
+- TDD: 21 red-first checks -> 169/169; reports-data.ts new seam (agingCounts, forecastAccuracySeries, monthsFromEvents)
+- VLM rounds: 3 real fixes (Conversion Rate icon, dashed-default grid, login demo-hint) + 1 claim disproven by DOM probe
+- Full gate: lint 0/0, tsc, 169/169 unit, build, 23/23 e2e (mobile-nav 6/6); zero 390px overflow on all 9 routes; breakpoints exact
+- 12 screenshots refreshed; .env.example verified; docs realigned (README, AGENTS, CLAUDE, PAD, SKILL v1.7.0, session_13.md, plan addendum)
+
+Stage Summary:
+- Gate green; ready: commit on main + SSH-wrapper push

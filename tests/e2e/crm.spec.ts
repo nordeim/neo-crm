@@ -95,6 +95,51 @@ test("reports page loads analytics tabs with seeded data", async ({ page }) => {
 
   await page.getByRole("tab", { name: "Account Health" }).click();
   await expect(page.getByText("Account Health Distribution")).toBeVisible();
+
+  // Session-10 (S10-8): the rebuilt tab 2-4 structure. Tab 2 ships the
+  // Forecasting Accuracy caption + the Open Deals / Deals at Risk tables
+  // with their Export buttons; tab 3 the Overdue Activities + Activity
+  // Log by Owner tables; tab 4 the Leads List + Source Performance
+  // Summary tables.
+  await page.getByRole("tab", { name: "Pipeline & Forecast" }).click();
+  await expect(page.getByText("Forecasting Accuracy")).toBeVisible();
+  await expect(page.getByText(/Average Accuracy: /)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Export CSV" }).first()).toBeVisible();
+  await expect(page.getByText("Open Deals by Stage")).toBeVisible();
+  await expect(page.getByText("Deals at Risk (No Activity 14+ Days)")).toBeVisible();
+
+  await page.getByRole("tab", { name: "Activity & Productivity" }).click();
+  await expect(page.getByText("Overdue Activities")).toBeVisible();
+  await expect(page.getByText("Activity Log by Owner")).toBeVisible();
+
+  await page.getByRole("tab", { name: "Lead Sources" }).click();
+  await expect(page.getByText("Leads List by Source")).toBeVisible();
+  await expect(page.getByText("Source Performance Summary")).toBeVisible();
+  await expect(page.getByText("Win Rate by Source (%)")).toBeVisible();
+});
+
+test("per-page document titles follow the Page | NEO CRM scheme", async ({ page }) => {
+  // Session-10 (S10-10): the reference titles every non-dashboard page
+  // "X | NEO CRM"; the dashboard + login stay "NEO CRM" (document.title
+  // probes on all 10 routes of the live reference).
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await expect(page).toHaveTitle("NEO CRM");
+  for (const [path, title] of [
+    ["/accounts", "Accounts | NEO CRM"],
+    ["/contacts", "Contacts | NEO CRM"],
+    ["/leads", "Leads | NEO CRM"],
+    ["/calendar", "Calendar | NEO CRM"],
+    ["/activities", "Activities | NEO CRM"],
+    ["/reports", "Reports | NEO CRM"],
+    ["/settings", "Settings | NEO CRM"],
+    ["/profile", "Profile | NEO CRM"],
+  ] as const) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(title);
+  }
+  await page.goto("/login");
+  await expect(page).toHaveTitle("NEO CRM");
 });
 
 test("profile page shows the reference Personal Information layout", async ({ page }) => {

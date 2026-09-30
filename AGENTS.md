@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (148 checks)         | `bun run test`                         |
-| Browser E2E (22 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (169 checks)         | `bun run test`                         |
+| Browser E2E (23 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (148) → `bun run build` → `bun run test:e2e` (22). There is no
+`bun run test` (169) → `bun run build` → `bun run test:e2e` (23). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -64,7 +64,22 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the reference's `shadow-sm` (session-9 computed-probe fix): `@theme`
   re-pins `--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05)` (pinned by
   `tests/design-tokens.test.ts`). Bare `shadow` (the Card family) matches
-  both sides and is NOT overridden.
+  both sides and is NOT overridden. **v4 renamed the blur scale the same
+  way** (session-10): v4 `backdrop-blur-sm` compiled 8px where the
+  reference's computes 4px — `@theme` re-pins `--blur-sm: 4px` (same test
+  suite). The reference's global stylesheet also ships
+  `button, [role="button"] { cursor: pointer; }` — mirrored in our base
+  layer (ours computed the arrow cursor before session-10).
+- **Stock-primitive inks (session-10)**: the reference's stock Input/Select
+  carry `bg-transparent`, NO text color class (typed text inherits its
+  `--foreground` #0a0a0a) and `placeholder:text-muted-foreground` #737373.
+  Our tokens: `--color-ink` #0a0a0a (text-ink) + `--color-muted-ink` #737373
+  (placeholder:text-muted-ink) — page-level text keeps `--color-foreground`
+  #111827 (the reference's h1s/body use gray-900 there). The Select trigger
+  is stock: `rounded-md`, no `gap-2`, transparent, NO base `w-full`
+  (`w-full` is per-surface — 270px rails yes / 128px toolbars no, like the
+  reference); the topbar search is the shared Input + `pl-10 bg-gray-50
+  border-gray-200` (12px right padding, keyboard-only focus-visible).
 - **`tw-animate-css` is vendored at `src/app/vendor/tw-animate.css`** — the
   npm package exposes only the `style` export condition, which Turbopack's CSS
   resolver does not support (`Can't resolve 'tw-animate-css'`). Import the
@@ -156,6 +171,43 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   DOM-pinned source vocabularies (`LEAD_SOURCES` = Call/Email/Website/
   Partner; `CONTACT_SOURCES` = the five emoji "How did you meet?"
   options). Extend the meta maps when you extend a vocabulary.
+- **Charts ship recharts DEFAULTS, no empty-state boxes (session-10
+  reversal)** — the reference passes NO `content` to `<Tooltip>` (the stock
+  `recharts-default-tooltip` white box), NO tick style (12px #666) and NO
+  grid style (CartesianGrid dashed "3 3" #ccc with BOTH horizontal and
+  vertical lines). Our custom ChartTooltip/AXIS_STYLE/solid grid and the
+  session-1 `ChartEmpty` dashed placeholder boxes are ALL RETIRED: the
+  reference renders the REAL chart at all-zero data (its persistent state
+  since session 3) — fixed lists render ticks at zero (dashboard 5 stages +
+  7-month revenue, reports tab-1 8 slugs, aging 4 buckets, activities 5
+  types) while ROW-DERIVED series render empty (no ticks at zero; reports
+  revenue/wonVsLost, the leads page wonVsLost, all tab 2-4 charts except
+  aging). The split is DOM-verified and lives in
+  `src/lib/reports-data.ts` (monthsFromEvents) + the routes. The Conversion
+  Funnel is a recharts `FunnelChart` (4 trapezoid groups — FUNNEL_STAGES
+  New/Qualified/Won/Lost, the funnel takes its own `data` prop with
+  per-datum fills).
+- **Reports pipeline vocabulary (session-10)**: tab-1 "Pipeline by Stage"
+  ships the reference's 8 RAW SLUGS via `REPORTS_PIPELINE_SLUGS` +
+  `reportsBucketCounts` (new/contacted/qualified/prospecting/qualification/
+  proposal/negotiation/closed_won — the merged-list quirk: new≡prospecting
+  and qualified≡qualification double-report, won maps to closed_won; labels
+  are raw slugs, no title-casing). Tabs 2-4 mirror the reference's
+  structure exactly (tab 2: Forecasting Accuracy wide chart + the centered
+  `Average Accuracy: N%` caption, row-derived Pipeline by Stage, Forecast
+  by Probability, the fixed 4-bucket Aging Pipeline, Open Deals by Stage +
+  Deals at Risk tables with Export CSV/PDF buttons, NO KPI cards; tab 3:
+  Activities by Type / Activities Over Time / Activities vs Wins charts +
+  Overdue Activities + Activity Log by Owner (Owner/Activities); tab 4:
+  Leads by Source / Win Rate by Source (%) / Avg Deal Value by Source
+  charts + Leads List by Source + Source Performance Summary
+  (Source/Leads/Won/Revenue)).
+- **Per-page document titles (session-10)** — the reference titles every
+  non-dashboard page "X | NEO CRM" (dashboard + login stay "NEO CRM").
+  Implemented with thin SERVER `page.tsx` wrappers + renamed client parts
+  (`*-page.tsx`) — the (app) pages are client components and cannot export
+  metadata; a per-route `layout.tsx` approach hit a Next 16 typed-routes
+  generation bug, use the wrapper pattern.
 - **Chart colors are DOM-pinned, not aesthetic** — `tests/constants.test.ts`
   freezes the palette against the live reference: pipeline stage hex (Proposal
   = yellow `#eab308`, Won = grey `#9ca3af` — chart hex only, badges stay
@@ -211,13 +263,16 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   were DOM-verified against the reference's zero-state KPIs (it prints
   `$0.0k` on the dashboard, `$0.0K`/`$0K` on reports, `$0` on leads).
 - **Pure domain seams are unit-tested** (`src/lib/db-path.ts`, `auth.ts`,
-  `format.ts`, `csv.ts`, `rate-limit.ts`, `lead-filters.ts`, `avatar` helpers,
-  the chart palette (`constants.test.ts`), the dialog/filter vocabularies, the
-  layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8) — 148 Vitest checks). Route handlers
-  and pages import these modules; don't inline their logic. E2E uses its own
-  scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place
-  reseed) on port 3100 against the standalone build.
+  `format.ts`, `csv.ts`, `rate-limit.ts`, `lead-filters.ts`,
+  `reports-data.ts` (session-10: agingCounts, forecastAccuracySeries,
+  monthsFromEvents), `avatar` helpers,
+  the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
+  the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
+  sessions 6–8 + session-10's stock-primitive pins) — 169 Vitest checks).
+  Route handlers and pages import these modules; don't inline their logic.
+  E2E uses its own scratch database (`db/e2e.db` via
+  `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
+  standalone build.
 
 ## Conventions that differ from defaults
 

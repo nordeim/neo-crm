@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
+import { SELECT_TRIGGER } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 
 const Select = SelectPrimitive.Root;
@@ -16,18 +17,21 @@ function SelectTrigger({
 }: React.ComponentProps<typeof SelectPrimitive.Trigger>) {
   return (
     <SelectPrimitive.Trigger
+      // Session-10 (S10-2): the stock shadcn trigger, DOM-extracted from the
+      // live reference: rounded-md (6px), NO gap-2 (justify-between only),
+      // bg-transparent, ink text + placeholder #737373, chevron
+      // h-4 w-4 opacity-50 (50% of the ink — computed rgb(10,10,10)/50),
+      // keyboard-only focus-visible ring. No base w-full — surfaces add it
+      // (270px rails yes / 128px toolbars no, like the reference).
       className={cn(
-        // Session-9 (S9-16): the reference's Select trigger focuses with a
-        // 1px near-black ring (`focus:ring-1 focus:ring-ring`) and no
-        // border-color change — extracted from the live accounts toolbar.
-        "flex h-9 w-full items-center justify-between gap-2 whitespace-nowrap rounded-lg border border-line bg-white px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-subtle focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate data-[placeholder]:text-subtle",
+        `${SELECT_TRIGGER.base} ${SELECT_TRIGGER.placeholderState} focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate`,
         className,
       )}
       {...props}
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDown className="h-4 w-4 shrink-0 text-subtle" />
+        <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );

@@ -658,15 +658,16 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — format | 1 | 23 | `tests/format.test.ts` | Vitest |
 | Unit — csv | 1 | 8 | `tests/csv.test.ts` | Vitest |
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
-| Unit — chart palette + vocabularies (DOM-pinned) | 1 | 8 | `tests/constants.test.ts` | Vitest |
+| Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–9) | 1 | 58 | `tests/page-layout.test.ts` | Vitest |
-| Unit — design tokens (shadow-scale re-pin, ring color — session-9) | 1 | 3 | `tests/design-tokens.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–10) | 1 | 63 | `tests/page-layout.test.ts` | Vitest |
+| Unit — design tokens (shadow/blur re-pins, ring, cursor rule, inks — sessions 9–10) | 1 | 8 | `tests/design-tokens.test.ts` | Vitest |
+| Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
 | E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path | 1 | 12 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs — session-10) | 1 | 13 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression | 1 | 6 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **14** | **148 unit + 22 e2e** | | |
+| **Total** | **15** | **169 unit + 23 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -684,6 +685,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   driven with agent-browser at 1440px and 390px (login → all 9 pages →
   drawer behaviors) with visual (VLM) checks against the reference
   screenshots.
+- **Chart empty-state reversal (session-10):** charts render the REAL
+  recharts output at all-zero data — NO placeholder boxes. Fixed lists
+  render ticks at zero; row-derived series (via `monthsFromEvents`) render
+  empty. The session-1 `ChartEmpty` design is retired; recharts defaults
+  apply everywhere (tooltip, ticks 12px #666, dashed "3 3" #ccc grid with
+  horizontal AND vertical lines).
 
 ### 7.3 Coverage Thresholds
 
@@ -696,9 +703,9 @@ must keep all 5 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 75/75
+- [ ] `bun run test` — 169/169
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 21/21
+- [ ] `bun run test:e2e` — 23/23
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`
@@ -816,8 +823,10 @@ files. Push via the SSH wrapper (§8.4).
 | `src/lib/format.ts` | 221 | Currency/date/relative-time/calendar-grid pure helpers |
 | `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |
 | `src/lib/lead-filters.ts` | 90 | Leads Filters popover persist/restore seam — `encodeLeadFilters`/`decodeLeadFilters` pure pair (localStorage key `neo-crm.leads.view`), vocabulary-guarded decoding, pinned by `tests/lead-filters.test.ts` (session-8) |
+| `src/lib/reports-data.ts` | ~120 | Session-10 reports derivations — `agingCounts` (fixed 4-bucket aging), `forecastAccuracySeries` (per-month accuracy + the Average Accuracy caption), `monthsFromEvents` (row-derived month series) — pinned by `tests/reports-data.test.ts` |
 | `src/lib/page-layout.ts` | 390 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint) consumed by every page — sessions 6–8 |
 | `src/lib/csv.ts` | 74 | RFC-4180 serializer/parser (export + import) |
+| `src/app/(app)/*/page.tsx` + `*-page.tsx` | — | Session-10 pattern: thin SERVER `page.tsx` wrappers (per-page metadata titles) rendering the renamed client parts — client pages cannot export metadata; per-route `layout.tsx` hit a Next 16 typed-routes bug |
 | `src/lib/rate-limit.ts` | 47 | Fixed-window limiter with sweeper |
 | `src/components/layout/mobile-nav.tsx` | 170 | THE mobile drawer fix (focus trap, dual scroll lock, inert) |
 | `src/components/layout/app-shell.tsx` | 55 | Chrome composition + store bootstrap; session-7 reference model: in-flow `hidden md:flex` sidebar, `flex h-screen` root, `main` the only scroller |

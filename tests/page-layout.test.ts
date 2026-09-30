@@ -18,6 +18,9 @@ import {
   NAV_LAYOUT,
   PAGE_HEADER,
   PAGE_KPI_GRIDS,
+  PAGE_TITLES,
+  SEARCH_INPUT,
+  SELECT_TRIGGER,
   PROFILE_LAYOUT,
   RAIL_LAYOUT,
   RECENT_DEALS,
@@ -224,11 +227,15 @@ describe("topbar parity (session-7 DOM-verified)", () => {
     expect(TOPBAR_LAYOUT.inner).toBe("flex items-center justify-between gap-4");
   });
 
-  it("search block is hidden below sm, max-w-xl, icon 20px, input h-9 pl-10 bg-gray-50", () => {
+  it("search block is hidden below sm, max-w-xl, icon 20px; input = stock Input + extras", () => {
     expect(TOPBAR_LAYOUT.searchBlock).toBe("hidden sm:flex flex-1 max-w-xl");
     expect(TOPBAR_LAYOUT.searchWrap).toBe("relative w-full");
     expect(TOPBAR_LAYOUT.searchIcon).toBe("h-5 w-5 text-subtle");
-    expect(TOPBAR_LAYOUT.searchInput).toContain("h-9 w-full rounded-md border border-line bg-background pl-10");
+    // Session-10 (S10-3): the search pill is the shared (stock) Input +
+    // SEARCH_INPUT.extras (pl-10 bg-gray-50 border-gray-200) — the
+    // reference's exact construction (12px right padding from the stock
+    // px-3 base, keyboard-only focus, ink/placeholder tokens).
+    expect(TOPBAR_LAYOUT.searchInput).toBe("use shared Input + SEARCH_INPUT.extras");
   });
 
   it("mail/bell are rounded-md h-9 w-9 icon buttons hidden below sm", () => {
@@ -473,9 +480,12 @@ describe("session-9 component-anatomy pins", () => {
   it("input base: 16px below md + 1px near-black focus ring", () => {
     // S9-12: the reference's stock Input is text-base md:text-sm (16px on
     // phones). S9-16: ring-1 focus, border color unchanged.
+    // Session-10 (S10-2/S10-3) refinement: the ring is keyboard-only
+    // (focus-visible:) and drops the border-color change — see the
+    // session-10 block for the full stock base.
     expect(INPUT_BASE.size).toBe("text-base md:text-sm");
     expect(INPUT_BASE.focusRing).toBe(
-      "focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-input",
+      "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
     );
   });
 
@@ -568,5 +578,63 @@ describe("layout regression guards", () => {
 
   it("rail classes hide below lg (reference behavior)", () => {
     expect(RAIL_LAYOUT.rail).toMatch(/hidden lg:block/);
+  });
+});
+
+describe("session-10 stock-primitive pins (DOM-verified 2026-09-30)", () => {
+  it("input base matches the reference's stock Input internals", () => {
+    // S10-2: the reference's stock Input is `bg-transparent` (NO bg class),
+    // carries NO text color class (typed text inherits its --foreground
+    // #0a0a0a — pinned as --color-ink) and `placeholder:text-muted-foreground`
+    // (#737373 — pinned as --color-muted-ink). Ours shipped bg-white +
+    // text-foreground (#111827) + placeholder #9ca3af.
+    expect(INPUT_BASE.bg).toBe("bg-transparent");
+    expect(INPUT_BASE.ink).toBe("text-ink");
+    expect(INPUT_BASE.placeholder).toBe("placeholder:text-muted-ink");
+    expect(INPUT_BASE.transition).toBe("transition-colors");
+  });
+
+  it("input focus uses focus-visible (keyboard-only), not focus:", () => {
+    // S10-2/S10-3: the reference's stock base uses `focus-visible:` on both
+    // the outline-none and the ring — the ring does NOT fire on mouse click.
+    // The topbar search on ours fired on click (focus:).
+    expect(INPUT_BASE.focusRing).toBe(
+      "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+    );
+  });
+
+  it("select trigger matches the stock shadcn trigger (rounded-md, no gap, transparent, auto width)", () => {
+    // S10-2: the reference's Select trigger is stock: rounded-md (6px, not
+    // our 8px rounded-lg), NO gap-2 (justify-between only), bg-transparent,
+    // placeholder #737373, and NO base w-full (the reference adds w-full
+    // per-surface: 270px rail selects yes / 128px toolbar selects no).
+    expect(SELECT_TRIGGER.base).toBe(
+      "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm text-ink shadow-sm transition-colors placeholder:text-muted-ink",
+    );
+    expect(SELECT_TRIGGER.base).not.toContain("w-full");
+    expect(SELECT_TRIGGER.base).not.toContain("gap-2");
+    expect(SELECT_TRIGGER.placeholderState).toBe("data-[placeholder]:text-muted-ink");
+  });
+
+  it("the topbar search is the stock Input + pl-10 gray-50 extras (12px right padding)", () => {
+    // S10-3: the reference's search pill = the stock Input base + `pl-10
+    // bg-gray-50 border-gray-200`; the stock `px-3 py-1` base leaves a 12px
+    // right padding (ours was pr-4 = 16px). Focus is keyboard-only.
+    expect(SEARCH_INPUT.extras).toBe("pl-10 bg-gray-50 border-gray-200");
+    expect(SEARCH_INPUT.usesStockInput).toBe(true);
+  });
+
+  it("per-page document titles follow the reference's Page | NEO CRM scheme", () => {
+    // S10-10: the reference titles every non-dashboard page "X | NEO CRM";
+    // the dashboard and login stay "NEO CRM".
+    expect(PAGE_TITLES.dashboard).toBe("NEO CRM");
+    expect(PAGE_TITLES.accounts).toBe("Accounts | NEO CRM");
+    expect(PAGE_TITLES.contacts).toBe("Contacts | NEO CRM");
+    expect(PAGE_TITLES.leads).toBe("Leads | NEO CRM");
+    expect(PAGE_TITLES.calendar).toBe("Calendar | NEO CRM");
+    expect(PAGE_TITLES.activities).toBe("Activities | NEO CRM");
+    expect(PAGE_TITLES.reports).toBe("Reports | NEO CRM");
+    expect(PAGE_TITLES.settings).toBe("Settings | NEO CRM");
+    expect(PAGE_TITLES.profile).toBe("Profile | NEO CRM");
   });
 });

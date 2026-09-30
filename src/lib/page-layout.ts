@@ -196,8 +196,13 @@ export const TOPBAR_LAYOUT = {
   searchIcon: "h-5 w-5 text-subtle",
   // Session-9 (S9-16): the reference's topbar search focuses with a 1px
   // near-black ring (focus:ring-1 focus:ring-ring).
-  searchInput:
-    "h-9 w-full rounded-md border border-line bg-background pl-10 pr-4 text-base text-foreground shadow-sm placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-ring md:text-sm",
+  // Session-10 (S10-3): the search pill is now the shared (stock) Input
+  // component + SEARCH_INPUT.extras (pl-10 bg-gray-50 border-gray-200) —
+  // exactly the reference's construction. The stock base carries the 12px
+  // right padding (px-3), the ink/placeholder tokens and the keyboard-only
+  // focus-visible ring. The old custom string (pr-4 16px, focus: on click,
+  // text-foreground) is retired.
+  searchInput: "use shared Input + SEARCH_INPUT.extras",
   iconButton:
     "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex",
   iconClass: "h-5 w-5",
@@ -396,12 +401,54 @@ export const BUTTON_BASE = {
   focusRing: "focus-visible:ring-1 focus-visible:ring-ring",
 } as const;
 
-/** S9-12 + S9-16: the stock Input base sizing + focus. The reference's
- *  inputs are `text-base md:text-sm` (16px below md — phones), and focus
- *  renders a 1px near-black ring with the border color unchanged. */
+/** S9-12 + S9-16, session-10 S10-2/S10-3: the stock Input base. The
+ *  reference's stock Input is `text-base md:text-sm` (16px below md —
+ *  phones), `bg-transparent` with NO text color class (typed text inherits
+ *  its --foreground #0a0a0a — pinned as --color-ink / text-ink),
+ *  `placeholder:text-muted-foreground` (#737373 — --color-muted-ink),
+ *  `transition-colors`, and a keyboard-only focus-visible ring. Ours
+ *  shipped bg-white + text-foreground #111827 + placeholder #9ca3af and
+ *  the search fired its ring on click (focus:). */
 export const INPUT_BASE = {
   size: "text-base md:text-sm",
-  focusRing: "focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-input",
+  bg: "bg-transparent",
+  ink: "text-ink",
+  placeholder: "placeholder:text-muted-ink",
+  transition: "transition-colors",
+  focusRing: "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+} as const;
+
+/** S10-2: the stock shadcn Select trigger (DOM-extracted from the live
+ *  reference): rounded-md (6px — NOT our rounded-lg 8px), NO gap-2
+ *  (justify-between only), bg-transparent, placeholder #737373, and NO
+ *  base w-full — the reference adds w-full per-surface (270px rail
+ *  selects yes / 128px toolbar + dead switchers no). */
+export const SELECT_TRIGGER = {
+  base: "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm text-ink shadow-sm transition-colors placeholder:text-muted-ink",
+  placeholderState: "data-[placeholder]:text-muted-ink",
+} as const;
+
+/** S10-3: the topbar search pill = the shared (stock) Input + the
+ *  reference's three extras. The stock `px-3 py-1` base leaves a 12px
+ *  right padding (ours was pr-4 = 16px); focus is keyboard-only. */
+export const SEARCH_INPUT = {
+  extras: "pl-10 bg-gray-50 border-gray-200",
+  usesStockInput: true,
+} as const;
+
+/** S10-10: per-page document titles. The reference titles every
+ *  non-dashboard page "X | NEO CRM" (document.title probes, all 10
+ *  routes); the dashboard and login stay "NEO CRM". */
+export const PAGE_TITLES = {
+  dashboard: "NEO CRM",
+  accounts: "Accounts | NEO CRM",
+  contacts: "Contacts | NEO CRM",
+  leads: "Leads | NEO CRM",
+  calendar: "Calendar | NEO CRM",
+  activities: "Activities | NEO CRM",
+  reports: "Reports | NEO CRM",
+  settings: "Settings | NEO CRM",
+  profile: "Profile | NEO CRM",
 } as const;
 
 /** S9-2: entity-dialog submit buttons are DARK on the reference — its

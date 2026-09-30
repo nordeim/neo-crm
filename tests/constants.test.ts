@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  AGING_BUCKETS,
   CHART_COLORS,
   CONTACT_SOURCES,
   EVENT_TYPES,
   EVENT_TYPE_META,
+  FUNNEL_STAGES,
   LEAD_SOURCES,
   LEAD_STAGES,
+  REPORTS_PIPELINE_SLUGS,
   STAGE_META,
   isDroppedStage,
+  reportsBucketCounts,
 } from "@/lib/constants";
 
 // Session-4 parity pins: every color below was extracted from the LIVE
@@ -91,5 +95,69 @@ describe("dialog/filter vocabularies (session-5 DOM-verified)", () => {
     expect(isDroppedStage("unqualified")).toBe(true);
     expect(isDroppedStage("new")).toBe(false);
     expect(isDroppedStage("won")).toBe(false);
+  });
+});
+
+describe("session-10 vocabulary pins (reports/chart internals)", () => {
+  it("reports pipeline chart ships the reference's 8 RAW slugs in order", () => {
+    // S10-6: the reference's reports tab-1 "Pipeline by Stage" X ticks are
+    // the raw merged stage list (extracted at 1512, 2026-09-30):
+    // new, contacted, qualified, prospecting, qualification, proposal,
+    // negotiation, closed_won — snake_case, no title-casing. The reference's
+    // own merged-list bug: new≡prospecting and qualified≡qualification
+    // (its dashboard aliases) plus won≡closed_won all leak into one list.
+    expect(REPORTS_PIPELINE_SLUGS).toEqual([
+      "new",
+      "contacted",
+      "qualified",
+      "prospecting",
+      "qualification",
+      "proposal",
+      "negotiation",
+      "closed_won",
+    ]);
+  });
+
+  it("the conversion funnel is a 4-stage list (new/qualified/won/lost)", () => {
+    // S10-7: the reference's funnel renders 4 trapezoid groups (leads page
+    // AND reports tab 1) — the same 4-stage vocabulary as the leads page's
+    // "Pipeline Value by Stage" chart (New/Qualified/Won/Lost).
+    expect(FUNNEL_STAGES).toEqual(["new", "qualified", "won", "lost"]);
+    expect(FUNNEL_STAGES.map((s) => STAGE_META[s].label)).toEqual([
+      "New",
+      "Qualified",
+      "Won",
+      "Lost",
+    ]);
+  });
+
+  it("aging pipeline ships the reference's 4 fixed buckets", () => {
+    // S10-8: the reference's tab-2 "Aging Pipeline" bar chart renders 4 bar
+    // rects at zero with ticks <30 days / 30-60 days / >90 days (the 60-90
+    // label drops at 331px — recharts tick elision; the DATA list is 4).
+    expect(AGING_BUCKETS.map((b) => b.label)).toEqual([
+      "<30 days",
+      "30-60 days",
+      "60-90 days",
+      ">90 days",
+    ]);
+  });
+
+  it("the 8-slug bucket mapping double-reports new and qualified under their dashboard aliases", () => {
+    // Zero-data-informed mapping (quirk register): the reference's merged
+    // list double-reports its new leads under both "new" and "prospecting"
+    // and its qualified leads under both "qualified" and "qualification";
+    // won maps to closed_won. See reportsBucketCounts().
+    const counts = reportsBucketCounts({ new: 3, contacted: 2, qualified: 4, proposal: 1, negotiation: 5, won: 6, lost: 7, unqualified: 8 });
+    expect(counts).toEqual([
+      { slug: "new", count: 3 },
+      { slug: "contacted", count: 2 },
+      { slug: "qualified", count: 4 },
+      { slug: "prospecting", count: 3 },
+      { slug: "qualification", count: 4 },
+      { slug: "proposal", count: 1 },
+      { slug: "negotiation", count: 5 },
+      { slug: "closed_won", count: 6 },
+    ]);
   });
 });

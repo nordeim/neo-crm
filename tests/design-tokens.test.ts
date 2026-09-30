@@ -45,3 +45,45 @@ describe("design tokens: Tailwind v4 shadow-scale re-pin (S9-P0)", () => {
     expect(themeToken("color-ring")).toBe("#0a0a0a");
   });
 });
+
+describe("design tokens: Session 10 pins (S10-P0, S10-1, S10-2)", () => {
+  it("blur-sm re-pins to the reference's computed 4px glass blur", () => {
+    // S10-P0: v4 renamed the blur scale (v3 blur-sm=4px became v4 blur-xs;
+    // v4 blur-sm is the old bare blur=8px). The reference's login card
+    // `backdrop-blur-sm` COMPUTES blur(4px) (getComputedStyle, 2026-09-30);
+    // our v4 default compiled 8px — one step too strong. Same family as the
+    // S9-P0 shadow re-pin.
+    expect(themeToken("blur-sm")).toBe("4px");
+  });
+
+  it("does NOT redefine other blur steps (bare blur-xl on the logo glow is not a parity surface)", () => {
+    // Only blur-sm is affected by the rename on parity surfaces; blur-xl was
+    // not renamed in v4 and stays on the default scale.
+    expect(themeToken("blur-xl")).toBeUndefined();
+  });
+
+  it("ships the global cursor rule from the reference's platform CSS", () => {
+    // S10-1: the reference's global stylesheet contains
+    // `button, [role="button"] { cursor: pointer; }` — every button shows the
+    // hand cursor. Our buttons computed cursor:default. The rule lands in
+    // the base layer of globals.css.
+    expect(css).toMatch(/button,\s*\[role="?button"?\]\s*\{\s*cursor:\s*pointer;\s*\}/);
+  });
+
+  it("input ink token matches the reference's inherited input text color", () => {
+    // S10-2: the reference's stock Input has NO text color class — typed
+    // text inherits its --foreground 0 0% 3.9% = #0a0a0a (computed probe on
+    // the search input: rgb(10,10,10)). Ours rendered text-foreground
+    // #111827. The new --color-ink token carries the near-black.
+    expect(themeToken("color-ink")).toBe("#0a0a0a");
+  });
+
+  it("placeholder ink token matches the reference's --muted-foreground", () => {
+    // S10-2: the reference's placeholders compute #737373 (its
+    // --muted-foreground 0 0% 45.1%; computed probe on the search ::placeholder
+    // = rgb(115,115,115)). Ours rendered #9ca3af (subtle) on inputs and
+    // #6b7280 (muted) on the search pill — three different values; the token
+    // unifies them on the reference's value.
+    expect(themeToken("color-muted-ink")).toBe("#737373");
+  });
+});

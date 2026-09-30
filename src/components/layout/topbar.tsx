@@ -6,7 +6,8 @@ import { Bell, ChevronDown, Mail, Search } from "lucide-react";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { MobileNavTrigger } from "./mobile-nav";
 import { useCrmStore } from "@/stores/crm-store";
-import { TOPBAR_LAYOUT } from "@/lib/page-layout";
+import { SEARCH_INPUT, TOPBAR_LAYOUT } from "@/lib/page-layout";
+import { Input } from "@/components/ui/input";
 import { STAGE_META } from "@/lib/constants";
 import { formatCompactCurrency } from "@/lib/format";
 import type { User as AppUser } from "@/types";
@@ -83,13 +84,17 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
             <Search
               className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${TOPBAR_LAYOUT.searchIcon}`}
             />
-            <input
+            {/* Session-10 (S10-3): the reference's search pill is the stock
+                Input base + `pl-10 bg-gray-50 border-gray-200` — 12px right
+                padding (stock px-3), keyboard-only focus-visible ring and
+                the ink/placeholder tokens. Was a custom pr-4 string. */}
+            <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => hasResults && setOpen(true)}
               placeholder="Search Anything..."
               aria-label="Search accounts, contacts and leads"
-              className={TOPBAR_LAYOUT.searchInput}
+              className={SEARCH_INPUT.extras}
             />
             {open && hasResults && (
               <div className="absolute left-0 right-0 top-11 z-[60] overflow-hidden rounded-xl border border-line bg-surface p-1.5 shadow-lg animate-in fade-in-0 zoom-in-95">
