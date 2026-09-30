@@ -4,6 +4,7 @@ import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DIALOG_TITLE } from "@/lib/page-layout";
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -61,7 +62,10 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
-  return <DialogPrimitive.Title className={cn("text-lg font-semibold text-foreground", className)} {...props} />;
+  // Session-13 (S13-P9): the stock string — `text-lg font-semibold
+  // leading-none tracking-tight` (reference class dump), inheriting the
+  // #0a0a0a default foreground.
+  return <DialogPrimitive.Title className={cn(DIALOG_TITLE, className)} {...props} />;
 }
 
 function DialogDescription({

@@ -280,13 +280,23 @@ export default function CalendarPage() {
                     onClick={() => setSelectedDay(day)}
                     onDoubleClick={() => openNewEvent(day)}
                     className={cn(
-                      "flex min-h-20 flex-col items-stretch rounded-lg border p-1 text-left transition-colors sm:min-h-24 sm:p-2",
-                      "hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-                      inMonth ? "border-line bg-white" : "border-transparent bg-line-soft/50 text-subtle",
-                      // Reference: the selected day's whole cell is a solid
-                      // blue-600 block with white text (DOM-verified
-                      // rgb(37,99,235) — the sidebar blue, not primary-500).
-                      isSelected && "border-sidebar bg-sidebar text-white",
+                      // Session-13 (S13-P7): the reference's literal state
+                      // classes — out-of-month cells KEEP the default
+                      // border (bg-gray-50 text-gray-400) and current
+                      // cells hover to the gray-50 wash; transition-all.
+                      // Our cells stay BUTTONS (the clickable superset) —
+                      // the focus ring is the only interactive extra.
+                      "flex min-h-20 flex-col items-stretch rounded-lg border p-1 text-left transition-all sm:min-h-24 sm:p-2",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                      // Exclusive ternary chain — the selected/today cell
+                      // carries NO hover (the reference's blue pill is
+                      // inert); the hover wash belongs to the plain
+                      // current-month cells only.
+                      isSelected
+                        ? "border-sidebar bg-sidebar text-white"
+                        : inMonth
+                          ? "border-line bg-white hover:bg-gray-50"
+                          : "border-line bg-gray-50 text-gray-400",
                     )}
                     aria-label={`${formatDate(day)} — ${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}`}
                     aria-pressed={isSelected}

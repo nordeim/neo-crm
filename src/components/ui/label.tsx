@@ -7,7 +7,15 @@ import { cn } from "@/lib/utils";
 function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
   return (
     <LabelPrimitive.Root
-      className={cn("text-xs font-medium text-foreground/80 peer-disabled:opacity-50", className)}
+      // Session-13 (S13-P13): the STOCK shadcn Label — `text-sm font-medium
+      // leading-none peer-disabled:cursor-not-allowed
+      // peer-disabled:opacity-70` (reference class dump on the New
+      // Account dialog, 14px). Ours shipped a 12px text-xs custom with a
+      // /80 foreground wash.
+      className={cn(
+        "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        className,
+      )}
       {...props}
     />
   );

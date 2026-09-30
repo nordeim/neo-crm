@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (206) → `bun run build` → `bun run test:e2e` (28). For UI
+   `bun run test` (244) → `bun run build` → `bun run test:e2e` (31). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (206 checks)               |
-| `bun run test:e2e`  | Playwright E2E (28 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (244 checks)               |
+| `bun run test:e2e`  | Playwright E2E (31 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 206 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 244 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -126,6 +126,10 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   accuracy, row-derived month series),
   `tests/login-reset.test.ts` (session-11: the login card's in-place
   reset-password flow — view swaps, submit gating, back navigation),
+  `tests/page-titles.test.ts` (session-13: the auth pages' ABSOLUTE
+  titles — the root template DOUBLED the relative ones),
+  `tests/charts-contracts.test.ts` (session-13: the dashed grid
+  `strokeDasharray="3 3"` contract + the funnel-as-horizontal-bar type),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
   sessions 6–11: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
@@ -135,13 +139,18 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT /
   LOGIN_RESET_LAYOUT pins, and session-12's NOT_FOUND_LAYOUT /
   TABS_PILL / TABS_SEGMENTED / KPI_CARD / DELTA_TEXT / KPI_SPARK /
-  KPI_CHIP_BG pins + the border-split token re-pin). Node environment;
+  KPI_CHIP_BG pins + the border-split token re-pin, and session-13's
+  CARD title map + BUTTON_BASE radius + PROFILE_LAYOUT / BY_TYPE_CARD /
+  CALENDAR_CELL / MENU_CONTENT / MENU_ITEM / FUNNEL_CHART pins + the
+  #0a0a0a foreground + 16px base font re-pins). Node environment;
   `@` alias resolved.
-- **E2E (Playwright, 28 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 31 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow),
   `auth.setup.ts` (one real login, storageState saved),
   `crm.spec.ts` (authenticated golden path across all 9 pages + the
-  session-10 per-page-titles and reports tab 2-4 structure tests),
+  session-10 per-page-titles and reports tab 2-4 structure tests, plus
+  session-13's account-menu role=menu, reports-funnel bar-chart and
+  by-type card structure tests),
   `mobile-navigation.spec.ts` (7-check regression suite for the drawer —
   pinned because the reference app ships NO mobile navigation; includes the
   resize-past-md lock-release regression and the session-12 focus-entry
@@ -163,7 +172,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 206).
+the seam (currently 244).
 
 ## Code Quality Standards
 

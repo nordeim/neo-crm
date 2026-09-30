@@ -33,7 +33,8 @@ import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTri
 import { toast } from "@/components/ui/toast";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import {
-  PAGE_HEADER, LEADS_FILTERS_POPOVER, LEADS_TOOLBAR, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
+  PAGE_HEADER, LEADS_FILTERS_POPOVER, LEADS_TOOLBAR, PAGE_KPI_GRIDS, TABLE_CARD,
+  CARD_TITLE_OVERRIDE } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import {
   DEFAULT_LEAD_FILTERS,
@@ -446,7 +447,7 @@ export default function LeadsPage() {
       <div className="mt-6 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Pipeline Value by Stage</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Pipeline Value by Stage</CardTitle>
           </CardHeader>
           <CardContent>
             <PipelineBarChart data={pipelineByStage} height={250} />
@@ -454,7 +455,7 @@ export default function LeadsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Won vs Lost Over Time</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Won vs Lost Over Time</CardTitle>
           </CardHeader>
           <CardContent>
             <WonLostLineChart data={wonVsLost} height={250} />
@@ -462,7 +463,7 @@ export default function LeadsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Conversion Funnel</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Conversion Funnel</CardTitle>
           </CardHeader>
           <CardContent>
             <ConversionFunnel data={funnel} height={250} />

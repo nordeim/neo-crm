@@ -115,3 +115,39 @@ describe("design tokens: Session 12 border split (S12-P3)", () => {
     expect(themeToken("color-line-soft")).toBe("#f3f4f6");
   });
 });
+
+describe("design tokens: Session 13 default foreground flip (S13-P9)", () => {
+  it("--color-foreground re-pins to the reference's #0a0a0a default", () => {
+    // The reference's BODY default and card-foreground are BOTH
+    // rgb(10,10,10) = #0a0a0a (computed probes on document.body, the
+    // stock cards, the KPI values, the "More..." button and the dialog
+    // text, 2026-09-30). Card titles, KPI values and buttons all INHERIT
+    // it; only the page H1s are explicitly text-gray-900 (#111827 —
+    // pinned separately in PAGE_HEADER). Ours shipped --color-foreground
+    // #111827, so every inheriting surface rendered one gray step light.
+    expect(themeToken("color-foreground")).toBe("#0a0a0a");
+  });
+
+  it("--color-ink stays #0a0a0a (the input text token converges with it)", () => {
+    // After the flip the input token and the default foreground are the
+    // SAME value — keep --color-ink as the input-text token so input
+    // surfaces keep their explicit pin (they now coincide, and the pin
+    // guards against future drift between the two).
+    expect(themeToken("color-ink")).toBe("#0a0a0a");
+  });
+});
+
+describe("design tokens: Session 13 body font-size (S13-P12)", () => {
+  it("the body sets NO explicit font-size (the reference computes 16px)", () => {
+    // The reference's <body> computes 16px — the browser default
+    // (verified on its dashboard + profile, 2026-09-30). The
+    // scaffold-era `font-size: 14px` was never reference-verified and
+    // made every size-INHERITING surface render one step small (the
+    // stock CardTitle computed 14px vs the reference's 16px).
+    // Strip comments first so the pin reads RULES, not documentation.
+    const noComments = css.replace(/\/\*[\s\S]*?\*\//g, "");
+    const body = noComments.match(/(^|[\s}])body\s*\{[^}]*\}/)?.[0] ?? "";
+    expect(body).not.toMatch(/font-size:\s*14px/);
+    expect(body).not.toMatch(/font-size:\s*0\.875rem/);
+  });
+});

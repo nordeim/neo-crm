@@ -8,6 +8,7 @@ import {
   KPI_CARD,
   KPI_CHIP_BG,
   KPI_SPARK,
+  KPI_VALUE,
   PAGE_HEADER,
   STAT_CARD,
   type PageHeaderVariant,
@@ -153,7 +154,11 @@ export function KpiCard({
     <div className={KPI_CARD.card}>
       <p className={KPI_CARD.label}>{label}</p>
       <div className="mt-2 flex flex-wrap items-end gap-2">
-        <p className="text-2xl font-bold leading-none tracking-tight text-foreground sm:text-3xl">{value}</p>
+        {/* Session-13 (S13-P9): the reference's exact value string —
+            INHERITING the card foreground (#0a0a0a, line-height 36px,
+            letter-spacing normal). Our leading-none/tracking-tight/
+            text-foreground additions were real computed diffs. */}
+        <p className={KPI_VALUE}>{value}</p>
         {suffix && <span className="mb-1 text-xs text-muted">{suffix}</span>}
         <DeltaText delta={delta} suffix={deltaSuffix} invert={invertDelta} className="mb-1" />
       </div>

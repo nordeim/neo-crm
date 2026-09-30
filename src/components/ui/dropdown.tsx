@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cn } from "@/lib/utils";
+import { MENU_CONTENT, MENU_ITEM } from "@/lib/page-layout";
 
 // Lightweight dropdown built on @radix-ui/react-popover (already a project
 // dependency) with menu semantics — click-to-toggle, outside-press closes,
@@ -59,3 +61,45 @@ function DropdownLabel({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export { Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator, DropdownLabel };
+
+// ---------------------------------------------------------------------------
+// Session-13 (S13-P4): the STOCK account-menu primitives. The reference's
+// topbar account menu is a real Radix DropdownMenu (role=menu with
+// menuitems, z-50/rounded-md/shadow-md surface, rounded-sm items with
+// focus:bg-accent + cursor-default) — class-dumped on the live reference
+// (2026-09-30). The Popover-based Dropdown above stays for our superset
+// menus (row actions, quick-create — unverifiable on the zero-data
+// reference). Token VALUES are preserved via our own variables where the
+// reference uses popover tokens (bg-popover = our --color-surface white,
+// border = --color-line #e5e5e5, text = --color-foreground).
+// ---------------------------------------------------------------------------
+
+const Menu = DropdownMenuPrimitive.Root;
+const MenuTrigger = DropdownMenuPrimitive.Trigger;
+
+function MenuContent({
+  className,
+  align = "end",
+  sideOffset = 4,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  return (
+    <DropdownMenuPrimitive.Portal>
+      <DropdownMenuPrimitive.Content
+        align={align}
+        sideOffset={sideOffset}
+        className={cn(MENU_CONTENT, className)}
+        {...props}
+      />
+    </DropdownMenuPrimitive.Portal>
+  );
+}
+
+function MenuItem({
+  className,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Item>) {
+  return <DropdownMenuPrimitive.Item className={cn(MENU_ITEM, className)} {...props} />;
+}
+
+export { Menu, MenuTrigger, MenuContent, MenuItem };

@@ -24,7 +24,7 @@ import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
 import { endOfDay, formatDate, formatTime, startOfDay, timeAgo, timeUntil } from "@/lib/format";
-import { ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD } from "@/lib/page-layout";
+import { BY_TYPE_CARD, ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT, TABLE_CARD  } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/types";
 
@@ -182,7 +182,12 @@ export default function ActivitiesPage() {
     label: ACTIVITY_TYPE_META[t].label,
     type: t,
     count: baseFiltered.filter((a) => a.type === t).length,
-    color: ACTIVITY_TYPE_META[t].color,
+    // Session-13 (S13-P5): the chart series + chip swatches follow the
+    // reference's palette (DOM-extracted from its chip inline-colors) —
+    // blue/violet/amber/emerald/teal. The ACTIVITY_TYPE_META colors stay
+    // on the BADGE surfaces (timeline chips), which the zero-data
+    // reference cannot verify.
+    color: BY_TYPE_CARD.colors[t],
   }));
 
   async function toggleComplete(a: Activity) {
@@ -512,20 +517,29 @@ export default function ActivitiesPage() {
             </CardContent>
           </Card>
 
+          {/* Session-13 (S13-P5): full structural rebuild — the reference
+              card carries its subtitle INSIDE a flex-col p-6 pb-3 header
+              (with a bare-text ••• in the title row), a five-chip count
+              row under the chart, and a border-t footer with the
+              "Activities" checkbox + a ml-auto ••• . The subtitle is the
+              STATIC "Last 2 days" (the range filter does not change it —
+              live-verified). */}
           <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>Activities by Type</CardTitle>
-              <Button variant="ghost" size="iconSm" aria-label="More actions">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+            <CardHeader className={BY_TYPE_CARD.headerPad}>
+              <div className={BY_TYPE_CARD.headerRow}>
+                <CardTitle className={BY_TYPE_CARD.title}>Activities by Type</CardTitle>
+                <button type="button" className={BY_TYPE_CARD.dotsButton} aria-label="More actions">
+                  •••
+                </button>
+              </div>
+              <p className={BY_TYPE_CARD.subtitle}>{BY_TYPE_CARD.subtitleText}</p>
             </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <p className="text-xs text-muted">Last {range === "all" ? "all time" : `${range} days`}</p>
-              {/* Session-10 (S10-11): the reference's by-type chart —
-                  DOM-extracted from the live reference (270x150 in the
-                  filter rail): NO CartesianGrid, 150px tall, ticks at
-                  fontSize 10 with the recharts-default #666 fill, and the
-                  DEFAULT tooltip. Was 180px + grid + custom tooltip. */}
+            <CardContent className={BY_TYPE_CARD.body}>
+              {/* Session-10 (S10-11): the by-type chart — NO CartesianGrid,
+                  150px tall, ticks at fontSize 10 with the recharts-default
+                  #666 fill, and the DEFAULT tooltip. Series colors follow
+                  the reference's chip swatches (S13-P5): blue / violet /
+                  amber / emerald / teal. */}
               <div className="h-[150px] chart-no-outline">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={byType} margin={{ top: 8, right: 4, left: -20, bottom: 0 }}>
@@ -539,6 +553,40 @@ export default function ActivitiesPage() {
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+
+              {/* The five per-type count chips (swatch + "Call N"). */}
+              <div className={BY_TYPE_CARD.chipsRow}>
+                {byType.map((t) => (
+                  <div key={t.type} className={BY_TYPE_CARD.chip}>
+                    <div
+                      className={BY_TYPE_CARD.chipSwatch}
+                      style={{ backgroundColor: t.color }}
+                      aria-hidden="true"
+                    />
+                    <span className={BY_TYPE_CARD.chipLabel}>
+                      {t.label} {t.count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* The border-t footer: the Activities checkbox (default
+                  checked, mirroring the reference's stock 16px checkbox)
+                  + the ml-auto ••• . Rides the shared native Checkbox
+                  primitive (our established filter-rail pattern). */}
+              <div className={BY_TYPE_CARD.footer}>
+                <Checkbox
+                  id="activities-by-type-toggle"
+                  defaultChecked
+                  className="rounded-sm"
+                />
+                <label htmlFor="activities-by-type-toggle" className={BY_TYPE_CARD.footerLabel}>
+                  Activities
+                </label>
+                <button type="button" className={BY_TYPE_CARD.footerDotsButton} aria-label="More actions">
+                  •••
+                </button>
               </div>
             </CardContent>
           </Card>

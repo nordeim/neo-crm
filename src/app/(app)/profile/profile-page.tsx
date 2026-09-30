@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PageHeader } from "@/components/shared/page-parts";
 import { useCrmStore } from "@/stores/crm-store";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
@@ -24,10 +23,15 @@ export default function ProfilePage() {
   const { user, users, fetchUsers } = useCrmStore();
 
   return (
-    // Session-6 (S6-12): reference wraps profile content in max-w-4xl
-    // mx-auto with the leads-style header (mb-6 sm:mb-8).
-    <div className="mx-auto max-w-4xl">
-      <PageHeader title="Profile & Settings" subtitle="Manage your account information" variant="leads" />
+    // Session-13 (S13-P2): the reference's page root is a plain
+    // `max-w-4xl mx-auto` div (the p-4 sm:p-8 padding wrapper is the
+    // shell's) and the header is a PLAIN `mb-6 sm:mb-8` div — not the
+    // flex PageHeader row.
+    <div className={PROFILE_LAYOUT.root}>
+      <div className={PROFILE_LAYOUT.headerRow}>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile &amp; Settings</h1>
+        <p className="text-muted mt-1">Manage your account information</p>
+      </div>
 
       {!user ? (
         <p className="py-10 text-center text-sm text-muted">Loading profile…</p>
@@ -100,6 +104,9 @@ function ProfileForm({
           columns (reference DOM). */}
       <Card className="lg:col-span-2">
         <CardHeader>
+          {/* Session-13 (S13-P2): the STOCK CardTitle (16px,
+              leading-none) — the reference's profile title is not a size
+              variant. */}
           <CardTitle>Personal Information</CardTitle>
         </CardHeader>
         {/* Session-9 (S9-8): standard content + form + space-y-6 (no
@@ -132,7 +139,9 @@ function ProfileForm({
                   className={PROFILE_LAYOUT.uploadBtn}
                   onClick={() => toast.info("Upload Photo", "Profile photo upload is not available in this demo workspace.")}
                 >
-                  <Camera className="h-4 w-4" /> Upload Photo
+                  {/* Session-13 (S13-P2): the reference carries the margin
+                      ON THE SVG (w-4 h-4 mr-2), not on the wrapper. */}
+                  <Camera className={PROFILE_LAYOUT.uploadIcon} /> Upload Photo
                 </Button>
                 <p className="mt-2 text-xs text-muted">JPG, PNG or GIF. Max 5MB.</p>
               </div>
@@ -151,23 +160,43 @@ function ProfileForm({
 
           <div className="space-y-2">
             <Label htmlFor="profile-email">Email</Label>
-            <Input id="profile-email" value={user.email} disabled />
+            {/* Session-13 (S13-P2): the reference's disabled email input
+                carries the bg-gray-50 wash (ours was bg-transparent —
+                indistinguishable from an editable input). */}
+            <Input
+              id="profile-email"
+              value={user.email}
+              disabled
+              className={PROFILE_LAYOUT.emailDisabled}
+            />
             <p className="text-xs text-muted">Email cannot be changed</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="profile-role">Role</Label>
-            <Input id="profile-role" value={user.role} disabled />
+            {/* Session-13 (S13-P2): bg-gray-50 + capitalize — the raw
+                value "user" displays "User" like the reference. */}
+            <Input
+              id="profile-role"
+              value={user.role}
+              disabled
+              className={PROFILE_LAYOUT.roleDisabled}
+            />
           </div>
 
           <div className="pt-4">
-            {/* Reference Save Changes is a dark neutral button (computed
-                rgb(23,23,23) bg — DOM-verified), stretched full-width on
-                phones (w-full sm:w-auto); the form wraps the card on the
-                reference, so the button submits it. */}
+            {/* Session-13 (S13-P2): the STOCK Button structure with the
+                reference's PAGE-LOCAL primary — its profile surfaces ride
+                bg-primary #171717 (its global --primary; its blue buttons
+                elsewhere are explicit bg-blue-600). Ours maps --primary
+                to blue, so the neutral literals carry the exact colors:
+                bg #171717, fg #fafafa, bare shadow, hover #262626. */}
             <Button
               type="submit"
-              className={`border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800 ${PROFILE_LAYOUT.saveBtn}`}
+              className={cn(
+                "border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800",
+                PROFILE_LAYOUT.saveBtn,
+              )}
               disabled={saving}
             >
               {saving ? "Saving…" : "Save Changes"}
@@ -195,9 +224,10 @@ function ProfileForm({
             </span>
             <h3 className="text-lg font-semibold">{user.name}</h3>
             <p className="text-sm text-muted">{user.email}</p>
-            <div className="mt-2 inline-flex items-center rounded-md border border-transparent bg-neutral-900 px-2.5 py-0.5 text-xs font-semibold capitalize text-neutral-50">
-              {user.role}
-            </div>
+            {/* Session-13 (S13-P2): the STOCK shadcn Badge default
+                variant (shadow + hover + transition + focus ring) on the
+                contract string — the hand-rolled minimal span retired. */}
+            <div className={PROFILE_LAYOUT.badge}>{user.role}</div>
             </div>
           </CardContent>
         </Card>

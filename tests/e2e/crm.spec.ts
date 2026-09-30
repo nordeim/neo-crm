@@ -239,3 +239,69 @@ test("unknown routes render the reference's custom 404 page (S12-P2)", async ({ 
   await page.waitForURL("**/");
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 });
+
+test("the topbar account menu is a real role=menu with Profile/Logout (S13-P4)", async ({ page }) => {
+  // The reference ships the stock Radix DropdownMenu (role=menu with
+  // menuitems, rounded-md shadow-md surface). Ours was a Popover-based
+  // role=dialog with a custom surface — this pins the menu semantics.
+  await page.goto("/");
+  await page.getByRole("button", { name: "Account menu" }).click();
+
+  const menu = page.locator('[role="menu"]');
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Profile" })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Logout" })).toBeVisible();
+
+  // Profile navigates to the profile page (the reference's own item does).
+  await menu.getByRole("menuitem", { name: "Profile" }).click();
+  await page.waitForURL("**/profile");
+  await expect(page.getByRole("heading", { name: "Profile & Settings" })).toBeVisible();
+});
+
+test("the reports tab-1 funnel is a horizontal bar chart with raw stage slugs (S13-P8)", async ({ page }) => {
+  // The reference's "Conversion Funnel" on reports tab 1 renders as a
+  // horizontal BAR chart: dashed grid, numeric X axis, category Y axis
+  // with the eight RAW slugs (new/contacted/qualified/prospecting/
+  // qualification/proposal/negotiation/closed_won) — DOM-verified. Ours
+  // shipped a trapezoid FunnelChart.
+  await page.goto("/reports");
+
+  const funnelCard = page.locator('[role="tabpanel"] .rounded-xl', {
+    hasText: "Conversion Funnel",
+  });
+  await expect(funnelCard).toBeVisible();
+
+  // Dashed grid lines on the funnel card.
+  const gridLine = funnelCard.locator(".recharts-cartesian-grid line").first();
+  await expect(gridLine).toHaveAttribute("stroke-dasharray", "3 3");
+
+  // The eight raw-slug Y ticks render (the fixed list ticks at any data
+  // volume — the reference renders them at zero data).
+  for (const slug of ["new", "contacted", "qualified", "prospecting", "qualification", "proposal", "negotiation", "closed_won"]) {
+    await expect(funnelCard.locator(`.recharts-yAxis text`, { hasText: slug })).toBeVisible();
+  }
+});
+
+test("the activities by-type card renders chips + the Activities checkbox footer (S13-P5)", async ({ page }) => {
+  // The reference's "Activities by Type" card ships a five-chip count
+  // row under the chart and a border-t footer with an "Activities"
+  // checkbox + dots button. Ours shipped neither.
+  await page.goto("/activities");
+
+  const card = page.locator("main .rounded-xl", { hasText: "Activities by Type" });
+  await expect(card).toBeVisible();
+
+  // The static subtitle (the range filter does not change it).
+  await expect(card.getByText("Last 2 days")).toBeVisible();
+
+  // Five per-type chips with counts.
+  for (const label of ["Call", "Email", "Meeting", "Task", "Note"]) {
+    await expect(card.locator(".flex-wrap .text-xs", { hasText: new RegExp(`^${label} `) }).first()).toBeVisible();
+  }
+
+  // The footer checkbox + label (our native-Checkbox pattern — the
+  // reference ships its Radix equivalent; both render a 16px checked
+  // square at rest).
+  await expect(card.locator(".border-t label")).toHaveText("Activities");
+  await expect(card.locator(".border-t input[type='checkbox']")).toBeChecked();
+});

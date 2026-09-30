@@ -246,3 +246,19 @@ Stage Summary:
 
 Stage Summary (final):
 - PUSHED: session-12 commit 652511b on main -> git@github.com:nordeim/neo-crm.git (first push attempt hit a transient GitHub "fatal error in commit_refs"; retry verified remote @ 652511b == local HEAD); all suites green (206 unit / 28 e2e); docs at SKILL v1.9.0
+
+---
+Task ID: 14 (repo)
+Agent: main (Super Z)
+Task: Session 13 — doubled auth titles + profile parity + button radius + CardTitle map + by-type rebuild + dashed grids + funnel type + foreground/base-font re-pins + stock account menu
+
+Work Log:
+- Continued from the interrupted session-13 remediation (cut off during the final VLM verification round); workspace pulled to 22aeb95 (no new remote commits), session-13 tree was fully implemented but uncommitted
+- Baseline gate re-run on the uncommitted tree: lint 0/0 · tsc clean · 244/244 unit · 31/31 e2e (mobile-nav 7/7) — one OPERATIONAL root-cause on the way: a bare `next build` had left .next/standalone WITHOUT static chunks (every /_next/static request 404'd, pages never hydrated, auth.setup timed out at waitForURL("/")); fixed by building through `bun run build` (next build + cp .next/static + cp public) — documented in AGENTS/PAD/SKILL §16e
+- Live DOM re-verification completed on a fresh dev server (:3000) at 1512 + 390 across every session-13 surface: SSR titles via raw-HTML curl (login "NEO CRM", signup "Sign up | NEO CRM", 404 "This Page Does Not Exist | NEO CRM"), foreground #0a0a0a + KPI 36px lh/normal ls + no +1d, 6px button radii + per-page CardTitle map, by-type card complete (chips #3b82f6/#8b5cf6/#f59e0b/#10b981/#14b8a6 + static "Last 2 days" + checkbox footer), calendar cells bordered in all three states, dashed 3 3 grids + funnel 8 raw-slug ticks, account menu role=menu z-50/rounded-md/stock items (real pointerdown click — synthetic .click() never opens Radix menus), profile gray-50/capitalize/neutral-900 badge/16px stock title; zero 390px overflow on all TEN routes
+- VLM rounds (dashboard + profile at 1512): all remaining diffs data-driven (reference demo data still zero — 9th consecutive session) or OCR/platform artifacts; profile "Üser" claim DOM-disproven (both render "User" via capitalize)
+- Deliverables: 13 screenshots refreshed (login logged-out, 9 routes at 1512, mobile dashboard + open drawer at 390, custom 404); .env DATABASE_URL="file:../db/custom.db" + db/ at repo root + .env.example matching + vitest/playwright configs verified; docs realigned (README badge 275 + counts + e2e coverage, AGENTS counts + 11 session-13 contract blocks + build-script note + dashed-grid CORRECTION (recharts default grid is SOLID — the s10 pin was a misread), CLAUDE test strategy, PAD tree + 244/31 matrix + session-13 notes, SKILL v1.10.0 §16e, docs/session_19.md, plan addendum, this worklog)
+
+Stage Summary:
+- Gate green: lint 0/0 · tsc · 244/244 unit · 31/31 e2e (mobile-nav 7/7); zero 390px overflow all ten routes; 13 screenshots; docs at SKILL v1.10.0
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

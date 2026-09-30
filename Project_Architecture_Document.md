@@ -352,8 +352,8 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 12 Vitest suites — 206 checks
-│   └── e2e/                     # global-setup, auth.setup, 3 spec files — 28 checks
+│   ├── *.test.ts                # 14 Vitest suites — 244 checks
+│   └── e2e/                     # global-setup, auth.setup, 3 spec files — 31 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
 └── postcss.config.mjs           # @tailwindcss/postcss — REQUIRED (ADR-005)
@@ -662,15 +662,17 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–12) | 1 | 83 | `tests/page-layout.test.ts` | Vitest |
-| Unit — design tokens (shadow/blur/border-split re-pins, ring, cursor rule, inks — sessions 9–12) | 1 | 11 | `tests/design-tokens.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–13) | 1 | 112 | `tests/page-layout.test.ts` | Vitest |
+| Unit — design tokens (shadow/blur/border-split/foreground/base-font re-pins, ring, cursor rule, inks — sessions 9–13) | 1 | 14 | `tests/design-tokens.test.ts` | Vitest |
 | Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
+| Unit — page-titles (auth absolute titles — session-13) | 1 | 2 | `tests/page-titles.test.ts` | Vitest |
+| Unit — charts-contracts (dashed grid + funnel type — session-13) | 1 | 4 | `tests/charts-contracts.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404 — sessions 10–12) | 1 | 15 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type — sessions 10–13) | 1 | 18 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **16** | **206 unit + 28 e2e** | | |
+| **Total** | **18** | **244 unit + 31 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -724,21 +726,62 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   sparklines are recharts monotone curves (`KPI_SPARK` — dashboard h-8,
   reports h-12 slot capped 176px, Lost Deals sparkless; solid color-50
   chips via `KPI_CHIP_BG`).
+- **Auth absolute titles (session-13):** `/login` and `/signup` had
+  RELATIVE titles that the root `"%s | NEO CRM"` template DOUBLED
+  (`NEO CRM | NEO CRM` in raw SSR HTML); both ship
+  `title: { absolute: … }` — pinned by `tests/page-titles.test.ts`.
+- **Dashed grids, corrected (session-13):** the reference passes
+  `strokeDasharray="3 3"` explicitly on `#ccc` grid lines on every
+  gridded chart — recharts' default grid is SOLID (the session-10
+  "dashed default" pin was a misread); `charts-contracts.test.ts` pins
+  it on all four grid-bearing charts.
+- **Reports funnel type (session-13):** the reports tab-1 "Conversion
+  Funnel" is a horizontal `BarChart layout="vertical"`
+  (`FunnelBarChart`) — dashed grid, numeric X, category Y with the eight
+  raw stage slugs; NOT a recharts FunnelChart (the s10 inference,
+  disproven by DOM). The leads-page funnel stays a FunnelChart.
+- **Foreground + base font re-pins (session-13):**
+  `--color-foreground: #0a0a0a` (was #111827) and the base font-size is
+  16px (was 14px — a scaffold-era assumption); page h1s are explicit
+  `text-gray-900`; the KPI value drops leading-none/tracking-tight
+  (36px line-height, normal letter-spacing); the Label is stock shadcn
+  (`text-sm font-medium leading-none`) and DialogTitle stock
+  (`text-lg font-semibold leading-none tracking-tight`).
+- **Button radius + CardTitle map (session-13):** every button surface is
+  `rounded-md` (6px — Button base + lg; login submit keeps its rounded-xl
+  family); `CARD.title` = the stock 16px string with per-page overrides
+  (dashboard/leads `text-base sm:text-lg`, filter rails + by-type
+  `text-base`, settings `text-lg`, reports/profile stock).
+- **Account menu + profile + by-type + calendar (session-13):** the
+  topbar account menu is a stock Radix DropdownMenu (`role=menu`,
+  z-50/rounded-md/shadow-md, items rounded-sm focus:bg-accent); the
+  profile page ships the reference's neutral family (bg-gray-50
+  disabled inputs, capitalize role, stock Badge on bg-neutral-900,
+  `w-full sm:w-auto` stock buttons); the activities by-type card is
+  complete (FILTER_RAIL header, static "Last 2 days" subtitle, chips row
+  with blue/violet/amber/emerald/teal swatches, border-t checkbox
+  footer); calendar day cells keep their border in all three states
+  (`bg-gray-50 text-gray-400 transition-all` out-of-month).
+- **Build script note (session-13):** `bun run build` = `next build` +
+  `cp -r .next/static .next/standalone/.next/` + `cp -r public
+  .next/standalone/` — running `next build` bare leaves the standalone
+  server without static chunks (all `/_next/static` requests 404 and
+  pages never hydrate); always use the package script.
 
 ### 7.3 Coverage Thresholds
 
 No percentage gate is configured. The working rule: every new pure helper in
 `src/lib/` ships with unit tests in the same PR; every user-visible page
 change extends the golden-path spec; any change touching the mobile drawer
-must keep all 6 regression checks green unmodified.
+must keep all 7 regression checks green unmodified.
 
 ### 7.4 Pre-PR / Pre-Deploy Checklist
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 206/206
+- [ ] `bun run test` — 244/244
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 28/28
+- [ ] `bun run test:e2e` — 31/31
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`

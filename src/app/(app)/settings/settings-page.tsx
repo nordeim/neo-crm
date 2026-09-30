@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/shared/page-parts";
-import { SETTINGS_PICKLIST } from "@/lib/page-layout";
+import { cn } from "@/lib/utils";
+import { CARD_TITLE_OVERRIDE, SETTINGS_PICKLIST } from "@/lib/page-layout";
 import { Tabs } from "@/components/ui/tabs";
 import { useCrmStore } from "@/stores/crm-store";
 import { toast } from "@/components/ui/toast";
@@ -28,7 +29,7 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className={CARD_TITLE_OVERRIDE.settings}>{title}</CardTitle>
       </CardHeader>
       <CardContent className="p-6 pt-0">
         {/* Session-7 (S7-19): live pins — items `space-y-2 mb-4`, empty state
@@ -147,7 +148,7 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Templates</CardTitle>
+                  <CardTitle className={CARD_TITLE_OVERRIDE.settings}>Templates</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                   <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=contacts")}>
@@ -164,7 +165,7 @@ export default function SettingsPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Export Data</CardTitle>
+                  <CardTitle className={CARD_TITLE_OVERRIDE.settings}>Export Data</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                   <Button variant="secondary" size="sm" onClick={() => downloadFile("/api/export?type=contacts&download=1")}>
@@ -184,7 +185,7 @@ export default function SettingsPage() {
 
               <Card className="border-rose-200">
                 <CardHeader>
-                  <CardTitle className="text-danger">Danger Zone</CardTitle>
+                  <CardTitle className={cn(CARD_TITLE_OVERRIDE.settings, "text-danger")}>Danger Zone</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
                   <p className="text-xs text-muted">
@@ -318,7 +319,7 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle>Default Values</CardTitle>
+          <CardTitle className={CARD_TITLE_OVERRIDE.settings}>Default Values</CardTitle>
           <p className="text-xs text-muted">Set default values for new records</p>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

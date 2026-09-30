@@ -6,7 +6,10 @@ import { LOGIN_LAYOUT } from "@/lib/page-layout";
 
 // Session-10 (S10-10): the reference's login page title is plain "NEO CRM"
 // (document.title probe) — not "Sign in | NEO CRM".
-export const metadata: Metadata = { title: "NEO CRM" };
+// Session-13 (S13-P1): the title must be ABSOLUTE — a relative string
+// rides the root layout's "%s | NEO CRM" template and SSRs the DOUBLED
+// "NEO CRM | NEO CRM" (curl-verified; same bug class as the s12 404).
+export const metadata: Metadata = { title: { absolute: "NEO CRM" } };
 
 export const dynamic = "force-dynamic";
 

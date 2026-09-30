@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (206 checks)         | `bun run test`                         |
-| Browser E2E (28 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (244 checks)         | `bun run test`                         |
+| Browser E2E (31 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (206) → `bun run build` → `bun run test:e2e` (28). There is no
+`bun run test` (244) → `bun run build` → `bun run test:e2e` (31). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -369,11 +369,99 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 169 Vitest checks).
+  sessions 6–8 + session-10's stock-primitive pins) — 244 Vitest checks across
+  14 suites (session-13 added `tests/page-titles.test.ts` for the auth
+  absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
+  funnel type).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
-  standalone build.
+  standalone build. `bun run build` = `next build` + `cp -r .next/static
+  .next/standalone/.next/` + `cp -r public .next/standalone/` — running
+  `next build` bare leaves the standalone server WITHOUT static chunks
+  (every /_next/static request 404s and the pages never hydrate); always
+  use the package script.
+
+- **The chart grids are DASHED by an explicit prop, not by recharts
+  defaults (session-13 CORRECTION)** — the reference passes
+  `strokeDasharray="3 3"` on `#ccc` grid lines on EVERY gridded chart
+  (dashboard Sales Pipeline/Revenue, reports tab-1 all four incl. the
+  funnel, leads Pipeline/Won-vs-Lost). The session-10 note "the
+  CartesianGrid at the default DASHED 3 3" was a misread — recharts'
+  default grid is SOLID. `charts.tsx` now sets `strokeDasharray="3 3"`
+  explicitly on `PipelineBarChart`, `RevenueLineChart`, `WonLostLineChart`
+  and the new `FunnelBarChart`; pinned by
+  `tests/charts-contracts.test.ts`.
+- **The reports "Conversion Funnel" is a horizontal BAR chart
+  (session-13)** — NOT a recharts FunnelChart: `FunnelBarChart` renders
+  `BarChart layout="vertical"` 534×300, dashed grid, numeric X, category
+  Y with the EIGHT raw slugs (`new/contacted/qualified/prospecting/
+  qualification/proposal/negotiation/closed_won` = the
+  `REPORTS_PIPELINE_SLUGS` quirk register), fed by the `pipeline` seam.
+  The LEADS page funnel stays a FunnelChart (unverifiable at zero data —
+  the reference's leads funnel renders NOTHING at zero).
+- **Button radius is rounded-md everywhere (session-13)** — the
+  reference ships 6px corners on EVERY button surface (default, sm, icon,
+  dialog, profile); the Button base + lg are `rounded-md` (only the login
+  submit keeps its own rounded-xl slate family). Calendar day cells stay
+  `rounded-lg` (8px) — that is a div/cell family, not a button family.
+- **CardTitle is a per-page map (session-13)** — `CARD.title` = the STOCK
+  `font-semibold leading-none tracking-tight` (16px at the 16px base);
+  overrides: dashboard (6) + leads (3) `text-base sm:text-lg`, the
+  accounts/activities/calendar filter rails + the activities by-type
+  title `text-base`, settings (5) `text-lg`, reports + profile ride the
+  stock default. The BASE font-size is 16px (a session-13 re-pin — 14px
+  was a scaffold-era assumption, the reference's body is 16px).
+- **The default foreground token is #0a0a0a (session-13)** —
+  `--color-foreground` flipped from #111827; page h1s are EXPLICIT
+  `text-gray-900`; the KPI value drops `leading-none tracking-tight`
+  (line-height 36px / letter-spacing normal at 30px text-3xl — real
+  computed diffs the reference showed).
+- **The topbar account menu is a stock Radix DropdownMenu (session-13)**
+  — `role=menu` + menuitems (was a Popover role=dialog): z-50
+  rounded-md shadow-md content, items `relative flex cursor-default
+  select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm
+  outline-none transition-colors focus:bg-accent
+  focus:text-accent-foreground` with Profile + Logout; the stock Menu
+  primitives live in `src/components/ui/dropdown.tsx`.
+- **The auth pages use ABSOLUTE titles (session-13)** — `/login` and
+  `/signup` had RELATIVE titles that the root `"%s | NEO CRM"` template
+  DOUBLED (`NEO CRM | NEO CRM` in the raw SSR HTML); both now ship
+  `title: { absolute: … }` (same class as the session-12 404 fix);
+  pinned by `tests/page-titles.test.ts`.
+- **The profile page is the reference's neutral family (session-13)** —
+  `PROFILE_LAYOUT`: root `p-4 sm:p-8`, header `mb-6 sm:mb-8` with h1
+  `text-2xl sm:text-3xl font-bold text-gray-900`; the disabled email/role
+  inputs carry `bg-gray-50` and the role input `capitalize` ("user"
+  renders "User"); the role badge is the STOCK Badge pattern
+  (`rounded-md px-2.5 py-0.5 text-xs font-semibold shadow
+  transition-colors`) on the NEUTRAL family (`bg-neutral-900
+  text-neutral-50`) because the reference's profile page primary is
+  #171717 (not its own blue); Save Changes = default Button
+  (`w-full sm:w-auto`), Upload Photo = outline with the camera icon
+  `w-4 h-4 mr-2` on the svg itself.
+- **The activities by-type card is complete (session-13)** — the
+  FILTER_RAIL header (`flex flex-col space-y-1.5 p-6 pb-3`) with the
+  title row (`text-base` CardTitle + a BARE ••• `text-gray-400
+  hover:text-gray-600`), the STATIC subtitle "Last 2 days" INSIDE the
+  header (the range combobox does not change it), a chips row (`flex
+  flex-wrap gap-3 mt-4`: five `w-3 h-3 rounded` inline-bg swatches +
+  `text-xs text-gray-600` labels) and a `mt-4 pt-4 border-t` footer with
+  the stock checkbox + "Activities" label + •••. Series colors:
+  Call #3b82f6, Email #8b5cf6, Meeting #f59e0b, Task #10b981, Note
+  #14b8a6 (blue/violet/amber/emerald/teal).
+- **Calendar out-of-month cells keep their border (session-13)** — the
+  day cells ship `border` (default #e5e5e5) in ALL three states with
+  `bg-gray-50 text-gray-400 transition-all` out-of-month, `bg-white
+  hover:bg-gray-50` current, `bg-blue-600 text-white border-blue-600`
+  today; cells stay BUTTONS (our clickable superset — the reference's
+  are divs); "Agenda View" carries `mb-4`.
+- **The avg-cycle KPI carries NO delta (session-13)** — the reference's
+  card is value + unit only (its other cards DO render deltas at zero,
+  so this was a real structural diff, not a data artifact).
+- **The Label is stock shadcn (session-13)** — `text-sm font-medium
+  leading-none` (14px; was a 12px custom), the DialogTitle stock
+  `text-lg font-semibold leading-none tracking-tight`.
 
 ## Conventions that differ from defaults
 

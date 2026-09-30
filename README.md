@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-192%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-275%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -41,7 +41,7 @@ first boot.
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, in-place "Forgot password?" reset flow (mirrors the reference's client-side views) |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
 | 🧭 Custom 404 | The reference's designed not-found page — slate-50 center card, divider bar, quoted-pathname message, Go Home pill |
-| 🧪 Tested | 206 Vitest unit checks + 28 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 244 Vitest unit checks + 31 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -110,8 +110,8 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 8 Vitest suites (112 checks)
-│   └── 📂 e2e/                       # Playwright (21 checks)
+│   ├── 📄 *.test.ts                  # 14 Vitest suites (244 checks)
+│   └── 📂 e2e/                       # Playwright (31 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
@@ -158,17 +158,20 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 206 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset)
+bun run test          # 244 Vitest unit checks (auth, avatar, constants, db-path, page-layout, page-titles, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 28 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 31 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials, the login
 card's in-place reset-password flow), the
 authenticated golden path across all 9 pages, lead creation through the real
 dialog, global search, the per-page document titles, the reports tab 2-4
-structure, and the 6-check mobile-navigation regression suite (drawer opens
-with every destination, link navigation closes it, Escape + focus restore,
+structure, the account menu (real role=menu with Profile/Logout), the reports
+funnel (horizontal bar chart with the raw stage slugs + dashed grid), the
+activities by-type card (chips row + checkbox footer), and the 7-check
+mobile-navigation regression suite (drawer opens with every destination, link
+navigation closes it, Escape + focus restore + focus entry into the drawer,
 body scroll-lock, the resize-past-md lock release, desktop sidebar swap).
 
 ## Deployment

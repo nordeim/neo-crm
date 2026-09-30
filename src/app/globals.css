@@ -23,7 +23,12 @@
   /* Neutrals */
   --color-background: #f9fafb;
   --color-surface: #ffffff;
-  --color-foreground: #111827;
+  /* Session-13 (S13-P9): the reference's default foreground (body +
+     card-foreground) is #0a0a0a — computed probes on its body, stock
+     cards, KPI values, the More... button and dialog text. Ours shipped
+     #111827; the page H1s are separately EXPLICIT text-gray-900
+     (#111827) on the reference and are pinned as such in PAGE_HEADER. */
+  --color-foreground: #0a0a0a;
   --color-muted: #6b7280;
   --color-subtle: #9ca3af;
 
@@ -160,7 +165,11 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-size: 14px;
+    /* Session-13 (S13-P12): the reference's body computes 16px (the
+       browser default — verified on its dashboard + profile). The
+       scaffold-era `font-size: 14px` was never reference-verified and
+       made every size-INHERITING surface render one step small (the
+       stock CardTitle computed 14px vs the reference's 16px). */
   }
 
   ::selection {

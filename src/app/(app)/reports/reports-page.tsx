@@ -17,7 +17,7 @@ import {
   REPORTS_FILTER_BAR,
   REPORTS_TABLE_CARD,
 } from "@/lib/page-layout";
-import { ConversionFunnel, DonutChart, PipelineBarChart, RevenueLineChart, WonLostLineChart } from "@/components/charts/charts";
+import { DonutChart, FunnelBarChart, PipelineBarChart, RevenueLineChart, WonLostLineChart } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
 import { LEAD_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
@@ -254,7 +254,11 @@ function SalesTab({ data }: { data: ReportsData | null }) {
           <PipelineBarChart data={data?.pipeline ?? []} />
         </ChartCard>
         <ChartCard title="Conversion Funnel">
-          <ConversionFunnel data={data?.funnel ?? []} />
+          {/* Session-13 (S13-P8): the reference's reports funnel is a
+              HORIZONTAL BAR chart over the 8 raw stage slugs (its own
+              pipeline vocabulary), not a trapezoid FunnelChart — the
+              pipeline seam (reportsBucketCounts) is the same fixed list. */}
+          <FunnelBarChart data={data?.pipeline ?? []} />
         </ChartCard>
       </div>
       <DealTables data={data} />

@@ -3,7 +3,16 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Mail, Search } from "lucide-react";
-import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
+import {
+  Dropdown,
+  DropdownContent,
+  DropdownItem,
+  DropdownTrigger,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "@/components/ui/dropdown";
 import { MobileNavTrigger } from "./mobile-nav";
 import { useCrmStore } from "@/stores/crm-store";
 import { SEARCH_INPUT, TOPBAR_LAYOUT } from "@/lib/page-layout";
@@ -141,8 +150,8 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
           </button>
 
           {user && (
-            <Dropdown>
-              <DropdownTrigger asChild>
+            <Menu>
+              <MenuTrigger asChild>
                 <button type="button" className={TOPBAR_LAYOUT.userButton} aria-label="Account menu">
                   <span className={TOPBAR_LAYOUT.userLabel}>
                     Hi, {user.name || user.email.split("@")[0]}
@@ -152,20 +161,20 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                   </span>
                   <ChevronDown className={TOPBAR_LAYOUT.userChevron} />
                 </button>
-              </DropdownTrigger>
-              <DropdownContent className={TOPBAR_LAYOUT.userMenu}>
-                <DropdownItem onClick={() => router.push("/profile")}>Profile</DropdownItem>
-                <DropdownItem
-                  onClick={async () => {
+              </MenuTrigger>
+              <MenuContent>
+                <MenuItem onSelect={() => router.push("/profile")}>Profile</MenuItem>
+                <MenuItem
+                  onSelect={async () => {
                     await logout();
                     router.push("/login");
                     router.refresh();
                   }}
                 >
                   Logout
-                </DropdownItem>
-              </DropdownContent>
-            </Dropdown>
+                </MenuItem>
+              </MenuContent>
+            </Menu>
           )}
         </div>
       </div>

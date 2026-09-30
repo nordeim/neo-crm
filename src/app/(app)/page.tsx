@@ -9,6 +9,7 @@ import {
   VIEW_SWITCHER,
   EMPTY_STATE,
   TOP_REPS,
+  CARD_TITLE_OVERRIDE,
 } from "@/lib/page-layout";
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -169,13 +170,14 @@ export default function DashboardPage() {
           <KpiCard label="Conversion Rate" value={`${k.conversionRate}%`}>
             <Sparkline values={sparkWon} color={CHART_COLORS.violet} variant="area" />
           </KpiCard>
+          {/* Session-13 (S13-P10): the reference's Avg. Sales Cycle card
+              carries NO delta — value + "days" unit only (its other KPI
+              cards DO render deltas at zero data, so a delta element here
+              would render if it existed). Our "+1d" delta is retired. */}
           <KpiCard
             label="Avg. Sales Cycle"
             value={k.avgSalesCycleDays}
             suffix="days"
-            delta={k.avgSalesCycleDelta ?? undefined}
-            deltaSuffix="d"
-            invertDelta
           >
             <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
           </KpiCard>
@@ -244,7 +246,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Sales Pipeline by Stage</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Sales Pipeline by Stage</CardTitle>
           </CardHeader>
           <CardContent>
             <PipelineBarChart data={dashboard?.pipeline ?? []} />
@@ -252,7 +254,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Revenue Over Time</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Revenue Over Time</CardTitle>
             <span className="text-xs text-muted">Last 6 months</span>
           </CardHeader>
           <CardContent>
@@ -274,7 +276,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Top Performing Sales Reps</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Top Performing Sales Reps</CardTitle>
             {/* Session-7 (S7-18): ellipsis actions are ghost h-8 w-8. */}
             <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
               <MoreHorizontal className="h-4 w-4" />
@@ -314,7 +316,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Lead Sources</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Lead Sources</CardTitle>
             {/* Session-7 (S7-18): ghost h-8 blue-text Add with mr-1 plus. */}
             <Button
               variant="ghost"
@@ -356,7 +358,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Upcoming Activities</CardTitle>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Upcoming Activities</CardTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -404,7 +406,7 @@ export default function DashboardPage() {
           twice. */}
       <Card>
         <CardHeader className="flex-row items-center justify-between">
-          <CardTitle>Recent Deals</CardTitle>
+          <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Recent Deals</CardTitle>
           <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
             <MoreHorizontal className="h-4 w-4" />
           </Button>

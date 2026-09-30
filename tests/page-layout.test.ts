@@ -1,6 +1,12 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   ACTIVITY_CARD,
+  BY_TYPE_CARD,
+  CALENDAR_CELL,
+  CARD_TITLE_OVERRIDE,
+  DIALOG_TITLE,
   ACTIVITY_QUICKLOG,
   BUTTON_BASE,
   CARD,
@@ -15,9 +21,12 @@ import {
   KPI_CARD,
   KPI_CHIP_BG,
   KPI_SPARK,
+  KPI_VALUE,
   LEADS_FILTERS_POPOVER,
   LEADS_TOOLBAR,
   LOGIN_LAYOUT,
+  MENU_CONTENT,
+  MENU_ITEM,
   MOBILE_NAV_LAYOUT,
   NAV_LAYOUT,
   NOT_FOUND_LAYOUT,
@@ -94,7 +103,10 @@ describe("page header parity (session-6 DOM-verified)", () => {
   });
 
   it("standard title scales text-2xl sm:text-3xl with no tracking tweak", () => {
-    expect(PAGE_HEADER.standard.title).toBe("text-2xl sm:text-3xl font-bold text-foreground");
+    // Session-13 re-pin (S13-P9): the reference's h1s are EXPLICIT
+    // text-gray-900 (#111827) — the default foreground flipped to #0a0a0a
+    // this session, so the h1s must not ride text-foreground.
+    expect(PAGE_HEADER.standard.title).toBe("text-2xl sm:text-3xl font-bold text-gray-900");
   });
 
   it("subtitles split by page: base-size (16px) default, text-sm on calendar/reports", () => {
@@ -117,7 +129,8 @@ describe("page header parity (session-6 DOM-verified)", () => {
 
   it("contacts header is the flat variant: text-3xl title, plain row, gap-3 actions", () => {
     expect(PAGE_HEADER.contacts.row).toBe("flex items-center justify-between mb-6");
-    expect(PAGE_HEADER.contacts.title).toBe("text-3xl font-bold text-foreground");
+    // Session-13 re-pin (S13-P9): explicit text-gray-900 like every h1.
+    expect(PAGE_HEADER.contacts.title).toBe("text-3xl font-bold text-gray-900");
     expect(PAGE_HEADER.contacts.actions).toBe("flex gap-3");
   });
 });
@@ -176,7 +189,9 @@ describe("filter-bar parity (session-6 DOM-verified)", () => {
     expect(FILTER_RAIL.headerRow).toBe("flex justify-between items-center");
     // Rail titles stay 16px at every breakpoint (they never climb to the
     // sm:text-lg default of the regular card titles).
-    expect(FILTER_RAIL.title).toBe("text-base sm:text-base");
+    // Session-13 re-pin (S13-P6): the reference's filter titles are plain
+    // `text-base` (no sm: step) — the redundant sm:text-base retired.
+    expect(FILTER_RAIL.title).toBe("text-base");
     // Calendar's rail action is a blue text link, not a ghost button
     // (accounts/activities use a ghost h-8 "Save All" — Button variant).
     expect(FILTER_RAIL.clearAllLink).toBe(
@@ -201,7 +216,11 @@ describe("app-shell parity (session-7 DOM-verified)", () => {
 
   it("main is the true scroller (window never scrolls) with a p-4 sm:p-8 inner", () => {
     expect(SHELL_LAYOUT.main).toBe("flex-1 overflow-auto bg-background");
-    expect(SHELL_LAYOUT.inner).toBe("p-4 sm:p-8 bg-background min-h-screen");
+    // Session-13 re-pin (S13-P2): the reference's inner wrapper is PLAIN
+    // `p-4 sm:p-8` on every page (dashboard + profile walks) — the s7 pin
+    // carried extra bg-background/min-h-screen that the reference does
+    // not render (the scroller main already paints bg-background).
+    expect(SHELL_LAYOUT.inner).toBe("p-4 sm:p-8");
   });
 });
 
@@ -469,7 +488,8 @@ describe("session-9 component-anatomy pins", () => {
     // S9-4: the reference's settings page has no header buttons, so its
     // header is a plain `mb-6` div with a text-3xl h1 (no sm: downshift).
     expect(PAGE_HEADER.settings.row).toBe("mb-6");
-    expect(PAGE_HEADER.settings.title).toBe("text-3xl font-bold text-foreground");
+    // Session-13 re-pin (S13-P9): explicit text-gray-900 like every h1.
+    expect(PAGE_HEADER.settings.title).toBe("text-3xl font-bold text-gray-900");
     expect(PAGE_HEADER.settings.subtitle).toBe("text-muted mt-1");
     expect(PAGE_HEADER.settings.noActionsWrap).toBe(true);
   });
@@ -517,7 +537,11 @@ describe("session-9 component-anatomy pins", () => {
   it("card titles: div.font-semibold classes, no explicit foreground", () => {
     // S9-3: the reference renders card titles as divs (no heading
     // semantics) inheriting the foreground color.
-    expect(CARD.title).toBe("font-semibold tracking-tight text-base sm:text-lg");
+    // Session-13 re-pin (S13-P6): the CardTitle DEFAULT is the STOCK
+    // string (the reports + profile surfaces); the bigger variants ride
+    // CARD_TITLE_OVERRIDE at the call sites (dashboard/leads text-base
+    // sm:text-lg, filters/by-type text-base, settings text-lg).
+    expect(CARD.title).toBe("font-semibold leading-none tracking-tight");
   });
 
   it("Recent Deals: EIGHT headers incl. the duplicate Status quirk + empty tbody", () => {
@@ -905,5 +929,309 @@ describe("session-12: custom 404 page (S12-P2)", () => {
     expect(NOT_FOUND_LAYOUT.homeButton).toContain("focus:ring-slate-500");
     expect(NOT_FOUND_LAYOUT.homeIcon).toBe("h-4 w-4 mr-2");
     expect(NOT_FOUND_LAYOUT.homeHref).toBe("/");
+  });
+});
+
+// ============================================================
+// Session-13 pins (DOM-verified 2026-09-30 at 1512x945)
+// ============================================================
+
+describe("session-13: button radius (S13-P3)", () => {
+  it("the Button base flips to the reference's rounded-md", () => {
+    // Computed sweep across all 8 reference pages + the profile page +
+    // dialog buttons + topbar icon buttons: EVERY reference button renders
+    // 6px (rounded-md). Our base shipped rounded-lg (8px) — visible on
+    // every default-size button (contacts/calendar/reports-saved/profile).
+    expect(BUTTON_BASE.rounded).toBe("rounded-md");
+  });
+});
+
+describe("session-13: CardTitle per-page map (S13-P6)", () => {
+  it("the CardTitle default becomes the STOCK string", () => {
+    // Reference reports (11 titles) + profile (1) render the stock shadcn
+    // CardTitle: `font-semibold leading-none tracking-tight` (16px, no
+    // size class, leading-none). Ours shipped
+    // `font-semibold tracking-tight text-base sm:text-lg` (18px at sm+).
+    expect(CARD.title).toBe("font-semibold leading-none tracking-tight");
+  });
+
+  it("the per-page overrides carry the bigger reference variants", () => {
+    // dashboard (6) + leads (3): `text-base sm:text-lg` (18px at sm+);
+    // the filter-rail titles + the activities by-type title: `text-base`
+    // (16px at all widths); settings (5): `text-lg` (18px at ALL widths —
+    // ours shipped text-base sm:text-lg = 16px below sm).
+    expect(CARD_TITLE_OVERRIDE.dashboard).toBe("text-base sm:text-lg");
+    expect(CARD_TITLE_OVERRIDE.filters).toBe("text-base");
+    expect(CARD_TITLE_OVERRIDE.settings).toBe("text-lg");
+  });
+
+  it("the filter-rail titles drop the redundant sm:text-base", () => {
+    // Reference accounts/activities/calendar filter cards:
+    // `font-semibold tracking-tight text-base` (calendar adds the flex
+    // row classes for its Clear All action).
+    expect(FILTER_RAIL.title).toBe("text-base");
+    expect(FILTER_RAIL.titleWithAction).toBe("text-base flex items-center justify-between");
+  });
+});
+
+describe("session-13: page h1s pin text-gray-900 (S13-P9)", () => {
+  it("every PAGE_HEADER title carries the explicit gray-900", () => {
+    // The reference's page H1s are ALL `text-gray-900` (#111827 —
+    // verified on /, /contacts, /settings, /activities, /leads, /profile)
+    // while the DEFAULT foreground flips to #0a0a0a this session. Our
+    // h1s rode text-foreground — after the token flip they would drift
+    // one gray step dark unless pinned explicitly.
+    for (const [name, spec] of Object.entries(PAGE_HEADER)) {
+      expect((spec as { title: string }).title).toContain("text-gray-900");
+      expect((spec as { title: string }).title).not.toContain("text-foreground");
+    }
+  });
+});
+
+describe("session-13: dialog title stock string (S13-P9)", () => {
+  it("DialogTitle gains leading-none tracking-tight like the stock primitive", () => {
+    // Reference dialog title (New Account dialog): `text-lg font-semibold
+    // leading-none tracking-tight` inheriting #0a0a0a. Ours:
+    // `text-lg font-semibold text-foreground` — missing leading-none +
+    // tracking-tight.
+    expect(DIALOG_TITLE).toBe("text-lg font-semibold leading-none tracking-tight");
+  });
+});
+
+describe("session-13: KPI value string (S13-P9 + S13-P10)", () => {
+  it("the KPI value drops leading-none/tracking-tight/text-foreground", () => {
+    // Reference KPI value: SPAN `text-2xl sm:text-3xl font-bold`
+    // (inherits card-foreground #0a0a0a, line-height 36px, letter-spacing
+    // normal). Ours added leading-none (30px line-height) + tracking-tight
+    // (-0.75px) + text-foreground — REAL computed diffs.
+    expect(KPI_VALUE).toBe("text-2xl sm:text-3xl font-bold");
+  });
+
+  it("the dashboard's Avg. Sales Cycle KPI carries NO delta (S13-P10)", () => {
+    // Reference card row = value + "days" unit only — no third element
+    // (the reference renders deltas at zero on its OTHER cards, so a
+    // delta element here would render; it does not exist). Ours shipped
+    // a "+1d" delta.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/page.tsx"),
+      "utf8",
+    );
+    const m = src.match(/label="Avg\. Sales Cycle"[\s\S]{0,400}?<\/KpiCard>/);
+    expect(m).toBeTruthy();
+    expect(m![0]).not.toContain("delta=");
+  });
+});
+
+describe("session-13: profile page parity (S13-P2)", () => {
+  it("the header becomes the reference's plain mb-6 wrapper", () => {
+    // Reference: `div [mb-6 sm:mb-8]` (plain) with the h1 + subtitle
+    // inside. Ours shipped a flex justify-between wrapper.
+    expect(PROFILE_LAYOUT.headerRow).toBe("mb-6 sm:mb-8");
+    expect(PROFILE_LAYOUT.headerRow).not.toContain("flex");
+  });
+
+  it("the Personal Information title is the STOCK CardTitle", () => {
+    // `font-semibold leading-none tracking-tight` (16px) — ours rendered
+    // 18px via text-base sm:text-lg.
+    expect(PROFILE_LAYOUT.cardTitle).toBe("font-semibold leading-none tracking-tight");
+  });
+
+  it("the disabled email input gains the reference's bg-gray-50 wash", () => {
+    // Reference email input (disabled): stock Input + `bg-gray-50`.
+    // Ours: bg-transparent (indistinguishable from an editable input).
+    expect(PROFILE_LAYOUT.emailDisabled).toContain("bg-gray-50");
+  });
+
+  it("the disabled role input gains bg-gray-50 AND capitalize", () => {
+    // Reference role input: stock Input + `bg-gray-50 capitalize` — the
+    // raw value "user" displays "User" (VLM-caught, DOM-verified).
+    expect(PROFILE_LAYOUT.roleDisabled).toContain("bg-gray-50");
+    expect(PROFILE_LAYOUT.roleDisabled).toContain("capitalize");
+  });
+
+  it("the role badge is the STOCK shadcn Badge default variant structure", () => {
+    // Reference: `inline-flex items-center rounded-md border px-2.5
+    // py-0.5 text-xs font-semibold transition-colors focus:outline-none
+    // focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent
+    // bg-primary text-primary-foreground shadow hover:bg-primary/80` +
+    // `mt-2 capitalize` — where the reference's PAGE-LOCAL primary is
+    // #171717 (its global --primary; its blue buttons elsewhere are
+    // explicit bg-blue-600). Ours maps --primary to blue, so the badge
+    // carries the exact colors via the neutral literals (bg #171717 =
+    // neutral-900, fg #fafafa = neutral-50, hover #262626).
+    expect(PROFILE_LAYOUT.badge).toContain("rounded-md border");
+    expect(PROFILE_LAYOUT.badge).toContain("px-2.5 py-0.5 text-xs font-semibold");
+    expect(PROFILE_LAYOUT.badge).toContain("bg-neutral-900 text-neutral-50");
+    expect(PROFILE_LAYOUT.badge).toContain("shadow");
+    expect(PROFILE_LAYOUT.badge).toContain("hover:bg-neutral-800");
+    expect(PROFILE_LAYOUT.badge).toContain("focus:ring-2 focus:ring-ring focus:ring-offset-2");
+    expect(PROFILE_LAYOUT.badge).toContain("border-transparent");
+    expect(PROFILE_LAYOUT.badge).toContain("mt-2");
+    expect(PROFILE_LAYOUT.badge).toContain("capitalize");
+  });
+
+  it("the save/upload buttons are STOCK buttons with w-full sm:w-auto", () => {
+    // Reference Save Changes: default variant (bg-primary … shadow
+    // hover:bg-primary/90) + `h-9 px-4 py-2 w-full sm:w-auto`; Upload
+    // Photo: outline variant + the same size classes, camera icon
+    // carrying `w-4 h-4 mr-2` ON THE SVG.
+    expect(PROFILE_LAYOUT.saveBtn).toContain("w-full sm:w-auto");
+    expect(PROFILE_LAYOUT.uploadBtn).toContain("w-full sm:w-auto");
+    expect(PROFILE_LAYOUT.uploadIcon).toBe("h-4 w-4 mr-2");
+  });
+
+  it("the page root is the reference's max-w-4xl mx-auto inner div", () => {
+    // Reference: `div [p-4 sm:p-8]` (the SHELL inner — plain, re-pinned
+    // above) wrapping `div [max-w-4xl mx-auto]` (the page root).
+    expect(PROFILE_LAYOUT.root).toBe("max-w-4xl mx-auto");
+  });
+});
+
+describe("session-13: activities by-type card (S13-P5)", () => {
+  it("the header follows the filter-rail pattern with the subtitle inside", () => {
+    // Reference header: `flex flex-col space-y-1.5 p-6 pb-3` containing a
+    // `flex justify-between items-center` title row + the subtitle
+    // `text-xs text-gray-500` INSIDE the header. Ours: a custom flex-row
+    // header with the subtitle in the body.
+    expect(BY_TYPE_CARD.headerPad).toBe("p-6 pb-3");
+    expect(BY_TYPE_CARD.headerRow).toBe("flex justify-between items-center");
+    expect(BY_TYPE_CARD.subtitle).toBe("text-xs text-gray-500");
+  });
+
+  it("the subtitle is the STATIC 'Last 2 days' (the filter does not change it)", () => {
+    // Live probe: switching the range combobox to "Last 30 Days" leaves
+    // the card subtitle at "Last 2 days" — a static string on the
+    // reference. Ours shipped a dynamic "Last {range} days".
+    expect(BY_TYPE_CARD.subtitleText).toBe("Last 2 days");
+  });
+
+  it("the card-header dots are BARE text buttons", () => {
+    // Reference: `text-gray-400 hover:text-gray-600` (24px, no radius, no
+    // bg — NOT a ghost icon button). The footer dots add ml-auto.
+    expect(BY_TYPE_CARD.dotsButton).toBe("text-gray-400 hover:text-gray-600");
+    expect(BY_TYPE_CARD.footerDotsButton).toBe("ml-auto text-gray-400 hover:text-gray-600");
+  });
+
+  it("the chips row renders five per-type count chips", () => {
+    // `flex flex-wrap gap-3 mt-4` with `flex items-center gap-2` chips:
+    // a `w-3 h-3 rounded` swatch (INLINE background-color) + a
+    // `text-xs text-gray-600` "Call N" label.
+    expect(BY_TYPE_CARD.chipsRow).toBe("flex flex-wrap gap-3 mt-4");
+    expect(BY_TYPE_CARD.chip).toBe("flex items-center gap-2");
+    expect(BY_TYPE_CARD.chipSwatch).toBe("w-3 h-3 rounded");
+    expect(BY_TYPE_CARD.chipLabel).toBe("text-xs text-gray-600");
+  });
+
+  it("the chart series colors are blue/violet/amber/emerald/teal", () => {
+    // Reference swatches: Call #3b82f6, Email #8b5cf6, Meeting #f59e0b,
+    // Task #10b981, Note #14b8a6. Ours rendered blue/cyan/amber/violet/
+    // gray (email/task/note wrong).
+    expect(BY_TYPE_CARD.colors).toEqual({
+      call: "#3b82f6",
+      email: "#8b5cf6",
+      meeting: "#f59e0b",
+      task: "#10b981",
+      note: "#14b8a6",
+    });
+  });
+
+  it("the footer renders the Activities checkbox row under a hairline", () => {
+    // `mt-4 pt-4 border-t` with a stock-style checkbox + label
+    // `text-sm font-medium cursor-pointer` "Activities" + the ml-auto
+    // dots button.
+    expect(BY_TYPE_CARD.footer).toBe("mt-4 pt-4 border-t");
+    expect(BY_TYPE_CARD.footerLabel).toBe("text-sm font-medium cursor-pointer");
+  });
+
+  it("the by-type CardTitle is text-base (16px)", () => {
+    expect(BY_TYPE_CARD.title).toBe("text-base");
+  });
+});
+
+describe("session-13: calendar day cells (S13-P7)", () => {
+  it("out-of-month cells keep the default border (not transparent)", () => {
+    // Reference: `bg-gray-50 text-gray-400` with the DEFAULT border
+    // (#e5e5e5) + transition-all. Ours hid the border
+    // (border-transparent) and used token aliases.
+    expect(CALENDAR_CELL.outOfMonth).toContain("border-line");
+    expect(CALENDAR_CELL.outOfMonth).toContain("bg-gray-50");
+    expect(CALENDAR_CELL.outOfMonth).toContain("text-gray-400");
+    expect(CALENDAR_CELL.outOfMonth).toContain("transition-all");
+    expect(CALENDAR_CELL.outOfMonth).not.toContain("border-transparent");
+  });
+
+  it("current-month cells hover to the reference's gray-50 wash", () => {
+    // Reference: `bg-white hover:bg-gray-50` (ours shipped
+    // hover:border-primary/40 — the clickable superset keeps its
+    // focus-visible ring, but the REST-state hover mirrors the
+    // reference).
+    expect(CALENDAR_CELL.current).toContain("bg-white");
+    expect(CALENDAR_CELL.current).toContain("hover:bg-gray-50");
+  });
+
+  it("the today cell stays the blue-600 pill", () => {
+    // `bg-blue-600 text-white border-blue-600` — ours renders the
+    // identical computed values via --color-sidebar #2563eb.
+    expect(CALENDAR_CELL.today).toContain("bg-sidebar");
+    expect(CALENDAR_CELL.today).toContain("text-white");
+    expect(CALENDAR_CELL.today).toContain("border-sidebar");
+  });
+});
+
+describe("session-13: stock account menu (S13-P4)", () => {
+  it("the account menu content is the stock DropdownMenu surface", () => {
+    // Reference: `z-50 min-w-[8rem] overflow-hidden rounded-md border
+    // bg-popover p-1 text-popover-foreground shadow-md …` (Radix
+    // DropdownMenu, role=menu). Ours: a Popover (role=dialog) with
+    // z-[60] rounded-lg shadow-lg + custom tokens.
+    expect(MENU_CONTENT).toContain("z-50");
+    expect(MENU_CONTENT).toContain("min-w-[8rem]");
+    expect(MENU_CONTENT).toContain("rounded-md");
+    expect(MENU_CONTENT).toContain("shadow-md");
+    expect(MENU_CONTENT).not.toContain("z-[60]");
+    expect(MENU_CONTENT).not.toContain("rounded-lg");
+    expect(MENU_CONTENT).not.toContain("shadow-lg");
+  });
+
+  it("the account menu items are the stock menuitem anatomy", () => {
+    // Reference item: `relative flex cursor-default select-none items-
+    // center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none
+    // transition-colors focus:bg-accent focus:text-accent-foreground …`
+    // (ours was: rounded-md hover:bg-line-soft cursor-pointer w-full
+    // text-left). Our accent wash rides the --color-line-soft token
+    // (#f3f4f6 — the reference's --accent computes the same gray wash).
+    expect(MENU_ITEM).toContain("rounded-sm px-2 py-1.5 text-sm");
+    expect(MENU_ITEM).toContain("cursor-default");
+    expect(MENU_ITEM).toContain("focus:bg-line-soft");
+    expect(MENU_ITEM).toContain("relative");
+    expect(MENU_ITEM).not.toContain("hover:bg-line-soft");
+    expect(MENU_ITEM).not.toContain("cursor-pointer");
+    expect(MENU_ITEM).not.toContain("w-full");
+  });
+
+  it("the topbar account menu renders a real role=menu (e2e-pinned)", () => {
+    // Source-level pin: the topbar must use the Menu primitives (not the
+    // Popover-based Dropdown) for the account menu.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/layout/topbar.tsx"),
+      "utf8",
+    );
+    expect(src).toContain("<MenuContent");
+    expect(src).not.toMatch(/<DropdownContent[^>]*userMenu/);
+  });
+});
+
+describe("session-13: stock Label primitive (S13-P13)", () => {
+  it("the Label component carries the stock shadcn string", () => {
+    // Reference dialog label (New Account): `text-sm font-medium
+    // leading-none peer-disabled:cursor-not-allowed
+    // peer-disabled:opacity-70` (14px, inheriting the foreground). Ours
+    // shipped a 12px text-xs custom with a /80 foreground wash.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/ui/label.tsx"),
+      "utf8",
+    );
+    expect(src).toContain('"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"');
+    expect(src).not.toContain("text-xs font-medium text-foreground/80");
   });
 });

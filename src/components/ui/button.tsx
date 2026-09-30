@@ -12,7 +12,10 @@ import { cn } from "@/lib/utils";
 // Focus rings are 1px near-black (`ring-ring`, --color-ring = #0a0a0a).
 const buttonVariants = cva(
   cn(
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    // Session-13 (S13-P3): rounded-md — the reference renders 6px radius
+    // on EVERY button (computed sweep, all pages + dialogs + icon
+    // buttons). Ours shipped rounded-lg on the base.
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
     BUTTON_BASE.iconGap,
     BUTTON_BASE.focusRing,
   ),
@@ -30,7 +33,7 @@ const buttonVariants = cva(
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-lg px-6",
+        lg: "h-10 rounded-md px-6",
         icon: "h-9 w-9",
         iconSm: "h-7 w-7 rounded-md",
         pill: "rounded-full px-4 py-1.5 h-8",

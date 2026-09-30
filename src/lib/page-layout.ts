@@ -32,14 +32,14 @@ export const PAGE_KPI_GRIDS = {
 export const PAGE_HEADER = {
   standard: {
     row: "flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4",
-    title: "text-2xl sm:text-3xl font-bold text-foreground",
+    title: "text-2xl sm:text-3xl font-bold text-gray-900",
     subtitle: "text-muted mt-1",
     subtitleSm: "text-sm text-muted mt-1",
     actions: "flex gap-2 w-full sm:w-auto",
   },
   leads: {
     row: "flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4",
-    title: "text-2xl sm:text-3xl font-bold text-foreground",
+    title: "text-2xl sm:text-3xl font-bold text-gray-900",
     subtitle: "text-muted mt-1",
     subtitleSm: "text-sm text-muted mt-1",
     // Session-9 (S9-5): the reference's leads actions STACK below sm
@@ -50,14 +50,14 @@ export const PAGE_HEADER = {
   },
   contacts: {
     row: "flex items-center justify-between mb-6",
-    title: "text-3xl font-bold text-foreground",
+    title: "text-3xl font-bold text-gray-900",
     subtitle: "text-muted mt-1",
     subtitleSm: "text-sm text-muted mt-1",
     actions: "flex gap-3",
   },
   activities: {
     row: "flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4",
-    title: "text-2xl sm:text-3xl font-bold text-foreground",
+    title: "text-2xl sm:text-3xl font-bold text-gray-900",
     subtitle: "text-muted mt-1",
     subtitleSm: "text-sm text-muted mt-1",
     // Session-9 (S9-6): the quick-log row WRAPS on the reference instead
@@ -69,7 +69,7 @@ export const PAGE_HEADER = {
     // reference renders a PLAIN `mb-6` div with a non-responsive text-3xl
     // h1 (no sm: downshift like the other pages).
     row: "mb-6",
-    title: "text-3xl font-bold text-foreground",
+    title: "text-3xl font-bold text-gray-900",
     subtitle: "text-muted mt-1",
     subtitleSm: "text-sm text-muted mt-1",
     actions: "",
@@ -140,8 +140,11 @@ export const REPORTS_FILTER_BAR = {
 export const FILTER_RAIL = {
   headerPad: "p-6 pb-3",
   headerRow: "flex justify-between items-center",
-  title: "text-base sm:text-base",
-  titleWithAction: "text-base sm:text-base flex items-center justify-between",
+  // Session-13 (S13-P6): literal cleanup — the reference's filter titles
+  // are `text-base` (16px, no sm: step); the calendar title row adds the
+  // flex classes for its Clear All action.
+  title: "text-base",
+  titleWithAction: "text-base flex items-center justify-between",
   clearAllLink: "text-xs text-blue-600 hover:text-blue-700 font-normal",
   body: "p-6 pt-0 space-y-4",
   groupLabel: "text-sm font-semibold mb-3 block",
@@ -165,7 +168,7 @@ export const SHELL_LAYOUT = {
   sidebar: "hidden md:flex w-64 bg-sidebar text-white flex-col",
   mainColumn: "flex-1 flex flex-col overflow-hidden",
   main: "flex-1 overflow-auto bg-background",
-  inner: "p-4 sm:p-8 bg-background min-h-screen",
+  inner: "p-4 sm:p-8",
 } as const;
 
 /** Sidebar navigation — brand mark, nav links and the bottom-pinned footer
@@ -408,6 +411,13 @@ export const ACTIVITY_QUICKLOG = {
 export const BUTTON_BASE = {
   iconGap: "[&_svg]:mr-2 [&_svg:only-child]:mr-0",
   focusRing: "focus-visible:ring-1 focus-visible:ring-ring",
+  // Session-13 (S13-P3): the reference is rounded-md (6px) on EVERY
+  // button — page headers, dialogs, topbar icon buttons (computed sweep
+  // across all 8 pages + profile). Ours shipped rounded-lg on the base
+  // (visible on contacts/calendar/reports-saved/profile). The sm and
+  // iconSm sizes already overrode to rounded-md, which is why most pages
+  // matched.
+  rounded: "rounded-md",
 } as const;
 
 /** S9-12 + S9-16, session-10 S10-2/S10-3: the stock Input base. The
@@ -473,8 +483,47 @@ export const DIALOG_SUBMIT = {
  *  activities' h2 titles and the profile name h3 are separately pinned).
  *  Color is inherited (foreground), not an explicit class. */
 export const CARD = {
-  title: "font-semibold tracking-tight text-base sm:text-lg",
+  // Session-13 (S13-P6): the reference's CardTitle is a PER-PAGE map —
+  // reports (11) + profile (1) render the STOCK shadcn string (16px,
+  // leading-none); dashboard (6) + leads (3) render text-base sm:text-lg;
+  // the filter rails + the activities by-type card render text-base; the
+  // settings cards render text-lg at ALL widths. The DEFAULT is now the
+  // stock string and the bigger variants arrive via CARD_TITLE_OVERRIDE
+  // at the call sites.
+  title: "font-semibold leading-none tracking-tight",
 } as const;
+
+/** Session-13 (S13-P6): the reference's per-page CardTitle size
+ *  overrides (class dumps on every page, 2026-09-30). */
+export const CARD_TITLE_OVERRIDE = {
+  /** dashboard (6 cards) + leads (3 cards) — 16px below sm, 18px above. */
+  dashboard: "text-base sm:text-lg",
+  /** accounts/activities/calendar filter rails + activities by-type — 16px. */
+  filters: "text-base",
+  /** settings (5 cards) — 18px at ALL widths (not sm-gated). */
+  settings: "text-lg",
+} as const;
+
+/** Session-13 (S13-P9): the reference's KPI value — SPAN `text-2xl
+ *  sm:text-3xl font-bold` INHERITING card-foreground #0a0a0a (line-height
+ *  36px, letter-spacing normal). Ours added leading-none (30px) +
+ *  tracking-tight (-0.75px) + text-foreground — real computed diffs. */
+export const KPI_VALUE = "text-2xl sm:text-3xl font-bold";
+
+/** Session-13 (S13-P9): the reference's stock DialogTitle —
+ *  `text-lg font-semibold leading-none tracking-tight` (class dump on the
+ *  New Account dialog), inheriting the #0a0a0a default. */
+export const DIALOG_TITLE = "text-lg font-semibold leading-none tracking-tight";
+
+/** Session-13 (S13-P4): the reference's topbar account menu is the STOCK
+ *  Radix DropdownMenu surface (role=menu) — z-50, rounded-md, shadow-md,
+ *  min-w-[8rem] — with the stock menuitem anatomy (rounded-sm,
+ *  focus:bg-accent, cursor-default). */
+export const MENU_CONTENT =
+  "z-50 min-w-[8rem] overflow-hidden rounded-md border border-line bg-surface p-1 text-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2";
+
+export const MENU_ITEM =
+  "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-line-soft focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0";
 
 /** S9-9: the dashboard Recent Deals table. The reference renders EIGHT
  *  columns — "Status" appears TWICE (a visible copy-paste quirk, mirrored
@@ -537,6 +586,73 @@ export const PROFILE_LAYOUT = {
   columnWrap: "space-y-4 sm:space-y-6",
   card: "rounded-xl border border-line bg-surface shadow",
   namePlaceholder: "Enter your full name",
+  // ---- Session-13 (S13-P2) additions ----
+  /** Page-level root: the reference's `max-w-4xl mx-auto` inner div (the
+   *  p-4 sm:p-8 wrapper is the SHELL's — its inner drops the extra
+   *  bg-background/min-h-screen this session). */
+  root: "max-w-4xl mx-auto",
+  /** Header: the reference's PLAIN `mb-6 sm:mb-8` div. */
+  headerRow: "mb-6 sm:mb-8",
+  /** The Personal Information title = the STOCK CardTitle (16px). */
+  cardTitle: "font-semibold leading-none tracking-tight",
+  /** Disabled email input: stock Input + the gray-50 wash. */
+  emailDisabled: "bg-gray-50",
+  /** Disabled role input: gray-50 wash + capitalize ("user" → "User"). */
+  roleDisabled: "bg-gray-50 capitalize",
+  /** The role badge = the STOCK shadcn Badge default variant STRUCTURE
+   *  (rounded-md px-2.5 py-0.5 text-xs font-semibold, shadow, hover,
+   *  transition, focus ring) — the reference's page-local primary is
+   *  #171717 (NOT its global blue --primary), so the colors ride the
+   *  literal neutral family: bg #171717, fg #fafafa (computed-verified). */
+  badge:
+    "mt-2 inline-flex items-center rounded-md border border-transparent bg-neutral-900 text-neutral-50 px-2.5 py-0.5 text-xs font-semibold shadow transition-colors hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 capitalize",
+  /** Upload icon carries its margin ON THE SVG like the reference. */
+  uploadIcon: "h-4 w-4 mr-2",
+} as const;
+
+/** Session-13 (S13-P5): the activities "Activities by Type" card — a
+ *  full structural rebuild. The header follows the FILTER_RAIL pattern
+ *  (p-6 pb-3, flex-col) with the title row + the subtitle INSIDE the
+ *  header (the STATIC "Last 2 days" — the range filter does not change
+ *  it, live-verified); the body carries the 150px chart + a five-chip
+ *  count row + a border-t footer with the "Activities" checkbox. The
+ *  card-header dots are BARE text buttons (24px, no radius/bg), not
+ *  ghost icon buttons. Chip swatches carry INLINE background-colors
+ *  (the chart series palette: blue/violet/amber/emerald/teal). */
+export const BY_TYPE_CARD = {
+  headerPad: "p-6 pb-3",
+  headerRow: "flex justify-between items-center",
+  title: "text-base",
+  subtitle: "text-xs text-gray-500",
+  subtitleText: "Last 2 days",
+  dotsButton: "text-gray-400 hover:text-gray-600",
+  body: "p-6 pt-0",
+  chipsRow: "flex flex-wrap gap-3 mt-4",
+  chip: "flex items-center gap-2",
+  chipSwatch: "w-3 h-3 rounded",
+  chipLabel: "text-xs text-gray-600",
+  footer: "mt-4 pt-4 border-t",
+  footerLabel: "text-sm font-medium cursor-pointer",
+  footerDotsButton: "ml-auto text-gray-400 hover:text-gray-600",
+  colors: {
+    call: "#3b82f6",
+    email: "#8b5cf6",
+    meeting: "#f59e0b",
+    task: "#10b981",
+    note: "#14b8a6",
+  },
+} as const;
+
+/** Session-13 (S13-P7): the calendar day-cell states. The reference
+ *  renders DIVs (not clickable); ours are BUTTONS (the clickable
+ *  superset — semantics + focus ring stay, the REST-state classes mirror
+ *  the reference). Out-of-month cells KEEP the default border (ours hid
+ *  it with border-transparent); today is the blue-600 pill. */
+export const CALENDAR_CELL = {
+  base: "min-h-20 sm:min-h-24 p-1 sm:p-2 rounded-lg border transition-all text-left",
+  outOfMonth: "border-line bg-gray-50 text-gray-400 transition-all",
+  current: "border-line bg-white hover:bg-gray-50",
+  today: "border-sidebar bg-sidebar text-white",
 } as const;
 
 /** Every exported class string, for regression guards. */
@@ -570,6 +686,10 @@ export function allLayoutClasses(): string[] {
     TABS_SEGMENTED,
     KPI_CARD,
     DELTA_TEXT,
+    // Session-13 groups
+    CARD_TITLE_OVERRIDE,
+    BY_TYPE_CARD,
+    CALENDAR_CELL,
   ]) {
     for (const value of Object.values(group as Record<string, string | readonly string[]>)) {
       // Some session-8 records carry option ARRAYS (vocabularies), not class

@@ -34,12 +34,13 @@ import {
 import { CHART_COLORS } from "@/lib/constants";
 import { formatCompactCurrency } from "@/lib/format";
 
-// Session-10 (S10-11 family + VLM round): the reference passes NO tick or
-// grid style on its charts — the ticks render at the recharts DEFAULT
-// (12px #666) and the CartesianGrid at the default DASHED "3 3" #ccc with
-// BOTH horizontal (per Y tick) and vertical (per X tick) lines (11 lines
-// on the reference pipeline chart: 5 horizontal + 6 vertical — DOM
-// counted). Our solid #f3f4f6 horizontal-only grid is retired.
+// Session-10 (S10-11 family + VLM round): the reference passes NO tick
+// style on its charts — the ticks render at the recharts DEFAULT (12px
+// #666). Session-13 correction (S13-P8): the grid is NOT the recharts
+// default — the default CartesianGrid is SOLID; the reference passes
+// strokeDasharray="3 3" EXPLICITLY (grid-line attribute extraction on
+// every gridded chart: dashboard 2, reports tab-1 4, leads 2 — all
+// "3 3" #ccc). The s10 "dashed default" comment was a misreading.
 
 /**
  * Reference dashboard pipeline chart: vertical bars of the per-stage COUNT
@@ -61,7 +62,7 @@ export function PipelineBarChart({
       <div style={{ height }} className="chart-no-outline">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid />
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="label" axisLine={false} tickLine={false} />
             <YAxis axisLine={false} tickLine={false} width={32} allowDecimals={false} />
             <Tooltip />
@@ -108,7 +109,7 @@ export function RevenueLineChart({
     <div style={{ height }} className="chart-no-outline">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid />
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} width={56} />
           <Tooltip />
@@ -165,7 +166,7 @@ export function WonLostLineChart({
     <div style={{ height }} className="chart-no-outline">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid />
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} width={32} allowDecimals={false} />
           <Tooltip />
@@ -183,12 +184,54 @@ export function WonLostLineChart({
 }
 
 /**
- * S10-7: the reference's Conversion Funnel is a recharts FunnelChart —
- * four trapezoid groups (leads page AND reports tab 1; DOM-verified:
- * `.recharts-funnel-trapezoid` groups, empty shapes at zero data, an
- * empty label-list). Ours was a custom div-bar list. The four-stage
- * vocabulary (New/Qualified/Won/Lost) comes from FUNNEL_STAGES.
+ * S10-7 (re-scoped session-13): the reference's LEADS "Conversion Funnel"
+ * renders NOTHING at zero data (no axes, no grid, no shapes — the s10
+ * trapezoid observation was an inference, unverifiable today). We keep
+ * the recharts FunnelChart here for the LEADS surface only; the REPORTS
+ * tab-1 funnel is the DOM-verified FunnelBarChart below (S13-P8).
  */
+/**
+ * S13-P8: the reference's REPORTS tab-1 "Conversion Funnel" is a
+ * HORIZONTAL BAR chart — DOM-verified 2026-09-30: 534x300, CartesianGrid
+ * dashed "3 3" (15 lines), XAxis NUMERIC (0-4 at zero data), YAxis
+ * CATEGORY carrying the EIGHT raw slugs (new/contacted/qualified/
+ * prospecting/qualification/proposal/negotiation/closed_won — exactly
+ * REPORTS_PIPELINE_SLUGS), no legend. The data seam is the reports
+ * pipeline buckets (reportsBucketCounts — the fixed 8-slug list renders
+ * ticks at any data volume like the reference).
+ */
+export function FunnelBarChart({
+  data,
+  height = 300,
+}: {
+  data: Array<{ slug: string; count: number; color: string }>;
+  height?: number;
+}) {
+  return (
+    <div style={{ height }} className="chart-no-outline">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} layout="vertical" margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis type="number" axisLine={false} tickLine={false} allowDecimals={false} />
+          <YAxis
+            type="category"
+            dataKey="slug"
+            axisLine={false}
+            tickLine={false}
+            width={90}
+            interval={0}
+          />
+          <Tooltip />
+          <Bar dataKey="count" name="Leads" radius={[0, 6, 6, 0]} maxBarSize={24}>
+            {data.map((d) => (
+              <Cell key={d.slug} fill={d.color} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 export function ConversionFunnel({
   data,
   // Session-11 (S11-P4): the reference's funnels render at 300px on the

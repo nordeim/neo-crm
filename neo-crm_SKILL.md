@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.9.0
+version: 1.10.0
 last_updated: 2026-09-30
-project_state: 206 unit checks + 28 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the FunnelChart funnel, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) and the focus-on-open transition-visibility race fixed and e2e-pinned
+project_state: 244 unit checks + 31 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.9.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.10.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1629,6 +1629,67 @@ at desktop width.
   test); DOM re-verified at 1512/1024/768/700/390 + zero 390px overflow
   on all ten routes (nine + the 404); 13 screenshots (12 refreshed + the
   404 capture); docs realigned + SKILL v1.9.0.
+
+## 16e. Session-13 Layer (doubled auth titles, profile parity, button radius, CardTitle map, by-type rebuild, dashed grids, funnel type, foreground + base-font re-pins, stock account menu)
+
+### Session 13 audit (2026-09-30)
+
+- **Layer:** the never-probed **Profile page** (reached via the topbar
+  user menu — the menu itself turned out to be a Radix Popover, not the
+  reference's stock DropdownMenu), the auth pages' document titles, a
+  button-radius sweep of every page, the per-page CardTitle map, the
+  activities by-type card, a chart-grid dash sweep (which DISPROVED the
+  session-10 "dashed default" pin — recharts' default grid is SOLID; the
+  reference passes `strokeDasharray="3 3"` explicitly), the reports
+  tab-1 funnel chart TYPE (a horizontal BAR chart, not a FunnelChart),
+  and the default foreground token (#0a0a0a vs our #111827). During
+  verification two more surfaced: the BASE font-size (reference 16px,
+  ours 14px — a scaffold-era assumption) and the Label (stock
+  `text-sm font-medium leading-none` at 14px, ours a 12px custom).
+- **Findings (S13-P1..P13):** the doubled auth titles (raw SSR HTML
+  `NEO CRM | NEO CRM` — relative titles wrapped by the root template;
+  fixed with `title: { absolute }`, pinned by page-titles.test.ts), the
+  profile page's nine details (bg-gray-50 + capitalize on the disabled
+  email/role inputs, the STOCK Badge on the NEUTRAL family
+  bg-neutral-900 — the reference's profile primary is #171717, not its
+  own blue, stock `w-full sm:w-auto` buttons with the camera icon mr-2
+  on the svg itself), rounded-md buttons everywhere (base + lg; only the
+  login submit keeps rounded-xl), the CardTitle per-page map (stock
+  16px default; dashboard/leads `text-base sm:text-lg`, filter rails +
+  by-type `text-base`, settings `text-lg`), the by-type card rebuild
+  (FILTER_RAIL header + STATIC "Last 2 days" subtitle inside the header
+  + chips row with blue/violet/amber/emerald/teal swatches + the border-t
+  checkbox footer + BARE ••• `text-gray-400 hover:text-gray-600`
+  buttons), the calendar day cells keeping their border in all three
+  states (out-of-month `bg-gray-50 text-gray-400 transition-all`), the
+  explicit dashed grids + the funnel-as-horizontal-BarChart
+  (`FunnelBarChart`, 8 raw slugs on Y), the #0a0a0a foreground with
+  page h1s explicit `text-gray-900`, the avg-cycle delta removal, the
+  16px base font, and the stock Label/DialogTitle.
+- **Method notes:** `getByLabel`/role-name selectors beat synthetic
+  `.click()` for Radix — DropdownMenuTrigger opens on POINTERDOWN, so
+  `element.click()` never opens it (use agent-browser's real `click`).
+  The per-file unit counts came from `vitest run` output, not the docs.
+- **VLM rounds:** all dashboard diffs were data-driven (reference demo
+  data still zero — 9th consecutive session); the profile round's
+  "Üser" was an OCR artifact (DOM: both render "User" via capitalize).
+  Two mid-verification findings (base font 16px, stock Label) came from
+  computed-style probes AFTER the suite was green — verification is part
+  of the audit, not a formality.
+- **Gate**: lint 0/0 · typecheck clean · **244/244 unit** (38 new
+  checks: 2 page-titles + 4 charts-contracts + 29 page-layout pins + 3
+  design-tokens re-pins) · build clean (via `bun run build` — see the
+  build-script note below) · **31/31 e2e** (mobile-nav 7/7; +3 crm:
+  account-menu role=menu, funnel bar-chart, by-type card structure);
+  DOM re-verified live at 1512 + 390; zero 390px overflow on all ten
+  routes; 13 screenshots refreshed; docs realigned + SKILL v1.10.0.
+- **Build-script hazard (operational):** `package.json`'s build =
+  `next build && cp -r .next/static .next/standalone/.next/ && cp -r
+  public .next/standalone/`. Running `next build` BARE leaves the
+  standalone server without any static chunks — every `/_next/static`
+  request 404s, React never hydrates, and the login form degrades to a
+  NATIVE GET submit. Symptom in e2e: `auth.setup.ts` times out at
+  `waitForURL("/")`. Always build through the package script.
 
 ## Appendix D: Live-Site Validation Methodology
 
