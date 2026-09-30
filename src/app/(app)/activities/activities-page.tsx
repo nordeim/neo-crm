@@ -5,11 +5,15 @@ import {
   CheckCircle2,
   Circle,
   Mail,
-  MessageCircle,
   MoreHorizontal,
   Phone,
   Trash2,
-  Video,
+  // Session-17 (S17-P2f): the reference's quick-log ships `calendar` on
+  // Log Meeting (ours: Video — an invented video affordance) and
+  // `message-square` on Log WhatsApp (ours: message-circle — the round
+  // bubble).
+  Calendar,
+  MessageSquare,
 } from "lucide-react";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
@@ -38,8 +42,8 @@ const MORE_TYPE_FILTERS = ["task", "note"] as const;
 const QUICK_LOG = [
   { type: "call", label: "Log Call", icon: Phone },
   { type: "email", label: "Log Email", icon: Mail },
-  { type: "meeting", label: "Log Meeting", icon: Video },
-  { type: "whatsapp", label: "Log WhatsApp", icon: MessageCircle, green: true },
+  { type: "meeting", label: "Log Meeting", icon: Calendar },
+  { type: "whatsapp", label: "Log WhatsApp", icon: MessageSquare, green: true },
 ] as const;
 
 /**
@@ -459,7 +463,7 @@ export default function ActivitiesPage() {
                     <Checkbox
                       key={t}
                       checked={typeFilters[t] ?? false}
-                      onChange={(e) => setTypeFilters((f) => ({ ...f, [t]: e.target.checked }))}
+                      onCheckedChange={(v) => setTypeFilters((f) => ({ ...f, [t]: v }))}
                       label={ACTIVITY_TYPE_META[t].label}
                     />
                   ))}
@@ -473,7 +477,7 @@ export default function ActivitiesPage() {
                       <Checkbox
                         key={t}
                         checked={typeFilters[t] ?? false}
-                        onChange={(e) => setTypeFilters((f) => ({ ...f, [t]: e.target.checked }))}
+                        onCheckedChange={(v) => setTypeFilters((f) => ({ ...f, [t]: v }))}
                         label={ACTIVITY_TYPE_META[t].label}
                       />
                     ))}
@@ -579,13 +583,13 @@ export default function ActivitiesPage() {
 
               {/* The border-t footer: the Activities checkbox (default
                   checked, mirroring the reference's stock 16px checkbox)
-                  + the ml-auto ••• . Rides the shared native Checkbox
-                  primitive (our established filter-rail pattern). */}
+                  + the ml-auto ••• . Rides the shared stock Checkbox
+                  primitive (S17-P3 — button role=checkbox + Check
+                  indicator, the reference's exact anatomy). */}
               <div className={BY_TYPE_CARD.footer}>
                 <Checkbox
                   id="activities-by-type-toggle"
                   defaultChecked
-                  className="rounded-sm"
                 />
                 <label htmlFor="activities-by-type-toggle" className={BY_TYPE_CARD.footerLabel}>
                   Activities

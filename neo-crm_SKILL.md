@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.13.0
+version: 1.14.0
 last_updated: 2026-09-30
-project_state: 280 unit checks + 37 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 312 unit checks + 45 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.13.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.14.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1909,6 +1909,76 @@ Seven findings, all DOM-verified on the live reference:
    reference's exact value — NO literal-palette drift for that shade,
    unlike blue-600); the page-root contract uses the `bg-background`
    token anyway (computed-equal + theme-following).
+
+## 16i. Session-17 Layer (the stock button/checkbox primitives, the icon-glyph census, the polygon Filter)
+
+**What shipped:** the first ICON-GLYPH census (icon name + SVG path data
+on every page, both apps — a layer never swept before) plus the two
+chrome surfaces that were still hand-written: the topbar account trigger
+and every filter-rail checkbox. All findings DOM-verified on the live
+reference:
+
+1. **The icon-glyph census (S17-P2 — 14 surfaces).** LESSON FIRST: compare
+   glyph PATH DATA, never icon names alone — lucide RENAMES can hide
+   REDESIGNS (0.525's `Filter` re-exports the new curved Funnel) and
+   ALIASES can hide renames (`CheckCircle2` renders the small
+   circle-check, not the big one). The reference's sidebar ships `users`
+   (two-person), `circle-user` (head r=3 + shoulders path) and `calendar`
+   (blank body) — ours shipped three DIFFERENT glyphs (`User`,
+   `CircleUserRound`, `CalendarDays`) because the renames are exported
+   under new canonical names in 0.525 (path-verified byte-equal after the
+   swap). Contacts ships `scan` (no center line) and a DOWNLOAD glyph on
+   Import (the reference's own quirk); the leads/calendar KPI chips ship
+   `circle-check-big`/`calendar`/`users`; the quick-log ships `calendar`
+   (Log Meeting) + `message-square` (Log WhatsApp).
+
+2. **The polygon Filter (S17-P2b — the hand-rolled glyph).** The
+   reference's Filter/Filters buttons ship the OLD lucide `filter` — the
+   straight-edged POLYGON funnel (`<polygon points="22 3 2 3 10 12.46 10
+   19 14 21 14 12.46 22 3">`). lucide-react 0.525 re-exports the
+   redesigned curved Funnel AS `Filter`, and the polygon is exported by
+   NO name in the package (verified against the dist source) — so it
+   lives in `src/components/ui/icons.tsx` as `FilterPolygon`, carrying
+   the `lucide lucide-filter` namespacing classes (no styles — they keep
+   icon censuses comparable with real lucide renders).
+
+3. **The account trigger is the stock ghost Button (S17-P1).** The
+   reference's trigger carries the FULL stock construction
+   (`whitespace-nowrap text-sm font-medium focus-visible:ring-1
+   focus-visible:ring-ring` + the ghost hover pair + `h-9 px-4 py-2` +
+   `flex items-center gap-1 sm:gap-2` via tailwind-merge) with a
+   TWO-LEVEL avatar (stock Avatar root + fallback div). Ours was
+   hand-written with NO focus-visible ring — a keyboard-focus gap
+   (live-verified: the reference shows the 1px near-black ring under
+   Tab). The composition neutralizes the iconGap's trailing-chevron
+   margin (`[&_svg]:mr-0` — the reference's chevron carries no margin).
+
+4. **The stock checkbox is a BUTTON, not an input (S17-P3).** Every
+   reference filter rail (accounts 4 tiers / calendar 10 types+dates /
+   activities 4 Activity-Type + the by-type footer) ships `<button
+   type="button" role="checkbox" aria-checked data-state value="on">`
+   with a `Check` h-4 w-4 indicator that mounts ONLY when checked. The
+   reference's `border-primary`/`data-[state=checked]:bg-primary`
+   compute **#171717 — the platform's DARK stock primary, NOT the app
+   blue** (the same family as DIALOG_SUBMIT) — so the computed-equal
+   expression is `neutral-900`/`neutral-50`. Our native inputs never
+   rendered a check glyph at all (appearance-none + no indicator) and
+   filled with the app blue. The primitive lives in `label.tsx` with the
+   `onCheckedChange(boolean)` API; keyboard toggling is native (buttons
+   fire click on Space/Enter — no keydown handler needed).
+
+5. **Button variant corrections (S17-P4/P5).** The default (blue)
+   variant carries the BARE `shadow` scale — the reference's blue
+   primaries compute rgba(0,0,0,.1) 0 1px 3px 0, and our `shadow-sm` was
+   one step light under the s9-re-pinned scale (outline buttons are
+   shadow-sm on BOTH). The ghost variant carries NO base text color (the
+   stock ghost) — our invented `text-muted` rendered the one text-bearing
+   ghost ("Save All") gray where the reference inherits #0a0a0a.
+
+6. **Measurement discipline.** The checkbox's checked fill was verified
+   through the 1×1 canvas pixel readback (§16g.4's rule — v4 serializes
+   getComputedStyle colors as lab()/oklab() strings, so raw string
+   compares lie); the e2e suite pins it the same way.
 
 ## Appendix D: Live-Site Validation Methodology
 

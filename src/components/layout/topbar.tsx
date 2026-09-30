@@ -16,6 +16,7 @@ import {
 import { MobileNavTrigger } from "./mobile-nav";
 import { useCrmStore } from "@/stores/crm-store";
 import { SEARCH_INPUT, TOPBAR_LAYOUT } from "@/lib/page-layout";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { STAGE_META } from "@/lib/constants";
 import { formatCompactCurrency } from "@/lib/format";
@@ -152,15 +153,24 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
           {user && (
             <Menu>
               <MenuTrigger asChild>
-                <button type="button" className={TOPBAR_LAYOUT.userButton} aria-label="Account menu">
+                {/* Session-17 (S17-P1): the STOCK ghost Button — the
+                    reference's trigger carries the full stock construction
+                    (whitespace-nowrap / text-sm font-medium / the 1px
+                    focus-visible ring / the ghost hover pair) plus `flex
+                    items-center gap-1 sm:gap-2`; TOPBAR_LAYOUT.userButton
+                    adds the composition and neutralizes the iconGap's
+                    trailing-chevron margin. */}
+                <Button type="button" variant="ghost" className={TOPBAR_LAYOUT.userButton} aria-label="Account menu">
                   <span className={TOPBAR_LAYOUT.userLabel}>
                     Hi, {user.name || user.email.split("@")[0]}
                   </span>
-                  <span className={TOPBAR_LAYOUT.userAvatar} aria-hidden="true">
-                    {(user.name || user.email).charAt(0).toUpperCase()}
+                  <span className={TOPBAR_LAYOUT.userAvatarRoot} aria-hidden="true">
+                    <div className={TOPBAR_LAYOUT.userAvatarFallback}>
+                      {(user.name || user.email).charAt(0).toUpperCase()}
+                    </div>
                   </span>
                   <ChevronDown className={TOPBAR_LAYOUT.userChevron} />
-                </button>
+                </Button>
               </MenuTrigger>
               <MenuContent>
                 <MenuItem onSelect={() => router.push("/profile")}>Profile</MenuItem>

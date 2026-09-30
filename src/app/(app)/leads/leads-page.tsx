@@ -4,12 +4,15 @@ import { downloadFile } from "@/lib/download";
 import * as React from "react";
 import {
   ArrowUpDown,
-  CalendarDays,
-  CheckCircle2,
+  // Session-17 (S17-P2): the reference's leads KPI chips ship
+  // `circle-check-big` (the BIG check filling the circle — CheckCircle2
+  // renders the small one) and `calendar` (blank body — CalendarDays
+  // adds the day dots).
+  Calendar,
+  CircleCheckBig,
   ChevronDown,
   ChevronUp,
   Download,
-  Filter,
   MoreHorizontal,
   Percent,
   Pencil,
@@ -22,6 +25,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import { FilterPolygon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -247,7 +251,7 @@ export default function LeadsPage() {
           label="Won Deals"
           value={won.length}
           subValue={formatCurrency(won.reduce((s, l) => s + l.value, 0))}
-          icon={<CheckCircle2 className="h-5 w-5" />}
+          icon={<CircleCheckBig className="h-5 w-5" />}
           color="#10b981"
         />
         <IconStatCard
@@ -265,7 +269,7 @@ export default function LeadsPage() {
           icon={<Percent className="h-5 w-5" />}
           color="#8b5cf6"
         />
-        <IconStatCard variant="leads" label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<CalendarDays className="h-5 w-5" />} color="#14b8a6" />
+        <IconStatCard variant="leads" label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<Calendar className="h-5 w-5" />} color="#14b8a6" />
       </div>
 
       {/* Session-8 (S8-4/S8-5, DOM re-pinned): search + a Filters POPOVER
@@ -292,7 +296,7 @@ export default function LeadsPage() {
             <Dropdown>
               <DropdownTrigger asChild>
                 <Button variant="outline" className={LEADS_FILTERS_POPOVER.trigger} aria-label="Open lead filters">
-                  <Filter className={LEADS_FILTERS_POPOVER.triggerIcon} /> Filters
+                  <FilterPolygon className={LEADS_FILTERS_POPOVER.triggerIcon} /> Filters
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="start" className={cn("rounded-md", LEADS_FILTERS_POPOVER.content)}>

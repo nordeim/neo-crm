@@ -330,3 +330,21 @@ Stage Summary:
 
 Stage Summary (final):
 - PUSHED: session-16 commit 0b6e256 on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py (explicit --remote; dry-run clean 0a7620a..0b6e256 fast-forward, then real push with the wrapper's remote verification + an independent ls-remote check @ 0b6e256 == local HEAD); all suites green (297 unit / 41 e2e); docs at SKILL v1.13.0; deploy keys shredded after verification
+
+---
+Task ID: 18 (repo)
+Agent: main (Super Z)
+Task: Session 17 — the stock button/checkbox layer + the icon-glyph census (completing the interrupted session-17 audit)
+
+Work Log:
+- Pulled to 28678cb (docs/session_26.md = the session-16 transcript); full docs + codebase review; baseline gate green (297/297 unit); env verified (.env file:../db/custom.db + db/ at root + .env.example + vitest/playwright configs — the task book's config asks already satisfied)
+- Mobile navigation verified three ways: reference at 390 has NO nav (13th session), our 7-check regression LIVE 7/7 PASS (before AND after the changes), drawer healthy with the new glyphs; demo data still zero (13th session)
+- Audit layer: the first ICON-GLYPH CENSUS (name + SVG path data, all 9 pages, both apps) — the interrupted session's S17-P1/P2/P3 findings re-verified live + extended: THREE SIDEBAR glyph drifts the interrupted attempt missed (ref users/circle-user/calendar vs our User/CircleUserRound/CalendarDays — path-data-proven), the polygon Filter (lucide 0.525 re-exports the curved Funnel as Filter; the old polygon exported by NO name → hand-rolled FilterPolygon), scan + download-on-Import (contacts), circle-check-big/calendar/users chips, calendar/message-square quick-log; the topbar account trigger hand-written (no focus-visible ring, one-level avatar); every filter rail's checkbox a native input (ref: stock Radix button checkboxes, checked fill #171717 dark-not-blue); the default variant shadow-sm vs the ref's bare shadow; the ghost's invented text-muted
+- TDD: 16 red-first checks (topbar re-pin + source rules, nav-config pins, FilterPolygon component + page rules, icon-swap rules, CHECKBOX contract + primitive + call-site rules, variant pins) -> 312/312 unit (+15 net); +4 e2e (trigger ghost+avatar, sidebar users glyph, tier stock checkboxes with canvas-readback #171717, blue primaries bare shadow) -> 45/45 (mobile-nav 7/7)
+- Mid-flight: three source-pin regexes re-scoped (they matched the session's own doc comments); the checkbox e2e hit the v4 lab() trap -> 1x1 canvas readback; first e2e run failed on a stale reused :3100 server -> killed + clean re-run
+- Full gate: lint 0/0, tsc, 312/312 unit, build (bun run build), 45/45 e2e; live DOM re-verified at 1512+390 on every touched surface (trigger classes + keyboard ring rgb(10,10,10) 1px, two-level avatar, census parity, checkbox Space-toggling + dark fill + Check indicator, polygon points exact, Save All #0a0a0a, New Account bare shadow); zero 390px overflow on 11 routes
+- Deliverables: all 20 screenshots re-captured with per-shot URL/dialog verification (zero duplicates); .env/.env.example verified; docs realigned (README badge 357 + counts + feature rows, AGENTS + 5 session-17 contract blocks, CLAUDE, PAD matrix 312/45 + the §7.4 checklist fix (280/37 -> 312/45) + session-17 notes, SKILL v1.14.0 16i + frontmatter project_state fix, docs/session_27.md, plan addendum, worklogs)
+
+Stage Summary:
+- Gate green: lint 0/0, tsc, 312/312 unit, 45/45 e2e (mobile-nav 7/7); zero 390px overflow; 20 screenshots; docs at SKILL v1.14.0
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

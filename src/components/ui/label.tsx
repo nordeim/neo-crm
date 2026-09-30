@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CHECKBOX } from "@/lib/page-layout";
 
 function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
   return (
@@ -21,32 +23,69 @@ function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimiti
   );
 }
 
-// Checkbox: native input with an accent-colored appearance — reliable in all
-// browsers and preserves full keyboard semantics.
+// Session-17 (S17-P3): the STOCK Radix-style checkbox — the reference
+// ships button-role checkboxes (`<button type="button" role="checkbox"
+// aria-checked data-state value="on">`) on EVERY filter rail (accounts
+// tiers / calendar types+dates / activities Activity-Type + the by-type
+// footer), with a Check h-4 w-4 indicator that mounts ONLY when checked.
+// The button element keeps keyboard semantics native (Space/Enter fire
+// click on buttons) and the label's htmlFor still forwards clicks to a
+// labelable button. Ours shipped native inputs with appearance-none
+// styling — no check glyph ever rendered, the checked fill was the app
+// blue (the reference's computes #171717, the dark stock primary), and
+// the focus ring was 2px translucent blue instead of the 1px near-black.
 
-interface CheckboxProps extends Omit<React.ComponentProps<"input">, "type"> {
+interface CheckboxProps extends Omit<React.ComponentProps<"button">, "onChange" | "value"> {
+  checked?: boolean;
+  defaultChecked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
   label?: string;
 }
 
-function Checkbox({ className, label, id, ...props }: CheckboxProps) {
+function Checkbox({
+  className,
+  checked,
+  defaultChecked,
+  onCheckedChange,
+  label,
+  id,
+  ...props
+}: CheckboxProps) {
   const generated = React.useId();
   const inputId = id ?? generated;
+  const [uncontrolled, setUncontrolled] = React.useState(defaultChecked ?? false);
+  const isControlled = checked !== undefined;
+  const isChecked = isControlled ? checked : uncontrolled;
+
+  const toggle = () => {
+    if (!isControlled) setUncontrolled((v) => !v);
+    onCheckedChange?.(!isChecked);
+  };
+
   const box = (
-    <input
+    <button
+      type="button"
+      role="checkbox"
       id={inputId}
-      type="checkbox"
-      className={cn(
-        "h-4 w-4 shrink-0 cursor-pointer appearance-none rounded border border-gray-300 bg-white transition-colors checked:border-primary checked:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-disabled disabled:opacity-50",
-        className,
-      )}
+      aria-checked={isChecked}
+      data-state={isChecked ? "checked" : "unchecked"}
+      value="on"
+      className={cn(CHECKBOX.control, className)}
+      onClick={toggle}
       {...props}
-    />
+    >
+      {isChecked ? (
+        <span data-state="checked" className={CHECKBOX.indicator} style={{ pointerEvents: "none" }}>
+          <Check className="h-4 w-4" />
+        </span>
+      ) : null}
+    </button>
   );
   if (!label) return box;
   return (
-    <div className="flex items-center gap-2">
+    <div className={CHECKBOX.row}>
       {box}
-      <label htmlFor={inputId} className="cursor-pointer select-none text-sm text-foreground">
+      <label htmlFor={inputId} className={CHECKBOX.label}>
         {label}
       </label>
     </div>

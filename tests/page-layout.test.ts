@@ -12,6 +12,7 @@ import {
   ACTIVITY_DIALOG,
   BUTTON_BASE,
   CARD,
+  CHECKBOX,
   CONTACT_AVATAR,
   CONTACT_DIALOG,
   DASHBOARD_CARD,
@@ -304,14 +305,30 @@ describe("topbar parity (session-7 DOM-verified)", () => {
     expect(TOPBAR_LAYOUT.iconClass).toBe("h-5 w-5");
   });
 
-  it("right group gap-2 sm:gap-4; user button is a rectangular ghost h-9", () => {
+  it("right group gap-2 sm:gap-4; user button is the stock ghost Button composition (S17-P1)", () => {
     expect(TOPBAR_LAYOUT.rightGroup).toBe("flex items-center gap-2 sm:gap-4");
+    // Session-17 (S17-P1): the reference's trigger is the STOCK ghost
+    // Button — `justify-center whitespace-nowrap rounded-md text-sm
+    // font-medium transition-colors focus-visible:ring-1
+    // focus-visible:ring-ring … hover:bg-accent
+    // hover:text-accent-foreground h-9 px-4 py-2` + `flex items-center
+    // gap-1 sm:gap-2` (tailwind-merge replacing inline-flex/gap-2). The
+    // button now renders via <Button variant="ghost"> — this className
+    // only adds the flex/gap composition + neutralizes the iconGap's
+    // trailing-chevron margin (the reference's chevron carries NO mr-2).
     expect(TOPBAR_LAYOUT.userButton).toBe(
-      "flex h-9 items-center gap-1 rounded-md px-4 py-2 transition-colors hover:bg-line-soft sm:gap-2",
+      "flex items-center gap-1 sm:gap-2 [&_svg]:mr-0",
     );
     expect(TOPBAR_LAYOUT.userLabel).toBe("hidden text-sm font-medium text-gray-700 sm:inline");
-    expect(TOPBAR_LAYOUT.userAvatar).toBe(
-      "flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 font-semibold text-sm text-gray-600",
+    // Session-17 (S17-P1): the reference ships the STOCK two-level
+    // Avatar — root (stock Avatar shape, w-8 h-8) + fallback div (stock
+    // AvatarFallback shape with the bg-gray-200/gray-600/text-sm
+    // literals). Ours was a ONE-level hand-written span.
+    expect(TOPBAR_LAYOUT.userAvatarRoot).toBe(
+      "relative flex shrink-0 overflow-hidden rounded-full w-8 h-8",
+    );
+    expect(TOPBAR_LAYOUT.userAvatarFallback).toBe(
+      "w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm",
     );
     expect(TOPBAR_LAYOUT.userChevron).toBe("h-4 w-4 text-muted");
   });
@@ -1750,5 +1767,214 @@ describe("session-16: the settings picklist grid breaks at md (S16-P6)", () => {
       "utf8",
     );
     expect(src).not.toMatch(/lg:grid-cols-2/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session 17 (S17-P1..P5): the stock button/checkbox layer + the icon-glyph
+// census. Every pin below was extracted from the LIVE reference DOM
+// (2026-09-30): the topbar account trigger (stock ghost Button + two-level
+// Avatar), the icon glyph census (SVG path data, all nine pages), the
+// checkbox anatomy (every filter rail: accounts 4 / calendar 10 / activities
+// 5 stock Radix button checkboxes), the default variant's bare shadow and
+// the ghost variant's missing text color.
+// ---------------------------------------------------------------------------
+
+describe("session-17: the topbar account trigger renders via the stock ghost Button (S17-P1)", () => {
+  it("topbar.tsx uses Button variant=ghost through MenuTrigger asChild", () => {
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/layout/topbar.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/<Button[^>]*variant="ghost"[^>]*TOPBAR_LAYOUT\.userButton/);
+    expect(src).not.toMatch(/<button[^>]*className=\{TOPBAR_LAYOUT\.userButton\}/);
+  });
+
+  it("the avatar is the two-level stock structure (root + fallback)", () => {
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/layout/topbar.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/TOPBAR_LAYOUT\.userAvatarRoot/);
+    expect(src).toMatch(/TOPBAR_LAYOUT\.userAvatarFallback/);
+    expect(src).not.toMatch(/userAvatar[^RF]/);
+  });
+});
+
+describe("session-17: the sidebar nav glyphs (S17-P2a)", () => {
+  it("nav-config ships Users / CircleUser / Calendar — the reference's exact glyphs", () => {
+    // Reference sidebar: Accounts = `users` (TWO-person glyph), Contacts =
+    // `circle-user` (head r=3 + shoulders path), Calendar = `calendar`
+    // (blank body — no day dots). Ours shipped User (one person),
+    // CircleUserRound (rounder head r=4 + arc) and CalendarDays (6 dots).
+    // All three reference glyphs are exported by lucide-react 0.525 under
+    // the renamed canonical names (path-verified byte-equal).
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/layout/nav-config.ts"),
+      "utf8",
+    );
+    expect(src).toMatch(/^\s*Users,$/m);
+    expect(src).toMatch(/^\s*CircleUser,$/m);
+    expect(src).toMatch(/^\s*Calendar,$/m);
+    expect(src).not.toMatch(/^\s*CircleUserRound,$/m);
+    expect(src).not.toMatch(/^\s*CalendarDays,$/m);
+    expect(src).not.toMatch(/^\s*User,$/m);
+    expect(src).not.toMatch(/icon: User[,}]/);
+    expect(src).not.toMatch(/icon: CircleUserRound/);
+    expect(src).not.toMatch(/icon: CalendarDays/);
+  });
+});
+
+describe("session-17: the polygon Filter glyph (S17-P2b)", () => {
+  it("the FilterPolygon component renders the reference's old-lucide polygon", () => {
+    // The reference's Filter/Filters buttons ship the OLD lucide `filter`
+    // — the straight-edged polygon funnel. lucide-react 0.525 re-exports
+    // the redesigned curved Funnel AS Filter; the polygon glyph is not
+    // exported under any name, so it lives here as a hand-rolled SVG.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/ui/icons.tsx"),
+      "utf8",
+    );
+    expect(src).toContain('points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"');
+    expect(src).toMatch(/function FilterPolygon/);
+  });
+
+  it("dashboard, leads and contacts use FilterPolygon for their filter buttons", () => {
+    for (const rel of [
+      "../src/app/(app)/page.tsx",
+      "../src/app/(app)/leads/leads-page.tsx",
+      "../src/app/(app)/contacts/contacts-page.tsx",
+    ]) {
+      const src = readFileSync(path.resolve(import.meta.dirname, rel), "utf8");
+      expect(src, rel).toMatch(/<FilterPolygon/);
+      // the lucide Filter (curved Funnel re-export) must not be rendered
+      expect(src, rel).not.toMatch(/<Filter[\s>]/);
+      expect(src, rel).not.toMatch(/import[^;]*\bFilter\b[^P][^;]*lucide-react/);
+    }
+  });
+});
+
+describe("session-17: the remaining glyph swaps (S17-P2c-f)", () => {
+  it("contacts: Scan (not ScanLine) and Download (not Upload) on the toolbar", () => {
+    // The reference's Scan Card ships `scan` (4 corner brackets, NO
+    // center line) and its Import button ships a DOWNLOAD glyph (the
+    // reference's own quirk — an import affordance with a download icon).
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/contacts/contacts-page.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/<Scan /);
+    expect(src).not.toMatch(/<ScanLine|ScanLine,/);
+    expect(src).toMatch(/<Download /);
+    // the lucide Upload import/render must be gone (the prose "Upload a
+    // CSV" helper text in the import dialog is not an icon)
+    expect(src).not.toMatch(/<Upload|Upload,/);
+  });
+
+  it("leads chips: CircleCheckBig (Won Deals) + Calendar (Avg. Sales Cycle)", () => {
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/leads/leads-page.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/<CircleCheckBig /);
+    expect(src).not.toMatch(/<CheckCircle2|CheckCircle2,/);
+    expect(src).not.toMatch(/<CalendarDays|CalendarDays,/);
+  });
+
+  it("calendar chips: Calendar (Today's Events) + Users (Meetings This Week)", () => {
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/calendar/calendar-page.tsx"),
+      "utf8",
+    );
+    expect(src).not.toMatch(/<CalendarDays|CalendarDays,/);
+    expect(src).toMatch(/icon=\{<Users className="h-5 w-5" \/>\}/);
+  });
+
+  it("activities quick-log: Calendar (Log Meeting) + MessageSquare (Log WhatsApp)", () => {
+    // Reference: Log Meeting ships `calendar` (ours: Video — an invented
+    // video affordance), Log WhatsApp ships `message-square` (ours:
+    // message-circle — the round bubble).
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/(app)/activities/activities-page.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/label: "Log Meeting", icon: Calendar/);
+    expect(src).toMatch(/label: "Log WhatsApp", icon: MessageSquare/);
+    expect(src).not.toMatch(/<Video |  Video,/);
+    expect(src).not.toMatch(/<MessageCircle|  MessageCircle,/);
+  });
+});
+
+describe("session-17: the stock checkbox anatomy (S17-P3)", () => {
+  it("the CHECKBOX contract carries the stock Radix string with the dark primary", () => {
+    // Reference checkbox: `peer h-4 w-4 shrink-0 rounded-sm border
+    // border-primary shadow … data-[state=checked]:bg-primary
+    // data-[state=checked]:text-primary-foreground` — its platform
+    // --primary computes #171717 (DARK, not the app blue) with the check
+    // indicator at #fafafa, so the computed-equal expression is
+    // neutral-900 / neutral-50. The shadow is the BARE scale (verified
+    // rgba(0,0,0,.1) 0 1px 3px 0 … on the reference).
+    expect(CHECKBOX.control).toBe(
+      "peer h-4 w-4 shrink-0 rounded-sm border border-neutral-900 shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-neutral-900 data-[state=checked]:text-neutral-50",
+    );
+    expect(CHECKBOX.indicator).toBe("flex items-center justify-center text-current");
+  });
+
+  it("the row + label strings match the reference rails", () => {
+    expect(CHECKBOX.row).toBe("flex items-center space-x-2");
+    expect(CHECKBOX.label).toBe("text-sm cursor-pointer");
+  });
+
+  it("label.tsx no longer ships a native input checkbox — the button primitive replaces it", () => {
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/ui/label.tsx"),
+      "utf8",
+    );
+    expect(src).not.toContain('type="checkbox"');
+    expect(src).toMatch(/role="checkbox"/);
+    expect(src).toMatch(/data-state=/);
+    expect(src).toMatch(/onCheckedChange/);
+    expect(src).toMatch(/CHECKBOX\.control/);
+  });
+
+  it("every call site uses the onCheckedChange API (no e.target.checked)", () => {
+    for (const rel of [
+      "../src/app/(app)/accounts/accounts-page.tsx",
+      "../src/app/(app)/calendar/calendar-page.tsx",
+      "../src/app/(app)/activities/activities-page.tsx",
+    ]) {
+      const src = readFileSync(path.resolve(import.meta.dirname, rel), "utf8");
+      expect(src, rel).not.toMatch(/<Checkbox[^>]*onChange=/);
+      expect(src, rel).not.toMatch(/e\.target\.checked/);
+    }
+  });
+});
+
+describe("session-17: the Button variant corrections (S17-P4/P5)", () => {
+  it("the default variant carries the BARE shadow scale (not shadow-sm)", () => {
+    // Reference blue primaries (New Account/Lead/Event/Contact + the
+    // activities Filter): `… shadow … bg-blue-600 hover:bg-blue-700` —
+    // computed rgba(0,0,0,.1) 0 1px 3px 0, rgba(0,0,0,.1) 0 1px 2px -1px.
+    // Ours shipped shadow-sm (one step light under the s9-re-pinned
+    // scale). Outline buttons stay shadow-sm on both.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/ui/button.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/default: "bg-primary text-primary-foreground shadow hover:bg-primary-hover"/);
+  });
+
+  it("the ghost variant carries NO base text color (stock ghost)", () => {
+    // The reference's ghost = stock shadcn `hover:bg-accent
+    // hover:text-accent-foreground` with NO text-* class — its one
+    // text-bearing ghost ("Save All") renders the inherited #0a0a0a.
+    // Ours added text-muted → gray. Computed-equal expression keeps our
+    // hover tokens.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/ui/button.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/ghost: "hover:bg-line-soft hover:text-foreground"/);
+    expect(src).not.toMatch(/ghost: "text-muted/);
   });
 });

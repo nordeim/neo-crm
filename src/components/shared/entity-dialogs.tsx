@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { useCrmStore } from "@/stores/crm-store";
@@ -355,15 +355,18 @@ function AccountForm({
                 </SelectContent>
               </Select>
             </div>
-            <label className="mt-6 flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="checkbox"
+            {/* S17-P3: the Key-account toggle rides the stock Checkbox
+                primitive (superset surface — the reference's edit dialog
+                is unverifiable at zero data, but the anatomy stays
+                consistent with every filter rail: the sibling
+                button+label row, no nested button-in-label). */}
+            <div className="mt-6">
+              <Checkbox
                 checked={form.isKey}
-                onChange={(e) => setForm({ ...form, isKey: e.target.checked })}
-                className="h-4 w-4 appearance-none rounded border border-gray-300 checked:border-primary checked:bg-primary"
+                onCheckedChange={(v) => setForm({ ...form, isKey: v })}
+                label="Key account"
               />
-              Key account
-            </label>
+            </div>
           </>
         )}
       </div>

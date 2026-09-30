@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-338%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-357%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -28,20 +28,21 @@ first boot.
 
 | Feature | Description |
 | ------- | ----------- |
-| 📊 Dashboard | 6 KPI cards with deltas and sparkline strips, pipeline bar chart, revenue-vs-target line chart, top reps, lead sources, upcoming activities, recent deals (table/cards view switcher) |
+| 📊 Dashboard | 6 KPI cards with deltas and sparkline strips, pipeline bar chart, revenue-vs-target line chart, top reps, lead sources, upcoming activities, recent deals (table/cards view switcher) — the reference's old-lucide POLYGON filter glyph (hand-rolled SVG: lucide 0.525 re-exports the curved Funnel as Filter) |
 | 🏢 Accounts | Tiered company records (A/B/C + key accounts), industry/revenue/owner filters, table/cards view switcher, CSV export |
 | 👥 Contacts | Hot/warm/cold priorities, sortable columns, CSV import, business-card scan flow (honest degradation on desktop) — the reference's only full-height layout (h-calc root directly under main, padding inside its own scroller) |
 | 🎯 Leads | 7-stage pipeline, deal values, follow-up dates, pipeline/won-lost charts + the recharts FunnelChart conversion funnel, filters popover (status/source/min value/follow-up) with Save View persistence |
 | 📅 Calendar | Month grid with per-type event chips, day agenda, upcoming events, type filters — the reference's flat card anatomy (split DOW/month grids, bold responsive title, 8px nav) |
-| ⚡ Activities | Call/email/meeting/WhatsApp quick-log, priority tabs (overdue / due today / upcoming / completed), activity timeline on the borderless `bg-white rounded-lg shadow p-6` card |
+| ⚡ Activities | Call/email/meeting/WhatsApp quick-log (the reference's `calendar`/`message-square` glyphs), priority tabs (overdue / due today / upcoming / completed), activity timeline on the borderless `bg-white rounded-lg shadow p-6` card |
 | 📈 Reports | 5 analytics tabs mirroring the reference structure (Forecasting Accuracy + aging buckets + deals-at-risk tables, activity log by owner, source performance summary) |
 | ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save in a md-breaking 2-col grid, single-column workspace defaults, import templates + data export, and the tinted danger-zone reset (type RESET to confirm) |
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate, retry-guarded focus entry (transition-visibility race fixed) — the fix the reference app never shipped |
+| ☑️ Stock checkboxes | The reference's Radix-style button checkboxes on every filter rail (`role=checkbox` + `data-state` + Check indicator, the dark #171717 checked fill — was a native input) |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, in-place "Forgot password?" reset flow (mirrors the reference's client-side views) |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
 | 🧭 Custom 404 | The reference's designed not-found page — slate-50 center card, divider bar, quoted-pathname message, Go Home pill |
-| 🧪 Tested | 297 Vitest unit checks + 41 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 312 Vitest unit checks + 45 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -158,9 +159,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 297 Vitest unit checks (auth, avatar, constants, db-path, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
+bun run test          # 312 Vitest unit checks (auth, avatar, constants, db-path, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 41 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 45 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials, the login
@@ -176,7 +177,11 @@ section with live initials; the wide New Event family with its one-off blue
 submit), the session-16 responsive layer (the contacts full-height root at
 390 with its 326px card + the 5px mirrored scroll quirk, the settings
 picklist grid at md/tablet width, the calendar's split DOW/month grids +
-bold title, the borderless accounts table card), and the 7-check
+bold title, the borderless accounts table card), the session-17 stock
+button/checkbox layer (the account trigger's ghost-Button construction +
+two-level avatar, the sidebar `users`/`circle-user`/`calendar` glyphs, the
+accounts tier filters' stock button checkboxes with the dark #171717
+checked fill, the blue primaries' bare shadow scale), and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,
 body scroll-lock, the resize-past-md lock release, desktop sidebar swap).

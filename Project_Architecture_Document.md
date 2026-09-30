@@ -662,7 +662,7 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–16) | 1 | 160 | `tests/page-layout.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–17) | 1 | 175 | `tests/page-layout.test.ts` | Vitest |
 | Unit — design tokens (shadow/blur/border-split/foreground/base-font re-pins, ring, cursor rule, inks, th/td platform reset — sessions 9–16) | 1 | 15 | `tests/design-tokens.test.ts` | Vitest |
 | Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
@@ -671,9 +671,9 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — profile-route (the /Profile casing alias — session-14) | 1 | 4 | `tests/profile-route.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer — sessions 10–16) | 1 | 28 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer — sessions 10–17) | 1 | 32 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **19** | **297 unit + 41 e2e** | | |
+| **Total** | **19** | **312 unit + 45 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -860,6 +860,31 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   the data instance, the edit-dialog/picklist/upload layers become
   verifiable.
 
+- **The stock button/checkbox layer + the icon-glyph census (session-17):**
+  the first ICON-GLYPH census (icon name + SVG path data on every page,
+  both apps) found 14 drifted surfaces — the sidebar ships `users` /
+  `circle-user` / `calendar` (ours: three different glyphs), the
+  Filter/Filters buttons ship the OLD lucide POLYGON funnel (lucide 0.525
+  re-exports the redesigned curved Funnel as `Filter`; the polygon is
+  exported by NO name → hand-rolled `FilterPolygon` in
+  `src/components/ui/icons.tsx`), contacts ships `scan` + a DOWNLOAD
+  glyph on Import, the leads/calendar KPI chips ship `circle-check-big` /
+  `calendar` / `users`, and the quick-log ships `calendar` +
+  `message-square`. LESSON: compare glyph PATH DATA, never names alone —
+  renames can hide redesigns and aliases can hide renames. The topbar
+  account trigger was rebuilt as the STOCK ghost Button (the hand-written
+  trigger had NO focus-visible ring — a keyboard-focus gap) with the
+  stock two-level Avatar. Every filter rail's checkbox was rebuilt as
+  the stock Radix-style BUTTON (`role=checkbox` + `data-state` + a
+  Check indicator mounting only when checked; the reference's checked
+  fill computes #171717 — its platform primary is the DARK stock shadcn
+  one, not the app blue — so the expression is neutral-900/neutral-50);
+  our native inputs never rendered a check glyph at all. The default
+  (blue) Button variant moved to the BARE shadow scale (the reference's
+  blue primaries compute rgba(0,0,0,.1) 0 1px 3px 0; shadow-sm was one
+  step light) and the ghost variant dropped its invented `text-muted`
+  (the stock ghost carries no base text color).
+
 ### 7.3 Coverage Thresholds
 
 No percentage gate is configured. The working rule: every new pure helper in
@@ -871,9 +896,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 280/280
+- [ ] `bun run test` — 312/312
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 37/37
+- [ ] `bun run test:e2e` — 45/45
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`

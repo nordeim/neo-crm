@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, Phone, Plus, Search, Target, User } from "lucide-react";
+// Session-17 (S17-P2e): the reference's calendar KPI chips ship
+// `calendar` (blank body — CalendarDays adds day dots) and `users`
+// (two-person — User is one).
+import { Calendar, ChevronLeft, ChevronRight, Clock, Phone, Plus, Search, Target, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -203,7 +206,7 @@ export default function CalendarPage() {
           label="Today's Events"
           value={todaysEvents.length}
           trend={trend(todaysEvents.length, yesterdaysEvents)}
-          icon={<CalendarDays className="h-5 w-5" />}
+          icon={<Calendar className="h-5 w-5" />}
           chipBg="bg-blue-50"
           chipIconClass="text-blue-600"
         />
@@ -219,7 +222,7 @@ export default function CalendarPage() {
           label="Meetings This Week"
           value={meetingsThisWeek}
           trend={trend(meetingsThisWeek, meetingsLastWeek)}
-          icon={<User className="h-5 w-5" />}
+          icon={<Users className="h-5 w-5" />}
           chipBg="bg-purple-50"
           chipIconClass="text-purple-600"
         />
@@ -450,7 +453,7 @@ export default function CalendarPage() {
                     <Checkbox
                       key={t.id}
                       checked={filters[t.id] ?? false}
-                      onChange={(e) => setFilters((f) => ({ ...f, [t.id]: e.target.checked }))}
+                      onCheckedChange={(v) => setFilters((f) => ({ ...f, [t.id]: v }))}
                       label={t.label}
                     />
                   ))}
@@ -463,7 +466,7 @@ export default function CalendarPage() {
                     <Checkbox
                       key={d.id}
                       checked={filters[d.id] ?? false}
-                      onChange={(e) => setFilters((f) => ({ ...f, [d.id]: e.target.checked }))}
+                      onCheckedChange={(v) => setFilters((f) => ({ ...f, [d.id]: v }))}
                       label={d.label}
                     />
                   ))}

@@ -471,10 +471,10 @@ export default function AccountsPage() {
               <div>
                 <Label className={FILTER_RAIL.groupLabel}>Tier</Label>
                 <div className={FILTER_RAIL.checkboxStack}>
-                  <Checkbox checked={tierKey} onChange={(e) => setTierKey(e.target.checked)} label="Key Account" />
-                  <Checkbox checked={tierA} onChange={(e) => setTierA(e.target.checked)} label="A" />
-                  <Checkbox checked={tierB} onChange={(e) => setTierB(e.target.checked)} label="B" />
-                  <Checkbox checked={tierC} onChange={(e) => setTierC(e.target.checked)} label="C" />
+                  <Checkbox checked={tierKey} onCheckedChange={setTierKey} label="Key Account" />
+                  <Checkbox checked={tierA} onCheckedChange={setTierA} label="A" />
+                  <Checkbox checked={tierB} onCheckedChange={setTierB} label="B" />
+                  <Checkbox checked={tierC} onCheckedChange={setTierC} label="C" />
                 </div>
               </div>
               {/* Full-width primary Filter button (reference anatomy). With

@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (297 checks)         | `bun run test`                         |
-| Browser E2E (41 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (312 checks)         | `bun run test`                         |
+| Browser E2E (45 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (297) → `bun run build` → `bun run test:e2e` (41). There is no
+`bun run test` (312) → `bun run build` → `bun run test:e2e` (45). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -399,7 +399,7 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 297 Vitest checks across
+  sessions 6–8 + session-10's stock-primitive pins) — 312 Vitest checks across
   15 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
@@ -407,7 +407,13 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   — the stock chrome + the per-dialog body contracts + the
   no-description/no-placeholder source rules; session-16 added the
   PAGE_ROOT + page-root-source + table-kit-stock + TABLE_CARD-plain-div +
-  CALENDAR_CARD + SETTINGS_GRID pins + the design-tokens th/td reset).
+  CALENDAR_CARD + SETTINGS_GRID pins + the design-tokens th/td reset;
+  session-17 added the stock button/checkbox layer — the account-trigger
+  ghost-Button + two-level-avatar pins, the nav-config glyph pins, the
+  FilterPolygon polygon source pin + page rules, the icon-swap source
+  rules, the CHECKBOX contract + label.tsx button-primitive rule + the
+  call-site onCheckedChange rule, and the default-variant bare-shadow +
+  ghost no-text-color pins).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
@@ -616,6 +622,56 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   cells into ONE 42-child grid behind a padding-neutralized
   CardHeader/CardContent pair (16px header gap vs 24px, 4px DOW gap vs
   8px, 18px semibold title vs 20/24px bold).
+- **The topbar account trigger is the STOCK ghost Button (session-17)** —
+  the reference's trigger carries the full stock construction
+  (`whitespace-nowrap text-sm font-medium focus-visible:ring-1
+  focus-visible:ring-ring` + the ghost hover pair + `h-9 px-4 py-2` +
+  `flex items-center gap-1 sm:gap-2`) with a text span, a TWO-LEVEL
+  avatar (stock Avatar root `relative flex shrink-0 overflow-hidden
+  rounded-full w-8 h-8` + fallback div `w-full h-full bg-gray-200
+  rounded-full flex items-center justify-center text-gray-600
+  font-semibold text-sm`) and a chevron. Ours was a hand-written button
+  with NO focus-visible ring (a keyboard-focus gap) and a one-level
+  avatar. `TOPBAR_LAYOUT.userButton` now only adds the flex/gap
+  composition + `[&_svg]:mr-0` (the iconGap's trailing-chevron margin
+  must stay neutralized — the reference's chevron carries no margin).
+- **Icon glyphs are a census-pinned layer (session-17)** — compare NAME +
+  SVG PATH DATA, never names alone (lucide renames can hide redesigns;
+  aliases can hide renames). The reference's sidebar ships `users`
+  (two-person) / `circle-user` / `calendar` (blank body) — ours had
+  `User`/`CircleUserRound`/`CalendarDays` (all different glyphs; the
+  renames ARE exported by lucide 0.525). Its Filter/Filters buttons ship
+  the OLD lucide POLYGON funnel (`<polygon points="22 3 2 3 10 12.46 10
+  19 14 21 14 12.46 22 3">`) — lucide 0.525 re-exports the redesigned
+  curved Funnel AS `Filter` and the polygon is exported by NO name, so
+  it lives in `src/components/ui/icons.tsx` (`FilterPolygon`, with the
+  `lucide lucide-filter` namespacing classes for census comparability).
+  Its contacts Scan Card ships `scan` (no center line) and its IMPORT
+  button ships a DOWNLOAD glyph (the reference's own quirk); its leads
+  chips ship `circle-check-big` + `calendar`; its calendar chips
+  `calendar` + `users`; its quick-log `calendar` (Log Meeting) +
+  `message-square` (Log WhatsApp). Pinned by the nav-config/page source
+  rules + the e2e glyph test.
+- **The checkbox is the STOCK Radix-style button (session-17)** — every
+  reference filter rail (accounts 4 tiers / calendar 10 types+dates /
+  activities 4 Activity-Type + the by-type footer) ships `<button
+  type="button" role="checkbox" aria-checked data-state value="on">`
+  with a `Check` h-4 w-4 indicator mounting ONLY when checked. The
+  reference's `border-primary`/`data-[state=checked]:bg-primary`
+  compute **#171717 — the platform's DARK stock primary, not the app
+  blue** (the DIALOG_SUBMIT family) — so the computed-equal expression
+  is `neutral-900`/`neutral-50` (`CHECKBOX` in page-layout.ts). Ours
+  shipped native inputs (no check glyph ever rendered + a blue checked
+  fill + a 2px translucent ring). The primitive lives in
+  `label.tsx` with the `onCheckedChange(boolean)` API; keyboard
+  toggling is native (buttons fire click on Space/Enter).
+- **Button variant pins (session-17)** — the default (blue) variant
+  carries the BARE `shadow` scale (the reference's blue primaries
+  compute rgba(0,0,0,.1) 0 1px 3px 0 — shadow-sm was one step light
+  under the s9-re-pinned scale; outline buttons stay shadow-sm on both);
+  the ghost variant carries NO base text color (the stock ghost — its
+  one text-bearing surface "Save All" renders the inherited #0a0a0a,
+  not gray).
 
 ## Conventions that differ from defaults
 

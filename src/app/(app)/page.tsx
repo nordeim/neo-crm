@@ -16,7 +16,6 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   Download,
-  Filter,
   MoreHorizontal,
   Phone,
   Plus,
@@ -26,6 +25,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { FilterPolygon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -196,7 +196,7 @@ export default function DashboardPage() {
       <div className={FILTER_BAR.card}>
         <div className={FILTER_BAR.row}>
         <Button variant="outline" size="sm" className="w-full sm:w-auto">
-          <Filter className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Filter</span>
+          <FilterPolygon className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Filter</span>
         </Button>
         {/* Session-5: the reference's All Stages filter offers the PIPELINE
             stages (Prospecting/Qualification/Proposal/Negotiation/Won) — the

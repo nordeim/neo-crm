@@ -361,11 +361,15 @@ test("the activities by-type card renders chips + the Activities checkbox footer
     await expect(card.locator(".flex-wrap .text-xs", { hasText: new RegExp(`^${label} `) }).first()).toBeVisible();
   }
 
-  // The footer checkbox + label (our native-Checkbox pattern — the
-  // reference ships its Radix equivalent; both render a 16px checked
-  // square at rest).
+  // The footer checkbox + label (S17-P3: the stock Radix-style button
+  // checkbox — role=checkbox + data-state=checked with the Check
+  // indicator — exactly the reference's anatomy; it was a native input
+  // before session-17).
   await expect(card.locator(".border-t label")).toHaveText("Activities");
-  await expect(card.locator(".border-t input[type='checkbox']")).toBeChecked();
+  const footerToggle = card.locator(".border-t button[role='checkbox']");
+  await expect(footerToggle).toBeVisible();
+  await expect(footerToggle).toHaveAttribute("data-state", "checked");
+  await expect(footerToggle.locator("svg.lucide-check")).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
@@ -573,4 +577,93 @@ test("the accounts table card is borderless — no Card-primitive border leak (S
   expect(card.border).toBe("0px");
   expect(card.cls).not.toMatch(/border-line/);
   expect(card.cls).not.toMatch(/overflow-hidden/);
+});
+
+// ---------------------------------------------------------------------------
+// Session-17: the stock button/checkbox layer + the icon-glyph census
+// ---------------------------------------------------------------------------
+
+test("the topbar account trigger is the stock ghost Button + two-level avatar (S17-P1)", async ({ page }) => {
+  // Reference trigger: the full stock ghost construction (incl. the 1px
+  // focus-visible ring) + the stock two-level Avatar (a rounded-full root
+  // span wrapping a fallback div with the initial).
+  await page.goto("/");
+
+  const trigger = page.getByRole("button", { name: "Account menu" });
+  await expect(trigger).toBeVisible();
+
+  const cls = await trigger.getAttribute("class");
+  expect(cls).toContain("focus-visible:ring-1");
+  expect(cls).toContain("focus-visible:ring-ring");
+  expect(cls).toContain("whitespace-nowrap");
+  expect(cls).toContain("font-medium");
+  expect(cls).toContain("h-9 px-4 py-2");
+  expect(cls).toContain("hover:bg-line-soft");
+
+  // The two-level avatar: root span.rounded-full > fallback div
+  const avatarRoot = trigger.locator("span.rounded-full");
+  await expect(avatarRoot).toBeVisible();
+  const fallback = avatarRoot.locator("div");
+  await expect(fallback).toBeVisible();
+  await expect(fallback).toHaveText(/^[A-Z]$/);
+});
+
+test("the sidebar Accounts nav ships the users glyph (S17-P2a)", async ({ page }) => {
+  // The reference's sidebar: Accounts = `users` (two-person), Contacts =
+  // `circle-user`, Calendar = `calendar` — all three renamed-but-equal
+  // exports in lucide 0.525. The glyph census, e2e-pinned.
+  await page.goto("/");
+
+  const accountsLink = page.getByRole("link", { name: "Accounts" }).first();
+  await expect(accountsLink.locator("svg.lucide-users")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Contacts" }).first().locator("svg.lucide-circle-user")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Calendar" }).first().locator("svg.lucide-calendar:not(.lucide-calendar-days)")).toBeVisible();
+});
+
+test("the accounts tier filters render stock button checkboxes (S17-P3)", async ({ page }) => {
+  // Reference: 4 button[role=checkbox] on the accounts rail (Key
+  // Account/A/B/C) — zero native checkbox inputs on the page.
+  await page.goto("/accounts");
+
+  const rail = page.locator("main .rounded-xl", { hasText: "Tier" });
+  await expect(rail.locator("button[role='checkbox']")).toHaveCount(4);
+  const nativeInputs = await page.locator("main input[type='checkbox']").count();
+  expect(nativeInputs).toBe(0);
+
+  // The stock anatomy: aria-checked + data-state on the first toggle.
+  const first = rail.locator("button[role='checkbox']").first();
+  await expect(first).toHaveAttribute("aria-checked", "false");
+  await expect(first).toHaveAttribute("data-state", "unchecked");
+
+  // Clicking toggles to checked with the Check indicator mounted.
+  await first.click();
+  await expect(first).toHaveAttribute("data-state", "checked");
+  await expect(first.locator("svg.lucide-check")).toBeVisible();
+  // The checked fill is the reference's DARK #171717. v4 serializes
+  // getComputedStyle colors as lab() strings (§16g.4), so normalize
+  // through a 1×1 canvas pixel readback.
+  const bg = await first.evaluate((el) => {
+    const c = document.createElement("canvas");
+    c.width = 1;
+    c.height = 1;
+    const ctx = c.getContext("2d")!;
+    ctx.fillStyle = getComputedStyle(el).backgroundColor;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return `rgb(${r}, ${g}, ${b})`;
+  });
+  expect(bg).toBe("rgb(23, 23, 23)");
+});
+
+test("the blue primary buttons carry the bare shadow scale (S17-P4)", async ({ page }) => {
+  // Reference New Account: `… shadow … bg-blue-600 hover:bg-blue-700` —
+  // computed rgba(0,0,0,.1) 0 1px 3px 0 (the BARE scale; ours was
+  // shadow-sm, one step light).
+  await page.goto("/accounts");
+
+  const btn = page.getByRole("button", { name: "New Account" });
+  await expect(btn).toBeVisible();
+  const shadow = await btn.evaluate((el) => getComputedStyle(el).boxShadow);
+  expect(shadow).toContain("rgba(0, 0, 0, 0.1) 0px 1px 3px 0px");
+  expect(shadow).toContain("rgba(0, 0, 0, 0.1) 0px 1px 2px -1px");
 });

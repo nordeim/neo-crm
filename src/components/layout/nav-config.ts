@@ -1,9 +1,14 @@
 import {
   LayoutDashboard,
-  CircleUserRound,
-  User,
+  // Session-17 (S17-P2a): the reference's sidebar glyphs — `users`
+  // (two-person), `circle-user` (head r=3 + shoulders path) and
+  // `calendar` (blank body, no day dots). lucide-react 0.525 exports
+  // all three under the renamed canonical names (path-verified equal);
+  // our old User/CircleUserRound/CalendarDays were DIFFERENT glyphs.
+  Users,
+  CircleUser,
   Target,
-  CalendarDays,
+  Calendar,
   Activity,
   BarChart3,
   Settings,
@@ -19,10 +24,10 @@ export interface NavItem {
 /** Main nav (mirrors the reference app's sidebar order + icon shapes). */
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/accounts", label: "Accounts", icon: User },
-  { href: "/contacts", label: "Contacts", icon: CircleUserRound },
+  { href: "/accounts", label: "Accounts", icon: Users },
+  { href: "/contacts", label: "Contacts", icon: CircleUser },
   { href: "/leads", label: "Leads", icon: Target },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/activities", label: "Activities", icon: Activity },
   { href: "/reports", label: "Reports", icon: BarChart3 },
 ];

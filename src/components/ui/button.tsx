@@ -22,9 +22,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover",
+        // Session-17 (S17-P4): BARE shadow — the reference's blue
+        // primaries (New Account/Lead/Event/Contact + the activities
+        // Filter) compute rgba(0,0,0,.1) 0 1px 3px 0 (the bare scale);
+        // shadow-sm was one step light under the s9-re-pinned scale.
+        default: "bg-primary text-primary-foreground shadow hover:bg-primary-hover",
         secondary: "bg-white text-foreground border border-line shadow-sm hover:bg-line-soft",
-        ghost: "text-muted hover:bg-line-soft hover:text-foreground",
+        // Session-17 (S17-P5): NO base text color — the stock ghost. The
+        // reference's ghost carries only the hover pair; its one
+        // text-bearing ghost ("Save All") renders the inherited #0a0a0a.
+        // Our old text-muted rendered it gray.
+        ghost: "hover:bg-line-soft hover:text-foreground",
         destructive: "bg-danger text-white shadow-sm hover:bg-red-600",
         sidebar: "bg-white/10 text-white hover:bg-white/20",
         outline: "border border-line bg-surface text-foreground shadow-sm hover:bg-line-soft",

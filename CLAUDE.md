@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (297) → `bun run build` → `bun run test:e2e` (41). For UI
+   `bun run test` (312) → `bun run build` → `bun run test:e2e` (45). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (297 checks)               |
-| `bun run test:e2e`  | Playwright E2E (41 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (312 checks)               |
+| `bun run test:e2e`  | Playwright E2E (45 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 297 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 312 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -154,7 +154,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 41 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 45 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow),
   `auth.setup.ts` (one real login, storageState saved),
   `crm.spec.ts` (authenticated golden path across all 9 pages + the
@@ -169,7 +169,12 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   wide Event family with its blue submit) + session-16's responsive-layer
   tests (the contacts full-height root at 390, the settings picklist grid
   at tablet width, the calendar's split grids + bold title, the
-  borderless accounts table card) in `crm.spec.ts`.
+  borderless accounts table card) in `crm.spec.ts`, and session-17's
+  stock button/checkbox layer (the account trigger's ghost-Button
+  construction + two-level avatar, the sidebar `users`/`circle-user`/
+  `calendar` glyphs, the accounts tier filters' stock button checkboxes
+  with the dark #171717 checked fill + Check indicator, the blue
+  primaries' bare shadow scale).
 
 ### Test Commands
 
@@ -187,7 +192,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 297).
+the seam (currently 312).
 
 ## Code Quality Standards
 

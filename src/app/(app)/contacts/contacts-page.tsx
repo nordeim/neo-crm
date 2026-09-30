@@ -9,24 +9,26 @@ import {
   ChevronUp,
   CircleAlert,
   Download,
-  Filter,
   MoreHorizontal,
   Pencil,
   Plus,
-  ScanLine,
+  // Session-17 (S17-P2c): the reference's Scan Card ships `scan` (4
+  // corner brackets, NO center line — ScanLine adds it) and its Import
+  // button ships a DOWNLOAD glyph (the reference's own quirk).
+  Scan,
   Search,
   Trash2,
   TrendingUp,
-  Upload,
   Users,
 } from "lucide-react";
+import { FilterPolygon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { Checkbox, Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/misc";
 import {
@@ -175,10 +177,10 @@ export default function ContactsPage() {
               <Download className="h-4 w-4" /> Export CSV
             </Button>
             <Button variant="outline" onClick={() => setScanOpen(true)}>
-              <ScanLine className="h-4 w-4" /> <span className="hidden sm:inline">Scan Card</span>
+              <Scan className="h-4 w-4" /> <span className="hidden sm:inline">Scan Card</span>
             </Button>
             <Button variant="outline" onClick={() => setImportOpen(true)}>
-              <Upload className="h-4 w-4" /> <span className="hidden sm:inline">Import</span>
+              <Download className="h-4 w-4" /> <span className="hidden sm:inline">Import</span>
             </Button>
             <Button
               onClick={() => {
@@ -247,7 +249,7 @@ export default function ContactsPage() {
             aria-expanded={showFilters}
             onClick={() => setShowFilters((v) => !v)}
           >
-            <Filter className="h-4 w-4 mr-2" />
+            <FilterPolygon className="h-4 w-4 mr-2" />
             Filters
           </Button>
         </div>
@@ -454,7 +456,7 @@ export default function ContactsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-xl border border-dashed border-line bg-line-soft px-6 py-10 text-center">
-            <ScanLine className="mx-auto h-8 w-8 text-subtle" />
+            <Scan className="mx-auto h-8 w-8 text-subtle" />
             <p className="mt-3 text-sm font-medium text-foreground">Camera not available</p>
             <p className="mt-1 text-xs text-muted">
               Card scanning requires a device camera. On desktop, use Import (CSV) or New Contact instead.
@@ -487,7 +489,7 @@ export default function ContactsPage() {
               Download the CSV template
             </a>
             <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line bg-line-soft px-6 py-10 text-center transition-colors hover:border-primary/50">
-              <Upload className="h-6 w-6 text-subtle" />
+              <Download className="h-6 w-6 text-subtle" />
               <span className="text-sm font-medium text-foreground">Choose a CSV file</span>
               <span className="text-xs text-muted">Click to browse</span>
               <input

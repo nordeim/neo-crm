@@ -153,6 +153,26 @@ export const FILTER_RAIL = {
   filterButtonWrap: "pt-2",
 } as const;
 
+/** Session-17 (S17-P3): the STOCK checkbox anatomy — every reference
+ *  filter rail (accounts 4 tiers / calendar 10 types+dates / activities
+ *  4 Activity-Type + the by-type footer) ships the Radix button checkbox:
+ *  `<button type="button" role="checkbox" aria-checked data-state
+ *  value="on">` with a Check h-4 w-4 indicator that mounts ONLY when
+ *  checked. The reference's `border-primary` / `data-[state=checked]:
+ *  bg-primary` compute #171717 — the platform's DARK stock primary, not
+ *  the app blue (same family as DIALOG_SUBMIT) — so the computed-equal
+ *  expression is neutral-900 / neutral-50. The shadow is the BARE scale
+ *  (computed rgba(0,0,0,.1) 0 1px 3px 0 … on the reference). Ours shipped
+ *  native inputs with appearance-none styling — no check glyph ever
+ *  rendered and the checked fill was the app blue. */
+export const CHECKBOX = {
+  control:
+    "peer h-4 w-4 shrink-0 rounded-sm border border-neutral-900 shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-neutral-900 data-[state=checked]:text-neutral-50",
+  indicator: "flex items-center justify-center text-current",
+  row: "flex items-center space-x-2",
+  label: "text-sm cursor-pointer",
+} as const;
+
 /** Session-7: app-chrome contracts — shell, sidebar nav, topbar and the
  *  login card, all extracted from the live reference DOM on 2026-09-29.
  *  Token mapping stays: gray-50 → background, white → surface,
@@ -228,11 +248,24 @@ export const TOPBAR_LAYOUT = {
     "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:flex",
   iconClass: "h-5 w-5",
   rightGroup: "flex items-center gap-2 sm:gap-4",
-  userButton:
-    "flex h-9 items-center gap-1 rounded-md px-4 py-2 transition-colors hover:bg-line-soft sm:gap-2",
+  // Session-17 (S17-P1): the reference's trigger is the STOCK ghost Button
+  // — `…whitespace-nowrap rounded-md text-sm font-medium …
+  // focus-visible:ring-1 focus-visible:ring-ring … hover:bg-accent
+  // hover:text-accent-foreground h-9 px-4 py-2` + `flex items-center gap-1
+  // sm:gap-2` (tailwind-merge replaces inline-flex/gap-2). The trigger now
+  // renders via <Button variant="ghost">; this className only supplies the
+  // flex/gap composition and neutralizes the iconGap's trailing-chevron
+  // margin (the reference's chevron carries NO mr-2 — its spacing is the
+  // flex gap alone).
+  userButton: "flex items-center gap-1 sm:gap-2 [&_svg]:mr-0",
   userLabel: "hidden text-sm font-medium text-gray-700 sm:inline",
-  userAvatar:
-    "flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 font-semibold text-sm text-gray-600",
+  // Session-17 (S17-P1): the reference ships the STOCK two-level Avatar —
+  // a root span in the stock Avatar shape (w-8 h-8) wrapping a fallback
+  // div in the stock AvatarFallback shape with the gray-200/gray-600
+  // literals. Ours was a ONE-level hand-written span.
+  userAvatarRoot: "relative flex shrink-0 overflow-hidden rounded-full w-8 h-8",
+  userAvatarFallback:
+    "w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm",
   userChevron: "h-4 w-4 text-muted",
   userMenu: "min-w-[8rem]",
 } as const;
