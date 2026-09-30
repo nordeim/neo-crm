@@ -367,3 +367,104 @@ test("the activities by-type card renders chips + the Activities checkbox footer
   await expect(card.locator(".border-t label")).toHaveText("Activities");
   await expect(card.locator(".border-t input[type='checkbox']")).toBeChecked();
 });
+
+// ---------------------------------------------------------------------------
+// Session-15: the entity-dialog geometry layer
+// ---------------------------------------------------------------------------
+
+test("the New Lead dialog ships the stock geometry at phone width (S15-P1/P3/P9)", async ({ page }) => {
+  // Reference at 390: the content is FULL-BLEED (390px, left 0), radius
+  // 0 (sm:rounded-lg drops below 640), the title is CENTERED, and the
+  // Status + Source pair sits side-by-side in a 2-col grid.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/leads");
+  await page.getByRole("button", { name: "New Lead" }).click();
+
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+
+  // The stock zoom-in-95/slide-in enter animation is still running right
+  // after toBeVisible — poll until the width settles at full bleed.
+  await expect
+    .poll(async () => (await dialog.boundingBox())?.width ?? 0)
+    .toBeGreaterThanOrEqual(389);
+  const box = await dialog.boundingBox();
+  expect(box?.x ?? 0).toBeLessThan(1);
+
+  // sm:rounded-lg computes 0px below 640.
+  const radius = await dialog.evaluate((el) => getComputedStyle(el).borderRadius);
+  expect(radius).toBe("0px");
+
+  // text-center sm:text-left: the header centers on phones.
+  const headerAlign = await dialog
+    .locator("h2")
+    .locator("..")
+    .evaluate((el) => getComputedStyle(el).textAlign);
+  expect(headerAlign).toBe("center");
+
+  // The Status + Source pair renders as a 2-col grid (side by side).
+  const statusLabel = dialog.getByText("Status", { exact: true });
+  const sourceLabel = dialog.getByText("Source", { exact: true });
+  const statusBox = await statusLabel.boundingBox();
+  const sourceBox = await sourceLabel.boundingBox();
+  expect(statusBox?.y).toBeTruthy();
+  expect(sourceBox?.y).toBeTruthy();
+  // Same row: the tops align within a few px.
+  expect(Math.abs((sourceBox?.y ?? 0) - (statusBox?.y ?? 0))).toBeLessThan(8);
+});
+
+test("the New Contact dialog ships the avatar section with the Name field inside it (S15-P11)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "New Contact" }).click();
+
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+
+  // The avatar section: gradient circle + camera button + Name inside.
+  const section = dialog.locator(".border-b", { hasText: "Name" }).first();
+  await expect(section).toBeVisible();
+  await expect(section.locator(".rounded-full.bg-gradient-to-br")).toBeVisible();
+  await expect(section.getByLabel("Name *")).toBeVisible();
+  await expect(section.getByRole("button").filter({ has: page.locator("svg.lucide-camera") })).toBeVisible();
+
+  // The initials render live from the typed name.
+  await section.getByLabel("Name *").fill("Ada Lovelace");
+  await expect(section.locator(".rounded-full span")).toHaveText(/^A/);
+
+  // No description line (the reference ships none).
+  await expect(dialog.getByText("Add a person to your CRM workspace.")).toHaveCount(0);
+});
+
+test("the New Event dialog is the wide family with the blue submit (S15-P12)", async ({ page }) => {
+  await page.goto("/calendar");
+  await page.getByRole("button", { name: "New Event" }).click();
+
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+
+  // max-w-2xl: 672px cap at desktop widths.
+  const box = await dialog.boundingBox();
+  expect(box?.width).toBe(672);
+
+  // The one-off BLUE submit (every other dialog is the dark primary).
+  // Tailwind v4 compiles bg-blue-600 to a lab() color that serializes
+  // differently than rgb() — normalize through a canvas pixel readback (same
+  // visual color: rgb(37, 99, 235) = #2563eb).
+  const submit = dialog.getByRole("button", { name: "Create Event" });
+  const bg = await submit.evaluate((el) => {
+    const c = getComputedStyle(el).backgroundColor;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return c;
+    ctx.fillStyle = c;
+    ctx.fillRect(0, 0, 1, 1);
+    const d = ctx.getImageData(0, 0, 1, 1).data;
+    return `rgb(${d[0]}, ${d[1]}, ${d[2]})`;
+  });
+  expect(bg).toBe("rgb(37, 99, 235)");
+
+  // No description line.
+  await expect(dialog.getByText("Schedule a meeting, call or appointment.")).toHaveCount(0);
+});

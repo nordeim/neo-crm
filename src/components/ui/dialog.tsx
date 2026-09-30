@@ -4,7 +4,15 @@ import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DIALOG_TITLE } from "@/lib/page-layout";
+import {
+  DIALOG_CLOSE,
+  DIALOG_CONTENT,
+  DIALOG_FOOTER,
+  DIALOG_FOOTER_WIDE,
+  DIALOG_HEADER,
+  DIALOG_OVERLAY,
+  DIALOG_TITLE,
+} from "@/lib/page-layout";
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -12,10 +20,12 @@ const DialogPortal = DialogPrimitive.Portal;
 const DialogClose = DialogPrimitive.Close;
 
 function DialogOverlay({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
+  // Session-15 (S15-P2): the reference ships the STOCK black/80 fade —
+  // NO backdrop blur (our scaffold's gray-900/45 + blur(2px) wash retired).
   return (
     <DialogPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-gray-900/45 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        DIALOG_OVERLAY,
         className,
       )}
       {...props}
@@ -29,19 +39,24 @@ function DialogContent({
   hideClose = false,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & { hideClose?: boolean }) {
+  // Session-15 (S15-P1): the STOCK shadcn geometry — `w-full` (FULL-BLEED
+  // at phone widths, not calc(100vw-2rem)), `sm:rounded-lg` (0 radius
+  // below 640), shadow-lg, and the slide-in/out animations the scaffold
+  // never shipped. The Event/Activity dialogs override the width cap via
+  // `className={DIALOG_CONTENT.wide}` (max-w-2xl, 672px).
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border border-line bg-surface p-6 shadow-xl outline-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          DIALOG_CONTENT.base,
           className,
         )}
         {...props}
       >
         {children}
         {!hideClose && (
-          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-subtle transition-colors hover:bg-line-soft hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+          <DialogPrimitive.Close className={DIALOG_CLOSE}>
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
@@ -52,13 +67,25 @@ function DialogContent({
 }
 
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex flex-col gap-1.5 pr-6 text-left", className)} {...props} />;
+  // Session-15 (S15-P3): the reference centers the title below sm
+  // (`text-center sm:text-left`) — the stock shadcn header. The old
+  // pr-6 clearance is gone (the X is the opacity pattern now).
+  return <div className={cn(DIALOG_HEADER, className)} {...props} />;
 }
 
 function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...props} />
-  );
+  // Session-15 (S15-P5): the STOCK footer for the max-w-lg family
+  // (Lead/Account/Contact) — `flex flex-col-reverse sm:flex-row
+  // sm:justify-end sm:space-x-2` (no gap class: the buttons touch when
+  // stacked on phones, 8px margin at sm). The max-w-2xl family
+  // (Event/Activity) uses DIALOG_FOOTER_WIDE instead.
+  return <div className={cn(DIALOG_FOOTER, className)} {...props} />;
+}
+
+/** Session-15 (S15-P5): the max-w-2xl family footer — `flex justify-end
+ *  gap-3 pt-4` (row at all widths, 12px gap, 16px top padding). */
+function DialogFooterWide({ className, ...props }: React.ComponentProps<"div">) {
+  return <div className={cn(DIALOG_FOOTER_WIDE, className)} {...props} />;
 }
 
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
@@ -72,6 +99,10 @@ function DialogDescription({
   className,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Description>) {
+  // Session-15 (S15-P4): the reference's five CREATE dialogs ship NO
+  // description (h2 only — verified on the live app). The component
+  // stays for our unverifiable-superset surfaces (the contacts
+  // scan-card dialog); entity-dialogs no longer renders it.
   return <DialogPrimitive.Description className={cn("text-sm text-muted", className)} {...props} />;
 }
 
@@ -84,6 +115,7 @@ export {
   DialogContent,
   DialogHeader,
   DialogFooter,
+  DialogFooterWide,
   DialogTitle,
   DialogDescription,
 };

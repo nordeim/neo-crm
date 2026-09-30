@@ -8,12 +8,28 @@ import {
   CARD_TITLE_OVERRIDE,
   DIALOG_TITLE,
   ACTIVITY_QUICKLOG,
+  ACCOUNT_DIALOG,
+  ACTIVITY_DIALOG,
   BUTTON_BASE,
   CARD,
+  CONTACT_AVATAR,
+  CONTACT_DIALOG,
   DASHBOARD_CARD,
   DASHBOARD_HEADER,
   DELTA_TEXT,
+  DIALOG_BARE_GROUP,
+  DIALOG_CLOSE,
+  DIALOG_CONTENT,
+  DIALOG_FOOTER,
+  DIALOG_FOOTER_WIDE,
+  DIALOG_GROUP,
+  DIALOG_HEADER,
+  DIALOG_OVERLAY,
   DIALOG_SUBMIT,
+  DIALOG_TEXTAREA,
+  DIALOG_FIELDS_WRAPPER,
+  EVENT_DIALOG,
+  LEAD_DIALOG,
   EMPTY_STATE,
   FILTER_BAR,
   FILTER_RAIL,
@@ -1370,5 +1386,185 @@ describe("session-14: settings CardTitle override scope (S14-P1/P2)", () => {
     // …and the Defaults/Data/Danger titles must NOT carry it.
     expect(src).not.toMatch(/CARD_TITLE_OVERRIDE\.settings\}[^>]*>(Default Values|Import Templates|Export Data|Danger Zone)/);
     expect(src).not.toMatch(/CARD_TITLE_OVERRIDE\.settings,\s*"text-danger"/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-15: the entity-dialog geometry layer (DIALOG_FAMILY)
+// ---------------------------------------------------------------------------
+
+describe("session-15: dialog chrome — content, overlay, header, footer, close (S15-P1..P6)", () => {
+  it("DialogContent ships the stock shadcn geometry (w-full, sm:rounded-lg, shadow-lg, slide animations)", () => {
+    // Reference (all five dialogs): `fixed left-[50%] top-[50%] z-50 grid
+    // w-full translate-x-[-50%] translate-y-[-50%] gap-4 border
+    // bg-background p-6 shadow-lg … data-[state=open]:slide-in-from-left-1/2
+    // data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-lg`.
+    // Computed: 8px radius ≥sm, 0 below; FULL-BLEED 390px at phone widths.
+    expect(DIALOG_CONTENT.base).toContain("w-full");
+    expect(DIALOG_CONTENT.base).toContain("sm:rounded-lg");
+    expect(DIALOG_CONTENT.base).toContain("shadow-lg");
+    expect(DIALOG_CONTENT.base).toContain("data-[state=open]:slide-in-from-left-1/2");
+    expect(DIALOG_CONTENT.base).toContain("data-[state=open]:slide-in-from-top-[48%]");
+    expect(DIALOG_CONTENT.base).toContain("data-[state=closed]:slide-out-to-left-1/2");
+    expect(DIALOG_CONTENT.base).toContain("data-[state=closed]:slide-out-to-top-[48%]");
+    expect(DIALOG_CONTENT.base).toContain("max-w-lg");
+    // The scaffold-era geometry is gone:
+    expect(DIALOG_CONTENT.base).not.toContain("rounded-2xl");
+    expect(DIALOG_CONTENT.base).not.toContain("shadow-xl");
+    expect(DIALOG_CONTENT.base).not.toContain("w-[calc(100vw-2rem)]");
+  });
+
+  it("the max-w-2xl family (Event + Activity) overrides the width cap", () => {
+    // Reference Event/Activity: max-w-2xl = 672px at 1512.
+    expect(DIALOG_CONTENT.wide).toBe("max-w-2xl");
+  });
+
+  it("DialogOverlay is the stock black/80 — no backdrop blur (S15-P2)", () => {
+    // Reference: `fixed inset-0 z-50 bg-black/80 … fade-in-0` — NO blur.
+    expect(DIALOG_OVERLAY).toContain("bg-black/80");
+    expect(DIALOG_OVERLAY).not.toContain("backdrop-blur");
+    expect(DIALOG_OVERLAY).not.toContain("bg-gray-900/45");
+  });
+
+  it("DialogHeader centers below sm (S15-P3)", () => {
+    // Reference: `flex flex-col space-y-1.5 text-center sm:text-left`
+    // (computed text-align center at 390, left at 1512).
+    expect(DIALOG_HEADER).toBe("flex flex-col space-y-1.5 text-center sm:text-left");
+  });
+
+  it("DialogFooter ships the stock col-reverse string — no gap class (S15-P5)", () => {
+    // Reference Lead/Account/Contact: `flex flex-col-reverse sm:flex-row
+    // sm:justify-end sm:space-x-2` — computed column-reverse + gap normal
+    // (buttons touch when stacked on phones; 8px margin at sm).
+    expect(DIALOG_FOOTER).toBe("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2");
+  });
+
+  it("the wide family footer is flex justify-end gap-3 pt-4 (S15-P5/P12/P13)", () => {
+    // Reference Event/Activity: `flex justify-end gap-3 pt-4`.
+    expect(DIALOG_FOOTER_WIDE).toBe("flex justify-end gap-3 pt-4");
+  });
+
+  it("the close X is the stock opacity pattern (S15-P6)", () => {
+    // Reference: `absolute right-4 top-4 rounded-sm opacity-70
+    // transition-opacity hover:opacity-100 …` — no padding/bg classes.
+    expect(DIALOG_CLOSE).toContain("rounded-sm");
+    expect(DIALOG_CLOSE).toContain("opacity-70");
+    expect(DIALOG_CLOSE).toContain("hover:opacity-100");
+    expect(DIALOG_CLOSE).not.toContain("hover:bg-");
+    expect(DIALOG_CLOSE).not.toContain("p-1");
+  });
+});
+
+describe("session-15: dialog body anatomy — groups and wrappers (S15-P7/P8)", () => {
+  it("max-w-lg family field groups are space-y-2 with the v4 controlMt fix", () => {
+    // Reference Lead/Account/Contact groups: `<div class="space-y-2">` —
+    // computed 12px label→control gap / 28px top-to-top (the SAME
+    // geometry as the s14 settings fix). Under v4 the literal space-y-2
+    // collapses on the INLINE label — the established fix is the
+    // explicit mt-2 on the control.
+    expect(DIALOG_GROUP.group).toBe("space-y-2");
+    expect(DIALOG_GROUP.controlMt).toBe("mt-2");
+  });
+
+  it("max-w-2xl family field pairs are BARE (unclassed) — 4px natural gap", () => {
+    // Reference Event/Activity single fields + grid cells: unclassed
+    // divs, label + control as direct children (computed 4px gap —
+    // no space-y, no mt).
+    expect(DIALOG_BARE_GROUP).toBe("");
+  });
+
+  it("the fields wrapper is a py-4 grid inside the form (S15-P8)", () => {
+    // Reference Lead: form > `div.grid.gap-4.py-4` > groups; Contact:
+    // `div.grid.gap-6.py-4`; Account: `div.grid.grid-cols-2.gap-4.py-4`.
+    expect(DIALOG_FIELDS_WRAPPER.lead).toBe("grid gap-4 py-4");
+    expect(DIALOG_FIELDS_WRAPPER.contact).toBe("grid gap-6 py-4");
+    expect(DIALOG_FIELDS_WRAPPER.account).toBe("grid grid-cols-2 gap-4 py-4");
+  });
+
+  it("the Lead Status + Source pair is a 2-col grid (S15-P9)", () => {
+    // Reference: `grid grid-cols-2 gap-4` — 162px cells even at 390.
+    expect(LEAD_DIALOG.statusSourceGrid).toBe("grid grid-cols-2 gap-4");
+  });
+
+  it("the dialog textarea is min-h-[60px] rounded-md", () => {
+    // Reference Event/Activity Description: `flex min-h-[60px] w-full
+    // rounded-md …` — ours shipped min-h-[72px] rounded-lg.
+    expect(DIALOG_TEXTAREA).toContain("min-h-[60px]");
+    expect(DIALOG_TEXTAREA).toContain("rounded-md");
+    expect(DIALOG_TEXTAREA).not.toContain("min-h-[72px]");
+    expect(DIALOG_TEXTAREA).not.toContain("rounded-lg");
+  });
+});
+
+describe("session-15: per-dialog bodies (S15-P9..P13)", () => {
+  it("the Account dialog body is 2-column (S15-P10)", () => {
+    // Pairs: Name/Industry, Email/Phone, Website/Annual Revenue,
+    // Employees/Status — inside `grid grid-cols-2 gap-4 py-4`.
+    expect(ACCOUNT_DIALOG.body).toBe("grid grid-cols-2 gap-4 py-4");
+  });
+
+  it("the Contact dialog ships the avatar section (S15-P11)", () => {
+    // `flex flex-col items-center gap-4 pb-4 border-b` with the w-24
+    // h-24 gradient circle (from-blue-500 to-blue-700), the initials
+    // span (text-white font-bold text-3xl), the camera button (w-8 h-8
+    // bg-white rounded-full shadow-md, lucide-camera w-4 h-4
+    // text-blue-600), a hidden file input — and the Name field INSIDE
+    // the section (w-full space-y-2).
+    expect(CONTACT_DIALOG.body).toBe("grid gap-6 py-4");
+    expect(CONTACT_AVATAR.section).toBe("flex flex-col items-center gap-4 pb-4 border-b");
+    expect(CONTACT_AVATAR.circle).toContain("w-24 h-24 rounded-full");
+    expect(CONTACT_AVATAR.circle).toContain("bg-gradient-to-br from-blue-500 to-blue-700");
+    expect(CONTACT_AVATAR.initials).toBe("text-white font-bold text-3xl");
+    expect(CONTACT_AVATAR.camera).toContain("w-8 h-8 bg-white rounded-full");
+    expect(CONTACT_AVATAR.cameraIcon).toBe("h-4 w-4 text-blue-600");
+    expect(CONTACT_AVATAR.nameGroup).toBe("w-full space-y-2");
+    // The Email/Phone + Company/Position pairs are space-y-4 groups.
+    expect(CONTACT_DIALOG.pairGroup).toBe("space-y-4");
+  });
+
+  it("the Event dialog is the wide family with the blue submit (S15-P12)", () => {
+    // max-w-2xl (672px), form space-y-4, bare single fields, two
+    // grid-cols-2 pairs (Type+Status, Start+End), Related To ALONE in a
+    // grid-cols-2, footer DIALOG_FOOTER_WIDE, submit bg-blue-600
+    // hover:bg-blue-700 (the only blue submit on the reference).
+    expect(EVENT_DIALOG.content).toBe("max-w-2xl");
+    expect(EVENT_DIALOG.form).toBe("space-y-4");
+    expect(EVENT_DIALOG.pair).toBe("grid grid-cols-2 gap-4");
+    expect(EVENT_DIALOG.relatedToAlone).toBe("grid grid-cols-2 gap-4");
+    // The reference's bg-blue-600/bg-blue-700 (v3 #2563eb/#1d4ed8) is
+    // expressed through our --primary/--primary-hover TOKENS — the literal
+    // v4 bg-blue-600 class compiles to a DIFFERENT oklch blue
+    // (rgb(21,93,252)), a session-15 v4 hazard.
+    expect(EVENT_DIALOG.submit).toBe(
+      "bg-primary text-primary-foreground shadow hover:bg-primary-hover",
+    );
+  });
+
+  it("the Activity dialog is the wide family with the dark submit (S15-P13)", () => {
+    expect(ACTIVITY_DIALOG.content).toBe("max-w-2xl");
+    expect(ACTIVITY_DIALOG.form).toBe("space-y-4");
+    expect(ACTIVITY_DIALOG.pair).toBe("grid grid-cols-2 gap-4");
+  });
+});
+
+describe("session-15: no description, no invented placeholders (S15-P4/P14)", () => {
+  it("the create dialogs render NO DialogDescription", () => {
+    // Reference headers render ONLY the h2 — zero <p> elements in any of
+    // the five create dialogs (verified 2026-09-30). The scan-card dialog
+    // on contacts keeps its description (our unverifiable superset).
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/shared/entity-dialogs.tsx"),
+      "utf8",
+    );
+    expect(src).not.toMatch(/<DialogDescription/);
+  });
+
+  it("the create dialogs carry NO placeholder attributes", () => {
+    // `placeholder="` count = 0 across all five reference dialog dumps.
+    const src = readFileSync(
+      path.resolve(import.meta.dirname, "../src/components/shared/entity-dialogs.tsx"),
+      "utf8",
+    );
+    expect(src).not.toMatch(/placeholder="/);
   });
 });

@@ -662,7 +662,7 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned; + session-10 reports vocab) | 1 | 12 | `tests/constants.test.ts` | Vitest |
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
-| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–14) | 1 | 126 | `tests/page-layout.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–15) | 1 | 144 | `tests/page-layout.test.ts` | Vitest |
 | Unit — design tokens (shadow/blur/border-split/foreground/base-font re-pins, ring, cursor rule, inks — sessions 9–13) | 1 | 14 | `tests/design-tokens.test.ts` | Vitest |
 | Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
@@ -671,9 +671,9 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — profile-route (the /Profile casing alias — session-14) | 1 | 4 | `tests/profile-route.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias — sessions 10–14) | 1 | 21 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry — sessions 10–15) | 1 | 24 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **19** | **262 unit + 34 e2e** | | |
+| **Total** | **19** | **280 unit + 37 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -807,6 +807,27 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   the documented superset; its logout leaves it on `/` as "Hi, Guest"
   (ours redirects to /login — safer, documented).
 
+- **Entity-dialog geometry layer (session-15):** all five reference
+  create dialogs were fully mapped (outerHTML + computed probes at
+  1512/390) and the chrome rebuilt to STOCK shadcn: `w-full max-w-lg
+  sm:rounded-lg shadow-lg` + slide-in/out animations (0px radius and
+  FULL-BLEED width below 640 — our rounded-2xl/shadow-xl/2rem-inset
+  retired), the stock `bg-black/80` overlay (no blur), the
+  `text-center sm:text-left` header (centered titles on phones), the
+  opacity-70 close X, NO DialogDescription and NO placeholders (the
+  reference ships neither). Two body families: the max-w-lg dialogs
+  (Lead/Account/Contact) use `py-4` grid wrappers + `space-y-2` groups
+  (the s14 controlMt fix — 12px/28px geometry both apps), Lead's
+  Status+Source 2-col pair, Account's whole-body 2-col grid, Contact's
+  gradient-avatar section (live initials + camera + Name inside); the
+  max-w-2xl Event/Activity family (672px) uses `space-y-4` forms with
+  BARE field divs (4px gaps) + grid-cols-2 pairs + the `pt-4` footer.
+  The Event submit is the ONE-OFF blue — expressed through the
+  `--primary`/`--primary-hover` TOKENS because v4's literal
+  `bg-blue-600` class compiles to a DIFFERENT oklch blue
+  (rgb(21,93,252) ≠ the reference's #2563eb) — a new v4 hazard class
+  (literal-palette drift), pinned by the DIALOG_FAMILY contracts.
+
 ### 7.3 Coverage Thresholds
 
 No percentage gate is configured. The working rule: every new pure helper in
@@ -818,9 +839,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 262/262
+- [ ] `bun run test` — 280/280
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 31/31
+- [ ] `bun run test:e2e` — 37/37
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`
@@ -886,8 +907,8 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 75 unit checks |
-| `bun run test:e2e` | root | 21 browser checks (build first) |
+| `bun run test` | root | 280 unit checks |
+| `bun run test:e2e` | root | 37 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |
 | `bunx prisma generate` | root | Regenerate client after schema edits |

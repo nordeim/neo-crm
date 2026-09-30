@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (262 checks)         | `bun run test`                         |
-| Browser E2E (34 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (280 checks)         | `bun run test`                         |
+| Browser E2E (37 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (262) → `bun run build` → `bun run test:e2e` (34). There is no
+`bun run test` (280) → `bun run build` → `bun run test:e2e` (37). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -378,11 +378,13 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 262 Vitest checks across
+  sessions 6–8 + session-10's stock-primitive pins) — 280 Vitest checks across
   15 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
-  `/Profile` casing alias).
+  `/Profile` casing alias; session-15 added the 18-check DIALOG_FAMILY layer
+  — the stock chrome + the per-dialog body contracts + the
+  no-description/no-placeholder source rules).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
@@ -510,6 +512,58 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   dead-exports precedent). The reference also logs out to `/` as
   "Hi, Guest" without redirecting to /login (ours redirects — the safer
   behavior, documented).
+- **The entity-dialog chrome is STOCK shadcn (session-15)** — all five
+  reference create dialogs were fully mapped (outerHTML + computed
+  probes at 1512/390): `DialogContent` ships `w-full max-w-lg
+  sm:rounded-lg shadow-lg` + the four `slide-in/out` animations (ours
+  had rounded-2xl/shadow-xl/w-[calc(100vw-2rem)] and NO slides);
+  computed 8px radius at ≥sm and **0 below 640, FULL-BLEED 390px on
+  phones** (not a 2rem inset); the overlay is the stock `bg-black/80`
+  fade (NO backdrop blur — our gray-900/45 + blur wash retired); the
+  header is `flex flex-col space-y-1.5 text-center sm:text-left`
+  (CENTERED title below sm); the close X is the stock opacity-70
+  pattern. Contracts: `DIALOG_CONTENT`/`DIALOG_OVERLAY`/
+  `DIALOG_HEADER`/`DIALOG_CLOSE` in `src/lib/page-layout.ts`.
+- **The entity dialogs ship NO description and NO placeholders
+  (session-15)** — the reference's create dialogs render ONLY the h2
+  (zero `<p>` elements, zero placeholder attributes in all five
+  dumps). Ours had invented descriptions + placeholders on every
+  dialog — all removed (`entity-dialogs.tsx` renders neither; the
+  contacts scan-card superset keeps its description, the
+  dead-exports precedent).
+- **Two dialog BODY families + two footer families (session-15)** —
+  the max-w-lg family (Lead/Account/Contact) wraps fields in a `py-4`
+  grid INSIDE the form with `space-y-2` groups (the s14 controlMt
+  fix — 12px label→control gap / 28px top-to-top on both apps); Lead
+  pairs Status+Source in a `grid grid-cols-2 gap-4` (162px cells even
+  at 390), Account's WHOLE body is `grid grid-cols-2 gap-4 py-4`
+  (Name/Industry, Email/Phone, Website/Revenue, Employees/Status),
+  Contact ships the AVATAR SECTION (`flex flex-col items-center gap-4
+  pb-4 border-b`: w-24 h-24 gradient circle from-blue-500 to-blue-700
+  with live-initials span, the w-8 h-8 camera button + hidden file
+  input, and the Name field INSIDE the section) + `space-y-4` pair
+  groups on a `grid gap-6 py-4` body; the max-w-2xl family
+  (Event/Activity at 672px) uses `form.space-y-4` with BARE unclassed
+  field divs (4px natural label gap — no space-y, no mt) and
+  grid-cols-2 pairs (Event's Related To sits ALONE in a grid-cols-2,
+  second cell empty — a mirrored quirk; Activity pairs
+  Type+DateTime and RelatedType+RelatedName). Footers: the max-w-lg
+  family ships the stock `flex flex-col-reverse sm:flex-row
+  sm:justify-end sm:space-x-2` (buttons TOUCH when stacked — no gap
+  class), the wide family `flex justify-end gap-3 pt-4`. Contracts:
+  `DIALOG_GROUP`/`DIALOG_BARE_GROUP`/`DIALOG_FIELDS_WRAPPER`/
+  `LEAD_DIALOG`/`ACCOUNT_DIALOG`/`CONTACT_DIALOG`/`CONTACT_AVATAR`/
+  `EVENT_DIALOG`/`ACTIVITY_DIALOG`/`DIALOG_FOOTER`/
+  `DIALOG_FOOTER_WIDE`.
+- **The Event dialog's submit is BLUE (session-15)** — the reference
+  ships `bg-blue-600 hover:bg-blue-700` on New Event (every other
+  dialog is the dark stock primary). **v4 HAZARD: the LITERAL
+  `bg-blue-600` class compiles to v4's oklch default which computes
+  rgb(21,93,252) — a DIFFERENT blue than the reference's v3 #2563eb.**
+  The computed-equal expression is the `--primary`/`--primary-hover`
+  TOKEN pair (#2563eb/#1d4ed8 — exactly the reference's v3 blue-600/
+  blue-700); never use the literal palette class for the reference's
+  blues (`EVENT_DIALOG.submit`).
 
 ## Conventions that differ from defaults
 

@@ -8,11 +8,12 @@
 // initializers at mount. No setState-inside-effects, ever.
 
 import * as React from "react";
+import { Camera } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
+  DialogFooterWide,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -23,7 +24,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/components/ui/toast";
 import { useCrmStore } from "@/stores/crm-store";
 import { toLocalInputValue } from "@/lib/format";
-import { DIALOG_SUBMIT } from "@/lib/page-layout";
+import {
+  ACCOUNT_DIALOG,
+  ACTIVITY_DIALOG,
+  CONTACT_AVATAR,
+  CONTACT_DIALOG,
+  DIALOG_CONTENT,
+  DIALOG_FIELDS_WRAPPER,
+  DIALOG_GROUP,
+  DIALOG_SUBMIT,
+  EVENT_DIALOG,
+  LEAD_DIALOG,
+} from "@/lib/page-layout";
 import {
   ACCOUNT_STATUSES,
   ACCOUNT_STATUS_META,
@@ -41,6 +53,13 @@ import {
 import type { Account, Activity, Contact, CrmEvent, Lead } from "@/types";
 
 // Session-5 reference option lists (DOM-extracted from the live dialogs):
+// Session-15 (S15-P4/P14): the reference's five CREATE dialogs ship NO
+// DialogDescription and NO input placeholders — verified on the live app
+// (zero <p> elements, zero placeholder attributes in every dump). The
+// field SETS below stay the session-5 DOM extraction; the body anatomy
+// (space-y-2 groups + mt-2 controls, py-4 wrappers, 2-col pairs, the
+// Contact avatar section, the max-w-2xl Event/Activity family) is the
+// session-15 layer.
 
 /** The Create Lead dialog's Status options (live listbox). */
 const CREATE_LEAD_STAGES = ["new", "contacted", "qualified", "unqualified"] as const;
@@ -82,9 +101,6 @@ export function AccountDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{account ? "Edit Account" : "Create New Account"}</DialogTitle>
-          <DialogDescription>
-            {account ? "Update the account details below." : "Add a company to your CRM workspace."}
-          </DialogDescription>
         </DialogHeader>
         {open && (
           <AccountForm key={account?.id ?? "new"} account={account ?? null} onOpenChange={onOpenChange} onSaved={onSaved} />
@@ -156,125 +172,203 @@ function AccountForm({
   // (Account Name*/Industry/Email/Phone/Website/Annual Revenue/Employees/
   // Status — no Tier/Owner/Key account; those fall back to workspace
   // defaults). EDIT keeps our full superset.
+  // Session-15 (S15-P10): the body is the reference's 2-COLUMN grid
+  // (`grid grid-cols-2 gap-4 py-4` — pairs Name/Industry, Email/Phone,
+  // Website/Revenue, Employees/Status), groups are space-y-2 with the
+  // v4 controlMt fix, and the CREATE inputs carry NO placeholders.
   const createMode = !account;
   return (
-    <form onSubmit={submit} className="grid gap-4">
-      <div className="grid gap-1.5">
-        <Label htmlFor="acc-name">Account Name *</Label>
-        <Input id="acc-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Acme Industries" />
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="acc-industry">Industry</Label>
-        <Input id="acc-industry" list="industry-options" value={form.industry} onChange={(e) => setForm({ ...form, industry: e.target.value })} placeholder="Technology" />
-        <datalist id="industry-options">
-          {industries.map((i) => (
-            <option key={i} value={i} />
-          ))}
-        </datalist>
-      </div>
-      {createMode ? (
-        <>
-          <div className="grid gap-1.5">
-            <Label htmlFor="acc-email">Email</Label>
-            <Input id="acc-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="hello@acme.com" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="acc-phone">Phone</Label>
-            <Input id="acc-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+971 50 123 4567" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="acc-website">Website</Label>
-            <Input id="acc-website" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} placeholder="https://…" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="acc-revenue">Annual Revenue</Label>
-            <Input id="acc-revenue" type="number" min={0} value={form.annualRevenue} onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })} placeholder="2500000" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="acc-employees">Employees</Label>
-            <Input id="acc-employees" type="number" min={0} value={form.employees} onChange={(e) => setForm({ ...form, employees: e.target.value })} placeholder="120" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label>Status</Label>
-            <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {ACCOUNT_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </>
-      ) : (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="grid gap-1.5">
-          <Label htmlFor="acc-email">Email</Label>
-          <Input id="acc-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="hello@acme.com" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="acc-phone">Phone</Label>
-          <Input id="acc-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+971 50 123 4567" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="acc-website">Website</Label>
-          <Input id="acc-website" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} placeholder="https://…" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="acc-revenue">Annual Revenue</Label>
-          <Input id="acc-revenue" type="number" min={0} value={form.annualRevenue} onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })} placeholder="2500000" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="acc-employees">Employees</Label>
-          <Input id="acc-employees" type="number" min={0} value={form.employees} onChange={(e) => setForm({ ...form, employees: e.target.value })} placeholder="120" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label>Tier</Label>
-          <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {ACCOUNT_TIERS.map((t) => (
-                <SelectItem key={t} value={t}>Tier {t}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label>Status</Label>
-          <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {ACCOUNT_STATUSES.map((s) => (
-                <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label>Owner</Label>
-          <Select value={form.ownerId || "unassigned"} onValueChange={(v) => setForm({ ...form, ownerId: v === "unassigned" ? "" : v })}>
-            <SelectTrigger className="w-full"><SelectValue placeholder="Unassigned" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
-              {users.map((u) => (
-                <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <label className="mt-6 flex items-center gap-2 text-sm text-foreground">
-          <input
-            type="checkbox"
-            checked={form.isKey}
-            onChange={(e) => setForm({ ...form, isKey: e.target.checked })}
-            className="h-4 w-4 appearance-none rounded border border-gray-300 checked:border-primary checked:bg-primary"
+    <form onSubmit={submit}>
+      <div className={ACCOUNT_DIALOG.body}>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="acc-name">Account Name *</Label>
+          <Input
+            id="acc-name"
+            className={DIALOG_GROUP.controlMt}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
           />
-          Key account
-        </label>
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="acc-industry">Industry</Label>
+          <Input
+            id="acc-industry"
+            className={DIALOG_GROUP.controlMt}
+            list="industry-options"
+            value={form.industry}
+            onChange={(e) => setForm({ ...form, industry: e.target.value })}
+          />
+          <datalist id="industry-options">
+            {industries.map((i) => (
+              <option key={i} value={i} />
+            ))}
+          </datalist>
+        </div>
+        {createMode ? (
+          <>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-email">Email</Label>
+              <Input
+                id="acc-email"
+                className={DIALOG_GROUP.controlMt}
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-phone">Phone</Label>
+              <Input
+                id="acc-phone"
+                className={DIALOG_GROUP.controlMt}
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-website">Website</Label>
+              <Input
+                id="acc-website"
+                className={DIALOG_GROUP.controlMt}
+                value={form.website}
+                onChange={(e) => setForm({ ...form, website: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-revenue">Annual Revenue</Label>
+              <Input
+                id="acc-revenue"
+                className={DIALOG_GROUP.controlMt}
+                type="number"
+                min={0}
+                value={form.annualRevenue}
+                onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-employees">Employees</Label>
+              <Input
+                id="acc-employees"
+                className={DIALOG_GROUP.controlMt}
+                type="number"
+                min={0}
+                value={form.employees}
+                onChange={(e) => setForm({ ...form, employees: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ACCOUNT_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-email">Email</Label>
+              <Input
+                id="acc-email"
+                className={DIALOG_GROUP.controlMt}
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-phone">Phone</Label>
+              <Input
+                id="acc-phone"
+                className={DIALOG_GROUP.controlMt}
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-website">Website</Label>
+              <Input
+                id="acc-website"
+                className={DIALOG_GROUP.controlMt}
+                value={form.website}
+                onChange={(e) => setForm({ ...form, website: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-revenue">Annual Revenue</Label>
+              <Input
+                id="acc-revenue"
+                className={DIALOG_GROUP.controlMt}
+                type="number"
+                min={0}
+                value={form.annualRevenue}
+                onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="acc-employees">Employees</Label>
+              <Input
+                id="acc-employees"
+                className={DIALOG_GROUP.controlMt}
+                type="number"
+                min={0}
+                value={form.employees}
+                onChange={(e) => setForm({ ...form, employees: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label>Tier</Label>
+              <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
+                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ACCOUNT_TIERS.map((t) => (
+                    <SelectItem key={t} value={t}>Tier {t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ACCOUNT_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label>Owner</Label>
+              <Select value={form.ownerId || "unassigned"} onValueChange={(v) => setForm({ ...form, ownerId: v === "unassigned" ? "" : v })}>
+                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {users.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <label className="mt-6 flex items-center gap-2 text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={form.isKey}
+                onChange={(e) => setForm({ ...form, isKey: e.target.checked })}
+                className="h-4 w-4 appearance-none rounded border border-gray-300 checked:border-primary checked:bg-primary"
+              />
+              Key account
+            </label>
+          </>
+        )}
       </div>
-      )}
       <DialogFooter>
-        <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
@@ -305,7 +399,6 @@ export function ContactDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{contact ? "Edit Contact" : "Create New Contact"}</DialogTitle>
-          <DialogDescription>Add a person to your CRM workspace.</DialogDescription>
         </DialogHeader>
         {open && (
           <ContactForm key={contact?.id ?? "new"} contact={contact ?? null} onOpenChange={onOpenChange} onSaved={onSaved} />
@@ -359,69 +452,130 @@ function ContactForm({
 
   // Session-5: the reference's CREATE dialog = Name*/Email* (required)/
   // Phone/Company/Position/"How did you meet?" (the five emoji sources) —
-  // no Priority, no section headers, single column. EDIT keeps our full
-  // superset (Priority + account datalist).
+  // no Priority. EDIT keeps our full superset (Priority + account datalist).
+  // Session-15 (S15-P11): the body is the reference's `grid gap-6 py-4`
+  // with the AVATAR SECTION first (a centered gradient circle + camera
+  // button + hidden file input, with the Name field INSIDE the section),
+  // then space-y-4 pair groups (Email+Phone, Company+Position), then the
+  // How-did-you-meet group. The initials render live from the typed name
+  // (the reference's circle is empty at zero input). No placeholders.
   const createMode = !contact;
+  const initials = form.name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   return (
-    <form onSubmit={submit} className="grid gap-4">
-      <div className="grid gap-1.5">
-        <Label htmlFor="ct-name">Name *</Label>
-        <Input id="ct-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Jane Cooper" />
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ct-email">{createMode ? "Email *" : "Email"}</Label>
-        <Input id="ct-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required={createMode} placeholder="jane@company.com" />
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ct-phone">Phone</Label>
-        <Input id="ct-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+971 50 123 4567" />
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ct-company">Company</Label>
-        <Input
-          id="ct-company"
-          list="account-options"
-          value={form.company}
-          onChange={(e) => setForm({ ...form, company: e.target.value })}
-          placeholder="Company name"
-        />
-        <datalist id="account-options">
-          {accounts.map((a) => (
-            <option key={a.id} value={a.name} />
-          ))}
-        </datalist>
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ct-position">Position</Label>
-        <Input id="ct-position" value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Sales Director" />
-      </div>
-      <div className="grid gap-1.5">
-        <Label>How did you meet?</Label>
-        <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {CONTACT_SOURCES.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      {!createMode && (
-        <div className="grid gap-1.5">
-          <Label>Priority</Label>
-          <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+    <form onSubmit={submit}>
+      <div className={CONTACT_DIALOG.body}>
+        <div className={CONTACT_AVATAR.section}>
+          <div className={CONTACT_AVATAR.wrapper}>
+            <div className={CONTACT_AVATAR.circle}>
+              <span className={CONTACT_AVATAR.initials}>{initials}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={CONTACT_AVATAR.camera}
+              aria-label="Upload photo"
+            >
+              <Camera className={CONTACT_AVATAR.cameraIcon} />
+            </button>
+            {/* Visual parity input — the reference's upload behavior is
+                unverifiable at zero data; the picker opens, the file is
+                not processed (the dead-exports precedent). */}
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" tabIndex={-1} onChange={() => undefined} />
+          </div>
+          <div className={CONTACT_AVATAR.nameGroup}>
+            <Label htmlFor="ct-name">Name *</Label>
+            <Input
+              id="ct-name"
+              className={DIALOG_GROUP.controlMt}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </div>
+        </div>
+        <div className={CONTACT_DIALOG.pairGroup}>
+          <div className={DIALOG_GROUP.group}>
+            <Label htmlFor="ct-email">{createMode ? "Email *" : "Email"}</Label>
+            <Input
+              id="ct-email"
+              className={DIALOG_GROUP.controlMt}
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required={createMode}
+            />
+          </div>
+          <div className={DIALOG_GROUP.group}>
+            <Label htmlFor="ct-phone">Phone</Label>
+            <Input
+              id="ct-phone"
+              className={DIALOG_GROUP.controlMt}
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+          </div>
+        </div>
+        <div className={CONTACT_DIALOG.pairGroup}>
+          <div className={DIALOG_GROUP.group}>
+            <Label htmlFor="ct-company">Company</Label>
+            <Input
+              id="ct-company"
+              className={DIALOG_GROUP.controlMt}
+              list="account-options"
+              value={form.company}
+              onChange={(e) => setForm({ ...form, company: e.target.value })}
+            />
+            <datalist id="account-options">
+              {accounts.map((a) => (
+                <option key={a.id} value={a.name} />
+              ))}
+            </datalist>
+          </div>
+          <div className={DIALOG_GROUP.group}>
+            <Label htmlFor="ct-position">Position</Label>
+            <Input
+              id="ct-position"
+              className={DIALOG_GROUP.controlMt}
+              value={form.position}
+              onChange={(e) => setForm({ ...form, position: e.target.value })}
+            />
+          </div>
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label>How did you meet?</Label>
+          <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
+            <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
             <SelectContent>
-              {CONTACT_PRIORITIES.map((p) => (
-                <SelectItem key={p} value={p}>{p[0].toUpperCase() + p.slice(1)}</SelectItem>
+              {CONTACT_SOURCES.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-      )}
-
+        {!createMode && (
+          <div className={DIALOG_GROUP.group}>
+            <Label>Priority</Label>
+            <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
+              <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {CONTACT_PRIORITIES.map((p) => (
+                  <SelectItem key={p} value={p}>{p[0].toUpperCase() + p.slice(1)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
       <DialogFooter>
-        <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
@@ -452,7 +606,6 @@ export function LeadDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{lead ? "Edit Lead" : "Create New Lead"}</DialogTitle>
-          <DialogDescription>Track a new sales opportunity.</DialogDescription>
         </DialogHeader>
         {open && <LeadForm key={lead?.id ?? "new"} lead={lead ?? null} onOpenChange={onOpenChange} onSaved={onSaved} />}
       </DialogContent>
@@ -519,106 +672,178 @@ function LeadForm({
   // (dates + all stages) — the reference's edit surface is unverifiable at
   // zero data, and its create dialog cannot even produce the stages its own
   // charts display.
+  // Session-15 (S15-P7/P8/P9): the body is the reference's `grid gap-4
+  // py-4` wrapper with space-y-2 groups (controlMt v4 fix) and the
+  // Status+Source pair side-by-side in a 2-col grid (162px cells even at
+  // 390). No placeholders, no description.
   const createMode = !lead;
   return (
-    <form onSubmit={submit} className="grid gap-4">
-      <div className="grid gap-1.5">
-        <Label htmlFor="ld-name">Name *</Label>
-        <Input id="ld-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Acme — 50 licenses" />
+    <form onSubmit={submit}>
+      <div className={DIALOG_FIELDS_WRAPPER.lead}>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="ld-name">Name *</Label>
+          <Input
+            id="ld-name"
+            className={DIALOG_GROUP.controlMt}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+        </div>
+        {createMode ? (
+          <>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-email">Email</Label>
+              <Input
+                id="ld-email"
+                className={DIALOG_GROUP.controlMt}
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-phone">Phone</Label>
+              <Input
+                id="ld-phone"
+                className={DIALOG_GROUP.controlMt}
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-company">Company</Label>
+              <Input
+                id="ld-company"
+                className={DIALOG_GROUP.controlMt}
+                value={form.company}
+                onChange={(e) => setForm({ ...form, company: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-value">Estimated Value</Label>
+              <Input
+                id="ld-value"
+                className={DIALOG_GROUP.controlMt}
+                type="number"
+                min={0}
+                value={form.value}
+                onChange={(e) => setForm({ ...form, value: e.target.value })}
+              />
+            </div>
+            <div className={LEAD_DIALOG.statusSourceGrid}>
+              <div className={DIALOG_GROUP.group}>
+                <Label>Status</Label>
+                <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
+                  <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CREATE_LEAD_STAGES.map((s) => (
+                      <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className={DIALOG_GROUP.group}>
+                <Label>Source</Label>
+                <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
+                  <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {LEAD_SOURCES.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-email">Email</Label>
+              <Input
+                id="ld-email"
+                className={DIALOG_GROUP.controlMt}
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-phone">Phone</Label>
+              <Input
+                id="ld-phone"
+                className={DIALOG_GROUP.controlMt}
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-company">Company</Label>
+              <Input
+                id="ld-company"
+                className={DIALOG_GROUP.controlMt}
+                value={form.company}
+                onChange={(e) => setForm({ ...form, company: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-value">Estimated Value</Label>
+              <Input
+                id="ld-value"
+                className={DIALOG_GROUP.controlMt}
+                type="number"
+                min={0}
+                value={form.value}
+                onChange={(e) => setForm({ ...form, value: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label>Stage</Label>
+              <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
+                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LEAD_STAGES.map((s) => (
+                    <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label>Source</Label>
+              <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
+                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LEAD_SOURCES.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-close">Expected Close</Label>
+              <Input
+                id="ld-close"
+                className={DIALOG_GROUP.controlMt}
+                type="date"
+                value={form.expectedCloseDate}
+                onChange={(e) => setForm({ ...form, expectedCloseDate: e.target.value })}
+              />
+            </div>
+            <div className={DIALOG_GROUP.group}>
+              <Label htmlFor="ld-follow">Next Follow-up</Label>
+              <Input
+                id="ld-follow"
+                className={DIALOG_GROUP.controlMt}
+                type="date"
+                value={form.nextFollowUp}
+                onChange={(e) => setForm({ ...form, nextFollowUp: e.target.value })}
+              />
+            </div>
+          </div>
+        )}
       </div>
-      {createMode ? (
-        <>
-          <div className="grid gap-1.5">
-            <Label htmlFor="ld-email">Email</Label>
-            <Input id="ld-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="buyer@acme.com" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="ld-phone">Phone</Label>
-            <Input id="ld-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+971 50 123 4567" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="ld-company">Company</Label>
-            <Input id="ld-company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="Acme Industries" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="ld-value">Estimated Value</Label>
-            <Input id="ld-value" type="number" min={0} value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder="25000" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label>Status</Label>
-            <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {CREATE_LEAD_STAGES.map((s) => (
-                  <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-1.5">
-            <Label>Source</Label>
-            <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {LEAD_SOURCES.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </>
-      ) : (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="grid gap-1.5">
-          <Label htmlFor="ld-email">Email</Label>
-          <Input id="ld-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="buyer@acme.com" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="ld-phone">Phone</Label>
-          <Input id="ld-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+971 50 123 4567" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="ld-company">Company</Label>
-          <Input id="ld-company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="Acme Industries" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="ld-value">Estimated Value</Label>
-          <Input id="ld-value" type="number" min={0} value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder="25000" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label>Stage</Label>
-          <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {LEAD_STAGES.map((s) => (
-                <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label>Source</Label>
-          <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {LEAD_SOURCES.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="ld-close">Expected Close</Label>
-          <Input id="ld-close" type="date" value={form.expectedCloseDate} onChange={(e) => setForm({ ...form, expectedCloseDate: e.target.value })} />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="ld-follow">Next Follow-up</Label>
-          <Input id="ld-follow" type="date" value={form.nextFollowUp} onChange={(e) => setForm({ ...form, nextFollowUp: e.target.value })} />
-        </div>
-      </div>
-      )}
       <DialogFooter>
-        <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
@@ -648,10 +873,9 @@ export function EventDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={DIALOG_CONTENT.wide}>
         <DialogHeader>
           <DialogTitle>{event ? "Edit Event" : "New Event"}</DialogTitle>
-          <DialogDescription>Schedule a meeting, call or appointment.</DialogDescription>
         </DialogHeader>
         {open && (
           <EventForm
@@ -725,70 +949,88 @@ function EventForm({
 
   // Session-5: the reference's New Event dialog = Title*/Description/
   // Event Type*/Status/Start Date & Time*/End Date & Time/Location/
-  // Related To (None/Contact/Account/Opportunity/Lead) — single column.
+  // Related To (None/Contact/Account/Opportunity/Lead).
+  // Session-15 (S15-P12): the WIDE family — max-w-2xl (672px), form
+  // space-y-4, BARE unclassed field divs (label + control direct children,
+  // ~4px natural gap), grid-cols-2 pairs (Type+Status, Start+End), Related
+  // To ALONE in a grid-cols-2 (the reference's second cell stays empty),
+  // the min-h-[60px] Description textarea, the pt-4 wide footer, and the
+  // ONE-OFF blue submit in create mode (edit keeps the dark superset —
+  // unverifiable surface).
+  const createMode = !event;
   return (
-    <form onSubmit={submit} className="grid gap-4">
-      <div className="grid gap-1.5">
+    <form onSubmit={submit} className={EVENT_DIALOG.form}>
+      <div>
         <Label htmlFor="ev-title">Title *</Label>
-        <Input id="ev-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required placeholder="Quarterly review — Acme" />
+        <Input id="ev-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
       </div>
-      <div className="grid gap-1.5">
+      <div>
         <Label htmlFor="ev-desc">Description</Label>
-        <Textarea id="ev-desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Agenda, prep notes…" />
+        <Textarea id="ev-desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
       </div>
-      <div className="grid gap-1.5">
-        <Label>Event Type *</Label>
-        <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {EVENT_TYPES.map((t) => (
-              <SelectItem key={t} value={t}>{EVENT_TYPE_META[t].label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className={EVENT_DIALOG.pair}>
+        <div>
+          <Label>Event Type *</Label>
+          <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {EVENT_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>{EVENT_TYPE_META[t].label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label>Status</Label>
+          <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {["scheduled", "completed", "cancelled"].map((s) => (
+                <SelectItem key={s} value={s} className="capitalize">{s[0].toUpperCase() + s.slice(1)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <div className="grid gap-1.5">
-        <Label>Status</Label>
-        <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {["scheduled", "completed", "cancelled"].map((s) => (
-              <SelectItem key={s} value={s} className="capitalize">{s[0].toUpperCase() + s.slice(1)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className={EVENT_DIALOG.pair}>
+        <div>
+          <Label htmlFor="ev-start">Start Date &amp; Time *</Label>
+          <Input id="ev-start" type="datetime-local" value={form.startAt} onChange={(e) => setForm({ ...form, startAt: e.target.value })} required />
+        </div>
+        <div>
+          <Label htmlFor="ev-end">End Date &amp; Time</Label>
+          <Input id="ev-end" type="datetime-local" value={form.endAt} onChange={(e) => setForm({ ...form, endAt: e.target.value })} />
+        </div>
       </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ev-start">Start Date &amp; Time *</Label>
-        <Input id="ev-start" type="datetime-local" value={form.startAt} onChange={(e) => setForm({ ...form, startAt: e.target.value })} required />
-      </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ev-end">End Date &amp; Time</Label>
-        <Input id="ev-end" type="datetime-local" value={form.endAt} onChange={(e) => setForm({ ...form, endAt: e.target.value })} />
-      </div>
-      <div className="grid gap-1.5">
+      <div>
         <Label htmlFor="ev-loc">Location</Label>
-        <Input id="ev-loc" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Enter location or meeting link" />
+        <Input id="ev-loc" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
       </div>
-      <div className="grid gap-1.5">
-        <Label>Related To</Label>
-        <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
-          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {EVENT_RELATED_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className={EVENT_DIALOG.relatedToAlone}>
+        <div>
+          <Label>Related To</Label>
+          <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {EVENT_RELATED_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <DialogFooter>
-        <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+      <DialogFooterWide>
+        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
-        <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
+        <Button
+          type="submit"
+          disabled={pending}
+          className={createMode ? EVENT_DIALOG.submit : DIALOG_SUBMIT.button}
+        >
           {pending ? "Saving…" : event ? "Save Changes" : "Create Event"}
         </Button>
-      </DialogFooter>
+      </DialogFooterWide>
     </form>
   );
 }
@@ -812,10 +1054,9 @@ export function ActivityDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={DIALOG_CONTENT.wide}>
         <DialogHeader>
           <DialogTitle>{activity ? "Edit Activity" : "Log Activity"}</DialogTitle>
-          <DialogDescription>Record a call, email, meeting or task.</DialogDescription>
         </DialogHeader>
         {open && (
           <ActivityForm
@@ -889,57 +1130,64 @@ function ActivityForm({
 
   // Session-5: the reference's Log Activity dialog = Activity Type*/
   // Date & Time*/Description*/Related To (Type) + Related To (Name) —
-  // a type select plus a FREEFORM name input ("e.g., John Doe"), and no
-  // Status select (new activities default to scheduled).
+  // a type select plus a FREEFORM name input, and no Status select (new
+  // activities default to scheduled).
+  // Session-15 (S15-P13): the WIDE family — max-w-2xl (672px), form
+  // space-y-4, grid-cols-2 pairs (Type+DateTime, RelatedType+RelatedName)
+  // with BARE cells, the bare min-h-[60px] Description textarea, and the
+  // pt-4 wide footer.
   return (
-    <form onSubmit={submit} className="grid gap-4">
-      <div className="grid gap-1.5">
-        <Label>Activity Type *</Label>
-        <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {ACTIVITY_TYPES.map((t) => (
-              <SelectItem key={t} value={t}>{ACTIVITY_TYPE_META[t].label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <form onSubmit={submit} className={ACTIVITY_DIALOG.form}>
+      <div className={ACTIVITY_DIALOG.pair}>
+        <div>
+          <Label>Activity Type *</Label>
+          <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {ACTIVITY_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>{ACTIVITY_TYPE_META[t].label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="ac-due">Date &amp; Time *</Label>
+          <Input id="ac-due" type="datetime-local" value={form.dueAt} onChange={(e) => setForm({ ...form, dueAt: e.target.value })} required />
+        </div>
       </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ac-due">Date &amp; Time *</Label>
-        <Input id="ac-due" type="datetime-local" value={form.dueAt} onChange={(e) => setForm({ ...form, dueAt: e.target.value })} required />
-      </div>
-      <div className="grid gap-1.5">
+      <div>
         <Label htmlFor="ac-subject">Description *</Label>
-        <Textarea id="ac-subject" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required placeholder="Enter activity details..." />
+        <Textarea id="ac-subject" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required />
       </div>
-      <div className="grid gap-1.5">
-        <Label>Related To (Type)</Label>
-        <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
-          <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {ACTIVITY_RELATED_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className={ACTIVITY_DIALOG.pair}>
+        <div>
+          <Label>Related To (Type)</Label>
+          <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {ACTIVITY_RELATED_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="ac-related-name">Related To (Name)</Label>
+          <Input
+            id="ac-related-name"
+            value={form.relatedName}
+            onChange={(e) => setForm({ ...form, relatedName: e.target.value })}
+          />
+        </div>
       </div>
-      <div className="grid gap-1.5">
-        <Label htmlFor="ac-related-name">Related To (Name)</Label>
-        <Input
-          id="ac-related-name"
-          value={form.relatedName}
-          onChange={(e) => setForm({ ...form, relatedName: e.target.value })}
-          placeholder="e.g., John Doe"
-        />
-      </div>
-      <DialogFooter>
-        <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+      <DialogFooterWide>
+        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
           {pending ? "Saving…" : activity ? "Save Changes" : "Log Activity"}
         </Button>
-      </DialogFooter>
+      </DialogFooterWide>
     </form>
   );
 }

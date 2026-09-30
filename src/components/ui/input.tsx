@@ -1,5 +1,5 @@
 import * as React from "react";
-import { INPUT_BASE } from "@/lib/page-layout";
+import { DIALOG_TEXTAREA, INPUT_BASE } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
@@ -31,10 +31,10 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
     <textarea
       // Session-10 (S10-2): transparent bg + ink + placeholder tokens like
       // the reference's stock textarea (no bg/text color classes there).
-      className={cn(
-        `flex min-h-[72px] w-full rounded-lg border border-line ${INPUT_BASE.bg} px-3 py-2 ${INPUT_BASE.size} ${INPUT_BASE.ink} shadow-sm ${INPUT_BASE.transition} ${INPUT_BASE.placeholder} ${INPUT_BASE.focusRing} disabled:cursor-not-allowed disabled:opacity-50`,
-        className,
-      )}
+      // Session-15 (S15-P12/P13): the reference's dialog Description
+      // textareas ship `min-h-[60px] rounded-md` (class dump on the live
+      // Event/Activity dialogs) — ours had min-h-[72px] rounded-lg.
+      className={cn(DIALOG_TEXTAREA, className)}
       {...props}
     />
   );

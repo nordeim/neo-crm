@@ -580,6 +580,159 @@ export const KPI_VALUE = "text-2xl sm:text-3xl font-bold";
  *  New Account dialog), inheriting the #0a0a0a default. */
 export const DIALOG_TITLE = "text-lg font-semibold leading-none tracking-tight";
 
+/** Session-15 (S15-P1): the entity-dialog chrome is the STOCK shadcn
+ *  geometry — outerHTML dumps of all five reference create dialogs
+ *  (2026-09-30): `fixed left-[50%] top-[50%] z-50 grid w-full
+ *  translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6
+ *  shadow-lg … slide-* sm:rounded-lg max-w-lg`. Computed: 8px radius
+ *  at >=sm and 0 below, FULL-BLEED 390px at phone widths (w-full, not
+ *  calc(100vw-2rem)). Our scaffold shipped rounded-2xl (16px at all
+ *  widths) + shadow-xl + a 2rem side inset — all retired. The slide-in/
+ *  out animations (tw-animate) were missing entirely. Token spellings
+ *  that compute equal stay ours: border (default line #e5e5e5) +
+ *  bg-surface (white) == border bg-background. */
+export const DIALOG_CONTENT = {
+  base: "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-line bg-surface p-6 shadow-lg outline-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+  /** S15-P12/P13: the Event + Activity dialogs cap at 672px. */
+  wide: "max-w-2xl",
+} as const;
+
+/** Session-15 (S15-P2): the reference's dialog overlay is the STOCK
+ *  `bg-black/80` fade — NO backdrop blur (our scaffold shipped a
+ *  gray-900/45 + blur(2px) wash). */
+export const DIALOG_OVERLAY =
+  "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0";
+
+/** Session-15 (S15-P3): the reference's DialogHeader centers below sm —
+ *  `flex flex-col space-y-1.5 text-center sm:text-left` (computed
+ *  text-align center at 390). Ours shipped always-left + pr-6. */
+export const DIALOG_HEADER = "flex flex-col space-y-1.5 text-center sm:text-left";
+
+/** Session-15 (S15-P5): TWO footer families on the reference. The
+ *  max-w-lg dialogs (Lead/Account/Contact) ship the STOCK
+ *  `flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2` —
+ *  computed column-reverse + gap normal (buttons TOUCH when stacked on
+ *  phones; 8px margin between at sm). Ours shipped gap-2 (8px even
+ *  stacked). */
+export const DIALOG_FOOTER = "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2";
+
+/** Session-15 (S15-P5): the max-w-2xl family (Event/Activity) ships
+ *  `flex justify-end gap-3 pt-4` — row at ALL widths, 12px gap, 16px
+ *  top padding. */
+export const DIALOG_FOOTER_WIDE = "flex justify-end gap-3 pt-4";
+
+/** Session-15 (S15-P6): the close X is the STOCK opacity pattern —
+ *  `absolute right-4 top-4 rounded-sm opacity-70 transition-opacity
+ *  hover:opacity-100 focus:ring-2 ring-offset-2` (no padding, no bg
+ *  wash — ours shipped a rounded-md p-1 hover:bg pill). */
+export const DIALOG_CLOSE =
+  "absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-70";
+
+/** Session-15 (S15-P7): the max-w-lg family's field groups are the
+ *  reference's `space-y-2` divs — computed 12px label->control gap /
+ *  28px top-to-top (the SAME geometry as the s14 settings fix). Under
+ *  v4 the literal space-y-2 collapses on the INLINE label (the s14
+ *  hazard) — the established fix is the explicit mt-2 on the control
+ *  (SETTINGS_DEFAULTS.controlMt precedent). */
+export const DIALOG_GROUP = {
+  group: "space-y-2",
+  controlMt: "mt-2",
+} as const;
+
+/** Session-15 (S15-P12/P13): the max-w-2xl family's single fields +
+ *  grid cells are BARE unclassed divs — label + control as direct
+ *  children (computed 4px gap from the inline label's font metrics —
+ *  no space-y, no mt; DOM-verified on the reference's Event/Activity
+ *  dialogs). */
+export const DIALOG_BARE_GROUP = "" as const;
+
+/** Session-15 (S15-P8): the reference wraps all fields in a py-4 grid
+ *  INSIDE the form (ours made the form itself the grid — no wrapper,
+ *  no padding). Per-family shapes: Lead gap-4, Contact gap-6, Account
+ *  2-col gap-4. */
+export const DIALOG_FIELDS_WRAPPER = {
+  lead: "grid gap-4 py-4",
+  contact: "grid gap-6 py-4",
+  account: "grid grid-cols-2 gap-4 py-4",
+} as const;
+
+/** Session-15 (S15-P9): the Lead dialog's Status + Source pair sits
+ *  side-by-side in a 2-col grid (162px cells even at 390 — the grid is
+ *  NOT sm-gated on the reference). */
+export const LEAD_DIALOG = {
+  statusSourceGrid: "grid grid-cols-2 gap-4",
+} as const;
+
+/** Session-15 (S15-P10): the Account dialog body is 2-column — pairs
+ *  Name/Industry, Email/Phone, Website/Annual Revenue, Employees/
+ *  Status (field order extracted from the live dump). */
+export const ACCOUNT_DIALOG = {
+  body: "grid grid-cols-2 gap-4 py-4",
+} as const;
+
+/** Session-15 (S15-P11): the Contact dialog ships the avatar section —
+ *  a centered `flex flex-col items-center gap-4 pb-4 border-b` block
+ *  with the w-24 h-24 gradient circle (from-blue-500 to-blue-700), a
+ *  live-initials span (text-white font-bold text-3xl — empty at zero
+ *  input on the reference), the camera button (w-8 h-8 bg-white
+ *  rounded-full shadow-md, lucide-camera w-4 h-4 text-blue-600) + a
+ *  hidden file input, and the Name field INSIDE the section (the
+ *  reference places it under the circle, w-full space-y-2). */
+export const CONTACT_AVATAR = {
+  section: "flex flex-col items-center gap-4 pb-4 border-b",
+  wrapper: "relative",
+  circle:
+    "w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center",
+  initials: "text-white font-bold text-3xl",
+  camera:
+    "absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors",
+  cameraIcon: "h-4 w-4 text-blue-600",
+  nameGroup: "w-full space-y-2",
+} as const;
+
+/** Session-15 (S15-P11): the Contact body — `grid gap-6 py-4` with the
+ *  avatar section, then space-y-4 pair groups (Email+Phone,
+ *  Company+Position — 16px inside the pair vs 24px between groups),
+ *  then the How-did-you-meet group. */
+export const CONTACT_DIALOG = {
+  body: "grid gap-6 py-4",
+  pairGroup: "space-y-4",
+} as const;
+
+/** Session-15 (S15-P12): the Event dialog — max-w-2xl (672px), form
+ *  `space-y-4`, BARE single fields (Title/Description/Location), two
+ *  grid-cols-2 pairs (Type+Status, Start+End), Related To ALONE in a
+ *  grid-cols-2 (second cell empty — a reference quirk mirrored), the
+ *  pt-4 wide footer, and the ONE-OFF blue submit (the reference ships
+ *  `bg-blue-600 hover:bg-blue-700` — its v3 palette = #2563eb/#1d4ed8,
+ *  which is EXACTLY our --primary/--primary-hover token pair; a v4
+ *  HAZARD: the literal bg-blue-600 class compiles to v4's oklch default
+ *  (computes rgb(21,93,252) — a DIFFERENT blue than the reference's),
+ *  so the computed-equal expression is the TOKEN pair, never the
+ *  literal class). Every other dialog ships the dark stock primary. */
+export const EVENT_DIALOG = {
+  content: "max-w-2xl",
+  form: "space-y-4",
+  pair: "grid grid-cols-2 gap-4",
+  relatedToAlone: "grid grid-cols-2 gap-4",
+  submit: "bg-primary text-primary-foreground shadow hover:bg-primary-hover",
+} as const;
+
+/** Session-15 (S15-P13): the Activity dialog — max-w-2xl, form
+ *  `space-y-4`, grid-cols-2 pairs (Type+DateTime, RelatedType+
+ *  RelatedName), the bare Description textarea, the pt-4 wide footer,
+ *  dark stock submit. */
+export const ACTIVITY_DIALOG = {
+  content: "max-w-2xl",
+  form: "space-y-4",
+  pair: "grid grid-cols-2 gap-4",
+} as const;
+
+/** Session-15 (S15-P12/P13): the reference's dialog Description
+ *  textareas ship `min-h-[60px] rounded-md` (ours: 72px + rounded-lg). */
+export const DIALOG_TEXTAREA =
+  "flex min-h-[60px] w-full rounded-md border border-line bg-transparent px-3 py-2 text-base md:text-sm text-ink shadow-sm transition-colors placeholder:text-muted-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+
 /** Session-13 (S13-P4): the reference's topbar account menu is the STOCK
  *  Radix DropdownMenu surface (role=menu) — z-50, rounded-md, shadow-md,
  *  min-w-[8rem] — with the stock menuitem anatomy (rounded-sm,
@@ -758,6 +911,16 @@ export function allLayoutClasses(): string[] {
     CARD_TITLE_OVERRIDE,
     BY_TYPE_CARD,
     CALENDAR_CELL,
+    // Session-15 groups
+    DIALOG_CONTENT,
+    DIALOG_GROUP,
+    DIALOG_FIELDS_WRAPPER,
+    LEAD_DIALOG,
+    ACCOUNT_DIALOG,
+    CONTACT_AVATAR,
+    CONTACT_DIALOG,
+    EVENT_DIALOG,
+    ACTIVITY_DIALOG,
   ]) {
     for (const value of Object.values(group as Record<string, string | readonly string[]>)) {
       // Some session-8 records carry option ARRAYS (vocabularies), not class

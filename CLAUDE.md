@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (262) → `bun run build` → `bun run test:e2e` (34). For UI
+   `bun run test` (280) → `bun run build` → `bun run test:e2e` (37). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (262 checks)               |
-| `bun run test:e2e`  | Playwright E2E (34 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (280 checks)               |
+| `bun run test:e2e`  | Playwright E2E (37 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 262 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 280 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -142,9 +142,14 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   KPI_CHIP_BG pins + the border-split token re-pin, and session-13's
   CARD title map + BUTTON_BASE radius + PROFILE_LAYOUT / BY_TYPE_CARD /
   CALENDAR_CELL / MENU_CONTENT / MENU_ITEM / FUNNEL_CHART pins + the
-  #0a0a0a foreground + 16px base font re-pins). Node environment;
-  `@` alias resolved.
-- **E2E (Playwright, 34 checks)** — `tests/e2e/`: `auth.spec.ts`
+  #0a0a0a foreground + 16px base font re-pins, and session-15's
+  DIALOG_FAMILY layer — the stock dialog chrome (DIALOG_CONTENT /
+  DIALOG_OVERLAY / DIALOG_HEADER / DIALOG_FOOTER / DIALOG_CLOSE), the
+  per-dialog body contracts (DIALOG_GROUP / DIALOG_FIELDS_WRAPPER /
+  LEAD_DIALOG / ACCOUNT_DIALOG / CONTACT_DIALOG / CONTACT_AVATAR /
+  EVENT_DIALOG / ACTIVITY_DIALOG) + the no-description /
+  no-placeholder source rules). Node environment; `@` alias resolved.
+- **E2E (Playwright, 37 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow),
   `auth.setup.ts` (one real login, storageState saved),
   `crm.spec.ts` (authenticated golden path across all 9 pages + the
@@ -154,7 +159,9 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   `mobile-navigation.spec.ts` (7-check regression suite for the drawer —
   pinned because the reference app ships NO mobile navigation; includes the
   resize-past-md lock-release regression and the session-12 focus-entry
-  test), and session-12's custom-404 test in `crm.spec.ts`.
+  test), and session-12's custom-404 + session-15's entity-dialog geometry
+  tests (stock Lead dialog at phone width, the Contact avatar section, the
+  wide Event family with its blue submit) in `crm.spec.ts`.
 
 ### Test Commands
 
@@ -172,7 +179,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 262).
+the seam (currently 280).
 
 ## Code Quality Standards
 

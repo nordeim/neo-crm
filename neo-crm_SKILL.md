@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.11.0
+version: 1.12.0
 last_updated: 2026-09-30
-project_state: 262 unit checks + 34 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 280 unit checks + 37 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.11.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.12.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1767,6 +1767,71 @@ at desktop width.
   (ALIGNED/SAME on the touched tabs — two other rounds hallucinated
   non-existent elements and were DOM-discounted); 13 screenshots
   refreshed; docs realigned + SKILL v1.11.0.
+
+## 16g. Session-15 Layer (the entity-dialog geometry: stock chrome, two body families, the literal-palette v4 hazard)
+
+**What shipped:** the dialog layer every prior session USED but never
+deep-compared beyond field sets. All five reference create dialogs
+(Lead/Account/Contact/Event/Activity) were opened on the live app and
+fully mapped — outerHTML dumps + computed probes at 1512 and 390.
+
+1. **The chrome is STOCK shadcn, not a custom surface.** The scaffold
+   had shipped `w-[calc(100vw-2rem)] max-w-lg rounded-2xl shadow-xl`
+   with a blurred gray-900/45 overlay, an always-left header with a
+   description line, and a padded bg-wash close X. The reference ships:
+   `w-full max-w-lg sm:rounded-lg shadow-lg` + the four slide-in/out
+   animation classes (computing 0px radius and FULL-BLEED 390px width
+   on phones — w-full, not a 2rem inset), the stock `bg-black/80` fade
+   overlay with NO backdrop blur, `flex flex-col space-y-1.5
+   text-center sm:text-left` (the title CENTERS below sm), and the
+   stock opacity-70 close X. Contracts: DIALOG_CONTENT /
+   DIALOG_OVERLAY / DIALOG_HEADER / DIALOG_CLOSE / DIALOG_FOOTER.
+
+2. **No description, no placeholders.** The reference's create dialogs
+   render ONLY the h2 (zero <p> elements) and carry zero placeholder
+   attributes on any input. Our invented "Track a new sales
+   opportunity." descriptions and "Acme — 50 licenses" placeholders are
+   all gone. The contacts scan-card (our unverifiable superset) keeps
+   its description — the dead-exports precedent.
+
+3. **Two body families.** The max-w-lg family (Lead/Account/Contact)
+   wraps fields in a py-4 grid INSIDE the form with `space-y-2` groups
+   + the s14 controlMt fix (12px label→control gap / 28px top-to-top —
+   measured identical on both apps); Lead pairs Status+Source in a
+   non-sm-gated `grid grid-cols-2 gap-4` (162px cells even at 390);
+   Account's WHOLE body is 2-col; Contact ships the avatar section
+   (w-24 h-24 from-blue-500 to-blue-700 gradient circle, live-initials
+   span, w-8 h-8 camera button + hidden file input, and the Name field
+   INSIDE the bordered section) + space-y-4 pair groups on a gap-6
+   body. The max-w-2xl family (Event/Activity, 672px) uses
+   `form.space-y-4` with BARE unclassed field divs — label + control
+   direct children, the ~4px gap comes from the inline label's font
+   metrics — plus grid-cols-2 pairs (Event's Related To sits ALONE in
+   one, the second cell empty; Activity pairs Type+DateTime and
+   RelatedType+RelatedName) and the `flex justify-end gap-3 pt-4`
+   footer (the max-w-lg family's footer is the stock col-reverse
+   string with NO gap class — the buttons touch when stacked).
+
+4. **THE v4 LITERAL-PALETTE HAZARD (new class, session-15).** The
+   reference's New Event submit is `bg-blue-600 hover:bg-blue-700` —
+   but under v4 the LITERAL `bg-blue-600` class compiles to v4's oklch
+   default palette, which computes **rgb(21,93,252) — a DIFFERENT blue
+   than the reference's v3 #2563eb**. e2e-caught via a canvas
+   getImageData pixel readback (getComputedStyle serializes v4 colors
+   as lab()/oklab() strings — raw string compares lie; normalize
+   through a 1×1 canvas pixel before asserting). The computed-equal
+   expression is the `--primary`/`--primary-hover` TOKEN pair
+   (#2563eb/#1d4ed8 = exactly the reference's v3 blue-600/blue-700).
+   General rule: for any reference color expressed as a LITERAL
+   palette class, verify what v4 compiles it to before copying the
+   class — the token that computes equal is the correct mirror.
+
+5. **Measurement discipline (recurring lesson).** Two e2e races were
+   caught by the gate: the stock zoom-in-95 enter animation makes
+   `boundingBox()` read ~99% widths right after `toBeVisible` (poll
+   until the width settles), and `[role=dialog]` probes must be scoped
+   by content — the CLOSED mobile-nav drawer also carries role=dialog
+   and matches naive selectors (the s14 lesson, now twice-learned).
 
 ## Appendix D: Live-Site Validation Methodology
 

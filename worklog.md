@@ -286,3 +286,22 @@ Stage Summary:
 
 Stage Summary (final):
 - PUSHED: session-14 commit 5ee8006 on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py (explicit --remote — the wrapper's default remote points at the wrong repo; dry-run clean 08ed611..5ee8006 fast-forward, then real push with remote verified @ 5ee8006 == local HEAD); all suites green (262 unit / 34 e2e); docs at SKILL v1.11.0; deploy key shredded after verification
+
+---
+Task ID: 16 (repo)
+Agent: main (Super Z)
+Task: Session 15 — the entity-dialog geometry layer: stock shadcn chrome + two body families + the v4 literal-palette hazard
+
+Work Log:
+- Pulled to 012071c (docs/session_22.md = the prior session's transcript); full docs + codebase review; baseline gate green (262/262 unit); env verified (.env file:../db/custom.db + db/ at root + .env.example + vitest/playwright configs — the task book's config asks already satisfied)
+- Re-probed every previously-pinned family FIRST (moving-target rule): NO drift — body 16px/#0a0a0a, KPI cards, dashed grids, radii, sidebar, 404, login (incl. full mobile card at 390), mobile topbar, bell dead both; demo data still zero (11th session); reference /signup still renders 404 (s14 drift stands)
+- Mobile navigation verified three ways: reference at 390 has NO nav (11th session), our 7-check regression LIVE 7/7 PASS, drawer internals swept for v4 hazards (h-dvh 844, space-y-1 on block links, blur, #2563eb — healthy); 390 sweep clean on 11 routes
+- Unprobed-layer audit: ALL FIVE reference create dialogs fully mapped (outerHTML + computed probes at 1512/390) — REAL structural findings: scaffold-era chrome (rounded-2xl/shadow-xl/2rem-inset/blur overlay) vs stock shadcn (w-full/sm:rounded-lg/shadow-lg/slides, bg-black/80 no blur, centered-mobile headers, opacity close X); invented descriptions + placeholders vs NONE on the reference; flat grid-gap-1.5 single-column bodies vs the py-4 space-y-2 families (Lead Status/Source 2-col; Account whole-body 2-col; Contact avatar section with gradient circle + camera + Name inside; Event/Activity max-w-2xl space-y-4 bare-pair family with pt-4 footers); Event submit is the one-off blue
+- NEW v4 hazard class (the literal-palette drift): literal bg-blue-600 compiles to rgb(21,93,252) ≠ the reference's v3 #2563eb — e2e-caught via canvas getImageData pixel readback (getComputedStyle serializes v4 colors as lab()/oklab()); fix: the --primary/--primary-hover token pair (#2563eb/#1d4ed8 = the reference's exact blues); rule documented in SKILL 16g.4
+- TDD: 18 red-first checks (DIALOG_FAMILY: chrome x6 + body x5 + per-dialog x4 + source rules x2 + textarea re-pin) -> 280/280 unit; +3 e2e (Lead stock geometry at 390, Contact avatar section, wide Event family + blue submit) -> 37/37 (mobile-nav 7/7); two e2e races gate-caught (zoom-in-95 animation vs boundingBox; the closed drawer matching [role=dialog] selectors)
+- Full gate: lint 0/0 · tsc · 280/280 unit · build (bun run build) · 37/37 e2e; live DOM re-verified at 1512+390 on every touched surface (28px geometry, full-bleed 390, radius 0, centered title, 2-col pairs, avatar live initials, 672px family, blue submit pixel rgb(37,99,235), scan-card superset intact, drawer healthy); zero 390px overflow
+- Deliverables: 19 screenshots (13 established + 6 new dialog captures); .env/.env.example verified; docs realigned (README badge 317, AGENTS + 4 session-15 blocks + literal-palette hazard, CLAUDE, PAD matrix 280/37, SKILL v1.12.0 16g, docs/session_23.md, plan addendum, worklogs)
+
+Stage Summary:
+- Gate green: lint 0/0 · tsc · 280/280 unit · 37/37 e2e (mobile-nav 7/7); zero 390px overflow; 19 screenshots; docs at SKILL v1.12.0
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
