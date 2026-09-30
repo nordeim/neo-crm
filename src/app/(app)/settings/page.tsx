@@ -109,7 +109,10 @@ export default function SettingsPage() {
   return (
     // Session-6 (S6-12): reference wraps settings content in max-w-6xl mx-auto.
     <div className="mx-auto max-w-6xl">
-      <PageHeader title="Settings" subtitle="Configure your CRM preferences and defaults" />
+      {/* Session-9 (S9-4): plain header variant — the reference renders a
+          simple mb-6 div with a non-responsive text-3xl h1 (no header
+          buttons on this page). */}
+      <PageHeader title="Settings" subtitle="Configure your CRM preferences and defaults" variant="settings" />
 
       <Tabs
         variant="segmented"

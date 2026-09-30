@@ -42,7 +42,11 @@ export const PAGE_HEADER = {
     title: "text-2xl sm:text-3xl font-bold text-foreground",
     subtitle: "text-muted mt-1",
     subtitleSm: "text-sm text-muted mt-1",
-    actions: "flex gap-2 w-full sm:w-auto",
+    // Session-9 (S9-5): the reference's leads actions STACK below sm
+    // (flex-col sm:flex-row) and both buttons stretch full-width on
+    // phones via `buttonStretch`.
+    actions: "flex flex-col sm:flex-row gap-2 w-full sm:w-auto",
+    buttonStretch: "w-full sm:w-auto",
   },
   contacts: {
     row: "flex items-center justify-between mb-6",
@@ -50,6 +54,26 @@ export const PAGE_HEADER = {
     subtitle: "text-muted mt-1",
     subtitleSm: "text-sm text-muted mt-1",
     actions: "flex gap-3",
+  },
+  activities: {
+    row: "flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4",
+    title: "text-2xl sm:text-3xl font-bold text-foreground",
+    subtitle: "text-muted mt-1",
+    subtitleSm: "text-sm text-muted mt-1",
+    // Session-9 (S9-6): the quick-log row WRAPS on the reference instead
+    // of squeezing four buttons.
+    actions: "flex flex-wrap gap-2 w-full sm:w-auto",
+  },
+  settings: {
+    // Session-9 (S9-4): the settings page has no header buttons, so the
+    // reference renders a PLAIN `mb-6` div with a non-responsive text-3xl
+    // h1 (no sm: downshift like the other pages).
+    row: "mb-6",
+    title: "text-3xl font-bold text-foreground",
+    subtitle: "text-muted mt-1",
+    subtitleSm: "text-sm text-muted mt-1",
+    actions: "",
+    noActionsWrap: true,
   },
 } as const;
 
@@ -170,8 +194,10 @@ export const TOPBAR_LAYOUT = {
   searchBlock: "hidden sm:flex flex-1 max-w-xl",
   searchWrap: "relative w-full",
   searchIcon: "h-5 w-5 text-subtle",
+  // Session-9 (S9-16): the reference's topbar search focuses with a 1px
+  // near-black ring (focus:ring-1 focus:ring-ring).
   searchInput:
-    "h-9 w-full rounded-md border border-line bg-background pl-10 pr-4 text-base text-foreground shadow-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 md:text-sm",
+    "h-9 w-full rounded-md border border-line bg-background pl-10 pr-4 text-base text-foreground shadow-sm placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-ring md:text-sm",
   iconButton:
     "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:inline-flex",
   iconClass: "h-5 w-5",
@@ -351,6 +377,110 @@ export const LEADS_FILTERS_POPOVER = {
  *  the session-6 "ghost" pin is stale. The other three stay outline h-8. */
 export const ACTIVITY_QUICKLOG = {
   whatsapp: "bg-emerald-600 hover:bg-emerald-700 text-white shadow",
+} as const;
+
+// ---------------------------------------------------------------------------
+// Session-9 component-anatomy contracts (DOM-verified 2026-09-30 at
+// 1512x945 against the live reference; see
+// docs/plans/2026-09-30-session9-parity-remediation.md).
+// ---------------------------------------------------------------------------
+
+/** S9-1 + S9-16: the shared Button base. Reference text buttons carry
+ *  `mr-2` ON their icons in addition to the flex `gap-2` — a measured 16px
+ *  icon-text gap (ours was 8px). Icon-only buttons (mail/bell, ellipsis)
+ *  carry NO margin on either side, hence the only-child guard. Focus rings
+ *  are 1px near-black (`ring-1 ring-ring`, --color-ring = #0a0a0a), not
+ *  the 2px translucent blue. */
+export const BUTTON_BASE = {
+  iconGap: "[&_svg]:mr-2 [&_svg:only-child]:mr-0",
+  focusRing: "focus-visible:ring-1 focus-visible:ring-ring",
+} as const;
+
+/** S9-12 + S9-16: the stock Input base sizing + focus. The reference's
+ *  inputs are `text-base md:text-sm` (16px below md — phones), and focus
+ *  renders a 1px near-black ring with the border color unchanged. */
+export const INPUT_BASE = {
+  size: "text-base md:text-sm",
+  focusRing: "focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-input",
+} as const;
+
+/** S9-2: entity-dialog submit buttons are DARK on the reference — its
+ *  `--primary` is the stock shadcn dark (computed rgb(23,23,23)) with
+ *  `shadow` + `hover:bg-primary/90`. Same family as the session-8
+ *  settings-add / profile-save treatment. Header primary buttons stay
+ *  blue-600 (the app `--primary` token). */
+export const DIALOG_SUBMIT = {
+  button: "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
+} as const;
+
+/** S9-3: card titles are DIVs on the reference (no heading semantics;
+ *  activities' h2 titles and the profile name h3 are separately pinned).
+ *  Color is inherited (foreground), not an explicit class. */
+export const CARD = {
+  title: "font-semibold tracking-tight text-base sm:text-lg",
+} as const;
+
+/** S9-9: the dashboard Recent Deals table. The reference renders EIGHT
+ *  columns — "Status" appears TWICE (a visible copy-paste quirk, mirrored
+ *  per the strict-mirror precedent: the "Add new industrie" typo, dead
+ *  controls, empty-label selects) — and at zero rows it renders the
+ *  headers with an EMPTY tbody (no empty-state paragraph). Row cells
+ *  render the same stage badge in both Status columns. */
+export const RECENT_DEALS = {
+  headers: [
+    "Lead",
+    "Company",
+    "Deal Value",
+    "Status",
+    "Owner",
+    "Close Date",
+    "Status",
+    "",
+  ] as const,
+  emptyTbody: true,
+} as const;
+
+/** S9-10: empty-state anatomy per surface. The dashboard list variant is
+ *  an explicit `text-sm` (14px) with py-4; calendar/activities inherit the
+ *  16px base with py-8; reports render IN-TABLE rows without vertical
+ *  padding. Lead Sources renders an EMPTY container at zero data (no
+ *  paragraph at all). */
+export const EMPTY_STATE = {
+  dashboardList: "py-4 text-center text-sm text-muted",
+  calendar: "text-center py-8 text-muted",
+  reportsRow: "text-center text-muted",
+  leadSourcesEmptyContainer: true,
+} as const;
+
+/** S9-17: Top Performing Sales Reps is a DIV list on the reference, not a
+ *  table — a bordered header row with "Sales Rep" left and a `flex gap-8`
+ *  pair (Deals / Owner) right. */
+export const TOP_REPS = {
+  headerRow: "flex items-center justify-between text-xs text-muted pb-2 border-b",
+  colRight: "flex gap-8",
+} as const;
+
+/** S9-11: the reports table cards INSET their tables (p-6 pt-0 content),
+ *  unlike the flush accounts/leads table cards. */
+export const REPORTS_TABLE_CARD = {
+  content: "p-6 pt-0",
+} as const;
+
+/** S9-8: the profile card surface — default-size Upload Photo (outline
+ *  h-9) and Save Changes both stretch `w-full sm:w-auto`; the avatar is
+ *  the stock Avatar primitive (w-20 h-20 sm:w-24 sm:h-24) wrapping a
+ *  bg-blue-100 inner div with a stroke-2 lucide-user icon; the name
+ *  column is `space-y-4 sm:space-y-6` with p-6 on the parent (not the
+ *  name wrapper); the card carries no `h-fit`. */
+export const PROFILE_LAYOUT = {
+  uploadBtn: "w-full sm:w-auto",
+  saveBtn: "w-full sm:w-auto",
+  avatarIcon: "h-10 w-10 sm:h-12 sm:w-12",
+  avatarIconStroke: 2,
+  nameWrap: "flex flex-col items-center text-center",
+  columnWrap: "space-y-4 sm:space-y-6",
+  card: "rounded-xl border border-line bg-surface shadow",
+  namePlaceholder: "Enter your full name",
 } as const;
 
 /** Every exported class string, for regression guards. */

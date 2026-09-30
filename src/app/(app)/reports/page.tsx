@@ -11,7 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/misc";
 import { Tabs } from "@/components/ui/tabs";
 import { CircleStatCard, KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
-import { PAGE_KPI_GRIDS, REPORTS_FILTER_BAR } from "@/lib/page-layout";
+import {
+  EMPTY_STATE,
+  PAGE_KPI_GRIDS,
+  REPORTS_FILTER_BAR,
+  REPORTS_TABLE_CARD,
+} from "@/lib/page-layout";
 import { ConversionFunnel, DonutChart, PipelineBarChart, RevenueLineChart, WonLostLineChart } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
 import { LEAD_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
@@ -59,6 +64,7 @@ export default function ReportsPage() {
         title="Reports & Analytics"
         subtitle="Comprehensive CRM reporting hub"
         subtitleSize="sm"
+        unwrapActions
         actions={
           <Button
             variant="outline"
@@ -253,62 +259,66 @@ function DealTables({ data }: { data: ReportsData | null }) {
         <CardHeader>
           <CardTitle>Recent Won Deals</CardTitle>
         </CardHeader>
-        <CardContent className="px-0 py-0">
-          {(data?.recentWonDeals ?? []).length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted">No won deals</p>
-          ) : (
-            <Table>
-              <TableHeader>
+        <CardContent className={REPORTS_TABLE_CARD.content}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Deal</TableHead>
+                <TableHead>Account</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(data?.recentWonDeals ?? []).length === 0 ? (
                 <TableRow>
-                  <TableHead>Deal</TableHead>
-                  <TableHead>Account</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No won deals</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data!.recentWonDeals.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell className="font-medium text-foreground">{l.name}</TableCell>
-                    <TableCell className="text-muted">{l.company ?? "—"}</TableCell>
-                    <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+              ) : (
+              data!.recentWonDeals.map((l) => (
+                <TableRow key={l.id}>
+                  <TableCell className="font-medium text-foreground">{l.name}</TableCell>
+                  <TableCell className="text-muted">{l.company ?? "—"}</TableCell>
+                  <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
+                </TableRow>
+              ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
       <Card>
         <CardHeader>
           <CardTitle>Top Deals by Value</CardTitle>
         </CardHeader>
-        <CardContent className="px-0 py-0">
-          {(data?.topDeals ?? []).length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted">No deals</p>
-          ) : (
-            <Table>
-              <TableHeader>
+        <CardContent className={REPORTS_TABLE_CARD.content}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Deal</TableHead>
+                <TableHead>Stage</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(data?.topDeals ?? []).length === 0 ? (
                 <TableRow>
-                  <TableHead>Deal</TableHead>
-                  <TableHead>Stage</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No deals</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data!.topDeals.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell className="font-medium text-foreground">{l.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
-                        {STAGE_META[l.stage]?.label ?? l.stage}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+              ) : (
+              data!.topDeals.map((l) => (
+                <TableRow key={l.id}>
+                  <TableCell className="font-medium text-foreground">{l.name}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
+                      {STAGE_META[l.stage]?.label ?? l.stage}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
+                </TableRow>
+              ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
@@ -364,33 +374,35 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
           <CardHeader>
             <CardTitle>Activity by Owner</CardTitle>
           </CardHeader>
-          <CardContent className="px-0 py-0">
-            {(data?.activitiesByOwner ?? []).length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted">No activity in this period</p>
-            ) : (
-              <Table>
-                <TableHeader>
+          <CardContent className={REPORTS_TABLE_CARD.content}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Owner</TableHead>
+                  <TableHead className="text-right">Calls</TableHead>
+                  <TableHead className="text-right">Emails</TableHead>
+                  <TableHead className="text-right">Meetings</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(data?.activitiesByOwner ?? []).length === 0 ? (
                   <TableRow>
-                    <TableHead>Owner</TableHead>
-                    <TableHead className="text-right">Calls</TableHead>
-                    <TableHead className="text-right">Emails</TableHead>
-                    <TableHead className="text-right">Meetings</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
+                    <TableCell colSpan={5} className={EMPTY_STATE.reportsRow}>No activity in this period</TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data!.activitiesByOwner.map((o) => (
-                    <TableRow key={o.name}>
-                      <TableCell className="font-medium text-foreground">{o.name}</TableCell>
-                      <TableCell className="text-right text-muted">{o.calls}</TableCell>
-                      <TableCell className="text-right text-muted">{o.emails}</TableCell>
-                      <TableCell className="text-right text-muted">{o.meetings}</TableCell>
-                      <TableCell className="text-right font-semibold text-foreground">{o.total}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                ) : (
+                data!.activitiesByOwner.map((o) => (
+                  <TableRow key={o.name}>
+                    <TableCell className="font-medium text-foreground">{o.name}</TableCell>
+                    <TableCell className="text-right text-muted">{o.calls}</TableCell>
+                    <TableCell className="text-right text-muted">{o.emails}</TableCell>
+                    <TableCell className="text-right text-muted">{o.meetings}</TableCell>
+                    <TableCell className="text-right font-semibold text-foreground">{o.total}</TableCell>
+                  </TableRow>
+                ))
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>
@@ -407,33 +419,35 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
       <CardHeader>
         <CardTitle>Lead Source Performance</CardTitle>
       </CardHeader>
-      <CardContent className="px-0 py-0">
-        {rows.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted">No lead data</p>
-        ) : (
-          <Table>
-            <TableHeader>
+      <CardContent className={REPORTS_TABLE_CARD.content}>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Source</TableHead>
+              <TableHead className="text-right">Leads</TableHead>
+              <TableHead className="text-right">Won</TableHead>
+              <TableHead className="text-right">Win Rate</TableHead>
+              <TableHead className="text-right">Won Value</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 ? (
               <TableRow>
-                <TableHead>Source</TableHead>
-                <TableHead className="text-right">Leads</TableHead>
-                <TableHead className="text-right">Won</TableHead>
-                <TableHead className="text-right">Win Rate</TableHead>
-                <TableHead className="text-right">Won Value</TableHead>
+                <TableCell colSpan={5} className={EMPTY_STATE.reportsRow}>No lead data</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((r) => (
-                <TableRow key={r.source}>
-                  <TableCell className="font-medium text-foreground">{r.source}</TableCell>
-                  <TableCell className="text-right text-muted">{r.leads}</TableCell>
-                  <TableCell className="text-right text-muted">{r.won}</TableCell>
-                  <TableCell className="text-right text-muted">{r.winRate}%</TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(r.value)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+            ) : (
+            rows.map((r) => (
+              <TableRow key={r.source}>
+                <TableCell className="font-medium text-foreground">{r.source}</TableCell>
+                <TableCell className="text-right text-muted">{r.leads}</TableCell>
+                <TableCell className="text-right text-muted">{r.won}</TableCell>
+                <TableCell className="text-right text-muted">{r.winRate}%</TableCell>
+                <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(r.value)}</TableCell>
+              </TableRow>
+            ))
+            )}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );
@@ -466,58 +480,62 @@ function HealthTab({ data }: { data: ReportsData | null }) {
           <CardHeader>
             <CardTitle>At Risk Accounts</CardTitle>
           </CardHeader>
-          <CardContent className="px-0 py-0">
-            {(data?.atRiskAccounts ?? []).length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted">No at-risk accounts</p>
-            ) : (
-              <Table>
-                <TableHeader>
+          <CardContent className={REPORTS_TABLE_CARD.content}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Account</TableHead>
+                  <TableHead>Last Activity</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(data?.atRiskAccounts ?? []).length === 0 ? (
                   <TableRow>
-                    <TableHead>Account</TableHead>
-                    <TableHead>Last Activity</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No at-risk accounts</TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data!.atRiskAccounts.map((a) => (
-                    <TableRow key={a.id}>
-                      <TableCell className="font-medium text-foreground">{a.name}</TableCell>
-                      <TableCell className="text-muted">{a.lastActivityAt ? formatDate(a.lastActivityAt) : "—"}</TableCell>
-                      <TableCell className="capitalize text-muted">{a.status}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                ) : (
+                data!.atRiskAccounts.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="font-medium text-foreground">{a.name}</TableCell>
+                    <TableCell className="text-muted">{a.lastActivityAt ? formatDate(a.lastActivityAt) : "—"}</TableCell>
+                    <TableCell className="capitalize text-muted">{a.status}</TableCell>
+                  </TableRow>
+                ))
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Account Summary</CardTitle>
           </CardHeader>
-          <CardContent className="px-0 py-0">
-            {(data?.accountSummary ?? []).length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted">No accounts</p>
-            ) : (
-              <Table>
-                <TableHeader>
+          <CardContent className={REPORTS_TABLE_CARD.content}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Account</TableHead>
+                  <TableHead>Industry</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(data?.accountSummary ?? []).length === 0 ? (
                   <TableRow>
-                    <TableHead>Account</TableHead>
-                    <TableHead>Industry</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No accounts</TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data!.accountSummary.map((a) => (
-                    <TableRow key={a.id}>
-                      <TableCell className="font-medium text-foreground">{a.name}</TableCell>
-                      <TableCell className="text-muted">{a.industry ?? "—"}</TableCell>
-                      <TableCell className="capitalize text-muted">{a.status}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                ) : (
+                data!.accountSummary.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="font-medium text-foreground">{a.name}</TableCell>
+                    <TableCell className="text-muted">{a.industry ?? "—"}</TableCell>
+                    <TableCell className="capitalize text-muted">{a.status}</TableCell>
+                  </TableRow>
+                ))
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>

@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.5.0
+version: 1.6.0
 last_updated: 2026-09-30
-project_state: 133 unit checks + 22 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
+project_state: 148 unit checks + 22 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (button icon-gap, input sizing, card titles, dialog submits, empty states, Tailwind v4 shadow-scale re-pin — session-9) aligned to the live reference; the mobile-nav auto-close breakpoint bug (1024px listener vs md drawer) fixed and e2e-pinned
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.5.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.6.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -346,6 +346,10 @@ Do not weaken it; extend it when the drawer changes.
 | Reference login logo is a hotlinked Supabase screenshot | CSS brand mark (white circle + blue dot) — same shape, no external asset |
 | Reference CardTitle is a `<div>` (no heading semantics) | Ours stays `<h3>` — a11y superset, e2e asserts heading roles |
 | Reference placeholder typo "Add new industrie" (settings) | Mirrored (like "Conversion Funnel") — SETTINGS_PICKLIST pins it |
+| Recent Deals duplicate "Status" column (dashboard) | Mirrored (session-9 S9-9) — EIGHT headers pinned by RECENT_DEALS; both cells render the same badge |
+| Reports empty table rows carry NO vertical padding | Mirrored (session-9 S9-10) — EMPTY_STATE.reportsRow |
+| Top Reps header shows "Deals"/"Owner" right-aligned in flex gap-8 | Mirrored (session-9 S9-17) — TOP_REPS |
+| Profile Role input shows the raw lowercase "user" | Mirrored (session-9) — raw user.role, no capitalization in the input |
 
 ### 5.6 The layout + chrome system — `src/lib/page-layout.ts` (sessions 6–7)
 
@@ -1082,7 +1086,7 @@ Full ADRs with context/decision/rationale/consequences/alternatives live in
 | constants | `tests/constants.test.ts` | 8 | ~5 ms |
 | rate-limit | `tests/rate-limit.test.ts` | 6 | ~29 ms |
 | avatar | `tests/avatar.test.ts` | 5 | ~4 ms |
-| **unit total** | 9 files | **133** | **<1 s** |
+| **unit total** | 10 files | **148** | **<1 s** |
 | e2e auth (logged out) | `tests/e2e/auth.spec.ts` | 3 | — |
 | e2e setup (login) | `tests/e2e/auth.setup.ts` | 1 | — |
 | e2e golden path | `tests/e2e/crm.spec.ts` | 12 | — |

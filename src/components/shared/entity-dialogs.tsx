@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/components/ui/toast";
 import { useCrmStore } from "@/stores/crm-store";
 import { toLocalInputValue } from "@/lib/format";
+import { DIALOG_SUBMIT } from "@/lib/page-layout";
 import {
   ACCOUNT_STATUSES,
   ACCOUNT_STATUS_META,
@@ -276,7 +277,7 @@ function AccountForm({
         <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
           {pending ? "Saving…" : account ? "Save Changes" : "Create Account"}
         </Button>
       </DialogFooter>
@@ -423,7 +424,7 @@ function ContactForm({
         <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
           {pending ? "Saving…" : contact ? "Save Changes" : "Create Contact"}
         </Button>
       </DialogFooter>
@@ -620,7 +621,7 @@ function LeadForm({
         <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
           {pending ? "Saving…" : lead ? "Save Changes" : "Create Lead"}
         </Button>
       </DialogFooter>
@@ -784,7 +785,7 @@ function EventForm({
         <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
           {pending ? "Saving…" : event ? "Save Changes" : "Create Event"}
         </Button>
       </DialogFooter>
@@ -935,7 +936,7 @@ function ActivityForm({
         <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
           {pending ? "Saving…" : activity ? "Save Changes" : "Log Activity"}
         </Button>
       </DialogFooter>

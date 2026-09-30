@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Camera, Mail, Shield, User } from "lucide-react";
+import { PROFILE_LAYOUT } from "@/lib/page-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -92,7 +93,6 @@ function ProfileForm({
     }
   }
 
-  const roleLabel = user.role === "admin" ? "Admin" : "User";
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
@@ -102,22 +102,34 @@ function ProfileForm({
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
         </CardHeader>
-        <CardContent className="flex max-w-xl flex-col gap-5">
+        {/* Session-9 (S9-8): standard content + form + space-y-6 (no
+            max-w constraint — the reference's inputs stretch full width). */}
+        <CardContent>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void save();
+            }}
+          >
+          <div className="space-y-6">
           <div className="space-y-2">
             <Label>Profile Picture</Label>
             <div className="flex flex-col items-center gap-4 sm:flex-row">
-              {/* Reference: a plain blue-100 circle with a user glyph — not an
-                  initial avatar (DOM-verified 80/96px, icon #2563EB). */}
+              {/* Reference: the stock Avatar primitive wrapping a bg-blue-100
+                  inner div with a stroke-2 user glyph (DOM-verified 80/96px,
+                  icon #2563EB). */}
               <span
-                className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-blue-600 sm:h-24 sm:w-24"
+                className="relative flex h-20 w-20 shrink-0 overflow-hidden rounded-full sm:h-24 sm:w-24"
                 aria-hidden="true"
               >
-                <User className="h-10 w-10 sm:h-12 sm:w-12" strokeWidth={1.5} />
+                <span className="flex h-full w-full items-center justify-center bg-blue-100 text-blue-600">
+                  <User className={PROFILE_LAYOUT.avatarIcon} strokeWidth={PROFILE_LAYOUT.avatarIconStroke} />
+                </span>
               </span>
               <div className="w-full flex-1">
                 <Button
                   variant="outline"
-                  size="sm"
+                  className={PROFILE_LAYOUT.uploadBtn}
                   onClick={() => toast.info("Upload Photo", "Profile photo upload is not available in this demo workspace.")}
                 >
                   <Camera className="h-4 w-4" /> Upload Photo
@@ -127,51 +139,66 @@ function ProfileForm({
             </div>
           </div>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="profile-name">Full Name</Label>
-            <Input id="profile-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" />
+          <div className="space-y-2">
+            <Label htmlFor="display_name">Full Name</Label>
+            <Input
+              id="display_name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={PROFILE_LAYOUT.namePlaceholder}
+            />
           </div>
 
-          <div className="grid gap-1.5">
+          <div className="space-y-2">
             <Label htmlFor="profile-email">Email</Label>
             <Input id="profile-email" value={user.email} disabled />
             <p className="text-xs text-muted">Email cannot be changed</p>
           </div>
 
-          <div className="grid gap-1.5">
+          <div className="space-y-2">
             <Label htmlFor="profile-role">Role</Label>
-            <Input id="profile-role" value={roleLabel} disabled />
+            <Input id="profile-role" value={user.role} disabled />
           </div>
 
-          <div>
+          <div className="pt-4">
             {/* Reference Save Changes is a dark neutral button (computed
-                rgb(23,23,23) bg — DOM-verified), not the blue primary. */}
+                rgb(23,23,23) bg — DOM-verified), stretched full-width on
+                phones (w-full sm:w-auto); the form wraps the card on the
+                reference, so the button submits it. */}
             <Button
-              className="border-transparent bg-neutral-900 text-neutral-50 hover:bg-neutral-800"
-              onClick={save}
-              disabled={!dirty || saving}
+              type="submit"
+              className={`border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800 ${PROFILE_LAYOUT.saveBtn}`}
+              disabled={saving}
             >
               {saving ? "Saving…" : "Save Changes"}
             </Button>
           </div>
+          </div>
+          </form>
         </CardContent>
       </Card>
 
-      {/* Right column — four small cards, each with a tinted icon chip. */}
-      <div className="flex flex-col gap-4 sm:gap-6">
-        <Card className="h-fit">
-          <CardContent className="flex flex-col items-center p-6 text-center">
+      {/* Right column — four small cards, each with a tinted icon chip.
+          Session-9 (S9-8): space-y stack; the Account card carries a
+          plain p-6 content with the centered name-wrap inside (no h-fit). */}
+      <div className={PROFILE_LAYOUT.columnWrap}>
+        <Card>
+          <CardContent className="p-6">
+            <div className={PROFILE_LAYOUT.nameWrap}>
             <span
-              className="mb-4 flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 text-blue-600"
+              className="relative mb-4 flex h-20 w-20 shrink-0 overflow-hidden rounded-full"
               aria-hidden="true"
             >
-              <User className="h-10 w-10" strokeWidth={1.5} />
+              <span className="flex h-full w-full items-center justify-center bg-blue-100 text-blue-600">
+                <User className="h-10 w-10" strokeWidth={PROFILE_LAYOUT.avatarIconStroke} />
+              </span>
             </span>
-            <h3 className="text-lg font-semibold text-foreground">{user.name}</h3>
+            <h3 className="text-lg font-semibold">{user.name}</h3>
             <p className="text-sm text-muted">{user.email}</p>
-            <span className="mt-2 inline-flex items-center rounded-md border border-transparent bg-neutral-900 px-2.5 py-0.5 text-xs font-semibold capitalize text-neutral-50">
+            <div className="mt-2 inline-flex items-center rounded-md border border-transparent bg-neutral-900 px-2.5 py-0.5 text-xs font-semibold capitalize text-neutral-50">
               {user.role}
-            </span>
+            </div>
+            </div>
           </CardContent>
         </Card>
 

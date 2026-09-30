@@ -16,23 +16,31 @@ export function PageHeader({
   subtitle,
   subtitleSize,
   actions,
+  unwrapActions = false,
   variant = "standard",
 }: {
   title: string;
   subtitle?: string;
   subtitleSize?: "base" | "sm";
   actions?: React.ReactNode;
+  /** Session-9 (S9-7): the reports header renders its single button as a
+   *  DIRECT child of the header row (no flex group div) — pass true to
+   *  skip the wrapper. */
+  unwrapActions?: boolean;
   variant?: PageHeaderVariant;
 }) {
   const spec = PAGE_HEADER[variant];
   const subtitleClass = subtitleSize === "sm" ? spec.subtitleSm : spec.subtitle;
+  // Session-9 (S9-4): the settings variant renders a PLAIN mb-6 header —
+  // no actions wrapper (the page has no header buttons).
+  const noWrap = "noActionsWrap" in spec && spec.noActionsWrap === true;
   return (
     <div className={spec.row}>
       <div>
         <h1 className={spec.title}>{title}</h1>
         {subtitle && <p className={subtitleClass}>{subtitle}</p>}
       </div>
-      {actions && <div className={spec.actions}>{actions}</div>}
+      {actions && (noWrap || unwrapActions ? actions : <div className={spec.actions}>{actions}</div>)}
     </div>
   );
 }

@@ -2,10 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   ACTIVITY_CARD,
   ACTIVITY_QUICKLOG,
+  BUTTON_BASE,
+  CARD,
   DASHBOARD_CARD,
   DASHBOARD_HEADER,
+  DIALOG_SUBMIT,
+  EMPTY_STATE,
   FILTER_BAR,
   FILTER_RAIL,
+  INPUT_BASE,
   LEADS_FILTERS_POPOVER,
   LEADS_TOOLBAR,
   LOGIN_LAYOUT,
@@ -13,13 +18,17 @@ import {
   NAV_LAYOUT,
   PAGE_HEADER,
   PAGE_KPI_GRIDS,
+  PROFILE_LAYOUT,
   RAIL_LAYOUT,
+  RECENT_DEALS,
   REPORTS_FILTER_BAR,
+  REPORTS_TABLE_CARD,
   SETTINGS_PICKLIST,
   SHELL_LAYOUT,
   STAT_CARD,
   TABLE_CARD,
   TABLE_TOOLBAR,
+  TOP_REPS,
   TOPBAR_LAYOUT,
   VIEW_SWITCHER,
   allLayoutClasses,
@@ -423,6 +432,123 @@ describe("session-8 parity pins (DOM-verified 2026-09-30)", () => {
     expect(SETTINGS_PICKLIST.addButton).toBe(
       "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-9 pins: component anatomy (buttons, inputs, card titles, dialog
+// submits, empty states, table cards) — every value DOM-verified against
+// the live reference at 1512x945 on 2026-09-30 (computed-style probes where
+// noted). See docs/plans/2026-09-30-session9-parity-remediation.md.
+// ---------------------------------------------------------------------------
+describe("session-9 component-anatomy pins", () => {
+  it("settings header is the PLAIN variant (no flex row, non-responsive h1)", () => {
+    // S9-4: the reference's settings page has no header buttons, so its
+    // header is a plain `mb-6` div with a text-3xl h1 (no sm: downshift).
+    expect(PAGE_HEADER.settings.row).toBe("mb-6");
+    expect(PAGE_HEADER.settings.title).toBe("text-3xl font-bold text-foreground");
+    expect(PAGE_HEADER.settings.subtitle).toBe("text-muted mt-1");
+    expect(PAGE_HEADER.settings.noActionsWrap).toBe(true);
+  });
+
+  it("leads header actions stack below sm and both buttons stretch", () => {
+    // S9-5: flex-col sm:flex-row + per-button w-full sm:w-auto.
+    expect(PAGE_HEADER.leads.actions).toBe("flex flex-col sm:flex-row gap-2 w-full sm:w-auto");
+    expect(PAGE_HEADER.leads.buttonStretch).toBe("w-full sm:w-auto");
+  });
+
+  it("activities quick-log group wraps", () => {
+    // S9-6: flex-wrap on the reference (4 buttons wrap, not squeeze).
+    expect(PAGE_HEADER.activities.actions).toBe("flex flex-wrap gap-2 w-full sm:w-auto");
+  });
+
+  it("button base: 16px icon-text gap + 1px near-black focus ring", () => {
+    // S9-1: reference icons carry mr-2 ON TOP of gap-2 (measured 16px vs
+    // our 8px); icon-only buttons get no margin (only-child guard).
+    // S9-16: ring-1 ring-ring focus (reference --ring = 0 0% 3.9%).
+    expect(BUTTON_BASE.iconGap).toBe("[&_svg]:mr-2 [&_svg:only-child]:mr-0");
+    expect(BUTTON_BASE.focusRing).toBe("focus-visible:ring-1 focus-visible:ring-ring");
+  });
+
+  it("input base: 16px below md + 1px near-black focus ring", () => {
+    // S9-12: the reference's stock Input is text-base md:text-sm (16px on
+    // phones). S9-16: ring-1 focus, border color unchanged.
+    expect(INPUT_BASE.size).toBe("text-base md:text-sm");
+    expect(INPUT_BASE.focusRing).toBe(
+      "focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-input",
+    );
+  });
+
+  it("dialog submit buttons are DARK neutral-900 (reference stock --primary)", () => {
+    // S9-2: computed rgb(23,23,23) on Create Lead / Create Account / Log
+    // Activity — same family as the session-8 settings add buttons. Header
+    // primary buttons stay blue-600 (bg-primary token).
+    expect(DIALOG_SUBMIT.button).toBe(
+      "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
+    );
+  });
+
+  it("card titles: div.font-semibold classes, no explicit foreground", () => {
+    // S9-3: the reference renders card titles as divs (no heading
+    // semantics) inheriting the foreground color.
+    expect(CARD.title).toBe("font-semibold tracking-tight text-base sm:text-lg");
+  });
+
+  it("Recent Deals: EIGHT headers incl. the duplicate Status quirk + empty tbody", () => {
+    // S9-9: the reference renders Status twice (visible quirk, mirrored
+    // per the strict-mirror precedent) and an EMPTY tbody at zero rows.
+    expect(RECENT_DEALS.headers).toEqual([
+      "Lead",
+      "Company",
+      "Deal Value",
+      "Status",
+      "Owner",
+      "Close Date",
+      "Status",
+      "",
+    ]);
+    expect(RECENT_DEALS.emptyTbody).toBe(true);
+  });
+
+  it("empty-state anatomy per surface", () => {
+    // S9-10: (a) dashboard Upcoming = text-sm py-4; (b) Lead Sources
+    // renders an empty container (no paragraph); (c) calendar = py-8 with
+    // inherited 16px; (d) reports = IN-TABLE rows without vertical padding.
+    expect(EMPTY_STATE.dashboardList).toBe("py-4 text-center text-sm text-muted");
+    expect(EMPTY_STATE.calendar).toBe("text-center py-8 text-muted");
+    expect(EMPTY_STATE.reportsRow).toBe("text-center text-muted");
+    expect(EMPTY_STATE.leadSourcesEmptyContainer).toBe(true);
+  });
+
+  it("Top Performing Sales Reps is a div list with a bordered header row", () => {
+    // S9-17: div.space-y-4 > flex items-center justify-between text-xs
+    // text-gray-500 pb-2 border-b — Sales Rep left, Deals/Owner right in
+    // a flex gap-8 (not a real table).
+    expect(TOP_REPS.headerRow).toBe(
+      "flex items-center justify-between text-xs text-muted pb-2 border-b",
+    );
+    expect(TOP_REPS.colRight).toBe("flex gap-8");
+  });
+
+  it("reports table cards inset their tables (p-6 pt-0)", () => {
+    // S9-11: the reference's reports tables sit inside 24px gutters —
+    // not flush like the accounts/leads table cards.
+    expect(REPORTS_TABLE_CARD.content).toBe("p-6 pt-0");
+  });
+
+  it("profile card surface: buttons, avatar, placeholder, wrappers", () => {
+    // S9-8: outline default-size Upload Photo + stretched buttons, avatar
+    // primitive with a stroke-2 user icon, plain name wrapper (parent
+    // carries p-6), space-y column, no h-fit on the card, and the
+    // "Enter your full name" placeholder.
+    expect(PROFILE_LAYOUT.uploadBtn).toBe("w-full sm:w-auto");
+    expect(PROFILE_LAYOUT.saveBtn).toBe("w-full sm:w-auto");
+    expect(PROFILE_LAYOUT.avatarIcon).toBe("h-10 w-10 sm:h-12 sm:w-12");
+    expect(PROFILE_LAYOUT.avatarIconStroke).toBe(2);
+    expect(PROFILE_LAYOUT.nameWrap).toBe("flex flex-col items-center text-center");
+    expect(PROFILE_LAYOUT.columnWrap).toBe("space-y-4 sm:space-y-6");
+    expect(PROFILE_LAYOUT.card).toBe("rounded-xl border border-line bg-surface shadow");
+    expect(PROFILE_LAYOUT.namePlaceholder).toBe("Enter your full name");
   });
 });
 

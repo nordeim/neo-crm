@@ -1,4 +1,5 @@
 import * as React from "react";
+import { CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
@@ -16,8 +17,13 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />;
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
-  return <h3 className={cn("text-base font-semibold tracking-tight text-foreground sm:text-lg", className)} {...props} />;
+function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+  // Session-9 (S9-3): the reference renders card titles as DIVs
+  // (`div.font-semibold.tracking-tight.text-base.sm:text-lg` — no heading
+  // semantics on any card except the activities h2s and the profile name
+  // h3, both separately pinned). Color is inherited from the card
+  // foreground, not an explicit class.
+  return <div className={cn(CARD.title, className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"p">) {

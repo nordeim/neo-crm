@@ -23,7 +23,12 @@ import {
   timeUntil,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { FILTER_RAIL, PAGE_KPI_GRIDS, RAIL_LAYOUT } from "@/lib/page-layout";
+import {
+  EMPTY_STATE,
+  FILTER_RAIL,
+  PAGE_KPI_GRIDS,
+  RAIL_LAYOUT,
+} from "@/lib/page-layout";
 import type { CrmEvent } from "@/types";
 
 /** Reference filter vocabulary — six type options (incl. Reminders/Demos). */
@@ -318,13 +323,15 @@ export default function CalendarPage() {
         {/* Upcoming + Agenda — session-6: lg:grid-cols-2 gap-6 inside the
             flex-1 column (below the month card). */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Upcoming Events</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
+          {/* Session-9: the reference renders these two rail cards with
+              p-6 ON the card (no header/content split) and a literal h3
+              title (text-lg font-semibold mb-4) — unlike the CardTitle
+              divs everywhere else. */}
+          <Card className="p-6">
+            <h3 className="mb-4 text-lg font-semibold">Upcoming Events</h3>
+            <div className="flex flex-col gap-3">
               {upcoming.length === 0 ? (
-                <p className="py-4 text-center text-xs text-muted">No upcoming events</p>
+                <p className={EMPTY_STATE.calendar}>No upcoming events</p>
               ) : (
                 upcoming.map((e) => (
                   <button
@@ -347,17 +354,19 @@ export default function CalendarPage() {
                   </button>
                 ))
               )}
-            </CardContent>
+            </div>
           </Card>
 
-          <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>Agenda View</CardTitle>
+          <Card className="p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Agenda View</h3>
+              {/* Functional superset: the selected-day context (the
+                  reference's agenda is empty at rest — no date shown). */}
               <span className="text-xs text-muted">{formatDate(selectedDay)}</span>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2.5">
+            </div>
+            <div className="flex flex-col gap-2.5">
               {dayAgenda.length === 0 ? (
-                <p className="py-4 text-center text-xs text-muted">No events found</p>
+                <p className={EMPTY_STATE.calendar}>No events found</p>
               ) : (
                 dayAgenda.map((e) => (
                   <div key={e.id} className="rounded-lg border border-line p-3">
@@ -391,7 +400,7 @@ export default function CalendarPage() {
                   </div>
                 ))
               )}
-            </CardContent>
+            </div>
           </Card>
         </div>
         </div>

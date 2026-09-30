@@ -193,6 +193,7 @@ export default function ActivitiesPage() {
     <div>
       <PageHeader
         title="Activities"
+        variant="activities"
         actions={
           <>
             {/* Session-8 (S8-6, re-pinned from the live DOM): the quick-log

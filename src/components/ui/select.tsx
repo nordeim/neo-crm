@@ -17,7 +17,10 @@ function SelectTrigger({
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        "flex h-9 w-full items-center justify-between gap-2 whitespace-nowrap rounded-lg border border-line bg-white px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate data-[placeholder]:text-subtle",
+        // Session-9 (S9-16): the reference's Select trigger focuses with a
+        // 1px near-black ring (`focus:ring-1 focus:ring-ring`) and no
+        // border-color change — extracted from the live accounts toolbar.
+        "flex h-9 w-full items-center justify-between gap-2 whitespace-nowrap rounded-lg border border-line bg-white px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-subtle focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate data-[placeholder]:text-subtle",
         className,
       )}
       {...props}

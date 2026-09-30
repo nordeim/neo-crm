@@ -12,11 +12,12 @@ test("dashboard renders seeded KPIs, charts and recent deals", async ({ page }) 
   await expect(page.getByText("Revenue This Month")).toBeVisible();
   await expect(page.getByText("Conversion Rate")).toBeVisible();
 
-  // Charts + lists
-  await expect(page.getByRole("heading", { name: "Sales Pipeline by Stage" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Revenue Over Time" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Top Performing Sales Reps" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Recent Deals" })).toBeVisible();
+  // Charts + lists — session-9 (S9-3): card titles are DIVs on the
+  // reference (no heading semantics), so these are text locators now.
+  await expect(page.getByText("Sales Pipeline by Stage")).toBeVisible();
+  await expect(page.getByText("Revenue Over Time")).toBeVisible();
+  await expect(page.getByText("Top Performing Sales Reps")).toBeVisible();
+  await expect(page.getByText("Recent Deals")).toBeVisible();
 
   // Seeded rows are present (24 leads seeded).
   await expect(page.getByText("24", { exact: true }).first()).toBeVisible();

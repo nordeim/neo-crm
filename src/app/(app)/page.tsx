@@ -7,6 +7,8 @@ import {
   PAGE_KPI_GRIDS,
   FILTER_BAR,
   VIEW_SWITCHER,
+  EMPTY_STATE,
+  TOP_REPS,
 } from "@/lib/page-layout";
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -278,37 +280,35 @@ export default function DashboardPage() {
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </CardHeader>
-          <CardContent className="px-2.5">
-            {(dashboard?.topReps ?? []).length === 0 ? (
-              <p className="px-2.5 py-6 text-center text-xs text-muted">No reps yet</p>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-[11px] tracking-wide text-subtle">
-                    <th className="px-2.5 pb-2 font-medium">Sales Rep</th>
-                    <th className="px-2.5 pb-2 text-right font-medium">Deals</th>
-                    <th className="px-2.5 pb-2 font-medium">Owner</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(dashboard?.topReps ?? []).map((r) => (
-                    <tr key={r.id} className="border-t border-line/70">
-                      <td className="px-2.5 py-2">
-                        <span className="flex items-center gap-2">
-                          <Avatar name={r.name} color={r.avatarColor} size="sm" />
-                          <span className="truncate font-medium text-foreground">{r.name}</span>
-                        </span>
-                      </td>
-                      <td className="px-2.5 py-2 text-right">
-                        <span className="font-semibold text-foreground">{r.deals}</span>
-                        <span className="block text-[11px] text-muted">{formatCompactCurrency(r.value)}</span>
-                      </td>
-                      <td className="px-2.5 py-2 text-xs text-muted">{r.name}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+          <CardContent>
+            {/* Session-9 (S9-17): the reference renders this card as a DIV
+                list, not a table — a bordered header row (Sales Rep left,
+                Deals/Owner right in a flex gap-8) inside space-y-4. At zero
+                data it renders the header row alone (no empty state). */}
+            <div className="space-y-4">
+              <div className={TOP_REPS.headerRow}>
+                <span>Sales Rep</span>
+                <div className={TOP_REPS.colRight}>
+                  <span>Deals</span>
+                  <span>Owner</span>
+                </div>
+              </div>
+              {(dashboard?.topReps ?? []).map((r) => (
+                <div key={r.id} className="flex items-center justify-between text-sm">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <Avatar name={r.name} color={r.avatarColor} size="sm" />
+                    <span className="truncate font-medium text-foreground">{r.name}</span>
+                  </span>
+                  <div className="flex items-center gap-8">
+                    <span className="text-right">
+                      <span className="font-semibold text-foreground">{r.deals}</span>
+                      <span className="block text-[11px] text-muted">{formatCompactCurrency(r.value)}</span>
+                    </span>
+                    <span className="text-xs text-muted">{r.name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -326,8 +326,10 @@ export default function DashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
+            {/* Session-9 (S9-10): at zero data the reference renders an
+                EMPTY space-y-3 container — no empty-state paragraph. */}
             {(dashboard?.leadSources ?? []).length === 0 ? (
-              <p className="py-6 text-center text-xs text-muted">No lead sources yet</p>
+              <div className="space-y-3" />
             ) : (
               <div className="flex flex-col gap-2.5">
                 {(dashboard?.leadSources ?? []).slice(0, 6).map((s) => {
@@ -366,7 +368,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {(dashboard?.upcomingActivities ?? []).length === 0 ? (
-              <p className="py-6 text-center text-xs text-muted">No upcoming activities</p>
+              <p className={EMPTY_STATE.dashboardList}>No upcoming activities</p>
             ) : (
               <div className="flex flex-col gap-3">
                 {(dashboard?.upcomingActivities ?? []).slice(0, 5).map((a) => {
@@ -395,8 +397,11 @@ export default function DashboardPage() {
       {/* Recent deals — session-5: the reference renders this as a COMPACT
           custom table (tr text-xs text-gray-500, th py-2 font-medium, no
           horizontal cell padding — the card's p-6 provides the gutters) plus
-          a trailing w-8 action column. The reference's DUPLICATE "Status"
-          column is a defect we do not copy (documented). */}
+          a trailing w-8 action column. Session-9 (S9-9): the reference's
+          DUPLICATE "Status" column is now MIRRORED (visible quirk —
+          strict-mirror precedent: the "Add new industrie" typo, dead
+          controls, empty-label selects); the cells render the same badge
+          twice. */}
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Recent Deals</CardTitle>
@@ -405,8 +410,27 @@ export default function DashboardPage() {
           </Button>
         </CardHeader>
         <CardContent>
+          {/* Session-9 (S9-9): at zero rows the reference renders the
+              compact table with an EMPTY tbody — the old empty-state
+              paragraph is removed; the Cards superset keeps its grid. */}
           {filteredDeals.length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted">No deals match the current filters</p>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-line text-xs text-muted">
+                    <th className="py-2 text-left font-medium">Lead</th>
+                    <th className="py-2 text-left font-medium">Company</th>
+                    <th className="py-2 text-left font-medium">Deal Value</th>
+                    <th className="py-2 text-left font-medium">Status</th>
+                    <th className="py-2 text-left font-medium">Owner</th>
+                    <th className="py-2 text-left font-medium">Close Date</th>
+                    <th className="py-2 text-left font-medium">Status</th>
+                    <th className="w-8" />
+                  </tr>
+                </thead>
+                <tbody />
+              </table>
+            </div>
           ) : dealsView === "Cards" ? (
             /* S8-2 functional superset: the reference's view-switcher is
                dead; picking Cards here renders a compact card grid instead
@@ -441,16 +465,23 @@ export default function DashboardPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-line text-xs text-muted">
+                    {/* Session-9 (S9-9): the reference renders EIGHT columns —
+                        "Status" appears TWICE after Close Date (a visible
+                        copy-paste quirk, mirrored per the strict-mirror
+                        precedent — see the quirk register). */}
                     <th className="py-2 text-left font-medium">Lead</th>
                     <th className="py-2 text-left font-medium">Company</th>
                     <th className="py-2 text-left font-medium">Deal Value</th>
                     <th className="py-2 text-left font-medium">Status</th>
                     <th className="py-2 text-left font-medium">Owner</th>
                     <th className="py-2 text-left font-medium">Close Date</th>
+                    <th className="py-2 text-left font-medium">Status</th>
                     <th className="w-8" />
                   </tr>
                 </thead>
                 <tbody>
+                  {/* At zero rows the reference renders the headers with an
+                      EMPTY tbody — no empty-state paragraph. */}
                   {filteredDeals.map((l) => (
                     <tr key={l.id} className="border-b border-line text-xs text-muted transition-colors hover:bg-line-soft/60">
                       <td className="py-2 font-medium text-foreground">{l.name}</td>
@@ -468,6 +499,11 @@ export default function DashboardPage() {
                         </span>
                       </td>
                       <td className="py-2">{formatDate(l.closedAt ?? l.expectedCloseDate)}</td>
+                      <td className="py-2">
+                        <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
+                          {STAGE_META[l.stage]?.label ?? l.stage}
+                        </Badge>
+                      </td>
                       <td className="w-8" />
                     </tr>
                   ))}

@@ -32,7 +32,8 @@ import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { toast } from "@/components/ui/toast";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
-import { LEADS_FILTERS_POPOVER, LEADS_TOOLBAR, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
+import {
+  PAGE_HEADER, LEADS_FILTERS_POPOVER, LEADS_TOOLBAR, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import {
   DEFAULT_LEAD_FILTERS,
@@ -200,11 +201,13 @@ export default function LeadsPage() {
                 zero data (unlike accounts/contacts) — mirrored. */}
             <Button
               variant="outline"
+              className={PAGE_HEADER.leads.buttonStretch}
               onClick={() => downloadFile("/api/export?type=leads&download=1")}
             >
               <Download className="h-4 w-4" /> Export
             </Button>
             <Button
+              className={PAGE_HEADER.leads.buttonStretch}
               onClick={() => {
                 setEditing(null);
                 setDialogOpen(true);

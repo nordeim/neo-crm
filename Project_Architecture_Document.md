@@ -350,7 +350,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 9 Vitest suites — 133 checks
+│   ├── *.test.ts                # 10 Vitest suites — 148 checks
 │   └── e2e/                     # global-setup, auth.setup, 4 spec files — 21 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -659,12 +659,14 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — csv | 1 | 8 | `tests/csv.test.ts` | Vitest |
 | Unit — rate-limit | 1 | 6 | `tests/rate-limit.test.ts` | Vitest |
 | Unit — chart palette + vocabularies (DOM-pinned) | 1 | 8 | `tests/constants.test.ts` | Vitest |
-| Unit — layout + chrome contracts (DOM-pinned, sessions 6–8) | 1 | 58 | `tests/page-layout.test.ts` | Vitest |
+| Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
+| Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–9) | 1 | 58 | `tests/page-layout.test.ts` | Vitest |
+| Unit — design tokens (shadow-scale re-pin, ring color — session-9) | 1 | 3 | `tests/design-tokens.test.ts` | Vitest |
 | E2E — auth (logged out) | 1 | 3 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path | 1 | 12 | `tests/e2e/crm.spec.ts` | Playwright |
-| E2E — mobile nav regression | 1 | 5 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **12** | **113** | | |
+| E2E — mobile nav regression | 1 | 6 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
+| **Total** | **14** | **148 unit + 22 e2e** | | |
 
 ### 7.2 Test Patterns
 

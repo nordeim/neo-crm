@@ -3,10 +3,19 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { BUTTON_BASE } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 
+// Session-9 (S9-1, S9-16): the reference's text buttons carry `mr-2` ON
+// their icons in addition to the flex gap-2 — a measured 16px icon-text
+// gap (ours was 8px); icon-only buttons get no margin (only-child guard).
+// Focus rings are 1px near-black (`ring-ring`, --color-ring = #0a0a0a).
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  cn(
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    BUTTON_BASE.iconGap,
+    BUTTON_BASE.focusRing,
+  ),
   {
     variants: {
       variant: {

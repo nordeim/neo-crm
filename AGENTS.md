@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (133 checks)         | `bun run test`                         |
+| Unit tests (148 checks)         | `bun run test`                         |
 | Browser E2E (22 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (133) → `bun run build` → `bun run test:e2e` (22). There is no
+`bun run test` (148) → `bun run build` → `bun run test:e2e` (22). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -58,7 +58,13 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   ignored). `postcss.config.mjs` MUST keep the `@tailwindcss/postcss` plugin —
   without it `@theme`/`@utility` directives are never compiled and pages
   render unstyled (this exact bug shipped once; see
-  `docs/Tailwind-V4-Validation-Report.md`).
+  `docs/Tailwind-V4-Validation-Report.md`). **v4 also renamed
+  the shadow scale** (v3 `shadow-sm` -> v4 `shadow-xs`, v3 `shadow` -> v4
+  `shadow-sm`), so the v4 default `shadow-sm` renders ONE STEP HEAVIER than
+  the reference's `shadow-sm` (session-9 computed-probe fix): `@theme`
+  re-pins `--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05)` (pinned by
+  `tests/design-tokens.test.ts`). Bare `shadow` (the Card family) matches
+  both sides and is NOT overridden.
 - **`tw-animate-css` is vendored at `src/app/vendor/tw-animate.css`** — the
   npm package exposes only the `style` export condition, which Turbopack's CSS
   resolver does not support (`Can't resolve 'tw-animate-css'`). Import the
@@ -115,6 +121,31 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the `src/lib/lead-filters.ts` encode/decode seam (localStorage key
   `neo-crm.leads.view`); Clear resets. The dashboard has NO owner filter —
   the old "All Owners" select was a misread of the empty switcher.
+- **Component anatomy (session-9)**: button icons in TEXT buttons carry
+  `mr-2` on top of the flex `gap-2` (a measured 16px icon-text gap;
+  `BUTTON_BASE.iconGap` applies it via `[&_svg]:mr-2
+  [&_svg:only-child]:mr-0`, so icon-only buttons stay unmarginated). Focus
+  rings are 1px near-black (`ring-1 ring-ring`, `--color-ring: #0a0a0a`) on
+  inputs, buttons and selects; tabs keep ring-2 + offset. Inputs are
+  `text-base md:text-sm` (16px below md, matching the reference's phones).
+  **CardTitle renders a `<div>`** (the reference has no card-heading
+  semantics; the activities h2s and the calendar rail h3s are literal
+  elements, and e2e card-title assertions use text locators). **Entity
+  dialog submit buttons are DARK neutral-900** (`DIALOG_SUBMIT` - the
+  reference's in-dialog `--primary` is stock shadcn dark rgb(23,23,23);
+  header primary buttons stay blue-600). The settings page uses the PLAIN
+  header variant (`PAGE_HEADER.settings` - a `mb-6` div with a
+  non-responsive text-3xl h1); leads actions stack `flex-col sm:flex-row`
+  with per-button `w-full sm:w-auto`; activities actions `flex-wrap`. The
+  dashboard Recent Deals table mirrors the reference's EIGHT columns -
+  "Status" appears TWICE (a visible quirk; quirk register) - and renders an
+  empty tbody at zero rows. Empty states: dashboard lists `py-4 text-sm`,
+  calendar/activities `py-8` (16px inherited), reports IN-TABLE rows with
+  no vertical padding; reports table cards inset their tables (`p-6 pt-0`,
+  `REPORTS_TABLE_CARD`). Top Performing Sales Reps is a DIV list
+  (`TOP_REPS`), not a table. The profile card: default-size Upload Photo +
+  stretched buttons, Avatar-primitive avatar with a stroke-2 user icon, and
+  the raw lowercase role value.
 - **Status vocabularies are distinct** — never mix them. Lead stages
   (incl. session-5's `unqualified` — dropped = `lost` + `unqualified` via
   `isDroppedStage()`), account statuses, activity types/statuses, event
@@ -183,7 +214,7 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `format.ts`, `csv.ts`, `rate-limit.ts`, `lead-filters.ts`, `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies, the
   layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8) — 133 Vitest checks). Route handlers
+  sessions 6–8) — 148 Vitest checks). Route handlers
   and pages import these modules; don't inline their logic. E2E uses its own
   scratch database (`db/e2e.db` via `tests/e2e/global-setup.ts`, in-place
   reseed) on port 3100 against the standalone build.

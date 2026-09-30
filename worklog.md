@@ -171,3 +171,21 @@ Work Log:
 Stage Summary:
 - Gate: lint 0/0 · typecheck clean · 133/133 unit · build clean · 22/22 e2e; drawer closes+unlocks at md exactly like it hides; view switchers + filters popover functional
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+---
+Task ID: 10
+Agent: main (Super Z)
+Task: Session 9 — component-anatomy parity + Tailwind v4 shadow-scale bug on neo-crm
+
+Work Log:
+- Pulled to 2c6eb3e (docs/session_10.md = session-8 transcript); full docs + codebase review; baseline gate green (133/133 unit); .env/db/test configs verified
+- Live-site audit at DESKTOP 1512 first (the 390px first pass produced recharts tick-dropping false positives — pipeline stages MATCH at desktop width); all 9 routes captured from both apps + computed-style probes + structured DOM diffing; demo data STILL zero (5th session)
+- 18 DOM-verified findings incl. REAL TAILWIND v4 BUG (S9-P0): our v4.3.3 shadow-sm compiles one step heavier than the reference's (the v3->v4 shadow-scale rename; reference shadow-sm computes 0 1px 2px 0.05) — fixed via a single @theme re-pin pinned by the new tests/design-tokens.test.ts
+- Other fixes: 16px button icon-text gap (svg mr-2 + only-child guard), dark neutral-900 dialog submits (reference in-dialog --primary = stock rgb(23,23,23)), CardTitle h3->div, settings plain header variant, leads actions flex-col sm:flex-row + per-button stretch, activities flex-wrap, reports unwrapped header button + p-6 pt-0 inset tables + in-table no-py empty rows, Recent Deals 8-column mirror (duplicate Status quirk — decision reversal documented) + empty tbody, empty-state anatomy (dashboard py-4 text-sm / calendar py-8 / Lead Sources empty container), Top Reps div-list, inputs text-base md:text-sm (16px below md), focus rings ring-1 ring-ring (--color-ring #0a0a0a) on inputs/buttons/selects + ring-2+offset tabs, profile surface (Avatar primitive + stroke-2 icon, stretched buttons, Enter your full name placeholder, raw lowercase role, always-enabled Save, space-y column, no h-fit)
+- TDD: design-tokens.test.ts (3) + 12 page-layout pins RED first (14 failing) -> 148/148; VLM round-2 refinements (Save enabled at rest, lowercase role input) both DOM-verified on live
+- Full gate green: lint 0/0 · tsc · 148/148 unit · build · 22/22 e2e (mobile-nav 6/6); DOM re-verified at 6 breakpoints + 390 route sweep (zero overflow); drawer regression re-verified; 5 VLM page comparisons (all residuals zero-data artifacts; profile ALIGNED)
+- 12 screenshots refreshed (login captured logged-out); .env.example verified; docs realigned (README, AGENTS + session-9 contracts + shadow-scale hazard, CLAUDE, PAD, SKILL v1.6.0 + quirk register, plan addendum, session_11.md log, worklog)
+
+Stage Summary:
+- Gate: lint 0/0 · typecheck clean · 148/148 unit · build clean · 22/22 e2e; shadow-sm now computes 0 1px 2px 0.05 like the reference; buttons/inputs/dialogs/empty states/tables anatomy-aligned
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

@@ -29,6 +29,23 @@
   --color-line: #e5e7eb;
   --color-line-soft: #f3f4f6;
 
+  /* Focus ring (session-9 S9-16): the reference's --ring is the stock
+     shadcn `0 0% 3.9%` (#0a0a0a) — focused controls render a 1px
+     near-black ring, not the app blue. Consumed by `ring-ring` utilities. */
+  --color-ring: #0a0a0a;
+
+  /* Shadow scale (session-9 S9-P0 — Tailwind v4 rename bug): v4 renamed
+     the scale (v3 shadow-sm → v4 shadow-xs; v3 shadow → v4 shadow-sm), so
+     v4's default `shadow-sm` compiles ONE STEP HEAVIER than the reference
+     app's `shadow-sm` (verified: the reference's outline buttons compute
+     `0 1px 2px 0 rgb(0 0 0 / .05)`, ours computed `0 1px 3px …, 0 1px 2px
+     -1px …`). Re-pin shadow-sm to the reference-computed tiny value. Bare
+     `shadow` (the Card family) already matches both sides and is left on
+     the v4 default. See docs/plans/2026-09-30-session9-parity-remediation.md
+     and skills/avant-garde-design-v4/references/02-tailwind-v4-deep-dive.md
+     ("Renamed Utilities"). */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
   /* Feedback */
   --color-success: #10b981;
   --color-success-soft: #ecfdf5;

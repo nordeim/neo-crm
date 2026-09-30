@@ -77,7 +77,9 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => onValueChange(tab.id)}
                 className={cn(
-                  "inline-flex h-7 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                  // Session-9 (S9-16): the reference's tabs focus with a 2px
+                // near-black ring + offset (ring-ring ring-offset-2).
+                "inline-flex h-7 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isActive ? activeClass : "text-muted hover:text-foreground",
                 )}
               >
@@ -118,7 +120,7 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
               tabIndex={isActive ? 0 : -1}
               onClick={() => onValueChange(tab.id)}
               className={cn(
-                "-mb-px whitespace-nowrap rounded-t-md border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                "-mb-px whitespace-nowrap rounded-t-md border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 isActive
                   ? "border-primary text-primary"
                   : "border-transparent text-muted hover:border-line hover:text-foreground",

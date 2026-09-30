@@ -40,7 +40,7 @@ first boot.
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate — the fix the reference app never shipped |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
-| 🧪 Tested | 133 Vitest unit checks + 22 Playwright E2E checks, including a 6-check mobile-nav regression suite (resize lock-release included) |
+| 🧪 Tested | 148 Vitest unit checks + 22 Playwright E2E checks, including a 6-check mobile-nav regression suite (resize lock-release included) |
 
 ## Architecture
 
@@ -157,7 +157,7 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 133 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters)
+bun run test          # 148 Vitest unit checks (auth, avatar, constants, db-path, page-layout, format, csv, rate-limit, lead-filters)
 bun run build         # E2E runs against the standalone production build
 bun run test:e2e      # 22 Playwright checks on :3100 with its own db/e2e.db
 ```
