@@ -1866,9 +1866,15 @@ describe("session-17: the remaining glyph swaps (S17-P2c-f)", () => {
     expect(src).toMatch(/<Scan /);
     expect(src).not.toMatch(/<ScanLine|ScanLine,/);
     expect(src).toMatch(/<Download /);
-    // the lucide Upload import/render must be gone (the prose "Upload a
-    // CSV" helper text in the import dialog is not an icon)
-    expect(src).not.toMatch(/<Upload|Upload,/);
+    // Session-26 refinement: the no-Upload rule is scoped to the TOOLBAR
+    // Import button (the page-header action row) — the rebuilt import
+    // DIALOG's dropzone legitimately ships the reference's `lucide-upload
+    // w-8 h-8 text-gray-400` glyph (live DOM probe, S26-P6). The toolbar
+    // Import button keeps the Download quirk.
+    const toolbar = src.slice(src.indexOf("actions={"), src.indexOf("<ContactDialog open"));
+    const importBtn = toolbar.slice(toolbar.indexOf("setImportOpen(true)"));
+    expect(importBtn.slice(0, 400)).toMatch(/<Download className="h-4 w-4"/);
+    expect(importBtn.slice(0, 400)).not.toMatch(/<Upload /);
   });
 
   it("leads chips: CircleCheckBig (Won Deals) + Calendar (Avg. Sales Cycle)", () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { downloadFile } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
 import * as React from "react";
 import {
   Award,
@@ -8,7 +8,9 @@ import {
   ChevronDown,
   ChevronUp,
   CircleAlert,
+  CircleCheckBig,
   Download,
+  FileText,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -19,6 +21,7 @@ import {
   Search,
   Trash2,
   TrendingUp,
+  Upload,
   Users,
 } from "lucide-react";
 import { FilterPolygon } from "@/components/ui/icons";
@@ -46,7 +49,8 @@ import { ContactDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { PRIORITY_META } from "@/lib/constants";
 import { timeAgo } from "@/lib/format";
-import { toast } from "@/components/ui/toast";
+import { csvFilename } from "@/lib/csv";
+import { toQuotedCsv } from "@/lib/entity-export";
 import type { Contact } from "@/types";
 
 type SortKey = "name" | "lastActivity";
@@ -65,6 +69,13 @@ export default function ContactsPage() {
   const [editing, setEditing] = React.useState<Contact | null>(null);
   const [scanOpen, setScanOpen] = React.useState(false);
   const [importOpen, setImportOpen] = React.useState(false);
+  // Session-26 (S26-P6): the reference's import dialog state — the chosen
+  // file, the busy flag, the result (green/red). The reference also tracks
+  // uploading separately (its base44 storage round-trip); our parse is
+  // local so one busy flag covers it (documented divergence).
+  const [importFile, setImportFile] = React.useState<File | null>(null);
+  const [importBusy, setImportBusy] = React.useState(false);
+  const [importResult, setImportResult] = React.useState<{ success: boolean; message: string } | null>(null);
 
   React.useEffect(() => {
     if (hydrated) fetchContacts();
@@ -112,32 +123,87 @@ export default function ContactsPage() {
     await deleteContact(contact.id);
   }
 
-  async function handleImport(file: File) {
-    const text = await file.text();
-    const rows = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((r) => r.trim().length > 0);
-    if (rows.length < 2) {
-      toast.error("Import failed", "The CSV needs a header row and at least one contact.");
-      return;
+  /** Session-26 (S26-P5): the reference's contacts page export
+   * (bundle-extracted): a client-side quoted CSV with the 7-column set
+   * Name,Email,Phone,Company,Position,Status,Source + the
+   * `contacts_ISO-date.csv` filename + the `if (length === 0) return;`
+   * guard. Replaces the /api/export wiring. */
+  function exportContacts() {
+    if (contacts.length === 0) return;
+    const header = ["Name", "Email", "Phone", "Company", "Position", "Status", "Source"];
+    const rows = contacts.map((c) => [
+      c.name || "",
+      c.email || "",
+      c.phone || "",
+      c.company || "",
+      c.position || "",
+      c.status || "",
+      c.source || "",
+    ]);
+    downloadBlob(toQuotedCsv(header, rows), csvFilename("contacts"), "text/csv");
+  }
+
+  /** Session-26 (S26-P6): the reference's import flow (bundle-extracted):
+   * the row filter requires name AND email; the messages are its exact
+   * vocabulary ("Could not map any CSV column to the target schema" /
+   * "No valid contacts found. Make sure your file has name and email
+   * columns." / "Failed to import contacts. Please try again."); the
+   * success message `Successfully imported N contact(s)` + the 2-second
+   * auto-close with the refetch (its onImportComplete callback). */
+  async function runImport() {
+    if (!importFile) return;
+    setImportBusy(true);
+    try {
+      const text = await importFile.text();
+      const rows = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((r) => r.trim().length > 0);
+      const header = rows[0]?.split(",").map((h) => h.trim().toLowerCase()) ?? [];
+      const idx = (name: string) => header.indexOf(name);
+      if (idx("name") < 0 && idx("email") < 0) {
+        setImportBusy(false);
+        setImportResult({ success: false, message: "Could not map any CSV column to the target schema" });
+        return;
+      }
+      let created = 0;
+      for (const row of rows.slice(1)) {
+        const cells = row.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+        const name = cells[idx("name")] ?? "";
+        const email = cells[idx("email")] ?? "";
+        if (!name || !email) continue;
+        const res = await createContact({
+          name,
+          email,
+          phone: cells[idx("phone")] || undefined,
+          company: cells[idx("company")] || undefined,
+          position: cells[idx("position")] || undefined,
+          source: cells[idx("source")] || "email",
+        });
+        if (res.ok) created += 1;
+      }
+      setImportBusy(false);
+      if (created > 0) {
+        setImportResult({
+          success: true,
+          message: `Successfully imported ${created} contact${created === 1 ? "" : "s"}`,
+        });
+        // The reference's setTimeout(…, 2e3): refetch, close, clear.
+        window.setTimeout(async () => {
+          await fetchContacts();
+          resetImportDialog();
+          setImportOpen(false);
+        }, 2000);
+      } else {
+        setImportResult({ success: false, message: "No valid contacts found. Make sure your file has name and email columns." });
+      }
+    } catch {
+      setImportBusy(false);
+      setImportResult({ success: false, message: "Failed to import contacts. Please try again." });
     }
-    const header = rows[0].split(",").map((h) => h.trim().toLowerCase());
-    const idx = (name: string) => header.indexOf(name);
-    let created = 0;
-    for (const row of rows.slice(1)) {
-      const cells = row.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-      const name = cells[idx("name")] ?? "";
-      if (!name) continue;
-      const res = await createContact({
-        name,
-        email: cells[idx("email")] || undefined,
-        phone: cells[idx("phone")] || undefined,
-        company: cells[idx("company")] || undefined,
-        position: cells[idx("position")] || undefined,
-        source: cells[idx("source")] || undefined,
-      });
-      if (res.ok) created += 1;
-    }
-    setImportOpen(false);
-    toast.success("Import complete", `${created} contact${created === 1 ? "" : "s"} imported.`);
+  }
+
+  function resetImportDialog() {
+    setImportFile(null);
+    setImportResult(null);
+    setImportBusy(false);
   }
 
   return (
@@ -171,7 +237,7 @@ export default function ContactsPage() {
             <Button
               variant="outline"
               disabled={filtered.length === 0}
-              onClick={() => downloadFile("/api/export?type=contacts&download=1")}
+              onClick={exportContacts}
             >
               <Download className="h-4 w-4" /> Export CSV
             </Button>
@@ -458,38 +524,103 @@ export default function ContactsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Import */}
-      <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <DialogContent>
+      {/* Import — Session-26 (S26-P6): the reference's contract, bundle +
+          live extracted (sm:max-w-md, the Select File label, the w-32
+          dashed dropzone with the upload glyph, the chosen-file blue box,
+          the Required/Optional columns box, the Cancel/Close + Import
+          footer, the green/red result box, and the 2-second auto-close
+          after a success). NO template link — the reference ships none. */}
+      <Dialog
+        open={importOpen}
+        onOpenChange={(o) => {
+          setImportOpen(o);
+          if (!o) resetImportDialog();
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Import Contacts</DialogTitle>
-            <DialogDescription>
-              Upload a CSV with the columns: name, email, phone, company, position, source.
-            </DialogDescription>
+            <DialogDescription>Upload a CSV or Excel file with contact information</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-3">
-            <a
-              href="/api/export?type=contacts"
-              download="contacts-template.csv"
-              className="text-xs font-medium text-primary hover:underline"
-            >
-              Download the CSV template
-            </a>
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line bg-line-soft px-6 py-10 text-center transition-colors hover:border-primary/50">
-              <Download className="h-6 w-6 text-subtle" />
-              <span className="text-sm font-medium text-foreground">Choose a CSV file</span>
-              <span className="text-xs text-muted">Click to browse</span>
-              <input
-                type="file"
-                accept=".csv,text/csv"
-                className="sr-only"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleImport(file);
-                }}
-              />
-            </label>
+          <div className="space-y-4 py-4">
+            {importResult ? (
+              <div
+                className={`flex items-center gap-3 p-4 rounded-lg ${
+                  importResult.success ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+                }`}
+              >
+                {importResult.success ? (
+                  <CircleCheckBig className="w-6 h-6 text-green-600 flex-shrink-0" />
+                ) : (
+                  <CircleAlert className="w-6 h-6 text-red-600 flex-shrink-0" />
+                )}
+                <p className={`text-sm font-medium ${importResult.success ? "text-green-900" : "text-red-900"}`}>
+                  {importResult.message}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>Select File</Label>
+                  <div className="flex flex-col gap-3">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-all">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <Upload className="w-8 h-8 text-gray-400" />
+                        <p className="text-sm text-gray-600">{importFile ? importFile.name : "Click to upload CSV or Excel"}</p>
+                        <p className="text-xs text-gray-400">CSV, XLS, XLSX</p>
+                      </div>
+                      <input
+                        type="file"
+                        accept=".csv,.xls,.xlsx"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setImportFile(file);
+                            setImportResult(null);
+                          }
+                        }}
+                      />
+                    </label>
+                    {importFile && (
+                      <div className="flex items-center gap-2 p-2 bg-blue-50 rounded border border-blue-200">
+                        <FileText className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm text-blue-900 flex-1">{importFile.name}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600 space-y-1">
+                  <p className="font-semibold">Required columns:</p>
+                  <ul className="list-disc list-inside space-y-0.5 ml-2">
+                    <li>name</li>
+                    <li>email</li>
+                  </ul>
+                  <p className="font-semibold mt-2">Optional columns:</p>
+                  <ul className="list-disc list-inside space-y-0.5 ml-2">
+                    <li>phone, company, position, source</li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setImportOpen(false);
+                resetImportDialog();
+              }}
+            >
+              {importResult?.success ? "Close" : "Cancel"}
+            </Button>
+            {!importResult && (
+              <Button onClick={() => void runImport()} disabled={!importFile || importBusy}>
+                {importBusy ? "Processing..." : "Import"}
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -1315,3 +1315,193 @@ test("the Save Custom Report View round-trip (S25-P4)", async ({ page }) => {
   // Cleanup: clear the localStorage state for the later runs.
   await page.evaluate(() => window.localStorage.removeItem("crm_saved_reports"));
 });
+
+// ---------------------------------------------------------------------------
+// Session-26 (S26-P1..P6): the Settings Data-tab + import/export contract
+// layer — the descriptions, the template artifacts, the raw-dump exports,
+// the page-level quoted CSVs, the reset's native dialogs, and the rebuilt
+// Import Contacts dialog. The reset test runs LAST (its wipe must not
+// poison earlier assertions).
+// ---------------------------------------------------------------------------
+
+test("the Settings Data tab ships the three CardDescriptions (S26-P1)", async ({ page }) => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Data" }).click();
+  await expect(page.getByText("Download CSV templates for bulk imports")).toBeVisible();
+  await expect(page.getByText("Export your CRM data to CSV")).toBeVisible();
+  await expect(page.getByText("Permanently delete all CRM data. This cannot be undone.")).toBeVisible();
+});
+
+test("the template buttons download the static artifacts (S26-P3)", async ({ page }) => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Data" }).click();
+  const pairs: [string, string, string][] = [
+    ["Download Contacts Template", "contacts_template.csv", "name,email,phone,company,position,source"],
+    ["Download Accounts Template", "accounts_template.csv", "name,industry,website,phone,email,annual_revenue,employees,status"],
+    ["Download Leads Template", "leads_template.csv", "name,email,phone,company,status,source,value"],
+  ];
+  for (const [label, filename, head] of pairs) {
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: label }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe(filename);
+    const path = await download.path();
+    const { readFileSync } = await import("node:fs");
+    const body = readFileSync(path!, "utf8");
+    expect(body.startsWith(head)).toBe(true);
+    expect(body).toContain("\n");
+  }
+});
+
+test("the settings export buttons download the raw-dump CSVs (S26-P4)", async ({ page }) => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Data" }).click();
+  // Let the layout hydrate land (the raw dump no-ops at zero rows — the
+  // reference downloads an EMPTY file then, but the seeded e2e workspace
+  // must produce the quoted raw rows for the content assertions).
+  await page.waitForTimeout(600);
+  // The reference's m(entity): the header is the FIRST ROW's own keys and
+  // every value is double-quoted — singular prefixes + ISO dates.
+  const pairs: [string, RegExp][] = [
+    ["Export Contacts", /^contact_\d{4}-\d{2}-\d{2}\.csv$/],
+    ["Export Accounts", /^account_\d{4}-\d{2}-\d{2}\.csv$/],
+    ["Export Leads", /^lead_\d{4}-\d{2}-\d{2}\.csv$/],
+    ["Export Activities", /^activity_\d{4}-\d{2}-\d{2}\.csv$/],
+  ];
+  for (const [label, namePattern] of pairs) {
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: label }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(namePattern);
+    const path = await download.path();
+    const { readFileSync } = await import("node:fs");
+    const body = readFileSync(path!, "utf8");
+    // Seeded e2e data → the first line is the raw key order, quoted cells.
+    const firstLine = body.split("\n")[0]!;
+    expect(firstLine).toContain(",");
+    expect(body.split("\n")[1]!).toMatch(/^"/);
+  }
+});
+
+test("the contacts page export downloads the quoted 7-column CSV (S26-P5)", async ({ page }) => {
+  await page.goto("/contacts");
+  await expect(page.getByRole("heading", { name: "Contacts" })).toBeVisible();
+  // Wait for the store's list to land (the header button enables once the
+  // rows exist — the guard would no-op the download at zero rows).
+  await expect(page.getByRole("button", { name: "Export CSV" }).first()).toBeEnabled();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export CSV" }).first().click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^contacts_\d{4}-\d{2}-\d{2}\.csv$/);
+  const path = await download.path();
+  const { readFileSync } = await import("node:fs");
+  const body = readFileSync(path!, "utf8");
+  expect(body.split("\n")[0]).toBe('"Name","Email","Phone","Company","Position","Status","Source"');
+});
+
+test("the accounts page export downloads the quoted 10-column CSV incl. Health (S26-P5)", async ({ page }) => {
+  await page.goto("/accounts");
+  await expect(page.getByRole("heading", { name: "Accounts" })).toBeVisible();
+  // Wait for the store's list to land (the header button enables once the
+  // rows exist — the toolbar guard would no-op the download at zero rows).
+  await expect(page.getByRole("button", { name: "Export CSV" }).first()).toBeEnabled();
+  // The toolbar button (enabled at any data state); the header one may be
+  // disabled at zero data — use the toolbar instance.
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export CSV" }).last().click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^accounts_\d{4}-\d{2}-\d{2}\.csv$/);
+  const path = await download.path();
+  const { readFileSync } = await import("node:fs");
+  const body = readFileSync(path!, "utf8");
+  expect(body.split("\n")[0]).toBe(
+    '"Name","Industry","Phone","Email","Website","Annual Revenue","Employees","Status","Tier","Health"',
+  );
+});
+
+test("the Import Contacts dialog matches the reference's structure (S26-P6)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "Import" }).click();
+  const dlg = page.getByRole("dialog");
+  await expect(dlg.getByRole("heading", { name: "Import Contacts" })).toBeVisible();
+  await expect(dlg.getByText("Upload a CSV or Excel file with contact information")).toBeVisible();
+  await expect(dlg.getByText("Select File")).toBeVisible();
+  await expect(dlg.getByText("Click to upload CSV or Excel")).toBeVisible();
+  await expect(dlg.getByText("CSV, XLS, XLSX")).toBeVisible();
+  await expect(dlg.getByText("Required columns:")).toBeVisible();
+  await expect(dlg.getByText("Optional columns:")).toBeVisible();
+  // The Import button is disabled until a file is chosen; NO template link.
+  await expect(dlg.getByRole("button", { name: "Import", exact: true })).toBeDisabled();
+  await expect(dlg.getByRole("button", { name: "Cancel" })).toBeEnabled();
+  await expect(dlg.getByText("Download the CSV template")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+});
+
+test("the import round-trip: file → result box → auto-close (S26-P6)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "Import" }).click();
+  await page.setInputFiles('input[type=file]', {
+    name: "e2e-import.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("name,email,phone,company,position,source\nE2E Import,e2e-import@test.local,+1,Import Co,QA,website"),
+  });
+  // The chosen-file box shows the filename (the dropzone ALSO shows it in
+  // its own text — the reference renders both; scope to the FIRST match).
+  await expect(page.getByRole("dialog").getByText("e2e-import.csv").first()).toBeVisible();
+  await page.getByRole("button", { name: "Import", exact: true }).click();
+  // The green result box with the reference's message, then the 2s auto-close.
+  await expect(page.getByText("Successfully imported 1 contact")).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 6000 });
+  // The contact was created (the row appears — the name renders in BOTH
+  // the Table and Cards views, dual-mounted; scope to the first).
+  await expect(page.getByText("E2E Import").first()).toBeVisible();
+});
+
+test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Data" }).click();
+  const dialogs: string[] = [];
+  // First confirm → DECLINE (nothing happens); every later dialog → accept.
+  let dismissFirstConfirm = true;
+  page.on("dialog", async (d) => {
+    dialogs.push(`${d.type()}:${d.message()}`);
+    if (dismissFirstConfirm && d.type() === "confirm") {
+      dismissFirstConfirm = false;
+      await d.dismiss();
+    } else {
+      await d.accept();
+    }
+  });
+  await page.getByPlaceholder("RESET").fill("RESET");
+  const button = page.getByRole("button", { name: "Reset All Data" });
+  await expect(button).toBeEnabled();
+  // Decline: the input stays filled, no wipe.
+  await button.click();
+  await page.waitForTimeout(400);
+  await expect(page.getByPlaceholder("RESET")).toHaveValue("RESET");
+  // Accept the confirm on a second click.
+  await button.click();
+  await page.waitForTimeout(1500);
+  // The reference's dialog vocabulary (bundle-extracted).
+  expect(
+    dialogs.some((m) =>
+      m.includes("confirm:This will permanently delete all contacts, accounts, leads, opportunities, activities, and calendar events. Are you sure?"),
+    ),
+  ).toBe(true);
+  expect(dialogs.some((m) => m.includes("alert:Data reset complete"))).toBe(true);
+  // The input cleared + the button re-disabled.
+  await expect(page.getByPlaceholder("RESET")).toHaveValue("");
+  await expect(button).toBeDisabled();
+  // The wipe landed: the dashboard's currency KPIs read zero (the dashboard
+  // legacy format renders sub-1000 as the bare number — "$0").
+  await page.goto("/Dashboard");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await page.waitForTimeout(600);
+  const kpiText = await page.evaluate(() => document.body.innerText);
+  expect(kpiText).toMatch(/\$0\b/);
+  // And the contacts page shows its empty state.
+  await page.goto("/contacts");
+  await page.waitForTimeout(600);
+  const body = await page.evaluate(() => document.body.innerText);
+  expect(body).not.toContain("E2E Import");
+});

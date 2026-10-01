@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (475) → `bun run build` → `bun run test:e2e` (79). For UI
+   `bun run test` (525) → `bun run build` → `bun run test:e2e` (87). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (475 checks)               |
-| `bun run test:e2e`  | Playwright E2E (79 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (525 checks)               |
+| `bun run test:e2e`  | Playwright E2E (87 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 475 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 525 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -193,6 +193,22 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   `tests/report-periods.test.ts` (session-25: the 6-entry period
   vocabulary — today/week/month/quarter/ytd/all, the `periodStart()`
   today/ytd mappings, the `quarter` default),
+  `tests/settings-data-tab.test.ts` (session-26: the three
+  CardDescriptions + the per-index button margins + the trash2 icon),
+  `tests/reset-flow.test.ts` (session-26: the native confirm/alert
+  contract — the 118-char confirm message, the defensive/success/failure
+  alerts, NO toast on the reset path, the store's refetch half pinned),
+  `tests/csv-templates.test.ts` (session-26: the three byte-exact static
+  templates + the `_template.csv` convention + the seam wiring),
+  `tests/entity-export.test.ts` (session-26: the raw-dump seam —
+  first-row-keys header, quoted values, empty-at-zero, singular
+  prefixes; the quoted page-level contacts/accounts exports incl.
+  Health; the dead /api/export branches retired),
+  `tests/account-health.test.ts` (session-26: the stored health field —
+  schema default, the seeded three-state vocabulary, the export column),
+  `tests/import-dialog.test.ts` (session-26: the reference's Import
+  Contacts dialog — the copy, the dropzone family, the chosen-file box,
+  the Required/Optional columns, the footer gating, no template link),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
   sessions 6–11: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
@@ -217,7 +233,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 79 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 87 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -274,7 +290,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 475).
+the seam (currently 525).
 
 ## Code Quality Standards
 

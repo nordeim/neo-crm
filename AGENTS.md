@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (475 checks)         | `bun run test`                         |
-| Browser E2E (79 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (525 checks)         | `bun run test`                         |
+| Browser E2E (87 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (475) → `bun run build` → `bun run test:e2e` (79). There is no
+`bun run test` (525) → `bun run build` → `bun run test:e2e` (87). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -970,6 +970,53 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   today/week/month/quarter/ytd/all). **Load** reapplies the saved
   filters. The store's `REPORT_PERIODS` is the reference's 6-entry
   vocabulary — `this_year` was retired for `ytd`, `today` added.
+- **The Settings Data tab + import/export contract (session-26)** —
+  the three cards ship the reference's CardDescriptions (Import
+  Templates "Download CSV templates for bulk imports" / Export Data
+  "Export your CRM data to CSV" / the Danger Zone's red
+  "Permanently delete all CRM data. This cannot be undone."), the 2nd+
+  buttons carry `ml-0 sm:ml-2`, the template buttons are STATIC
+  client-side blobs (`contacts_template.csv` etc. — the seam is
+  `src/lib/csv-templates.ts`), and the export buttons are client-side
+  RAW DUMPS (`contact_/account_/lead_/activity_` + ISO date — the
+  header is the first row's OWN keys, every value double-quoted, an
+  EMPTY file at zero rows; the seam is `src/lib/entity-export.ts`).
+  NEVER wire these to `/api/export` — that route now serves only
+  `type=leads` + `type=report`.
+- **The reset flow is native-dialog-gated (session-26)** — the
+  destructive button carries the reference's `trash2` icon and its
+  handler is EXACTLY the reference's (bundle-extracted):
+  `alert("Please type RESET to confirm")` defensively, then
+  `confirm("This will permanently delete all contacts, accounts,
+  leads, opportunities, activities, and calendar events. Are you
+  sure?")`, then on success `alert("Data reset complete")` / on
+  failure `alert("Failed to reset data")` — NEVER a toast (the store's
+  `resetData` already refetches every slice — that half predates
+  session-26).
+- **The page-level exports are quoted client-side CSVs (session-26)**
+  — contacts: the 7-column set
+  Name,Email,Phone,Company,Position,Status,Source + `contacts_ISO.csv`
+  + the zero-data guard (button disabled at empty); accounts: the
+  10-column set
+  Name,Industry,Phone,Email,Website,Annual Revenue,Employees,Status,
+  Tier,Health + `accounts_ISO.csv` — the header button disabled at
+  zero data, the toolbar one enabled-but-guarded (the reference's own
+  pair inconsistency). Account carries a STORED `health`
+  (Healthy/At Risk/Needs Attention, backend-defaulted — the reference's
+  dialog has no health field). Every cell is `"quoted"`.
+- **The Import Contacts dialog is the reference's funnel (session-26)**
+  — sm:max-w-md, "Upload a CSV or Excel file with contact
+  information", the Select File label, the w-32 dashed dropzone with
+  the `upload` glyph + "Click to upload CSV or Excel" + "CSV, XLS,
+  XLSX", `accept=".csv,.xls,.xlsx"`, the blue chosen-file box, the
+  Required/Optional columns box, the Cancel/Close + Import footer
+  (disabled until a file; "Processing…" while busy), and the green/red
+  result box — `Successfully imported N contact(s)` with the
+  2-second auto-close; the failure vocabulary is the reference's exact
+  strings ("Could not map any CSV column to the target schema" /
+  "No valid contacts found. Make sure your file has name and email
+  columns." / "Failed to import contacts. Please try again."). NO
+  template link — the reference ships none.
 
 ## Conventions that differ from defaults
 

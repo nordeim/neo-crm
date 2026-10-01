@@ -403,7 +403,17 @@ export const SETTINGS_DATA = {
   listBody: "p-6 pt-0 space-y-2",
   cardTitle: "font-semibold leading-none tracking-tight",
   buttonCls: "w-full sm:w-auto",
+  /** Session-26 (S26-P1): the reference's 2nd+ button margin — live-computed
+   *  marginLeft 8px at 1280px on buttons 2-3 of the template row and 2-4 of
+   *  the export row (`ml-0` resets the mobile stack, `sm:ml-2` spaces the
+   *  inline row). A class-level pin that recorded only the FIRST button of
+   *  a row misses the family (the s24 More... lesson). */
+  buttonClsAlt: "w-full sm:w-auto ml-0 sm:ml-2",
   buttonIcon: "h-4 w-4",
+  /** Session-26 (S26-P1): the header subtitle — the reference's
+   *  CardDescription is a `text-sm text-muted-foreground` DIV (#737373);
+   *  our muted-ink token is that exact color. */
+  desc: "text-sm text-muted-ink",
 } as const;
 
 /** Session-14 (S14-P3): the Danger Zone card — the reference's TINTED
@@ -429,6 +439,11 @@ export const SETTINGS_DANGER = {
   label: 'Type "RESET" to confirm',
   inputCls: "max-w-xs",
   resetFg: "text-neutral-50",
+  /** Session-26 (S26-P1): the Danger Zone header subtitle — the reference
+   *  ships it as a `text-red-600` DIV (live DOM probe; the s14 pin recorded
+   *  the card chrome + "no warning paragraph" from a different reference
+   *  state — the live reference ships the paragraph today). */
+  desc: "text-red-600",
 } as const;
 
 /** Session-8: mobile-nav drawer contracts. The auto-close media query MUST

@@ -1,6 +1,6 @@
 "use client";
 
-import { downloadFile } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
 import * as React from "react";
 import { Building2, Download, MoreHorizontal, Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACCOUNT_STATUS_META, TIER_META, CHART_COLORS } from "@/lib/constants";
 import { formatCompactCurrency, timeAgo } from "@/lib/format";
+import { csvFilename } from "@/lib/csv";
+import { toQuotedCsv } from "@/lib/entity-export";
 import type { Account } from "@/types";
 
 const REVENUE_RANGES = [
@@ -31,6 +33,32 @@ const REVENUE_RANGES = [
 
 export default function AccountsPage() {
   const { accounts, users, activities, settings, hydrated, hydrate, deleteAccount, fetchAccounts } = useCrmStore();
+  // Session-26 (S26-P5): the reference's accounts page export
+  // (bundle-extracted): a client-side quoted CSV with the 10-column set
+  // Name,Industry,Phone,Email,Website,Annual Revenue,Employees,Status,
+  // Tier,Health + the `accounts_ISO-date.csv` filename + the
+  // `if (length === 0) return;` guard. The reference's header button is
+  // disabled at zero data; its toolbar one stays ENABLED with the runtime
+  // guard (its own pair inconsistency, mirrored verbatim). The export
+  // covers the FULL list, not the filtered view.
+  function exportAccounts() {
+    if (accounts.length === 0) return;
+    const header = ["Name", "Industry", "Phone", "Email", "Website", "Annual Revenue", "Employees", "Status", "Tier", "Health"];
+    const rows = accounts.map((a) => [
+      a.name || "",
+      a.industry || "",
+      a.phone || "",
+      a.email || "",
+      a.website || "",
+      String(a.annualRevenue || ""),
+      String(a.employees || ""),
+      a.status || "",
+      a.tier || "",
+      a.health || "",
+    ]);
+    downloadBlob(toQuotedCsv(header, rows), csvFilename("accounts"), "text/csv");
+  }
+
   const [search, setSearch] = React.useState("");
   const [ownerId, setOwnerId] = React.useState("all");
   const [industry, setIndustry] = React.useState("all");
@@ -140,7 +168,7 @@ export default function AccountsPage() {
               variant="outline"
               size="sm"
               disabled={filtered.length === 0}
-              onClick={() => downloadFile("/api/export?type=accounts&download=1")}
+              onClick={exportAccounts}
             >
               <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export CSV</span>
             </Button>
@@ -256,8 +284,7 @@ export default function AccountsPage() {
                 variant="outline"
                 size="sm"
                 className={TABLE_TOOLBAR.moreBtn}
-                disabled={filtered.length === 0}
-                onClick={() => downloadFile("/api/export?type=accounts&download=1")}
+                onClick={exportAccounts}
               >
                 Export CSV
               </Button>

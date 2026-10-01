@@ -1,8 +1,8 @@
 "use client";
 
-import { downloadFile } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
 import * as React from "react";
-import { AlertCircle, Download, Plus, X } from "lucide-react";
+import { AlertCircle, Download, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,8 @@ import { Tabs, TabsPanel } from "@/components/ui/tabs";
 import { useCrmStore } from "@/stores/crm-store";
 import { toast } from "@/components/ui/toast";
 import type { Settings } from "@/types";
+import { CSV_TEMPLATES, CSV_TEMPLATE_MIME } from "@/lib/csv-templates";
+import { entityDumpCsv, entityExportFilename } from "@/lib/entity-export";
 
 interface ListEditorProps {
   title: string;
@@ -99,7 +101,7 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
 }
 
 export default function SettingsPage() {
-  const { settings, hydrated, fetchSettings, updateSettings, resetData } = useCrmStore();
+  const { settings, hydrated, fetchSettings, updateSettings, resetData, accounts, contacts, leads, activities } = useCrmStore();
   const [tab, setTab] = React.useState("config");
   const [resetText, setResetText] = React.useState("");
 
@@ -164,40 +166,89 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-4">
               {/* Session-14 (S14-P2): the reference's template card carries
                   the 'Import ' prefix, a STOCK CardTitle and a VERTICAL
-                  space-y-2 stack of outline default-size buttons
-                  (`w-full sm:w-auto`, download icon w-4 h-4). */}
+                  space-y-2 stack of outline default-size buttons.
+                  Session-26 (S26-P1): the header gains the reference's
+                  CardDescription; the 2nd+ buttons gain `ml-0 sm:ml-2`
+                  (live-computed marginLeft 8px). S26-P3: the buttons are
+                  STATIC client-side templates (the reference's `b(key)`
+                  map — bundle-extracted), not /api/export calls. */}
               <Card>
                 <CardHeader>
                   <CardTitle>{SETTINGS_DATA.importTitle}</CardTitle>
+                  <div className={SETTINGS_DATA.desc}>Download CSV templates for bulk imports</div>
                 </CardHeader>
                 <CardContent className={SETTINGS_DATA.listBody}>
-                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=contacts")}>
+                  <Button
+                    variant="outline"
+                    className={SETTINGS_DATA.buttonCls}
+                    onClick={() => {
+                      const t = CSV_TEMPLATES.contacts;
+                      downloadBlob(t.content, t.filename, CSV_TEMPLATE_MIME);
+                    }}
+                  >
                     <Download className={SETTINGS_DATA.buttonIcon} /> Download Contacts Template
                   </Button>
-                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=accounts")}>
+                  <Button
+                    variant="outline"
+                    className={SETTINGS_DATA.buttonClsAlt}
+                    onClick={() => {
+                      const t = CSV_TEMPLATES.accounts;
+                      downloadBlob(t.content, t.filename, CSV_TEMPLATE_MIME);
+                    }}
+                  >
                     <Download className={SETTINGS_DATA.buttonIcon} /> Download Accounts Template
                   </Button>
-                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=leads")}>
+                  <Button
+                    variant="outline"
+                    className={SETTINGS_DATA.buttonClsAlt}
+                    onClick={() => {
+                      const t = CSV_TEMPLATES.leads;
+                      downloadBlob(t.content, t.filename, CSV_TEMPLATE_MIME);
+                    }}
+                  >
                     <Download className={SETTINGS_DATA.buttonIcon} /> Download Leads Template
                   </Button>
                 </CardContent>
               </Card>
 
+              {/* Session-26 (S26-P4): the exports are client-side RAW DUMPS —
+                  the reference's `m(entity)` (bundle-extracted): the header is
+                  the FIRST ROW's own keys, every value double-quoted, the
+                  filename the SINGULAR entity + ISO date. At zero rows the
+                  artifact is an EMPTY file (no header when there is no first
+                  row) — live-verified on the reference. */}
               <Card>
                 <CardHeader>
                   <CardTitle>Export Data</CardTitle>
+                  <div className={SETTINGS_DATA.desc}>Export your CRM data to CSV</div>
                 </CardHeader>
                 <CardContent className={SETTINGS_DATA.listBody}>
-                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=contacts&download=1")}>
+                  <Button
+                    variant="outline"
+                    className={SETTINGS_DATA.buttonCls}
+                    onClick={() => downloadBlob(entityDumpCsv(contacts), entityExportFilename("Contact"), "text/csv")}
+                  >
                     Export Contacts
                   </Button>
-                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=accounts&download=1")}>
+                  <Button
+                    variant="outline"
+                    className={SETTINGS_DATA.buttonClsAlt}
+                    onClick={() => downloadBlob(entityDumpCsv(accounts), entityExportFilename("Account"), "text/csv")}
+                  >
                     Export Accounts
                   </Button>
-                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=leads&download=1")}>
+                  <Button
+                    variant="outline"
+                    className={SETTINGS_DATA.buttonClsAlt}
+                    onClick={() => downloadBlob(entityDumpCsv(leads), entityExportFilename("Lead"), "text/csv")}
+                  >
                     Export Leads
                   </Button>
-                  <Button variant="outline" className={SETTINGS_DATA.buttonCls} onClick={() => downloadFile("/api/export?type=activities&download=1")}>
+                  <Button
+                    variant="outline"
+                    className={SETTINGS_DATA.buttonClsAlt}
+                    onClick={() => downloadBlob(entityDumpCsv(activities), entityExportFilename("Activity"), "text/csv")}
+                  >
                     Export Activities
                   </Button>
                 </CardContent>
@@ -206,14 +257,23 @@ export default function SettingsPage() {
               {/* Session-14 (S14-P3): the reference's TINTED warning surface
                   — border-red-200 + bg-red-50, the circle-alert title on
                   text-red-700, and a space-y-4 stack of the confirm input
-                  group then the destructive button (no warning paragraph).
-                  The reset foreground is #fafafa (neutral-50), not white. */}
+                  group then the destructive button.
+                  Session-26 (S26-P1): the header gains the reference's
+                  `text-red-600` warning paragraph (live DOM probe — the s14
+                  pin recorded "no warning paragraph" from a different
+                  reference state; the live reference ships it today).
+                  Session-26 (S26-P2): the destructive button carries the
+                  reference's trash2 icon and the handler gates on the native
+                  confirm() + reports via native alert()s (bundle-extracted:
+                  the defensive guard, the 118-char confirm message, the
+                  success/failure alerts) — the invented toast retired. */}
               <Card className={SETTINGS_DANGER.card}>
                 <CardHeader>
                   <CardTitle className={SETTINGS_DANGER.title}>
                     <AlertCircle className={SETTINGS_DANGER.titleIcon} aria-hidden="true" />
                     Danger Zone
                   </CardTitle>
+                  <div className={SETTINGS_DANGER.desc}>Permanently delete all CRM data. This cannot be undone.</div>
                 </CardHeader>
                 <CardContent className={SETTINGS_DANGER.body}>
                   <div className={SETTINGS_DANGER.group}>
@@ -232,16 +292,27 @@ export default function SettingsPage() {
                     className={SETTINGS_DANGER.resetFg}
                     disabled={resetText !== "RESET"}
                     onClick={async () => {
-                      const res = await resetData();
-                      if (res.ok) {
-                        toast.success("Workspace reset", "All domain data deleted. Seed again with `bun run db:seed`.");
-                        setResetText("");
-                      } else {
-                        toast.error("Reset failed", res.error);
+                      if (resetText !== "RESET") {
+                        alert("Please type RESET to confirm");
+                        return;
+                      }
+                      if (!confirm("This will permanently delete all contacts, accounts, leads, opportunities, activities, and calendar events. Are you sure?")) {
+                        return;
+                      }
+                      try {
+                        const res = await resetData();
+                        if (res.ok) {
+                          setResetText("");
+                          alert("Data reset complete");
+                        } else {
+                          alert("Failed to reset data");
+                        }
+                      } catch {
+                        alert("Failed to reset data");
                       }
                     }}
                   >
-                    Reset All Data
+                    <Trash2 className="h-4 w-4" /> Reset All Data
                   </Button>
                 </CardContent>
               </Card>

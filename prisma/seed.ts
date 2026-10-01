@@ -85,16 +85,16 @@ async function main() {
 
   // ---- accounts --------------------------------------------------------------
   const accountSeed = [
-    { name: "Emirates Global Trading", industry: "Logistics", revenue: 12_500_000, employees: 340, tier: "A", isKey: true, status: "active", email: "contact@egt.ae", website: "https://egt.ae" },
-    { name: "Gulf Tech Solutions", industry: "Technology", revenue: 4_800_000, employees: 120, tier: "A", isKey: true, status: "active", email: "hello@gulftech.io", website: "https://gulftech.io" },
-    { name: "Al Noor Manufacturing", industry: "Manufacturing", revenue: 8_200_000, employees: 260, tier: "B", isKey: false, status: "active", email: "info@alnoor-mfg.com" },
-    { name: "Cedar Retail Group", industry: "Retail", revenue: 2_100_000, employees: 85, tier: "B", isKey: false, status: "active", email: "team@cedarretail.com" },
-    { name: "Meridian Financial", industry: "Finance", revenue: 15_900_000, employees: 410, tier: "A", isKey: true, status: "active", email: "sales@meridianfin.com" },
-    { name: "Oasis Healthcare", industry: "Healthcare", revenue: 6_400_000, employees: 190, tier: "B", isKey: false, status: "active", email: "procurement@oasishealth.ae" },
-    { name: "Northwind Energy", industry: "Energy", revenue: 22_000_000, employees: 520, tier: "A", isKey: true, status: "active", email: "vendors@northwind.energy" },
-    { name: "Brightline Education", industry: "Education", revenue: 900_000, employees: 45, tier: "C", isKey: false, status: "inactive", email: "admin@brightline.edu" },
-    { name: "Sahara Logistics", industry: "Logistics", revenue: 3_300_000, employees: 110, tier: "C", isKey: false, status: "churned", email: "ops@saharalog.com" },
-    { name: "Falcon Analytics", industry: "Technology", revenue: 1_400_000, employees: 32, tier: "B", isKey: false, status: "active", email: "hi@falconanalytics.ai" },
+    { name: "Emirates Global Trading", industry: "Logistics", revenue: 12_500_000, employees: 340, tier: "A", isKey: true, status: "active", email: "contact@egt.ae", website: "https://egt.ae", health: "Healthy" },
+    { name: "Gulf Tech Solutions", industry: "Technology", revenue: 4_800_000, employees: 120, tier: "A", isKey: true, status: "active", email: "hello@gulftech.io", website: "https://gulftech.io", health: "Healthy" },
+    { name: "Al Noor Manufacturing", industry: "Manufacturing", revenue: 8_200_000, employees: 260, tier: "B", isKey: false, status: "active", email: "info@alnoor-mfg.com", health: "At Risk" },
+    { name: "Cedar Retail Group", industry: "Retail", revenue: 2_100_000, employees: 85, tier: "B", isKey: false, status: "active", email: "team@cedarretail.com", health: "Needs Attention" },
+    { name: "Meridian Financial", industry: "Finance", revenue: 15_900_000, employees: 410, tier: "A", isKey: true, status: "active", email: "sales@meridianfin.com", health: "Healthy" },
+    { name: "Oasis Healthcare", industry: "Healthcare", revenue: 6_400_000, employees: 190, tier: "B", isKey: false, status: "active", email: "procurement@oasishealth.ae", health: "Healthy" },
+    { name: "Northwind Energy", industry: "Energy", revenue: 22_000_000, employees: 520, tier: "A", isKey: true, status: "active", email: "vendors@northwind.energy", health: "At Risk" },
+    { name: "Brightline Education", industry: "Education", revenue: 900_000, employees: 45, tier: "C", isKey: false, status: "inactive", email: "admin@brightline.edu", health: "Needs Attention" },
+    { name: "Sahara Logistics", industry: "Logistics", revenue: 3_300_000, employees: 110, tier: "C", isKey: false, status: "churned", email: "ops@saharalog.com", health: "At Risk" },
+    { name: "Falcon Analytics", industry: "Technology", revenue: 1_400_000, employees: 32, tier: "B", isKey: false, status: "active", email: "hi@falconanalytics.ai", health: "Healthy" },
   ];
 
   const accounts: Account[] = [];
@@ -110,6 +110,8 @@ async function main() {
           tier: a.tier,
           isKey: a.isKey,
           status: a.status,
+          // Session-26 (S26-P5): the reference's three-state vocabulary.
+          health: a.health,
           email: a.email,
           website: a.website ?? null,
           phone: `+971 4 ${200 + i} ${4000 + i * 7}`,

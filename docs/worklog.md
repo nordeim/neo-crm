@@ -125,3 +125,20 @@ Work Log:
 
 Stage Summary:
 - Next: Conventional Commit on main + push via docs/ssh_git_wrapper_v3.py (paramiko shim, key outside repo, shredded after)
+
+---
+Task ID: 26 (repo)
+Agent: main (Super Z)
+Task: Session 26 — the Settings Data-tab + import/export contract layer (the s44 "Next" pointers): the three CardDescriptions, the ml-0 sm:ml-2 button margins, the native-dialog-gated reset flow, the static CSV templates, the raw-dump entity exports, the quoted page-level exports incl. the stored Account health, and the rebuilt Import Contacts dialog
+
+Work Log:
+- Workspace rebuilt from scratch (bun install, .env from .env.example with DATABASE_URL="file:../db/custom.db", db/ at the repo root via db:push + db:seed); baseline gate green (lint 0/0 · tsc · 475/475 unit)
+- Standing layers re-verified FIRST with NO drift: reference mobile nav still absent at 390 (22nd session; the sidebar links exist in the DOM but every one fails getClientRects), our drawer 7/7 + zero 390px overflow on 11 routes, Tailwind v4 hazards zero, demo data zero (22nd), typography EXACTLY equal (466.8/522.4), tabs ARIA identical, the s25 layers pinned green
+- NEW audit layer via the session's decisive method — byte-extraction of the reference's own minified bundle (fetch every /assets/ + /static/ script + indexOf walks), which unlocked the three "data-gated — 22 sessions" surfaces; six findings (S26-P1..P6), all live + bundle verified; the import-success probe was self-undoing (the danger-zone reset wiped the created contact, the zero-data state verified restored)
+- TDD Phase A: 50 red checks across six suites (RED 46/4 confirmed before implementation; the pin shapes refined mid-red — the region-anchor + quoted-literal lessons)
+- Phase B: the page-layout pins, the settings Data tab rewrite (descriptions + buttonClsAlt + Trash2 + the reference's exact confirm/alert handler), src/lib/csv-templates.ts + src/lib/entity-export.ts, the Account health field (schema + types + the seeded three-state vocabulary), the contacts export + the rebuilt import dialog, the accounts export + the header/toolbar split, /api/export retired to type=leads + type=report
+- Phase C: lint 0/0 · tsc · 525/525 unit (+50) · build · 87/87 e2e (+8; two flakes resolved — the s15 Event-dialog box + the accounts-export hydrate race) + LIVE re-verification on the dev server (descriptions, template artifacts, raw dumps, the reset round-trip, the quoted page CSVs, the import dialog attribute-by-attribute, the wipe→reseed cycle)
+- Phase D: 26 screenshots (the 24 established + shots 25/26), .env/.env.example re-verified, docs realigned (README 612, AGENTS, CLAUDE, PAD 37/525+87, SKILL v1.23.0 §16r, session_45.md, the plan addendum, both worklogs)
+
+Stage Summary:
+- PUSHED: session-26 commit on main -> git@github.com:nordeim/neo-crm.git via the SSH wrapper; all suites green (525 unit / 87 e2e); docs at SKILL v1.23.0; the reference's import path (its base44 AI-extraction platform dependency) deliberately replaced by the local CSV parse — documented divergence

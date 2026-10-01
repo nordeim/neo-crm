@@ -681,11 +681,17 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — loading-layer (the skeleton retirement — zero Skeleton imports + zero animate-pulse + the loadingFlags/loading() removals + the misc.tsx export retirement — session-25) | 1 | 8 | `tests/loading-layer.test.ts` | Vitest |
 | Unit — csv-contract (the `prefix_YYYY-MM-DD.csv` filename + the leads 8-column set + the filter-aware type=report branch + downloadBlob() + the per-table client-side blobs with the SHORTER CSV prefixes — session-25) | 1 | 7 | `tests/csv-contract.test.ts` | Vitest |
 | Unit — report-periods (the 6-entry period vocabulary today/week/month/quarter/ytd/all + the periodStart() mappings + the quarter default — session-25) | 1 | 3 | `tests/report-periods.test.ts` | Vitest |
+| Unit — settings-data-tab (the three CardDescriptions + the per-index `ml-0 sm:ml-2` button margins + the trash2 icon — session-26) | 1 | 10 | `tests/settings-data-tab.test.ts` | Vitest |
+| Unit — reset-flow (the native confirm/alert contract — the 118-char confirm message, the defensive/success/failure alerts, NO toast on the reset path, the store's refetch half — session-26) | 1 | 6 | `tests/reset-flow.test.ts` | Vitest |
+| Unit — csv-templates (the three byte-exact static templates + the `_template.csv` convention + the seam wiring with zero /api/export — session-26) | 1 | 5 | `tests/csv-templates.test.ts` | Vitest |
+| Unit — entity-export (the raw-dump seam — first-row-keys header, quoted values, empty-at-zero, singular prefixes + the quoted page-level exports incl. Health + the dead branches retired — session-26) | 1 | 16 | `tests/entity-export.test.ts` | Vitest |
+| Unit — account-health (the stored health field — the schema default, the seeded three-state vocabulary, the export column — session-26) | 1 | 4 | `tests/account-health.test.ts` | Vitest |
+| Unit — import-dialog (the reference's Import Contacts dialog — the copy, the dropzone family, the chosen-file box, the Required/Optional columns, the footer gating, no template link — session-26) | 1 | 9 | `tests/import-dialog.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — sessions 10–25) | 1 | 62 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26) | 1 | 70 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **31** | **475 unit + 79 e2e** | | |
+| **Total** | **37** | **525 unit + 87 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -1099,7 +1105,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 475/475
+- [ ] `bun run test` — 525/525
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 73/73
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -1169,8 +1175,8 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 280 unit checks |
-| `bun run test:e2e` | root | 37 browser checks (build first) |
+| `bun run test` | root | 525 unit checks |
+| `bun run test:e2e` | root | 87 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |
 | `bunx prisma generate` | root | Regenerate client after schema edits |

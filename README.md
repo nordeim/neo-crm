@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-554%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-612%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -29,13 +29,13 @@ first boot.
 | Feature | Description |
 | ------- | ----------- |
 | 📊 Dashboard | 6 KPI cards with deltas and sparkline strips, pipeline bar chart, revenue-vs-target line chart, top reps, lead sources, upcoming activities, recent deals (table/cards view switcher) — the reference's old-lucide POLYGON filter glyph (hand-rolled SVG: lucide 0.525 re-exports the curved Funnel as Filter) |
-| 🏢 Accounts | Tiered company records (A/B/C + key accounts), industry/revenue/owner filters, table/cards view switcher, CSV export |
-| 👥 Contacts | Hot/warm/cold priorities, sortable columns, CSV import, business-card scan flow (honest degradation on desktop) — the reference's only full-height layout (h-calc root directly under main, padding inside its own scroller) |
+| 🏢 Accounts | Tiered company records (A/B/C + key accounts), industry/revenue/owner filters, table/cards view switcher, CSV export — the reference's quoted 10-column client-side set incl. the stored Health field (Healthy/At Risk/Needs Attention) |
+| 👥 Contacts | Hot/warm/cold priorities, sortable columns, CSV import, business-card scan flow (honest degradation on desktop), the reference's Import Contacts dialog (Select File dropzone, the chosen-file box, the Required/Optional columns list, the green/red result box with the 2s auto-close, the exact import vocabulary) — the reference's only full-height layout (h-calc root directly under main, padding inside its own scroller) |
 | 🎯 Leads | 7-stage pipeline, deal values, follow-up dates, pipeline/won-lost charts + the recharts FunnelChart conversion funnel, filters popover (status/source/min value/follow-up) with Save View persistence |
 | 📅 Calendar | Month grid with per-type event chips, day agenda, upcoming events, type filters — the reference's flat card anatomy (split DOW/month grids, bold responsive title, 8px nav) |
 | ⚡ Activities | Call/email/meeting/WhatsApp quick-log (the reference's `calendar`/`message-square` glyphs), priority tabs (overdue / due today / upcoming / completed), activity timeline on the borderless `bg-white rounded-lg shadow p-6` card |
 | 📈 Reports | 5 analytics tabs mirroring the reference structure (Forecasting Accuracy + aging buckets + deals-at-risk tables, activity log by owner, source performance summary) |
-| ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save in a md-breaking 2-col grid, single-column workspace defaults, import templates + data export, and the tinted danger-zone reset (type RESET to confirm) |
+| ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save in a md-breaking 2-col grid, single-column workspace defaults, import templates + data export, and the tinted danger-zone reset (type RESET to confirm — a native confirm() gate + native alert() reporting, the reference's exact dialog strings) |
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
 | 📄 Document metadata | The reference's full `<head>` surface — its 405-char meta description, the complete OpenGraph + Twitter card family (1200×630 social card), a brand favicon, `/robots.txt` and a nine-route `/sitemap.xml` served in the reference's byte format (all derived from `NEXT_PUBLIC_SITE_URL` via `src/lib/site.ts`) |
 | 📲 PWA / installable | The reference's install surface — `/manifest.json` (standalone display, #000000 theme, same-src 192+512 icons) + the `apple-touch-icon` + the `mobile-web-app-capable`/`apple-*` meta family, plus PER-ROUTE canonical + OG/Twitter on every page (og:title "X \| NEO CRM", the "X on NEO CRM." description prefix — all built by the `pageMetadata()` factory in `src/lib/site.ts`) |
@@ -49,9 +49,10 @@ first boot.
 | ⌨️ Tabs (ARIA + keyboard) | The reference's full Radix tabs contract on every tab strip (activities, reports, settings) — each trigger carries `id` + `aria-controls` wired to its panel's `id`, each panel carries `aria-labelledby` back, all panel shells stay mounted (inactive ones hidden + empty), and the tablist supports the arrow-key model (ArrowLeft/Right with wrap, Home/End, automatic activation — focus follows selection). Our roving tabindex (selected tab reachable) stays the accessible superset over the reference's all-`tabIndex=-1` platform defect |
 | 🔗 Route casing | The reference's route-case contract — every app route serves at BOTH casings (`/Reports` and `/reports` alike) with NO URL normalization, each casing a first-class SSR route (og:url + canonical mirror the requested case; `/Dashboard` serves the root head like `/`); the sidebar + drawer + account-menu hrefs are the reference's CAPITALIZED paths (`/Dashboard`, …, `/Profile`) with case-insensitive active-state matching. Capital `/Login` + `/Signup` 404 on both apps (the reference case-folds only its app routes) |
 | ⏳ Loading model | The reference's instant-render-with-zeros contract — ZERO skeletons, ZERO spinners, ZERO loading UI anywhere: with a data fetch network-blocked the full page still renders immediately (KPI cards at 0, the empty table row, "Hi, Guest"). Every skeleton family retired (the empty state IS the loading state); the store's `loadingFlags` went with them |
+| 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 475 Vitest unit checks + 79 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 525 Vitest unit checks + 87 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -121,7 +122,7 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 27 Vitest suites (475 checks)
+│   ├── 📄 *.test.ts                  # 33 Vitest suites (525 checks)
 │   └── 📂 e2e/                       # Playwright (68 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
@@ -174,9 +175,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 475 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods)
+bun run test          # 525 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 79 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 87 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials — the
@@ -235,7 +236,12 @@ pass; the Reports header PDF downloading a real client-side
 reference's `open_deals_by_stage_*.pdf` + `open_deals_*.csv` artifacts;
 the Save Custom Report View round-trip — save → count "(1)" → the
 list → Load reapplies the filters; the period dropdown's 6-option
-vocabulary),
+vocabulary), the session-26 Settings import/export layer (the three
+Data-tab CardDescriptions, the static template artifacts, the raw-dump
+singular-prefix exports, the quoted page-level contacts/accounts CSVs
+incl. Health, the rebuilt Import Contacts dialog with its result box +
+2s auto-close, and the reset flow's native confirm/alert round-trip —
+decline holds, accept wipes),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

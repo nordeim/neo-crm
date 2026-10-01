@@ -49,6 +49,13 @@ model Account {
   tier          String    @default("B") // A | B | C
   isKey         Boolean   @default(false)
   status        String    @default("active") // active | inactive | churned
+  // Session-26 (S26-P5): the reference's Account entity carries a STORED
+  // health (Healthy | At Risk | Needs Attention — its detail view's
+  // class-map), backend-defaulted (its New Account dialog has NO health
+  // field — live-verified: 8 labels, none health). Our accounts page
+  // export includes the Health column; the field rides the raw JSON the
+  // same way the reference's does.
+  health        String    @default("Healthy") // Healthy | At Risk | Needs Attention
   ownerId       String?
   lastActivityAt DateTime?
   createdAt     DateTime  @default(now())

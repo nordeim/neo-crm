@@ -526,3 +526,18 @@ Work Log:
 
 Stage Summary:
 - Session-25 PUSHED + VERIFIED: all gates green (475 unit / 79 e2e / lint 0/0 / tsc 0 / build); docs at SKILL v1.22.0; 24 screenshots; deploy keys shredded after each push
+
+---
+Task ID: 26 (repo)
+Agent: main (Super Z)
+Task: Session 26 — the Settings Data-tab + import/export contract layer (the s44 "Next" pointers) + the full session arc (workspace rebuild, standing-layer re-verification, the bundle-extraction census, TDD remediation, gate, deliverables)
+
+Work Log:
+- git pull to 86405d0; workspace rebuilt from scratch; .env with DATABASE_URL="file:../db/custom.db" + db/ at the repo root; baseline gate green (475/475)
+- Standing layers: NO drift (mobile nav 22nd session, drawer 7/7, zero 390px overflow, typography equal, tabs identical, demo data zero)
+- The new census (the reference's own minified bundle): six findings — the three Data-tab CardDescriptions + ml-0 sm:ml-2, the native confirm/alert reset flow + trash2, the static CSV templates, the raw-dump singular-prefix exports, the quoted page-level exports incl. the stored Account health (a MODEL gap closed), the rebuilt Import Contacts dialog with its exact vocabulary
+- TDD: 50 red checks first (RED 46/4), then the six findings implemented (two new seams: csv-templates.ts + entity-export.ts; the Account.health schema addition; /api/export retired to type=leads + type=report)
+- Gate: lint 0/0 · tsc · 525/525 unit (+50) · build · 87/87 e2e (+8) + LIVE verification on the dev server; 26 screenshots; docs realigned at SKILL v1.23.0; commit + SSH-wrapper push on main
+
+Stage Summary:
+- Ready: the session-26 push; next unprobed pointers in docs/session_45.md (the reference's account DETAIL health surface, the calendar day-cell contract — still data-gated)
