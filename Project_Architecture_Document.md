@@ -672,11 +672,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — metadata (the siteUrl seam + SITE_DESCRIPTION + OG/Twitter/icon/sitemap/robots pins — session-18) | 1 | 14 | `tests/metadata.test.ts` | Vitest |
 | Unit — pwa-metadata (the manifest route-handler bytes + theme-color/PWA_META + the apple-icon convention + the pageMetadata() per-route factory + the dialog micro-contracts — session-19) | 1 | 14 | `tests/pwa-metadata.test.ts` | Vitest |
 | Unit — http-headers (the next.config.ts headers() security set + the static-file content-types — session-20) | 1 | 9 | `tests/http-headers.test.ts` | Vitest |
-| E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
+| Unit — login-views (the auth error strings + the Callout vocabulary + the signup/verify view machines/layouts + the verification ladder — session-21) | 1 | 31 | `tests/login-views.test.ts` | Vitest |
+| E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer — sessions 10–20) | 1 | 47 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **22** | **349 unit + 60 e2e** | | |
+| **Total** | **23** | **380 unit + 64 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -936,6 +937,38 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   `visibility` property (the fixed-position drawer panel is never
   display:none — read `getComputedStyle(el).visibility`). Pinned by
   `tests/http-headers.test.ts` + 4 e2e response-header checks.
+- **The login-card funnel layer (session-21)** — the reference's login
+  card swaps its column through FIVE in-place views at one URL: the s11
+  reset flow plus the signup view (an onclick BUTTON — the s10 "dead
+  login button" pin DISPROVEN live; a minimal Email/Password/Confirm
+  form, no name field, no Google button, no divider) and the
+  verify-email view (six 40×44 single-digit inputs, the 5-attempt
+  ladder → lockout → resend). Every auth error renders the shadcn
+  Callout banner (`bg-red-50/70 border-red-200` + the inner red-700
+  text-sm div — the red variant of the s11 sent-callout; the resend
+  confirmation rides the green variant and auto-dismisses ~3s); ZERO
+  toasts fire on the auth flows. The exact strings are pinned
+  ("Invalid email or password", "A user with this email already
+  exists", "Passwords do not match", "Please enter all 6 digits",
+  "Invalid verification code. N attempts remaining.", "Too many failed
+  attempts. Please request a new verification code.", "New
+  verification code sent to your email", "Please verify your email
+  before logging in. Check your email for the verification code.").
+  The machinery splits client/server: `src/lib/verification.ts` (pure
+  constants + messages, client-safe) vs `src/lib/verification-server.ts`
+  (node:crypto + the auth layer — NEVER imported from a client
+  component) + `/api/auth/verify` + `/api/auth/resend` + three nullable
+  User columns (NULL expiry = no verification pending — the seeded demo
+  users pass straight through). The 6-digit code is logged to the
+  SERVER console (self-hosted delivery). Census-method lessons:
+  `visibility !== 'hidden'` does NOT detect display:none ancestors (the
+  INVERSE of the s20 checkVisibility hazard — use
+  `getClientRects().length > 0`); lab()/oklab() computed colors break
+  rgb()-regex parsers; read the FULL computed box-shadow before claiming
+  a missing ring; and a bare `bunx prisma db push` writes to
+  `<parent-of-repo>/db/custom.db` under bun's .env absolutization —
+  always `bun run db:push` (the `scripts/prisma-env.ts` wrapper). Pinned
+  by `tests/login-views.test.ts` + 4 new e2e funnel checks.
 
 ### 7.3 Coverage Thresholds
 
@@ -948,9 +981,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 349/349
+- [ ] `bun run test` — 380/380
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 60/60
+- [ ] `bun run test:e2e` — 64/64
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`
@@ -1079,7 +1112,7 @@ files. Push via the SSH wrapper (§8.4).
 | `src/components/shared/entity-dialogs.tsx` | ~810 | Five entity forms, remount-via-key pattern |
 | `src/app/globals.css` | 171 | Tailwind v4 `@theme` tokens + `@utility` definitions |
 | `src/app/(app)/layout.tsx` | 12 | Session guard for every authenticated page |
-| `prisma/schema.prisma` | 186 | 8 models, SQLite datasource, indexes |
+| `prisma/schema.prisma` | 196 | 8 models, SQLite datasource, indexes, the session-21 verification columns |
 | `prisma/seed.ts` | 349 | Idempotent in-place demo workspace |
 | `tests/e2e/mobile-navigation.spec.ts` | ~100 | 5-check mobile drawer regression suite |
 | `postcss.config.mjs` | 9 | `@tailwindcss/postcss` — required for any styling at all |

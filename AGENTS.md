@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (349 checks)         | `bun run test`                         |
-| Browser E2E (60 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (380 checks)         | `bun run test`                         |
+| Browser E2E (64 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (349) → `bun run build` → `bun run test:e2e` (60). There is no
+`bun run test` (380) → `bun run build` → `bun run test:e2e` (64). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -399,7 +399,7 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 349 Vitest checks across
+  sessions 6–8 + session-10's stock-primitive pins) — 380 Vitest checks across
   18 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
@@ -417,7 +417,10 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the site seam + the head family; session-19 added
   `tests/pwa-metadata.test.ts` for the manifest/PWA/per-route factory
   pins; session-20 added `tests/http-headers.test.ts` for the
-  security-header set + the static-file content-type pins).
+  security-header set + the static-file content-type pins; session-21
+  added `tests/login-views.test.ts` for the login-card funnel — the
+  auth error strings, the Callout vocabulary, the signup/verify view
+  machines and layouts, and the verification-ladder messages).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
@@ -788,6 +791,52 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   accessible-superset pattern; its leads-table sortable headers (Lead
   Name/Email/Value, the G-5 pin) are clickable divs with the
   arrow-up-down SVG + onclick — ours are proper `<th><button>`.
+
+- **The login-card funnel is in-place and toastless (session-21)** — the
+  reference's login card swaps its column through FIVE views at one URL:
+  signin → (Need an account? Sign up — an onclick BUTTON, the s10 "dead
+  button" pin DISPROVEN live) → signup → (Create account) → verify →
+  (Verify email / Back to sign in) → signin, plus the s11 reset flow
+  (signin → reset → sent). The signup view is MINIMAL (Email / Password /
+  Confirm Password — NO name field, NO Google button, NO divider — the
+  name derives from the email local part server-side); the verify view
+  ships six 40×44 single-digit inputs (`flex items-center justify-center
+  gap-1.5`, the first `autoComplete="one-time-code"`, rest `"off"` — and
+  NO `w-full` on them: the reference's own w-full+w-10 conflict resolves
+  to 40px under its v3 cascade but flex-shrinks to ~56px under v4). Every
+  auth error renders the shadcn **Callout** banner (red variant:
+  `bg-red-50/70 border-red-200` + the inner `[&_p]:leading-relaxed
+  text-red-700 text-sm` div, including the never-rendered `[&>svg]` icon
+  classes — the same vocabulary the s11 sent-callout pinned in green; the
+  resend confirmation rides the GREEN variant and AUTO-DISMISSES ~3s
+  where error banners persist). ZERO toasts fire on the auth flows (login
+  failure = the banner only; success = a silent redirect — the only
+  remaining auth toast is the Google button's not-configured `toast.info`,
+  the documented self-hosted fallback for the reference's real OAuth
+  redirect). The exact strings, live-verified: "Invalid email or
+  password" (login), "A user with this email already exists" (signup),
+  "Passwords do not match" (the confirm guard — client-side, no network),
+  "Please enter all 6 digits" → "Invalid verification code. N attempts
+  remaining." (4…1) → "Too many failed attempts. Please request a new
+  verification code." (the 5th failure and every one after — the button
+  stays enabled), "New verification code sent to your email" (resend —
+  which RESETS the attempts), and "Please verify your email before
+  logging in. Check your email for the verification code." (an
+  unverified account's login attempt). The machinery: `src/lib/
+  verification.ts` (client-safe constants + messages) + `src/lib/
+  verification-server.ts` (code mint + scrypt hashing — SERVER-ONLY, it
+  imports the auth layer; NEVER import it from a client component) +
+  `/api/auth/verify` + `/api/auth/resend` (rate-limited) + three nullable
+  User columns (`verificationCodeHash`, `verificationAttempts`,
+  `verificationExpiresAt` — NULL expiry = "no verification pending", so
+  the seeded demo users and every pre-s21 account pass straight through).
+  A self-hosted deployment has no mail transport, so the 6-digit code is
+  logged to the SERVER console at signup/resend time — never shipped to
+  the client, never committed. Schema pushes go through
+  `bun run db:push` (the `scripts/prisma-env.ts` wrapper) — a bare
+  `bunx prisma db push` falls into the documented bun .env-absolutization
+  trap and writes to `<parent-of-repo>/db/custom.db` instead
+  (`src/lib/db-path.ts` documents it; it bit once this session).
 
 ## Conventions that differ from defaults
 

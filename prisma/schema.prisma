@@ -19,6 +19,14 @@ model User {
   passwordHash String
   avatarColor  String   @default("#2563eb")
   role         String   @default("rep") // rep | admin
+  // Session-21 (S21-P5): the email-verification funnel. A NULL
+  // verificationExpiresAt means "no verification pending" — the seeded
+  // demo users and every pre-session-21 account pass straight through
+  // login. The code itself is stored HASHED (scrypt, auth.ts's format);
+  // the plaintext rides only the server console log.
+  verificationCodeHash   String?
+  verificationAttempts   Int      @default(0)
+  verificationExpiresAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

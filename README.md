@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-409%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-444%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -41,11 +41,11 @@ first boot.
 | 📲 PWA / installable | The reference's install surface — `/manifest.json` (standalone display, #000000 theme, same-src 192+512 icons) + the `apple-touch-icon` + the `mobile-web-app-capable`/`apple-*` meta family, plus PER-ROUTE canonical + OG/Twitter on every page (og:title "X \| NEO CRM", the "X on NEO CRM." description prefix — all built by the `pageMetadata()` factory in `src/lib/site.ts`) |
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate, retry-guarded focus entry (transition-visibility race fixed) — the fix the reference app never shipped |
 | ☑️ Stock checkboxes | The reference's Radix-style button checkboxes on every filter rail (`role=checkbox` + `data-state` + Check indicator, the dark #171717 checked fill — was a native input) |
-| 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, in-place "Forgot password?" reset flow (mirrors the reference's client-side views) |
+| 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, the reference's full in-place login-card funnel: "Forgot password?" reset flow, the in-place signup view (Email/Password/Confirm — no name field, no Google, no divider) and the verify-email view with its 6-digit code ladder (5 attempts → lockout → resend); every auth error renders the reference's Callout banner — zero toasts. The code is logged to the server console (self-hosted delivery; SMTP can be wired in `src/lib/verification-server.ts`) |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
 | 🧭 Custom 404 | The reference's designed not-found page — slate-50 center card, divider bar, quoted-pathname message, Go Home pill |
 | 🛡️ Security headers | The reference's edge-injected response-header set on every route — `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security: max-age=31536000` (bare, like the reference; inert over plain-HTTP localhost per RFC 6797, correct behind HTTPS) — declared once in `next.config.ts` `headers()` |
-| 🧪 Tested | 349 Vitest unit checks + 60 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 380 Vitest unit checks + 64 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -114,8 +114,8 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 18 Vitest suites (349 checks)
-│   └── 📂 e2e/                       # Playwright (60 checks)
+│   ├── 📄 *.test.ts                  # 19 Vitest suites (380 checks)
+│   └── 📂 e2e/                       # Playwright (64 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
@@ -167,13 +167,16 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 349 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
+bun run test          # 380 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 60 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 64 Playwright checks on :3100 with its own db/e2e.db
 ```
 
-E2E coverage: logged-out surface (redirects, bad credentials, the login
-card's in-place reset-password flow), the
+E2E coverage: logged-out surface (redirects, bad credentials — the
+reference's Callout banner with zero toasts, the login
+card's full in-place funnel: the reset-password flow, the signup view
+swap with its mismatch guard, the verify-email view with the attempts
+ladder + resend, and the /signup superset page), the
 authenticated golden path across all 9 pages, lead creation through the real
 dialog, global search, the per-page document titles, the reports tab 2-4
 structure, the account menu (real role=menu with Profile/Logout), the reports
@@ -200,6 +203,10 @@ phone + zero datalists + the exact avatar accept list), the session-20
 HTTP response-header layer (the reference's edge security set —
 Referrer-Policy/X-Content-Type-Options/HSTS on every response incl.
 static assets, plus the sitemap's bare `application/xml` content-type),
+the session-21 login-card funnel layer (the reference's in-place signup
+view — the s10 "dead button" pin disproven live — plus the verify-email
+view with its 6-digit attempts ladder, the Callout error/info banners,
+the exact auth error strings, and zero auth toasts),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

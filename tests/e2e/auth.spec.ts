@@ -18,9 +18,21 @@ test("rejects wrong credentials with a visible error", async ({ page }) => {
   await page.getByLabel("Email").fill("sepnetflix2023@outlook.com");
   await page.getByLabel("Password").fill("wrong-password");
   await page.getByRole("button", { name: "Sign in" }).click();
+  // Session-21 (S21-P1): the reference's banner text — "Invalid email or
+  // password" (was "Incorrect…", wrong-password probes on both apps). And
+  // S21-P2: ZERO toasts fire on the auth flows — the banner is the only
+  // surface (the reference's login failure renders no sonner toast).
   await expect(
-    page.getByRole("alert").filter({ hasText: /Incorrect email or password/i }),
+    page.getByRole("alert").filter({ hasText: /Invalid email or password/i }),
   ).toBeVisible();
+  // The Callout vocabulary (bg-red-50/70) — scoped past Next's built-in
+  // route announcer, which also carries role=alert.
+  await expect(
+    page.getByRole("alert").filter({ hasText: /Invalid email or password/i }),
+  ).toHaveClass(/bg-red-50\/70/);
+  // S21-P2: ZERO toast cards fire (the empty Notifications region itself
+  // ships on both apps — the reference's sonner viewport included).
+  await expect(page.getByRole("status")).toHaveCount(0);
 });
 
 test("unauthenticated visits redirect to /login", async ({ page }) => {
@@ -69,4 +81,107 @@ test("send reset link swaps to the check-your-email view", async ({ page }) => {
 
   await page.getByRole("button", { name: "Back to sign in" }).click();
   await expect(page.getByRole("heading", { name: "Welcome to NEO CRM" })).toBeVisible();
+});
+
+// ---------------------------------------------------------------------
+// Session-21 (S21-P4/P5): the reference's in-place signup + verify-email
+// views — "Need an account? Sign up" is an onclick BUTTON that swaps the
+// card (the s10 pin's "dead login button" claim disproven live): a minimal
+// form (Email / Password / Confirm Password — NO name field, NO Google
+// button, NO divider), then the verify view with six single-digit inputs
+// and the attempts ladder. All DOM-verified on the reference 2026-10-01.
+
+test("need an account swaps the card to the minimal signup view and back", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Need an account? Sign up" }).click();
+
+  await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
+  await expect(page.getByLabel("Email")).toBeVisible();
+  await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Confirm Password")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create account" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Back to sign in" })).toBeVisible();
+
+  // The login-only chrome is GONE on the signup view (the reference's
+  // column-replacement architecture, same as the reset view).
+  await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Welcome to NEO CRM" })).toHaveCount(0);
+  // The URL never changes — the swap is in-card.
+  await expect(page).toHaveURL(/\/login$/);
+
+  await page.getByRole("button", { name: "Back to sign in" }).click();
+  await expect(page.getByRole("heading", { name: "Welcome to NEO CRM" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+});
+
+test("signup view guards mismatched confirm passwords", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Need an account? Sign up" }).click();
+
+  await page.getByLabel("Email").fill("mismatch@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("TestPass123");
+  await page.getByLabel("Confirm Password").fill("DifferentPass");
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Passwords do not match" }),
+  ).toBeVisible();
+  // Still on the signup view (no navigation, no network call for the guard).
+  await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
+});
+
+test("a fresh signup swaps to the verify-email view with its ladder", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Need an account? Sign up" }).click();
+
+  const signupEmail = `e2e-verify-${Date.now()}@example.com`;
+  await page.getByLabel("Email").fill(signupEmail);
+  await page.getByLabel("Password", { exact: true }).fill("TestPass123");
+  await page.getByLabel("Confirm Password").fill("TestPass123");
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  // The verify view: the envelope tile + h2 + the email line + six inputs.
+  await expect(page.getByRole("heading", { name: "Verify your email" })).toBeVisible();
+  await expect(page.getByText("We’ve sent a 6-digit code to")).toBeVisible();
+  await expect(page.getByText(signupEmail)).toBeVisible();
+  for (let i = 1; i <= 6; i += 1) {
+    await expect(page.getByLabel(`Digit ${i}`)).toBeVisible();
+  }
+  await expect(page.getByRole("button", { name: "Verify email" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Resend" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Back to sign in" })).toBeVisible();
+
+  // The incomplete guard: submitting with no digits.
+  await page.getByRole("button", { name: "Verify email" }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Please enter all 6 digits" }),
+  ).toBeVisible();
+
+  // The wrong-code ladder: one wrong submission → 4 remaining.
+  for (let i = 1; i <= 6; i += 1) {
+    await page.getByLabel(`Digit ${i}`).fill(String(i % 10));
+  }
+  await page.getByRole("button", { name: "Verify email" }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Invalid verification code. 4 attempts remaining." }),
+  ).toBeVisible();
+
+  // The resend: the green info Callout (auto-dismissing on the reference).
+  await page.getByRole("button", { name: "Resend" }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "New verification code sent to your email" }),
+  ).toBeVisible();
+});
+
+test("the /signup page renders the same minimal signup view", async ({ page }) => {
+  await page.goto("/signup");
+  await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
+  await expect(page.getByLabel("Email")).toBeVisible();
+  await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Confirm Password")).toBeVisible();
+  // The reference 404s /signup (our documented working superset page) —
+  // its content mirrors the reference's real signup form: no Google
+  // button, no divider, no name field.
+  await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Welcome to NEO CRM" })).toHaveCount(0);
 });

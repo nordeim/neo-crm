@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.17.0
+version: 1.18.0
 last_updated: 2026-10-01
-project_state: 349 unit checks + 60 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 380 unit checks + 64 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) + the login-card funnel layer (session-21: the reference's in-place signup view — the s10 "dead button" pin disproven — with its minimal Email/Password/Confirm form, the verify-email view with six single-digit inputs and the 5-attempt ladder, the Callout error/info banners, the exact auth error strings, zero auth toasts, the client/server verification split with the server-console code delivery, and the census-method hazards — visibility-vs-display, lab()/oklab() parsers, the __next_route_announcer__, the bun db-push absolutization trap) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.17.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.18.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -578,8 +578,14 @@ Login/signup rate-limited 10 attempts/IP/15 min (`rate-limit.ts`).
   `<label htmlFor>` on every form field; the calendar grid uses
   `role="grid"` with day cells as `role="gridcell"`.
 - **Color contrast:** foreground `#111827` on `#ffffff` (17.4:1), muted
-  `#6b7280` on white (4.8:1 AA); sidebar white-on-`#2563eb` (4.5:1 AA);
-  delta chips use the soft backgrounds precisely so text keeps contrast.
+  `#6b7280` on white (4.8:1 AA); sidebar white-on-`#2563eb` (4.5:1 AA).
+  Session-21's full WCAG 1.4.3 census (computed-style tree-walk on both
+  apps): the CORE surfaces pass, and both apps share the SAME failures —
+  green-500 "Won" (2.54), red-500 "Target" (3.76), the green/red-600
+  delta chips (~3.3 at 12px) — the reference's own design choices,
+  mirrored exactly (parity over remediation; the earlier "soft
+  backgrounds" claim was stale — the deltas render bare green/red-600
+  on white on BOTH apps).
 
 ## 9. Anti-Patterns & Common Bugs
 
@@ -1271,6 +1277,140 @@ zero 390px overflow on 11 routes; demo data still zero — 16th session).
    e2e checks in `crm.spec.ts` (the three-route security set, the CSS
    asset set, the bare sitemap content-type, the manifest/robots
    regression).
+
+## 16m. Session-21 Layer (the login-card funnel: the in-place signup + verify-email views, the Callout banners, the census-method hazards)
+
+**What shipped:** the LOGIN-CARD ERROR + VIEW-STATE surface — never
+swept in twenty prior sessions and fully probeable without data (the
+wrong-password / signup / verification probes work on both apps; the
+reference's sonner toasts never fire on the auth flows). Plus three
+more never-swept candidates verified AT PARITY (the color-contrast
+census WCAG 1.4.3 — both apps fail on the same tokens: green-500 "Won"
+2.54, red-500 "Target" 3.76, the ~3.3 delta chips — the reference's own
+design, mirrored; the focus-visible ring census — the reference ships
+the UA-default outline, ours the documented a11y superset; the @media
+census — reduced-motion/color-scheme/forced-colors all superset-or-
+inert, both apps zero print rules) and the standing layers re-verified
+with NO drift (the reference's mobile nav still absent at 390 — 17th
+session; the drawer 7/7; the s18+s19+s20 metadata/header census; zero
+390px overflow on 11 routes; demo data still zero — 17th session).
+
+1. **The s10 "dead login button" pin is DISPROVEN (S21-P4).** The
+   reference's "Need an account? Sign up" is an onclick BUTTON that
+   swaps the login card IN PLACE (the URL stays /login) to a MINIMAL
+   signup view: "Back to sign in" (`flex items-center gap-2 text-sm
+   text-slate-500 hover:text-slate-700 font-medium transition-colors
+   -mb-2` + ArrowLeft) → h2 "Create your account" (the s11 title
+   family) → Email / Password / Confirm Password (the s11 resetInput
+   family at h-10 sm:h-11 — NO name field, NO Google button, NO
+   divider, NO logo — the column is replaced entirely, the s11
+   architecture) → the one-size-down submit "Create account". The
+   account name derives from the email local part server-side. The
+   /signup PAGE stays as our documented working superset (the reference
+   404s it) and now renders the same minimal view (mode="signup" is
+   just the card's initial view).
+
+2. **The verify-email view (S21-P5).** A successful signup swaps again:
+   the envelope tile (`mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-slate-100
+   rounded-full … mb-3 sm:mb-4`, the s11 sent-view family) + h2 "Verify
+   your email" + `We've sent a 6-digit code to<br><span class=
+   "font-medium text-slate-900">{email}</span>` + SIX single-digit
+   inputs (`flex items-center justify-center gap-1.5`; each = the stock
+   Input + `text-center w-10 h-11 text-base font-semibold md:text-sm`
+   — the FIRST `autoComplete="one-time-code"`, the rest "off") + the
+   submit + `Didn't receive the code? Resend` (`text-sm text-slate-600`
+   line, the button `font-medium text-slate-700 hover:text-slate-900
+   disabled:opacity-50 transition-colors` inside a `text-center`
+   wrapper) + "Back to sign in". The error ladder, live-verified across
+   eleven wrong submissions: "Please enter all 6 digits" → "Invalid
+   verification code. N attempts remaining." (4…1) → "Too many failed
+   attempts. Please request a new verification code." (the 5th failure
+   and every one after — the button stays enabled, the message
+   repeats); the resend → "New verification code sent to your email"
+   (which RESETS the attempts). An unverified account's login attempt →
+   "Please verify your email before logging in. Check your email for
+   the verification code."
+
+3. **The Callout banners + zero toasts (S21-P2/P3).** Every auth error
+   renders the shadcn Callout — the RED variant (`relative w-full
+   border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:
+   absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground
+   text-foreground bg-red-50/70 border-red-200 rounded-xl` + the inner
+   `[&_p]:leading-relaxed text-red-700 text-sm` div — the red sibling
+   of the s11 sentCallout; the `[&>svg]` classes position an icon the
+   reference never renders, they ship verbatim). The resend
+   confirmation rides the GREEN variant (bg-green-50/70 +
+   border-green-200) and AUTO-DISMISSES (~3s, live-bounded 1.6–3.2s)
+   where error banners persist. ZERO toasts fire on the auth flows —
+   login failure = the banner only; login/signup success = a silent
+   redirect (toast-count timelines on both apps). The ONE remaining
+   auth toast is the Google button's not-configured `toast.info` — the
+   documented self-hosted fallback for the reference's REAL Google
+   OAuth redirect (verified live: it navigates to accounts.google.com
+   with the base44 client_id).
+
+4. **The client/server verification split (the import-boundary rule).**
+   `src/lib/verification.ts` is CLIENT-SAFE (pure constants + message
+   builders, ZERO imports — the login card consumes its strings).
+   `src/lib/verification-server.ts` (node:crypto + the auth layer's
+   scrypt) is SERVER-ONLY — importing it from a client component drags
+   `next/headers` + Prisma into the browser bundle and breaks the
+   build. The code is stored HASHED (the auth layer's scrypt format)
+   with a 15-minute expiry and a 5-attempt counter in three nullable
+   User columns; NULL expiry = "no verification pending" (the seeded
+   demo users and every pre-s21 account pass straight through login).
+   A self-hosted deployment has no mail transport, so the plaintext
+   code is logged to the SERVER console at signup/resend time — never
+   shipped to the client, never committed.
+
+5. **Census-method hazards (this session's five).** (a) The
+   visibility-check INVERSE hazard: `getComputedStyle(el).visibility
+   !== 'hidden'` does NOT detect display:none ANCESTORS (computed
+   visibility stays `visible` under a hidden container) — it
+   false-positived 8 "visible" nav links on the reference's 390px
+   probe; the correct check is `el.getClientRects().length > 0`. (b)
+   lab()/oklab() computed colors break rgb()-regex parsers — v4
+   serializes opacity-modified colors in Oklab, and a naive parser
+   silently falls through to the parent background and mis-blends (the
+   active-nav 4.32-vs-5.17 contrast false positive). (c) Read the FULL
+   computed box-shadow before claiming a missing ring — a 90-char
+   truncation cut the 4th shadow layer (the focus ring was rendering
+   all along). (d) `role="alert"` ≠ a toast — verify the element's
+   container before classifying (the reference's "toast" was the inline
+   form banner; the sonner count was 0; and Playwright's getByRole
+   also catches Next's built-in `__next-route-announcer__` — scope
+   with .filter). (e) agent-browser `fill()` on the reference's
+   controlled inputs can silently not-register in React state — use
+   the native value setter + an input event.
+
+6. **The bun db-push absolutization trap (bit once this session).** A
+   bare `bunx prisma db push` under bun loads the repo .env and
+   ABSOLUTIZES the relative `file:../db/custom.db` against the .env's
+   own directory → it writes `<parent-of-repo>/db/custom.db` (OUTSIDE
+   the repo) while the running server (via `src/lib/db-path.ts`'s
+   normalization) reads `<repo>/db/custom.db` — every query then fails
+   P2022 "column does not exist". ALWAYS `bun run db:push` (the
+   `scripts/prisma-env.ts` wrapper) or `DATABASE_URL` explicitly. The
+   stray outer `db/` folder must be deleted after the mistake.
+
+7. **The w-full + w-10 conflict class.** The reference's code inputs
+   carry BOTH `w-full` (its stock Input base) and `w-10` (the app
+   override) — under its v3 cascade the pair resolves to 40px, but
+   under our v4 the same pair in a flex wrap flex-shrinks to ~56px.
+   Mirror the COMPUTED result (w-10 only), never the literal class
+   list — the s16 "computed-equal, not class-equal" rule's newest
+   expression.
+
+8. **The verification method.** The funnel is fully e2e-able WITHOUT
+   the email: the wrong-code ladder is deterministic (any wrong code →
+   "4 attempts remaining."), the resend banner is live, and the HAPPY
+   path (the correct code) is unit-covered only — the plaintext code
+   rides the server console, invisible to the browser (the reference's
+   own email delivery is equally infra-gated). The full-suite pins:
+   `tests/login-views.test.ts` (31 checks) + 5 e2e checks in
+   `auth.spec.ts` (the Callout + zero toasts, the signup swap + back,
+   the mismatch guard, the verify ladder + resend, the /signup
+   superset page).
 
 ## 17. Responsive Breakpoint Reference
 

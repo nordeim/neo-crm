@@ -1,14 +1,31 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Lock, Mail, User } from "lucide-react";
+import { ArrowLeft, Lock, Mail } from "lucide-react";
 import { LOGIN_LAYOUT } from "@/lib/page-layout";
-import { canSubmitReset, LOGIN_RESET_LAYOUT, nextLoginView, type LoginView } from "@/lib/login-reset";
+import {
+  canSubmitReset,
+  LOGIN_ERROR_CALLOUT,
+  LOGIN_INFO_CALLOUT,
+  LOGIN_RESET_LAYOUT,
+  LOGIN_SIGNUP_LAYOUT,
+  LOGIN_VERIFY_LAYOUT,
+  nextLoginView,
+  type LoginView,
+  type LoginViewIntent,
+} from "@/lib/login-reset";
+import {
+  VERIFICATION_CODE_LENGTH,
+  verificationIncompleteMessage,
+  verificationResentMessage,
+} from "@/lib/verification";
 import { toast } from "@/components/ui/toast";
 
 type Mode = "signin" | "signup";
+
+/** The info banner's auto-dismiss (live-bounded 1.6–3.2s on the reference). */
+const INFO_BANNER_MS = 3000;
 
 /**
  * Login card — session-7 re-pin (LOGIN_LAYOUT contracts): the reference's
@@ -17,41 +34,69 @@ type Mode = "signin" | "signup";
  * white Google button, `h-11 sm:h-12` slate inputs and a slate-900 submit.
  * The logo is a CSS brand mark (the reference hotlinks a screenshot image;
  * we reproduce the white-circle + blue-dot shape with no external asset).
- * Kept beyond parity: the inline error alert
- * and the signup mode (label ids + button names stay e2e-pinned).
+ *
+ * Session-11 (S11-P1): the card swaps IN PLACE through the reset flow
+ * (reset → sent) — the URL never changes.
+ *
+ * Session-21 (S21-P2/P3/P4/P5): the same in-place architecture extended to
+ * the WHOLE auth funnel, live-verified on the reference: "Need an account?
+ * Sign up" is a BUTTON that swaps to a minimal signup view (Email /
+ * Password / Confirm Password — NO name field, NO Google button, NO
+ * divider), whose success swaps again to the verify-email view (six
+ * single-digit inputs + the attempts ladder). Every error renders the
+ * reference's Callout banner; ZERO toasts fire on the auth flows (login
+ * failure = the banner only, login/signup success = a silent redirect).
+ * The `/signup` page (the reference 404s it) stays as our documented
+ * working superset — it renders this card starting at the signup view.
  */
 export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [name, setName] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  // Session-11 (S11-P1): the reference's Forgot-password flow — the card
-  // swaps in place through reset → sent (no URL change; the reference's
-  // demo never sends an email, the confirmation is pure client state).
-  const [view, setView] = React.useState<LoginView>("signin");
+  // S21-P5: the resend confirmation rides its own green Callout — the
+  // reference auto-dismisses it (~3s) while the error banners persist.
+  const [info, setInfo] = React.useState<string | null>(null);
+  // Session-11 (S11-P1) + session-21: the card's five in-place views.
+  const [view, setView] = React.useState<LoginView>(mode === "signup" ? "signup" : "signin");
+  // S21-P5: the six single-digit code inputs.
+  const [codeDigits, setCodeDigits] = React.useState<string[]>(() =>
+    Array(VERIFICATION_CODE_LENGTH).fill(""),
+  );
+  const codeRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
-  const isSignup = mode === "signup";
+  React.useEffect(() => {
+    if (!info) return;
+    const timer = setTimeout(() => setInfo(null), INFO_BANNER_MS);
+    return () => clearTimeout(timer);
+  }, [info]);
 
-  async function onSubmit(e: React.FormEvent) {
+  /** Swap the card's view via the login state machine (s11 + s21). */
+  function goto(intent: LoginViewIntent) {
+    setError(null);
+    setInfo(null);
+    setView((v) => nextLoginView(v, intent));
+  }
+
+  /** S21-P2: the sign-in submit — the reference fires NO toast: the banner
+   *  on failure, a silent redirect on success. */
+  async function onSigninSubmit(e: React.FormEvent) {
     e.preventDefault();
     setPending(true);
     setError(null);
     try {
-      const res = await fetch(isSignup ? "/api/auth/signup" : "/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isSignup ? { name, email, password } : { email, password }),
+        body: JSON.stringify({ email, password }),
       });
       const body = await res.json().catch(() => null);
       if (!res.ok || !body?.ok) {
-        const message = body?.error?.message ?? "Sign in failed. Try again.";
-        setError(message);
-        toast.error(isSignup ? "Could not create account" : "Sign in failed", message);
+        setError(body?.error?.message ?? "Sign in failed. Try again.");
         return;
       }
-      toast.success(isSignup ? "Welcome to NEO CRM" : "Signed in", "Redirecting to your dashboard…");
       router.push("/");
       router.refresh();
     } catch {
@@ -61,9 +106,90 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
     }
   }
 
-  /** S11-P1: swap the card's view via the login-reset state machine. */
-  function goto(intent: "forgot" | "send" | "back") {
-    setView((v) => nextLoginView(v, intent));
+  /** S21-P4: the signup view's submit — the mismatch guard first ("Passwords
+   *  do not match", the reference's banner), then the account creation; a
+   *  success swaps to the verify view (no toast, no session yet). */
+  async function onSignupSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    setPending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body?.ok) {
+        setError(body?.error?.message ?? "Could not create account. Try again.");
+        return;
+      }
+      setCodeDigits(Array(VERIFICATION_CODE_LENGTH).fill(""));
+      setError(null);
+      setInfo(null);
+      setView("verify");
+    } catch {
+      setError("Network error — check your connection and try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  /** S21-P5: the verify view's submit — the incomplete guard first ("Please
+   *  enter all 6 digits"), then the code check; success signs the account
+   *  in and redirects (no toast). */
+  async function onVerifySubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const code = codeDigits.join("");
+    if (code.length !== VERIFICATION_CODE_LENGTH) {
+      setError(verificationIncompleteMessage());
+      return;
+    }
+    setPending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body?.ok) {
+        setError(body?.error?.message ?? "Invalid verification code.");
+        return;
+      }
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError("Network error — check your connection and try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  /** S21-P5: "Didn't receive the code? Resend" — the reference answers with
+   *  the auto-dismissing green Callout. */
+  async function onResend() {
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body?.ok) {
+        setError(body?.error?.message ?? "Could not resend the code. Try again.");
+        return;
+      }
+      setInfo(body?.message ?? verificationResentMessage());
+    } catch {
+      setError("Network error — check your connection and try again.");
+    }
   }
 
   /** S11-P1: the reset view's submit — valid email swaps to the sent view
@@ -79,6 +205,34 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
     setView("sent");
   }
 
+  /** S21-P5: a single code input's change — keep the LAST digit typed and
+   *  auto-advance (the reference's six boxes walk forward as digits land). */
+  function onCodeDigit(idx: number, raw: string) {
+    const digit = raw.replace(/\D/g, "").slice(-1);
+    setCodeDigits((prev) => {
+      const next = [...prev];
+      next[idx] = digit;
+      return next;
+    });
+    if (digit && idx < VERIFICATION_CODE_LENGTH - 1) {
+      codeRefs.current[idx + 1]?.focus();
+    }
+  }
+
+  /** S21-P5: backspace on an empty box steps back and clears it (the OTP
+   *  walk the six boxes imply). */
+  function onCodeKeyDown(idx: number, e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Backspace" && !codeDigits[idx] && idx > 0) {
+      e.preventDefault();
+      setCodeDigits((prev) => {
+        const next = [...prev];
+        next[idx - 1] = "";
+        return next;
+      });
+      codeRefs.current[idx - 1]?.focus();
+    }
+  }
+
   return (
     <div className="w-full max-w-md">
       <div className={LOGIN_LAYOUT.card}>
@@ -89,9 +243,9 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
           <div className={LOGIN_LAYOUT.centered}>
             {view !== "signin" ? (
               <>
-                {/* S11-P1: the reset/sent views replace the login column
-                    entirely (no logo, no Google button, no divider —
-                    DOM-verified on the reference). */}
+                {/* S11-P1 + S21-P4/P5: the reset/sent/signup/verify views
+                    replace the login column entirely (no logo, no Google
+                    button, no divider — DOM-verified on the reference). */}
                 <div className={LOGIN_RESET_LAYOUT.viewColumn}>
                   <div className={LOGIN_RESET_LAYOUT.viewStack}>
                     {view === "reset" ? (
@@ -111,11 +265,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                           </p>
                         </div>
                         <form className="space-y-4 sm:space-y-5" onSubmit={onSendResetLink} noValidate>
-                          {error && (
-                            <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
-                              {error}
-                            </p>
-                          )}
+                          {error && <ErrorCallout message={error} />}
                           <div className={LOGIN_LAYOUT.field}>
                             <label htmlFor="reset-email" className={LOGIN_LAYOUT.label}>
                               Email
@@ -136,6 +286,160 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                           <button type="submit" className={LOGIN_RESET_LAYOUT.send}>
                             Send reset link
                           </button>
+                        </form>
+                      </>
+                    ) : view === "signup" ? (
+                      <>
+                        {/* S21-P4: the reference's in-place signup view — a
+                            minimal form (NO name field, NO Google button,
+                            NO divider), the -mb-2 back button, and the
+                            one-size-down submit. */}
+                        <button
+                          type="button"
+                          className={LOGIN_SIGNUP_LAYOUT.back}
+                          onClick={() => goto("back")}
+                        >
+                          <ArrowLeft className={LOGIN_SIGNUP_LAYOUT.backIcon} aria-hidden="true" />
+                          Back to sign in
+                        </button>
+                        <div className="text-center space-y-2">
+                          <h2 className={LOGIN_SIGNUP_LAYOUT.title}>Create your account</h2>
+                        </div>
+                        <form className={LOGIN_SIGNUP_LAYOUT.form} onSubmit={onSignupSubmit} noValidate>
+                          <div className={LOGIN_SIGNUP_LAYOUT.fields}>
+                            <div className={LOGIN_SIGNUP_LAYOUT.field}>
+                              <label htmlFor="email" className={LOGIN_SIGNUP_LAYOUT.label}>
+                                Email
+                              </label>
+                              <div className={LOGIN_LAYOUT.inputWrap}>
+                                <Mail className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                                <input
+                                  id="email"
+                                  type="email"
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                  required
+                                  autoComplete="email"
+                                  placeholder="you@example.com"
+                                  className={LOGIN_SIGNUP_LAYOUT.input}
+                                />
+                              </div>
+                            </div>
+
+                            <div className={LOGIN_SIGNUP_LAYOUT.field}>
+                              <label htmlFor="password" className={LOGIN_SIGNUP_LAYOUT.label}>
+                                Password
+                              </label>
+                              <div className={LOGIN_LAYOUT.inputWrap}>
+                                <Lock className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                                <input
+                                  id="password"
+                                  type="password"
+                                  value={password}
+                                  onChange={(e) => setPassword(e.target.value)}
+                                  required
+                                  minLength={8}
+                                  autoComplete="new-password"
+                                  placeholder="Min. 8 characters"
+                                  className={LOGIN_SIGNUP_LAYOUT.input}
+                                />
+                              </div>
+                            </div>
+
+                            <div className={LOGIN_SIGNUP_LAYOUT.field}>
+                              <label htmlFor="confirm-password" className={LOGIN_SIGNUP_LAYOUT.label}>
+                                Confirm Password
+                              </label>
+                              <div className={LOGIN_LAYOUT.inputWrap}>
+                                <Lock className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                                <input
+                                  id="confirm-password"
+                                  type="password"
+                                  value={confirmPassword}
+                                  onChange={(e) => setConfirmPassword(e.target.value)}
+                                  required
+                                  minLength={8}
+                                  autoComplete="new-password"
+                                  placeholder="Re-enter password"
+                                  className={LOGIN_SIGNUP_LAYOUT.input}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {error && <ErrorCallout message={error} />}
+
+                          <button type="submit" disabled={pending} className={LOGIN_SIGNUP_LAYOUT.submit}>
+                            {pending ? "Please wait…" : "Create account"}
+                          </button>
+                        </form>
+                      </>
+                    ) : view === "verify" ? (
+                      <>
+                        {/* S21-P5: the reference's verify-email view — the
+                            envelope tile, the six single-digit inputs, the
+                            attempts ladder, and the resend line. */}
+                        <button
+                          type="button"
+                          className={LOGIN_VERIFY_LAYOUT.back}
+                          onClick={() => goto("back")}
+                        >
+                          <ArrowLeft className={LOGIN_VERIFY_LAYOUT.backIcon} aria-hidden="true" />
+                          Back to sign in
+                        </button>
+                        <div className={LOGIN_VERIFY_LAYOUT.headingStack}>
+                          <div className={LOGIN_VERIFY_LAYOUT.iconWrap} aria-hidden="true">
+                            <Mail className={LOGIN_VERIFY_LAYOUT.icon} />
+                          </div>
+                          <div className={LOGIN_VERIFY_LAYOUT.titleStack}>
+                            <h2 className={LOGIN_VERIFY_LAYOUT.title}>Verify your email</h2>
+                            <p className={LOGIN_VERIFY_LAYOUT.emailLine}>
+                              We&rsquo;ve sent a 6-digit code to
+                              <br />
+                              <span className={LOGIN_VERIFY_LAYOUT.emailSpan}>{email}</span>
+                            </p>
+                          </div>
+                        </div>
+                        <form className={LOGIN_SIGNUP_LAYOUT.form} onSubmit={onVerifySubmit} noValidate>
+                          <div className={LOGIN_VERIFY_LAYOUT.codeWrap}>
+                            {codeDigits.map((digit, idx) => (
+                              <input
+                                key={idx}
+                                ref={(el) => {
+                                  codeRefs.current[idx] = el;
+                                }}
+                                type="text"
+                                inputMode="numeric"
+                                autoComplete={idx === 0 ? "one-time-code" : "off"}
+                                aria-label={`Digit ${idx + 1}`}
+                                value={digit}
+                                onChange={(e) => onCodeDigit(idx, e.target.value)}
+                                onKeyDown={(e) => onCodeKeyDown(idx, e)}
+                                className={`flex h-11 rounded-lg border border-input bg-background px-3 py-2 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${LOGIN_VERIFY_LAYOUT.codeInput}`}
+                              />
+                            ))}
+                          </div>
+
+                          {error && <ErrorCallout message={error} />}
+                          {info && <InfoCallout message={info} />}
+
+                          <div className={LOGIN_VERIFY_LAYOUT.buttonsGroup}>
+                            <button type="submit" disabled={pending} className={LOGIN_VERIFY_LAYOUT.submit}>
+                              {pending ? "Please wait…" : "Verify email"}
+                            </button>
+                            <div className={LOGIN_VERIFY_LAYOUT.resendWrap}>
+                              <p className={LOGIN_VERIFY_LAYOUT.resendLine}>
+                                Didn&rsquo;t receive the code?{" "}
+                                <button
+                                  type="button"
+                                  className={LOGIN_VERIFY_LAYOUT.resendButton}
+                                  onClick={onResend}
+                                >
+                                  Resend
+                                </button>
+                              </p>
+                            </div>
+                          </div>
                         </form>
                       </>
                     ) : (
@@ -183,10 +487,13 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
 
             <div className="space-y-2 sm:space-y-3">
               <h1 className={LOGIN_LAYOUT.title}>Welcome to NEO CRM</h1>
-              <p className={LOGIN_LAYOUT.subtitle}>{isSignup ? "Create your account" : "Sign in to continue"}</p>
+              <p className={LOGIN_LAYOUT.subtitle}>Sign in to continue</p>
             </div>
 
-            {/* Google sign-in — the reference's white rounded-xl button. */}
+            {/* Google sign-in — the reference's white rounded-xl button. Its
+                click performs a REAL Google OAuth redirect (verified live);
+                the toast.info fallback is the documented self-hosted
+                expression of that unreachable surface. */}
             <div className="w-full">
               <button
                 type="button"
@@ -214,28 +521,8 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
               </div>
             </div>
 
-            <form onSubmit={onSubmit} className={LOGIN_LAYOUT.form} noValidate>
+            <form onSubmit={onSigninSubmit} className={LOGIN_LAYOUT.form} noValidate>
               <div className={LOGIN_LAYOUT.fields}>
-                {isSignup && (
-                  <div className={LOGIN_LAYOUT.field}>
-                    <label htmlFor="name" className={LOGIN_LAYOUT.label}>
-                      Name
-                    </label>
-                    <div className={LOGIN_LAYOUT.inputWrap}>
-                      <User className={LOGIN_LAYOUT.inputIcon} />
-                      <input
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        autoComplete="name"
-                        placeholder="Your name"
-                        className={LOGIN_LAYOUT.input}
-                      />
-                    </div>
-                  </div>
-                )}
-
                 <div className={LOGIN_LAYOUT.field}>
                   <label htmlFor="email" className={LOGIN_LAYOUT.label}>
                     Email
@@ -267,8 +554,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      minLength={isSignup ? 8 : undefined}
-                      autoComplete={isSignup ? "new-password" : "current-password"}
+                      autoComplete="current-password"
                       placeholder="••••••••"
                       className={LOGIN_LAYOUT.input}
                     />
@@ -276,38 +562,25 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                 </div>
               </div>
 
-              {error && (
-                <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
-                  {error}
-                </p>
-              )}
+              {error && <ErrorCallout message={error} />}
 
               <div className="space-y-3">
                 <button type="submit" disabled={pending} className={LOGIN_LAYOUT.submit}>
-                  {pending ? "Please wait…" : isSignup ? "Create account" : "Sign in"}
+                  {pending ? "Please wait…" : "Sign in"}
                 </button>
                 <div className={LOGIN_LAYOUT.footer}>
-                  {!isSignup ? (
-                    <button
-                      type="button"
-                      className={`${LOGIN_LAYOUT.footerLink} font-medium`}
-                      onClick={() => goto("forgot")}
-                    >
-                      Forgot password?
-                    </button>
-                  ) : (
-                    <span />
-                  )}
-                  {!isSignup ? (
-                    <Link href="/signup" className={LOGIN_LAYOUT.footerLink}>
-                      Need an account? <span className={LOGIN_LAYOUT.footerLinkStrong}>Sign up</span>
-                    </Link>
-                  ) : (
-                    <Link href="/login" className={LOGIN_LAYOUT.footerLink}>
-                      Already have an account?{" "}
-                      <span className={LOGIN_LAYOUT.footerLinkStrong}>Sign in</span>
-                    </Link>
-                  )}
+                  <button
+                    type="button"
+                    className={`${LOGIN_LAYOUT.footerLink} font-medium`}
+                    onClick={() => goto("forgot")}
+                  >
+                    Forgot password?
+                  </button>
+                  {/* S21-P4: the reference's onclick BUTTON — the card swaps
+                      to the signup view IN PLACE (no navigation). */}
+                  <button type="button" className={LOGIN_LAYOUT.footerLink} onClick={() => goto("signup")}>
+                    Need an account? <span className={LOGIN_LAYOUT.footerLinkStrong}>Sign up</span>
+                  </button>
                 </div>
               </div>
             </form>
@@ -316,6 +589,38 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
           </div>
 
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * S21-P3: the reference's error banner — the shadcn Callout pattern (the
+ * red variant of the s11 sent-callout), DOM-extracted live: bg-red-50/70 +
+ * border-red-200 + p-4 + the inner red-700 text-sm div. The `[&>svg]`
+ * classes position an icon the reference never renders on the auth
+ * surfaces; they ship verbatim.
+ */
+function ErrorCallout({ message }: { message: string }) {
+  return (
+    <div role="alert" className={LOGIN_ERROR_CALLOUT.callout}>
+      <div className={LOGIN_ERROR_CALLOUT.text}>
+        <p>{message}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * S21-P5: the reference's resend confirmation — the GREEN Callout
+ * (bg-green-50/70 + border-green-200), auto-dismissed by the card after
+ * the live-bounded ~3s.
+ */
+function InfoCallout({ message }: { message: string }) {
+  return (
+    <div role="alert" className={LOGIN_INFO_CALLOUT.callout}>
+      <div className={LOGIN_INFO_CALLOUT.text}>
+        <p>{message}</p>
       </div>
     </div>
   );
