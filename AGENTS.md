@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (380 checks)         | `bun run test`                         |
-| Browser E2E (64 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (391 checks)         | `bun run test`                         |
+| Browser E2E (67 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (380) → `bun run build` → `bun run test:e2e` (64). There is no
+`bun run test` (391) → `bun run build` → `bun run test:e2e` (67). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -399,8 +399,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 380 Vitest checks across
-  18 suites (session-13 added `tests/page-titles.test.ts` for the auth
+  sessions 6–8 + session-10's stock-primitive pins) — 391 Vitest checks across
+  20 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
   `/Profile` casing alias; session-15 added the 18-check DIALOG_FAMILY layer
@@ -420,7 +420,10 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   security-header set + the static-file content-type pins; session-21
   added `tests/login-views.test.ts` for the login-card funnel — the
   auth error strings, the Callout vocabulary, the signup/verify view
-  machines and layouts, and the verification-ladder messages).
+  machines and layouts, and the verification-ladder messages; session-22
+  added `tests/typography.test.ts` for the zero-webfont base — the
+  Inter-webfont retirement, the exact reference `--font-sans` stack pin,
+  the smoothing/selection retirements).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
@@ -837,6 +840,30 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `bunx prisma db push` falls into the documented bun .env-absolutization
   trap and writes to `<parent-of-repo>/db/custom.db` instead
   (`src/lib/db-path.ts` documents it; it bit once this session).
+
+- **The app ships ZERO webfonts (session-22)** — the reference loads no
+  font at all: zero `@font-face` rules in its 79.5KB stylesheet,
+  `document.fonts` empty, every surface computing Tailwind's stock
+  sans stack (byte-extracted from its preflight html rule). Our
+  scaffold's `next/font/google` Inter rendered every text surface in
+  the wrong typeface (measured on the same 62-char string at 16px:
+  reference 466.8px/522.4px regular/bold vs ours 439px/451.3px —
+  ~6% narrower regular, ~14% narrower bold). The remediation: the
+  Inter import + `--font-inter` variable RETIRED from `layout.tsx`,
+  and `--font-sans` in the `@theme` block pins the reference's EXACT
+  stack (`ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`) — pinned
+  explicitly because Tailwind 4.3's own default is the v4.0
+  `-apple-system, BlinkMacSystemFont, …` list and NOT byte-identical
+  (a version-proof pin). The same session retired the scaffold's
+  double `antialiased` smoothing (the html CSS rule + the body class —
+  the reference computes `auto` with no `text-rendering` override) and
+  the invented `::selection` blue tint (the reference ships zero
+  selection rules). Post-fix the controlled-span metrics MATCH the
+  reference exactly (466.8/522.4). Never re-introduce a webfont, a
+  smoothing override, or a selection tint without re-probing the live
+  reference — and never pin a "default" you haven't byte-verified
+  (Tailwind's defaults move between minors).
 
 ## Conventions that differ from defaults
 

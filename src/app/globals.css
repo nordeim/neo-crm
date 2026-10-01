@@ -100,9 +100,15 @@
   --color-info: #06b6d4;
   --color-info-soft: #ecfeff;
 
-  /* Typography */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Typography — Session-22 (S22-P1): --font-sans pins the reference's
+     EXACT stack (byte-extracted from its preflight html rule — it loads
+     ZERO webfonts and computes this family on every surface). Tailwind
+     4.3's own default (-apple-system, BlinkMacSystemFont, …) is the
+     v4.0 list and NOT byte-identical, so the stack is pinned explicitly
+     (version-proof: a future Tailwind default change cannot drift it);
+     the scaffold's Inter webfont + v3-style fallback list retired. */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   /* Radius scale */
   --radius-card: 0.75rem;
@@ -173,10 +179,11 @@
     padding: 1px;
   }
 
-  html {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
+  /* Session-22 (S22-P2): the html font-smoothing rule is RETIRED —
+     the reference ships no -webkit-font-smoothing (computed auto) and
+     no text-rendering override anywhere in its stylesheet; the
+     scaffold-era antialiased + optimizeLegibility pair rendered
+     thinner text than the reference on macOS. */
 
   body {
     background-color: var(--color-background);
@@ -189,9 +196,10 @@
        stock CardTitle computed 14px vs the reference's 16px). */
   }
 
-  ::selection {
-    background-color: rgb(59 130 246 / 0.18);
-  }
+  /* Session-22 (S22-P3): the ::selection rule is RETIRED — the
+     reference's stylesheet contains zero selection rules (the browser
+     default selection color); our blue 0.18 tint was a scaffold-era
+     invention. */
 }
 
 /* ---------------------------------------------------------------------------

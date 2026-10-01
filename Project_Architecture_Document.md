@@ -331,7 +331,7 @@ neo-crm/
 │   │   ├── login/ signup/       # public auth pages (redirect away when signed in)
 │   │   ├── not-found.tsx        # server 404 wrapper (absolute title) — session-12
 │   │   ├── not-found-body.tsx   # client 404 body (usePathname, quoted-path msg)
-│   │   ├── layout.tsx           # root: Inter font, metadata, Toaster
+│   │   ├── layout.tsx           # root: metadata, Toaster (NO webfont — session-22)
 │   │   ├── globals.css          # Tailwind v4 @theme tokens + @utility definitions
 │   │   └── vendor/tw-animate.css# vendored animation utilities (ADR-005)
 │   ├── components/
@@ -550,11 +550,11 @@ fields so JSON round-trips are lossless.
 
 | Role | Face | Notes |
 | ---- | ---- | ----- |
-| Everything | **Inter** (`next/font/google`, `--font-inter`) | Single family; weight/size carry hierarchy |
-| KPI values | Inter 600, 28px, tight tracking | `text-[28px] font-semibold tracking-tight` |
-| Card titles | Inter 600, 14px | `CardTitle` |
-| Table headers | Inter 500, 12px, uppercase, wide tracking | muted color |
-| Body/base | Inter 400, 14px | set on `body` in `globals.css` |
+| Everything | **The system stack** (session-22: `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"` — pinned in `@theme --font-sans`) | The reference ships ZERO webfonts (no `@font-face`, `document.fonts` empty); the scaffold's Inter webfont was retired after measuring ~6-14% narrower text than the reference on the same string. No `antialiased`, no `text-rendering` override, no `::selection` tint (all browser defaults, like the reference) |
+| KPI values | System 600, 28px, tight tracking | `text-[28px] font-semibold tracking-tight` |
+| Card titles | System 600, 16px | `CardTitle` (the s13 re-pin — the base is 16px) |
+| Table headers | System 500, 12px, uppercase, wide tracking | muted color |
+| Body/base | System 400, 16px | set on `body` in `globals.css` (the s13 pin) |
 
 ### 5.2 Color Tokens
 
@@ -673,11 +673,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — pwa-metadata (the manifest route-handler bytes + theme-color/PWA_META + the apple-icon convention + the pageMetadata() per-route factory + the dialog micro-contracts — session-19) | 1 | 14 | `tests/pwa-metadata.test.ts` | Vitest |
 | Unit — http-headers (the next.config.ts headers() security set + the static-file content-types — session-20) | 1 | 9 | `tests/http-headers.test.ts` | Vitest |
 | Unit — login-views (the auth error strings + the Callout vocabulary + the signup/verify view machines/layouts + the verification ladder — session-21) | 1 | 31 | `tests/login-views.test.ts` | Vitest |
+| Unit — typography (the Inter-webfont retirement + the exact reference `--font-sans` stack pin + the smoothing/::selection retirements — session-22) | 1 | 11 | `tests/typography.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer — sessions 10–20) | 1 | 47 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer — sessions 10–22) | 1 | 50 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **23** | **380 unit + 64 e2e** | | |
+| **Total** | **24** | **391 unit + 67 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -969,6 +970,33 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   `<parent-of-repo>/db/custom.db` under bun's .env absolutization —
   always `bun run db:push` (the `scripts/prisma-env.ts` wrapper). Pinned
   by `tests/login-views.test.ts` + 4 new e2e funnel checks.
+- **The typography / base-cascade layer (session-22)** — the reference
+  ships ZERO webfonts: no `@font-face` rule in its 79.5KB stylesheet,
+  `document.fonts` empty, every surface (body, h1, buttons, the sidebar
+  brand) computing the stock sans stack (byte-extracted from its
+  preflight html rule). The scaffold's `next/font/google` Inter +
+  v3-style `--font-sans` fallback list rendered every text surface in
+  the wrong typeface (measured: same 62-char string at 16px —
+  reference 466.8px/522.4px regular/bold vs ours 439px/451.3px). The
+  remediation pins the reference's EXACT stack in `@theme --font-sans`
+  (explicitly — Tailwind 4.3's own default is the v4.0
+  `-apple-system, BlinkMacSystemFont, …` list, NOT byte-identical; the
+  pin is version-proof), retires the Inter import + `--font-inter`
+  variable, and also retires the double `antialiased` smoothing (the
+  html CSS rule + the body class — the reference computes `auto` with
+  no `text-rendering` override) and the invented `::selection` tint.
+  Post-fix the controlled-span metrics MATCH the reference exactly
+  (466.8/522.4) and the 390px overflow sweep stayed clean on all 11
+  routes (the wider system font breaks nothing). Census-method
+  lessons: `AGENT_BROWSER_SESSION` exports LEAK across bash
+  invocations (a "reference" probe silently ran against the clone —
+  the smoothing false-parity; prefix reference probes with
+  `env -u AGENT_BROWSER_SESSION`); a programmatic `.focus()` followed
+  by a separate CLI keypress can land on BODY (re-establish focus
+  before declaring a trap broken); text-width comparisons need a
+  controlled created-span with pinned size/weight (element widths mix
+  in per-surface class differences). Pinned by
+  `tests/typography.test.ts` + 3 e2e computed-style checks.
 
 ### 7.3 Coverage Thresholds
 
@@ -981,10 +1009,12 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 380/380
+- [ ] `bun run test` — 391/391
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 64/64
+- [ ] `bun run test:e2e` — 67/67
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
+- [ ] Zero webfonts: `document.fonts` empty on /, body computes the stock
+      `ui-sans-serif, system-ui` stack, smoothing `auto` (session-22)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`
 

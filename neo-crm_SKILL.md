@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.18.0
+version: 1.19.0
 last_updated: 2026-10-01
-project_state: 380 unit checks + 64 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) + the login-card funnel layer (session-21: the reference's in-place signup view — the s10 "dead button" pin disproven — with its minimal Email/Password/Confirm form, the verify-email view with six single-digit inputs and the 5-attempt ladder, the Callout error/info banners, the exact auth error strings, zero auth toasts, the client/server verification split with the server-console code delivery, and the census-method hazards — visibility-vs-display, lab()/oklab() parsers, the __next_route_announcer__, the bun db-push absolutization trap) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 391 unit checks + 67 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) + the login-card funnel layer (session-21: the reference's in-place signup view — the s10 "dead button" pin disproven — with its minimal Email/Password/Confirm form, the verify-email view with six single-digit inputs and the 5-attempt ladder, the Callout error/info banners, the exact auth error strings, zero auth toasts, the client/server verification split with the server-console code delivery, and the census-method hazards — visibility-vs-display, lab()/oklab() parsers, the __next_route_announcer__, the bun db-push absolutization trap) + the typography/base-cascade layer (session-22: the reference's ZERO-webfont base — the Inter webfont retired for the exact stock system stack pinned in @theme --font-sans, the double antialiased smoothing retired for the reference's default auto, the invented ::selection tint retired; the AGENT_BROWSER_SESSION export-leak + focus-race + controlled-span census-method hazards) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.18.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.19.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -68,7 +68,7 @@ its data on its own infrastructure.
 clean, blue-and-white business tool. The clone reproduces it precisely: a
 vibrant `#2563eb` sidebar with white lucide icons, white topbar with a
 gray search pill, white `rounded-xl` KPI cards with delta chips and
-sparkline strips on a `#f9fafb` canvas, Inter typography, and one blue
+sparkline strips on a `#f9fafb` canvas, the stock system-font stack (session-22: the reference ships ZERO webfonts), and one blue
 primary action per surface. Every color in the design system was measured
 from reference captures — see §19.
 
@@ -220,8 +220,11 @@ as LITERAL hex values — no `var()` chains inside `@theme`, no
   --color-danger: #ef4444;   --color-danger-soft: #fef2f2;
   --color-info: #06b6d4;     --color-info-soft: #ecfeff;
 
-  /* Typography */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, ...;
+  /* Typography — session-22: the reference's EXACT stack (it ships ZERO
+     webfonts; pinned explicitly because Tailwind 4.3's own default is the
+     v4.0 -apple-system/BlinkMacSystemFont list, NOT byte-identical). */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   /* Radius scale */
   --radius-card: 0.75rem;   /* rounded-xl — KPI/list cards */
@@ -1411,6 +1414,83 @@ session; the drawer 7/7; the s18+s19+s20 metadata/header census; zero
    `auth.spec.ts` (the Callout + zero toasts, the signup swap + back,
    the mismatch guard, the verify ladder + resend, the /signup
    superset page).
+
+## 16n. Session-22 Layer (the typography / base-cascade surface: the zero-webfont base, the smoothing + selection retirements, the census-method hazards)
+
+**What shipped:** three retirements that realign the app's entire text
+rendering with the reference — 21 sessions of text-metric pins had
+compared font SIZE/WEIGHT/line-height/letter-spacing (font-independent
+computed properties) and fixed-dimension geometry, but never the font
+FAMILY itself, the smoothing mode, or the selection styling.
+
+1. **The reference ships ZERO webfonts.** Its 79.5KB stylesheet contains
+   no `@font-face` rule; `document.fonts` is empty; every surface
+   (body, h1, buttons, the sidebar brand) computes the stock sans stack
+   `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+   "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
+   (byte-extracted from its preflight html rule). Our scaffold's
+   `next/font/google` Inter rendered every text surface in the wrong
+   typeface — measured on the same 62-char string at 16px:
+   reference 466.8px/522.4px (regular/bold) vs ours 439px/451.3px.
+   The fix: the Inter import + `--font-inter` variable retired from
+   `layout.tsx`, and `@theme --font-sans` pins the reference's exact
+   stack — pinned EXPLICITLY because Tailwind 4.3's own default is the
+   v4.0 `-apple-system, BlinkMacSystemFont, …` list and NOT
+   byte-identical (the reference is v3; a "just use the default"
+   assumption silently ships the wrong list — and a future Tailwind
+   minor could move it again; never pin a "default" you haven't
+   byte-verified). Post-fix the controlled-span metrics match the
+   reference EXACTLY (466.8/522.4).
+
+2. **The smoothing double-retirement.** The reference computes
+   `-webkit-font-smoothing: auto` with no `text-rendering` override
+   (zero such rules in its stylesheet). Our scaffold shipped the
+   shadcn convention TWICE — `html { -webkit-font-smoothing:
+   antialiased; text-rendering: optimizeLegibility; }` in globals.css
+   AND the `antialiased` utility on the body className. Both retired;
+   macOS rendering now matches the reference's default weight.
+
+3. **The `::selection` retirement.** Our globals.css shipped a
+   blue-tinted selection (`rgb(59 130 246 / 0.18)`) — a scaffold-era
+   invention; the reference's stylesheet contains zero selection rules
+   (the browser default). Retired.
+
+4. **The disproven-pointer lesson.** session_35.md's next-session
+   pointer claimed "the reference's 'Notifications alt+T' region hint"
+   — a PHANTOM: zero matches in the live DOM (text + attributes), zero
+   in the reference's 1.6MB JS bundle ("notify" hits are all
+   react-query internals), and Alt+T does nothing from any focus state
+   (the first "it focuses the bell" reading was a probe artifact — the
+   preceding CLICK had focused the bell). Pointers are LEADS to
+   re-verify live, never facts to plan around.
+
+5. **The census-method hazards (three new):**
+   - **The `AGENT_BROWSER_SESSION` export leak** — the env var persists
+     across bash invocations, so a "reference" probe issued in the same
+     shell after `export AGENT_BROWSER_SESSION=clone22` silently ran
+     against the CLONE (the smoothing false-parity: both read
+     "antialiased"). Prefix reference probes with `env -u
+     AGENT_BROWSER_SESSION`.
+   - **The focus-race wrap probe** — a programmatic `.focus()` in one
+     eval followed by a `press` in a separate CLI call can land focus
+     on BODY (lost between commands) and fake a broken focus trap;
+     re-establish focus and re-press before declaring the trap broken
+     (the drawer's wrap verified clean on the properly-sequenced probe).
+   - **The controlled-span metric** — comparing text widths across apps
+     requires a created `<span>` with pinned font-size/weight; element
+     text widths mix in per-surface class differences (the first
+     "119px vs 115px Dashboard link" reading mixed a 500-weight
+     reference span against our 400-weight link).
+
+6. **The overflow guard.** The system font runs WIDER than Inter
+   (especially bold, ~14%) — after any font change, re-run the 390px
+   overflow sweep on all 11 routes (stayed clean here; the wider text
+   broke nothing). The e2e font checks count only non-`__nextjs`
+   loaded fonts — Next's dev overlay registers Geist faces in dev
+   (status "unloaded"); the production build ships neither.
+
+Pinned by `tests/typography.test.ts` (11 checks) + 3 e2e
+computed-style checks in `crm.spec.ts`.
 
 ## 17. Responsive Breakpoint Reference
 

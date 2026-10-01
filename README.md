@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-444%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-458%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -45,7 +45,8 @@ first boot.
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
 | 🧭 Custom 404 | The reference's designed not-found page — slate-50 center card, divider bar, quoted-pathname message, Go Home pill |
 | 🛡️ Security headers | The reference's edge-injected response-header set on every route — `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security: max-age=31536000` (bare, like the reference; inert over plain-HTTP localhost per RFC 6797, correct behind HTTPS) — declared once in `next.config.ts` `headers()` |
-| 🧪 Tested | 380 Vitest unit checks + 64 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🔤 Typography | The reference's zero-webfont base: NO Inter, NO font preloads — the stock `ui-sans-serif, system-ui` system stack pinned byte-exact in `@theme --font-sans`, default `auto` font smoothing (no `antialiased`, no `text-rendering` override) and the browser-default `::selection` — measured pixel-identical text metrics after the fix |
+| 🧪 Tested | 391 Vitest unit checks + 67 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -99,7 +100,7 @@ flowchart TB
 │   │   │   └── 📂 reports/ settings/ profile/
 │   │   ├── 📂 api/                   # 16 REST route handlers (auth → reset)
 │   │   ├── 📂 login/ signup/         # public auth pages
-│   │   ├── 📄 layout.tsx             # root layout, Inter font, Toaster
+│   │   ├── 📄 layout.tsx             # root layout, metadata, Toaster (no webfont — the stock system stack)
 │   │   ├── 📄 globals.css            # Tailwind v4 @theme tokens + utilities
 │   │   └── 📂 vendor/tw-animate.css  # vendored animation utilities
 │   ├── 📂 components/
@@ -114,8 +115,8 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 19 Vitest suites (380 checks)
-│   └── 📂 e2e/                       # Playwright (64 checks)
+│   ├── 📄 *.test.ts                  # 20 Vitest suites (391 checks)
+│   └── 📂 e2e/                       # Playwright (67 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
@@ -167,9 +168,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 380 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
+bun run test          # 391 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 64 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 67 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials — the
@@ -206,7 +207,10 @@ static assets, plus the sitemap's bare `application/xml` content-type),
 the session-21 login-card funnel layer (the reference's in-place signup
 view — the s10 "dead button" pin disproven live — plus the verify-email
 view with its 6-digit attempts ladder, the Callout error/info banners,
-the exact auth error strings, and zero auth toasts),
+the exact auth error strings, and zero auth toasts), the session-22
+typography layer (the reference's zero-webfont base — the Inter webfont
+retired for the stock system stack, default `auto` smoothing, the
+browser-default `::selection`),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

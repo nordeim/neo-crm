@@ -954,3 +954,71 @@ test("manifest.json + robots.txt keep their reference-matching content-types (re
   expect(robots.status()).toBe(200);
   expect(robots.headers()["content-type"]).toBe("text/plain; charset=utf-8");
 });
+
+// ---------------------------------------------------------------------------
+// Session 22 — the typography / base-cascade layer (S22-P1/P2/P3)
+// ---------------------------------------------------------------------------
+
+test("the app ships ZERO webfonts and the stock system font stack (S22-P1)", async ({ page }) => {
+  await page.goto("/");
+  // The reference's computed body family is Tailwind's stock default
+  // stack (byte-extracted from its preflight html rule); it loads NO
+  // webfont anywhere (document.fonts empty, zero @font-face in its
+  // 79.5KB stylesheet). Our Inter webfont rendered every text surface
+  // in the wrong typeface (measured ~6% narrower regular / ~14%
+  // narrower bold on the same string) — retired this session.
+  const family = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
+  expect(family).toContain("ui-sans-serif");
+  expect(family).toContain("system-ui");
+  expect(family).not.toContain("Inter");
+  // Count only APP fonts: Next's dev overlay registers __nextjs-Geist
+  // faces in dev mode (status "unloaded"); the production build ships
+  // neither. The reference loads ZERO webfonts — the pin survives both.
+  const loadedFonts = await page.evaluate(
+    () =>
+      [...document.fonts].filter(
+        (f) => !f.family.startsWith("__nextjs") && f.status === "loaded",
+      ).length,
+  );
+  expect(loadedFonts).toBe(0);
+  // The h1 computes the same stock stack (no per-surface family).
+  const h1Family = await page.evaluate(() => {
+    const h1 = document.querySelector("h1");
+    return h1 ? getComputedStyle(h1).fontFamily : "";
+  });
+  expect(h1Family).toContain("ui-sans-serif");
+  expect(h1Family).not.toContain("Inter");
+});
+
+test("the login page computes the same stock stack — no webfont anywhere (S22-P1)", async ({ page }) => {
+  await page.goto("/login");
+  const family = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
+  expect(family).toContain("ui-sans-serif");
+  expect(family).not.toContain("Inter");
+  const loadedFonts = await page.evaluate(
+    () =>
+      [...document.fonts].filter(
+        (f) => !f.family.startsWith("__nextjs") && f.status === "loaded",
+      ).length,
+  );
+  expect(loadedFonts).toBe(0);
+});
+
+test("the body computes default auto font smoothing — no antialiased (S22-P2)", async ({ page }) => {
+  await page.goto("/");
+  // The reference ships zero font-smoothing rules (computed `auto` and
+  // no text-rendering override); our scaffold-era double antialiased
+  // (the html CSS rule + the body utility) rendered thinner text on
+  // macOS — both retired this session.
+  const smoothing = await page.evaluate(
+    () =>
+      (getComputedStyle(document.body) as CSSStyleDeclaration & {
+        webkitFontSmoothing?: string;
+      }).webkitFontSmoothing,
+  );
+  expect(smoothing).toBe("auto");
+  const textRendering = await page.evaluate(
+    () => getComputedStyle(document.body).textRendering,
+  );
+  expect(textRendering).toBe("auto");
+});

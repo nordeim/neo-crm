@@ -1,14 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/toast";
 import { PWA_META, SITE_DESCRIPTION, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
+// Session-22 (S22-P1): the Inter webfont is RETIRED. The reference app
+// ships ZERO webfonts — no @font-face rule in its 79.5KB stylesheet,
+// document.fonts empty, every surface computing Tailwind's stock default
+// sans stack (byte-extracted from its preflight html rule). The scaffold's
+// next/font/google Inter made every text surface render in the wrong
+// typeface (measured: same 62-char string at 16px — reference 466.8px/
+// 522.4px regular/bold vs ours 439px/451.3px). The reference's EXACT
+// stack is pinned in globals.css @theme --font-sans (Tailwind 4.3's own
+// default is the v4.0 -apple-system list and NOT byte-identical).
 
 export const metadata: Metadata = {
   // Session-18: the document metadata layer — the reference's 405-char
@@ -82,8 +85,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-background font-sans text-foreground antialiased">
+    <html lang="en">
+      {/* Session-22 (S22-P2): the antialiased utility is RETIRED — the
+          reference ships no font-smoothing (computed auto) and no
+          text-rendering override; the scaffold-era shadcn double-smoothing
+          (this class + the retired html rule in globals.css) rendered
+          thinner text than the reference on macOS. */}
+      <body className="min-h-screen bg-background font-sans text-foreground">
         {children}
         <Toaster />
       </body>
