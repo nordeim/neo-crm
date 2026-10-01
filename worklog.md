@@ -351,3 +351,19 @@ Stage Summary:
 
 Stage Summary (final):
 - PUSHED: session-17 commit 4fd842d on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py (explicit --remote; dry-run clean 28678cb..4fd842d fast-forward, then real push with the wrapper's remote verification + an independent GIT_SSH_COMMAND ls-remote check @ 4fd842d == local HEAD); all suites green (312 unit / 45 e2e); docs at SKILL v1.14.0; deploy keys shredded after verification
+
+---
+Task ID: 19 (repo)
+Agent: main (Super Z)
+Task: Session 18 — the document metadata layer (description/OG/Twitter/favicon/sitemap/robots) + the quarter time-bomb fix
+
+Work Log:
+- Re-cloned the repo fresh at d67a237 (sandbox reset); re-provisioned .env (DATABASE_URL file:../db/custom.db) + db/ at the repo root + db:push/db:seed; baseline gate green (312/312 unit); vitest + playwright configs verified
+- Mobile navigation verified three ways FIRST: reference at 390 still ships NO nav (14th session), our 7-check drawer regression LIVE 7/7 PASS (incl. real-click focus restore + focus-trap wrap + resize lock release), drawer internals swept for v4 hazards (zero hidden attrs, zero inline-margin targets, h-dvh exact, #2563eb panel); zero 390px overflow on all 11 routes; icon census 9/9 pages at parity; demo data still zero (14th session)
+- NEW audit layer — the document metadata surface (never swept in 17 sessions): found the 405-char description drift, the missing OG/Twitter card family, the missing favicon, and the missing sitemap.xml + robots Sitemap line while NEXT_PUBLIC_SITE_URL was documented but consumed NOWHERE
+- TDD: 14 red-first checks (tests/metadata.test.ts, dynamic seam imports for granular red) -> 326/326 unit; +5 e2e -> 50/50 (mobile-nav 7/7)
+- Gate-caught corrections: (a) Next's robots.ts/sitemap.ts serializers drift from the reference's bytes (User-Agent case, changefreq dropped, priority 1.0 -> "1") — rewritten as force-static route handlers, byte-identical output; (b) the reports e2e $542.0k assertion was a QUARTER TIME BOMB that detonated on 2026-10-01 (Q4 began, server-side periodStart window emptied) — fixed with the All-Time period + the date-independent 7 $687.0K pin
+- Full gate green: lint 0/0, tsc, 326/326 unit, build, 50/50 e2e; live re-verified (head census, og:image/icon 200s, robots byte-identical, sitemap format-identical, drawer 7/7, zero 390 overflow); 20 screenshots re-captured with per-shot verification (zero duplicates); docs realigned (README 376, AGENTS, CLAUDE, PAD 326/50, SKILL v1.15.0 16j, docs/session_29.md, plan addendum, worklogs)
+
+Stage Summary:
+- PUSHED: session-18 commit fe78bd5 on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py (explicit --remote; dry-run clean d67a237..fe78bd5 fast-forward, then real push with the wrapper's remote verification + an independent GIT_SSH_COMMAND ls-remote check @ fe78bd5 == local HEAD); all suites green (326 unit / 50 e2e); docs at SKILL v1.15.0; deploy key shredded after verification
