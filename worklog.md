@@ -452,3 +452,6 @@ Work Log:
 Stage Summary:
 - Gate green: lint 0/0 · tsc · 391/391 unit · 67/67 e2e (mobile-nav 7/7); zero 390px overflow; 23 verified screenshots + the re-captured og-image; docs at SKILL v1.19.0
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
+
+Stage Summary (final):
+- PUSHED: session-22 commit 1d43558 on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py with the paramiko shim (/home/z/my-project/bin/ssh; explicit --remote; dry-run clean 4b4843d..1d43558 fast-forward, then the real push with the wrapper's remote verification + an independent GIT_SSH_COMMAND ls-remote check @ 1d43558 == local HEAD); all suites green (391 unit / 67 e2e); docs at SKILL v1.19.0; deploy key shredded after verification
