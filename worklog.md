@@ -541,3 +541,17 @@ Work Log:
 
 Stage Summary:
 - Ready: the session-26 push; next unprobed pointers in docs/session_45.md (the reference's account DETAIL health surface, the calendar day-cell contract — still data-gated)
+
+---
+Task ID: 26-push (repo)
+Agent: main (Super Z)
+Task: The session-26 push record (the established dual-commit pattern)
+
+Work Log:
+- Gate green before push (rule 2): lint 0/0 · tsc 0 · 525/525 unit · build · 87/87 e2e
+- Commit f943779 on main; the paramiko shim rebuilt at /home/z/my-project/bin/ssh (the workspace reset had wiped it; paramiko 5.0.0 installed into the venv); the operator key materialized to /tmp/session26-deploy.key (0600, outside the repo), fingerprint SHA256:3ddaNlFhMz1JXiGEDgVEaRsUzI4Ev0IpGEEB7NnU4PU (ed25519) verified
+- Dry-run clean (fast-forward 86405d0..f943779), then the real push via docs/ssh_git_wrapper_v3.py --remote git@github.com:nordeim/neo-crm.git
+- PUSH VERIFIED: remote refs/heads/main @ f943779 == local HEAD; independently re-verified via GIT_SSH_COMMAND ls-remote (f94377953eeb29e9400acf0b1e3b6375fa5f9cfa); the operator key shredded (random overwrite + remove) after both the wrapper's and the independent verification
+
+Stage Summary:
+- Session 26 pushed to main; the shim + this record ride the second commit
