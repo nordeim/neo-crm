@@ -87,11 +87,19 @@ test("reports page loads analytics tabs with seeded data", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Saved Reports (0)" })).toBeVisible();
 
   // Regression: the "all" filter sentinel must not leak into the query —
-  // the default view (period=quarter, owner/stage/status=all) must show the
-  // seeded pipeline, not zeros. (Won-deal value is stable: the lead created
-  // by the earlier test is stage "new" and never reaches this quarter's
-  // won total.)
-  await expect(page.getByText("$542.0k").first()).toBeVisible();
+  // the view (owner/stage/status=all) must show the seeded pipeline, not
+  // zeros. Session-18 fixed a TIME BOMB here: the assertion hardcoded the
+  // quarter-relative won total ($542.0k — the subset of seeded closes that
+  // happened to fall in Q3 2026) and broke on 2026-10-01 when the quarter
+  // rolled over to Q4 and the server-side periodStart() window no longer
+  // contained any seeded close. The deterministic expression: switch the
+  // period to All Time and pin the date-independent all-time won total
+  // (145k+98k+210k+42k+66k+87k+39k = $687.0K — every seeded won deal, no
+  // wall-clock dependence). The lead created by the earlier test is stage
+  // "new" and never reaches the won total either way.
+  await page.getByRole("combobox").first().click();
+  await page.getByRole("option", { name: "All Time" }).click();
+  await expect(page.getByText("7 $687.0K").first()).toBeVisible();
 
   await page.getByRole("tab", { name: "Account Health" }).click();
   await expect(page.getByText("Account Health Distribution")).toBeVisible();
@@ -666,4 +674,99 @@ test("the blue primary buttons carry the bare shadow scale (S17-P4)", async ({ p
   const shadow = await btn.evaluate((el) => getComputedStyle(el).boxShadow);
   expect(shadow).toContain("rgba(0, 0, 0, 0.1) 0px 1px 3px 0px");
   expect(shadow).toContain("rgba(0, 0, 0, 0.1) 0px 1px 2px -1px");
+});
+
+// ---------------------------------------------------------------------------
+// Session-18: the document metadata layer (S18-P1..P4). The reference ships
+// a 405-char meta description, the full OG/Twitter card set, a PNG favicon,
+// /sitemap.xml (9 URLs) and a robots.txt with a Sitemap line — all probed
+// live on 2026-10-01. These run against the standalone build's SSR <head>.
+// ---------------------------------------------------------------------------
+
+test("the head ships the reference meta description (S18-P1)", async ({ page }) => {
+  await page.goto("/");
+  const description = await page
+    .locator('meta[name="description"]')
+    .getAttribute("content");
+  expect(description).toBe(
+    "NEO CRM is a clean, intuitive customer relationship management platform designed to help teams manage accounts, contacts, and leads in one centralized dashboard. With powerful search, clear account tracking, activity monitoring, and built-in reporting, NEO CRM keeps your client data organized, accessible, and actionable—so you can focus on building stronger relationships and closing more opportunities.",
+  );
+});
+
+test("the head ships the OpenGraph + Twitter card family (S18-P2)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    "NEO CRM",
+  );
+  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+    "content",
+    "website",
+  );
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+    "content",
+    "NEO CRM",
+  );
+  const ogImage = await page
+    .locator('meta[property="og:image"]')
+    .getAttribute("content");
+  expect(ogImage).toContain("/og-image.png");
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    "content",
+    "summary_large_image",
+  );
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+    "content",
+    "NEO CRM",
+  );
+  const twitterUrl = await page
+    .locator('meta[name="twitter:url"]')
+    .getAttribute("content");
+  expect(twitterUrl).toBeTruthy();
+});
+
+test("the head ships the file-convention favicon link (S18-P3)", async ({ page }) => {
+  await page.goto("/");
+  const icon = page.locator('link[rel="icon"]');
+  await expect(icon).toHaveCount(1);
+  const href = await icon.getAttribute("href");
+  expect(href).toContain("icon.png");
+  // And the asset itself resolves.
+  const res = await page.request.get(href!);
+  expect(res.status()).toBe(200);
+});
+
+test("robots.txt serves the Sitemap line (S18-P4)", async ({ page }) => {
+  const res = await page.request.get("/robots.txt");
+  expect(res.status()).toBe(200);
+  const text = await res.text();
+  expect(text).toContain("User-agent: *");
+  expect(text).toMatch(/Allow:\s*\//);
+  expect(text).toMatch(/Sitemap:\s*.+\/sitemap\.xml/);
+});
+
+test("sitemap.xml serves the nine real routes (S18-P4)", async ({ page }) => {
+  const res = await page.request.get("/sitemap.xml");
+  expect(res.status()).toBe(200);
+  const xml = await res.text();
+  for (const route of [
+    "/",
+    "/accounts",
+    "/contacts",
+    "/leads",
+    "/calendar",
+    "/activities",
+    "/reports",
+    "/settings",
+    "/profile",
+  ]) {
+    expect(xml).toContain(`<loc>http://localhost:3000${route === "/" ? "/" : route}</loc>`);
+  }
+  expect(xml).toContain("<changefreq>weekly</changefreq>");
+  expect(xml).toContain("<priority>1.0</priority>");
+  expect(xml).toContain("<priority>0.8</priority>");
+  // The reference's capitalized locs are its case-insensitive-platform
+  // quirk — our sitemap lists only routes our case-sensitive router
+  // actually serves.
+  expect(xml).not.toContain("/Accounts");
 });

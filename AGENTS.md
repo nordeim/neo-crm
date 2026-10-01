@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (312 checks)         | `bun run test`                         |
-| Browser E2E (45 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (326 checks)         | `bun run test`                         |
+| Browser E2E (50 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (312) → `bun run build` → `bun run test:e2e` (45). There is no
+`bun run test` (326) → `bun run build` → `bun run test:e2e` (50). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -399,7 +399,7 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 312 Vitest checks across
+  sessions 6–8 + session-10's stock-primitive pins) — 326 Vitest checks across
   15 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
@@ -672,6 +672,39 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the ghost variant carries NO base text color (the stock ghost — its
   one text-bearing surface "Save All" renders the inherited #0a0a0a,
   not gray).
+- **The document metadata layer is the site seam (session-18)** — the
+  reference's `<head>` surface was never swept before s18: its
+  `meta[name=description]` is a 405-char marketing paragraph (em-dash at
+  char 321 — mirrored verbatim as `SITE_DESCRIPTION` in
+  `src/lib/site.ts`), it ships the full OG set (og:title/description/
+  image/url/type/site_name) + `twitter:card summary_large_image` with
+  title/description/image AND `twitter:url`, a PNG favicon, a nine-URL
+  `/sitemap.xml` (weekly, 1.0/0.8) and a robots.txt with a Sitemap line.
+  Ours: `src/lib/site.ts` (`siteUrl()` reading NEXT_PUBLIC_SITE_URL with
+  the localhost fallback — the variable was documented in
+  .env.example/README/CLAUDE since the scaffold but consumed NOWHERE
+  before s18) feeding the root layout's `metadataBase` + OG/Twitter
+  blocks, `src/app/icon.png` (the BrandMark annulus on the #2563eb tile,
+  file-convention favicon), `public/og-image.png` (1200×630 live
+  dashboard capture). TWO SERIALIZER HAZARDS (why robots/sitemap are
+  explicit route handlers, not metadata routes): Next's `robots.ts`
+  emits `User-Agent` (capital A) where the reference's bytes say
+  `User-agent`, and its `sitemap.ts` serializes priority 1.0 as `<priority>1</priority>`
+  (JS number collapse) — `src/app/robots.txt/route.ts` +
+  `src/app/sitemap.xml/route.ts` emit the reference's exact byte format
+  (verified byte-identical origin-normalized for robots; the sitemap's
+  ONLY deltas are the deliberate lowercase routes — the reference's
+  capitalized locs resolve only on its case-insensitive platform).
+  `twitter:url` rides `metadata.other` because Next's twitter object has
+  no url field (verified against next 16.3.6's twitter-types). The
+  quarter-boundary TIME BOMB (also fixed s18): the reports e2e asserted
+  the quarter-relative won total "$542.0k" — valid only while the seeded
+  closes fell inside the then-current quarter; it broke on 2026-10-01
+  when Q4 began (server-side `periodStart()` window no longer contained
+  any seeded close). The deterministic expression: select All Time in
+  the period combobox and pin the date-independent "7 $687.0K". NEVER
+  hardcode a period-relative KPI value in a test — derive it or pin an
+  all-time/structural value.
 
 ## Conventions that differ from defaults
 

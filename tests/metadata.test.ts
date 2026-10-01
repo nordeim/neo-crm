@@ -1,0 +1,176 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { describe, expect, it } from "vitest";
+
+// Session-18: the DOCUMENT METADATA layer — the <head> surface never swept
+// before (meta description, OpenGraph/Twitter cards, favicon, robots.txt,
+// sitemap.xml). Every pin below is DOM/HTTP-verified against the live
+// reference (2026-10-01 audit):
+//   - the reference's meta[name=description] is a 405-char marketing
+//     paragraph (em-dash at char 321) — mirrored verbatim;
+//   - the reference ships og:title/description/image/url/type/site_name +
+//     twitter:card summary_large_image / title / description / image / url;
+//   - the reference ships a PNG favicon; ours is the app-router file
+//     convention (src/app/icon.png → <link rel=icon> injected by Next);
+//   - the reference serves /sitemap.xml (9 URLs, weekly, 1.0/0.8) and a
+//     robots.txt with a Sitemap line. OUR sitemap lists the real lowercase
+//     routes (the reference's capitalized locs only resolve on its
+//     case-insensitive platform — fixing that defect per the house rule);
+//   - the reference's og:image/favicon URLs are its platform's CDN assets —
+//     the self-hosted expression is OUR public/og-image.png (1200×630).
+// NEXT_PUBLIC_SITE_URL was documented in .env.example/README/CLAUDE as
+// "used for metadata, sitemap.xml, and robots.txt" but consumed NOWHERE
+// before this session — the siteUrl() seam closes that documented gap.
+//
+// The seam imports are DYNAMIC (and the source reads existence-guarded)
+// so the red state fails check-by-check instead of erroring the file.
+
+const REFERENCE_DESCRIPTION =
+  "NEO CRM is a clean, intuitive customer relationship management platform designed to help teams manage accounts, contacts, and leads in one centralized dashboard. With powerful search, clear account tracking, activity monitoring, and built-in reporting, NEO CRM keeps your client data organized, accessible, and actionable—so you can focus on building stronger relationships and closing more opportunities.";
+
+const repoFile = (rel: string) =>
+  path.resolve(import.meta.dirname, "..", rel);
+
+const readOr = (rel: string): string => {
+  const p = repoFile(rel);
+  return existsSync(p) ? readFileSync(p, "utf8") : "";
+};
+
+const layoutSrc = () => readOr("src/app/layout.tsx");
+const sitemapSrc = () => readOr("src/app/sitemap.xml/route.ts");
+const robotsSrc = () => readOr("src/app/robots.txt/route.ts");
+
+describe("session-18: the siteUrl seam (S18-P4)", () => {
+  it("falls back to the canonical localhost origin when the env var is unset", async () => {
+    const { DEFAULT_SITE_URL, siteUrl } = await import("@/lib/site");
+    expect(siteUrl(undefined)).toBe(DEFAULT_SITE_URL);
+    expect(DEFAULT_SITE_URL).toBe("http://localhost:3000");
+  });
+
+  it("honors NEXT_PUBLIC_SITE_URL and strips trailing slashes", async () => {
+    const { siteUrl } = await import("@/lib/site");
+    expect(siteUrl("https://crm.example.com")).toBe("https://crm.example.com");
+    expect(siteUrl("https://crm.example.com/")).toBe("https://crm.example.com");
+    expect(siteUrl("  ")).toBe("http://localhost:3000");
+  });
+
+  it("is consumed by the metadata surface (layout, sitemap, robots)", () => {
+    expect(layoutSrc()).toContain('from "@/lib/site"');
+    expect(sitemapSrc()).toContain('from "@/lib/site"');
+    expect(robotsSrc()).toContain('from "@/lib/site"');
+  });
+});
+
+describe("session-18: meta description parity (S18-P1)", () => {
+  it("ships the reference's exact 405-char paragraph", async () => {
+    const { SITE_DESCRIPTION } = await import("@/lib/site");
+    expect(SITE_DESCRIPTION).toBe(REFERENCE_DESCRIPTION);
+    expect(REFERENCE_DESCRIPTION).toHaveLength(405);
+    // The em-dash (U+2014) at char 321 — never a hyphen drift.
+    expect(REFERENCE_DESCRIPTION.charCodeAt(321)).toBe(0x2014);
+  });
+
+  it("wires the description into the root layout metadata", () => {
+    expect(layoutSrc()).toContain("description: SITE_DESCRIPTION");
+  });
+});
+
+describe("session-18: OpenGraph + Twitter cards (S18-P2)", () => {
+  it("declares the reference's openGraph block", () => {
+    const src = layoutSrc();
+    expect(src).toContain("openGraph:");
+    expect(src).toMatch(/title:\s*"NEO CRM"/);
+    expect(src).toContain('type: "website"');
+    expect(src).toContain('siteName: "NEO CRM"');
+    expect(src).toContain("description: SITE_DESCRIPTION");
+  });
+
+  it("declares the 1200x630 social card image", () => {
+    const src = layoutSrc();
+    expect(src).toContain('url: "/og-image.png"');
+    expect(src).toContain("width: 1200");
+    expect(src).toContain("height: 630");
+  });
+
+  it("declares the reference's twitter card family", () => {
+    const src = layoutSrc();
+    expect(src).toContain("twitter:");
+    expect(src).toContain('card: "summary_large_image"');
+    // twitter:url — emitted through the `other` escape hatch because the
+    // Next twitter metadata object has no url field (verified against
+    // next 16.3.6's metadata-types).
+    expect(src).toMatch(/"twitter:url":\s*siteUrl\(\)/);
+  });
+
+  it("anchors every relative URL on metadataBase from the seam", () => {
+    expect(layoutSrc()).toContain("metadataBase: new URL(siteUrl())");
+  });
+});
+
+describe("session-18: the favicon (S18-P3)", () => {
+  it("ships the app-router icon file (file-convention favicon)", () => {
+    const icon = repoFile("src/app/icon.png");
+    expect(existsSync(icon)).toBe(true);
+    const buf = readFileSync(icon);
+    expect(buf.length).toBeGreaterThan(1000);
+    // PNG magic bytes.
+    expect([...buf.slice(0, 8)]).toEqual([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    ]);
+  });
+
+  it("ships the 1200x630 OG image as a public asset", () => {
+    const og = repoFile("public/og-image.png");
+    expect(existsSync(og)).toBe(true);
+    const buf = readFileSync(og);
+    expect([...buf.slice(0, 8)]).toEqual([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    ]);
+    // IHDR: bytes 16-23 are width/height, big-endian.
+    expect(buf.readUInt32BE(16)).toBe(1200);
+    expect(buf.readUInt32BE(20)).toBe(630);
+  });
+});
+
+describe("session-18: sitemap.xml + robots.txt (S18-P4)", () => {
+  it("serves the nine real routes with the reference's cadence", () => {
+    const src = sitemapSrc();
+    for (const route of [
+      "/",
+      "/accounts",
+      "/contacts",
+      "/leads",
+      "/calendar",
+      "/activities",
+      "/reports",
+      "/settings",
+      "/profile",
+    ]) {
+      expect(src).toContain(`{ path: "${route}"`);
+    }
+    // The reference's own cadence: weekly across the board, 1.0 for the
+    // dashboard, 0.8 for the rest — as STRING literals because the
+    // reference's bytes say "1.0" (a JS number would serialize as "1").
+    expect(src).toContain('<changefreq>weekly</changefreq>');
+    expect(src).toContain('priority: "1.0"');
+    expect(src).toContain('priority: "0.8"');
+    // Lowercase only — the reference's capitalized locs are its
+    // case-insensitive-platform quirk (fixed, not copied).
+    expect(src).not.toContain('"/Accounts"');
+  });
+
+  it("serves robots.txt in the reference's byte format", () => {
+    // The reference's robots.txt (byte-verified): "User-agent" with a
+    // LOWERCASE a, LF-only, no trailing newline, one blank line before
+    // the Sitemap line. Next's robots.ts serializer emits "User-Agent"
+    // (capital A) — hence the explicit route handler.
+    const src = robotsSrc();
+    expect(src).toContain("User-agent: *\nAllow: /\n\nSitemap: ");
+    expect(src).toContain("${siteUrl()}/sitemap.xml");
+    expect(src).toContain('export const dynamic = "force-static"');
+  });
+
+  it("retires the static public/robots.txt (route conflict)", () => {
+    expect(existsSync(repoFile("public/robots.txt"))).toBe(false);
+  });
+});

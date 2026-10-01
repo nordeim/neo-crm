@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.14.0
+version: 1.15.0
 last_updated: 2026-09-30
-project_state: 312 unit checks + 45 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 326 unit checks + 50 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.14.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.15.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1054,6 +1054,73 @@ happened BETWEEN sessions (the base44 app is live-edited). Standing rule:
 re-probe previously-pinned surfaces when their family is touched, and
 treat any s-pin older than the current audit as provisional until
 re-verified.
+
+## 16j. Session-18 Layer (the document metadata surface, the Next serializer drifts, the quarter time bomb)
+
+**What shipped:** the first sweep of the DOCUMENT METADATA layer — the
+`<head>` surface (meta description, OpenGraph/Twitter cards, favicon,
+robots.txt, sitemap.xml) never probed in seventeen prior sessions — plus
+the time-bomb fix in the reports e2e. All findings DOM/HTTP-verified on
+the live reference on 2026-10-01:
+
+1. **The metadata findings (S18-P1..P4).** The reference's
+   `meta[name=description]` is a 405-char marketing paragraph (em-dash
+   at char 321) — mirrored VERBATIM as `SITE_DESCRIPTION` in
+   `src/lib/site.ts` (never paraphrase reference copy). It ships the
+   full social set: og:title/description/image/url/type/site_name +
+   twitter:card `summary_large_image` with title/description/image AND
+   `twitter:url`. It serves a PNG favicon. Its `/sitemap.xml` lists nine
+   URLs (weekly, 1.0 for the dashboard, 0.8 for the rest) and its
+   robots.txt carries a `Sitemap:` line. Ours shipped NONE of that, and
+   `NEXT_PUBLIC_SITE_URL` — documented in .env.example/README/CLAUDE as
+   "used for metadata, sitemap.xml, and robots.txt" since the scaffold —
+   was consumed NOWHERE (grep-proven): a documented-vs-code gap.
+
+2. **The Next serializer drifts (why robots/sitemap are route handlers).
+  ** Next's `app/robots.ts` emits `User-Agent` (capital A) where the
+   reference's BYTES say `User-agent`; its `app/sitemap.ts` serializes
+   priority 1.0 as `<priority>1</priority>` (JS number collapse — the
+   type's field is also `changeFrequency`, not `changefreq`). When the
+   reference's exact byte format matters, ship explicit route handlers:
+   `src/app/robots.txt/route.ts` + `src/app/sitemap.xml/route.ts`
+   (`force-static`) — ours came out BYTE-IDENTICAL to the reference
+   (origin-normalized) for robots.txt and format-identical for the
+   sitemap (the only deltas are the deliberate lowercase routes — the
+   reference's capitalized locs resolve only on its case-insensitive
+   platform; a case-sensitive router must not point crawlers at URLs it
+   would 404).
+
+3. **twitter:url through `metadata.other`.** Next's twitter metadata
+   object has NO url field (verified against next 16.3.6's
+   twitter-types: card/site/siteId/creator/creatorId/description/title/
+   images only). The reference ships twitter:url — it rides
+   `metadata.other: { "twitter:url": siteUrl() }`.
+
+4. **The NEXT_PUBLIC build-time inlining rule.** `NEXT_PUBLIC_*` values
+   are inlined AT BUILD TIME — `next build` reads `.env`, so the sitemap
+   locs/og:image origin bake in then. Set the variable BEFORE
+   `bun run build` in production (docs/DEPLOYMENT.md); the e2e suite
+   asserts path substrings, not origins, so a :3100 standalone server
+   serving :3000-origin URLs is expected and harmless.
+
+5. **The quarter-boundary TIME BOMB (the e2e lesson).** The reports e2e
+   asserted the quarter-relative won total `$542.0k` — a value that was
+   only valid while the seeded close dates (-96..-6 days) happened to
+   fall inside the then-current quarter. It detonated on 2026-10-01:
+   Q4 began, the server-side `periodStart("this_quarter")` window
+   emptied, and the KPI legitimately rendered `0 $0.0K`. LESSON: never
+   hardcode a period-relative KPI in a test. The deterministic pattern
+   (shipped): drive the period combobox to All Time and pin the
+   date-independent value (`7 $687.0K` — every seeded won deal). The
+   same hazard class applies to any `new Date()`-relative assertion —
+   derive the expectation, freeze the clock, or pin an all-time value.
+
+6. **The favicon + OG image assets.** `src/app/icon.png` is the
+   file-convention favicon (Next injects `<link rel=icon>` — no code);
+   the mark is the BrandMark annulus (white ring, 0.6 inner ratio) on
+   the #2563eb rounded tile. `public/og-image.png` is a 1200x630 LIVE
+   capture of the authenticated dashboard (the self-hosted expression
+   of the reference's screenshot card — never point at their CDN URLs).
 
 ## 17. Responsive Breakpoint Reference
 

@@ -669,11 +669,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — page-titles (auth absolute titles — session-13) | 1 | 2 | `tests/page-titles.test.ts` | Vitest |
 | Unit — charts-contracts (dashed grid + funnel type — session-13) | 1 | 4 | `tests/charts-contracts.test.ts` | Vitest |
 | Unit — profile-route (the /Profile casing alias — session-14) | 1 | 4 | `tests/profile-route.test.ts` | Vitest |
+| Unit — metadata (the siteUrl seam + SITE_DESCRIPTION + OG/Twitter/icon/sitemap/robots pins — session-18) | 1 | 14 | `tests/metadata.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer — sessions 10–17) | 1 | 32 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer — sessions 10–18) | 1 | 37 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **19** | **312 unit + 45 e2e** | | |
+| **Total** | **20** | **326 unit + 50 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -885,6 +886,19 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   step light) and the ghost variant dropped its invented `text-muted`
   (the stock ghost carries no base text color).
 
+- **Time-relative e2e assertions are forbidden (session-18)** — the
+  reports suite once pinned the quarter-relative won total (`$542.0k`),
+  which silently depended on the seeded close dates falling inside the
+  then-current quarter; it detonated on 2026-10-01 when Q4 began and the
+  server-side `periodStart()` window emptied. The deterministic pattern:
+  drive the period selector to a fixed window (All Time) and pin the
+  date-independent value (`7 $687.0K`), or assert structure only.
+- **Byte-format metadata routes (session-18)** — `robots.txt` and
+  `sitemap.xml` are explicit route handlers (not `app/robots.ts` /
+  `app/sitemap.ts`) because Next's serializers drift from the reference's
+  bytes: `User-Agent` (capital A) vs the reference's `User-agent`, and
+  priority 1.0 serialized as `1`. Pinned by `tests/metadata.test.ts`.
+
 ### 7.3 Coverage Thresholds
 
 No percentage gate is configured. The working rule: every new pure helper in
@@ -896,9 +910,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 312/312
+- [ ] `bun run test` — 326/326
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 45/45
+- [ ] `bun run test:e2e` — 50/50
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`
@@ -927,7 +941,7 @@ the gate (there is no hosted CI; the local gate is the only gate).
 | ---- | -------- | ----------- | ------- |
 | `DATABASE_URL` | Yes | SQLite URL; relative paths resolve against `prisma/schema.prisma` (dev-friendly). Use an **absolute** path in production. | `file:../db/custom.db` |
 | `AUTH_SECRET` | Prod (≥16 chars) | HMAC secret for `neo_session` cookies. Changing it invalidates all sessions. | insecure dev-only constant |
-| `NEXT_PUBLIC_SITE_URL` | No | Canonical origin for metadata | `http://localhost:3000` |
+| `NEXT_PUBLIC_SITE_URL` | No | Canonical origin — consumed via `src/lib/site.ts` for `metadataBase`, the OG/Twitter cards, `robots.txt` and `sitemap.xml` (NEXT_PUBLIC_* values are inlined at build time — set before `bun run build`) | `http://localhost:3000` |
 | `E2E_PORT` | No (CI) | Playwright webServer port override | `3100` |
 
 ### 8.3 Docker Configuration

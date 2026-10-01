@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (312) → `bun run build` → `bun run test:e2e` (45). For UI
+   `bun run test` (326) → `bun run build` → `bun run test:e2e` (50). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (312 checks)               |
-| `bun run test:e2e`  | Playwright E2E (45 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (326 checks)               |
+| `bun run test:e2e`  | Playwright E2E (50 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 312 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 326 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -130,6 +130,9 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   titles — the root template DOUBLED the relative ones),
   `tests/charts-contracts.test.ts` (session-13: the dashed grid
   `strokeDasharray="3 3"` contract + the funnel-as-horizontal-bar type),
+  `tests/metadata.test.ts` (session-18: the siteUrl seam + the reference's
+  405-char SITE_DESCRIPTION, the OG/Twitter layout pins, the icon +
+  og-image asset pins, the sitemap/robots route-handler pins),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
   sessions 6–11: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
@@ -154,7 +157,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 45 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 50 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow),
   `auth.setup.ts` (one real login, storageState saved),
   `crm.spec.ts` (authenticated golden path across all 9 pages + the
@@ -174,7 +177,9 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   construction + two-level avatar, the sidebar `users`/`circle-user`/
   `calendar` glyphs, the accounts tier filters' stock button checkboxes
   with the dark #171717 checked fill + Check indicator, the blue
-  primaries' bare shadow scale).
+  primaries' bare shadow scale), and session-18's document-metadata
+  layer (the reference meta description, the OG/Twitter card family, the
+  favicon link, robots.txt's Sitemap line, the nine-route sitemap.xml).
 
 ### Test Commands
 
@@ -284,6 +289,8 @@ React-hooks rules that matter here (violations are errors):
 | Variable               | Purpose                                  | Example                       |
 | ---------------------- | ---------------------------------------- | ----------------------------- |
 | `DATABASE_URL`         | SQLite file URL, schema-relative         | `file:../db/custom.db`        |
+| `AUTH_SECRET`          | HMAC secret for session cookies (≥16ch)  | `openssl rand -hex 32`        |
+| `NEXT_PUBLIC_SITE_URL` | Canonical origin — metadata, robots.txt, sitemap.xml, OG/Twitter cards (consumed via `src/lib/site.ts`, inlined at build time) | `http://localhost:3000` |
 
 Currency DISPLAY is always `$`-attached, with three DOM-pinned per-page
 variants: dashboard compact lowercase (`$145.0k` / `$1.4M`), reports compact
@@ -291,8 +298,6 @@ UPPERCASE K (`$542.0K` won / `$196K` lost via `formatCompactCurrency`
 options), leads FULL (`$687,000` via `formatCurrency`) — the reference app
 ignores its own Default Currency setting and so do we (the Settings field
 still stores `AED`).
-| `AUTH_SECRET`          | HMAC secret for session cookies (≥16ch)  | `openssl rand -hex 32`        |
-| `NEXT_PUBLIC_SITE_URL` | Canonical origin for metadata            | `http://localhost:3000`       |
 
 ## Anti-Patterns to Avoid
 
