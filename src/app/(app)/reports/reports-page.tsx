@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/misc";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs, TabsPanel } from "@/components/ui/tabs";
 import { CircleStatCard, KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import {
   EMPTY_STATE,
@@ -202,22 +202,19 @@ export default function ReportsPage() {
               sticky filter bar above. The Tabs' own space-y-6 puts 24px
               between the bar and the panel (the reference's TabsContent
               mt-2 is dead CSS under its space-y-6 — same computed gap). */}
+          {/* Session-23 (S23-P1): the reference's Tabs region — a space-y-6
+              wrapper holding the tablist + the N wired panel shells (each
+              with the stock Radix focus-ring family + mt-2, which collapses
+              against the wrapper's space-y margin — the s11 24px
+              bar-to-panel gap, live-measured). The old built-in panel
+              wrapper retired with its space-y-6 className, which moved
+              here onto the region wrapper. */}
           <Tabs variant="pill" cols={5} className="space-y-6" value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
-            {loading ? (
-              <div className="grid gap-6 py-6 md:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-64" />
-                ))}
-              </div>
-            ) : (
-              <>
-                {tab === "sales" && <SalesTab data={data} />}
-                {tab === "pipeline" && <PipelineTab data={data} />}
-                {tab === "activity" && <ActivityTab data={data} />}
-                {tab === "sources" && <SourcesTab data={data} />}
-                {tab === "health" && <HealthTab data={data} />}
-              </>
-            )}
+            <TabsPanel tab="sales" className="mt-2">{tab === "sales" && (loading ? <ReportSkeletons /> : <SalesTab data={data} />)}</TabsPanel>
+            <TabsPanel tab="pipeline" className="mt-2">{tab === "pipeline" && (loading ? <ReportSkeletons /> : <PipelineTab data={data} />)}</TabsPanel>
+            <TabsPanel tab="activity" className="mt-2">{tab === "activity" && (loading ? <ReportSkeletons /> : <ActivityTab data={data} />)}</TabsPanel>
+            <TabsPanel tab="sources" className="mt-2">{tab === "sources" && (loading ? <ReportSkeletons /> : <SourcesTab data={data} />)}</TabsPanel>
+            <TabsPanel tab="health" className="mt-2">{tab === "health" && (loading ? <ReportSkeletons /> : <HealthTab data={data} />)}</TabsPanel>
           </Tabs>
         </>
       )}
@@ -234,6 +231,20 @@ function exportPdf() {
 }
 
 // ---- Tab: Sales Overview ----------------------------------------------------
+
+// Session-23 (S23-P1): the reports loading skeletons, extracted so each
+// wired TabsPanel renders them into the active shell only (the reference's
+// Radix structure — inactive shells stay hidden and empty). Module-level
+// by the React 19 static-components rule.
+function ReportSkeletons() {
+  return (
+    <div className="grid gap-6 py-6 md:grid-cols-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-64" />
+      ))}
+    </div>
+  );
+}
 
 function SalesTab({ data }: { data: ReportsData | null }) {
   return (

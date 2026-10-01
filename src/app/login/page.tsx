@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { getSessionUser } from "@/lib/auth";
 import { LoginCard } from "@/components/layout/login-card";
 import { LOGIN_LAYOUT } from "@/lib/page-layout";
 import { pageMetadata } from "@/lib/site";
@@ -18,9 +16,15 @@ export const metadata = pageMetadata({ page: null, route: "/login" });
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
-  const user = await getSessionUser();
-  if (user) redirect("/");
+// Session-23 (S23-P2): NO authenticated redirect here. The reference
+// serves the login card to AUTHENTICATED visitors too (live-verified:
+// its /login renders the card with the session cookie present, and an
+// authed wrong-password attempt draws the error banner on the card) —
+// our `if (user) redirect("/")` was an invented scaffold pattern, never
+// a reference behavior. The page stays force-dynamic (the reference
+// serves /login dynamically; the s19 metadata family is
+// runtime-stable either way).
+export default function LoginPage() {
   return (
     <main
     className={LOGIN_LAYOUT.page}

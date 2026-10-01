@@ -163,6 +163,113 @@ test("reports tabs render bare with gap-6 grids and 300px charts (session-11)", 
   expect(gridGap).toBe("24px");
 });
 
+test("tabs ship the reference's Radix ARIA contract + keyboard model (session-23)", async ({ page }) => {
+  // S23-P1: the reference's tab strips are Radix Tabs — every trigger
+  // carries id + aria-controls pointing at its panel's id, every panel
+  // carries id + aria-labelledby pointing back at its trigger, all N
+  // panel shells stay mounted (the inactive ones hidden with EMPTY
+  // content), and the tablist supports the keyboard model:
+  // ArrowLeft/ArrowRight with wrap, Home/End, automatic activation
+  // (selection follows focus — live-verified on the reference).
+  await page.goto("/reports");
+  await expect(page.getByRole("tab", { name: "Sales Overview" })).toBeVisible();
+  // The reports fetch toggles a skeleton pass that unmounts the whole
+  // Tabs region (loading && !data swaps in the KPI skeletons) — wait for
+  // the post-load chart before probing, or the evaluate races the
+  // skeleton window and reads zero tabs (caught on the first run).
+  await expect(page.locator("[role=tabpanel] .recharts-wrapper").first()).toBeVisible();
+
+  const wiring = await page.evaluate(() => {
+    const out = { tabs: 0, wired: 0, panels: 0, backWired: 0, hiddenInactive: 0, emptyInactive: 0 };
+    const tabEls = [...document.querySelectorAll("[role=tab]")];
+    out.tabs = tabEls.length;
+    for (const t of tabEls) {
+      const ctrl = t.getAttribute("aria-controls");
+      const panel = ctrl ? document.getElementById(ctrl) : null;
+      if (panel) {
+        out.wired += 1;
+        const labelled = panel.getAttribute("aria-labelledby");
+        if (labelled && document.getElementById(labelled) === t) out.backWired += 1;
+      }
+    }
+    const panels = [...document.querySelectorAll("[role=tabpanel]")];
+    out.panels = panels.length;
+    for (const p of panels) {
+      if (p.hasAttribute("hidden")) {
+        out.hiddenInactive += 1;
+        if (!(p.textContent || "").trim()) out.emptyInactive += 1;
+      }
+    }
+    return out;
+  });
+  expect(wiring.tabs).toBe(5);
+  expect(wiring.wired).toBe(5);
+  expect(wiring.panels).toBe(5);
+  expect(wiring.backWired).toBe(5);
+  expect(wiring.hiddenInactive).toBe(4);
+  expect(wiring.emptyInactive).toBe(4);
+
+  // Keyboard model: ArrowRight moves focus AND selection (automatic
+  // activation), End jumps to the last tab, ArrowRight wraps to the
+  // first, Home returns to the start.
+  const sales = page.getByRole("tab", { name: "Sales Overview" });
+  const pipeline = page.getByRole("tab", { name: "Pipeline & Forecast" });
+  const health = page.getByRole("tab", { name: "Account Health" });
+  await sales.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(pipeline).toBeFocused();
+  await expect(pipeline).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("End");
+  await expect(health).toBeFocused();
+  await expect(health).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("ArrowRight");
+  await expect(sales).toBeFocused();
+  await expect(sales).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Home");
+  await expect(sales).toBeFocused();
+  await expect(sales).toHaveAttribute("aria-selected", "true");
+
+  // The settings strip (segmented, 3 tabs) ships the same contract.
+  await page.goto("/settings");
+  await expect(page.getByRole("tab", { name: "CRM Configuration" })).toBeVisible();
+  const settingsWiring = await page.evaluate(() => {
+    const tabEls = [...document.querySelectorAll("[role=tab]")];
+    const panels = [...document.querySelectorAll("[role=tabpanel]")];
+    const wired = tabEls.filter((t) => {
+      const ctrl = t.getAttribute("aria-controls");
+      return ctrl && document.getElementById(ctrl);
+    }).length;
+    const backWired = panels.filter((p) => {
+      const labelled = p.getAttribute("aria-labelledby");
+      return labelled && document.getElementById(labelled);
+    }).length;
+    return { tabs: tabEls.length, panels: panels.length, wired, backWired };
+  });
+  expect(settingsWiring.tabs).toBe(3);
+  expect(settingsWiring.wired).toBe(3);
+  expect(settingsWiring.panels).toBe(3);
+  expect(settingsWiring.backWired).toBe(3);
+
+  // The activities strip (segmented, 4 tabs) ships the same contract —
+  // and its panel shells replaced the s15-era redundant empty tabpanel.
+  await page.goto("/activities");
+  await expect(page.getByRole("tab", { name: "Overdue" })).toBeVisible();
+  const activitiesWiring = await page.evaluate(() => {
+    const tabEls = [...document.querySelectorAll("[role=tab]")];
+    const panels = [...document.querySelectorAll("[role=tabpanel]")];
+    const wired = tabEls.filter((t) => {
+      const ctrl = t.getAttribute("aria-controls");
+      return ctrl && document.getElementById(ctrl);
+    }).length;
+    const emptyPanels = panels.filter((p) => p.hasAttribute("hidden") && !(p.textContent || "").trim()).length;
+    return { tabs: tabEls.length, panels: panels.length, wired, emptyPanels };
+  });
+  expect(activitiesWiring.tabs).toBe(4);
+  expect(activitiesWiring.wired).toBe(4);
+  expect(activitiesWiring.panels).toBe(4);
+  expect(activitiesWiring.emptyPanels).toBe(3);
+});
+
 test("per-page document titles follow the Page | NEO CRM scheme", async ({ page }) => {
   // Session-10 (S10-10): the reference titles every non-dashboard page
   // "X | NEO CRM"; the dashboard + login stay "NEO CRM" (document.title

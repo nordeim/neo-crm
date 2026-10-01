@@ -22,17 +22,42 @@ import { TABS_PILL, TABS_SEGMENTED } from "@/lib/page-layout";
 // and NO hover classes (the reference ships none on any tab variant).
 // The reference's own tabs are all tabIndex=-1 (keyboard-unreachable
 // platform defect) — our roving tabindex stays the accessible fix.
+//
+// Session-23 (S23-P1): the reference's tab strips are Radix Tabs and ship
+// the full ARIA contract — every trigger carries an id + aria-controls
+// pointing at its panel's id, every panel carries an id + aria-labelledby
+// pointing back, all N panel shells stay mounted (inactive ones hidden
+// with EMPTY content), and the tablist supports the keyboard model:
+// ArrowLeft/ArrowRight with wrap, Home/End, automatic activation
+// (selection follows focus). This component now wires the same contract:
+// `useId()` generates the trigger/panel id pair, the component renders
+// the reference's wrapper anatomy (`<div class=…>[tablist, panels…]` —
+// the wrapper className is page-specific: space-y-6 on settings/reports,
+// bare on activities where it nests inside the toolbar), and `TabsPanel`
+// renders the wired shells as the wrapper's children. Our roving tabindex
+// (selected tab = 0) remains the documented superset over the reference's
+// all-=-1 platform defect.
 
 interface TabsProps {
   tabs: ReadonlyArray<{ id: string; label: string; count?: number }>;
   value: string;
   onValueChange: (value: string) => void;
+  /** The wrapper div's classes — the reference's per-page Tabs region
+   * (space-y-6 on settings/reports; bare on activities). */
   className?: string;
   variant?: "underline" | "segmented" | "pill";
   /** Equal-width grid columns for segmented/pill tracks (reference: one per tab). */
   cols?: number;
-  children: React.ReactNode;
+  /** The TabsPanel shells — rendered inside the wrapper after the tablist. */
+  children?: React.ReactNode;
 }
+
+interface TabsPanelProps extends React.ComponentProps<"div"> {
+  /** The tab id this panel belongs to — wires id/aria-labelledby/hidden. */
+  tab: string;
+}
+
+const TabsContext = React.createContext<{ uid: string; value: string } | null>(null);
 
 // Static class maps — Tailwind v4 scans source for literal class strings, so
 // dynamic `grid-cols-${n}` templates would never compile.
@@ -51,8 +76,45 @@ const GRID_COLS_LG: Record<number, string> = {
   6: "lg:grid-cols-6",
 };
 
+// The reference's stock Radix TabsContent classes (byte-extracted from the
+// live reference on 2026-10-01): the focus-visible ring family rides every
+// panel shell; the per-page mt-*/space-y-* classes are appended by the
+// pages (mt-4 space-y-2 on activities, mt-2 space-y-4 on settings, mt-2 on
+// reports — the mt-* collapses against the wrapper's space-y margin).
+const PANEL_BASE =
+  "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+
 function Tabs({ tabs, value, onValueChange, className, variant = "underline", cols, children }: TabsProps) {
-  const inTrack = variant === "segmented" || variant === "pill";
+  const uid = React.useId();
+  const tabRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+
+  const moveFocus = (next: number) => {
+    onValueChange(tabs[next].id);
+    // Focus follows selection in the same keydown pass (automatic
+    // activation, the reference's Radix model). The button exists in the
+    // DOM already — the re-render only flips tabIndex/data-state.
+    tabRefs.current[next]?.focus();
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const idx = tabs.findIndex((t) => t.id === value);
+    let next = -1;
+    if (e.key === "ArrowRight") {
+      next = (idx + 1) % tabs.length;
+    } else if (e.key === "ArrowLeft") {
+      next = (idx - 1 + tabs.length) % tabs.length;
+    } else if (e.key === "Home") {
+      next = 0;
+    } else if (e.key === "End") {
+      next = tabs.length - 1;
+    }
+    if (next >= 0) {
+      // Swallow the key so the page/focus does not scroll or move.
+      e.preventDefault();
+      moveFocus(next);
+    }
+  };
+
   const trackClass =
     variant === "segmented"
       ? cn(TABS_SEGMENTED.track, cols && "w-full", cols ? GRID_COLS[cols] ?? null : "flex items-center gap-1 overflow-x-auto scrollbar-thin")
@@ -62,21 +124,28 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
             "flex items-center gap-1 overflow-x-auto scrollbar-thin border-b border-line",
           );
   const triggerClass = variant === "segmented" ? TABS_SEGMENTED.trigger : variant === "pill" ? TABS_PILL.trigger : null;
-  if (inTrack) {
-    return (
-      <div className={cn("w-full", className)}>
+  const underline = variant === "underline";
+  return (
+    <TabsContext.Provider value={{ uid, value }}>
+      <div className={className}>
         <div
           role="tablist"
           aria-orientation="horizontal"
           className={trackClass}
+          onKeyDown={onKeyDown}
         >
-          {tabs.map((tab) => {
+          {tabs.map((tab, i) => {
             const isActive = tab.id === value;
             return (
               <button
                 key={tab.id}
+                ref={(el) => {
+                  tabRefs.current[i] = el;
+                }}
                 type="button"
                 role="tab"
+                id={`${uid}-trigger-${tab.id}`}
+                aria-controls={`${uid}-content-${tab.id}`}
                 aria-selected={isActive}
                 data-state={isActive ? "active" : "inactive"}
                 tabIndex={isActive ? 0 : -1}
@@ -86,6 +155,9 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
                   // the active styling rides the data-[state=active]
                   // variants, so the string is identical on every tab.
                   triggerClass,
+                  underline &&
+                    "-mb-px whitespace-nowrap rounded-t-md border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  underline && (isActive ? "border-primary text-primary" : "border-transparent text-muted hover:border-line hover:text-foreground"),
                 )}
               >
                 {tab.label}
@@ -93,7 +165,7 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
                   <span
                     className={cn(
                       "ml-1.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
-                      isActive ? "bg-primary/10 text-primary" : "bg-white text-muted",
+                      isActive ? "bg-primary/10 text-primary" : underline ? "bg-line-soft text-muted" : "bg-white text-muted",
                     )}
                   >
                     {tab.count}
@@ -103,52 +175,28 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
             );
           })}
         </div>
-        <div role="tabpanel">{children}</div>
+        {children}
       </div>
-    );
-  }
+    </TabsContext.Provider>
+  );
+}
+
+function TabsPanel({ tab, className, children, ...props }: TabsPanelProps) {
+  const ctx = React.useContext(TabsContext);
+  const uid = ctx?.uid ?? "";
+  const active = ctx?.value === tab;
   return (
-    <div className={cn("w-full", className)}>
-      <div
-        role="tablist"
-        aria-orientation="horizontal"
-        className={trackClass}
-      >
-        {tabs.map((tab) => {
-          const isActive = tab.id === value;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => onValueChange(tab.id)}
-              className={cn(
-                "-mb-px whitespace-nowrap rounded-t-md border-b-2 px-3.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                isActive
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted hover:border-line hover:text-foreground",
-              )}
-            >
-              {tab.label}
-              {typeof tab.count === "number" && (
-                <span
-                  className={cn(
-                    "ml-1.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
-                    isActive ? "bg-primary/10 text-primary" : "bg-line-soft text-muted",
-                  )}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-      <div role="tabpanel">{children}</div>
+    <div
+      role="tabpanel"
+      id={`${uid}-content-${tab}`}
+      aria-labelledby={`${uid}-trigger-${tab}`}
+      hidden={!active}
+      className={cn(PANEL_BASE, className)}
+      {...props}
+    >
+      {children}
     </div>
   );
 }
 
-export { Tabs };
+export { Tabs, TabsPanel };

@@ -674,11 +674,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — http-headers (the next.config.ts headers() security set + the static-file content-types — session-20) | 1 | 9 | `tests/http-headers.test.ts` | Vitest |
 | Unit — login-views (the auth error strings + the Callout vocabulary + the signup/verify view machines/layouts + the verification ladder — session-21) | 1 | 31 | `tests/login-views.test.ts` | Vitest |
 | Unit — typography (the Inter-webfont retirement + the exact reference `--font-sans` stack pin + the smoothing/::selection retirements — session-22) | 1 | 11 | `tests/typography.test.ts` | Vitest |
+| Unit — tabs-aria (the useId trigger/panel id wiring + the TabsPanel shell contract + the ArrowLeft/Right/Home/End wrap keyboard pins + the per-page panel migration + the authed-login-redirect retirement — session-23) | 1 | 15 | `tests/tabs-aria.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer — sessions 10–22) | 1 | 50 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer — sessions 10–23) | 1 | 51 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **24** | **391 unit + 67 e2e** | | |
+| **Total** | **25** | **406 unit + 68 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -732,6 +733,24 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   sparklines are recharts monotone curves (`KPI_SPARK` — dashboard h-8,
   reports h-12 slot capped 176px, Lost Deals sparkless; solid color-50
   chips via `KPI_CHIP_BG`).
+- **Tabs ARIA + keyboard contract (session-23):** `src/components/ui/tabs.tsx`
+  wires the reference's full Radix tabs contract — `useId()`-generated
+  trigger/panel id pairs (`id` + `aria-controls` on every trigger, `id` +
+  `aria-labelledby` on every `TabsPanel` shell, all N shells mounted with
+  the inactive ones `hidden` + empty), the tablist keyboard model
+  (ArrowLeft/ArrowRight with wrap, Home/End, automatic activation — focus
+  follows selection, `preventDefault` swallows the scroll), and the
+  reference's wrapper anatomy (the component root div carries the page's
+  Tabs-region classes — `space-y-6` on settings/reports, bare on
+  activities; the shells append to the stock Radix `TabsContent`
+  focus-ring family: `mt-4 space-y-2` / `mt-2 space-y-4` / `mt-2`). The
+  activities priority card is ONE `p-4 border-b` region (title + tablist +
+  panels — its border-b renders below the content at the card's bottom;
+  the old CardContent split drew a separator line the reference does not
+  ship and inset the rows at p-6 instead of p-4). The login page serves
+  the card to authenticated visitors (no redirect — the reference's own
+  behavior). Pinned by `tests/tabs-aria.test.ts` + the session-23 e2e
+  checks.
 - **Auth absolute titles (session-13):** `/login` and `/signup` had
   RELATIVE titles that the root `"%s | NEO CRM"` template DOUBLED
   (`NEO CRM | NEO CRM` in raw SSR HTML); both ship
@@ -1009,9 +1028,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 391/391
+- [ ] `bun run test` — 406/406
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 67/67
+- [ ] `bun run test:e2e` — 68/68
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] Zero webfonts: `document.fonts` empty on /, body computes the stock
       `ui-sans-serif, system-ui` stack, smoothing `auto` (session-22)

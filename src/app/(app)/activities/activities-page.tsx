@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs, TabsPanel } from "@/components/ui/tabs";
 import { BarStatCard, PageHeader } from "@/components/shared/page-parts";
 import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -122,8 +122,6 @@ export default function ActivitiesPage() {
   const upcoming = baseFiltered.filter((a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) > endOfDay(today));
   const completed = baseFiltered.filter((a) => a.status === "completed");
 
-  const tabRows = { overdue, dueToday, upcoming, completed }[tab] ?? [];
-
   const todayCount = activities.filter((a) => new Date(a.createdAt ?? a.dueAt ?? a.createdAt) >= startOfDay(today)).length;
   const yesterdayCount = activities.filter((a) => {
     const d = new Date(a.createdAt ?? a.dueAt ?? a.createdAt);
@@ -196,6 +194,11 @@ export default function ActivitiesPage() {
 
   async function toggleComplete(a: Activity) {
     await updateActivity(a.id, { status: a.status === "completed" ? "scheduled" : "completed" });
+  }
+
+  function openEditActivity(a: Activity) {
+    setEditing(a);
+    setDialogOpen(true);
   }
 
   return (
@@ -301,6 +304,16 @@ export default function ActivitiesPage() {
                   More
                 </Button>
               </div>
+              {/* Session-23 (S23-P1 + S23-P3): the reference's priority card
+                  is ONE p-4 border-b region — title row, tab strip, and the
+                  panel content all inside it (its border-b renders BELOW the
+                  content at the card's bottom; the s15-era clone split the
+                  content into a CardContent below the toolbar, drawing a
+                  separator line the reference does not ship and insetting
+                  the rows at p-6 instead of the toolbar's p-4). The Tabs
+                  wrapper is bare (the reference's own wrapper carries no
+                  classes) and the panels ride its mt-4 space-y-2 contract —
+                  the 16px tablist-to-panel gap, live-measured. */}
               <Tabs
                 variant="segmented"
                 cols={4}
@@ -313,65 +326,20 @@ export default function ActivitiesPage() {
                   { id: "completed", label: "Completed" },
                 ]}
               >
-                {null}
+                <TabsPanel tab="overdue" className="mt-4 space-y-2">
+                  {tab === "overdue" && <PriorityRows rows={overdue} empty="No overdue activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
+                </TabsPanel>
+                <TabsPanel tab="dueToday" className="mt-4 space-y-2">
+                  {tab === "dueToday" && <PriorityRows rows={dueToday} empty="Nothing due today" onToggle={toggleComplete} onEdit={openEditActivity} />}
+                </TabsPanel>
+                <TabsPanel tab="upcoming" className="mt-4 space-y-2">
+                  {tab === "upcoming" && <PriorityRows rows={upcoming} empty="No upcoming activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
+                </TabsPanel>
+                <TabsPanel tab="completed" className="mt-4 space-y-2">
+                  {tab === "completed" && <PriorityRows rows={completed} empty="No completed activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
+                </TabsPanel>
               </Tabs>
             </div>
-            <CardContent>
-              <div role="tabpanel">
-                {tabRows.length === 0 ? (
-                  <p className={ACTIVITY_CARD.emptyPanel}>
-                    {tab === "overdue" ? "No overdue activities" : tab === "dueToday" ? "Nothing due today" : tab === "upcoming" ? "No upcoming activities" : "No completed activities"}
-                  </p>
-                ) : (
-                  <ul className="flex flex-col divide-y divide-line">
-                    {tabRows.slice(0, 8).map((a) => {
-                      const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call;
-                      return (
-                        <li key={a.id} className="flex items-center gap-3 py-3">
-                          <button
-                            type="button"
-                            aria-label={a.status === "completed" ? "Mark as scheduled" : "Mark as completed"}
-                            onClick={() => toggleComplete(a)}
-                            className="text-subtle transition-colors hover:text-primary"
-                          >
-                            {a.status === "completed" ? (
-                              <CheckCircle2 className="h-5 w-5 text-success" />
-                            ) : (
-                              <Circle className="h-5 w-5" />
-                            )}
-                          </button>
-                          <div className="min-w-0 flex-1">
-                            <p className={cn("truncate text-sm font-medium", a.status === "completed" ? "text-muted line-through" : "text-foreground")}>
-                              {a.subject}
-                            </p>
-                            <p className="text-xs text-muted">
-                              {meta.label}
-                              {a.relatedName ? ` · ${a.relatedName}` : a.contact ? ` · ${a.contact.name}` : ""}
-                              {a.dueAt ? ` · due ${formatDate(a.dueAt)} ${formatTime(a.dueAt)}` : ""}
-                              {a.status === "scheduled" && a.dueAt ? ` (${timeUntil(a.dueAt)})` : ""}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className={meta.badge}>
-                            {meta.label}
-                          </Badge>
-                          <Button
-                            variant="ghost"
-                            size="iconSm"
-                            aria-label="Edit activity"
-                            onClick={() => {
-                              setEditing(a);
-                              setDialogOpen(true);
-                            }}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            </CardContent>
           </div>
 
           {/* Timeline — session-7 (S7-17): plain mb-6 header row inside the
@@ -605,5 +573,65 @@ export default function ActivitiesPage() {
 
       <ActivityDialog open={dialogOpen} onOpenChange={setDialogOpen} defaultType={defaultType} activity={editing} />
     </div>
+  );
+}
+
+// Session-23 (S23-P1): the priority-tab row list, extracted so each wired
+// TabsPanel renders its own tab's rows — the reference's Radix structure
+// (all shells mounted, the inactive ones hidden and empty). Module-level
+// by the React 19 static-components rule (no components during render).
+function PriorityRows({
+  rows,
+  empty,
+  onToggle,
+  onEdit,
+}: {
+  rows: Activity[];
+  empty: string;
+  onToggle: (a: Activity) => void;
+  onEdit: (a: Activity) => void;
+}) {
+  if (rows.length === 0) {
+    return <p className={ACTIVITY_CARD.emptyPanel}>{empty}</p>;
+  }
+  return (
+    <ul className="flex flex-col divide-y divide-line">
+      {rows.slice(0, 8).map((a) => {
+        const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call;
+        return (
+          <li key={a.id} className="flex items-center gap-3 py-3">
+            <button
+              type="button"
+              aria-label={a.status === "completed" ? "Mark as scheduled" : "Mark as completed"}
+              onClick={() => onToggle(a)}
+              className="text-subtle transition-colors hover:text-primary"
+            >
+              {a.status === "completed" ? (
+                <CheckCircle2 className="h-5 w-5 text-success" />
+              ) : (
+                <Circle className="h-5 w-5" />
+              )}
+            </button>
+            <div className="min-w-0 flex-1">
+              <p className={cn("truncate text-sm font-medium", a.status === "completed" ? "text-muted line-through" : "text-foreground")}>
+                {a.subject}
+              </p>
+              <p className="text-xs text-muted">
+                {meta.label}
+                {a.relatedName ? ` · ${a.relatedName}` : a.contact ? ` · ${a.contact.name}` : ""}
+                {a.dueAt ? ` · due ${formatDate(a.dueAt)} ${formatTime(a.dueAt)}` : ""}
+                {a.status === "scheduled" && a.dueAt ? ` (${timeUntil(a.dueAt)})` : ""}
+              </p>
+            </div>
+            <Badge variant="outline" className={meta.badge}>
+              {meta.label}
+            </Badge>
+            <Button variant="ghost" size="iconSm" aria-label="Edit activity" onClick={() => onEdit(a)}>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (391 checks)         | `bun run test`                         |
-| Browser E2E (67 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (406 checks)         | `bun run test`                         |
+| Browser E2E (68 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (391) → `bun run build` → `bun run test:e2e` (67). There is no
+`bun run test` (406) → `bun run build` → `bun run test:e2e` (68). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -864,6 +864,33 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   smoothing override, or a selection tint without re-probing the live
   reference — and never pin a "default" you haven't byte-verified
   (Tailwind's defaults move between minors).
+
+- **The tabs ship the reference's full Radix ARIA + keyboard contract
+  (session-23)** — every tab strip (activities 4, reports 5, settings 3)
+  wires `useId()`-generated trigger/panel id pairs: each trigger carries
+  `id` + `aria-controls` → its panel's `id`, each `TabsPanel` shell
+  carries `id` + `aria-labelledby` → back, and ALL N shells stay mounted
+  with the inactive ones `hidden` + EMPTY (the reference's own structure:
+  Radix mounts the shells, the app fills only the active one — pages pass
+  `{tab === X && <Content/>}` inside each shell). The tablist handles
+  ArrowLeft/ArrowRight with WRAP + Home/End + automatic activation
+  (focus follows selection via the tabRefs + `preventDefault`). The
+  reference's own tabs are all `tabIndex=-1` (keyboard-unreachable
+  platform defect) — our roving tabindex (selected tab = 0) stays the
+  documented accessible fix. The wrapper div's className is the page's
+  Tabs region (space-y-6 on settings/reports, bare on activities);
+  each shell's classes append to the stock Radix `TabsContent` focus-ring
+  family (`ring-offset-background focus-visible:… mt-4 space-y-2` on
+  activities / `mt-2 space-y-4` on settings / `mt-2` on reports — the
+  mt-* collapses against the wrapper's space-y margins: 16px gap on
+  activities, 24px on settings/reports, live-measured on both apps). The
+  activities priority card is ONE `p-4 border-b` region (title row +
+  tablist + panels inside it — its border-b renders BELOW the content at
+  the card's bottom; the s15-era CardContent split drew a separator line
+  the reference does not ship and inset the rows at p-6 instead of the
+  toolbar's p-4). The login page serves the card to AUTHENTICATED
+  visitors too (the reference does — no `redirect("/")`; the scaffold's
+  authed redirect was an invention, retired session-23).
 
 ## Conventions that differ from defaults
 

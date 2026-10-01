@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PageHeader } from "@/components/shared/page-parts";
 import { cn } from "@/lib/utils";
 import { CARD_TITLE_OVERRIDE, PAGE_ROOT, SETTINGS_DANGER, SETTINGS_DATA, SETTINGS_DEFAULTS, SETTINGS_GRID, SETTINGS_PICKLIST } from "@/lib/page-layout";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs, TabsPanel } from "@/components/ui/tabs";
 import { useCrmStore } from "@/stores/crm-store";
 import { toast } from "@/components/ui/toast";
 import type { Settings } from "@/types";
@@ -119,9 +119,17 @@ export default function SettingsPage() {
           buttons on this page). */}
       <PageHeader title="Settings" subtitle="Configure your CRM preferences and defaults" variant="settings" />
 
+      {/* Session-23 (S23-P1): the reference's Tabs region — a space-y-6
+          wrapper holding the tablist + the N wired panel shells; each
+          shell carries the stock Radix focus-ring family + mt-2 space-y-4
+          (the mt-2 collapses against the wrapper's space-y margin —
+          live-measured 24px tablist-to-content gap). The old py-4 content
+          wrapper retired: the reference's panel content starts at the
+          panel's own edge. */}
       <Tabs
         variant="segmented"
         cols={3}
+        className="space-y-6"
         value={tab}
         onValueChange={setTab}
         tabs={[
@@ -130,24 +138,28 @@ export default function SettingsPage() {
           { id: "data", label: "Data" },
         ]}
       >
-        <div className="py-4">
-          {/* Config + Defaults editors remount (keyed) whenever a fresh
-              settings snapshot arrives, so local state initializes from
-              props at mount — never via setState-in-effect. */}
+        {/* Config + Defaults editors remount (keyed) whenever a fresh
+            settings snapshot arrives, so local state initializes from
+            props at mount — never via setState-in-effect. */}
+        <TabsPanel tab="config" className="mt-2 space-y-4">
           {tab === "config" &&
             (settings ? (
               <ConfigEditor key={`cfg-${JSON.stringify(settings).length}`} settings={settings} />
             ) : (
               <p className="py-10 text-center text-sm text-muted">Loading settings…</p>
             ))}
+        </TabsPanel>
 
+        <TabsPanel tab="defaults" className="mt-2 space-y-4">
           {tab === "defaults" &&
             (settings ? (
               <DefaultsEditor key={`def-${JSON.stringify(settings).length}`} settings={settings} />
             ) : (
               <p className="py-10 text-center text-sm text-muted">Loading settings…</p>
             ))}
+        </TabsPanel>
 
+        <TabsPanel tab="data" className="mt-2 space-y-4">
           {tab === "data" && (
             <div className="flex flex-col gap-4">
               {/* Session-14 (S14-P2): the reference's template card carries
@@ -234,8 +246,8 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
             </div>
-          )}
-        </div>
+        )}
+        </TabsPanel>
       </Tabs>
     </div>
     </div>
