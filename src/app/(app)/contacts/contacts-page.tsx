@@ -30,7 +30,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/misc";
 import {
   Dialog,
   DialogContent,
@@ -54,7 +53,7 @@ type SortKey = "name" | "lastActivity";
 type SortDir = "asc" | "desc";
 
 export default function ContactsPage() {
-  const { contacts, users, settings, loadingFlags, hydrated, deleteContact, fetchContacts, createContact } = useCrmStore();
+  const { contacts, users, settings, hydrated, deleteContact, fetchContacts, createContact } = useCrmStore();
   const [search, setSearch] = React.useState("");
   const [priority, setPriority] = React.useState("all");
   const [ownerId, setOwnerId] = React.useState("all");
@@ -336,17 +335,7 @@ export default function ContactsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loadingFlags.contacts && contacts.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="p-2">
-                    <div className="flex flex-col gap-2 p-2">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Skeleton key={i} className="h-12" />
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
+              {filtered.length === 0 ? (
                 <TableEmptyRow colSpan={8} message="No contacts found" padding="py-12" />
               ) : (
                 <>
@@ -408,9 +397,7 @@ export default function ContactsPage() {
           users get compact cards instead of squashed columns. Empty at zero
           data on the reference; here it mirrors `filtered` exactly. */}
       <div className="mt-6 space-y-4 lg:hidden">
-        {loadingFlags.contacts && contacts.length === 0 ? (
-          <>{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</>
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted">No contacts found</p>
         ) : (
           filtered.map((c) => (

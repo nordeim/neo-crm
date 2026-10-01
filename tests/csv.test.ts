@@ -59,10 +59,12 @@ describe("parseCsv", () => {
 });
 
 describe("csvFilename", () => {
-  it("embeds the prefix and a compact date", () => {
+  it("embeds the prefix and the ISO date (the reference's convention)", () => {
+    // Session-25 (S25-P5): the reference's downloads are
+    // prefix_YYYY-MM-DD.csv (leads_2026-10-01.csv) — underscore + ISO.
     const name = csvFilename("contacts");
-    expect(name.startsWith("contacts-")).toBe(true);
+    expect(name.startsWith("contacts_")).toBe(true);
     expect(name.endsWith(".csv")).toBe(true);
-    expect(name).toMatch(/-\d{8}\.csv$/);
+    expect(name).toMatch(/_\d{4}-\d{2}-\d{2}\.csv$/);
   });
 });

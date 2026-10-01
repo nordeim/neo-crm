@@ -27,9 +27,12 @@ export function csvWithBom(csv: string): string {
 }
 
 export function csvFilename(prefix: string): string {
+  // Session-25 (S25-P5): the reference's convention is
+  // prefix_YYYY-MM-DD.csv (leads_2026-10-01.csv, captured from its
+  // downloads) — underscore + ISO date, not prefix-YYYYMMDD.
   const d = new Date();
   const pad = (n: number) => n.toString().padStart(2, "0");
-  return `${prefix}-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.csv`;
+  return `${prefix}_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.csv`;
 }
 
 /** Minimal RFC-4180-ish parser used by the Import feature (contacts CSV). */

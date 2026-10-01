@@ -1,9 +1,5 @@
 import { cn } from "@/lib/utils";
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("animate-pulse rounded-lg bg-line-soft", className)} {...props} />;
-}
-
 function EmptyState({
   icon,
   title,
@@ -31,4 +27,4 @@ function EmptyState({
   );
 }
 
-export { Skeleton, EmptyState };
+export { EmptyState };

@@ -173,10 +173,11 @@ test("tabs ship the reference's Radix ARIA contract + keyboard model (session-23
   // (selection follows focus — live-verified on the reference).
   await page.goto("/reports");
   await expect(page.getByRole("tab", { name: "Sales Overview" })).toBeVisible();
-  // The reports fetch toggles a skeleton pass that unmounts the whole
-  // Tabs region (loading && !data swaps in the KPI skeletons) — wait for
-  // the post-load chart before probing, or the evaluate races the
-  // skeleton window and reads zero tabs (caught on the first run).
+  // Session-25 (S25-P1): the skeleton pass is retired (the reference's
+  // instant-render model — its empty state IS its loading state), so the
+  // old skeleton-race workaround is obsolete. The chart wait stays: the
+  // recharts wrappers still lazy-render inside Suspense after data lands,
+  // and the wiring probe below must read the post-load DOM.
   await expect(page.locator("[role=tabpanel] .recharts-wrapper").first()).toBeVisible();
 
   const wiring = await page.evaluate(() => {
@@ -1201,4 +1202,116 @@ test("the body computes default auto font smoothing — no antialiased (S22-P2)"
     () => getComputedStyle(document.body).textRendering,
   );
   expect(textRendering).toBe("auto");
+});
+
+// ---- Session 25: the loading-state + export/button-contract layer ------
+
+test("the reports period dropdown ships the reference's 6 options (S25-P6)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  // The reference's expanded listbox (live-probed): Today / This Week /
+  // This Month / This Quarter / YTD / All Time — the This Year option and
+  // the this_* vocabulary are retired.
+  await page.getByRole("combobox").first().click();
+  for (const label of ["Today", "This Week", "This Month", "This Quarter", "YTD", "All Time"]) {
+    await expect(page.getByRole("option", { name: label })).toBeVisible();
+  }
+  await expect(page.getByRole("option", { name: "This Year" })).toHaveCount(0);
+});
+
+test("the dashboard renders KPI cards immediately — zero skeleton pass (S25-P1)", async ({ page }) => {
+  await page.goto("/");
+  // The reference's instant-render model: the full page (KPI cards with
+  // zeros/real values) renders from FIRST paint — no animate-pulse family
+  // ever mounts (live-verified with the entity-fetch-abort probe on the
+  // reference + the delayed-fetch harness on our clone).
+  await expect(page.getByText("Total Leads").first()).toBeVisible();
+  await expect(page.getByText("Conversion Rate").first()).toBeVisible();
+  const pulse = await page.evaluate(() => document.querySelectorAll(".animate-pulse").length);
+  expect(pulse).toBe(0);
+});
+
+test("the reports header PDF downloads a real client-side PDF (S25-P2)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  // The reference's header PDF: html2canvas + jsPDF → an A4 portrait
+  // multi-page artifact downloading as crm_reports_YYYY-MM-DD.pdf — no
+  // print dialog, no toast.
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "PDF", exact: true }).click();
+  const download = await downloadPromise;
+  const name = download.suggestedFilename();
+  expect(name).toMatch(/^crm_reports_\d{4}-\d{2}-\d{2}\.pdf$/);
+  const path = await download.path();
+  const { readFileSync } = await import("node:fs");
+  const head = readFileSync(path!).subarray(0, 5).toString();
+  expect(head).toBe("%PDF-");
+});
+
+test("the per-table Export PDF downloads the reference's text artifact (S25-P2)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("tab", { name: "Pipeline & Forecast" })).toBeVisible();
+  await page.getByRole("tab", { name: "Pipeline & Forecast" }).click();
+  await expect(page.getByText("Open Deals by Stage")).toBeVisible();
+  // The reference's per-table family: a TEXT jsPDF downloading as
+  // <slug>_YYYY-MM-DD.pdf — "Open Deals by Stage" → open_deals_by_stage.
+  const downloadPromise = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Export PDF" })
+    .first()
+    .click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^open_deals_by_stage_\d{4}-\d{2}-\d{2}\.pdf$/);
+});
+
+test("the per-table Export CSV downloads the table's own columns (S25-P5)", async ({ page }) => {
+  await page.goto("/reports");
+  await page.getByRole("tab", { name: "Pipeline & Forecast" }).click();
+  await expect(page.getByText("Open Deals by Stage")).toBeVisible();
+  // The reference's per-table CSV: a client-side blob with the table's
+  // OWN headers (Deal,Stage,Amount) downloading as open_deals_YYYY-MM-DD.csv.
+  const downloadPromise = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Export CSV" })
+    .nth(1)
+    .click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^open_deals_\d{4}-\d{2}-\d{2}\.csv$/);
+});
+
+test("the Save Custom Report View round-trip (S25-P4)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Saved Reports (0)" })).toBeVisible();
+
+  // Open the dialog — the reference's exact structure.
+  await page.getByRole("button", { name: "Saved Reports (0)" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Save Custom Report View" })).toBeVisible();
+  await expect(page.getByPlaceholder("e.g., Q1 Won Deals by Region")).toBeVisible();
+  // The 6 column checkboxes + the 3-dimension Current Filters summary.
+  for (const col of ["Name", "Account", "Owner", "Value", "Stage", "Won Date"]) {
+    await expect(page.getByRole("checkbox", { name: col })).toBeVisible();
+  }
+  await expect(page.getByText(/Current Filters:/)).toBeVisible();
+  // Save Report disabled until named.
+  await expect(page.getByRole("button", { name: "Save Report" })).toBeDisabled();
+
+  // Save → the count updates + the dialog closes.
+  await page.getByPlaceholder("e.g., Q1 Won Deals by Region").fill("E2E Probe View");
+  await page.getByRole("button", { name: "Save Report" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Saved Reports (1)" })).toBeVisible();
+
+  // Re-open: the saved list shows the name + date + Load.
+  await page.getByRole("button", { name: "Saved Reports (1)" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByText("E2E Probe View")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Load" })).toBeVisible();
+  // Load → applies + closes.
+  await page.getByRole("button", { name: "Load" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+
+  // Cleanup: clear the localStorage state for the later runs.
+  await page.evaluate(() => window.localStorage.removeItem("crm_saved_reports"));
 });

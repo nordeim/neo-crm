@@ -29,7 +29,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -141,51 +140,47 @@ export default function DashboardPage() {
         }
       />
 
-      {/* KPI row */}
-      {!k ? (
-        <div className={PAGE_KPI_GRIDS.dashboard}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-[118px]" />
-          ))}
-        </div>
-      ) : (
-        <div className={PAGE_KPI_GRIDS.dashboard}>
-          <KpiCard label="Total Leads" value={k.totalLeads} delta={k.totalLeadsDelta ?? undefined}>
-            <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
-          </KpiCard>
-          <KpiCard label="Deals Closed" value={formatCompactCurrency(k.dealsClosedValue)}>
-            <Sparkline values={sparkWon} color={CHART_COLORS.cyan400} />
-          </KpiCard>
-          <KpiCard label="Revenue This Month" value={formatCompactCurrency(k.revenueThisMonth)} delta={k.revenueDelta ?? undefined}>
-            <Sparkline values={sparkWon} color={CHART_COLORS.green400} />
-          </KpiCard>
-          <KpiCard
-            label="Sales Target"
-            value={formatCompactCurrency(k.salesTarget)}
-            delta={k.salesTargetProgress}
-          >
-            <Sparkline
-              values={rev.map((r) => Math.max(r.won, r.target))}
-              colorFor={(_, i) => (rev[i].won >= rev[i].target ? CHART_COLORS.blue : CHART_COLORS.amber400)}
-              color={CHART_COLORS.amber400}
-            />
-          </KpiCard>
-          <KpiCard label="Conversion Rate" value={`${k.conversionRate}%`}>
-            <Sparkline values={sparkWon} color={CHART_COLORS.violet} variant="area" />
-          </KpiCard>
+      {/* KPI row — session-25 (S25-P1): the reference renders its KPI
+          cards IMMEDIATELY with zeros while data is still loading (its
+          empty state IS its loading state — live-verified with the
+          entity-fetch-abort probe). The `!k` skeleton branch is retired;
+          the cards read `k?.x ?? 0` exactly like the reports page. */}
+      <div className={PAGE_KPI_GRIDS.dashboard}>
+        <KpiCard label="Total Leads" value={k?.totalLeads ?? 0} delta={k?.totalLeadsDelta ?? undefined}>
+          <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
+        </KpiCard>
+        <KpiCard label="Deals Closed" value={formatCompactCurrency(k?.dealsClosedValue ?? 0)}>
+          <Sparkline values={sparkWon} color={CHART_COLORS.cyan400} />
+        </KpiCard>
+        <KpiCard label="Revenue This Month" value={formatCompactCurrency(k?.revenueThisMonth ?? 0)} delta={k?.revenueDelta ?? undefined}>
+          <Sparkline values={sparkWon} color={CHART_COLORS.green400} />
+        </KpiCard>
+        <KpiCard
+          label="Sales Target"
+          value={formatCompactCurrency(k?.salesTarget ?? 0)}
+          delta={k?.salesTargetProgress}
+        >
+          <Sparkline
+            values={rev.map((r) => Math.max(r.won, r.target))}
+            colorFor={(_, i) => (rev[i].won >= rev[i].target ? CHART_COLORS.blue : CHART_COLORS.amber400)}
+            color={CHART_COLORS.amber400}
+          />
+        </KpiCard>
+        <KpiCard label="Conversion Rate" value={`${k?.conversionRate ?? 0}%`}>
+          <Sparkline values={sparkWon} color={CHART_COLORS.violet} variant="area" />
+        </KpiCard>
           {/* Session-13 (S13-P10): the reference's Avg. Sales Cycle card
               carries NO delta — value + "days" unit only (its other KPI
               cards DO render deltas at zero data, so a delta element here
               would render if it existed). Our "+1d" delta is retired. */}
           <KpiCard
             label="Avg. Sales Cycle"
-            value={k.avgSalesCycleDays}
+            value={k?.avgSalesCycleDays ?? 0}
             suffix="days"
           >
             <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
           </KpiCard>
-        </div>
-      )}
+      </div>
 
       {/* Filter bar — session-6: the reference wraps these controls in a
           white card (bg-white rounded-lg shadow mb-6 p-4) whose contents

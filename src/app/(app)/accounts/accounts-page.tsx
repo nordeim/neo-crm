@@ -11,7 +11,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD, TABLE_TOOLBAR, VIEW_SWITCHER } from "@/lib/page-layout";
@@ -31,7 +30,7 @@ const REVENUE_RANGES = [
 ];
 
 export default function AccountsPage() {
-  const { accounts, users, activities, settings, loadingFlags, hydrated, hydrate, deleteAccount, fetchAccounts } = useCrmStore();
+  const { accounts, users, activities, settings, hydrated, hydrate, deleteAccount, fetchAccounts } = useCrmStore();
   const [search, setSearch] = React.useState("");
   const [ownerId, setOwnerId] = React.useState("all");
   const [industry, setIndustry] = React.useState("all");
@@ -324,17 +323,7 @@ export default function AccountsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loadingFlags.accounts && accounts.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="p-2">
-                      <div className="flex flex-col gap-2 p-2">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Skeleton key={i} className="h-12" />
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ) : filtered.length === 0 ? (
+                {filtered.length === 0 ? (
                   <TableEmptyRow colSpan={8} message="No accounts found" />
                 ) : (
                   <>

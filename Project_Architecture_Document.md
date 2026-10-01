@@ -676,11 +676,16 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — typography (the Inter-webfont retirement + the exact reference `--font-sans` stack pin + the smoothing/::selection retirements — session-22) | 1 | 11 | `tests/typography.test.ts` | Vitest |
 | Unit — tabs-aria (the useId trigger/panel id wiring + the TabsPanel shell contract + the ArrowLeft/Right/Home/End wrap keyboard pins + the per-page panel migration + the authed-login-redirect retirement — session-23) | 1 | 15 | `tests/tabs-aria.test.ts` | Vitest |
 | Unit — route-case (the nine capital-route render aliases + the capital-case pageMetadata + the Dashboard root-head contract + the capitalized NAV_ITEMS hrefs + the case-insensitive isActive + the /Profile menu target + the dead More... + the no-capital-auth-alias pin + the zero-URL-state census — session-24) | 1 | 16 | `tests/route-case.test.ts` | Vitest |
+| Unit — pdf-export (the html2canvas-pro + jsPDF seam — the A4 portrait pagination loop + the `crm_reports_` filename + the text-artifact `exportTablePdf` with the paren-truncating slug + the three-button wiring with NO window.print/toast — session-25) | 1 | 10 | `tests/pdf-export.test.ts` | Vitest |
+| Unit — saved-reports (the `crm_saved_reports` localStorage seam + the SavedReport schema with the SHORT dateRange slugs + the encode/decode round-trip + the dialog structure pins + the live-count wiring — session-25) | 1 | 13 | `tests/saved-reports.test.ts` | Vitest |
+| Unit — loading-layer (the skeleton retirement — zero Skeleton imports + zero animate-pulse + the loadingFlags/loading() removals + the misc.tsx export retirement — session-25) | 1 | 8 | `tests/loading-layer.test.ts` | Vitest |
+| Unit — csv-contract (the `prefix_YYYY-MM-DD.csv` filename + the leads 8-column set + the filter-aware type=report branch + downloadBlob() + the per-table client-side blobs with the SHORTER CSV prefixes — session-25) | 1 | 7 | `tests/csv-contract.test.ts` | Vitest |
+| Unit — report-periods (the 6-entry period vocabulary today/week/month/quarter/ytd/all + the periodStart() mappings + the quarter default — session-25) | 1 | 3 | `tests/report-periods.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — sessions 10–24) | 1 | 56 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — sessions 10–25) | 1 | 62 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **26** | **434 unit + 73 e2e** | | |
+| **Total** | **31** | **475 unit + 79 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -776,6 +781,47 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   closed: zero writes anywhere, params ignored by both apps. Pinned by
   `tests/route-case.test.ts` + `tests/profile-route.test.ts` + the
   session-24 e2e checks.
+- **Instant-render loading model (session-25):** the reference ships
+  ZERO loading UI — with its entity fetch network-aborted it renders
+  the full page immediately (KPI cards at 0, the empty table row, even
+  "Hi, Guest" when the user fetch fails). Every skeleton family was an
+  invention and is retired: the dashboard's `!k` branch renders the
+  KPI cards through `k?.field ?? 0` null-safety; leads/accounts/
+  contacts render their empty-state rows directly; the reports page
+  dropped its `loading` state + the ReportSkeletons component; the
+  store's `loadingFlags` + `loading()` helper and `misc.tsx`'s
+  Skeleton export are gone. The empty state IS the loading state.
+  Pinned by `tests/loading-layer.test.ts` + the session-25 e2e
+  zero-skeleton-pass check.
+- **Client-side export artifacts (session-25):** the Reports exports
+  are REAL browser-generated files, not a print dialog — the header
+  PDF captures the `<main>` content area (sidebar excluded) through
+  `html2canvas-pro` (the PRO fork: the Tailwind v4 stylesheet's 242
+  `color-mix()` calls break classic html2canvas) and paginates via
+  jsPDF into A4 portrait (`crm_reports_YYYY-MM-DD.pdf`); the
+  per-table Export PDFs are TEXT jsPDFs (title truncated at the
+  parenthetical + `Generated: M/D/YYYY` + headers + rows) as
+  `<slug>_YYYY-MM-DD.pdf`; the CSVs download as
+  `prefix_YYYY-MM-DD.csv` — the leads 8-column set via
+  `/api/export?type=leads`, the SINGULAR `crm_report_` 7-column deal
+  CSV via the filter-aware `type=report` branch, and the per-table
+  3-column client-side blobs with the reference's own inconsistency:
+  SHORTER prefixes than the PDFs (`open_deals_` vs
+  `open_deals_by_stage_`). The seam is `src/lib/pdf-export.ts` +
+  `downloadBlob()` in `src/lib/download.ts`. Pinned by
+  `tests/pdf-export.test.ts` + `tests/csv-contract.test.ts` + the
+  session-25 e2e download checks.
+- **Saved reports + period vocabulary (session-25):** the "Saved
+  Reports (N)" button opens the Save Custom Report View dialog
+  (Report Name input + the 6 column checkboxes Name/Account/Owner/
+  Value/Stage/Won Date + the Current Filters summary + the loadable
+  list) persisting to `localStorage.crm_saved_reports` under the
+  reference's byte-exact schema; **Load** reapplies the saved filters.
+  The filters carry the SHORT dateRange slugs, matching the
+  `REPORT_PERIODS` 6-entry vocabulary (today/week/month/quarter/ytd/
+  all — `this_year` retired for `ytd`, `today` added; the page default
+  `quarter`). Pinned by `tests/saved-reports.test.ts` +
+  `tests/report-periods.test.ts` + the session-25 e2e round-trip.
 - **Auth absolute titles (session-13):** `/login` and `/signup` had
   RELATIVE titles that the root `"%s | NEO CRM"` template DOUBLED
   (`NEO CRM | NEO CRM` in raw SSR HTML); both ship
@@ -1053,7 +1099,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 434/434
+- [ ] `bun run test` — 475/475
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 73/73
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)

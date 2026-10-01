@@ -1,6 +1,6 @@
 "use client";
 
-import { downloadFile } from "@/lib/download";
+import { downloadBlob, downloadFile } from "@/lib/download";
 import * as React from "react";
 import { Bookmark, Calendar as CalendarIcon, Download, FileText, RotateCcw, Target, TrendingDown, TrendingUp, User as UserIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/misc";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
 import { CircleStatCard, KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
+import { SaveReportDialog } from "@/components/shared/save-report-dialog";
 import {
   EMPTY_STATE,
   PAGE_KPI_GRIDS,
@@ -22,18 +22,42 @@ import { DonutChart, FunnelBarChart, PipelineBarChart, RevenueLineChart, WonLost
 import { useCrmStore } from "@/stores/crm-store";
 import { LEAD_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
-import { toast } from "@/components/ui/toast";
+import { toCsv } from "@/lib/csv";
+import { exportReportsPdf, exportTablePdf, isoDateSuffix } from "@/lib/pdf-export";
+import { listSavedReports, saveReport, type SavedReport, type SavedReportColumns } from "@/lib/saved-reports";
 import type { ReportsData } from "@/types";
 
 export default function ReportsPage() {
   const { users, fetchReports, hydrated } = useCrmStore();
   const [tab, setTab] = React.useState("sales");
-  const [period, setPeriod] = React.useState("this_quarter");
+  const [period, setPeriod] = React.useState("quarter");
   const [ownerId, setOwnerId] = React.useState("all");
   const [stage, setStage] = React.useState("all");
   const [status, setStatus] = React.useState("all");
   const [data, setData] = React.useState<ReportsData | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  // Session-25 (S25-P4): the saved-report views — the count drives the
+  // button label (the reference's live "Saved Reports (N)"), the list
+  // feeds the dialog's saved section. localStorage is unreadable during
+  // SSR — the read lands in the mount effect behind a yield (the
+  // established leads-filters pattern; React 19 discipline: no
+  // synchronous setState inside effect bodies).
+  const [savedCount, setSavedCount] = React.useState(0);
+  const [savedList, setSavedList] = React.useState<SavedReport[]>([]);
+  const [saveDialogOpen, setSaveDialogOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      const list = listSavedReports();
+      setSavedList(list);
+      setSavedCount(list.length);
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
+  // Session-25 (S25-P1): the `loading` state + the ReportSkeletons are
+  // retired — the reference renders its reports IMMEDIATELY with zeros
+  // while the fetch is in flight (its empty state IS its loading state,
+  // live-verified with the entity-fetch-abort probe). The KPI cards +
+  // every tab already read `data?.x ?? 0` / `data?.x ?? []` — null-safe.
 
   React.useEffect(() => {
     if (!hydrated) return;
@@ -41,11 +65,9 @@ export default function ReportsPage() {
     (async () => {
       await Promise.resolve(); // yield: all setState happens in async continuations
       if (cancelled) return;
-      setLoading(true);
       const res = await fetchReports({ period, ownerId, stage, status });
       if (cancelled) return;
       if (res.ok) setData(res.data);
-      setLoading(false);
     })();
     return () => {
       cancelled = true;
@@ -67,9 +89,9 @@ export default function ReportsPage() {
         actions={
           <Button
             variant="outline"
-            onClick={() => toast.info("Saved reports", "You have no saved reports yet — configure filters and save one from here.")}
+            onClick={() => setSaveDialogOpen(true)}
           >
-            <Bookmark className="h-4 w-4" /> Saved Reports (0)
+            <Bookmark className="h-4 w-4" /> Saved Reports ({savedCount})
           </Button>
         }
       />
@@ -129,7 +151,7 @@ export default function ReportsPage() {
               variant="outline"
               size="sm"
               onClick={() => {
-                setPeriod("this_quarter");
+                setPeriod("quarter");
                 setOwnerId("all");
                 setStage("all");
                 setStatus("all");
@@ -137,24 +159,34 @@ export default function ReportsPage() {
             >
               <RotateCcw className={REPORTS_FILTER_BAR.barBtnIcon} /> Reset
             </Button>
-            <Button size="sm" onClick={() => downloadFile("/api/export?type=leads&download=1")}>
+            {/* Session-25 (S25-P5): the reports CSV — the reference's
+                crm_report_YYYY-MM-DD.csv (Deal Name, Account, Amount,
+                Stage, Source, Owner, Close Date), filter-aware through the
+                same params as /api/reports. NOT the leads export it was
+                wired to before. */}
+            <Button
+              size="sm"
+              onClick={() =>
+                downloadFile(
+                  `/api/export?type=report&period=${encodeURIComponent(period)}&ownerId=${encodeURIComponent(ownerId)}&stage=${encodeURIComponent(stage)}&status=${encodeURIComponent(status)}&download=1`,
+                )
+              }
+            >
               <Download className={REPORTS_FILTER_BAR.barBtnIcon} /> Export CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={exportPdf}>
+            {/* Session-25 (S25-P2): the header PDF — the reference's
+                html2canvas + jsPDF full-content capture
+                (crm_reports_YYYY-MM-DD.pdf), no print dialog, no toast. */}
+            <Button variant="outline" size="sm" onClick={() => void exportReportsPdf()}>
               <FileText className={REPORTS_FILTER_BAR.barBtnIcon} /> PDF
             </Button>
           </div>
         </div>
       </div>
 
-      {loading && !data ? (
-        <div className={PAGE_KPI_GRIDS.reports}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-[118px]" />
-          ))}
-        </div>
-      ) : (
-        <>
+      {/* Session-25 (S25-P1): no skeleton pass — the KPI row renders
+          immediately with zeros (the `k?.x ?? 0` reads below). */}
+      <>
           {/* Reference KPI row (session-5 anatomy): square rounded-lg tinted
               chips, count + amount INLINE in one text-2xl font-bold value,
               uppercase-K currency on this page ($542.0K won / $196K lost). */}
@@ -210,41 +242,46 @@ export default function ReportsPage() {
               wrapper retired with its space-y-6 className, which moved
               here onto the region wrapper. */}
           <Tabs variant="pill" cols={5} className="space-y-6" value={tab} onValueChange={setTab} tabs={REPORT_TABS.map((t) => ({ id: t.id, label: t.label }))}>
-            <TabsPanel tab="sales" className="mt-2">{tab === "sales" && (loading ? <ReportSkeletons /> : <SalesTab data={data} />)}</TabsPanel>
-            <TabsPanel tab="pipeline" className="mt-2">{tab === "pipeline" && (loading ? <ReportSkeletons /> : <PipelineTab data={data} />)}</TabsPanel>
-            <TabsPanel tab="activity" className="mt-2">{tab === "activity" && (loading ? <ReportSkeletons /> : <ActivityTab data={data} />)}</TabsPanel>
-            <TabsPanel tab="sources" className="mt-2">{tab === "sources" && (loading ? <ReportSkeletons /> : <SourcesTab data={data} />)}</TabsPanel>
-            <TabsPanel tab="health" className="mt-2">{tab === "health" && (loading ? <ReportSkeletons /> : <HealthTab data={data} />)}</TabsPanel>
+            <TabsPanel tab="sales" className="mt-2">{tab === "sales" && <SalesTab data={data} />}</TabsPanel>
+            <TabsPanel tab="pipeline" className="mt-2">{tab === "pipeline" && <PipelineTab data={data} />}</TabsPanel>
+            <TabsPanel tab="activity" className="mt-2">{tab === "activity" && <ActivityTab data={data} />}</TabsPanel>
+            <TabsPanel tab="sources" className="mt-2">{tab === "sources" && <SourcesTab data={data} />}</TabsPanel>
+            <TabsPanel tab="health" className="mt-2">{tab === "health" && <HealthTab data={data} />}</TabsPanel>
           </Tabs>
-        </>
-      )}
+
+          {/* Session-25 (S25-P4): the Save Custom Report View dialog —
+              the reference's own save/load flow, riding the localStorage
+              seam. */}
+          <SaveReportDialog
+            open={saveDialogOpen}
+            onOpenChange={setSaveDialogOpen}
+            filters={{ dateRange: period, stage, source: "all", status, owner: ownerId }}
+            savedCount={savedCount}
+            savedList={savedList}
+            onSave={(name: string, columns: SavedReportColumns) => {
+              const count = saveReport({
+                name,
+                filters: { dateRange: period, stage, source: "all", status, owner: ownerId },
+                columns,
+              });
+              setSavedCount(count);
+              setSavedList(listSavedReports());
+              setSaveDialogOpen(false);
+            }}
+            onLoad={(report: SavedReport) => {
+              setPeriod(report.filters.dateRange);
+              setOwnerId(report.filters.owner);
+              setStage(report.filters.stage);
+              setStatus(report.filters.status);
+              setSaveDialogOpen(false);
+            }}
+          />
+      </>
     </div>
   );
-}
-
-// The tab-2 tables + the header PDF button share this (session-10:
-// hoisted from the page component so the module-level tab components can
-// call it).
-function exportPdf() {
-  window.print();
-  toast.info("Print dialog opened", "Choose “Save as PDF” to export this report.");
 }
 
 // ---- Tab: Sales Overview ----------------------------------------------------
-
-// Session-23 (S23-P1): the reports loading skeletons, extracted so each
-// wired TabsPanel renders them into the active shell only (the reference's
-// Radix structure — inactive shells stay hidden and empty). Module-level
-// by the React 19 static-components rule.
-function ReportSkeletons() {
-  return (
-    <div className="grid gap-6 py-6 md:grid-cols-2">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <Skeleton key={i} className="h-64" />
-      ))}
-    </div>
-  );
-}
 
 function SalesTab({ data }: { data: ReportsData | null }) {
   return (
@@ -400,20 +437,36 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
   );
 }
 
+// Session-25 (S25-P2/P5): the per-table CSV — the reference's
+// client-side blob model (its createElement/createObjectURL spies
+// observed blob: text/csv), downloading as <prefix>_YYYY-MM-DD.csv with
+// the table's OWN column headers (Deal,Stage,Amount / Deal,Account,
+// Amount — captured from its downloaded artifacts). NOTE the reference's
+// own inconsistency: the CSV prefixes are SHORTER than the PDF slugs
+// (open_deals_ vs open_deals_by_stage_ — both captured live); the
+// prefix is passed per-button like the reference's own filenames.
+function exportTableCsv(filenamePrefix: string, columns: string[], rows: string[][]): void {
+  const csv = toCsv(rows, columns.map((header, i) => ({ header, value: (r: string[]) => r[i] ?? "" })));
+  downloadBlob(csv, `${filenamePrefix}_${isoDateSuffix()}.csv`, "text/csv");
+}
+
 function DealsTables({ data }: { data: ReportsData | null }) {
   // The reference's tab-2 pair: Open Deals by Stage + Deals at Risk (No
   // Activity 14+ Days), each with Export CSV / Export PDF buttons in the
-  // card header row. The in-table empty rows carry the exact copy.
+  // card header row. The in-table empty rows carry the exact copy. Both
+  // buttons generate from the table's OWN rows (session-25).
+  const openRows = (data?.openDealsByStage ?? []).map((l) => [l.deal, l.stage, String(l.amount ?? "")]);
+  const riskRows = (data?.dealsAtRisk ?? []).map((l) => [l.deal, l.account ?? "", String(l.amount ?? "")]);
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Open Deals by Stage</CardTitle>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => downloadFile("/api/export?type=leads&download=1")}>
+            <Button variant="outline" size="sm" onClick={() => exportTableCsv("open_deals", ["Deal", "Stage", "Amount"], openRows)}>
               <Download className="h-3.5 w-3.5" /> Export CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={exportPdf}>
+            <Button variant="outline" size="sm" onClick={() => exportTablePdf("Open Deals by Stage", ["Deal", "Stage", "Amount"], openRows)}>
               <FileText className="h-3.5 w-3.5" /> Export PDF
             </Button>
           </div>
@@ -449,10 +502,10 @@ function DealsTables({ data }: { data: ReportsData | null }) {
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Deals at Risk (No Activity 14+ Days)</CardTitle>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => downloadFile("/api/export?type=leads&download=1")}>
+            <Button variant="outline" size="sm" onClick={() => exportTableCsv("deals_at_risk", ["Deal", "Account", "Amount"], riskRows)}>
               <Download className="h-3.5 w-3.5" /> Export CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={exportPdf}>
+            <Button variant="outline" size="sm" onClick={() => exportTablePdf("Deals at Risk (No Activity 14+ Days)", ["Deal", "Account", "Amount"], riskRows)}>
               <FileText className="h-3.5 w-3.5" /> Export PDF
             </Button>
           </div>

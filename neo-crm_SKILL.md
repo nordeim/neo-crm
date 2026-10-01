@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.21.0
+version: 1.22.0
 last_updated: 2026-10-01
-project_state: 434 unit checks + 73 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) + the login-card funnel layer (session-21: the reference's in-place signup view — the s10 "dead button" pin disproven — with its minimal Email/Password/Confirm form, the verify-email view with six single-digit inputs and the 5-attempt ladder, the Callout error/info banners, the exact auth error strings, zero auth toasts, the client/server verification split with the server-console code delivery, and the census-method hazards — visibility-vs-display, lab()/oklab() parsers, the __next_route_announcer__, the bun db-push absolutization trap) + the typography/base-cascade layer (session-22: the reference's ZERO-webfont base — the Inter webfont retired for the exact stock system stack pinned in @theme --font-sans, the double antialiased smoothing retired for the reference's default auto, the invented ::selection tint retired; the AGENT_BROWSER_SESSION export-leak + focus-race + controlled-span census-method hazards) + the tabs ARIA + keyboard layer (session-23: the reference's full Radix tabs contract — useId trigger/panel id pairs with aria-controls/aria-labelledby wiring, the exported TabsPanel shells all mounted with inactive hidden + empty, the ArrowLeft/Right wrap + Home/End + automatic-activation keyboard model, the reference's wrapper anatomy with the per-page TabsContent stock classes, the activities priority card restructured into ONE p-4 border-b region, and the authed-login redirect retirement; the auth-state + platform-badge + data-inflation + skeleton-race census-method hazards) + the route-case + URL-state layer (session-24: the reference serves every app route at BOTH casings with no normalization — nine capital-route RENDER aliases inside the (app) group with capital-case pageMetadata and the Dashboard root-head contract, the capitalized NAV_ITEMS hrefs with the case-insensitive sidebar isActive, the /Profile account-menu target, the dead More... affordance, the no-capital-auth-alias pin, and the URL-state census closed at parity — zero writes, params ignored; the CLI-latency + browser-not-curl + route-scoped-case-folding + computed-visibility census-method hazards) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 475 unit checks + 79 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) + the login-card funnel layer (session-21: the reference's in-place signup view — the s10 "dead button" pin disproven — with its minimal Email/Password/Confirm form, the verify-email view with six single-digit inputs and the 5-attempt ladder, the Callout error/info banners, the exact auth error strings, zero auth toasts, the client/server verification split with the server-console code delivery, and the census-method hazards — visibility-vs-display, lab()/oklab() parsers, the __next_route_announcer__, the bun db-push absolutization trap) + the typography/base-cascade layer (session-22: the reference's ZERO-webfont base — the Inter webfont retired for the exact stock system stack pinned in @theme --font-sans, the double antialiased smoothing retired for the reference's default auto, the invented ::selection tint retired; the AGENT_BROWSER_SESSION export-leak + focus-race + controlled-span census-method hazards) + the tabs ARIA + keyboard layer (session-23: the reference's full Radix tabs contract — useId trigger/panel id pairs with aria-controls/aria-labelledby wiring, the exported TabsPanel shells all mounted with inactive hidden + empty, the ArrowLeft/Right wrap + Home/End + automatic-activation keyboard model, the reference's wrapper anatomy with the per-page TabsContent stock classes, the activities priority card restructured into ONE p-4 border-b region, and the authed-login redirect retirement; the auth-state + platform-badge + data-inflation + skeleton-race census-method hazards) + the route-case + URL-state layer (session-24: the reference serves every app route at BOTH casings with no normalization — nine capital-route RENDER aliases inside the (app) group with capital-case pageMetadata and the Dashboard root-head contract, the capitalized NAV_ITEMS hrefs with the case-insensitive sidebar isActive, the /Profile account-menu target, the dead More... affordance, the no-capital-auth-alias pin, and the URL-state census closed at parity — zero writes, params ignored; the CLI-latency + browser-not-curl + route-scoped-case-folding + computed-visibility census-method hazards) + the loading-state + export/button-contract layer (session-25: the reference's instant-render-with-zeros model — every skeleton family retired with the store's loadingFlags, the empty state IS the loading state; the REAL client-side export artifacts — the html2canvas-pro + jsPDF seam with the A4 portrait crm_reports_ pagination, the text-artifact per-table PDFs with the paren-truncating slugs, the prefix_YYYY-MM-DD.csv family with the leads 8-column set + the filter-aware singular crm_report deal CSV + the per-table client-side blobs with the reference's own SHORTER-CSV-prefix inconsistency; the localStorage-backed Save Custom Report View dialog with the byte-exact crm_saved_reports schema + the 6-entry period vocabulary today/week/month/quarter/ytd/all; the init-script-fetch-delay + download-spy + eval-click-does-not-switch-tabs census-method hazards) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.21.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.22.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1694,6 +1694,110 @@ no-`.tsx`-in-the-capital-folders pin) + the rewritten
 capital-route renders, the capitalized sidebar href set, the
 case-insensitive active state, the capital-auth 404, the dead
 More...).
+
+## 16q. Session-25 Layer (the instant-render loading model, the real
+client-side export artifacts, the saved-reports seam, the period
+vocabulary)
+
+The session-41 pointer named the loading/suspense states + the print
+stylesheet family as the unprobed layers. Both closed at parity (the
+reference ships zero `@media print` rules; its bundle carries only
+library-standard keydown handlers), and the loading census found the
+layer beneath: **the reference renders INSTANTLY with zeros** — with
+its Lead entity fetch network-ABORTED, the full /Leads page paints
+immediately (h1, KPI cards at 0, the empty table row, "Hi, Guest"
+when the user fetch fails too). Every skeleton family in the clone
+was an invention:
+
+- **The dashboard** rendered 6 × `h-[118px]` KPI skeletons from first
+  paint (the `!k` condition). The cards now render via
+  `k?.totalLeads ?? 0` null-safety — the reports page's established
+  pattern; the deltas already accepted `number | undefined`.
+- **Leads/accounts/contacts** rendered 5 × `h-12` skeleton rows during
+  the fetch window (`loadingFlags.X && X.length === 0`). The tables
+  render their empty-state row directly.
+- **The reports page** carried a `loading` state + 5 KPI + 4 ×
+  `h-64` ReportSkeletons. Retired — each TabsPanel renders its tab
+  unconditionally with `data` possibly null.
+- The store's `loadingFlags` field + `loading()` helper + the
+  `misc.tsx` Skeleton export are GONE. NEVER reintroduce a skeleton
+  branch — the empty state IS the loading state (the session-10
+  ChartEmpty-retirement precedent, applied page-wide).
+
+**The export/button contracts (the s24 click-contract lesson
+applied):** the reference's Reports exports are REAL client-side
+artifacts, live-verified by clicking every button and examining the
+downloads:
+
+- The header **PDF** button spawns an `IFRAME.html2canvas-container`,
+  captures the CONTENT area (no sidebar), and assembles via **jsPDF**
+  into A4 portrait pages — `crm_reports_YYYY-MM-DD.pdf`. Our seam:
+  `src/lib/pdf-export.ts` with **html2canvas-PRO** (NOT classic 1.4.1
+  — our Tailwind v4 stylesheet carries 242 `color-mix()` calls the
+  classic parser cannot read; zero oklch, but color-mix alone forces
+  the fork).
+- The per-table **Export PDF** buttons generate TEXT jsPDFs (3.5KB on
+  the reference): the card title TRUNCATED at the parenthetical
+  ("Deals at Risk (No Activity 14+ Days)" → "Deals at Risk"), a
+  `Generated: M/D/YYYY` line, the column headers, the rows — as
+  `<slug>_YYYY-MM-DD.pdf` via the `tableSlug()` rule.
+- The **CSVs** download as `prefix_YYYY-MM-DD.csv` (underscore + ISO
+  date — NEVER `prefix-YYYYMMDD.csv`): the leads 8-column set
+  (Name,Email,Phone,Company,Value,Status,Source,Next Follow-up), the
+  SINGULAR `crm_report_` 7-column deal CSV (the filter-aware
+  `/api/export?type=report`), and the per-table 3-column CLIENT-side
+  blobs — the reference's own inconsistency: its per-table CSV
+  prefixes are SHORTER literals (`open_deals_`, `deals_at_risk_`)
+  than its PDF slugs (`open_deals_by_stage_`).
+- The previous `window.print()` + `toast.info("Print dialog
+  opened")` was an invention on all three buttons — retired.
+
+**The Saved Reports seam:** the reference's "Saved Reports (N)"
+button opens a full dialog — Report Name input (placeholder
+`e.g., Q1 Won Deals by Region`), the 6 column checkboxes
+(Name/Account/Owner/Value/Stage/Won Date), the Current Filters
+summary (raw slugs, 3 dimensions), the loadable list — persisting to
+`localStorage.crm_saved_reports` as
+`[{id,name,filters{dateRange,stage,source,status,owner},columns{…},
+createdAt}]` (id = `Date.now()`). **Load** reapplies the saved
+filters + closes. The seam: `src/lib/saved-reports.ts` (the
+lead-filters.ts pattern) + `src/components/shared/
+save-report-dialog.tsx`. The count label hydrates client-side (the
+established localStorage effect pattern).
+
+**The period vocabulary:** `REPORT_PERIODS` is the reference's
+6-entry set — today/week/month/quarter/ytd/all (Today / This Week /
+This Month / This Quarter / YTD / All Time). `this_year` was retired
+for `ytd`; `today` was missing. `periodStart()` maps today →
+startOfDay + ytd → startOfYear; the page default is `quarter`. This
+also makes the saved-report `dateRange` values byte-faithful.
+
+Census-method hazards this session (the §16q lessons):
+- **The skeleton window needs an init-script fetch delay** — at CLI
+  latencies every post-open eval lands post-hydration; only a
+  `--init-script` that patches `window.fetch` (with `init` passed
+  THROUGH — a url-only patch silently converts POSTs to GETs and
+  405s the login) exposes the transitory loading states.
+- **Client-side download generation is invisible to MutationObserver**
+  — jsPDF/blob downloads create + click + remove the anchor
+  synchronously; spy on `document.createElement('a')` +
+  `URL.createObjectURL` and check the Downloads folder for the
+  artifact.
+- **An eval `.click()` does not switch Radix tabs** (and dispatched
+  MouseEvents are unreliable on the reference's handlers) — tab-switch
+  probes MUST use real agent-browser ref clicks (this session's S25-P3
+  false-negative: the per-table export buttons "missing" until a real
+  click showed them).
+- **Sequencing hazard:** navigating away mid-fetch kills the login
+  POST — the delayed-API harness must let the auth call complete
+  before navigating.
+
+Pinned by `tests/loading-layer.test.ts` (8) +
+`tests/pdf-export.test.ts` (10) + `tests/saved-reports.test.ts` (13)
++ `tests/csv-contract.test.ts` (7) + `tests/report-periods.test.ts`
+(3) + the session-25 e2e checks (the zero-skeleton pass, the three
+download artifacts, the save/load round-trip, the 6-option period
+dropdown).
 
 ## 17. Responsive Breakpoint Reference
 

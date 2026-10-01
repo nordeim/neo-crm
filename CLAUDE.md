@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (434) → `bun run build` → `bun run test:e2e` (73). For UI
+   `bun run test` (475) → `bun run build` → `bun run test:e2e` (79). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (434 checks)               |
-| `bun run test:e2e`  | Playwright E2E (73 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (475 checks)               |
+| `bun run test:e2e`  | Playwright E2E (79 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 434 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 475 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -170,6 +170,29 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   alias INSIDE the (app) group — shell + guard + capital-route metadata;
   the s14 redirect mechanism retired, the next.config no-redirect-loop
   pin kept),
+  `tests/pdf-export.test.ts` (session-25: the Reports PDF export
+  contract — the html2canvas-pro + jsPDF seam with the A4 portrait
+  pagination loop + the `crm_reports_${isoDate()}.pdf` filename, the
+  text-artifact `exportTablePdf` with the paren-truncating slug rule,
+  and the three-button wiring with NO `window.print` + NO toast on the
+  PDF path),
+  `tests/saved-reports.test.ts` (session-25: the localStorage seam —
+  the `crm_saved_reports` key, the SavedReport schema with the SHORT
+  dateRange slugs, the encode/decode round-trip, the dialog component's
+  structure pins, and the reports page's live-count wiring with the
+  toast retired),
+  `tests/loading-layer.test.ts` (session-25: the skeleton retirement —
+  zero `Skeleton` imports across the app pages, zero `animate-pulse` in
+  src/, the store's `loadingFlags` + `loading()` helper + the
+  `misc.tsx` export all gone),
+  `tests/csv-contract.test.ts` (session-25: the CSV artifact family —
+  the `prefix_YYYY-MM-DD.csv` filename convention, the leads 8-column
+  set, the filter-aware `type=report` branch, `downloadBlob()`, and the
+  per-table client-side blobs with the reference's SHORTER CSV
+  prefixes),
+  `tests/report-periods.test.ts` (session-25: the 6-entry period
+  vocabulary — today/week/month/quarter/ytd/all, the `periodStart()`
+  today/ytd mappings, the `quarter` default),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
   sessions 6–11: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
@@ -194,7 +217,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 73 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 79 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -228,7 +251,12 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   session-23's tabs ARIA + keyboard layer (the wired trigger/panel ids
   on all three strips, all shells mounted with the inactive ones hidden
   + empty, the arrow-key model with wrap + Home/End + automatic
-  activation, live-verified against the reference's Radix tabs).
+  activation, live-verified against the reference's Radix tabs), and
+  session-25's loading + export-contract layer (the dashboard KPI cards
+  visible immediately post-login with zero skeleton pass, the Reports
+  header PDF downloading a real client-side `crm_reports_*.pdf`, the
+  per-table Export PDF/CSV artifacts, the Save Custom Report View
+  round-trip, and the period dropdown's 6-option vocabulary).
 
 ### Test Commands
 
@@ -246,7 +274,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 434).
+the seam (currently 475).
 
 ## Code Quality Standards
 

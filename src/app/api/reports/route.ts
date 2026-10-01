@@ -11,20 +11,24 @@ import {
   reportsBucketCounts,
 } from "@/lib/constants";
 import { agingCounts, forecastAccuracySeries, monthsFromEvents } from "@/lib/reports-data";
-import { addMonths, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
+import { addMonths, startOfDay, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
 import type { ReportsData } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 function periodStart(period: string, now: Date): Date {
+  // Session-25 (S25-P6): the reference's SHORT period vocabulary —
+  // today/week/month/quarter/ytd/all (REPORT_PERIODS ids).
   switch (period) {
-    case "this_week":
+    case "today":
+      return startOfDay(now);
+    case "week":
       return startOfWeek(now, "monday");
-    case "this_month":
+    case "month":
       return startOfMonth(now);
-    case "this_quarter":
+    case "quarter":
       return startOfQuarter(now);
-    case "this_year":
+    case "ytd":
       return startOfYear(now);
     default:
       return new Date(0);
@@ -36,7 +40,7 @@ export async function GET(req: Request) {
   if (isGuarded(guard)) return guard.response;
 
   const url = new URL(req.url);
-  const period = asString(url.searchParams.get("period")) ?? "this_quarter";
+  const period = asString(url.searchParams.get("period")) ?? "quarter";
   if (!REPORT_PERIODS.some((p) => p.id === period)) return ERR.BAD_REQUEST("Invalid period");
   // "all" is the UI's "no filter" sentinel — normalize to null so it never
   // reaches Prisma as a literal value.

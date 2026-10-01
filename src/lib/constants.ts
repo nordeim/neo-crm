@@ -223,12 +223,18 @@ export const REPORT_TABS = [
   { id: "health", label: "Account Health" },
 ] as const;
 
+// Session-25 (S25-P6): the reference's SIX periods with its SHORT ids —
+// its expanded listbox reads Today / This Week / This Month / This
+// Quarter / YTD / All Time, and its saved-report localStorage carries
+// dateRange values "today"/"quarter"/"ytd" (each verified live). The
+// this_* vocabulary + the This Year option are retired.
 export const REPORT_PERIODS = [
-  { id: "this_week", label: "This Week" },
-  { id: "this_month", label: "This Month" },
-  { id: "this_quarter", label: "This Quarter" },
-  { id: "this_year", label: "This Year" },
-  { id: "all_time", label: "All Time" },
+  { id: "today", label: "Today" },
+  { id: "week", label: "This Week" },
+  { id: "month", label: "This Month" },
+  { id: "quarter", label: "This Quarter" },
+  { id: "ytd", label: "YTD" },
+  { id: "all", label: "All Time" },
 ] as const;
 
 export const CHART_COLORS = {

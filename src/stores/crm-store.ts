@@ -56,7 +56,6 @@ export interface CrmState {
   events: CrmEvent[];
   settings: Settings | null;
   dashboard: DashboardData | null;
-  loadingFlags: Record<string, boolean>;
 
   // actions
   hydrate: () => Promise<void>;
@@ -95,10 +94,6 @@ export interface CrmState {
   resetData: () => Promise<Result<null, string>>;
 }
 
-function loading(store: CrmState, key: string, on: boolean) {
-  return { loadingFlags: { ...store.loadingFlags, [key]: on } };
-}
-
 export const useCrmStore = create<CrmState>((set, get) => ({
   user: null,
   users: [],
@@ -110,7 +105,6 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   events: [],
   settings: null,
   dashboard: null,
-  loadingFlags: {},
 
   hydrate: async () => {
     const res = await call<User | null>("/api/auth/me");
@@ -142,34 +136,29 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
 
   fetchAccounts: async () => {
-    set((s) => loading(s, "accounts", true));
     const res = await call<Account[]>("/api/accounts");
-    set((s) => ({ accounts: res.ok ? res.data : s.accounts, ...loading(s, "accounts", false) }));
+    if (res.ok) set({ accounts: res.data });
   },
 
   fetchContacts: async () => {
-    set((s) => loading(s, "contacts", true));
     const res = await call<Contact[]>("/api/contacts");
-    set((s) => ({ contacts: res.ok ? res.data : s.contacts, ...loading(s, "contacts", false) }));
+    if (res.ok) set({ contacts: res.data });
   },
 
   fetchLeads: async () => {
-    set((s) => loading(s, "leads", true));
     const res = await call<Lead[]>("/api/leads");
-    set((s) => ({ leads: res.ok ? res.data : s.leads, ...loading(s, "leads", false) }));
+    if (res.ok) set({ leads: res.data });
   },
 
   fetchActivities: async () => {
-    set((s) => loading(s, "activities", true));
     const res = await call<Activity[]>("/api/activities");
-    set((s) => ({ activities: res.ok ? res.data : s.activities, ...loading(s, "activities", false) }));
+    if (res.ok) set({ activities: res.data });
   },
 
   fetchEvents: async (from, to) => {
-    set((s) => loading(s, "events", true));
     const qs = from || to ? `?${new URLSearchParams({ ...(from ? { from } : {}), ...(to ? { to } : {}) })}` : "";
     const res = await call<CrmEvent[]>(`/api/events${qs}`);
-    set((s) => ({ events: res.ok ? res.data : s.events, ...loading(s, "events", false) }));
+    if (res.ok) set({ events: res.data });
   },
 
   fetchSettings: async () => {
@@ -178,9 +167,8 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
 
   fetchDashboard: async () => {
-    set((s) => loading(s, "dashboard", true));
     const res = await call<DashboardData>("/api/dashboard");
-    set((s) => ({ dashboard: res.ok ? res.data : s.dashboard, ...loading(s, "dashboard", false) }));
+    if (res.ok) set({ dashboard: res.data });
   },
 
   fetchReports: async (params) => call<ReportsData>(`/api/reports?${new URLSearchParams(params)}`),

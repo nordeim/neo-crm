@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-507%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-554%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -48,7 +48,10 @@ first boot.
 | 🔤 Typography | The reference's zero-webfont base: NO Inter, NO font preloads — the stock `ui-sans-serif, system-ui` system stack pinned byte-exact in `@theme --font-sans`, default `auto` font smoothing (no `antialiased`, no `text-rendering` override) and the browser-default `::selection` — measured pixel-identical text metrics after the fix |
 | ⌨️ Tabs (ARIA + keyboard) | The reference's full Radix tabs contract on every tab strip (activities, reports, settings) — each trigger carries `id` + `aria-controls` wired to its panel's `id`, each panel carries `aria-labelledby` back, all panel shells stay mounted (inactive ones hidden + empty), and the tablist supports the arrow-key model (ArrowLeft/Right with wrap, Home/End, automatic activation — focus follows selection). Our roving tabindex (selected tab reachable) stays the accessible superset over the reference's all-`tabIndex=-1` platform defect |
 | 🔗 Route casing | The reference's route-case contract — every app route serves at BOTH casings (`/Reports` and `/reports` alike) with NO URL normalization, each casing a first-class SSR route (og:url + canonical mirror the requested case; `/Dashboard` serves the root head like `/`); the sidebar + drawer + account-menu hrefs are the reference's CAPITALIZED paths (`/Dashboard`, …, `/Profile`) with case-insensitive active-state matching. Capital `/Login` + `/Signup` 404 on both apps (the reference case-folds only its app routes) |
-| 🧪 Tested | 434 Vitest unit checks + 73 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| ⏳ Loading model | The reference's instant-render-with-zeros contract — ZERO skeletons, ZERO spinners, ZERO loading UI anywhere: with a data fetch network-blocked the full page still renders immediately (KPI cards at 0, the empty table row, "Hi, Guest"). Every skeleton family retired (the empty state IS the loading state); the store's `loadingFlags` went with them |
+| 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
+| 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
+| 🧪 Tested | 475 Vitest unit checks + 79 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -66,6 +69,7 @@ first boot.
 | Icons | lucide-react | 0.525 | Nav chrome (1.8 stroke) + content (2.0 stroke) |
 | Unit tests | Vitest | 5.0 | Pure domain seams |
 | E2E tests | Playwright | 1.63 | Real-browser golden path + mobile regression |
+| PDF export | jsPDF 4.2 + html2canvas-pro 2.5 | — | The Reports canvas + text PDF artifact family |
 
 ```mermaid
 flowchart TB
@@ -117,7 +121,7 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 21 Vitest suites (406 checks)
+│   ├── 📄 *.test.ts                  # 27 Vitest suites (475 checks)
 │   └── 📂 e2e/                       # Playwright (68 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
@@ -170,9 +174,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 406 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
+bun run test          # 475 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 68 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 79 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials — the
@@ -223,7 +227,15 @@ its sidebar links point at the capitalized paths, each casing a
 first-class SSR head; our capital-route render aliases + the capitalized
 nav hrefs + the case-insensitive active state, the dashboard's dead
 "More..." affordance restored, and the URL-state census closed at
-parity — zero writes, params ignored),
+parity — zero writes, params ignored), the session-25 loading +
+export-contract layer (the reference's instant-render model — the
+dashboard KPI cards visible immediately post-login with zero skeleton
+pass; the Reports header PDF downloading a real client-side
+`crm_reports_*.pdf`; the per-table Export PDF/CSV downloading the
+reference's `open_deals_by_stage_*.pdf` + `open_deals_*.csv` artifacts;
+the Save Custom Report View round-trip — save → count "(1)" → the
+list → Load reapplies the filters; the period dropdown's 6-option
+vocabulary),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

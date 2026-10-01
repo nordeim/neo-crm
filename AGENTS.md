@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (434 checks)         | `bun run test`                         |
-| Browser E2E (73 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (475 checks)         | `bun run test`                         |
+| Browser E2E (79 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (434) → `bun run build` → `bun run test:e2e` (73). There is no
+`bun run test` (475) → `bun run build` → `bun run test:e2e` (79). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -926,6 +926,50 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   CLOSED: both apps write zero URL state (filters, sorting, periods,
   calendar months, view switchers, tabs, search) and both ignore URL
   params — never serialize view state into the address bar.
+
+- **The reference ships ZERO loading UI — render zeros immediately
+  (session-25)** — with its Lead entity fetch network-ABORTED, the
+  reference still renders the full /Leads page instantly (h1, KPI
+  cards at 0, the empty table row, even "Hi, Guest" when the user
+  fetch fails). Skeletons/spinners/skeleton-row families were an
+  invention: every one retired (the empty state IS the loading state),
+  together with the store's `loadingFlags` + `loading()` helper and
+  the `misc.tsx` Skeleton export. NEVER reintroduce a skeleton branch
+  on these pages — the dashboard's KPI cards render via
+  `k?.field ?? 0` null-safety, the tables render their empty-state row
+  directly.
+- **The Reports exports are REAL client-side artifacts (session-25)**
+  — the header **PDF** button captures the content area (the `<main>`
+  scroll container, sidebar excluded) through `html2canvas-pro` and
+  paginates it via jsPDF into A4 portrait, downloading
+  `crm_reports_YYYY-MM-DD.pdf`. The per-table **Export PDF** buttons
+  generate TEXT jsPDFs (title truncated at the parenthetical,
+  `Generated: M/D/YYYY`, column headers, rows) as
+  `<slug>_YYYY-MM-DD.pdf` (`open_deals_by_stage_…`,
+  `deals_at_risk_…`). NEVER `window.print()` + a toast on these
+  buttons — that was the invented behavior. The seam is
+  `src/lib/pdf-export.ts` (html2canvas-PRO, not classic — our Tailwind
+  v4 stylesheet carries 242 `color-mix()` calls the classic parser
+  cannot read).
+- **The CSV contract (session-25)** — filenames are
+  `prefix_YYYY-MM-DD.csv` (underscore + ISO date, never
+  `prefix-YYYYMMDD.csv`); the leads CSV ships the reference's 8
+  columns (Name…Next Follow-up); the reports header Export CSV hits
+  the filter-aware `/api/export?type=report` (SINGULAR
+  `crm_report_…`, the 7 deal columns); the per-table Export CSVs are
+  client-side blobs from the in-memory rows with the reference's OWN
+  inconsistency: SHORTER prefixes than the PDFs (`open_deals_…` vs
+  `open_deals_by_stage_…` — literal per-button prefixes, not
+  `tableSlug()`).
+- **The Saved Reports feature is localStorage-backed (session-25)** —
+  the "Saved Reports (N)" button opens the Save Custom Report View
+  dialog (Report Name + the 6 column checkboxes + the Current Filters
+  summary + the loadable list), persisting to
+  `localStorage.crm_saved_reports` under the reference's byte-exact
+  schema (filters carry the SHORT dateRange slugs:
+  today/week/month/quarter/ytd/all). **Load** reapplies the saved
+  filters. The store's `REPORT_PERIODS` is the reference's 6-entry
+  vocabulary — `this_year` was retired for `ytd`, `today` added.
 
 ## Conventions that differ from defaults
 

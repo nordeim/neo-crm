@@ -32,7 +32,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/misc";
 import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
 import { toast } from "@/components/ui/toast";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
@@ -59,7 +58,7 @@ type SortKey = "name" | "email" | "value" | "createdAt";
 type SortDir = "asc" | "desc";
 
 export default function LeadsPage() {
-  const { leads, loadingFlags, hydrated, deleteLead, fetchLeads } = useCrmStore();
+  const { leads, hydrated, deleteLead, fetchLeads } = useCrmStore();
   const [search, setSearch] = React.useState("");
   // S8-5: the reference's Filters control is a w-80 POPOVER with
   // Status/Source/Min Deal Value/Follow-up Date — not an inline expander.
@@ -384,17 +383,7 @@ export default function LeadsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loadingFlags.leads && leads.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="p-2">
-                    <div className="flex flex-col gap-2 p-2">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Skeleton key={i} className="h-12" />
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
+              {filtered.length === 0 ? (
                 <TableEmptyRow colSpan={9} message="No leads found" />
               ) : (
                 <>
