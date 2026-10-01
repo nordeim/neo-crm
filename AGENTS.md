@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (406 checks)         | `bun run test`                         |
-| Browser E2E (68 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (434 checks)         | `bun run test`                         |
+| Browser E2E (73 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (406) → `bun run build` → `bun run test:e2e` (68). There is no
+`bun run test` (434) → `bun run build` → `bun run test:e2e` (73). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -891,6 +891,41 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   toolbar's p-4). The login page serves the card to AUTHENTICATED
   visitors too (the reference does — no `redirect("/")`; the scaffold's
   authed redirect was an invention, retired session-23).
+
+- **The app routes serve at BOTH casings; the nav hrefs are the
+  reference's CAPITALIZED paths (session-24)** — the reference's sidebar
+  links point at `/Dashboard`, `/Accounts`, `/Contacts`, `/Leads`,
+  `/Calendar`, `/Activities`, `/Reports`, `/Settings` (byte-extracted
+  from its live DOM — Dashboard at `/Dashboard`, NOT the root) and its
+  account menu ships `<A href="/Profile">`. Every capital URL renders
+  the real page IN PLACE with NO normalization, and each casing is a
+  first-class SSR route (og:url + canonical mirror the requested case;
+  `/Dashboard` serves the ROOT head exactly like `/`). Implemented as
+  nine thin RENDER aliases inside the `(app)` group —
+  `(app)/{Dashboard,Accounts,Contacts,Leads,Calendar,Activities,Reports,
+  Settings,Profile}/page.jsx` each re-exporting the lowercase page
+  component + `pageMetadata({ page, route: "/Capital" })` (the Dashboard
+  alias exports NO metadata — it inherits the root head). The aliases
+  are `.jsx` files ON PURPOSE: TypeScript's TS1149 (not
+  flag-controllable) rejects any program containing two real files
+  differing ONLY in casing — a page.tsx alias would collide with the
+  canonical page.tsx through Next's generated route validator. The lowercase
+  routes stay canonical (all prior pins, the sitemap, the search-result
+  rows). The active-state matcher in `sidebar.tsx` is CASE-INSENSITIVE
+  (`pathname.toLowerCase()` vs `href.toLowerCase()`) with the Dashboard
+  special case (`/` OR `/Dashboard`) — the reference highlights its
+  Reports item at lowercase `/reports`. NEVER convert an alias into a
+  `next.config.ts` redirect (case-insensitive matching self-loops — the
+  s14 lesson, twice-reproduced) and never add capital aliases for the
+  AUTH routes (`/Login` + `/Signup` 404 on the reference too — its
+  router case-folds only the app routes; pinned in
+  `tests/route-case.test.ts`). The dashboard's "More..." ghost button
+  is the reference's DEAD affordance (live-clicked: zero DOM delta, no
+  navigation — the same family as its mail/bell buttons); the invented
+  `router.push("/leads")` was retired session-24. URL-state parity is
+  CLOSED: both apps write zero URL state (filters, sorting, periods,
+  calendar months, view switchers, tabs, search) and both ignore URL
+  params — never serialize view state into the address bar.
 
 ## Conventions that differ from defaults
 

@@ -44,7 +44,10 @@ test.describe("mobile navigation drawer", () => {
     const dialog = page.getByRole("dialog", { name: "Navigation menu" });
     await dialog.getByRole("link", { name: "Leads", exact: true }).click();
 
-    await page.waitForURL("**/leads");
+    // Session-24 (S24-P2): the nav hrefs are the reference's CAPITALIZED
+    // paths — the drawer's Leads link lands on /Leads (rendered in place
+    // per S24-P1, never normalized to the lowercase canonical).
+    await page.waitForURL("**/Leads");
     await expect(page.getByRole("heading", { name: "Leads" })).toBeVisible();
     await expect(dialog).toBeHidden();
   });

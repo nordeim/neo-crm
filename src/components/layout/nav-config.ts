@@ -21,16 +21,22 @@ export interface NavItem {
   icon: LucideIcon;
 }
 
-/** Main nav (mirrors the reference app's sidebar order + icon shapes). */
+/** Main nav (mirrors the reference app's sidebar order + icon shapes).
+ * Session-24 (S24-P2): the hrefs are the reference's CAPITALIZED paths —
+ * byte-extracted from its live DOM (its sidebar links point at
+ * /Dashboard, /Accounts, … /Settings, and every capital URL renders the
+ * page in place per S24-P1). The lowercase routes stay canonical; the
+ * active-state matching in sidebar.tsx is case-insensitive exactly like
+ * the reference's (it highlights Reports at lowercase /reports). */
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/accounts", label: "Accounts", icon: Users },
-  { href: "/contacts", label: "Contacts", icon: CircleUser },
-  { href: "/leads", label: "Leads", icon: Target },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
-  { href: "/activities", label: "Activities", icon: Activity },
-  { href: "/reports", label: "Reports", icon: BarChart3 },
+  { href: "/Dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/Accounts", label: "Accounts", icon: Users },
+  { href: "/Contacts", label: "Contacts", icon: CircleUser },
+  { href: "/Leads", label: "Leads", icon: Target },
+  { href: "/Calendar", label: "Calendar", icon: Calendar },
+  { href: "/Activities", label: "Activities", icon: Activity },
+  { href: "/Reports", label: "Reports", icon: BarChart3 },
 ];
 
 /** Rendered directly below a thin divider (reference layout — not pinned to the bottom). */
-export const NAV_FOOTER_ITEMS: NavItem[] = [{ href: "/settings", label: "Settings", icon: Settings }];
+export const NAV_FOOTER_ITEMS: NavItem[] = [{ href: "/Settings", label: "Settings", icon: Settings }];

@@ -173,7 +173,7 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                 </Button>
               </MenuTrigger>
               <MenuContent>
-                <MenuItem onSelect={() => router.push("/profile")}>Profile</MenuItem>
+                <MenuItem onSelect={() => router.push("/Profile")}>Profile</MenuItem>
                 <MenuItem
                   onSelect={async () => {
                     await logout();

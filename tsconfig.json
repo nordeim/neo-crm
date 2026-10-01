@@ -15,6 +15,11 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    // Session-24 (S24-P1): the nine capital-route render aliases are .jsx
+    // files ON PURPOSE — TS1149 (not flag-controllable) fires when one
+    // program includes two real files differing ONLY in casing, which a
+    // page.tsx at (app)/Accounts would do against (app)/accounts/page.tsx.
+    // The .jsx extension breaks the collision; see the alias files' notes.
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,

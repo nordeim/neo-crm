@@ -369,15 +369,86 @@ test("settings Data tab ships Import Templates + stacked outline buttons (S14-P2
   expect(rb!.y).toBeGreaterThan(ib!.y);
 });
 
-test("/Profile (capital P) redirects to the profile page (S14-P4)", async ({ page }) => {
-  // The reference serves both casings (its account menu links to
-  // /Profile); ours aliases the uppercase onto the canonical /profile.
+test("/Profile (capital P) renders the profile page IN PLACE (S14-P4 -> S24-P1)", async ({ page }) => {
+  // The reference serves both casings WITHOUT normalizing (its account
+  // menu links to /Profile; probing /Profile browser-side renders the
+  // full app page with the URL PRESERVED). The s14 redirect alias is
+  // retired — the capital casing now renders through the (app) group
+  // like every other capital route.
   // 'Personal Information' is a CardTitle <div> (no heading semantics —
   // the reference ships none either), so assert via text + the page h1.
   await page.goto("/Profile");
-  await expect(page).toHaveURL(/\/profile$/);
+  await expect(page).toHaveURL(/\/Profile$/);
   await expect(page.getByRole("heading", { name: "Profile & Settings" })).toBeVisible();
   await expect(page.getByText("Personal Information")).toBeVisible();
+});
+
+test("the sidebar hrefs are the reference's CAPITALIZED paths (S24-P2)", async ({ page }) => {
+  // Byte-extracted from the reference's live DOM: its sidebar links point
+  // at /Dashboard, /Accounts, … /Settings — Dashboard at /Dashboard, NOT
+  // the root — and every capital URL renders in place (S24-P1).
+  await page.goto("/");
+
+  const aside = page.locator("aside");
+  const hrefs = await aside.locator("a").evaluateAll((els) =>
+    els.map((el) => (el as HTMLAnchorElement).getAttribute("href")),
+  );
+  expect(hrefs).toEqual([
+    "/Dashboard",
+    "/Accounts",
+    "/Contacts",
+    "/Leads",
+    "/Calendar",
+    "/Activities",
+    "/Reports",
+    "/Settings",
+  ]);
+});
+
+test("the active nav state is CASE-INSENSITIVE like the reference's (S24-P2)", async ({ page }) => {
+  // The reference highlights its Reports item (href /Reports) at
+  // LOWERCASE /reports, and its Dashboard item at BOTH / and /Dashboard.
+  await page.goto("/reports");
+  const active = page.locator("aside a[aria-current='page']");
+  await expect(active).toHaveAttribute("href", "/Reports");
+
+  await page.goto("/");
+  await expect(page.locator("aside a[aria-current='page']")).toHaveAttribute("href", "/Dashboard");
+});
+
+test("capital nav routes render IN PLACE — the URL is never normalized (S24-P1)", async ({ page }) => {
+  // The reference serves every app route at both casings with NO
+  // normalization (its own sidebar links point at the capitalized paths).
+  // /Dashboard serves the root head exactly like / on the reference.
+  const cases: Array<[string, RegExp]> = [
+    ["/Dashboard", /^Dashboard$/],
+    ["/Leads", /^Leads$/],
+    ["/Settings", /^Settings$/],
+  ];
+  for (const [route, heading] of cases) {
+    await page.goto(route);
+    await expect(page).toHaveURL(new RegExp(route));
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+  }
+});
+
+test("capital AUTH routes still 404 (the reference case-folds only its app routes)", async ({ page }) => {
+  // The reference's /Login renders its 404 view (its client router does
+  // NOT case-fold the auth routes) — our clone 404s both casings too.
+  // Parity by coincidence, pinned so no capital auth alias sneaks in.
+  await page.goto("/Login");
+  await expect(page.getByRole("heading", { name: "404", exact: true })).toBeVisible();
+});
+
+test("the dashboard More... button is the reference's dead affordance (S24-P3)", async ({ page }) => {
+  // Live-verified on the reference: clicking More... changes NOTHING —
+  // zero DOM delta, zero dialogs, zero navigation. Ours pushed /leads
+  // (an invention); the no-op is now pinned.
+  await page.goto("/");
+  await page.getByRole("button", { name: "More...", exact: true }).click();
+  await page.waitForTimeout(300);
+  await expect(page).toHaveURL(/\/$|\/Dashboard/);
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 });
 
 test("global search finds a seeded account", async ({ page }) => {
@@ -429,9 +500,11 @@ test("the topbar account menu is a real role=menu with Profile/Logout (S13-P4)",
   await expect(menu.getByRole("menuitem", { name: "Profile" })).toBeVisible();
   await expect(menu.getByRole("menuitem", { name: "Logout" })).toBeVisible();
 
-  // Profile navigates to the profile page (the reference's own item does).
+  // Profile navigates to the reference's /Profile target (its menuitem
+  // is an <A href="/Profile"> — the capital casing renders in place per
+  // S24-P1; the URL is preserved, never normalized).
   await menu.getByRole("menuitem", { name: "Profile" }).click();
-  await page.waitForURL("**/profile");
+  await page.waitForURL("**/Profile");
   await expect(page.getByRole("heading", { name: "Profile & Settings" })).toBeVisible();
 });
 

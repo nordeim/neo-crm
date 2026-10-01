@@ -13,7 +13,6 @@ import {
   CARD_TITLE_OVERRIDE,
 } from "@/lib/page-layout";
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import {
   Download,
   MoreHorizontal,
@@ -45,7 +44,6 @@ import { ACTIVITY_TYPE_META } from "@/lib/constants";
 type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
 export default function DashboardPage() {
-  const router = useRouter();
   const { dashboard, hydrated, fetchDashboard } = useCrmStore();
   const [stage, setStage] = React.useState("all");
   const [source, setSource] = React.useState("all");
@@ -239,8 +237,13 @@ export default function DashboardPage() {
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Stage: Source" className="pl-9" aria-label="Filter deals" />
         </div>
         {/* Session-6: "More..." is a ghost h-8 button on the reference
-            (hover:bg-accent h-8 px-3 text-xs) — not a text link. */}
-        <Button variant="ghost" size="sm" className="sm:ml-auto" onClick={() => router.push("/leads")}>
+            (hover:bg-accent h-8 px-3 text-xs) — not a text link.
+            Session-24 (S24-P3): it is also a complete NO-OP there —
+            live-clicked with zero DOM delta, zero dialogs and zero
+            navigation (the same dead-affordance family as the reference's
+            mail/bell buttons). Our onClick router.push("/leads") was an
+            invention; retired. */}
+        <Button variant="ghost" size="sm" className="sm:ml-auto">
           More...
         </Button>
         </div>

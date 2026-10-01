@@ -19,8 +19,20 @@ import { cn } from "@/lib/utils";
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  // Session-24 (S24-P2): the reference's active-state matching is
+  // CASE-INSENSITIVE — its sidebar links carry the capitalized hrefs
+  // (/Reports) while its router serves both casings, and at lowercase
+  // /reports the Reports item still carries the active background
+  // (live-probed: rgba(255,255,255,0.1)). The Dashboard item is active
+  // at BOTH "/" and "/Dashboard" (its link points at /Dashboard but the
+  // post-login redirect lands on the root — both paths are the
+  // dashboard), so it keeps the root special case on the folded compare.
+  const isActive = (href: string) => {
+    const p = pathname.toLowerCase();
+    const h = href.toLowerCase();
+    if (h === "/dashboard") return p === "/" || p === "/dashboard";
+    return p === h || p.startsWith(`${h}/`);
+  };
 
   const renderLink = (item: (typeof NAV_ITEMS)[number], active: boolean) => (
     <Link

@@ -668,18 +668,19 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
 | Unit — page-titles (auth absolute titles — session-13) | 1 | 2 | `tests/page-titles.test.ts` | Vitest |
 | Unit — charts-contracts (dashed grid + funnel type — session-13) | 1 | 4 | `tests/charts-contracts.test.ts` | Vitest |
-| Unit — profile-route (the /Profile casing alias — session-14) | 1 | 4 | `tests/profile-route.test.ts` | Vitest |
+| Unit — profile-route (the /Profile RENDER alias inside the (app) group + the retired s14 redirect — session-24 rewrite) | 1 | 5 | `tests/profile-route.test.ts` | Vitest |
 | Unit — metadata (the siteUrl seam + SITE_DESCRIPTION + OG/Twitter/icon/sitemap/robots pins — session-18) | 1 | 14 | `tests/metadata.test.ts` | Vitest |
 | Unit — pwa-metadata (the manifest route-handler bytes + theme-color/PWA_META + the apple-icon convention + the pageMetadata() per-route factory + the dialog micro-contracts — session-19) | 1 | 14 | `tests/pwa-metadata.test.ts` | Vitest |
 | Unit — http-headers (the next.config.ts headers() security set + the static-file content-types — session-20) | 1 | 9 | `tests/http-headers.test.ts` | Vitest |
 | Unit — login-views (the auth error strings + the Callout vocabulary + the signup/verify view machines/layouts + the verification ladder — session-21) | 1 | 31 | `tests/login-views.test.ts` | Vitest |
 | Unit — typography (the Inter-webfont retirement + the exact reference `--font-sans` stack pin + the smoothing/::selection retirements — session-22) | 1 | 11 | `tests/typography.test.ts` | Vitest |
 | Unit — tabs-aria (the useId trigger/panel id wiring + the TabsPanel shell contract + the ArrowLeft/Right/Home/End wrap keyboard pins + the per-page panel migration + the authed-login-redirect retirement — session-23) | 1 | 15 | `tests/tabs-aria.test.ts` | Vitest |
+| Unit — route-case (the nine capital-route render aliases + the capital-case pageMetadata + the Dashboard root-head contract + the capitalized NAV_ITEMS hrefs + the case-insensitive isActive + the /Profile menu target + the dead More... + the no-capital-auth-alias pin + the zero-URL-state census — session-24) | 1 | 16 | `tests/route-case.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer — sessions 10–23) | 1 | 51 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — sessions 10–24) | 1 | 56 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **25** | **406 unit + 68 e2e** | | |
+| **Total** | **26** | **434 unit + 73 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -751,6 +752,30 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   the card to authenticated visitors (no redirect — the reference's own
   behavior). Pinned by `tests/tabs-aria.test.ts` + the session-23 e2e
   checks.
+- **Route-case contract (session-24):** every app route serves at BOTH
+  casings — nine thin RENDER aliases inside the `(app)` group
+  (`(app)/{Dashboard,Accounts,Contacts,Leads,Calendar,Activities,Reports,
+  Settings,Profile}/page.jsx` — `.jsx` ON PURPOSE: TS1149 rejects a
+  program with two files differing only in casing, and Next's generated
+  validator imports both; the extension difference breaks the collision)
+  each re-exporting the lowercase page
+  component + `pageMetadata({ page, route: "/Capital" })`, so the
+  capital URLs render in place with NO normalization and carry
+  first-class heads (og:url + canonical mirror the requested case —
+  live-curl-verified on the reference at /Reports vs /reports; the
+  Dashboard alias exports NO metadata and inherits the root head exactly
+  like the reference's /Dashboard). The lowercase routes stay canonical
+  (all prior pins, the sitemap, the search-result rows). The nav hrefs
+  are the reference's CAPITALIZED paths (`NAV_ITEMS` — Dashboard at
+  `/Dashboard`, not `/`) with a CASE-INSENSITIVE `isActive` in
+  `sidebar.tsx` (plus the Dashboard `/`-or-`/Dashboard` special case);
+  the account menu pushes `/Profile`. Capital `/Login` + `/Signup`
+  deliberately have NO aliases (the reference 404s them too — its router
+  case-folds only the app routes). The dashboard's "More..." button is
+  the reference's dead affordance (no onClick). URL-state parity is
+  closed: zero writes anywhere, params ignored by both apps. Pinned by
+  `tests/route-case.test.ts` + `tests/profile-route.test.ts` + the
+  session-24 e2e checks.
 - **Auth absolute titles (session-13):** `/login` and `/signup` had
   RELATIVE titles that the root `"%s | NEO CRM"` template DOUBLED
   (`NEO CRM | NEO CRM` in raw SSR HTML); both ship
@@ -1028,9 +1053,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 406/406
+- [ ] `bun run test` — 434/434
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 68/68
+- [ ] `bun run test:e2e` — 73/73
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] Zero webfonts: `document.fonts` empty on /, body computes the stock
       `ui-sans-serif, system-ui` stack, smoothing `auto` (session-22)

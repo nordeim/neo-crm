@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.20.0
+version: 1.21.0
 last_updated: 2026-10-01
-project_state: 406 unit checks + 68 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) + the login-card funnel layer (session-21: the reference's in-place signup view — the s10 "dead button" pin disproven — with its minimal Email/Password/Confirm form, the verify-email view with six single-digit inputs and the 5-attempt ladder, the Callout error/info banners, the exact auth error strings, zero auth toasts, the client/server verification split with the server-console code delivery, and the census-method hazards — visibility-vs-display, lab()/oklab() parsers, the __next_route_announcer__, the bun db-push absolutization trap) + the typography/base-cascade layer (session-22: the reference's ZERO-webfont base — the Inter webfont retired for the exact stock system stack pinned in @theme --font-sans, the double antialiased smoothing retired for the reference's default auto, the invented ::selection tint retired; the AGENT_BROWSER_SESSION export-leak + focus-race + controlled-span census-method hazards) + the tabs ARIA + keyboard layer (session-23: the reference's full Radix tabs contract — useId trigger/panel id pairs with aria-controls/aria-labelledby wiring, the exported TabsPanel shells all mounted with inactive hidden + empty, the ArrowLeft/Right wrap + Home/End + automatic-activation keyboard model, the reference's wrapper anatomy with the per-page TabsContent stock classes, the activities priority card restructured into ONE p-4 border-b region, and the authed-login redirect retirement; the auth-state + platform-badge + data-inflation + skeleton-race census-method hazards) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 434 unit checks + 73 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) + the login-card funnel layer (session-21: the reference's in-place signup view — the s10 "dead button" pin disproven — with its minimal Email/Password/Confirm form, the verify-email view with six single-digit inputs and the 5-attempt ladder, the Callout error/info banners, the exact auth error strings, zero auth toasts, the client/server verification split with the server-console code delivery, and the census-method hazards — visibility-vs-display, lab()/oklab() parsers, the __next_route_announcer__, the bun db-push absolutization trap) + the typography/base-cascade layer (session-22: the reference's ZERO-webfont base — the Inter webfont retired for the exact stock system stack pinned in @theme --font-sans, the double antialiased smoothing retired for the reference's default auto, the invented ::selection tint retired; the AGENT_BROWSER_SESSION export-leak + focus-race + controlled-span census-method hazards) + the tabs ARIA + keyboard layer (session-23: the reference's full Radix tabs contract — useId trigger/panel id pairs with aria-controls/aria-labelledby wiring, the exported TabsPanel shells all mounted with inactive hidden + empty, the ArrowLeft/Right wrap + Home/End + automatic-activation keyboard model, the reference's wrapper anatomy with the per-page TabsContent stock classes, the activities priority card restructured into ONE p-4 border-b region, and the authed-login redirect retirement; the auth-state + platform-badge + data-inflation + skeleton-race census-method hazards) + the route-case + URL-state layer (session-24: the reference serves every app route at BOTH casings with no normalization — nine capital-route RENDER aliases inside the (app) group with capital-case pageMetadata and the Dashboard root-head contract, the capitalized NAV_ITEMS hrefs with the case-insensitive sidebar isActive, the /Profile account-menu target, the dead More... affordance, the no-capital-auth-alias pin, and the URL-state census closed at parity — zero writes, params ignored; the CLI-latency + browser-not-curl + route-scoped-case-folding + computed-visibility census-method hazards) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.20.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.21.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1587,6 +1587,113 @@ only) surfaced THREE gaps, all live-verified on the reference:
 
 Pinned by `tests/tabs-aria.test.ts` (15 checks) + the session-23 e2e
 test (wiring + shells + keyboard on all three strips).
+
+## 16p. Session-24 Layer (the route-case contract, the capitalized nav
+hrefs, the dead More... affordance, the URL-state census closed)
+
+The session-39 pointer named the URL-state behaviors as the unprobed
+layer. The census ran BOTH directions on the reference (writes watched
+on every stateful control; deep-link params probed; the link graph
+enumerated; every route probed at both casings BROWSER-side) and found
+the URL layer itself at parity — but the ROUTE-CASING surface beneath it
+had never been checked in 23 sessions:
+
+1. **S24-P1 — the route-case contract.** The reference's sidebar links
+   point at CAPITALIZED paths (`/Dashboard`, `/Accounts`, `/Contacts`,
+   `/Leads`, `/Calendar`, `/Activities`, `/Reports`, `/Settings` —
+   byte-extracted from its live DOM) and its account menu ships
+   `<A href="/Profile">`. Every capital URL renders the real page IN
+   PLACE with NO normalization, and each casing is a first-class SSR
+   route: `/Reports` serves og:url + canonical at `…/Reports` while
+   `/reports` serves them at `…/reports` (curl-diffed — identical
+   otherwise); `/Dashboard` serves the ROOT head (og:url/canonical at
+   the origin) exactly like `/`. Our clone 404'd every capital app
+   route, and its s14 `/Profile` alias NORMALIZED the URL bar to
+   `/profile` (the reference keeps `/Profile`). Implemented as NINE
+   thin RENDER aliases inside the `(app)` group — each re-exporting the
+   lowercase page component + `pageMetadata({ page, route: "/Capital" })`;
+   the Dashboard alias exports NO metadata (inherits the root head);
+   the s14 top-level redirect alias is retired. The lowercase routes
+   stay canonical (every prior pin, the sitemap, the search rows).
+   THE AUTH ROUTES ARE THE EXCEPTION: the reference's `/Login` and
+   `/Signup` render its 404 view (its client router case-folds only the
+   app routes) — our clone 404s them too, parity by coincidence, and
+   `tests/route-case.test.ts` PINS that no capital auth alias ever
+   appears. Route FOLDERS, never next.config redirects — config
+   redirects match case-insensitively and a `/Profile -> /profile`
+   rule self-loops into ERR_TOO_MANY_REDIRECTS (the s14 lesson,
+   twice-reproduced).
+
+2. **S24-P2 — the href + active-state contract.** `NAV_ITEMS` hrefs are
+   the reference's capitalized set (Dashboard at `/Dashboard`, NOT the
+   root — its post-login redirect still lands on `/`, both paths serve
+   the dashboard). The active-state matcher is CASE-INSENSITIVE (the
+   reference highlights its Reports item at lowercase `/reports` —
+   probed on its live DOM) with the Dashboard special case (`/` OR
+   `/Dashboard`): `pathname.toLowerCase()` vs `href.toLowerCase()`.
+   The account menu pushes `/Profile`. The topbar SEARCH-result row
+   targets stay lowercase + documented as data-gated-unverifiable (the
+   reference's search dropdown never opens at zero data — 20 sessions).
+
+3. **S24-P3 — the dead More... affordance.** The reference's dashboard
+   "More..." ghost button is a complete NO-OP (live-clicked: zero DOM
+   delta, zero dialogs, zero navigation — the same dead-affordance
+   family as its mail/bell buttons). Our `router.push("/leads")` was an
+   invented behavior invisible to the s6 visual pin — the same class as
+   the s21 invented toasts and the s23 invented authed redirect: ALWAYS
+   probe the CLICK contract of a pinned control, not just its classes.
+
+4. **URL-state parity, CLOSED:** both apps write ZERO URL state (leads
+   filters, table sorting, the reports period/owner/stage/status
+   selectors, the calendar month chevrons, the dashboard view-switcher,
+   the tab strips, the topbar search) and both IGNORE deep-link params
+   (`/leads?status=New&view=board&sort=name` leaves the table mounted;
+   `/calendar?month=2026-11` still shows the current month — the string
+   persists in the bar with zero effect on both apps). Never serialize
+   view state into the address bar.
+
+**The TS1149 casing collision (the implementation hazard):** the nine
+capital aliases ship as **`.jsx` files**, NOT `.tsx` — TypeScript's
+TS1149 fires whenever ONE program includes two real files whose paths
+differ ONLY in casing ((app)/Accounts/page.tsx vs
+(app)/accounts/page.tsx), and Next's generated
+`.next/types/validator.ts` imports BOTH casings of every dual route.
+The check is NOT flag-controllable (`forceConsistentCasingInFileNames:
+false` does not suppress it — empirically reproduced in a minimal
+repro this session). The `.jsx` extension keeps the alias out of the
+collision (paths differ by extension), resolves through `allowJs`
+exactly like the validator's `page.js` import, and compiles
+identically through SWC; the lowercase `page.tsx` stays canonical +
+type-checked. NEVER "normalize" a capital alias back to `.tsx` — the
+typecheck gate will fail with eight TS1149s the moment Next regenerates
+its validator.
+
+Census-method hazards this session (the §16p lessons):
+- **CLI latency hides SPA skeleton passes** — an `eval` after
+  `agent-browser open` lands post-hydration; install a MutationObserver
+  BEFORE the navigation to catch transitory loading states (this
+  session's pulse-catch: the reference's /Reports nav shows ZERO
+  animate-pulse elements at CLI timescales).
+- **Route-case censuses need BROWSER probes, not curl status codes** —
+  the reference's SPA-fallback 200s every unknown path (its `/Login`
+  returns 200 to curl but renders the 404 view client-side); only a
+  rendered-DOM probe (h1 read) distinguishes page-served from
+  fallback-served.
+- **Case-folding is ROUTE-SCOPED, not platform-wide** — the reference
+  case-folds its 9 app routes but NOT its auth routes; neither a
+  "lowercase everything" nor a "redirect everything" shortcut would
+  have matched it.
+- **Probe the drawer with COMPUTED visibility** — `element.style
+  .visibility` (inline) reads empty for the open drawer; the contract
+  lives on `getComputedStyle(el).visibility` (the closed-state probe
+  from the s20 checkVisibility hazard, inverted).
+
+Pinned by `tests/route-case.test.ts` (16 checks — including the
+no-`.tsx`-in-the-capital-folders pin) + the rewritten
+`tests/profile-route.test.ts` (5) + the session-24 e2e checks (the
+capital-route renders, the capitalized sidebar href set, the
+case-insensitive active state, the capital-auth 404, the dead
+More...).
 
 ## 17. Responsive Breakpoint Reference
 
