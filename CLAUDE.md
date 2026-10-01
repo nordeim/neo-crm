@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (340) → `bun run build` → `bun run test:e2e` (56). For UI
+   `bun run test` (349) → `bun run build` → `bun run test:e2e` (60). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (340 checks)               |
-| `bun run test:e2e`  | Playwright E2E (56 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (349 checks)               |
+| `bun run test:e2e`  | Playwright E2E (60 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 340 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 349 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -139,6 +139,10 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   the prefixed og descriptions + per-route canonical/og:url/twitter:url
   + the wrapper wiring, and the dialog micro-contracts: ct-phone type=tel,
   zero datalists, the exact avatar accept list),
+  `tests/http-headers.test.ts` (session-20: the next.config.ts headers()
+  security set — Referrer-Policy/X-Content-Type-Options/HSTS on every
+  path — and the static-file content-type pins: the sitemap's bare
+  application/xml, the robots/manifest regression guards),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
   sessions 6–11: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
@@ -163,7 +167,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 56 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 60 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow),
   `auth.setup.ts` (one real login, storageState saved),
   `crm.spec.ts` (authenticated golden path across all 9 pages + the

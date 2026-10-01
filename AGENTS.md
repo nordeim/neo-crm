@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (340 checks)         | `bun run test`                         |
-| Browser E2E (56 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (349 checks)         | `bun run test`                         |
+| Browser E2E (60 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (340) → `bun run build` → `bun run test:e2e` (56). There is no
+`bun run test` (349) → `bun run build` → `bun run test:e2e` (60). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -399,8 +399,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 340 Vitest checks across
-  17 suites (session-13 added `tests/page-titles.test.ts` for the auth
+  sessions 6–8 + session-10's stock-primitive pins) — 349 Vitest checks across
+  18 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
   `/Profile` casing alias; session-15 added the 18-check DIALOG_FAMILY layer
@@ -413,7 +413,11 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   FilterPolygon polygon source pin + page rules, the icon-swap source
   rules, the CHECKBOX contract + label.tsx button-primitive rule + the
   call-site onCheckedChange rule, and the default-variant bare-shadow +
-  ghost no-text-color pins).
+  ghost no-text-color pins; session-18 added `tests/metadata.test.ts` for
+  the site seam + the head family; session-19 added
+  `tests/pwa-metadata.test.ts` for the manifest/PWA/per-route factory
+  pins; session-20 added `tests/http-headers.test.ts` for the
+  security-header set + the static-file content-type pins).
   Route handlers and pages import these modules; don't inline their logic.
   E2E uses its own scratch database (`db/e2e.db` via
   `tests/e2e/global-setup.ts`, in-place reseed) on port 3100 against the
@@ -747,6 +751,43 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `autoComplete` attrs (email/current-password/new-password/name) are the
   deliberate accessible superset — password managers; the reference ships
   none.
+
+- **The HTTP response-header layer is the edge seam (session-20)** — the
+  reference's platform (Cloudflare/Caddy) injects a three-header security
+  set on EVERY response (HTML routes, authed routes, its hashed CSS asset,
+  /manifest.json after its 302 hop, its SPA-fallback 200s — curl-verified
+  on 10+ responses): `referrer-policy: strict-origin-when-cross-origin`,
+  `x-content-type-options: nosniff`, and
+  `strict-transport-security: max-age=31536000` (BARE max-age — no
+  includeSubDomains, no preload). The self-hosted expression is the
+  `headers()` field in `next.config.ts` (one `/:path*` block) — it applies
+  to pages AND /_next/static assets AND route handlers, with NO
+  content-type conflicts (verified live: the config headers coexist with
+  the sitemap/robots/manifest route handlers' own content-types). HSTS is
+  inert over plain-HTTP localhost (RFC 6797 §7.1: a UA MUST NOT process
+  it over non-secure transport — verified empirically: the dev server and
+  the browser flows stay healthy) and correct whenever a deployment runs
+  behind HTTPS, which is the reference's own topology. Same session: the
+  sitemap's content-type tightened to the reference's bare
+  `application/xml` (was `application/xml; charset=utf-8` — the s18
+  "viewport 1 vs 1.0" cosmetic-serialization class; robots
+  `text/plain; charset=utf-8` and manifest `application/json` already
+  matched). Census-method hazards documented: HEAD ≠ GET on the reference
+  (its platform answers HEAD /manifest.json with 200 text/html but the
+  real GET chain is 302 → /api/apps/manifests/… → 200 application/json —
+  always GET-verify content-types), and `Element.checkVisibility()`
+  WITHOUT options does NOT test the `visibility` property (it only checks
+  display/content-visibility — the fixed-position drawer panel is never
+  display:none; read `getComputedStyle(el).visibility` instead — this
+  false-positived the drawer-open probe mid-session). The keyboard
+  tab-order census (login/dashboard/leads, both apps) and the print-styles
+  sweep (both zero @media print) both verified at PARITY — the reference
+  ships FIVE unnamed interactive elements on its dashboard (two topbar
+  icon buttons, the view-switcher combobox, two table-area buttons — WCAG
+  4.1.2 failures) where ours carries aria-labels, the documented
+  accessible-superset pattern; its leads-table sortable headers (Lead
+  Name/Email/Value, the G-5 pin) are clickable divs with the
+  arrow-up-down SVG + onclick — ours are proper `<th><button>`.
 
 ## Conventions that differ from defaults
 

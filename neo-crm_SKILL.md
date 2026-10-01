@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.16.0
+version: 1.17.0
 last_updated: 2026-10-01
-project_state: 340 unit checks + 56 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+project_state: 349 unit checks + 60 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) + the HTTP response-header layer (session-20: the reference's edge security set — Referrer-Policy strict-origin-when-cross-origin + X-Content-Type-Options nosniff + bare HSTS max-age=31536000 on every response via next.config.ts headers(), the sitemap's bare application/xml content-type, the HEAD≠GET + checkVisibility() census-method hazards) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.16.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.17.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1191,6 +1191,86 @@ DOM/HTTP-verified on the live reference on 2026-10-01:
    `crm.spec.ts` (the manifest JSON + link, the theme-color + metas,
    the resolving apple-touch-icon, per-route /accounts, the root
    family, the Contact dialog tel/datalist/accept census).
+
+## 16l. Session-20 Layer (the HTTP response-header surface, the census-method hazards)
+
+**What shipped:** the first sweep of the HTTP RESPONSE-HEADER layer —
+the edge-injected set never probed in nineteen prior sessions — plus two
+never-swept verification layers (the keyboard tab-order census and the
+print-styles sweep, both at PARITY, no action) and the standing layers
+re-verified with NO drift (the reference's mobile nav still absent at
+390 — 16th session; the drawer 7/7; the s18+s19 metadata head census;
+zero 390px overflow on 11 routes; demo data still zero — 16th session).
+
+1. **The findings (S20-P1..P4).** The reference's platform edge
+   (Cloudflare/Caddy) injects a three-header security set on **every**
+   response — HTML routes (login, /Dashboard, /Leads, /settings,
+   /signup, /Reports), its hashed CSS asset, /manifest.json (after its
+   302 → /api/apps/manifests/… hop), and its SPA-fallback 200s:
+   `referrer-policy: strict-origin-when-cross-origin`,
+   `x-content-type-options: nosniff`, and
+   `strict-transport-security: max-age=31536000` (BARE max-age — no
+   includeSubDomains, no preload). Ours shipped none of the three
+   (S20-P1/P2/P3), and our sitemap served
+   `application/xml; charset=utf-8` where the reference serves bare
+   `application/xml` (S20-P4 — the s18 "viewport 1 vs 1.0"
+   cosmetic-serialization class). robots.txt (`text/plain;
+   charset=utf-8`) and manifest.json (`application/json`) already
+   matched exactly — GET-verified.
+
+2. **The implementation.** One `async headers()` field in
+   `next.config.ts` — a single `/:path*` block with the three headers
+   at the reference's exact values. It applies to pages AND
+   /_next/static assets AND route handlers; verified live with NO
+   content-type conflicts (the config headers coexist with the
+   sitemap/robots/manifest route handlers' own content-types — the
+   merge hazard the plan flagged did not materialize). HSTS is inert
+   over plain-HTTP localhost (RFC 6797 §7.1: a UA MUST NOT process it
+   over non-secure transport — verified empirically: dev server +
+   browser flows + the full e2e suite stay healthy) and correct
+   whenever a self-hosted deployment runs behind HTTPS, which is the
+   reference's own topology. The sitemap route handler's content-type
+   dropped its charset suffix. TypeScript hazard caught by the gate:
+   `NextConfig["headers"]` IS the function type itself — annotating
+   the method's return as `Promise<NextConfig["headers"]>` produces
+   `Promise<() => Header[]>` (a promise OF a function) and fails tsc;
+   omit the annotation and let inference handle it.
+
+3. **Census-method hazards (this session's probe lessons).**
+   (a) **HEAD ≠ GET on the reference** — its platform answers
+   `HEAD /manifest.json` with 200 + `text/html` but the real GET chain
+   is 302 → `/api/apps/manifests/…/manifest.json` → 200 +
+   `application/json`; always GET-verify content-types with
+   `curl -s -D -`. (b) **`Element.checkVisibility()` WITHOUT options
+   does NOT test the `visibility` property** — it only checks
+   display/content-visibility, and the fixed-position drawer panel is
+   never display:none, so the drawer-open probe false-positived on a
+   closed panel; read `getComputedStyle(el).visibility` (or pass
+   `{checkVisibility: true}`) for visibility-toggled overlays.
+   (c) **The reference's interactive affordances are clickable
+   divs** — its leads-table sortable headers are `th > div[onclick]`
+   with the arrow-up-down SVG + cursor:pointer, NOT `<button>`
+   elements; a `th button` census under-counts them. Our `<th><button>`
+   SortHead is the accessible expression of the same G-5-pinned
+   affordance. The reference also ships FIVE unnamed interactive
+   elements on its dashboard (two topbar icon buttons, the
+   view-switcher combobox, two table-area buttons — WCAG 4.1.2
+   failures) where ours carries aria-labels — the documented
+   accessible-superset pattern.
+
+4. **The verification method (reuse for any response-header work).**
+   `curl -sI localhost:3000/<route>` on the dev server (headers()
+   applies in dev) + `page.request.get()` header assertions in the e2e
+   (which hits the production standalone on :3100 — the real parity
+   surface). Resource-exhaustion lesson: the e2e browser launch can
+   fail with `pthread_create: Resource temporarily unavailable` when
+   multiple agent-browser sessions are left open — close them before
+   running the suite. The full-suite pins:
+   `tests/http-headers.test.ts` (9 checks — the headers() source pins,
+   the standing-config regression guards, the content-type pins) + 4
+   e2e checks in `crm.spec.ts` (the three-route security set, the CSS
+   asset set, the bare sitemap content-type, the manifest/robots
+   regression).
 
 ## 17. Responsive Breakpoint Reference
 

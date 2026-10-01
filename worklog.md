@@ -388,3 +388,23 @@ Stage Summary:
 
 Stage Summary (final):
 - PUSHED: session-19 commit f377507 on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py (explicit --remote; dry-run clean 58b82e4..f377507 fast-forward, then real push with the wrapper's remote verification + an independent GIT_SSH_COMMAND ls-remote check @ f377507 == local HEAD); all suites green (340 unit / 56 e2e); docs at SKILL v1.16.0; deploy key shredded after verification
+
+---
+Task ID: 21 (repo)
+Agent: main (Super Z)
+Task: Session 20 — the HTTP response-header layer (the edge security set) + the tab-order/print-style verification layers
+
+Work Log:
+- Pulled to 17e1b02 (docs/session_32.md = the session-19 transcript + a worklog line, the ONLY changes — zero app-code drift since f377507, so every s19 pinned family held by construction); full docs + codebase review; baseline gate green (340/340 unit); env verified (.env file:../db/custom.db + db/ at root re-seeded + .env.example + vitest/playwright configs)
+- Mobile navigation verified three ways FIRST: reference at 390 still ships NO nav (16th session), our 7-check drawer regression LIVE 7/7 PASS (trigger 36×36 at 16,16; open + 8 links + focus entry + dual body/main locks; Escape + real-click focus restore; focus-trap wrap BOTH directions at the PANEL boundary; resize auto-close + lock release + sidebar swap; route-change close), drawer v4-hazard sweep clean (zero hidden attrs, h-dvh 844 exact, #2563eb panel, 2px blur); zero 390px overflow on 11 routes; s18+s19 metadata census re-probed via curl-SSR NO drift; demo data still zero (16th session)
+- Probe-method lesson: Element.checkVisibility() WITHOUT options does NOT test the visibility property — it false-positived the drawer-open probe on the closed fixed-position panel; read getComputedStyle(el).visibility
+- NEW audit layer — the HTTP response-header surface (never swept in 19 sessions): the reference's edge injects referrer-policy strict-origin-when-cross-origin + x-content-type-options nosniff + strict-transport-security max-age=31536000 (bare) on EVERY response (10+ probes incl. its hashed CSS + manifest after its 302 hop); FOUR findings — S20-P1/P2/P3 the three missing headers, S20-P4 our sitemap's charset-suffixed application/xml vs its bare form (robots/manifest already matched)
+- Two more never-swept layers verified AT PARITY (no action): the keyboard tab-order census (login/dashboard/leads both apps — identical focus sequences; the reference ships FIVE unnamed interactive elements where ours carries aria-labels, the documented accessible superset; its sortable headers are clickable divs, ours proper th>button) and the print-styles sweep (both zero @media print)
+- TDD: 9 red-first checks (tests/http-headers.test.ts) -> 349/349 unit (+9, 18 suites); +4 e2e -> 60/60 (mobile-nav 7/7)
+- Gate-caught corrections: (a) annotating the headers() return as Promise<NextConfig["headers"]> fails tsc because that indexed type IS the function type — annotation dropped for inference, test regex re-scoped; (b) the first e2e run failed at browser LAUNCH with pthread_create exhaustion from the session's open agent-browser contexts — closed them, clean 60/60 re-run
+- Live serializer verification BEFORE the build (curl, post-config-restart): the three headers on /, /login, manifest, robots, sitemap, the CSS asset, /icon.png — NO content-type conflicts with the route handlers; HSTS verified inert over plain-HTTP localhost (RFC 6797 §7.1) with browser flows + the full suite healthy
+- Full gate green: lint 0/0, tsc, 349/349 unit, build, 60/60 e2e; 20 screenshots re-captured with per-shot verification (zero duplicates); .env/.env.example verified (no change needed — the header layer has no env surface); docs realigned (README badge 409 + security-header row + counts, AGENTS + session-20 contract block + suite list, CLAUDE + http-headers suite, PAD matrix 349/60 + §7.2 + §7.4, SKILL v1.17.0 §16l + frontmatter, docs/session_33.md, plan addendum, worklogs)
+
+Stage Summary:
+- Gate green: lint 0/0 · tsc · 349/349 unit · 60/60 e2e (mobile-nav 7/7); zero 390px overflow; 20 verified screenshots; docs at SKILL v1.17.0
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

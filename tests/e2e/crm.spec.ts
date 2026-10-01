@@ -899,3 +899,58 @@ test("the New Contact dialog types Phone as tel with no datalists (S19-P6, S19-P
     .getAttribute("accept");
   expect(accept).toBe("image/jpeg,image/png,image/jpg");
 });
+
+// ---------------------------------------------------------------------------
+// Session-20 — the HTTP response-header layer. The reference's edge
+// (Cloudflare/Caddy) injects a three-header security set on EVERY response
+// (HTML routes, authed routes, the CSS asset, manifest, its SPA-fallback
+// 200s — curl-verified on 10+ responses). The self-hosted expression is
+// next.config.ts headers(). HSTS is inert over the plain-HTTP test server
+// (RFC 6797 §7.1: a UA MUST NOT process it over non-secure transport) but
+// ships for parity + any HTTPS self-hosted deploy.
+// ---------------------------------------------------------------------------
+
+test("every HTML route ships the reference's security-header set (S20-P1, S20-P2, S20-P3)", async ({ page }) => {
+  for (const route of ["/", "/login", "/accounts"]) {
+    const res = await page.request.get(route);
+    expect(res.status()).toBe(route === "/login" ? 200 : 200);
+    const headers = res.headers();
+    expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(headers["x-content-type-options"]).toBe("nosniff");
+    expect(headers["strict-transport-security"]).toBe("max-age=31536000");
+  }
+});
+
+test("static assets ship the security-header set too (S20-P1, S20-P2)", async ({ page }) => {
+  await page.goto("/");
+  // The reference sets the same set on its hashed CSS asset (verified on
+  // /static/index-*.css).
+  const cssHref = await page
+    .locator('link[rel="stylesheet"]')
+    .first()
+    .getAttribute("href");
+  expect(cssHref).toBeTruthy();
+  const res = await page.request.get(cssHref!);
+  expect(res.status()).toBe(200);
+  const headers = res.headers();
+  expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["content-type"]).toContain("text/css");
+});
+
+test("sitemap.xml serves the reference's bare application/xml content-type (S20-P4)", async ({ page }) => {
+  const res = await page.request.get("/sitemap.xml");
+  expect(res.status()).toBe(200);
+  // GET-verified on the reference: bare `application/xml` — no charset
+  // suffix (the s18 "viewport 1 vs 1.0" cosmetic-serialization class).
+  expect(res.headers()["content-type"]).toBe("application/xml");
+});
+
+test("manifest.json + robots.txt keep their reference-matching content-types (regression)", async ({ page }) => {
+  const manifest = await page.request.get("/manifest.json");
+  expect(manifest.status()).toBe(200);
+  expect(manifest.headers()["content-type"]).toBe("application/json");
+  const robots = await page.request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  expect(robots.headers()["content-type"]).toBe("text/plain; charset=utf-8");
+});

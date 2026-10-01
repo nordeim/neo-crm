@@ -39,6 +39,9 @@ export function GET(): Response {
 ${urls}
 </urlset>`;
   return new Response(xml, {
-    headers: { "content-type": "application/xml; charset=utf-8" },
+    // Session-20 (S20-P4): bare `application/xml` — the reference's exact
+    // content-type (GET-verified 2026-10-01; ours had shipped a charset
+    // suffix, the s18 "viewport 1 vs 1.0" cosmetic-serialization class).
+    headers: { "content-type": "application/xml" },
   });
 }

@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-396%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-409%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -44,7 +44,8 @@ first boot.
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, in-place "Forgot password?" reset flow (mirrors the reference's client-side views) |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
 | 🧭 Custom 404 | The reference's designed not-found page — slate-50 center card, divider bar, quoted-pathname message, Go Home pill |
-| 🧪 Tested | 340 Vitest unit checks + 56 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🛡️ Security headers | The reference's edge-injected response-header set on every route — `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security: max-age=31536000` (bare, like the reference; inert over plain-HTTP localhost per RFC 6797, correct behind HTTPS) — declared once in `next.config.ts` `headers()` |
+| 🧪 Tested | 349 Vitest unit checks + 60 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -113,8 +114,8 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 17 Vitest suites (340 checks)
-│   └── 📂 e2e/                       # Playwright (56 checks)
+│   ├── 📄 *.test.ts                  # 18 Vitest suites (349 checks)
+│   └── 📂 e2e/                       # Playwright (60 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
@@ -166,9 +167,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 340 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
+bun run test          # 349 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 56 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 60 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials, the login
@@ -195,7 +196,11 @@ sitemap.xml), the session-19 PWA + per-route metadata layer (the
 installable manifest.json, the #000000 theme-color + the apple/meta
 family, the resolving apple-touch-icon, per-route canonical + OG/Twitter
 on /accounts, the unprefixed root family, the Contact dialog's type=tel
-phone + zero datalists + the exact avatar accept list), and the 7-check
+phone + zero datalists + the exact avatar accept list), the session-20
+HTTP response-header layer (the reference's edge security set —
+Referrer-Policy/X-Content-Type-Options/HSTS on every response incl.
+static assets, plus the sitemap's bare `application/xml` content-type),
+and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,
 body scroll-lock, the resize-past-md lock release, desktop sidebar swap).
