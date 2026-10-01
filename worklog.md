@@ -514,3 +514,15 @@ Stage Summary:
 - Gate green: lint 0/0 · tsc 0 · 475/475 unit (+41) · 79/79 e2e (+6) · build clean; 24 verified screenshots; docs at SKILL v1.22.0
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
 - Next session pointers live in docs/session_43.md: /Reports re-check continues (21 sessions zero); unprobed: the accounts/contacts export column sets (data-gated), the settings danger-zone reset (destructive), the calendar day-cell click contract (needs seeded reference events); the s25 census-method lessons — init-script fetch delays for skeleton windows, createElement/createObjectURL spies for client-side downloads, REAL clicks for Radix tabs, and the Bash-display bracket-eating hazard (verify files via Read, not terminal echoes)
+
+---
+Task ID: 9-push-record
+Agent: main (Super Z)
+Task: Session-25 push record
+
+Work Log:
+- Commit 0cec8c7 (the session-25 work: 33 files, +2136/-203) pushed to main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py with the paramiko shim (/home/z/my-project/bin/ssh; explicit --remote; dry-run clean 43f9ac0..0cec8c7 fast-forward; the real push verified by the wrapper's remote verification + an independent GIT_SSH_COMMAND ls-remote @ 0cec8c7 == local HEAD; the tracking ref synced)
+- This record commit is the second and final push of the session (the established two-commit pattern: the work, then the worklog record)
+
+Stage Summary:
+- Session-25 PUSHED + VERIFIED: all gates green (475 unit / 79 e2e / lint 0/0 / tsc 0 / build); docs at SKILL v1.22.0; 24 screenshots; deploy keys shredded after each push
