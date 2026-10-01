@@ -770,3 +770,132 @@ test("sitemap.xml serves the nine real routes (S18-P4)", async ({ page }) => {
   // actually serves.
   expect(xml).not.toContain("/Accounts");
 });
+
+// ---------------------------------------------------------------------------
+// Session-19: the PWA/installable + per-route metadata layer (S19-P1..P8).
+// The reference ships a web app manifest, the #000000 theme-color, the
+// apple/mobile-web-app meta family + apple-touch-icon, PER-ROUTE
+// canonical/OG/Twitter (og:title "X | NEO CRM", og:url origin+route,
+// og:description "<Page> on NEO CRM. " + the 405-char paragraph), a
+// type=tel Contact phone field, zero datalists, and the specific avatar
+// accept list — all probed live on 2026-10-01.
+// ---------------------------------------------------------------------------
+
+test("manifest.json serves the reference's installable manifest (S19-P1)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('link[rel="manifest"]')).toHaveCount(1);
+  const res = await page.request.get("/manifest.json");
+  expect(res.status()).toBe(200);
+  const manifest = (await res.json()) as Record<string, unknown>;
+  expect(manifest.name).toBe("NEO CRM");
+  expect(manifest.short_name).toBe("NEO CRM");
+  expect(manifest.display).toBe("standalone");
+  expect(manifest.theme_color).toBe("#000000");
+  expect(manifest.background_color).toBe("#ffffff");
+  const icons = manifest.icons as Array<{ src: string; sizes: string }>;
+  expect(icons).toHaveLength(2);
+  expect(icons.map((i) => i.sizes).sort()).toEqual(["192x192", "512x512"]);
+  // The reference's same-src quirk, self-hosted as our app icon.
+  expect(icons[0].src).toBe(icons[1].src);
+  expect(icons[0].src).toContain("/icon.png");
+});
+
+test("the head ships the reference's #000000 theme-color + PWA metas (S19-P2, S19-P3)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
+    "content",
+    "#000000",
+  );
+  await expect(
+    page.locator('meta[name="mobile-web-app-capable"]'),
+  ).toHaveAttribute("content", "yes");
+  await expect(
+    page.locator('meta[name="apple-mobile-web-app-status-bar-style"]'),
+  ).toHaveAttribute("content", "black");
+  await expect(
+    page.locator('meta[name="apple-mobile-web-app-title"]'),
+  ).toHaveAttribute("content", "NEO CRM");
+});
+
+test("the apple-touch-icon link resolves to a real asset (S19-P3)", async ({ page }) => {
+  await page.goto("/");
+  const apple = page.locator('link[rel="apple-touch-icon"]');
+  await expect(apple).toHaveCount(1);
+  const href = await apple.getAttribute("href");
+  expect(href).toBeTruthy();
+  const res = await page.request.get(href!);
+  expect(res.status()).toBe(200);
+  expect(res.headers()["content-type"]).toContain("image/png");
+});
+
+test("inner pages ship PER-ROUTE canonical + OG/Twitter (S19-P4, S19-P5)", async ({ page }) => {
+  await page.goto("/accounts");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    "Accounts | NEO CRM",
+  );
+  const ogUrl = await page
+    .locator('meta[property="og:url"]')
+    .getAttribute("content");
+  expect(ogUrl).toMatch(/\/accounts$/);
+  const ogDesc = await page
+    .locator('meta[property="og:description"]')
+    .getAttribute("content");
+  expect(ogDesc?.startsWith("Accounts on NEO CRM. ")).toBe(true);
+  expect(ogDesc).toContain("customer relationship management platform");
+  const twitterUrl = await page
+    .locator('meta[name="twitter:url"]')
+    .getAttribute("content");
+  expect(twitterUrl).toMatch(/\/accounts$/);
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+    "content",
+    "Accounts | NEO CRM",
+  );
+  const canonical = await page
+    .locator('link[rel="canonical"]')
+    .getAttribute("href");
+  expect(canonical).toMatch(/\/accounts$/);
+});
+
+test("the dashboard keeps the unprefixed root metadata family (S19-P4)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    "NEO CRM",
+  );
+  const ogDesc = await page
+    .locator('meta[property="og:description"]')
+    .getAttribute("content");
+  expect(ogDesc?.startsWith("NEO CRM is a clean")).toBe(true);
+  // Next's URL resolution strips the root's trailing slash (the
+  // reference's canonical is origin/ WITH the slash — verified live that
+  // Next emits the slashless form either way; the s18 "viewport 1 vs
+  // 1.0" cosmetic-serialization class, documented in AGENTS).
+  const canonical = await page
+    .locator('link[rel="canonical"]')
+    .getAttribute("href");
+  expect(canonical).toMatch(/^http:\/\/localhost:3000\/?$/);
+  const twitterUrl = await page
+    .locator('meta[name="twitter:url"]')
+    .getAttribute("content");
+  expect(twitterUrl).toMatch(/^http:\/\/localhost:3000\/?$/);
+});
+
+test("the New Contact dialog types Phone as tel with no datalists (S19-P6, S19-P7, S19-P8)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "New Contact" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+
+  // The reference's Contact Phone is type=tel (its Lead dialog Phone is
+  // plain text — its own inconsistency, mirrored).
+  expect(await dialog.getByLabel("Phone").getAttribute("type")).toBe("tel");
+  // Zero datalist suggestions anywhere in the dialog.
+  expect(await dialog.locator("datalist").count()).toBe(0);
+  expect(await dialog.locator("input[list]").count()).toBe(0);
+  // The avatar file input accepts exactly the reference's MIME list.
+  const accept = await dialog
+    .locator('input[type="file"]')
+    .getAttribute("accept");
+  expect(accept).toBe("image/jpeg,image/png,image/jpg");
+});

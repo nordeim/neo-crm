@@ -166,7 +166,9 @@ function AccountForm({
     }
   }
 
-  const industries = settings?.industries ?? ["Technology", "Manufacturing", "Retail", "Finance"];
+  // Session-19 (S19-P7): the industries list fed the scaffold-era
+  // datalist on the Industry input — the reference ships no datalist, so
+  // both are gone (settings stays: it drives the default-tier fallback).
 
   // Session-5: the reference's CREATE dialog ships exactly eight fields
   // (Account Name*/Industry/Email/Phone/Website/Annual Revenue/Employees/
@@ -192,18 +194,16 @@ function AccountForm({
         </div>
         <div className={DIALOG_GROUP.group}>
           <Label htmlFor="acc-industry">Industry</Label>
+          {/* Session-19 (S19-P7): the reference ships ZERO datalist
+              suggestion elements in any create dialog (attribute + element
+              counts probed live) — the scaffold-era industry dropdown is
+              removed for parity. */}
           <Input
             id="acc-industry"
             className={DIALOG_GROUP.controlMt}
-            list="industry-options"
             value={form.industry}
             onChange={(e) => setForm({ ...form, industry: e.target.value })}
           />
-          <datalist id="industry-options">
-            {industries.map((i) => (
-              <option key={i} value={i} />
-            ))}
-          </datalist>
         </div>
         {createMode ? (
           <>
@@ -420,7 +420,7 @@ function ContactForm({
   onOpenChange: (open: boolean) => void;
   onSaved?: (contact: Contact) => void;
 }) {
-  const { createContact, updateContact, accounts, settings } = useCrmStore();
+  const { createContact, updateContact, settings } = useCrmStore();
   const [pending, setPending] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
     name: contact?.name ?? "",
@@ -455,7 +455,7 @@ function ContactForm({
 
   // Session-5: the reference's CREATE dialog = Name*/Email* (required)/
   // Phone/Company/Position/"How did you meet?" (the five emoji sources) —
-  // no Priority. EDIT keeps our full superset (Priority + account datalist).
+  // no Priority. EDIT keeps our full superset (Priority).
   // Session-15 (S15-P11): the body is the reference's `grid gap-6 py-4`
   // with the AVATAR SECTION first (a centered gradient circle + camera
   // button + hidden file input, with the Name field INSIDE the section),
@@ -490,8 +490,10 @@ function ContactForm({
             </button>
             {/* Visual parity input — the reference's upload behavior is
                 unverifiable at zero data; the picker opens, the file is
-                not processed (the dead-exports precedent). */}
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" tabIndex={-1} onChange={() => undefined} />
+                not processed (the dead-exports precedent). Session-19
+                (S19-P8): the reference's accept list is the explicit
+                MIME trio, not image/*. */}
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" tabIndex={-1} onChange={() => undefined} />
           </div>
           <div className={CONTACT_AVATAR.nameGroup}>
             <Label htmlFor="ct-name">Name *</Label>
@@ -518,9 +520,14 @@ function ContactForm({
           </div>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-phone">Phone</Label>
+            {/* Session-19 (S19-P6): the reference's CONTACT dialog Phone is
+                type=tel (live input census) while its LEAD dialog Phone is
+                plain text — its own inconsistency, mirrored exactly: only
+                the contact field gets tel. */}
             <Input
               id="ct-phone"
               className={DIALOG_GROUP.controlMt}
+              type="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
@@ -529,18 +536,14 @@ function ContactForm({
         <div className={CONTACT_DIALOG.pairGroup}>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-company">Company</Label>
+            {/* Session-19 (S19-P7): the reference ships no datalist here
+                either — the account-name suggestion dropdown is removed. */}
             <Input
               id="ct-company"
               className={DIALOG_GROUP.controlMt}
-              list="account-options"
               value={form.company}
               onChange={(e) => setForm({ ...form, company: e.target.value })}
             />
-            <datalist id="account-options">
-              {accounts.map((a) => (
-                <option key={a.id} value={a.name} />
-              ))}
-            </datalist>
           </div>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-position">Position</Label>

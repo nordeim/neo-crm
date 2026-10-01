@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (326 checks)         | `bun run test`                         |
-| Browser E2E (50 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (340 checks)         | `bun run test`                         |
+| Browser E2E (56 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (326) → `bun run build` → `bun run test:e2e` (50). There is no
+`bun run test` (340) → `bun run build` → `bun run test:e2e` (56). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -399,8 +399,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 326 Vitest checks across
-  15 suites (session-13 added `tests/page-titles.test.ts` for the auth
+  sessions 6–8 + session-10's stock-primitive pins) — 340 Vitest checks across
+  17 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
   `/Profile` casing alias; session-15 added the 18-check DIALOG_FAMILY layer
@@ -705,6 +705,48 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the period combobox and pin the date-independent "7 $687.0K". NEVER
   hardcode a period-relative KPI value in a test — derive it or pin an
   all-time/structural value.
+- **The PWA + per-route metadata layer is the site seam's second act
+  (session-19)** — the reference's install surface + per-route head were
+  live-verified on all 10 routes: it ships `/manifest.json` +
+  `<link rel=manifest>` (name/short_name "NEO CRM", the 405-char
+  description, TWO icon entries sharing ONE src at 192x192 + 512x512,
+  start_url/scope at the origin, standalone, theme `#000000`, bg
+  `#ffffff` — served as `application/json`, key order mirrored via an
+  explicit `force-static` route handler at `src/app/manifest.json/route.ts`
+  because `app/manifest.ts` would re-order the keys); `meta
+  name=theme-color` is **#000000** (not the app blue — ours had shipped
+  #2563eb since the scaffold); `mobile-web-app-capable` +
+  `apple-mobile-web-app-status-bar-style` (black) +
+  `apple-mobile-web-app-title` ("NEO CRM") ride `metadata.other` as
+  `PWA_META` (Next has no first-class fields); and PER-ROUTE canonical +
+  OG/Twitter on every inner page — og:title "X | NEO CRM", og:url
+  origin+route, og:description `"<Page> on NEO CRM. " + SITE_DESCRIPTION`,
+  twitter:title/url/description likewise, `<link rel=canonical>` per
+  route (root + /login stay unprefixed). All of it is built by the
+  `pageMetadata({ page, route, title? })` factory in `src/lib/site.ts`
+  (the 8 inner wrappers + login + signup consume it; the dashboard
+  inherits the root layout). THREE serializer hazards gate-caught: (a)
+  **declaring `metadata.icons` REPLACES the file-convention
+  `link[rel=icon]`** — the s18 favicon test failed the moment `icons:
+  { apple }` appeared, so BOTH icons ship as file conventions
+  (`src/app/icon.png` + `src/app/apple-icon.png`, the 180×180 BrandMark
+  tile) and the layout declares NO icons field; (b) page-level
+  `metadata.other` REPLACES the layout's map (shallow merge) — the
+  factory re-declares PWA_META + twitter:url per page or the inner pages
+  would lose the PWA metas; (c) Next's URL resolution strips the root
+  canonical's trailing slash (the reference's is `origin/` — the
+  slashless form is the s18 "viewport 1 vs 1.0" cosmetic-serialization
+  class, documented, accepted). The reference's per-route OG image is its
+  CDN transform URL — static across routes, so `/og-image.png` ships
+  everywhere. Dialog micro-contracts (same session): the CONTACT dialog's
+  Phone is `type="tel"` while the LEAD dialog's stays plain text (the
+  reference's own inconsistency, mirrored exactly); ZERO datalists
+  anywhere (the scaffold-era industry/account suggestion dropdowns are
+  removed — the reference ships none); the avatar file input accepts
+  exactly `image/jpeg,image/png,image/jpg` (not `image/*`). Our login's
+  `autoComplete` attrs (email/current-password/new-password/name) are the
+  deliberate accessible superset — password managers; the reference ships
+  none.
 
 ## Conventions that differ from defaults
 

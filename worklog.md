@@ -367,3 +367,21 @@ Work Log:
 
 Stage Summary:
 - PUSHED: session-18 commit fe78bd5 on main -> git@github.com:nordeim/neo-crm.git via docs/ssh_git_wrapper_v3.py (explicit --remote; dry-run clean d67a237..fe78bd5 fast-forward, then real push with the wrapper's remote verification + an independent GIT_SSH_COMMAND ls-remote check @ fe78bd5 == local HEAD); all suites green (326 unit / 50 e2e); docs at SKILL v1.15.0; deploy key shredded after verification
+
+---
+Task ID: 20 (repo)
+Agent: main (Super Z)
+Task: Session 19 — the PWA/installable + per-route metadata layer (manifest/theme-color/apple family/per-route OG+canonical) + the dialog input micro-contracts
+
+Work Log:
+- Pulled to 58b82e4 (docs/session_30.md = the session-18 transcript, the ONLY change — zero app-code drift since fe78bd5, so every s18 pinned family held by construction); full docs + codebase review; baseline gate green (326/326 unit); env verified (.env file:../db/custom.db + db/ at root + .env.example + vitest/playwright configs)
+- Mobile navigation verified three ways FIRST: reference at 390 still ships NO nav (15th session), our 7-check drawer regression LIVE 7/7 PASS (trigger 36×36 at 16,16; links + locks + focus entry; Escape + real-click focus restore; focus-trap wrap BOTH directions — a probe "failure" was the overlay, unreachable in natural keyboard flow; resize auto-close + lock release; route-change close), drawer v4-hazard sweep healthy; zero 390px overflow on 11 routes; s18 metadata census re-probed NO drift; demo data still zero (15th session, 4/4 loads)
+- NEW audit layer — the PWA/INSTALLABLE + PER-ROUTE metadata surface (never swept in 18 sessions) + the create-dialog input attribute census: EIGHT findings — no manifest.json+link (the reference serves the full installable manifest: standalone, #000000 theme, same-src 192+512 icons, scope at origin), theme-color #000000 vs our #2563eb (an s18 mis-read), the missing mobile-web-app-capable/apple-meta family + apple-touch-icon 180x180, the PER-ROUTE canonical/OG/Twitter family (og:title "X | NEO CRM", og:url origin+route, og:description "<Page> on NEO CRM. " + the 405-char paragraph, twitter likewise — live-probed on all 10 reference routes; root+login unprefixed), no canonical link, the Contact Phone type=tel drift (Lead stays text on both — the reference's own split), our two invented datalists, the avatar accept list
+- TDD: 14 red-first checks (tests/pwa-metadata.test.ts, dynamic seam imports) -> 340/340 unit (+14, 17 suites); +6 e2e -> 56/56 (mobile-nav 7/7)
+- Gate-caught corrections: (a) declaring metadata.icons REPLACES the file-convention link[rel=icon] — the s18 favicon e2e caught it; both icons now ship as file conventions (src/app/apple-icon.png 180x180 + src/app/icon.png), the layout declares NO icons field; (b) Next's URL resolution strips the root canonical's trailing slash (even the absolute form emits slashless) — test pins the slashless form, nuance documented; (c) one New Event dialog e2e flake under parallel load, clean on re-run; three source-pin regexes re-scoped off the session's own doc comments
+- Live serializer verification BEFORE the build (curl SSR probes): manifest link+bytes, theme-color, apple-touch-icon sizes 180x180, per-route canonical/og/twitter on all 10 routes, PWA metas surviving page-level other-replacement, s13 absolute titles intact; Contact dialog live-verified (tel + accept + zero datalists)
+- Full gate green: lint 0/0, tsc, 340/340 unit, build (manifest.json + apple-icon.png in the standalone manifest), 56/56 e2e; 20 screenshots re-captured with per-shot verification (zero duplicates); docs realigned (README 396 badge + PWA row + env table, AGENTS + session-19 contract block, CLAUDE, PAD matrix 340/56 + §7.2 + §7.4, SKILL v1.16.0 §16k, docs/session_31.md, plan addendum, worklogs)
+
+Stage Summary:
+- Gate green: lint 0/0 · tsc · 340/340 unit · 56/56 e2e (mobile-nav 7/7); zero 390px overflow; 20 verified screenshots; docs at SKILL v1.16.0
+- Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)

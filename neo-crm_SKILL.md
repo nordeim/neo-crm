@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.15.0
-last_updated: 2026-09-30
-project_state: 326 unit checks + 50 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
+version: 1.16.0
+last_updated: 2026-10-01
+project_state: 340 unit checks + 56 e2e checks green; database pinned to <repo>/db/custom.db; chart palette + dialog vocabularies + layout/chrome contracts + view-switcher/leads-popover/mobile-nav-breakpoint/login-reset/chart-geometry/stat-shadow/table-shadow/contacts-layout/page-titles/charts-contracts/profile-route contracts DOM-pinned by tests (constants.test.ts, page-layout.test.ts, lead-filters.test.ts, login-reset.test.ts, page-titles.test.ts, charts-contracts.test.ts, profile-route.test.ts); table density + card typography + dialog contract + the full layout system + the app chrome (session-7) + the functional control layer (view switchers, filters popover, quick-log buttons — session-8) + the component-anatomy layer (session-9) + the stock-primitive layer (session-10: input/select/textarea stock internals, ink/placeholder tokens, the global cursor rule, the topbar search on the shared Input, the blur-scale re-pin) + chart internals (recharts defaults everywhere, the REAL chart at zero data — ChartEmpty retired, the leads-page FunnelChart, the 8-slug reports pipeline, row-derived vs fixed series split) + the reports tabs 2-4 re-mirror + per-page titles + the login card's in-place reset-password flow (signin→reset→sent, session-11) + per-surface chart geometry (300/250/150 + stock legends) + stat-card shadow scales + the reports bare-tabs layout + the contacts full-height architecture (session-11) + the border-color split (#e5e5e5 default / #e5e7eb explicit family) + stock Radix tab strips + the recharts monotone sparklines + the custom 404 + the KPI de-hover (the reference moved) + the drawer focus-entry retry (session-12) + the auth absolute titles + the explicit dashed grids (strokeDasharray "3 3" — recharts default is SOLID, the s10 pin was a misread) + the reports funnel as a horizontal BarChart + the rounded-md button radius + the per-page CardTitle map + the #0a0a0a foreground + the 16px base font + the stock Label/DialogTitle + the stock DropdownMenu account menu + the profile page neutral family + the complete by-type card + the bordered calendar cells + the avg-cycle delta removal (session-13) + the settings Defaults/Data tab structures + the /Profile casing alias + the line-soft #f5f5f5 re-pin + the v4 space-y inline-label no-op fix (session-14) + the entity-dialog geometry layer (session-15: stock shadcn dialog chrome — w-full/sm:rounded-lg/shadow-lg/slide animations, the bg-black/80 no-blur overlay, centered-mobile headers, the opacity close X, no descriptions, no placeholders; two body families — the max-w-lg py-4 space-y-2+controlMt dialogs with Lead Status/Source 2-col, the 2-col Account body, the Contact gradient-avatar section; the max-w-2xl Event/Activity space-y-4 bare-pair family with pt-4 footers; the Event blue submit expressed via the --primary tokens because v4's literal bg-blue-600 compiles to a DIFFERENT oklch blue) + the responsive page-root layer (session-16: PAGE_ROOT standard/bare, the stock table kit + the th/td platform reset, the TABLE_CARD plain-div border-leak rule, the md settings grid, the flat calendar card) + the stock button/checkbox layer (session-17: the account trigger as the stock ghost Button with the two-level Avatar, the icon-glyph census — 14 swapped surfaces + the hand-rolled polygon FilterPolygon because lucide 0.525 re-exports the curved Funnel as Filter, the stock Radix-style button checkbox with the dark #171717 checked fill, the default variant's bare shadow, the ghost's no-text-color) + the document metadata layer (session-18: the reference's 405-char meta description mirrored verbatim as SITE_DESCRIPTION in src/lib/site.ts, the full OG + Twitter card family with the 1200x630 og-image, the file-convention favicon, robots.txt + sitemap.xml as byte-format route handlers because Next's serializers drift — User-Agent case + priority number collapse — and the quarter-boundary time-bomb fix in the reports e2e) + the PWA/installable + per-route metadata layer (session-19: the manifest.json byte-format route handler, the #000000 theme-color, the apple-touch-icon file convention, the PWA_META family riding metadata.other, the pageMetadata() per-route canonical/OG/Twitter factory with the "<Page> on NEO CRM." description prefix, the metadata.icons-replaces-file-convention hazard, and the dialog input micro-contracts — Contact Phone type=tel, zero datalists, the exact avatar accept list) aligned to the live reference; the build script's static-copy step (bare `next build` leaves the standalone server chunkless) documented
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.15.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.16.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -1121,6 +1121,76 @@ the live reference on 2026-10-01:
    the #2563eb rounded tile. `public/og-image.png` is a 1200x630 LIVE
    capture of the authenticated dashboard (the self-hosted expression
    of the reference's screenshot card — never point at their CDN URLs).
+
+## 16k. Session-19 Layer (the PWA/installable surface, the per-route OG/Twitter family, the icons-replacement hazard)
+
+**What shipped:** the first sweep of the PWA/INSTALLABLE + PER-ROUTE
+metadata surface — the install/head layer never probed in eighteen prior
+sessions (manifest.json, the apple/mobile-web-app meta family, the
+theme-color VALUE, the apple-touch-icon, per-route canonical/OG/Twitter)
+plus the create-dialog input attribute micro-contracts. All findings
+DOM/HTTP-verified on the live reference on 2026-10-01:
+
+1. **The findings (S19-P1..P8).** The reference serves `/manifest.json` +
+   `<link rel=manifest>` (name/short_name "NEO CRM", the 405-char
+   description, TWO icon entries sharing ONE src at 192x192/512x512,
+   start_url + scope at the origin, `display: standalone`,
+   `theme_color: #000000`, `background_color: #ffffff`, served as
+   `application/json`); its `meta[name=theme-color]` is **#000000**
+   (black — not the app blue; ours had shipped #2563eb since the
+   scaffold); it ships `mobile-web-app-capable` = yes +
+   `apple-mobile-web-app-status-bar-style` = black +
+   `apple-mobile-web-app-title` = "NEO CRM" + an `apple-touch-icon`
+   (sizes 180x180, its login page at least); and its OG/Twitter family
+   is **PER-ROUTE on every inner page** — og:title "X | NEO CRM",
+   og:url origin+route, og:description `"<Page> on NEO CRM. " + <the
+   405-char paragraph>`, twitter:title/url/description likewise, plus a
+   per-route `<link rel=canonical>` (root + /login stay unprefixed).
+   Dialog micro-contracts: the CONTACT dialog Phone is `type=tel` (its
+   LEAD dialog Phone is plain text — its own inconsistency); ZERO
+   datalists in any dialog; the avatar file input accepts exactly
+   `image/jpeg,image/png,image/jpg`.
+
+2. **The implementation.** `src/app/manifest.json/route.ts` — a
+   `force-static` route handler building the manifest object in the
+   reference's exact key order (JSON.stringify preserves insertion
+   order; `app/manifest.ts` would re-order — the s18 robots/sitemap
+   rule extended). `src/lib/site.ts` grew the per-route factory:
+   `pageOgDescription(page)`, `PWA_META` (the three metas riding
+   `metadata.other`), and `pageMetadata({ page, route, title? })` —
+   consumed by the 8 inner page wrappers + login + signup (the
+   dashboard inherits the root layout wholesale; its og:url IS the
+   origin root, which is exactly the reference's unprefixed family).
+   `src/app/apple-icon.png` (180×180 BrandMark tile) rides the file
+   convention; the root layout's `viewport.themeColor` flipped to
+   "#000000"; `alternates.canonical: "/"` covers the root.
+
+3. **THREE serializer hazards, all gate-caught.** (a) **Declaring
+   `metadata.icons` REPLACES the file-convention `link[rel=icon]`** —
+   the first pass declared `icons: { apple: ... }` and the s18 favicon
+   e2e failed with zero `link[rel=icon]` in the DOM; the fix ships BOTH
+   icons as file conventions (`src/app/icon.png` +
+   `src/app/apple-icon.png`, which Next emits with sizes="180x180") and
+   the layout declares NO icons field. (b) **Page-level
+   `metadata.other` REPLACES the layout's map** (shallow merge) — an
+   inner page declaring only twitter:url would silently drop the PWA
+   metas, so `pageMetadata()` re-declares PWA_META + twitter:url on
+   every page. (c) **Next's URL resolution strips the root canonical's
+   trailing slash** (the reference's is `origin/`; even passing
+   `${siteUrl()}/` emits the slashless href — verified live) — accepted
+   as cosmetic serialization, the s18 "viewport 1 vs 1.0" class.
+
+4. **The verification method (reuse for any metadata work).** Probe the
+   SSR bytes directly (`curl -s localhost:3000/<route> | grep -o
+   '<link rel=...>'`) — the dev server reflects metadata edits via
+   hot reload within seconds, so serializer drift is caught BEFORE
+   burning a build+e2e cycle. The full-suite pins:
+   `tests/pwa-metadata.test.ts` (14 checks — the manifest byte pins,
+   the theme-color/PWA_META/apple-icon assets, the factory output, the
+   wrapper wiring, the dialog micro-contracts) + 6 e2e checks in
+   `crm.spec.ts` (the manifest JSON + link, the theme-color + metas,
+   the resolving apple-touch-icon, per-route /accounts, the root
+   family, the Contact dialog tel/datalist/accept census).
 
 ## 17. Responsive Breakpoint Reference
 

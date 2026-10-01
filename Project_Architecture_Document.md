@@ -670,11 +670,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — charts-contracts (dashed grid + funnel type — session-13) | 1 | 4 | `tests/charts-contracts.test.ts` | Vitest |
 | Unit — profile-route (the /Profile casing alias — session-14) | 1 | 4 | `tests/profile-route.test.ts` | Vitest |
 | Unit — metadata (the siteUrl seam + SITE_DESCRIPTION + OG/Twitter/icon/sitemap/robots pins — session-18) | 1 | 14 | `tests/metadata.test.ts` | Vitest |
+| Unit — pwa-metadata (the manifest route-handler bytes + theme-color/PWA_META + the apple-icon convention + the pageMetadata() per-route factory + the dialog micro-contracts — session-19) | 1 | 14 | `tests/pwa-metadata.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow) | 1 | 5 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer — sessions 10–18) | 1 | 37 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer — sessions 10–19) | 1 | 43 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **20** | **326 unit + 50 e2e** | | |
+| **Total** | **21** | **340 unit + 56 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -898,6 +899,23 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
   `app/sitemap.ts`) because Next's serializers drift from the reference's
   bytes: `User-Agent` (capital A) vs the reference's `User-agent`, and
   priority 1.0 serialized as `1`. Pinned by `tests/metadata.test.ts`.
+- **The PWA/per-route metadata layer (session-19)** — the same
+  byte-format rule extends to `/manifest.json` (`src/app/
+  manifest.json/route.ts`, key order mirrored; `app/manifest.ts` would
+  re-order) and to THREE new serializer hazards: `metadata.icons`
+  REPLACES the file-convention `link[rel=icon]` (both icons ship as file
+  conventions — `src/app/icon.png` + `src/app/apple-icon.png`);
+  page-level `metadata.other` REPLACES the layout's map (the
+  `pageMetadata()` factory re-declares PWA_META + twitter:url per page);
+  and Next's URL resolution strips the root canonical's trailing slash
+  (accepted as cosmetic serialization). Per-route OG/Twitter + canonical
+  are built by the `pageMetadata({ page, route, title? })` factory in
+  `src/lib/site.ts` — the reference prefixes every inner page's og
+  description with `"<Page> on NEO CRM. "` (live-verified on all 10
+  routes). Dialog micro-contracts: Contact Phone `type=tel` (Lead stays
+  text — the reference's own split), zero datalists, avatar accept
+  `image/jpeg,image/png,image/jpg`. Pinned by
+  `tests/pwa-metadata.test.ts`.
 
 ### 7.3 Coverage Thresholds
 
@@ -910,9 +928,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 326/326
+- [ ] `bun run test` — 340/340
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 50/50
+- [ ] `bun run test:e2e` — 56/56
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] No new `console.log`, no `window.location.href` outside `download.ts`
 - [ ] `git status` clean of `.env`, keys, `db/*.db`

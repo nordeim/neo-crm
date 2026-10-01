@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-376%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-396%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -38,12 +38,13 @@ first boot.
 | ⚙️ Settings | Editable picklists (sources, stages, types, tiers, industries) with instant save in a md-breaking 2-col grid, single-column workspace defaults, import templates + data export, and the tinted danger-zone reset (type RESET to confirm) |
 | 🔍 Global search | Debounced "Search Anything" across accounts, contacts and leads |
 | 📄 Document metadata | The reference's full `<head>` surface — its 405-char meta description, the complete OpenGraph + Twitter card family (1200×630 social card), a brand favicon, `/robots.txt` and a nine-route `/sitemap.xml` served in the reference's byte format (all derived from `NEXT_PUBLIC_SITE_URL` via `src/lib/site.ts`) |
+| 📲 PWA / installable | The reference's install surface — `/manifest.json` (standalone display, #000000 theme, same-src 192+512 icons) + the `apple-touch-icon` + the `mobile-web-app-capable`/`apple-*` meta family, plus PER-ROUTE canonical + OG/Twitter on every page (og:title "X \| NEO CRM", the "X on NEO CRM." description prefix — all built by the `pageMetadata()` factory in `src/lib/site.ts`) |
 | 📱 Mobile navigation | Focus-trapped slide-out drawer with scroll lock, Escape, close-on-navigate, retry-guarded focus entry (transition-visibility race fixed) — the fix the reference app never shipped |
 | ☑️ Stock checkboxes | The reference's Radix-style button checkboxes on every filter rail (`role=checkbox` + `data-state` + Check indicator, the dark #171717 checked fill — was a native input) |
 | 🔐 Auth | scrypt password hashing + HMAC-signed cookie sessions, rate-limited login, in-place "Forgot password?" reset flow (mirrors the reference's client-side views) |
 | 👤 Profile | Personal Information form (editable Full Name) + account summary card — mirrors the reference |
 | 🧭 Custom 404 | The reference's designed not-found page — slate-50 center card, divider bar, quoted-pathname message, Go Home pill |
-| 🧪 Tested | 326 Vitest unit checks + 50 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 340 Vitest unit checks + 56 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -112,12 +113,17 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 8 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 16 Vitest suites (326 checks)
-│   └── 📂 e2e/                       # Playwright (50 checks)
+│   ├── 📄 *.test.ts                  # 17 Vitest suites (340 checks)
+│   └── 📂 e2e/                       # Playwright (56 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
 ```
+
+Also under `src/app/`: the metadata-asset file conventions — `icon.png`
+(512×512 favicon) + `apple-icon.png` (180×180 touch icon) — plus the
+`manifest.json/`, `robots.txt/` and `sitemap.xml/` route handlers that
+serve the reference's byte formats.
 
 ## Quick Start
 
@@ -155,14 +161,14 @@ bun run dev            # → http://localhost:3000
 | -------- | -------- | ------- | ------- |
 | `DATABASE_URL` | Yes | SQLite URL, resolved relative to `prisma/schema.prisma` | `file:../db/custom.db` |
 | `AUTH_SECRET` | Prod | HMAC secret for session cookies (≥16 chars) | insecure dev constant |
-| `NEXT_PUBLIC_SITE_URL` | No | Canonical origin for metadata, `robots.txt`, `sitemap.xml` and the OG/Twitter cards (consumed via `src/lib/site.ts`; inlined at build time) | `http://localhost:3000` |
+| `NEXT_PUBLIC_SITE_URL` | No | Canonical origin for metadata, `robots.txt`, `sitemap.xml`, `manifest.json` and the per-route OG/Twitter/canonical family (consumed via `src/lib/site.ts`; inlined at build time) | `http://localhost:3000` |
 
 ## Testing
 
 ```bash
-bun run test          # 326 Vitest unit checks (auth, avatar, constants, db-path, metadata, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
+bun run test          # 340 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 50 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 56 Playwright checks on :3100 with its own db/e2e.db
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials, the login
@@ -185,7 +191,11 @@ accounts tier filters' stock button checkboxes with the dark #171717
 checked fill, the blue primaries' bare shadow scale), the session-18
 document-metadata layer (the reference's meta description, the OG/Twitter
 card family, the favicon link, robots.txt's Sitemap line, the nine-route
-sitemap.xml), and the 7-check
+sitemap.xml), the session-19 PWA + per-route metadata layer (the
+installable manifest.json, the #000000 theme-color + the apple/meta
+family, the resolving apple-touch-icon, per-route canonical + OG/Twitter
+on /accounts, the unprefixed root family, the Contact dialog's type=tel
+phone + zero datalists + the exact avatar accept list), and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,
 body scroll-lock, the resize-past-md lock release, desktop sidebar swap).
