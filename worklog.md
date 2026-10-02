@@ -805,3 +805,18 @@ Work Log:
 Stage Summary:
 - Session 34 COMPLETE: gate green (lint 0/0 · tsc 0 · 802/802 unit · 106/106 e2e); 4 screenshots; docs at SKILL v1.31.0; the production start (`bun run start` from the repo root) opens <repo>/db/custom.db again — the standalone-launch bun-absolutization recognized + re-anchored, RED-first pinned (3 checks), live-verified at all three levels
 - Ready: commit on main + the SSH-wrapper push; next pointers: the base44-only AI extraction (documented divergence — no action possible), the Opportunity create/edit UI (absent on BOTH sides — read-only entity, mirrored), the standing drift re-sweep (the reference bundle-stable five consecutive sessions)
+
+---
+Task ID: 34-push (repo)
+Agent: main (Super Z)
+Task: The session-34 push record (the established dual-commit pattern)
+
+Work Log:
+- Gate green before push (rule 2): lint 0/0 · tsc 0 · 802/802 unit (47 suites) · build clean · 106/106 e2e (2.3m single-worker)
+- Commit 2cba6a0 on main (13 files, +233/-25); the paramiko shim verified at /home/z/my-project/bin/ssh; the operator key materialized to /tmp/session34-deploy.key (0600, outside the repo), the same operator deploy key as the session-26..33 records
+- Dry-run clean (fast-forward bee7211..2cba6a0, remote untouched) — gate-caught: the wrapper's DEFAULT_REMOTE is a stale task-management.git (inherited from another project); the --remote flag MUST be passed explicitly, and the first dry-run without it was rejected non-fast-forward against the WRONG repo (no damage — dry-run + the wrapper never touched neo-crm until the explicit flag)
+- Real push via docs/ssh_git_wrapper_v3.py --remote git@github.com:nordeim/neo-crm.git
+- PUSH VERIFIED: remote refs/heads/main @ 2cba6a0 == local HEAD; tracking ref synced by the wrapper; independently re-verified via GIT_SSH_COMMAND ls-remote (2cba6a00eb65b1f130375fedde38c4a183de243a); the operator key shredded (random overwrite + remove) after both verifications — no /tmp key residue
+
+Stage Summary:
+- Session 34 pushed to main; this record rides the second and final commit of the session
