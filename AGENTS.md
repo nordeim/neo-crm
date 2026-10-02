@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (697 checks)         | `bun run test`                         |
-| Browser E2E (104 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (741 checks)         | `bun run test`                         |
+| Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (697) → `bun run build` → `bun run test:e2e` (104). There is no
+`bun run test` (741) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1214,6 +1214,48 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   The filter matching: search = name OR email OR company; status/source =
   strict equality; a min value passes only TRUTHY lead values (the
   reference's own `X.value &&` quirk — zero-value leads never pass).
+- **The photo-upload layer (session-30, the s51 pointer CLOSED)** — the
+  reference's four `UploadFile` call sites (bundle-decoded, two
+  LIVE-exercised) are mirrored by a self-hosted seam: `POST /api/upload`
+  (multipart, session-guarded, `type.startsWith("image/")` enforced
+  server-side, the 5MB ceiling the reference's own hint advertises,
+  stored as `<repo>/uploads/<32-hex>.<ext>` — gitignored like `db/`,
+  returns `{file_url: "/api/uploads/<name>"}`) + `GET /api/uploads/[name]`
+  (public, the stored content-type, the pinned 32-hex charset — no
+  traversal surface, immutable caching). The contact CREATE dialog's
+  photo section (the AAe contract, LIVE-verified end-to-end): the
+  `w-24 h-24 … shadow-lg` gradient circle rendering `img.object-cover`
+  when a photo is set, else the 2-char initials, else the `User` glyph
+  (`w-10 h-10 text-white/80`); the red remove X (`-top-1 -right-1 w-7
+  h-7 bg-red-500 rounded-full` + `X w-4 h-4 text-white`, photo-set only,
+  clears the form value AND the input's `.value`); the camera button
+  (`border-2 border-blue-500`, `disabled` while uploading); the hidden
+  input's explicit MIME trio; the exact alert strings (`Please upload
+  an image file (JPG or PNG)` / `Failed to upload photo. Please try
+  again.`); the `Uploading photo...` hint (`text-xs text-gray-500`);
+  the Name field INSIDE the section (`placeholder="John Doe"` +
+  `text-center font-medium`). The W7 EDIT dialog has NO photo field (a
+  photo cannot be changed post-create on the reference — mirrored) and
+  the Pke slide-over hero is INITIAL-ONLY (our invented img branch
+  retired — the row + mobile cards DO render photos). The PROFILE flow
+  (the aCe contract, LIVE-verified): `accept="image/*"` with NO type
+  alert on this surface (the reference's own inconsistency), TOASTS
+  instead of alerts (`Photo uploaded successfully` / `Failed to upload
+  photo`), the img render on the form avatar + the Account card, the
+  save → `setTimeout(reload, 500)` mechanism, and the TOPBAR avatar
+  (`w-8 h-8`) picking up the photo after the reload. The schema:
+  `User.photoUrl String?` carried through the auth session user, the
+  users GET/PATCH selects (an explicit null clears, an absent key
+  keeps).
+- **The dialog scroll-cap layer (session-30, the drift-re-sweep
+  finding)** — the reference's DialogContent family:
+  `max-h-[90vh] overflow-y-auto` on the contact CREATE dialog, the
+  W7/Mke EDIT family, Log Activity, Event, and Save Custom Report
+  (`DIALOG_CONTENT.wide` now carries the pair); the Account CREATE is
+  the BARE `max-w-2xl` (a real width fix — ours was max-w-lg) and the
+  Lead CREATE is the bare `max-w-lg` — both cap-FREE, the reference's
+  own inconsistency, mirrored. The Account Insights dialog keeps its
+  `max-w-3xl max-h-[80vh]` (s28, unchanged).
 
 ## Conventions that differ from defaults
 

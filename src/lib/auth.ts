@@ -108,6 +108,9 @@ export interface SessionUser {
   email: string;
   name: string;
   avatarColor: string;
+  // Session-30 (S30-P3): carried so the topbar avatar can render the
+  // uploaded photo (the reference's profile_picture).
+  photoUrl: string | null;
   role: string;
 }
 
@@ -124,6 +127,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     email: user.email,
     name: user.name,
     avatarColor: user.avatarColor,
+    photoUrl: user.photoUrl,
     role: user.role,
   };
 }

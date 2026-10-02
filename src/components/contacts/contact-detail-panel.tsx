@@ -79,15 +79,15 @@ export function ContactDetailPanel({
       </div>
       <div className="p-6 space-y-6">
         <div className="text-center pb-6 border-b">
+          {/* Session-30 (S30-P4): the reference's Pke hero is
+              INITIAL-ONLY — no img branch in the bundle (unlike the table
+              row and the mobile cards, which DO render photo_url). Our
+              invented img branch is retired; the w-20 gradient circle
+              always shows the first initial. */}
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            {contact.photoUrl ? (
-               
-              <img src={contact.photoUrl} alt={contact.name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-2xl font-bold text-white">
-                {(contact.name.charAt(0) ?? "").toUpperCase()}
-              </span>
-            )}
+            <span className="text-2xl font-bold text-white">
+              {(contact.name.charAt(0) ?? "").toUpperCase()}
+            </span>
           </div>
           <h3 className="text-2xl font-bold mb-1">{contact.name}</h3>
           <p className="text-gray-600 mb-3">{contact.position || "No position"}</p>

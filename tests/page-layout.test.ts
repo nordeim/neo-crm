@@ -1436,9 +1436,13 @@ describe("session-15: dialog chrome — content, overlay, header, footer, close 
     expect(DIALOG_CONTENT.base).not.toContain("w-[calc(100vw-2rem)]");
   });
 
-  it("the max-w-2xl family (Event + Activity) overrides the width cap", () => {
-    // Reference Event/Activity: max-w-2xl = 672px at 1512.
-    expect(DIALOG_CONTENT.wide).toBe("max-w-2xl");
+  it("the max-w-2xl family (Event + Activity) overrides the width cap + the scroll pair (S30-P6)", () => {
+    // Reference Event/Activity: max-w-2xl = 672px at 1512 — AND the
+    // scroll-cap pair max-h-[90vh] overflow-y-auto (session-30's
+    // bundle extraction: the reference's Edit-family + Log Activity +
+    // Save Custom Report ALL ship it; only the Lead/Account CREATE
+    // dialogs are cap-free — its own inconsistency, mirrored).
+    expect(DIALOG_CONTENT.wide).toBe("max-w-2xl max-h-[90vh] overflow-y-auto");
   });
 
   it("DialogOverlay is the stock black/80 — no backdrop blur (S15-P2)", () => {
@@ -1538,7 +1542,7 @@ describe("session-15: per-dialog bodies (S15-P9..P13)", () => {
     expect(CONTACT_AVATAR.circle).toContain("bg-gradient-to-br from-blue-500 to-blue-700");
     expect(CONTACT_AVATAR.initials).toBe("text-white font-bold text-3xl");
     expect(CONTACT_AVATAR.camera).toContain("w-8 h-8 bg-white rounded-full");
-    expect(CONTACT_AVATAR.cameraIcon).toBe("h-4 w-4 text-blue-600");
+    expect(CONTACT_AVATAR.cameraIcon).toBe("w-4 h-4 text-blue-600");
     expect(CONTACT_AVATAR.nameGroup).toBe("w-full space-y-2");
     // The Email/Phone + Company/Position pairs are space-y-4 groups.
     expect(CONTACT_DIALOG.pairGroup).toBe("space-y-4");
@@ -1581,13 +1585,20 @@ describe("session-15: no description, no invented placeholders (S15-P4/P14)", ()
     expect(src).not.toMatch(/<DialogDescription/);
   });
 
-  it("the create dialogs carry NO placeholder attributes", () => {
-    // `placeholder="` count = 0 across all five reference dialog dumps.
+  it("the create dialogs carry NO placeholder attributes — except the contact Name field's John Doe (S30-P2)", () => {
+    // s15: `placeholder="` count = 0 across all five reference dialog
+    // dumps. Session-30 (S30-P2): the AAe contact Name field DOES carry
+    // placeholder="John Doe" (bundle-extracted + live-verified — the
+    // s15 dump missed it); the pin now allows exactly that one, and
+    // nothing else.
     const src = readFileSync(
       path.resolve(import.meta.dirname, "../src/components/shared/entity-dialogs.tsx"),
       "utf8",
     );
-    expect(src).not.toMatch(/placeholder="/);
+    const placeholders = [...src.matchAll(/placeholder="([^"]*)"/g)].map((m) => m[1]);
+    expect(placeholders, "only the contact Name placeholder is allowed").toEqual([
+      "John Doe",
+    ]);
   });
 });
 

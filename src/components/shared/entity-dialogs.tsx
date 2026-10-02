@@ -8,7 +8,7 @@
 // initializers at mount. No setState-inside-effects, ever.
 
 import * as React from "react";
-import { Camera } from "lucide-react";
+import { Camera, User, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -102,7 +102,10 @@ export function AccountDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      {/* Session-30 (S30-P6): the reference's Create New Account ships
+          the BARE max-w-2xl — no scroll cap (its own inconsistency vs
+          the edit dialogs; mirrored). */}
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{account ? "Edit Account" : "Create New Account"}</DialogTitle>
         </DialogHeader>
@@ -403,7 +406,11 @@ export function ContactDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      {/* Session-30 (S30-P2): the AAe's exact shell — max-w-lg (the
+          base) + the scroll-cap pair max-h-[90vh] overflow-y-auto
+          (bundle-extracted; the tallest create dialog NEEDS it — the
+          footer submit rides below the fold without it). */}
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{contact ? "Edit Contact" : "Create New Contact"}</DialogTitle>
         </DialogHeader>
@@ -426,6 +433,7 @@ function ContactForm({
 }) {
   const { createContact, updateContact, settings } = useCrmStore();
   const [pending, setPending] = React.useState(false);
+  const [uploading, setUploading] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
     name: contact?.name ?? "",
     email: contact?.email ?? "",
@@ -437,6 +445,10 @@ function ContactForm({
     source: contact?.source ?? "email",
     priority: contact?.priority ?? "warm",
     accountId: contact?.accountId ?? "",
+    // Session-30 (S30-P2): the photo round-trip — the reference's AAe
+    // seeds photo_url from initialData (the Scan Card prefill) and
+    // stores the uploaded file_url here until submit.
+    photoUrl: contact?.photoUrl ?? "",
   }));
 
   async function submit(e: React.FormEvent) {
@@ -462,12 +474,14 @@ function ContactForm({
   // Session-5: the reference's CREATE dialog = Name*/Email* (required)/
   // Phone/Company/Position/"How did you meet?" (the five emoji sources) —
   // no Priority. EDIT keeps our full superset (Priority).
-  // Session-15 (S15-P11): the body is the reference's `grid gap-6 py-4`
-  // with the AVATAR SECTION first (a centered gradient circle + camera
-  // button + hidden file input, with the Name field INSIDE the section),
-  // then space-y-4 pair groups (Email+Phone, Company+Position), then the
-  // How-did-you-meet group. The initials render live from the typed name
-  // (the reference's circle is empty at zero input). No placeholders.
+  // Session-15 (S15-P11) → session-30 (S30-P2): the body is the reference's
+  // `grid gap-6 py-4` with the AVATAR SECTION first — now the REAL upload
+  // round-trip (bundle + live-verified): the photo/initials/User render,
+  // the remove X, the disabled-while-uploading camera, the exact alert
+  // strings, the "Uploading photo..." hint, and the Name field INSIDE
+  // the section with the reference's placeholder + centered medium
+  // weight. Then space-y-4 pair groups (Email+Phone, Company+Position),
+  // then the How-did-you-meet group.
   const createMode = !contact;
   const initials = form.name
     .trim()
@@ -478,36 +492,94 @@ function ContactForm({
     .join("")
     .toUpperCase();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // The reference's AAe onChange (bundle-extracted, live-verified): the
+  // image-type check with its exact alert, the upload, the failure
+  // alert — and the photo lands in the form state until submit.
+  async function uploadPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file (JPG or PNG)");
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const body = (await res.json().catch(() => null)) as {
+        ok?: boolean;
+        data?: { file_url?: string };
+      } | null;
+      if (res.ok && body?.ok && body.data?.file_url) {
+        setForm((f) => ({ ...f, photoUrl: body.data!.file_url! }));
+      } else {
+        alert("Failed to upload photo. Please try again.");
+      }
+    } catch (err) {
+      console.error("Failed to upload photo:", err);
+      alert("Failed to upload photo. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  // The reference's remove handler: clears the form value AND resets the
+  // file input's value (so re-picking the SAME file re-fires onChange).
+  function removePhoto() {
+    setForm((f) => ({ ...f, photoUrl: "" }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   return (
     <form onSubmit={submit}>
       <div className={CONTACT_DIALOG.body}>
         <div className={CONTACT_AVATAR.section}>
           <div className={CONTACT_AVATAR.wrapper}>
             <div className={CONTACT_AVATAR.circle}>
-              <span className={CONTACT_AVATAR.initials}>{initials}</span>
+              {form.photoUrl ? (
+                <img src={form.photoUrl} alt={form.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className={CONTACT_AVATAR.initials}>
+                  {initials || <User className="w-10 h-10 text-white/80" />}
+                </span>
+              )}
             </div>
+            {form.photoUrl && (
+              <button
+                type="button"
+                onClick={removePhoto}
+                className="absolute -top-1 -right-1 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center shadow-md hover:bg-red-600 transition-colors"
+                aria-label="Remove photo"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            )}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
               className={CONTACT_AVATAR.camera}
               aria-label="Upload photo"
             >
               <Camera className={CONTACT_AVATAR.cameraIcon} />
             </button>
-            {/* Visual parity input — the reference's upload behavior is
-                unverifiable at zero data; the picker opens, the file is
-                not processed (the dead-exports precedent). Session-19
-                (S19-P8): the reference's accept list is the explicit
-                MIME trio, not image/*. */}
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" tabIndex={-1} onChange={() => undefined} />
+            {/* Session-19 (S19-P8): the reference's accept list is the
+                explicit MIME trio, not image/*. Session-30 (S30-P2): the
+                onChange is the REAL round-trip (the visual-parity stub
+                retired). */}
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" tabIndex={-1} onChange={uploadPhoto} />
           </div>
+          {uploading && <p className={CONTACT_AVATAR.uploadingHint}>Uploading photo...</p>}
           <div className={CONTACT_AVATAR.nameGroup}>
             <Label htmlFor="ct-name">Name *</Label>
             <Input
               id="ct-name"
-              className={DIALOG_GROUP.controlMt}
+              className={`${DIALOG_GROUP.controlMt} text-center font-medium`}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="John Doe"
               required
             />
           </div>

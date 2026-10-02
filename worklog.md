@@ -656,3 +656,23 @@ Work Log:
 
 Stage Summary:
 - Session 29 pushed to main; this record rides the second and final commit of the session
+
+---
+Task ID: 30
+Agent: main (Super Z)
+Task: Session 30 — the contact-photo upload layer (the s51 pointer): docs review, standing-layer re-verification (26th session), the bundle + live audit (four UploadFile sites + the dialog scroll-cap family), TDD remediation, gate, deliverables, push
+
+Work Log:
+- git pull refreshed workspace 9d9c8a8 → (docs/session_52.md = the operator's session-29 transcript, the ONLY change; zero app-code drift)
+- Docs reviewed + aligned (SKILL v1.26.0 §16u + project_state, AGENTS/CLAUDE/README/PAD at 697+104, the session-51 Next-steps pointers: the contact-photo upload flow, the drift re-sweep, the Opportunity split); environment verified (.env file:../db/custom.db, db/ at root, dev server :3000, the ssh shim + paramiko 5.0.0, agent-browser)
+- The bundle cache had died with the sandbox reset — rediscovered: the authed reference serves its REAL 1.63MB bundle from /assets/index-*.js (the login page's /static/ chunks are the shell); re-fetched OUTSIDE the repo tree (a 1.6MB single-line file inside eslint's scan scope OOMs the sandbox — SIGKILL)
+- Baseline gate GREEN FIRST TRY: lint 0/0 · tsc 0 · 697/697 unit · build · 104/104 e2e
+- Standing layers re-verified (26th session) NO DRIFT: the reference's mobile-nav absence at 390px (8 links, 0 visible), our drawer spot-verified live (the REAL "Open navigation menu" trigger → 8 links + focus + scroll lock; Escape → restore), zero 390px overflow on all 9 routes BOTH apps, demo data zero, typography EXACT (466.75/726.72 both apps, byte-identical family), tabs ARIA identical, every s29 bundle contract intact in the redeployed bundle
+- NEW AUDIT (bundle + LIVE): the four UploadFile call sites decoded — the AAe contact photo section (LIVE: PNG → CDN file_url → img + remove X; the non-image alert at the exact string), the aCe profile flow (LIVE: upload → form img + toast; no save — cleanup discipline), the NAe/OAe AI extraction (base44-only, the documented divergence); TWO of OUR divergences found: the Pke slide-over hero img branch (the reference is initial-only — retired) + the visual-parity stub input; PLUS the dialog scroll-cap family (max-h-[90vh] overflow-y-auto on the contact create + the edit family + Log Activity + Event + Save Custom Report; the BARE max-w-2xl account create — ours was max-w-lg; the bare max-w-lg lead create)
+- TDD: 39 red checks across three suites (upload-api 11, contact-photo 17, profile-photo 11; RED 35/39 first run), then the implementation: the upload seam (src/lib/uploads.ts + POST /api/upload + GET /api/uploads/[name] + uploads/ gitignored), the AAe photo section (img/initials/User render, the remove X, the disabled camera, the alert strings, the Uploading hint, John Doe centered — the s15 no-placeholder pin re-scoped with the reason), User.photoUrl through schema/auth/users API, the aCe profile flow (image/* + toasts + the 500ms-reload + the topbar img), the slide-over fix, the scroll-cap layer (DIALOG_CONTENT.wide + per-dialog). Gate-caught: the pin-window sizes, the JSX-regex-brace hazard, the five-shells expectation, the e2e click hang ROOT-CAUSED as the missing scroll cap, the JSON-quoted eval comparison bug
+- Phase C gate: lint 0/0 · tsc 0 · 741/741 unit (+44) · build clean · 106/106 e2e (+2) + LIVE verification on the restarted dev server (the contact round-trip end-to-end with persistence, the exact alert, the profile round-trip with the topbar pickup, the slide-over negative)
+- Phase D: 37 screenshots (34 re-captured + 35 the contact photo + 36 the profile photo + 37 the topbar avatar — VLM-verified, zero duplicates after the round-2 fixes); .env/.env.example re-verified; docs realigned (README 741+106 + the Contacts/Profile rows + the session-30 paragraph, AGENTS + 2 blocks, CLAUDE + 3 suites, PAD 46 suites / 741+106, SKILL v1.27.0 §16v + frontmatter + project_state, docs/session_53.md, the plan + its execution record, both worklogs); the FINAL gate re-run green on the complete state
+
+Stage Summary:
+- Session 30 COMPLETE: gate green (lint 0/0 · tsc 0 · 741/741 unit · 106/106 e2e); 37 screenshots; docs at SKILL v1.27.0; the s51 photo pointer CLOSED + the drift re-sweep done + the scroll-cap family fixed
+- Ready: commit on main + the SSH-wrapper push; next pointers: the Opportunity-split question (the last s51 pointer), the Scan Card/Import AI extraction (base44-only), the standing drift re-sweep

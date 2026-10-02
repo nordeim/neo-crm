@@ -1812,6 +1812,130 @@ test("the filters popover: the (Active) suffix + the prompt-based Save View + th
   await expect(page.getByLabel("Filter by status")).toHaveText("New");
 });
 
+// Session-30 (S30-P2): the contact-photo round-trip — the REAL upload
+// (the AAe pointer). A tiny PNG is injected through the hidden input; the
+// dialog renders the img + the remove X; the saved contact carries the
+// photo into the table row avatar (the reference's row renders
+// photo_url) and it PERSISTS across reload. Runs before the reset-wipe
+// test (the ordering rule) so its contact is cleaned up by the wipe.
+test("the New Contact photo upload round-trip renders + persists (S30-P2)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "New Contact" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+
+  // The empty state: initials fallback (no img, no remove X).
+  const avatar = dialog.locator(".rounded-full.bg-gradient-to-br").first();
+  await expect(avatar.locator("img")).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Remove photo" })).toHaveCount(0);
+
+  // Upload a real 1x1 PNG through the hidden input.
+  await dialog
+    .locator('input[type="file"]')
+    .setInputFiles({
+      name: "photo.png",
+      mimeType: "image/png",
+      buffer: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+        "base64",
+      ),
+    });
+
+  // The img renders inside the circle + the remove X appears.
+  await expect(avatar.locator("img")).toBeVisible();
+  await expect(avatar.locator("img")).toHaveAttribute("alt", "");
+  await expect(dialog.getByRole("button", { name: "Remove photo" })).toBeVisible();
+
+  // The remove X clears the photo (and resets the input).
+  await dialog.getByRole("button", { name: "Remove photo" }).click();
+  await expect(avatar.locator("img")).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Remove photo" })).toHaveCount(0);
+
+  // Re-upload and SAVE — the photo rides the create payload.
+  await dialog
+    .locator('input[type="file"]')
+    .setInputFiles({
+      name: "photo.png",
+      mimeType: "image/png",
+      buffer: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+        "base64",
+      ),
+    });
+  await expect(avatar.locator("img")).toBeVisible();
+  await dialog.getByLabel("Name *").fill("Photo E2E");
+  await dialog.getByLabel("Email *").fill("photo-e2e@example.com");
+  // The avatar section + the h3 pair groups make this the TALLEST dialog —
+  // the footer submit rides below the 90vh scroll fold at the default
+  // viewport, so scroll it into view inside the dialog's own
+  // overflow-y-auto before the click (Playwright's auto-scroll doesn't
+  // traverse the inner container reliably).
+  const create = dialog.getByRole("button", { name: "Create Contact" });
+  await create.scrollIntoViewIfNeeded();
+  await create.click();
+  await expect(dialog).toBeHidden();
+
+  // The table row avatar renders the persisted photo URL.
+  const row = page.locator("tbody tr", { hasText: "Photo E2E" });
+  await expect(row).toBeVisible();
+  await expect(row.locator("img").first()).toBeVisible();
+  await expect(row.locator("img").first()).toHaveAttribute("src", /\/api\/uploads\//);
+
+  // PERSISTS across reload (the C2 round-trip precedent).
+  await page.reload();
+  await expect(page.locator("tbody tr", { hasText: "Photo E2E" })).toBeVisible();
+  await expect(
+    page.locator("tbody tr", { hasText: "Photo E2E" }).locator("img").first(),
+  ).toHaveAttribute("src", /\/api\/uploads\//);
+});
+
+// Session-30 (S30-P3): the profile-photo round-trip — the aCe flow. The
+// upload toasts (NOT alerts), the form avatar + the Account card render
+// the img, the save persists and the TOPBAR avatar picks it up after the
+// 500ms reload.
+test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async ({ page }) => {
+  await page.goto("/profile");
+  await expect(page.getByText("Personal Information")).toBeVisible();
+
+  // The empty state: the blue-100 User fallback (no img).
+  const formAvatar = page.locator("form .rounded-full.bg-blue-100").first();
+  await expect(page.locator("form img")).toHaveCount(0);
+
+  // Upload a real PNG — the toast fires (NOT an alert).
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({
+      name: "avatar.png",
+      mimeType: "image/png",
+      buffer: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+        "base64",
+      ),
+    });
+  await expect(page.getByText("Photo uploaded successfully")).toBeVisible();
+
+  // Both profile avatars render the img (the form's + the Account
+  // card's — the card lives in the right column, outside the form).
+  await expect(page.locator("form img")).toHaveCount(1);
+  await expect(page.getByAltText("Profile")).toHaveCount(2);
+
+  // The name must be dirty to save; change it, save, and wait out the
+  // 500ms reload (the reference's own mechanism).
+  await page.getByLabel("Full Name").fill("sepnetflix2023 P");
+  await page.getByRole("button", { name: "Save Changes" }).click();
+  await expect(page.getByText("Profile updated successfully")).toBeVisible();
+  await page.waitForTimeout(1200);
+  await expect(page.getByText("Personal Information")).toBeVisible();
+
+  // The TOPBAR avatar picked up the photo (server-rendered session user
+  // after the reload).
+  await expect(page.locator('button[aria-label="Account menu"] img')).toBeVisible();
+  await expect(page.locator('button[aria-label="Account menu"] img')).toHaveAttribute(
+    "src",
+    /\/api\/uploads\//,
+  );
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();

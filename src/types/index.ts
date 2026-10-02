@@ -7,6 +7,9 @@ export interface User {
   email: string;
   name: string;
   avatarColor: string;
+  // Session-30 (S30-P3): the profile-photo URL (the reference's
+  // profile_picture) — null = the gray-200 initial fallback.
+  photoUrl: string | null;
   role: string;
 }
 

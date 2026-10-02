@@ -165,9 +165,20 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                     Hi, {user.name || user.email.split("@")[0]}
                   </span>
                   <span className={TOPBAR_LAYOUT.userAvatarRoot} aria-hidden="true">
-                    <div className={TOPBAR_LAYOUT.userAvatarFallback}>
-                      {(user.name || user.email).charAt(0).toUpperCase()}
-                    </div>
+                    {/* Session-30 (S30-P3): the reference's topbar avatar
+                        renders the saved profile photo over the gray-200
+                        initial fallback (img object-cover rounded-full). */}
+                    {user.photoUrl ? (
+                      <img
+                        src={user.photoUrl}
+                        alt="Profile"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <div className={TOPBAR_LAYOUT.userAvatarFallback}>
+                        {(user.name || user.email).charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </span>
                   <ChevronDown className={TOPBAR_LAYOUT.userChevron} />
                 </Button>

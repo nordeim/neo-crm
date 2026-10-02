@@ -74,13 +74,45 @@ function ProfileForm({
   user,
   onSaved,
 }: {
-  user: { id: string; name: string; email: string; role: string; avatarColor?: string | null };
+  user: { id: string; name: string; email: string; role: string; photoUrl?: string | null };
   onSaved: () => Promise<void>;
   usersTotal: number;
 }) {
   const [name, setName] = React.useState(user.name);
+  const [photoUrl, setPhotoUrl] = React.useState(user.photoUrl ?? "");
+  const [uploading, setUploading] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const dirty = name.trim() !== user.name && name.trim().length >= 2;
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Session-30 (S30-P3): the reference's aCe upload handler — NO client
+  // type-validation on this surface (unlike the contact dialog's alert),
+  // TOASTS instead of alerts, and the uploaded file_url lands in the form
+  // state until Save.
+  async function uploadPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const body = (await res.json().catch(() => null)) as {
+        ok?: boolean;
+        data?: { file_url?: string };
+      } | null;
+      if (res.ok && body?.ok && body.data?.file_url) {
+        setPhotoUrl(body.data.file_url);
+        toast.success("Photo uploaded successfully");
+      } else {
+        toast.error("Failed to upload photo");
+      }
+    } catch {
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function save() {
     if (!dirty) return;
@@ -88,15 +120,18 @@ function ProfileForm({
     const res = await fetch("/api/users", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim() }),
+      body: JSON.stringify({ name: name.trim(), photoUrl: photoUrl || null }),
     });
     const body = await res.json().catch(() => null);
     setSaving(false);
     if (body?.ok) {
-      toast.success("Profile saved", "Your display name has been updated.");
+      toast.success("Profile updated successfully", "");
+      // Session-30 (S30-P3): the reference reloads after 500ms so the
+      // topbar avatar (server-rendered session user) picks up the photo.
       await onSaved();
+      setTimeout(() => window.location.reload(), 500);
     } else {
-      toast.error("Could not save", body?.error?.message ?? "Please try again.");
+      toast.error("Failed to update profile", body?.error?.message ?? "Please try again.");
     }
   }
 
@@ -127,24 +162,42 @@ function ProfileForm({
             <div className="flex flex-col items-center gap-4 sm:flex-row">
               {/* Reference: the stock Avatar primitive wrapping a bg-blue-100
                   inner div with a stroke-2 user glyph (DOM-verified 80/96px,
-                  icon #2563EB). */}
+                  icon #2563EB). Session-30 (S30-P3): the reference renders
+                  the uploaded photo over the fallback (img object-cover). */}
               <span
                 className="relative flex h-20 w-20 shrink-0 overflow-hidden rounded-full sm:h-24 sm:w-24"
                 aria-hidden="true"
               >
-                <span className="flex h-full w-full items-center justify-center bg-blue-100 text-blue-600">
-                  <User className={PROFILE_LAYOUT.avatarIcon} strokeWidth={PROFILE_LAYOUT.avatarIconStroke} />
-                </span>
+                {photoUrl ? (
+                  <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center bg-blue-100 text-blue-600">
+                    <User className={PROFILE_LAYOUT.avatarIcon} strokeWidth={PROFILE_LAYOUT.avatarIconStroke} />
+                  </span>
+                )}
               </span>
               <div className="w-full flex-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  tabIndex={-1}
+                  onChange={uploadPhoto}
+                />
+                {/* Session-30 (S30-P3): the reference's aCe — the outline
+                    Upload Photo button fires the REAL round-trip (accept
+                    image/*, NO type alert on this surface, toasts). */}
                 <Button
                   variant="outline"
                   className={PROFILE_LAYOUT.uploadBtn}
-                  onClick={() => toast.info("Upload Photo", "Profile photo upload is not available in this demo workspace.")}
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   {/* Session-13 (S13-P2): the reference carries the margin
                       ON THE SVG (w-4 h-4 mr-2), not on the wrapper. */}
-                  <Camera className={PROFILE_LAYOUT.uploadIcon} /> Upload Photo
+                  <Camera className={PROFILE_LAYOUT.uploadIcon} /> {uploading ? "Uploading..." : "Upload Photo"}
                 </Button>
                 <p className="mt-2 text-xs text-muted">JPG, PNG or GIF. Max 5MB.</p>
               </div>
@@ -217,13 +270,20 @@ function ProfileForm({
         <Card>
           <CardContent className="p-6">
             <div className={PROFILE_LAYOUT.nameWrap}>
+            {/* Session-30 (S30-P3): the Account card avatar renders the
+                uploaded photo over the blue-100 fallback (the aCe right
+                column). */}
             <span
               className="relative mb-4 flex h-20 w-20 shrink-0 overflow-hidden rounded-full"
               aria-hidden="true"
             >
-              <span className="flex h-full w-full items-center justify-center bg-blue-100 text-blue-600">
-                <User className="h-10 w-10" strokeWidth={PROFILE_LAYOUT.avatarIconStroke} />
-              </span>
+              {photoUrl ? (
+                <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center bg-blue-100 text-blue-600">
+                  <User className="h-10 w-10" strokeWidth={PROFILE_LAYOUT.avatarIconStroke} />
+                </span>
+              )}
             </span>
             <h3 className="text-lg font-semibold">{user.name}</h3>
             <p className="text-sm text-muted">{user.email}</p>

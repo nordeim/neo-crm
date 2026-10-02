@@ -659,8 +659,13 @@ export const DIALOG_TITLE = "text-lg font-semibold leading-none tracking-tight";
  *  bg-surface (white) == border bg-background. */
 export const DIALOG_CONTENT = {
   base: "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-line bg-surface p-6 shadow-lg outline-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
-  /** S15-P12/P13: the Event + Activity dialogs cap at 672px. */
-  wide: "max-w-2xl",
+  /** S15-P12/P13 → session-30 (S30-P6): the Event + Activity dialogs cap
+   *  at 672px AND carry the reference's scroll-cap pair
+   *  (max-h-[90vh] overflow-y-auto — the bundle's exact list; the
+   *  reference's Edit-family + Log Activity + Save Custom Report all
+   *  ship it). The Lead/Account CREATE dialogs stay cap-FREE (the
+   *  reference's own inconsistency, mirrored). */
+  wide: "max-w-2xl max-h-[90vh] overflow-y-auto",
 } as const;
 
 /** Session-15 (S15-P2): the reference's dialog overlay is the STOCK
@@ -736,24 +741,28 @@ export const ACCOUNT_DIALOG = {
   body: "grid grid-cols-2 gap-4 py-4",
 } as const;
 
-/** Session-15 (S15-P11): the Contact dialog ships the avatar section —
- *  a centered `flex flex-col items-center gap-4 pb-4 border-b` block
- *  with the w-24 h-24 gradient circle (from-blue-500 to-blue-700), a
- *  live-initials span (text-white font-bold text-3xl — empty at zero
- *  input on the reference), the camera button (w-8 h-8 bg-white
- *  rounded-full shadow-md, lucide-camera w-4 h-4 text-blue-600) + a
- *  hidden file input, and the Name field INSIDE the section (the
- *  reference places it under the circle, w-full space-y-2). */
+/** Session-15 (S15-P11) → session-30 (S30-P2): the Contact dialog ships
+ *  the avatar section — a centered `flex flex-col items-center gap-4 pb-4
+ *  border-b` block with the w-24 h-24 gradient circle (from-blue-500
+ *  to-blue-700 + shadow-lg — the bundle's exact list), the photo/initials/
+ *  User-glyph render (the real upload round-trip), the remove X (-top-1
+ *  -right-1 w-7 h-7 bg-red-500 — inline in the dialog, photo-set only),
+ *  the camera button (w-8 h-8 bg-white rounded-full shadow-md + the
+ *  border-2 border-blue-500 ring, disabled while uploading) + the hidden
+ *  file input, and the Name field INSIDE the section (the reference
+ *  places it under the circle, w-full space-y-2, placeholder "John
+ *  Doe", text-center font-medium). */
 export const CONTACT_AVATAR = {
   section: "flex flex-col items-center gap-4 pb-4 border-b",
   wrapper: "relative",
   circle:
-    "w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center",
+    "w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg",
   initials: "text-white font-bold text-3xl",
   camera:
-    "absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors",
-  cameraIcon: "h-4 w-4 text-blue-600",
+    "absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors border-2 border-blue-500",
+  cameraIcon: "w-4 h-4 text-blue-600",
   nameGroup: "w-full space-y-2",
+  uploadingHint: "text-xs text-gray-500",
 } as const;
 
 /** Session-15 (S15-P11): the Contact body — `grid gap-6 py-4` with the

@@ -18,6 +18,10 @@ model User {
   name         String
   passwordHash String
   avatarColor  String   @default("#2563eb")
+  // Session-30 (S30-P3): the profile-photo round-trip — the reference's
+  // aCe stores the uploaded file's URL via updateMe({profile_picture}).
+  // Null = never uploaded (the gray-200 initial fallback renders).
+  photoUrl     String?
   role         String   @default("rep") // rep | admin
   // Session-21 (S21-P5): the email-verification funnel. A NULL
   // verificationExpiresAt means "no verification pending" — the seeded

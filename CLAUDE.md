@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (697) → `bun run build` → `bun run test:e2e` (104). For UI
+   `bun run test` (741) → `bun run build` → `bun run test:e2e` (106). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (697 checks)               |
-| `bun run test:e2e`  | Playwright E2E (104 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (741 checks)               |
+| `bun run test:e2e`  | Playwright E2E (106 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 697 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 741 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -229,6 +229,18 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   five raw status options, the source badge, the overdue border +
   CircleAlert, the dead Convert item, the sticky thead, the optimistic
   store apply, the Gke popover pins, the raw source migration),
+  `tests/upload-api.test.ts` (session-30: the self-hosted UploadFile
+  mirror — POST /api/upload with the image check + the 5MB ceiling,
+  GET /api/uploads/[name] with the pinned name charset, uploads/
+  gitignored),
+  `tests/contact-photo.test.ts` (session-30: the AAe photo section —
+  the img/initials/User render, the remove X, the camera + the MIME
+  trio, the alert strings, the Uploading hint, the John Doe Name field,
+  the W7 photo-less negative, the slide-over initial-only negative, and
+  the dialog scroll-cap layer),
+  `tests/profile-photo.test.ts` (session-30: the aCe flow — the
+  image/* input with no type alert, the toast vocabulary, the schema +
+  API photoUrl carriage, the 500ms-reload save, the topbar img branch),
   `tests/dashboard-contracts.test.ts` (session-27: the O-map legend
   chips, the KPI statics, the checkbox-row lists),
   `tests/leads-charts.test.ts` (session-27: the 5-status pipeline, the
@@ -259,7 +271,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 104 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 106 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -309,7 +321,11 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   editing round-trip with the overdue border + CircleAlert persisting
   across reload, the orange Target name box + the sticky thead + the
   dead Convert-to-Opportunity item, the "(Active)" suffix + the
-  prompt-based Save View + the loadable Saved Views select).
+  prompt-based Save View + the loadable Saved Views select), and
+  session-30's photo-upload layer (the New Contact photo round-trip
+  rendering + persisting with the remove X verified, and the profile
+  photo round-trip with the toast + both avatar renders + the topbar
+  pickup after the 500ms reload).
 
 ### Test Commands
 
@@ -327,7 +343,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 697).
+the seam (currently 741).
 
 ## Code Quality Standards
 

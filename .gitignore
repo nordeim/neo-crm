@@ -50,3 +50,6 @@ tests/e2e/.auth/
 test-results/
 playwright-report/
 .vitest/
+
+# session-30: uploaded files (the UploadFile mirror — like db/, never committed)
+uploads/

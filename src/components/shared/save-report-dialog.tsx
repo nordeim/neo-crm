@@ -89,7 +89,10 @@ export function SaveReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      {/* Session-30 (S30-P6): the reference's Save Custom Report ships
+          max-w-2xl max-h-[90vh] overflow-y-auto (the wide family's
+          scroll-cap pair — bundle-extracted). */}
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Save Custom Report View</DialogTitle>
         </DialogHeader>
