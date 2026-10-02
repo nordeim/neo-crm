@@ -608,3 +608,17 @@ Stage Summary:
 - Gate green: lint 0/0 · tsc 0 · 663/663 unit (+63) · 100/100 e2e (+8) · build clean; 32 verified screenshots; docs at SKILL v1.25.0; both s47 pointers CLOSED + the s15 flake root-caused and fixed
 - Ready: commit on main + SSH-wrapper push (the shim at /home/z/my-project/bin/ssh)
 - Next session pointers: the leads-table INLINE editing (the C2 bundle extract: the value number input, the status select, the next-follow-up date input with the overdue red border + alert icon, the Convert to Opportunity item), the contact-photo upload flow (the real UploadFile round-trip vs our visual-parity input), the drift re-sweep; the bundle cached at scripts/reference-bundle.js in the sandbox (not committed); the §16t census-method lessons — the empty-state-row-races-the-fetch, the string-comment-stripping (/* and // variants), the stale-dev-server-Prisma-client, the agent-browser absolute-path screenshots, the gap-4 stat-grid scoping
+
+---
+Task ID: 28-push (repo)
+Agent: main (Super Z)
+Task: The session-28 push record (the established dual-commit pattern)
+
+Work Log:
+- Gate green before push (rule 2): lint 0/0 · tsc 0 · 663/663 unit (42 suites) · build clean · 100/100 e2e (2.1m single-worker)
+- Commit 1864b5e on main (57 files, +2968/-234); the paramiko shim verified at /home/z/my-project/bin/ssh; the operator key materialized to /tmp/session28-deploy.key (0600, outside the repo) — the same deploy key as sessions 26/27
+- Dry-run clean (fast-forward c70cb32..1864b5e, remote untouched), then the real push via docs/ssh_git_wrapper_v3.py --remote git@github.com:nordeim/neo-crm.git
+- PUSH VERIFIED: remote refs/heads/main @ 1864b5e == local HEAD; tracking ref synced by the wrapper; independently re-verified via GIT_SSH_COMMAND ls-remote (1864b5e9804bbc7a349510ffdbbb9c8ca9a2eb65); the operator key shredded (random overwrite + remove) after both verifications
+
+Stage Summary:
+- Session 28 pushed to main; this record rides the second and final commit of the session
