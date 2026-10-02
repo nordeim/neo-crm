@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (793 checks)         | `bun run test`                         |
+| Unit tests (799 checks)         | `bun run test`                         |
 | Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (793) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (799) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1332,6 +1332,21 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   i3e reports filter; stale saved-view localStorage entries migrate
   through `normalizeSavedPeriod()` (src/lib/saved-reports.ts, wired
   into the reports page's onLoad).
+
+- **Two MORE dead controls decoded on the reference dashboard
+  (session-33)** — the 29th-session bundle re-read: the filter-bar
+  search input (placeholder "Stage: Source") renders with NO
+  value/onChange (the same dead-input family as the s32 topbar
+  "Search Anything..." decode) and the header "Add" button carries NO
+  onClick (the §16c-era dead-list covered only the Exports + the login
+  Sign up link — the Add button completes the set; the whole header
+  trio is dead there). Ours stay the documented functional supersets
+  (the Recent-Deals filter + the quick-create menu / export menu /
+  one-click export); the placeholder is pinned as
+  `FILTER_BAR.searchPlaceholder` and the trio's labels/classes as the
+  extended `DASHBOARD_HEADER` contract (src/lib/page-layout.ts), with
+  render pins in tests/page-layout.test.ts +
+  tests/dashboard-contracts.test.ts.
 
 ## Conventions that differ from defaults
 

@@ -1995,3 +1995,31 @@ describe("session-17: the Button variant corrections (S17-P4/P5)", () => {
     expect(src).not.toMatch(/ghost: "text-muted/);
   });
 });
+
+describe("session-33 parity pins (the filter-bar search + the header trio)", () => {
+  it("FILTER_BAR pins the search placeholder — the reference's DEAD input (S33-P1)", () => {
+    // The s33 bundle decode: the reference's dashboard filter-bar search
+    // renders c.jsx(Ct,{placeholder:"Stage: Source",className:"pl-9 h-9"})
+    // with NO value/onChange — the same dead-input family as the s32
+    // topbar "Search Anything..." decode. Ours is FUNCTIONAL (it filters
+    // the Recent Deals rows) — the documented superset, now pinned.
+    expect(FILTER_BAR.searchPlaceholder).toBe("Stage: Source");
+  });
+
+  it("DASHBOARD_HEADER pins the FULL trio: Add + outline Export + blue Export (S33-P2)", () => {
+    // The s33 bundle decode: the reference's dashboard header ships
+    // THREE adjacent buttons — Add (outline, label hidden below sm),
+    // Export (outline, label hidden below sm), Export (bg-blue-600
+    // hover:bg-blue-700, bare always-visible label) — and ALL THREE are
+    // DEAD there (no onClick in the bundle; the §16c dead-list covered
+    // only the Exports + the login Sign up link). Ours keeps the exact
+    // visual with functional superset jobs (quick-create menu / export
+    // menu / one-click export).
+    expect(DASHBOARD_HEADER.addLabel).toBe("Add");
+    expect(DASHBOARD_HEADER.addLabelClass).toBe("hidden sm:inline");
+    expect(DASHBOARD_HEADER.outlineExportLabel).toBe("Export");
+    expect(DASHBOARD_HEADER.outlineExportLabelClass).toBe("hidden sm:inline");
+    expect(DASHBOARD_HEADER.primaryExportLabel).toBe("Export");
+    expect(DASHBOARD_HEADER.primaryExportLabelClass).toBe("");
+  });
+});

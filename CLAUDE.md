@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (793) → `bun run build` → `bun run test:e2e` (106). For UI
+   `bun run test` (799) → `bun run build` → `bun run test:e2e` (106). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,7 +107,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (793 checks)               |
+| `bun run test`      | Vitest unit suites (799 checks)               |
 | `bun run test:e2e`  | Playwright E2E (106 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 793 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 799 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -458,7 +458,13 @@ options), leads FULL (`$687,000` via `formatCurrency`) — the reference
 ignores its own Default Currency setting and so do we (the Settings
 field still stores `AED`). Every reference currency figure rides a
 LITERAL scale formula (session-32) — express them through the
-`scale` option, never the magnitude-branching default.
+`scale` option, never the magnitude-branching default. The reference's
+dashboard filter-bar "Stage: Source" search input + its header "Add"
+button are DEAD (session-33 bundle decode — no value/onChange, no
+onClick; the same family as the s32 topbar search); ours stay the
+functional supersets with the placeholder pinned as
+`FILTER_BAR.searchPlaceholder` and the header trio's labels/classes as
+the extended `DASHBOARD_HEADER` contract.
 
 ## Anti-Patterns to Avoid
 

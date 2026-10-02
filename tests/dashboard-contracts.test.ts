@@ -269,3 +269,58 @@ describe("session-32: the currency KPI value formulas (S32-P2)", () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-33 pins (S33-P1/P2): the filter-bar search + the header trio —
+// the two dead-control decodes from the 29th-session bundle re-read.
+//
+// 1. The reference's dashboard filter-bar search input is DEAD: the
+//    bundle renders it with placeholder "Stage: Source" and NO
+//    value/onChange (the same dead-input family as the s32 topbar
+//    "Search Anything..." decode). Ours stays FUNCTIONAL (the Recent
+//    Deals filter) — the documented superset — with the placeholder
+//    extracted into the FILTER_BAR contract.
+// 2. The reference's dashboard header ships THREE adjacent buttons —
+//    Add (outline, hidden-sm label), Export (outline, hidden-sm label),
+//    Export (bg-blue-600 hover:bg-blue-700, bare label) — and ALL THREE
+//    are DEAD there (no onClick). Ours keeps the exact visual with the
+//    documented functional superset jobs, the labels now consumed from
+//    the DASHBOARD_HEADER contract.
+// ---------------------------------------------------------------------------
+
+describe("session-33: the filter-bar search + the header trio render (S33-P1/P2)", () => {
+  it("the search input consumes FILTER_BAR.searchPlaceholder (no hardcoded literal)", () => {
+    const src = page();
+    expect(src).toContain("placeholder={FILTER_BAR.searchPlaceholder}");
+    expect(src).not.toContain('placeholder="Stage: Source"');
+  });
+
+  it("the search input is FUNCTIONAL: value + onChange wired (the documented superset)", () => {
+    const src = page();
+    const at = src.indexOf("FILTER_BAR.searchWrap");
+    const region = src.slice(at, at + 700);
+    expect(region).toMatch(/value=\{search\}/);
+    expect(region).toMatch(/onChange=\{/);
+  });
+
+  it("the header trio's labels come from the DASHBOARD_HEADER contract", () => {
+    const src = page();
+    expect(src).toContain("DASHBOARD_HEADER.addLabel");
+    expect(src).toContain("DASHBOARD_HEADER.outlineExportLabel");
+    expect(src).toContain("DASHBOARD_HEADER.primaryExportLabel");
+    // The hidden-sm label classes ride the contract too (Add + outline
+    // Export share it; the primary Export keeps the bare label).
+    expect(src.match(/DASHBOARD_HEADER\.addLabelClass/g)?.length).toBe(1);
+    expect(src.match(/DASHBOARD_HEADER\.outlineExportLabelClass/g)?.length).toBe(1);
+  });
+
+  it("the dead-affordance pair stays no-op: Filter + More... carry NO onClick (the reference's dead controls mirrored)", () => {
+    const src = page();
+    const filterAt = src.indexOf(">Filter</span>");
+    const filterBtn = src.slice(Math.max(0, src.lastIndexOf("<Button", filterAt)), filterAt + 14);
+    expect(filterBtn).not.toMatch(/onClick/);
+    const moreAt = src.indexOf("More...");
+    const moreBtn = src.slice(Math.max(0, src.lastIndexOf("<Button", moreAt)), moreAt + 8);
+    expect(moreBtn).not.toMatch(/onClick/);
+  });
+});

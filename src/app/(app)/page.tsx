@@ -95,7 +95,7 @@ export default function DashboardPage() {
                     shadow-sm h-8 rounded-md px-3 text-xs + span.hidden
                     sm:inline). */}
                 <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Add</span>
+                  <Plus className="h-4 w-4" /> <span className={DASHBOARD_HEADER.addLabelClass}>{DASHBOARD_HEADER.addLabel}</span>
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">
@@ -113,7 +113,7 @@ export default function DashboardPage() {
             <Dropdown>
               <DropdownTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export</span>
+                  <Download className="h-4 w-4" /> <span className={DASHBOARD_HEADER.outlineExportLabelClass}>{DASHBOARD_HEADER.outlineExportLabel}</span>
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">
@@ -239,7 +239,10 @@ export default function DashboardPage() {
         </Select>
         <div className={FILTER_BAR.searchWrap}>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Stage: Source" className="pl-9" aria-label="Filter deals" />
+          {/* Session-33 (S33-P1): the reference's search input is DEAD
+              (bundle: no value/onChange — the s32 topbar-search family).
+              Ours stays functional — the documented superset. */}
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={FILTER_BAR.searchPlaceholder} className="pl-9" aria-label="Filter deals" />
         </div>
         {/* Session-6: "More..." is a ghost h-8 button on the reference
             (hover:bg-accent h-8 px-3 text-xs) — not a text link.

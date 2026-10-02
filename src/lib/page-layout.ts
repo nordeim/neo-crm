@@ -108,6 +108,12 @@ export const FILTER_BAR = {
   card: "bg-surface rounded-lg shadow mb-6 p-4",
   row: "flex flex-col sm:flex-row gap-3",
   searchWrap: "relative flex-1",
+  /** Session-33 (S33-P1): the reference's filter-bar search input —
+   *  bundle-decoded as c.jsx(Ct,{placeholder:"Stage: Source"}) with NO
+   *  value/onChange (the dead-input family of the s32 topbar decode).
+   *  Ours stays functional (the documented superset); the placeholder
+   *  rides the contract so the decode is pinned + testable. */
+  searchPlaceholder: "Stage: Source",
 } as const;
 
 /** Reports filter bar — sticky inside the scrolling main, bordered with a
@@ -462,7 +468,20 @@ export const MOBILE_NAV_LAYOUT = {
  *  whose label hides below sm. `primaryExportLabelClass: ""` pins the
  *  absence of a hiding class. */
 export const DASHBOARD_HEADER = {
+  /** Session-33 (S33-P2): the reference's dashboard header ships THREE
+   *  adjacent buttons — Add (outline), Export (outline), Export (the
+   *  blue bg-blue-600 hover:bg-blue-700 primary) — and ALL THREE are
+   *  DEAD there (the s33 bundle decode: no onClick on any; the §16c-era
+   *  dead-list covered only the Exports + the login Sign up link). Ours
+   *  keeps the exact visual with the documented functional superset
+   *  jobs: quick-create menu / export menu / one-click leads export. */
+  addLabel: "Add",
+  addLabelClass: "hidden sm:inline",
+  outlineExportLabel: "Export",
+  outlineExportLabelClass: "hidden sm:inline",
   primaryExportLabel: "Export",
+  /** S8-1: the primary Export renders its label as a BARE always-visible
+   *  text node (not hidden below sm like the outline pair). */
   primaryExportLabelClass: "",
 } as const;
 
