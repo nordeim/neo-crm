@@ -190,6 +190,122 @@ export const CONTACT_SOURCES = [
   "👥 Personal Referral",
 ] as const;
 
+// Session-28 (S28-P1): the reference's contact model, bundle-extracted.
+// Its SOURCE stores RAW values (call/email/website/partner/referral) —
+// the emoji strings above are CREATE-DIALOG LABELS ONLY (its table badge
+// and its CSV export carry the raw value; its EDIT dialog's source select
+// is plain "Call/Email/Website/Partner/Referral" with no emojis).
+export const CONTACT_SOURCE_OPTIONS = [
+  { value: "call", label: "📞 Phone Call" },
+  { value: "email", label: "✉️ Email" },
+  { value: "website", label: "🌐 Website" },
+  { value: "partner", label: "🤝 Partner Referral" },
+  { value: "referral", label: "👥 Personal Referral" },
+] as const;
+
+export const CONTACT_SOURCE_LABEL: Record<string, string> = Object.fromEntries(
+  CONTACT_SOURCE_OPTIONS.map((o) => [o.value, o.label]),
+);
+
+// The plain (no-emoji) source options the reference's EDIT dialogs ship.
+export const EDIT_SOURCE_OPTIONS = ["Call", "Email", "Website", "Partner", "Referral"] as const;
+
+// The contact PRIORITY vocabulary: Key / Standard / At Risk (NOT the lead
+// hot/warm/cold temperature — bundle `ne` map + the Pke slide-over's `i`).
+export const CONTACT_PRIORITIES_REF = ["Key", "Standard", "At Risk"] as const;
+
+export const CONTACT_PRIORITY_META: Record<string, string> = {
+  Key: "bg-amber-100 text-amber-800 border-amber-300",
+  Standard: "bg-blue-100 text-blue-800 border-blue-300",
+  "At Risk": "bg-red-100 text-red-800 border-red-300",
+};
+
+// The contact ROLE vocabulary — the inline table select's five options
+// (bundle `kke` + the row's inline Select).
+export const CONTACT_ROLES = [
+  "Decision Maker",
+  "Key Contact",
+  "Influencer",
+  "End User",
+  "Other",
+] as const;
+
+export const ENGAGEMENT_LEVELS = ["High", "Medium", "Low"] as const;
+
+// The 3-bar engagement cell classes — the TABLE variant ships the -500s
+// with shadow-sm; the slide-over hero uses the -600 solids (its own
+// inconsistency, mirrored).
+export const ENGAGEMENT_BARS = {
+  High: "bg-green-500 shadow-sm",
+  Medium: "bg-yellow-500 shadow-sm",
+  Low: "bg-red-500 shadow-sm",
+  empty: "bg-gray-200",
+} as const;
+
+export const ENGAGEMENT_BARS_SOLID = {
+  High: "bg-green-600",
+  Medium: "bg-yellow-600",
+  Low: "bg-red-600",
+  empty: "bg-gray-200",
+} as const;
+
+export function engagementBarCount(level: string | null | undefined): number {
+  if (level === "High") return 3;
+  if (level === "Medium") return 2;
+  if (level === "Low") return 1;
+  return 0;
+}
+
+// The company-size filter values (stored verbatim on the model).
+export const COMPANY_SIZES = ["Small (1-50)", "Medium (51-500)", "Large (500+)"] as const;
+
+// The contact STATUS select vocabulary (the W7 edit dialog).
+export const CONTACT_STATUSES = ["active", "inactive"] as const;
+
+// The account EDIT status vocabulary — the wce select ships THREE options
+// (its own superset of the create dialog's pair).
+export const ACCOUNT_EDIT_STATUSES = ["active", "inactive", "prospect"] as const;
+
+// The lead EDIT vocabularies — the Mke dialog's own inconsistencies: the
+// status set is New/Contacted/Qualified/Unqualified (NOT the table's
+// 5-status set) and the source has FOUR options (no Referral).
+export const LEAD_EDIT_STATUSES = ["New", "Contacted", "Qualified", "Unqualified"] as const;
+export const LEAD_EDIT_SOURCES = ["Call", "Email", "Website", "Partner"] as const;
+
+// The accounts-page badge maps (bundle B/H functions): the tier badge and
+// the HEALTH badge rendered under the "Status" header (the reference's own
+// header/cell mismatch, mirrored).
+export const ACCOUNT_TIER_BADGE: Record<string, string> = {
+  Key: "bg-yellow-100 text-yellow-800",
+  A: "bg-green-100 text-green-800",
+  B: "bg-blue-100 text-blue-800",
+  C: "bg-gray-100 text-gray-800",
+};
+
+export const ACCOUNT_HEALTH_BADGE: Record<string, string> = {
+  Healthy: "bg-green-100 text-green-800",
+  "At Risk": "bg-yellow-100 text-yellow-800",
+  "Needs Attention": "bg-red-100 text-red-800",
+};
+
+// The ce() last-activity formatter (bundle-extracted): Never / Today /
+// "1 day ago" / "N days ago" (<30) / "N months ago" (floor 30). The
+// reference computes it with moment; this is the pure equivalent.
+export function lastActivityCe(
+  d: Date | string | null | undefined,
+  now: Date | number = new Date(),
+): string {
+  if (!d) return "Never";
+  const t = new Date(d).getTime();
+  if (Number.isNaN(t)) return "Never";
+  const n = typeof now === "number" ? now : now.getTime();
+  const days = Math.floor((n - t) / 86400000);
+  if (days === 0) return "Today";
+  if (days === 1) return "1 day ago";
+  if (days < 30) return `${days} days ago`;
+  return `${Math.floor(days / 30)} months ago`;
+}
+
 export const ACCOUNT_TIERS = ["A", "B", "C"] as const;
 
 export const TIER_META: Record<string, { label: string; badge: string }> = {

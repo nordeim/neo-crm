@@ -42,7 +42,15 @@ export interface Contact {
   company: string | null;
   position: string | null;
   source: string | null;
-  priority: string;
+  // Session-28 (S28-P1): the reference's contact vocabulary — priority is
+  // Key/Standard/At Risk; role/engagementLevel/companySize/photoUrl are
+  // first-class fields (the inline role select, the 3-bar engagement cell,
+  // the company-size stack, the photo avatar).
+  priority: string; // Key | Standard | At Risk
+  role: string | null; // Decision Maker | Key Contact | Influencer | End User | Other
+  engagementLevel: string | null; // High | Medium | Low
+  companySize: string | null; // "Small (1-50)" | "Medium (51-500)" | "Large (500+)"
+  photoUrl: string | null;
   status: string;
   accountId: string | null;
   account?: { id: string; name: string } | null;

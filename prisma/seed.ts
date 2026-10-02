@@ -138,17 +138,31 @@ async function main() {
     Website: "Website",
     Email: "Email",
   };
+  // Session-28 (S28-P1): the reference stores RAW source values
+  // (call/email/website/partner/referral) — the emoji strings are
+  // create-dialog labels only.
   const CONTACT_SOURCE_MAP: Record<string, string> = {
-    Email: "\u2709\ufe0f Email",
-    Phone: "\ud83d\udcde Phone Call",
-    "Cold Call": "\ud83d\udcde Phone Call",
-    Website: "\ud83c\udf10 Website",
-    Referral: "\ud83e\udd1d Partner Referral",
-    Partner: "\ud83e\udd1d Partner Referral",
-    Event: "\ud83d\udc65 Personal Referral",
-    "Social Media": "\ud83d\udc65 Personal Referral",
-    Advertisement: "\ud83d\udc65 Personal Referral",
+    Email: "email",
+    Phone: "call",
+    "Cold Call": "call",
+    Website: "website",
+    Referral: "partner",
+    Partner: "partner",
+    Event: "referral",
+    "Social Media": "referral",
+    Advertisement: "referral",
   };
+  // Session-28 (S28-P1): the reference's contact priority vocabulary is
+  // Key/Standard/At Risk; the legacy seed adjectives map onto it. Role,
+  // engagement level, and company size ride the new fields.
+  const PRIORITY_MAP: Record<string, string> = {
+    hot: "Key",
+    warm: "Standard",
+    cold: "At Risk",
+  };
+  const ROLES = ["Decision Maker", "Key Contact", "Influencer", "End User", "Other"];
+  const ENGAGEMENT = ["High", "Medium", "Low"];
+  const SIZES = ["Small (1-50)", "Medium (51-500)", "Large (500+)"];
 
   const contactSeed = [
     { name: "Khalid Al Mansoori", position: "Chief Procurement Officer", priority: "hot", company: "Emirates Global Trading", source: "Referral" },
@@ -181,7 +195,10 @@ async function main() {
           company: c.company,
           position: c.position,
           source: CONTACT_SOURCE_MAP[c.source] ?? c.source,
-          priority: c.priority,
+          priority: PRIORITY_MAP[c.priority] ?? "Standard",
+          role: ROLES[i % ROLES.length],
+          engagementLevel: ENGAGEMENT[i % ENGAGEMENT.length],
+          companySize: SIZES[i % SIZES.length],
           accountId: account?.id ?? null,
           ownerId: pick(i + 1).id,
           lastActivityAt: d(-(i * 3 + 1)),

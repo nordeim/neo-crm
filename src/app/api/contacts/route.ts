@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { ok, ERR, asString, isGuarded, requireSession } from "@/lib/api";
-import { CONTACT_PRIORITIES } from "@/lib/constants";
+import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, ENGAGEMENT_LEVELS, COMPANY_SIZES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +31,33 @@ export async function POST(req: Request) {
     return ERR.BAD_REQUEST("Enter a valid email address");
   }
 
-  const priority = asString(body.priority, { optional: true }) ?? "warm";
-  if (!(CONTACT_PRIORITIES as readonly string[]).includes(priority)) {
+  // Session-28 (S28-P1): the reference's contact priority vocabulary is
+  // Key/Standard/At Risk — the legacy hot/warm/cold set stays accepted on
+  // input (the create dialog used to send it) but maps onto the new
+  // vocabulary so old clients don't break.
+  const rawPriority = asString(body.priority, { optional: true }) ?? "Standard";
+  const LEGACY_PRIORITY: Record<string, string> = { hot: "Key", warm: "Standard", cold: "At Risk" };
+  const priority = LEGACY_PRIORITY[rawPriority] ?? rawPriority;
+  if (!(CONTACT_PRIORITIES_REF as readonly string[]).includes(priority) &&
+      !(CONTACT_PRIORITIES as readonly string[]).includes(rawPriority)) {
     return ERR.BAD_REQUEST("Invalid priority");
   }
+
+  // The new first-class fields (the inline role select, the 3-bar
+  // engagement cell, the company-size stack, the photo avatar).
+  const role = asString(body.role, { optional: true, max: 60 }) ?? null;
+  if (role && !(CONTACT_ROLES as readonly string[]).includes(role)) {
+    return ERR.BAD_REQUEST("Invalid role");
+  }
+  const engagementLevel = asString(body.engagementLevel, { optional: true, max: 20 }) ?? null;
+  if (engagementLevel && !(ENGAGEMENT_LEVELS as readonly string[]).includes(engagementLevel)) {
+    return ERR.BAD_REQUEST("Invalid engagement level");
+  }
+  const companySize = asString(body.companySize, { optional: true, max: 40 }) ?? null;
+  if (companySize && !(COMPANY_SIZES as readonly string[]).includes(companySize)) {
+    return ERR.BAD_REQUEST("Invalid company size");
+  }
+  const photoUrl = asString(body.photoUrl, { optional: true, max: 500 }) ?? null;
 
   const accountId = asString(body.accountId, { optional: true }) ?? null;
   if (accountId) {
@@ -57,6 +80,10 @@ export async function POST(req: Request) {
       position: asString(body.position, { optional: true, max: 80 }) ?? null,
       source: asString(body.source, { optional: true, max: 40 }) ?? null,
       priority,
+      role,
+      engagementLevel,
+      companySize,
+      photoUrl,
       accountId,
       ownerId,
       lastActivityAt: new Date(),

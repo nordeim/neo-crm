@@ -44,6 +44,7 @@ import {
   ACTIVITY_TYPE_META,
   CONTACT_PRIORITIES,
   CONTACT_SOURCES,
+  CONTACT_SOURCE_OPTIONS,
   EVENT_TYPES,
   EVENT_TYPE_META,
   LEAD_SOURCES,
@@ -428,7 +429,9 @@ function ContactForm({
     phone: contact?.phone ?? "",
     company: contact?.company ?? "",
     position: contact?.position ?? "",
-    source: contact?.source ?? "\u2709\ufe0f Email",
+    // Session-28 (S28-P1): the RAW source value (the emoji strings are
+    // create-dialog labels only).
+    source: contact?.source ?? "email",
     priority: contact?.priority ?? "warm",
     accountId: contact?.accountId ?? "",
   }));
@@ -506,6 +509,16 @@ function ContactForm({
             />
           </div>
         </div>
+        {/* Session-28 (S28-P3): the reference's AAe create dialog ships
+            TWO h3 section headers (live-verified 2026-10-02) —
+            "Contact Details" over the Email/Phone pair and "Professional
+            Details" over the Company/Position pair
+            (text-sm font-semibold text-gray-700 uppercase tracking-wide).
+            Create mode only — the separate W7 edit dialog has its own
+            anatomy. */}
+        {createMode && (
+          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contact Details</h3>
+        )}
         <div className={CONTACT_DIALOG.pairGroup}>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-email">{createMode ? "Email *" : "Email"}</Label>
@@ -533,6 +546,9 @@ function ContactForm({
             />
           </div>
         </div>
+        {createMode && (
+          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Professional Details</h3>
+        )}
         <div className={CONTACT_DIALOG.pairGroup}>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-company">Company</Label>
@@ -560,8 +576,10 @@ function ContactForm({
           <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
             <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
             <SelectContent>
-              {CONTACT_SOURCES.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
+              {/* Session-28 (S28-P1): the RAW values with the emoji labels
+                  (value "email", label "\u2709\ufe0f Email"). */}
+              {CONTACT_SOURCE_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>

@@ -635,9 +635,14 @@ test("the New Event dialog is the wide family with the blue submit (S15-P12)", a
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
 
-  // max-w-2xl: 672px cap at desktop widths.
-  const box = await dialog.boundingBox();
-  expect(box?.width).toBe(672);
+  // max-w-2xl: 672px cap at desktop widths. Session-28 (S28-P7): the raw
+  // boundingBox() raced the dialog's zoom-in-95 entrance animation
+  // (672*0.95 = 638.4 mid-flight) — the escalated s15 flake. The
+  // expect.poll idiom (the s15 New Lead test's established hardening)
+  // waits out the 200ms animation deterministically.
+  await expect
+    .poll(async () => (await dialog.boundingBox())?.width ?? 0)
+    .toBe(672);
 
   // The one-off BLUE submit (every other dialog is the dark primary).
   // Tailwind v4 compiles bg-blue-600 to a lab() color that serializes
@@ -1538,6 +1543,169 @@ test("the activities by-type chart bars are single-blue with the small radius (S
   // live only in the chips row below.
   expect(fills.length).toBeGreaterThan(0);
   expect(new Set(fills)).toEqual(new Set(["#3b82f6"]));
+});
+
+// ---------------------------------------------------------------------------
+// Session-28 (S28-P2..P6): the entity edit/detail layer — the W7/wce/Mke
+// edit-dialog family, the Pke contact slide-over, the Ece account insights
+// dialog, the kke filter panel, the rebuilt contacts row, and the AAe h3
+// section headers. All before the reset-wipe test (the ordering rule).
+// ---------------------------------------------------------------------------
+
+test("the contacts create dialog ships the two h3 section headers (S28-P3)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "New Contact" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  const headers = dialog.locator("h3");
+  await expect(headers).toHaveCount(2);
+  await expect(headers.nth(0)).toHaveText("Contact Details");
+  await expect(headers.nth(1)).toHaveText("Professional Details");
+  await expect(headers.nth(0)).toHaveClass(/uppercase tracking-wide/);
+});
+
+test("the contacts row click opens the Pke slide-over with the hero + tabs (S28-P4)", async ({ page }) => {
+  await page.goto("/contacts");
+  // SARAH THOMPSON's row — a seeded contact with NO activities (the empty
+  // states render). NOT the first row: the import-test's created contact
+  // (no role/engagement, the newest lastActivityAt) sorts first in the
+  // full run — the data-ordering lesson.
+  const row = page.locator("tbody tr", { hasText: "Sarah Thompson" });
+  await expect(row).toBeVisible();
+  // The ROW click (not the action buttons — they stopPropagation).
+  await row.click();
+  // The slide-over (not a dialog): the fixed right panel.
+  const panel = page.locator(".fixed.top-0.right-0");
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole("heading", { name: "Contact Details" })).toBeVisible();
+  // The hero: the w-20 gradient avatar + the priority badge + the engagement bars.
+  await expect(panel.locator(".w-20.h-20.bg-gradient-to-br")).toBeVisible();
+  await expect(panel.getByText("Engagement:")).toBeVisible();
+  // The Call / Email / WhatsApp grid.
+  await expect(panel.getByRole("button", { name: "WhatsApp" })).toBeVisible();
+  // The Contact Information card.
+  await expect(panel.getByText("Contact Information")).toBeVisible();
+  // The tabs: Sarah has NO activities (the empty state) but her company
+  // HAS deals (the company-match seam). The TabsPanel shells mount hidden
+  // (inactive) — activate the Deals tab, then assert the deal card + the
+  // always-static notes empty state.
+  await expect(panel.getByText("No activities yet")).toBeVisible();
+  await panel.getByRole("tab", { name: "Deals" }).click();
+  await expect(panel.getByText(/\$\s?[\d,]+/).first()).toBeVisible();
+  await panel.getByRole("tab", { name: "Notes" }).click();
+  await expect(panel.getByText("No notes yet")).toBeVisible();
+});
+
+test("the contacts inline role select updates the role immediately (S28-P3)", async ({ page }) => {
+  await page.goto("/contacts");
+  const firstRow = page.locator("tbody tr").first();
+  await expect(firstRow).toBeVisible();
+  // The reference's inline select (placeholder "Set role" when unset —
+  // the seeded contacts carry roles, so the trigger shows one).
+  const trigger = firstRow.locator('[role=combobox]').first();
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+  await page.getByRole("option", { name: "Influencer" }).click();
+  // The mutation fires + the store refetches — the trigger now shows it.
+  await expect(trigger).toContainText("Influencer");
+});
+
+test("the contacts ⋮ Edit opens the SEPARATE W7 edit dialog (S28-P2)", async ({ page }) => {
+  await page.goto("/contacts");
+  await expect(page.getByText("No contacts found")).toHaveCount(0);
+  const firstRow = page.locator("tbody tr").first();
+  await expect(firstRow).toBeVisible();
+  await firstRow.getByLabel(/^Actions for /).click();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("Edit Contact")).toBeVisible();
+  // The max-w-2xl shell (the poll idiom waits out the entrance animation).
+  await expect
+    .poll(async () => (await dialog.boundingBox())?.width ?? 0)
+    .toBe(672);
+  // The grid rows: Name*/Email*, Phone/Company, Position, Status/Source.
+  await expect(dialog.getByText("Name *")).toBeVisible();
+  await expect(dialog.getByText("Email *")).toBeVisible();
+  await expect(dialog.getByText("Position")).toBeVisible();
+  // The footer pair.
+  await expect(dialog.getByRole("button", { name: "Cancel" })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Save Changes" })).toBeVisible();
+});
+
+test("the contacts Filters button opens the kke checkbox panel (S28-P5)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "Filters" }).click();
+  // The fixed right-0 top-16 wrapper at mobile / static from lg.
+  const panel = page.locator(".fixed.right-0.top-16");
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole("heading", { name: "Filters" })).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Clear All" })).toBeVisible();
+  // The checkbox-card groups: the 30-day single + the role/company-size lists.
+  await expect(panel.getByText("No Recent Activity (30+ days)")).toBeVisible();
+  await expect(panel.getByText("Decision Maker")).toBeVisible();
+  await expect(panel.getByText("Small (1-50)")).toBeVisible();
+});
+
+test("the accounts row click opens the Ece insights dialog (S28-P6)", async ({ page }) => {
+  await page.goto("/Accounts");
+  // Wait for the DATA, not just any row — the SSR'd empty-state row
+  // ("No accounts found") is the first tbody tr until the fetch lands,
+  // and clicking it does nothing (the click-races-the-fetch flake; the
+  // hydrate-race lesson, this variant).
+  await expect(page.getByText("No accounts found")).toHaveCount(0);
+  const firstRow = page.locator("tbody tr").first();
+  await expect(firstRow).toBeVisible();
+  await firstRow.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  // The three stat cards (scope to the card grid — "Open Deals" also
+  // names a tab, "Contacts" also names a tab; strict mode needs the scoping).
+  // gap-4 distinguishes the stat grid from the tabs strip (also
+  // grid grid-cols-3, but gap-less).
+  const stats = dialog.locator(".grid.grid-cols-3.gap-4");
+  await expect(stats.getByText("Total Revenue")).toBeVisible();
+  await expect(stats.getByText("Open Deals")).toBeVisible();
+  await expect(stats.getByText("Contacts", { exact: true })).toBeVisible();
+  // The tabs.
+  await expect(dialog.getByRole("tab", { name: "Recent Activities" })).toBeVisible();
+  await expect(dialog.getByRole("tab", { name: "Contacts" })).toBeVisible();
+  await expect(dialog.getByRole("tab", { name: "Open Deals" })).toBeVisible();
+});
+
+test("the accounts ⋮ menu ships Edit / View Insights / Delete + the health badge under Status (S28-P6)", async ({ page }) => {
+  await page.goto("/Accounts");
+  await expect(page.getByText("No accounts found")).toHaveCount(0);
+  const firstRow = page.locator("tbody tr").first();
+  await expect(firstRow).toBeVisible();
+  await firstRow.getByLabel(/^Actions for /).click();
+  await expect(page.getByRole("button", { name: "Edit", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "View Insights" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Delete", exact: true })).toBeVisible();
+  // The health badge vocabulary in the Status column (the reference's own
+  // header/cell mismatch).
+  const cell = firstRow.locator("td").nth(6);
+  await expect(cell.getByText(/Healthy|At Risk|Needs Attention/)).toBeVisible();
+});
+
+test("the leads ⋮ Edit opens the Mke edit dialog with the 4-option statuses (S28-P2)", async ({ page }) => {
+  await page.goto("/leads");
+  await expect(page.getByText("No leads found")).toHaveCount(0);
+  const firstRow = page.locator("tbody tr").first();
+  await expect(firstRow).toBeVisible();
+  await firstRow.getByLabel(/^Actions for /).click();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("Edit Lead")).toBeVisible();
+  await expect(dialog.getByText("Estimated Value")).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Save Changes" })).toBeVisible();
+  // The status select's 4-option set (no Won/Lost).
+  await dialog.locator('[role=combobox]').nth(0).click();
+  for (const opt of ["New", "Contacted", "Qualified", "Unqualified"]) {
+    await expect(page.getByRole("option", { name: opt, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole("option", { name: "Won" })).toHaveCount(0);
 });
 
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {

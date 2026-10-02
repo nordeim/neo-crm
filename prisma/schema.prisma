@@ -79,8 +79,17 @@ model Contact {
   phone         String?
   company       String?
   position      String?
-  source        String?
-  priority      String    @default("warm") // hot | warm | cold
+  source        String? // RAW value: call | email | website | partner | referral (emojis are create-dialog labels only)
+  // Session-28 (S28-P1): the reference's contact vocabulary — priority is
+  // Key | Standard | At Risk (NOT the lead hot/warm/cold temperature), and
+  // role/engagement/companySize/photoUrl are first-class fields (the inline
+  // role select, the 3-bar engagement cell, the company-size stack, the
+  // photo-driven avatar).
+  priority      String    @default("Standard") // key | standard | at_risk — stored "Key"/"Standard"/"At Risk"
+  role          String? // Decision Maker | Key Contact | Influencer | End User | Other
+  engagementLevel String? // High | Medium | Low
+  companySize   String? // "Small (1-50)" | "Medium (51-500)" | "Large (500+)"
+  photoUrl      String?
   status        String    @default("active")
   accountId     String?
   ownerId       String?

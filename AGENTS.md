@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (600 checks)         | `bun run test`                         |
-| Browser E2E (92 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (663 checks)         | `bun run test`                         |
+| Browser E2E (100 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (600) → `bun run build` → `bun run test:e2e` (92). There is no
+`bun run test` (663) → `bun run build` → `bun run test:e2e` (100). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1081,6 +1081,86 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   own behavior); the funnel labels are New Leads/Contacted/Qualified/Won
   (status-cumulative, fills #3b82f6/#8b5cf6/#10b981/#22c55e —
   `LEADS_FUNNEL`); won-vs-lost is grouped BARS + stock Legend.
+
+- **The reference NEVER reuses its create dialogs for editing
+  (session-28)** — every entity ships a SEPARATE max-w-2xl edit dialog
+  (the bundle's W7/wce/Mke family, `src/components/shared/entity-edit-dialog.tsx`):
+  grid-cols-2 rows, a Status/Source select pair (RAW values with
+  capitalized labels — value "call", label "Call"), and the
+  Save Changes/Saving... footer with a justify-end gap-3 pt-4 wrapper.
+  All three support a readOnly mode ("... Details" title, disabled
+  inputs, a single Close footer). The per-entity quirks: the contact
+  edit's source is PLAIN (no emojis — they live only in the create
+  dialog's "How did you meet?"); the account edit carries the full field
+  set (Website url placeholder "https://example.com", Annual Revenue
+  "100000"/Employees "50" numbers, the 3-option status
+  active/inactive/prospect); the lead edit's status is the 4-option set
+  (New/Contacted/Qualified/Unqualified — NOT the table's 5-status set)
+  and its source has FOUR options (no Referral) — the reference's own
+  inconsistencies, mirrored.
+- **The contacts model is the reference's vocabulary, not the scaffold's
+  (session-28)** — priority is Key/Standard/At Risk (amber-100/blue-100/
+  red-100 + border-*-300 badges; NOT the lead hot/warm/cold temperature),
+  `role` is the 5-option Decision Maker/Key Contact/Influencer/End
+  User/Other (an INLINE h-9 w-[140px] select in the row, placeholder
+  "Set role", immediate mutation), `engagementLevel` High/Medium/Low
+  drives the 3-bar cell (w-2 h-6 rounded-full; -500s + shadow-sm in the
+  table, -600 solids in the slide-over — its own inconsistency),
+  `companySize` stores the filter's exact strings, and `source` stores
+  RAW values (call/email/website/partner/referral; the emoji strings are
+  create-dialog labels ONLY). The ce() formatter: Never/Today/
+  "1 day ago"/"N days ago"(<30)/"N months ago"(floor 30), red at >=30d.
+- **The contacts row is a rich interactive surface (session-28)** —
+  cursor-pointer + hover:bg-blue-50/50 hover:shadow-sm; Key priority ->
+  the amber row tint (bg-gradient-to-r from-amber-50/50 to-amber-50/30
+  border-l-4 border-l-amber-400) + the avatar's amber overlay (w-5 h-5
+  bg-amber-400); >=30d last activity -> opacity-70 + the red Zap icon +
+  red ce text (green otherwise); the w-11 h-11 gradient avatar
+  (blue-500 via blue-600 to blue-700, ring-2 ring-blue-100) + FIRST
+  INITIAL; the engagement bars; the company + company_size stack; the
+  raw-source blue badge (bg-blue-50 text-blue-700 border-blue-200); the
+  actions column: Call/Email/WhatsApp hover-tinted ghost icons
+  (green/purple/blue) + the EllipsisVertical menu (Edit / Log Activity /
+  Delete). The ROW CLICK opens the Contact Details slide-over
+  (`src/components/contacts/contact-detail-panel.tsx`): fixed top-0
+  right-0 h-full w-full md:w-[500px] border-l, the sticky Close header,
+  the hero (w-20 h-20 gradient + first initial, position ||
+  "No position", the priority + role badges, the engagement bars), the
+  Call/Email/WhatsApp grid-cols-3, the "Contact Information" card
+  (Email/Phone/Company+size/Last Activity "MMM D, YYYY"), the
+  Activities/Deals/Notes tabs ("No activities yet"/"No deals found"/
+  "No notes yet" — notes is ALWAYS the static empty state).
+- **The contacts FILTERS button opens a checkbox-card PANEL (session-28)**
+  — the kke contract: `fixed right-0 top-16 bottom-0 w-80 bg-white
+  shadow-2xl z-40 lg:static lg:shadow-none` + the w-full lg:w-80 border-l
+  panel with the sticky Filters/Clear All header and the Role/Priority/
+  "No Recent Activity (30+ days)"/Company Size/Source card groups. NOT
+  select dropdowns (our s6-era invention, retired).
+- **The accounts row + insights (session-28)** — cursor-pointer
+  hover:bg-gray-50; Key tier -> bg-yellow-50/30 + the filled star
+  (text-yellow-500 fill-yellow-500); overdue > 0 -> border-l-4
+  border-l-red-500 + the "{N} Overdue" destructive badge; the w-10 h-10
+  bg-blue-100 rounded-lg building-icon box; the owner INITIALS box
+  (w-6 h-6 bg-blue-100 text-blue-600 text-xs); last activity as a DATE
+  ("No activity" fallback); the HEALTH badge under the "Status" header
+  (the reference's own header/cell mismatch — Healthy=green-100/
+  green-800, At Risk=yellow-100/yellow-800, Needs Attention=red-100/
+  red-800); the row click + "View Insights" open the Account Insights
+  dialog (`src/components/accounts/account-insights-dialog.tsx`,
+  max-w-3xl max-h-[80vh]): the name+industry+status header, the 3 stat
+  cards (Total Revenue $X.XM / Open Deals / Contacts), the Recent
+  Activities/Contacts/Open Deals tabs with the type-tinted w-10 h-10
+  icon rows (Email=blue, Call=green, else purple) and "Close Date: "
+  deal rows. The rail's revenue ranges are $0-$1M/$1M-$5M/$5M+.
+- **The create Contact dialog ships two h3 section headers (session-28)**
+  — "Contact Details" over Email/Phone and "Professional Details" over
+  Company/Position (`text-sm font-semibold text-gray-700 uppercase
+  tracking-wide` — live-verified; an s15-era blind spot). The Scan Card
+  dialog is the NAe contract: the border-2 border-dashed gray-300
+  dropzone, "Upload a photo or image of the business card", a VISIBLE
+  file input, "Selected: {name}" green text, Cancel/Scan Card/"Scanning..."
+  (the base44 AI extraction is the documented local divergence — a chosen
+  image opens the create dialog).
 
 ## Conventions that differ from defaults
 

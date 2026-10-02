@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (600) → `bun run build` → `bun run test:e2e` (92). For UI
+   `bun run test` (663) → `bun run build` → `bun run test:e2e` (100). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (600 checks)               |
-| `bun run test:e2e`  | Playwright E2E (92 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (663 checks)               |
+| `bun run test:e2e`  | Playwright E2E (100 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 600 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 663 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -213,6 +213,17 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   — the stock-axis correction, the five parameterized families, the
   retired scaffold components, the per-surface wirings),
   `tests/account-health-tab.test.ts` (session-27: the computed
+  - `tests/contact-model.test.ts` (session-28: the Key/Standard/At Risk
+    vocabulary, the role/engagement/company-size fields, the raw source
+    values, the ce formatter, the health/tier badge maps)
+  - `tests/entity-edit-dialog.test.ts` (session-28: the W7/wce/Mke
+    edit-dialog family — the shared max-w-2xl component + the three
+    configs' field sets)
+  - `tests/contact-surfaces.test.ts` (session-28: the contacts row
+    contract, the Pke slide-over, the kke filter panel, the stats fix)
+  - `tests/account-surfaces.test.ts` (session-28: the accounts row, the
+    Ece insights dialog, the Oce rail alignment)
+  - `tests/account-health-tab.test.ts` (session-27: the computed
   account-health seam + the API + the tab-5 rendering pins),
   `tests/dashboard-contracts.test.ts` (session-27: the O-map legend
   chips, the KPI statics, the checkbox-row lists),

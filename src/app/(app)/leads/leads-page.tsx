@@ -49,6 +49,7 @@ import {
 } from "@/lib/lead-filters";
 import { ConversionFunnel, GroupedBarsChart, SingleBarChart, dollarFormatter } from "@/components/charts/charts";
 import { LeadDialog } from "@/components/shared/entity-dialogs";
+import { EntityEditDialog, LEAD_EDIT_FIELDS } from "@/components/shared/entity-edit-dialog";
 import { useCrmStore } from "@/stores/crm-store";
 import { CHART_COLORS, LEADS_FUNNEL, STAGE_META, isDroppedStage } from "@/lib/constants";
 import { avgDaysBetween, formatCompactCurrency, formatCurrency, formatDate } from "@/lib/format";
@@ -58,7 +59,7 @@ type SortKey = "name" | "email" | "value" | "createdAt";
 type SortDir = "asc" | "desc";
 
 export default function LeadsPage() {
-  const { leads, hydrated, deleteLead, fetchLeads } = useCrmStore();
+  const { leads, hydrated, deleteLead, updateLead, fetchLeads } = useCrmStore();
   const [search, setSearch] = React.useState("");
   // S8-5: the reference's Filters control is a w-80 POPOVER with
   // Status/Source/Min Deal Value/Follow-up Date — not an inline expander.
@@ -67,6 +68,10 @@ export default function LeadsPage() {
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Lead | null>(null);
+  // Session-28 (S28-P2): the Mke Edit Lead dialog — a SEPARATE max-w-2xl
+  // dialog (NOT the create form), wired to the ⋮ Edit item.
+  const [editOpen, setEditOpen] = React.useState(false);
+  const [editTarget, setEditTarget] = React.useState<Lead | null>(null);
 
   React.useEffect(() => {
     if (hydrated) fetchLeads();
@@ -411,10 +416,13 @@ export default function LeadsPage() {
                           </Button>
                         </DropdownTrigger>
                         <DropdownContent>
+                          {/* Session-28 (S28-P2): the ⋮ Edit opens the
+                              reference's SEPARATE Mke edit dialog (not the
+                              create form). */}
                           <DropdownItem
                             onClick={() => {
-                              setEditing(l);
-                              setDialogOpen(true);
+                              setEditTarget(l);
+                              setEditOpen(true);
                             }}
                           >
                             <Pencil className="h-4 w-4 text-muted" /> Edit
@@ -489,6 +497,45 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Session-28 (S28-P2): the Mke Edit Lead dialog — max-w-2xl, the
+          4-option status set + the 4-option source, Estimated Value. */}
+      <EntityEditDialog
+        open={editOpen}
+        onOpenChange={(o) => {
+          setEditOpen(o);
+          if (!o) setEditTarget(null);
+        }}
+        title="Edit Lead"
+        detailsTitle="Lead Details"
+        fields={LEAD_EDIT_FIELDS}
+        entityId={editTarget?.id ?? null}
+        initial={{
+          name: editTarget?.name ?? "",
+          email: editTarget?.email ?? "",
+          phone: editTarget?.phone ?? "",
+          company: editTarget?.company ?? "",
+          status: editTarget?.stage ?? "new",
+          source: editTarget?.source ?? "call",
+          value: editTarget?.value ?? "",
+        }}
+        onSubmit={async (form) => {
+          if (!editTarget) return;
+          const res = await updateLead(editTarget.id, {
+            name: form.name,
+            email: form.email || null,
+            phone: form.phone || null,
+            company: form.company || null,
+            stage: form.status || "new",
+            source: form.source || "call",
+            value: form.value ? Number(form.value) : 0,
+          });
+          if (res.ok) {
+            setEditOpen(false);
+            setEditTarget(null);
+          }
+        }}
+      />
 
       <LeadDialog open={dialogOpen} onOpenChange={setDialogOpen} lead={editing} />
     </div>

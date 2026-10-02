@@ -2,7 +2,7 @@
 
 import { downloadBlob } from "@/lib/download";
 import * as React from "react";
-import { Building2, Download, MoreHorizontal, Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Building2, Download, MoreVertical, Plus, Search, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,23 +16,38 @@ import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page
 import { FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD, TABLE_TOOLBAR, VIEW_SWITCHER } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import { AccountDialog } from "@/components/shared/entity-dialogs";
+import { EntityEditDialog, ACCOUNT_EDIT_FIELDS } from "@/components/shared/entity-edit-dialog";
+import { AccountInsightsDialog } from "@/components/accounts/account-insights-dialog";
 import { useCrmStore } from "@/stores/crm-store";
-import { ACCOUNT_STATUS_META, TIER_META, CHART_COLORS } from "@/lib/constants";
+import { ACCOUNT_TIER_BADGE, ACCOUNT_HEALTH_BADGE, CHART_COLORS } from "@/lib/constants";
 import { formatCompactCurrency, timeAgo } from "@/lib/format";
 import { csvFilename } from "@/lib/csv";
 import { toQuotedCsv } from "@/lib/entity-export";
 import type { Account } from "@/types";
 
+// Session-28 (S28-P6): the reference's Oce Revenue Range values —
+// $0-$1M / $1M-$5M / $5M+ (bundle-extracted; our legacy ranges retire).
 const REVENUE_RANGES = [
   { id: "all", label: "All Revenue" },
-  { id: "0-500k", label: "< $500k" },
-  { id: "500k-2m", label: "AED 500K – 2M" },
-  { id: "2m-10m", label: "AED 2M – 10M" },
-  { id: "10m+", label: "AED 10M+" },
+  { id: "0-1m", label: "$0 - $1M" },
+  { id: "1m-5m", label: "$1M - $5M" },
+  { id: "5m+", label: "$5M+" },
 ];
 
 export default function AccountsPage() {
-  const { accounts, users, activities, settings, hydrated, hydrate, deleteAccount, fetchAccounts } = useCrmStore();
+  const {
+    accounts,
+    contacts,
+    leads,
+    users,
+    activities,
+    settings,
+    hydrated,
+    hydrate,
+    deleteAccount,
+    updateAccount,
+    fetchAccounts,
+  } = useCrmStore();
   // Session-26 (S26-P5): the reference's accounts page export
   // (bundle-extracted): a client-side quoted CSV with the 10-column set
   // Name,Industry,Phone,Email,Website,Annual Revenue,Employees,Status,
@@ -69,6 +84,13 @@ export default function AccountsPage() {
   const [tierC, setTierC] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Account | null>(null);
+  // Session-28 (S28-P2/P6): the reference's SEPARATE surfaces — the wce
+  // edit dialog (the ⋮ Edit item) + the Ece insights dialog (the row click
+  // / the View Insights item).
+  const [editOpen, setEditOpen] = React.useState(false);
+  const [editTarget, setEditTarget] = React.useState<Account | null>(null);
+  const [insightsOpen, setInsightsOpen] = React.useState(false);
+  const [insightsAccount, setInsightsAccount] = React.useState<Account | null>(null);
   // S8-3: the reference's toolbar view-switcher — dead there, functional
   // here. The reference's trigger DISPLAYS "Table" (its value is set),
   // unlike the dashboard's middle select which renders empty.
@@ -131,10 +153,9 @@ export default function AccountsPage() {
       if (ownerId !== "all" && a.ownerId !== ownerId) return false;
       if (industry !== "all" && a.industry !== industry) return false;
       const rev = a.annualRevenue ?? 0;
-      if (revenue === "0-500k" && !(rev < 500_000)) return false;
-      if (revenue === "500k-2m" && !(rev >= 500_000 && rev < 2_000_000)) return false;
-      if (revenue === "2m-10m" && !(rev >= 2_000_000 && rev < 10_000_000)) return false;
-      if (revenue === "10m+" && !(rev >= 10_000_000)) return false;
+      if (revenue === "0-1m" && !(rev < 1_000_000)) return false;
+      if (revenue === "1m-5m" && !(rev >= 1_000_000 && rev < 5_000_000)) return false;
+      if (revenue === "5m+" && !(rev >= 5_000_000)) return false;
       const tiers = [tierKey && "key", tierA && "A", tierB && "B", tierC && "C"].filter(Boolean);
       if (tiers.length > 0) {
         const match =
@@ -308,14 +329,17 @@ export default function AccountsPage() {
                             <p className="truncate text-xs text-muted">{a.industry ?? "—"}</p>
                           </div>
                         </div>
-                        <Badge variant="outline" className={ACCOUNT_STATUS_META[a.status]?.badge}>
-                          {ACCOUNT_STATUS_META[a.status]?.label ?? a.status}
+                        <Badge className={
+                          a.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                        }>
+                          {a.status}
                         </Badge>
                       </div>
                       <div className="mt-3 flex items-center justify-between">
                         <span className="flex items-center gap-1.5">
-                          <Badge variant="outline" className={TIER_META[a.tier]?.badge}>{a.tier}</Badge>
-                          {a.isKey && <Badge variant="warning">Key</Badge>}
+                          <Badge className={ACCOUNT_TIER_BADGE[a.isKey ? "Key" : a.tier] ?? ACCOUNT_TIER_BADGE.C}>
+                            {a.isKey ? "Key" : a.tier}
+                          </Badge>
                         </span>
                         <span className="text-sm font-semibold text-foreground">
                           {a.annualRevenue != null ? formatCompactCurrency(a.annualRevenue) : "—"}
@@ -354,56 +378,114 @@ export default function AccountsPage() {
                   <TableEmptyRow colSpan={8} message="No accounts found" />
                 ) : (
                   <>
-                    {filtered.map((a) => (
-                      <TableRow key={a.id}>
+                    {filtered.map((a) => {
+                      // Session-28 (S28-P6): the reference's per-account
+                      // overdue count (the red border-l-4 + the badge).
+                      const overdue = activities.filter(
+                        (act) =>
+                          act.accountId === a.id &&
+                          act.status === "scheduled" &&
+                          act.dueAt &&
+                          new Date(act.dueAt) < new Date(),
+                      ).length;
+                      const owner = users.find((u) => u.id === a.ownerId);
+                      const ownerInitials = owner
+                        ? owner.name.split(" ").map((w) => w[0]).join("")
+                        : "A";
+                      const tier = a.isKey ? "Key" : a.tier;
+                      return (
+                    <TableRow
+                      key={a.id}
+                      className={cn(
+                        "cursor-pointer hover:bg-gray-50",
+                        (a.isKey || a.tier === "Key") && "bg-yellow-50/30",
+                        overdue > 0 && "border-l-4 border-l-red-500",
+                      )}
+                      onClick={() => {
+                        setInsightsAccount(a);
+                        setInsightsOpen(true);
+                      }}
+                    >
                       <TableCell>
-                        <div className="flex items-center gap-2.5">
-                          <Avatar name={a.name} color="#e5e7eb" size="md" className="!text-gray-600" />
-                          <div className="min-w-0">
-                            <p className="truncate font-medium text-foreground">{a.name}</p>
-                            <p className="truncate text-xs text-muted">{a.email ?? a.website ?? "—"}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{a.name}</p>
+                              {(a.isKey || a.tier === "Key") && (
+                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                              )}
+                              {overdue > 0 && (
+                                <Badge variant="danger" className="text-xs">
+                                  {overdue} Overdue
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500">{a.email}</p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-muted">{a.industry ?? "—"}</TableCell>
-                      <TableCell className="font-medium text-foreground">
-                        {a.annualRevenue != null ? formatCompactCurrency(a.annualRevenue) : "—"}
+                      <TableCell>{a.industry || "-"}</TableCell>
+                      <TableCell>
+                        {a.annualRevenue ? `$${(a.annualRevenue / 1e6).toFixed(1)}M` : "-"}
                       </TableCell>
                       <TableCell>
-                        <span className="flex items-center gap-1.5">
-                          <Badge variant="outline" className={TIER_META[a.tier]?.badge}>{a.tier}</Badge>
-                          {a.isKey && <Badge variant="warning">Key</Badge>}
+                        <Badge className={ACCOUNT_TIER_BADGE[tier] ?? ACCOUNT_TIER_BADGE.C}>
+                          {tier}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-blue-100 text-blue-600 text-xs font-semibold flex items-center justify-center">
+                            {ownerInitials}
+                          </div>
+                          <span className="text-sm">{owner?.name ?? a.ownerId}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-gray-600">
+                          {a.lastActivityAt ? new Date(a.lastActivityAt).toLocaleDateString() : "No activity"}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <span className="flex items-center gap-2">
-                          {a.owner && <Avatar name={a.owner.name} color={a.owner.avatarColor} size="sm" />}
-                          <span className="text-muted">{a.owner?.name ?? "Unassigned"}</span>
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-muted">{timeAgo(a.lastActivityAt ?? a.createdAt)}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={ACCOUNT_STATUS_META[a.status]?.badge}>
-                          {ACCOUNT_STATUS_META[a.status]?.label ?? a.status}
+                        {/* Session-28 (S28-P6): the reference renders the
+                            HEALTH badge under the "Status" header — its own
+                            header/cell mismatch, mirrored verbatim. */}
+                        <Badge className={ACCOUNT_HEALTH_BADGE[a.health] ?? ACCOUNT_HEALTH_BADGE.Healthy}>
+                          {a.health}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <Dropdown>
                           <DropdownTrigger asChild>
-                            <Button variant="ghost" size="iconSm" aria-label={`Actions for ${a.name}`}>
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Actions for ${a.name}`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownTrigger>
                           <DropdownContent>
                             <DropdownItem
                               onClick={() => {
-                                setEditing(a);
-                                setDialogOpen(true);
+                                setEditTarget(a);
+                                setEditOpen(true);
                               }}
                             >
-                              <Pencil className="h-4 w-4 text-muted" /> Edit
+                              Edit
                             </DropdownItem>
-                            <DropdownSeparator />
+                            <DropdownItem
+                              onClick={() => {
+                                setInsightsAccount(a);
+                                setInsightsOpen(true);
+                              }}
+                            >
+                              View Insights
+                            </DropdownItem>
                             <DropdownItem destructive onClick={() => onDelete(a)}>
                               <Trash2 className="h-4 w-4" /> Delete
                             </DropdownItem>
@@ -411,7 +493,8 @@ export default function AccountsPage() {
                         </Dropdown>
                       </TableCell>
                     </TableRow>
-                    ))}
+                      );
+                    })}
                   </>
                 )}
               </TableBody>
@@ -493,16 +576,75 @@ export default function AccountsPage() {
                   <Checkbox checked={tierC} onCheckedChange={setTierC} label="C" />
                 </div>
               </div>
-              {/* Full-width primary Filter button (reference anatomy). With
-                  live filtering it re-hydrates the data under the current
-                  filters — a real refresh action (fix-over-defect). */}
+              {/* Full-width primary Filter button (reference anatomy —
+                  Session-28: the reference's explicit bg-blue-600
+                  hover:bg-blue-700 pair). With live filtering it re-hydrates
+                  the data under the current filters — a real refresh action
+                  (fix-over-defect). */}
               <div className={FILTER_RAIL.filterButtonWrap}>
-                <Button className="w-full" onClick={() => void hydrate()}>Filter</Button>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => void hydrate()}>Filter</Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Session-28 (S28-P2): the wce Edit Account dialog — a SEPARATE
+          max-w-2xl dialog with the full field set (Website url, Annual
+          Revenue / Employees numbers, the 3-option Status), wired to the ⋮
+          Edit item. */}
+      <EntityEditDialog
+        open={editOpen}
+        onOpenChange={(o) => {
+          setEditOpen(o);
+          if (!o) setEditTarget(null);
+        }}
+        title="Edit Account"
+        detailsTitle="Account Details"
+        fields={ACCOUNT_EDIT_FIELDS}
+        entityId={editTarget?.id ?? null}
+        initial={{
+          name: editTarget?.name ?? "",
+          industry: editTarget?.industry ?? "",
+          phone: editTarget?.phone ?? "",
+          email: editTarget?.email ?? "",
+          website: editTarget?.website ?? "",
+          annualRevenue: editTarget?.annualRevenue ?? "",
+          employees: editTarget?.employees ?? "",
+          status: editTarget?.status ?? "active",
+        }}
+        onSubmit={async (form) => {
+          if (!editTarget) return;
+          const res = await updateAccount(editTarget.id, {
+            name: form.name,
+            industry: form.industry || null,
+            phone: form.phone || null,
+            email: form.email || null,
+            website: form.website || null,
+            annualRevenue: form.annualRevenue ? Number(form.annualRevenue) : null,
+            employees: form.employees ? Number(form.employees) : null,
+            status: form.status,
+          });
+          if (res.ok) {
+            setEditOpen(false);
+            setEditTarget(null);
+          }
+        }}
+      />
+
+      {/* Session-28 (S28-P6): the Ece Account Insights dialog (the row
+          click + the View Insights item). */}
+      <AccountInsightsDialog
+        open={insightsOpen}
+        onOpenChange={(o) => {
+          setInsightsOpen(o);
+          if (!o) setInsightsAccount(null);
+        }}
+        account={insightsAccount}
+        activities={activities}
+        contacts={contacts}
+        leads={leads}
+      />
 
       <AccountDialog open={dialogOpen} onOpenChange={setDialogOpen} account={editing} />
     </div>
