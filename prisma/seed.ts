@@ -123,20 +123,22 @@ async function main() {
   }
 
   // ---- contacts ---------------------------------------------------------------
-  // Session-5: sources follow the reference's dialog vocabularies — leads
-  // use Call/Email/Website/Partner; contacts use the five "How did you
-  // meet?" emoji options. Old working values map onto the new lists.
+  // Session-5 (re-scoped session-29): sources follow the reference's RAW
+  // dialog vocabularies — leads store call/email/website/partner (value
+  // "call", label "Call"; referral is filter-only); contacts use the five
+  // "How did you meet?" emoji options. Old working values map onto the raw
+  // lists.
   const LEAD_SOURCE_MAP: Record<string, string> = {
-    Referral: "Partner",
-    Event: "Partner",
-    "Social Media": "Partner",
-    Advertisement: "Partner",
-    Partner: "Partner",
-    Phone: "Call",
-    "Cold Call": "Call",
-    Call: "Call",
-    Website: "Website",
-    Email: "Email",
+    Referral: "referral",
+    Event: "partner",
+    "Social Media": "partner",
+    Advertisement: "partner",
+    Partner: "partner",
+    Phone: "call",
+    "Cold Call": "call",
+    Call: "call",
+    Website: "website",
+    Email: "email",
   };
   // Session-28 (S28-P1): the reference stores RAW source values
   // (call/email/website/partner/referral) — the emoji strings are

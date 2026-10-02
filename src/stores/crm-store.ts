@@ -214,8 +214,15 @@ export const useCrmStore = create<CrmState>((set, get) => ({
     return res;
   },
   updateLead: async (id, input) => {
+    // Session-29 (S29-P2, the C2 contract): apply the patch to the leads
+    // slice BEFORE the network call — the reference's React-Query cache
+    // updates instantly on the inline row edits (Value/Status/Date), and
+    // the per-keystroke controlled inputs need the local apply to avoid
+    // the stale-race clobber. The refetch reconciles; on failure it
+    // rolls back to server truth.
+    set({ leads: get().leads.map((l) => (l.id === id ? ({ ...l, ...input } as Lead) : l)) });
     const res = await call<Lead>(`/api/leads/${id}`, { method: "PUT", body: JSON.stringify(input) });
-    if (res.ok) await Promise.all([get().fetchLeads(), get().fetchDashboard()]);
+    await Promise.all([get().fetchLeads(), get().fetchDashboard()]);
     return res;
   },
   deleteLead: async (id) => {

@@ -179,13 +179,30 @@ describe("session-26: the accounts page export (S26-P5)", () => {
   });
 });
 
-describe("session-26: the dead export branches retire (S26-P4/P5 cleanup)", () => {
-  it("/api/export keeps ONLY the leads + report branches", () => {
+describe("session-26: the dead export branches retire (S26-P4/P5 cleanup; re-scoped S29-P5)", () => {
+  it("/api/export keeps ONLY the report branch (the leads branch went client-side in S29)", () => {
     const code = stripComments(read("src/app/api/export/route.ts")!);
     expect(code).not.toMatch(/type === "contacts"/);
     expect(code).not.toMatch(/type === "accounts"/);
     expect(code).not.toMatch(/type === "activities"/);
-    expect(code).toMatch(/type === "leads"/);
-    expect(code).toMatch(/type === "report"/);
+    expect(code).not.toMatch(/type === "leads"/);
+    expect(code).toMatch(/type !== "report"/);
+  });
+});
+
+describe("session-29: the leads page export seam (S29-P5, the U bundle extract)", () => {
+  it("unquotedHeaderCsv: plain header, every VALUE quoted, \\n-joined", async () => {
+    const { unquotedHeaderCsv } = await import("@/lib/entity-export");
+    expect(
+      unquotedHeaderCsv(["Name", "Email", "Status"], [
+        ["Khalid", "k@example.com", "new"],
+        ["Priya", "", "won"],
+      ]),
+    ).toBe('Name,Email,Status\n"Khalid","k@example.com","new"\n"Priya","","won"');
+  });
+
+  it("an empty row set yields the header-only artifact (never an empty file)", async () => {
+    const { unquotedHeaderCsv } = await import("@/lib/entity-export");
+    expect(unquotedHeaderCsv(["Name", "Email"], [])).toBe("Name,Email");
   });
 });

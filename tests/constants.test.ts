@@ -59,10 +59,12 @@ describe("dialog/filter vocabularies (session-5 DOM-verified)", () => {
     expect(LEAD_STAGES).toContain("unqualified");
   });
 
-  it("lead create dialog Source options: Call / Email / Website / Partner", () => {
-    // Live "Create New Lead" Source listbox (and dashboard All Sources):
-    // Call, Email, Website, Partner.
-    expect([...LEAD_SOURCES]).toEqual(["Call", "Email", "Website", "Partner"]);
+  it("lead create dialog Source options: the RAW call / email / website / partner", () => {
+    // Session-29 (S29-P4, bundle-extracted from the Tke/Mke selects): the
+    // dialogs store RAW values (value "call", label "Call") — the s28
+    // contact-source precedent. Referral exists in the filters popover's
+    // five-option list only.
+    expect([...LEAD_SOURCES]).toEqual(["call", "email", "website", "partner"]);
   });
 
   it("contact create dialog \"How did you meet?\" emoji options", () => {

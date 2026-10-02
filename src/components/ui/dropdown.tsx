@@ -39,16 +39,23 @@ function DropdownItem({
   destructive = false,
   ...props
 }: React.ComponentProps<"button"> & { destructive?: boolean }) {
+  // Session-29 (S29-P2): items close the popover on click — the
+  // reference's ⋮ menus are real Radix DropdownMenus whose items
+  // auto-close on select (its DEAD "Convert to Opportunity" item closes
+  // the menu too). PopoverPrimitive.Close composes with the child's own
+  // onClick (the caller's handler runs, then the popover closes).
   return (
-    <button
-      type="button"
-      className={cn(
-        "flex w-full cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm outline-none transition-colors hover:bg-line-soft focus-visible:bg-line-soft",
-        destructive ? "text-danger hover:bg-danger-soft" : "text-foreground",
-        className,
-      )}
-      {...props}
-    />
+    <PopoverPrimitive.Close asChild>
+      <button
+        type="button"
+        className={cn(
+          "flex w-full cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm outline-none transition-colors hover:bg-line-soft focus-visible:bg-line-soft",
+          destructive ? "text-danger hover:bg-danger-soft" : "text-foreground",
+          className,
+        )}
+        {...props}
+      />
+    </PopoverPrimitive.Close>
   );
 }
 

@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (663 checks)         | `bun run test`                         |
-| Browser E2E (100 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (697 checks)         | `bun run test`                         |
+| Browser E2E (104 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (663) → `bun run build` → `bun run test:e2e` (100). There is no
+`bun run test` (697) → `bun run build` → `bun run test:e2e` (104). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1161,6 +1161,59 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   file input, "Selected: {name}" green text, Cancel/Scan Card/"Scanning..."
   (the base44 AI extraction is the documented local divergence — a chosen
   image opens the create dialog).
+
+- **The leads table is the INTERACTIVE surface (session-29)** — the C2
+  contract (bundle-extracted + live-verified): the Name cell is the orange
+  Target box (`w-10 h-10 bg-orange-100 rounded-lg` + `Target` w-5 h-5
+  text-orange-600 + `p.font-medium`); the Email/Phone/Company cells are
+  `text-sm` with the `-` single-hyphen fallback; **Value is an INLINE
+  number input** (`w-24 h-8 text-sm`, placeholder `"$0"`, `parseFloat(v)
+  || 0`, immediate mutation); **Status is an INLINE select** (`w-32 h-8`,
+  EXACTLY the five raw options new/contacted/qualified/won/lost — NOT the
+  edit dialog's 4-option set; unmatched stages render a BLANK trigger,
+  Radix's unmatched-value behavior); Source is an outline `text-xs` Badge
+  with the RAW value; **Next Follow-up is an INLINE date input** (`w-36
+  h-8`) with `isOverdueFollowUp` (any PAST date — a date-only "today"
+  parses at UTC midnight and IS overdue, the reference's own quirk) →
+  `border-red-500` + the `CircleAlert` w-4 h-4 text-red-500; the ⋮ menu is
+  Edit / **Convert to Opportunity (DEAD — no onClick, the reference's own
+  quirk)** / Delete; the row carries an EXPLICIT `hover:bg-gray-50` and is
+  NOT clickable (unlike contacts/accounts); the thead is `sticky top-0
+  bg-white z-10` (live-confirmed); the actions header is `w-12`; the
+  sortable th's are `cursor-pointer` + `flex items-center gap-2` +
+  ArrowUpDown. The store's `updateLead` applies the patch to the leads
+  slice BEFORE the await (the reference's React-Query cache updates
+  instantly — per-keystroke controlled inputs need the optimistic apply).
+  DropdownItems CLOSE the popover on click (`PopoverPrimitive.Close
+  asChild` — the reference's real menus auto-close on select).
+- **The leads KPIs + charts + export ALL derive from the FILTERED set
+  (session-29, the H/U bundle extracts)** — "Open Leads" = new+contacted+
+  qualified (NOT everything-not-won); "Dropped Deals" = lost STRICTLY
+  (unqualified is not dropped); the conversion rate is the one-decimal
+  `toFixed(1)`; the avg sales cycle is the average AGE of the won leads
+  (now − created, floored to days — NOT created→closed). The Export button
+  builds a CLIENT-SIDE blob from the filtered rows (the UNQUOTED 8-column
+  header + every VALUE cell quoted + `\n` joins + `leads_YYYY-MM-DD.csv`
+  via `unquotedHeaderCsv` — `/api/export?type=leads` is RETIRED; the route
+  serves type=report only).
+- **The leads filters popover (session-29, the s8 pin re-scoped)** — the
+  Status/Source selects store RAW values with explicit All items bound to
+  the `"all"` sentinel (all/new/contacted/qualified/won/lost;
+  all/call/email/website/partner/referral); the trigger gains the
+  "(Active)" suffix while any filter is set (LIVE-confirmed — `filtersActive`);
+  **Save View fires the NATIVE `prompt("Enter view name:")`** (LIVE-
+  confirmed — the s8 "inert" pin was the s26 native-dialog auto-dismiss
+  hazard) and the saved views render as a `w-full sm:w-48` "Saved Views"
+  select that applies a view's filters on selection (LIVE-confirmed; the
+  reference keeps them in-memory — ours persists the list to
+  `localStorage["neo-crm.leads.views"]`, the documented superset; the filters
+  themselves do NOT auto-restore on load). The lead SOURCE vocabulary is
+  RAW end-to-end (value "call", label "Call" — the s28 contact-source
+  precedent): `LEAD_SOURCE_OPTIONS`, the create dialog (default "email"),
+  the seed, the dashboard's "Follow up with {raw}" rows, the CSV exports.
+  The filter matching: search = name OR email OR company; status/source =
+  strict equality; a min value passes only TRUTHY lead values (the
+  reference's own `X.value &&` quirk — zero-value leads never pass).
 
 ## Conventions that differ from defaults
 

@@ -47,7 +47,10 @@ import {
   CONTACT_SOURCE_OPTIONS,
   EVENT_TYPES,
   EVENT_TYPE_META,
-  LEAD_SOURCES,
+  // Session-29 (S29-P4): the RAW source values with capitalized labels
+  // (value "call", label "Call") — the s28 contact-source precedent;
+  // the Tke default is source:"email" (bundle-extracted).
+  LEAD_SOURCE_OPTIONS,
   LEAD_STAGES,
   STAGE_META,
 } from "@/lib/constants";
@@ -655,7 +658,9 @@ function LeadForm({
     company: lead?.company ?? "",
     value: lead?.value != null && lead.value > 0 ? String(lead.value) : "",
     stage: lead?.stage ?? settings?.defaultLeadStage ?? "new",
-    source: lead?.source ?? "Email",
+    // Session-29 (S29-P4): the RAW source default (the Tke initial state
+    // is source:"email" — bundle-extracted).
+    source: lead?.source ?? "email",
     expectedCloseDate: toLocalInputValue(lead?.expectedCloseDate).slice(0, 10),
     nextFollowUp: toLocalInputValue(lead?.nextFollowUp).slice(0, 10),
   }));
@@ -772,8 +777,10 @@ function LeadForm({
                 <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
                   <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {LEAD_SOURCES.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    {/* Session-29 (S29-P4): value/label pairs — the RAW
+                        values are stored; the labels are display-only. */}
+                    {LEAD_SOURCE_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -837,8 +844,10 @@ function LeadForm({
               <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
                 <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {LEAD_SOURCES.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  {/* Session-29 (S29-P4): the RAW values with capitalized
+                      labels (the edit superset keeps the same pair list). */}
+                  {LEAD_SOURCE_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

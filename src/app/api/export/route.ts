@@ -25,46 +25,27 @@ function reportPeriodStart(period: string, now: Date): Date {
   }
 }
 
-/** CSV export for leads + report (session-26, S26-P4/P5 cleanup).
- * The contacts/accounts/activities branches retired with the
- * client-side rewiring: the Settings export buttons build raw-dump blobs
- * from the store, the contacts/accounts page exports build quoted CSVs
- * in the browser, and the Settings template buttons ship STATIC templates
- * (src/lib/csv-templates.ts) — none of them call this route anymore.
- * type=leads (the leads page export) + type=report (the reports header
- * CSV) stay at their verified s25 parity. */
+/** CSV export for the reports header (session-29 re-scope). The leads
+ *  branch RETIRED with the client-side rewire: the reference's leads
+ *  Export button builds a client-side blob from the FILTERED rows (the
+ *  U bundle extract — src/lib/entity-export.ts unquotedHeaderCsv + the
+ *  page's onExport), so the route now serves type=report only. The
+ *  contacts/accounts/activities branches went the same way in s26. */
 export async function GET(req: Request) {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
 
   const url = new URL(req.url);
-  const type = url.searchParams.get("type") ?? "leads";
+  const type = url.searchParams.get("type") ?? "report";
+  if (type !== "report") return ERR.BAD_REQUEST("Invalid type");
   const download = url.searchParams.get("download") === "1";
   // The report CSV's Owner column needs the user names (session-25).
-  const usersCache = type === "report" ? await db.user.findMany() : [];
+  const usersCache = await db.user.findMany();
 
   let csv = "";
   let filename = "";
 
-  if (type === "leads") {
-    const rows = await db.lead.findMany({ orderBy: { createdAt: "desc" } });
-    // Session-25 (S25-P5): the reference's leads CSV column set, byte-captured
-    // from its downloaded leads_2026-10-01.csv (headers-only at zero data):
-    // Name,Email,Phone,Company,Value,Status,Source,Next Follow-up — no
-    // Lead Name/Stage/Expected Close/Created columns.
-    const columns: CsvColumn<(typeof rows)[number]>[] = [
-      { header: "Name", value: (r) => r.name },
-      { header: "Email", value: (r) => r.email },
-      { header: "Phone", value: (r) => r.phone },
-      { header: "Company", value: (r) => r.company },
-      { header: "Value", value: (r) => r.value },
-      { header: "Status", value: (r) => r.status },
-      { header: "Source", value: (r) => r.source },
-      { header: "Next Follow-up", value: (r) => formatDate(r.nextFollowUp) },
-    ];
-    csv = toCsv(rows, columns);
-    filename = csvFilename("leads");
-  } else if (type === "report") {
+  {
     // Session-25 (S25-P5): the reports header CSV — the reference's
     // crm_report_YYYY-MM-DD.csv (SINGULAR "report", unlike the PDF's
     // plural crm_reports): Deal Name,Account,Amount,Stage,Source,Owner,
@@ -99,8 +80,6 @@ export async function GET(req: Request) {
     ];
     csv = toCsv(rows, columns);
     filename = csvFilename("crm_report");
-  } else {
-    return ERR.BAD_REQUEST("Unknown export type");
   }
 
   return new Response(download ? csvWithBom(csv) : csv, {

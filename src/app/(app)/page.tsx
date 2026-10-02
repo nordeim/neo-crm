@@ -39,7 +39,7 @@ import { KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { RevenueLineChart, SingleBarChart, dollarFormatter } from "@/components/charts/charts";
 import { AccountDialog, ActivityDialog, ContactDialog, EventDialog, LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { STAGE_META, CHART_COLORS, LEAD_SOURCES, PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
+import { STAGE_META, CHART_COLORS, LEAD_SOURCE_OPTIONS, PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
 
 type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
@@ -223,8 +223,9 @@ export default function DashboardPage() {
           <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Sources</SelectItem>
-            {LEAD_SOURCES.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
+            {/* Session-29 (S29-P4): the RAW values with capitalized labels. */}
+            {LEAD_SOURCE_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>

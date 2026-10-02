@@ -1708,6 +1708,110 @@ test("the leads ⋮ Edit opens the Mke edit dialog with the 4-option statuses (S
   await expect(page.getByRole("option", { name: "Won" })).toHaveCount(0);
 });
 
+// ---------------------------------------------------------------------------
+// Session-29: the leads INTERACTIVE table layer (the C2 pointer)
+// ---------------------------------------------------------------------------
+
+test("the leads row ships the orange Target name box + the STICKY thead (S29-P2)", async ({ page }) => {
+  await page.goto("/leads");
+  await expect(page.getByText("No leads found")).toHaveCount(0);
+  // The thead is sticky (live-confirmed on the reference).
+  const thead = page.locator("table thead");
+  await expect(thead).toBeVisible();
+  await expect(thead).toHaveClass(/sticky top-0 bg-white z-10/);
+  // The first row renders the w-10 h-10 bg-orange-100 Target box + the
+  // font-medium name.
+  const firstRow = page.locator("tbody tr").first();
+  await expect(firstRow.locator("div.w-10.h-10.bg-orange-100 > svg")).toBeVisible();
+  await expect(firstRow.locator("p.font-medium")).toBeVisible();
+  // The actions header is w-12 and the row carries the explicit hover tint.
+  await expect(page.locator("thead th").last()).toHaveClass(/w-12/);
+  await expect(firstRow).toHaveClass(/hover:bg-gray-50/);
+});
+
+test("the inline Value/Status/Date editing round-trip persists (S29-P2, the C2 core)", async ({ page }) => {
+  await page.goto("/leads");
+  await expect(page.getByText("No leads found")).toHaveCount(0);
+  // Target the lead created by the earlier dialog test (newest first).
+  const row = page.locator("tbody tr", { hasText: "E2E — Playwright deal" });
+  await expect(row).toBeVisible();
+
+  // The inline Value number input — optimistic apply + persistence.
+  const valueInput = row.getByLabel(/^Value for /);
+  await valueInput.fill("999999");
+  await expect(valueInput).toHaveValue("999999");
+
+  // The inline Status select — the FIVE-option set.
+  await row.getByLabel(/^Status for /).click();
+  for (const opt of ["New", "Contacted", "Qualified", "Won", "Lost"]) {
+    await expect(page.getByRole("option", { name: opt, exact: true })).toBeVisible();
+  }
+  await page.getByRole("option", { name: "Won", exact: true }).click();
+  await expect(row.getByLabel(/^Status for /)).toHaveText("Won");
+
+  // The inline date — a PAST date renders the red border + CircleAlert.
+  const dateInput = row.getByLabel(/^Next follow-up for /);
+  await dateInput.fill("2020-01-01");
+  await expect(dateInput).toHaveClass(/border-red-500/);
+  await expect(row.locator("svg.text-red-500")).toBeVisible();
+
+  // Reload: the mutations PERSISTED (the PATCH round-trip, not just the
+  // optimistic local apply).
+  await page.reload();
+  const rowAfter = page.locator("tbody tr", { hasText: "E2E — Playwright deal" });
+  await expect(rowAfter).toBeVisible();
+  await expect(rowAfter.getByLabel(/^Value for /)).toHaveValue("999999");
+  await expect(rowAfter.getByLabel(/^Status for /)).toHaveText("Won");
+  await expect(rowAfter.getByLabel(/^Next follow-up for /)).toHaveClass(/border-red-500/);
+});
+
+test("the ⋮ menu ships Edit / the DEAD Convert to Opportunity / Delete (S29-P2)", async ({ page }) => {
+  await page.goto("/leads");
+  await expect(page.getByText("No leads found")).toHaveCount(0);
+  const row = page.locator("tbody tr", { hasText: "E2E — Playwright deal" });
+  await row.getByLabel(/^Actions for /).click();
+  await expect(page.getByRole("button", { name: "Convert to Opportunity" })).toBeVisible();
+  // The reference's own quirk: the item is DEAD — no dialog, no navigation.
+  await page.getByRole("button", { name: "Convert to Opportunity" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(page.url()).toContain("/leads");
+});
+
+test("the filters popover: the (Active) suffix + the prompt-based Save View + the Saved Views select (S29-P3)", async ({ page }) => {
+  await page.goto("/leads");
+  await expect(page.getByText("No leads found")).toHaveCount(0);
+
+  // Set a status filter → the trigger gains "(Active)" (live-confirmed).
+  await page.getByLabel("Open lead filters").click();
+  await page.getByLabel("Filter by status").click();
+  await page.getByRole("option", { name: "New", exact: true }).click();
+  await expect(page.getByLabel("Open lead filters")).toHaveText(/Filters \(Active\)/);
+
+  // Save View fires the NATIVE prompt — intercept with page.once and
+  // accept immediately (the s26 lesson: a SYNCHRONOUS prompt blocks the
+  // page mid-click; the waitForEvent pattern hangs the click promise).
+  page.once("dialog", async (prompt) => {
+    expect(prompt.message()).toBe("Enter view name:");
+    await prompt.accept("New pipeline");
+  });
+  await page.getByRole("button", { name: "Save View" }).click();
+
+  // The Saved Views select appears; Clear drops the active suffix (the
+  // JSX text node carries surrounding whitespace — assert the suffix
+  // absence, not an exact string).
+  await expect(page.getByLabel("Saved views")).toBeVisible();
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.getByLabel("Open lead filters")).not.toContainText("(Active)");
+
+  // Selecting the saved view APPLIES its filters (the popover closed on
+  // the outside click — re-open to verify the applied state).
+  await page.getByLabel("Saved views").click();
+  await page.getByRole("option", { name: "New pipeline" }).click();
+  await expect(page.getByLabel("Open lead filters")).toHaveText(/Filters \(Active\)/);
+  await page.getByLabel("Open lead filters").click();
+  await expect(page.getByLabel("Filter by status")).toHaveText("New");
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();

@@ -51,3 +51,13 @@ export function toQuotedCsv(header: string[], rows: string[][]): string {
     ...rows.map((r) => r.map((v) => `"${v}"`).join(",")),
   ].join("\n");
 }
+
+/** Session-29 (S29-P5, the C2 bundle extract): the leads PAGE export — a
+ *  client-side blob from the FILTERED rows. The reference's builder joins
+ *  the header UNQUOTED (`z.join(",")`) while every VALUE cell is
+ *  `"quoted"` — its own inconsistency vs the toQuotedCsv family (the
+ *  s25 header-only capture could not see the quoting; with data it is
+ *  bundle-verified). */
+export function unquotedHeaderCsv(header: string[], rows: string[][]): string {
+  return [header.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");
+}

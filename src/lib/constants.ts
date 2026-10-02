@@ -69,9 +69,30 @@ export const PIPELINE_LABELS: Record<string, string> = {
   unqualified: "Unqualified",
 };
 
-// Session-5: the reference's Create Lead dialog + dashboard "All Sources"
-// filter hardcode exactly these four sources (live listbox extraction).
-export const LEAD_SOURCES = ["Call", "Email", "Website", "Partner"] as const;
+// Session-5 (re-scoped session-29): the reference's lead Create/Edit
+// dialogs and the dashboard source surfaces store RAW values — value
+// "call", label "Call" (bundle-extracted from the Tke/Mke selects; the
+// s28 contact-source precedent). Referral exists in the FILTERS popover's
+// five-option list only — no dialog can create it.
+export const LEAD_SOURCES = ["call", "email", "website", "partner"] as const;
+export const LEAD_SOURCE_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "call", label: "Call" },
+  { value: "email", label: "Email" },
+  { value: "website", label: "Website" },
+  { value: "partner", label: "Partner" },
+];
+
+// Session-29 (S29-P2, the C2 bundle extract): the leads table's INLINE
+// status select ships EXACTLY the five raw options — the table's
+// 5-status set (new/contacted/qualified/won/lost), NOT the 8-stage
+// vocabulary and NOT the edit dialog's 4-option set.
+export const LEAD_INLINE_STATUS_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "new", label: "New" },
+  { value: "contacted", label: "Contacted" },
+  { value: "qualified", label: "Qualified" },
+  { value: "won", label: "Won" },
+  { value: "lost", label: "Lost" },
+];
 
 // ---------------------------------------------------------------------------
 // Session-10 vocabulary pins (reports/chart internals — DOM-verified on the

@@ -47,37 +47,41 @@ describe("session-25: the CSV filename convention (S25-P5)", () => {
   });
 });
 
-describe("session-25: the leads CSV column set (S25-P5)", () => {
-  it("the export route ships the reference's 8 columns in order", () => {
+describe("session-25/29: the leads CSV column set (S25-P5, re-scoped S29-P5)", () => {
+  it("the page's CLIENT-SIDE export ships the reference's 8 columns in order", () => {
+    // Session-29 (S29-P5, the U bundle extract): the Export button builds
+    // a client-side blob from the FILTERED rows — the header array lives
+    // in the page's onExport; the route's leads branch is RETIRED.
+    const code = stripComments(read("src/app/(app)/leads/leads-page.tsx")!);
+    const exportBlock = code.slice(code.indexOf("function onExport"), code.indexOf("function onExport") + 700);
+    expect(exportBlock).toMatch(/"Name", "Email", "Phone", "Company", "Value", "Status", "Source", "Next Follow-up"/);
+    // The invented/differing columns retire (scoped to the header array —
+    // the SortHead's label="Lead Name" prop is a different surface).
+    const headerLine = exportBlock.match(/const header = \[[^\]]*\]/)?.[0] ?? "";
+    expect(headerLine).not.toMatch(/"Lead Name"/);
+    expect(headerLine).not.toMatch(/"Expected Close"/);
+    expect(headerLine).not.toMatch(/"Created"/);
+    expect(headerLine).not.toMatch(/"Stage"/);
+    // The blob path: unquotedHeaderCsv + downloadBlob + the leads_ prefix.
+    expect(exportBlock).toMatch(/unquotedHeaderCsv\(header, rows\)/);
+    expect(exportBlock).toMatch(/downloadBlob\(/);
+    expect(exportBlock).toMatch(/entityExportFilename\("Leads"\)/);
+  });
+
+  it("the export route serves type=report ONLY (the leads branch retired)", () => {
     const code = stripComments(read("src/app/api/export/route.ts")!);
-    const leadsBlock = code.slice(code.indexOf('type === "leads"'), code.indexOf("type === \"leads\"") + 900);
-    expect(leadsBlock).toMatch(/\{ header: "Name",/);
-    expect(leadsBlock).toMatch(/\{ header: "Next Follow-up",/);
-    // The invented/differing columns retire.
-    expect(leadsBlock).not.toMatch(/"Lead Name"/);
-    expect(leadsBlock).not.toMatch(/"Expected Close"/);
-    expect(leadsBlock).not.toMatch(/"Created",/);
-    expect(leadsBlock).not.toMatch(/\{ header: "Stage",/);
-    // Column ORDER: Name,Email,Phone,Company,Value,Status,Source,Next Follow-up.
-    const headers = [...leadsBlock.matchAll(/\{ header: "([^"]+)"/g)].map((m) => m[1]);
-    expect(headers).toEqual([
-      "Name",
-      "Email",
-      "Phone",
-      "Company",
-      "Value",
-      "Status",
-      "Source",
-      "Next Follow-up",
-    ]);
+    expect(code).toMatch(/if \(type !== "report"\) return ERR\.BAD_REQUEST\("Invalid type"\)/);
+    expect(code).not.toMatch(/type === "leads"/);
   });
 });
 
 describe("session-25: the reports CSV wiring (S25-P5)", () => {
   it("the export route handles type=report with the reference's 7 deal columns", () => {
     const code = stripComments(read("src/app/api/export/route.ts")!);
-    expect(code).toMatch(/type === "report"/);
-    const reportBlock = code.slice(code.indexOf('type === "report"'));
+    // S29: the report branch is the ONLY branch (guarded by the
+    // `type !== "report"` early return).
+    expect(code).toMatch(/type !== "report"/);
+    const reportBlock = code.slice(code.indexOf("const period"));
     expect(reportBlock).toMatch(/"Deal Name"/);
     expect(reportBlock).toMatch(/"Close Date"/);
     // The report CSV is filter-aware (the same period/owner/stage/status

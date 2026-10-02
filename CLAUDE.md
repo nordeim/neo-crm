@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (663) → `bun run build` → `bun run test:e2e` (100). For UI
+   `bun run test` (697) → `bun run build` → `bun run test:e2e` (104). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (663 checks)               |
-| `bun run test:e2e`  | Playwright E2E (100 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (697 checks)               |
+| `bun run test:e2e`  | Playwright E2E (104 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 663 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 697 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -213,18 +213,22 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   — the stock-axis correction, the five parameterized families, the
   retired scaffold components, the per-surface wirings),
   `tests/account-health-tab.test.ts` (session-27: the computed
-  - `tests/contact-model.test.ts` (session-28: the Key/Standard/At Risk
-    vocabulary, the role/engagement/company-size fields, the raw source
-    values, the ce formatter, the health/tier badge maps)
-  - `tests/entity-edit-dialog.test.ts` (session-28: the W7/wce/Mke
-    edit-dialog family — the shared max-w-2xl component + the three
-    configs' field sets)
-  - `tests/contact-surfaces.test.ts` (session-28: the contacts row
-    contract, the Pke slide-over, the kke filter panel, the stats fix)
-  - `tests/account-surfaces.test.ts` (session-28: the accounts row, the
-    Ece insights dialog, the Oce rail alignment)
-  - `tests/account-health-tab.test.ts` (session-27: the computed
   account-health seam + the API + the tab-5 rendering pins),
+  `tests/contact-model.test.ts` (session-28: the Key/Standard/At Risk
+  vocabulary, the role/engagement/company-size fields, the raw source
+  values, the ce formatter, the health/tier badge maps),
+  `tests/entity-edit-dialog.test.ts` (session-28: the W7/wce/Mke
+  edit-dialog family — the shared max-w-2xl component + the three
+  configs' field sets),
+  `tests/contact-surfaces.test.ts` (session-28: the contacts row
+  contract, the Pke slide-over, the kke filter panel, the stats fix),
+  `tests/account-surfaces.test.ts` (session-28: the accounts row, the
+  Ece insights dialog, the Oce rail alignment),
+  `tests/leads-inline.test.ts` (session-29: the leads INTERACTIVE row —
+  the orange Target name box, the inline Value/Status/Date inputs, the
+  five raw status options, the source badge, the overdue border +
+  CircleAlert, the dead Convert item, the sticky thead, the optimistic
+  store apply, the Gke popover pins, the raw source migration),
   `tests/dashboard-contracts.test.ts` (session-27: the O-map legend
   chips, the KPI statics, the checkbox-row lists),
   `tests/leads-charts.test.ts` (session-27: the 5-status pipeline, the
@@ -255,7 +259,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 92 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 104 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -300,7 +304,12 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   Top-10 with the $ axis, the red-tinted at-risk rows + red badges +
   the Nd-ago vocabulary, the outline-badge summary, the dashboard's
   Follow-up checkbox rows + static KPI sparklines, the calendar chip
-  opening the Edit Event dialog, the single-blue by-type bars).
+  opening the Edit Event dialog, the single-blue by-type bars), and
+  session-29's leads interactive layer (the inline Value/Status/Date
+  editing round-trip with the overdue border + CircleAlert persisting
+  across reload, the orange Target name box + the sticky thead + the
+  dead Convert-to-Opportunity item, the "(Active)" suffix + the
+  prompt-based Save View + the loadable Saved Views select).
 
 ### Test Commands
 
@@ -318,7 +327,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 600).
+the seam (currently 697).
 
 ## Code Quality Standards
 

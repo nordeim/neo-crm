@@ -512,8 +512,12 @@ export const LEADS_FILTERS_POPOVER = {
   footer: "flex gap-2 pt-2",
   footerBtn: "flex-1 h-9 px-4 py-2",
   footerIcon: "h-4 w-4 mr-2",
+  // Session-29 (S29-P3, bundle + live verified): the selects store RAW
+  // values with explicit All items bound to the "all" sentinel.
   statusOptions: ["All Status", "New", "Contacted", "Qualified", "Won", "Lost"] as const,
   sourceOptions: ["All Sources", "Call", "Email", "Website", "Partner", "Referral"] as const,
+  // The saved-views select (live-confirmed): appears once a view exists.
+  savedViewsSelect: "w-full sm:w-48",
 } as const;
 
 /** Session-8: activities quick-log row — Log WhatsApp is a SOLID emerald

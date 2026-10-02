@@ -1,112 +1,189 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_LEAD_FILTERS,
+  LEAD_FILTER_SOURCE_OPTIONS,
+  LEAD_FILTER_STATUS_OPTIONS,
+  LEAD_VIEWS_STORAGE_KEY,
+  applySavedView,
   decodeLeadFilters,
+  decodeSavedLeadViews,
   encodeLeadFilters,
+  encodeSavedLeadViews,
+  filtersActive,
+  isOverdueFollowUp,
   leadFiltersEqual,
-  LEAD_FILTERS_STORAGE_KEY,
+  type LeadFilters,
+  type SavedLeadView,
 } from "@/lib/lead-filters";
 
-// Session-8 (S8-5): the leads Filters popover's "Save View" persists the
-// filter set to localStorage and restores it on the next visit. The
-// encode/decode pair is a pure seam (the component owns storage access) so
-// it is unit-testable: round-trips must be lossless, and any malformed or
-// unknown payload must decode to null (fall back to defaults) rather than
-// crash or resurrect stale vocabularies.
+// Session-29 (S29-P1/P3, bundle + LIVE verified): the leads filters seam
+// moves to the reference's RAW vocabularies — the Gke popover's Status
+// select stores all/new/contacted/qualified/won/lost and its Source select
+// stores all/call/email/website/partner/referral (value "call", label
+// "Call"), the trigger gains the "(Active)" suffix when any filter is set
+// (live-confirmed), Save View fires the native prompt("Enter view name:")
+// and the saved views render as a w-full sm:w-48 select that APPLIES a
+// view's filters on selection (live-confirmed; the reference keeps them
+// in-memory — our localStorage list stays the documented superset).
 
-describe("encodeLeadFilters / decodeLeadFilters round-trip", () => {
-  it("round-trips the default filter set", () => {
-    const decoded = decodeLeadFilters(encodeLeadFilters(DEFAULT_LEAD_FILTERS));
-    expect(decoded).toEqual(DEFAULT_LEAD_FILTERS);
+describe("session-29: the raw filter vocabularies", () => {
+  it("the status options are the RAW five-status set + the all sentinel", () => {
+    expect([...LEAD_FILTER_STATUS_OPTIONS]).toEqual([
+      "all",
+      "new",
+      "contacted",
+      "qualified",
+      "won",
+      "lost",
+    ]);
   });
 
-  it("round-trips a fully-populated filter set", () => {
-    const filters = {
-      status: "Qualified",
-      source: "Referral",
-      minValue: 25000,
+  it("the source options are the RAW five sources + the all sentinel", () => {
+    expect([...LEAD_FILTER_SOURCE_OPTIONS]).toEqual([
+      "all",
+      "call",
+      "email",
+      "website",
+      "partner",
+      "referral",
+    ]);
+  });
+
+  it("the defaults use the all sentinel (the reference's Gke state shape)", () => {
+    expect(DEFAULT_LEAD_FILTERS).toEqual({
+      status: "all",
+      source: "all",
+      minValue: null,
+      followUpDate: "",
+    });
+  });
+});
+
+describe("session-29: encode/decode (raw contract)", () => {
+  it("round-trips a raw filter set losslessly", () => {
+    const filters: LeadFilters = {
+      status: "contacted",
+      source: "partner",
+      minValue: 5000,
       followUpDate: "2026-10-15",
     };
-    const decoded = decodeLeadFilters(encodeLeadFilters(filters));
-    expect(decoded).toEqual(filters);
+    expect(decodeLeadFilters(encodeLeadFilters(filters))).toEqual(filters);
   });
 
-  it("round-trips partial filter sets", () => {
-    const filters = { status: "Won", source: "", minValue: null, followUpDate: "" };
-    const decoded = decodeLeadFilters(encodeLeadFilters(filters));
-    expect(decoded).toEqual(filters);
-  });
-});
-
-describe("decodeLeadFilters defensive behavior", () => {
-  it("returns null for malformed JSON", () => {
-    expect(decodeLeadFilters("not json {")).toBeNull();
+  it("round-trips the all-sentinel defaults", () => {
+    expect(decodeLeadFilters(encodeLeadFilters(DEFAULT_LEAD_FILTERS))).toEqual(
+      DEFAULT_LEAD_FILTERS,
+    );
   });
 
-  it("returns null for non-object JSON", () => {
-    expect(decodeLeadFilters("[1,2,3]")).toBeNull();
-    expect(decodeLeadFilters("\"a string\"")).toBeNull();
-    expect(decodeLeadFilters("42")).toBeNull();
+  it("rejects the LEGACY capitalized vocabulary (stale saved views fall back to defaults)", () => {
+    // The pre-s29 schema stored the capitalized labels; after the rename
+    // they decode to null so the page falls back to defaults instead of
+    // resurrecting a dead vocabulary.
+    expect(
+      decodeLeadFilters(JSON.stringify({ status: "New", source: "Call", minValue: null, followUpDate: "" })),
+    ).toBeNull();
+    expect(
+      decodeLeadFilters(JSON.stringify({ status: "all", source: "Referral", minValue: null, followUpDate: "" })),
+    ).toBeNull();
   });
 
-  it("returns null for payloads with unknown status/source vocabularies", () => {
-    // Unknown enum values must not resurrect stale vocabularies after a
-    // future rename — fall back to defaults instead.
-    const bad = encodeLeadFilters({ ...DEFAULT_LEAD_FILTERS, status: "frozen" });
-    expect(decodeLeadFilters(bad)).toBeNull();
-    const badSource = encodeLeadFilters({ ...DEFAULT_LEAD_FILTERS, source: "Carrier Pigeon" });
-    expect(decodeLeadFilters(badSource)).toBeNull();
-  });
-
-  it("returns null for payloads with wrong-typed fields", () => {
-    expect(decodeLeadFilters(JSON.stringify({ status: 7, source: "Call", minValue: null, followUpDate: "" }))).toBeNull();
-    expect(decodeLeadFilters(JSON.stringify({ status: "New", source: "Call", minValue: "lots", followUpDate: "" }))).toBeNull();
-    expect(decodeLeadFilters(JSON.stringify({ status: "New", source: "Call", minValue: null, followUpDate: 15 }))).toBeNull();
-  });
-
-  it("returns null for payloads missing required keys", () => {
-    expect(decodeLeadFilters(JSON.stringify({ status: "New" }))).toBeNull();
-    expect(decodeLeadFilters(JSON.stringify({}))).toBeNull();
-    expect(decodeLeadFilters("null")).toBeNull();
-  });
-
-  it("accepts every pinned status/source option", () => {
-    for (const status of ["", "New", "Contacted", "Qualified", "Won", "Lost"]) {
-      const decoded = decodeLeadFilters(
-        encodeLeadFilters({ ...DEFAULT_LEAD_FILTERS, status }),
-      );
-      expect(decoded?.status).toBe(status);
-    }
-    for (const source of ["", "Call", "Email", "Website", "Partner", "Referral"]) {
-      const decoded = decodeLeadFilters(
-        encodeLeadFilters({ ...DEFAULT_LEAD_FILTERS, source }),
-      );
-      expect(decoded?.source).toBe(source);
-    }
-  });
-
-  it("rejects negative minValue but accepts zero and positive integers", () => {
-    const zero = decodeLeadFilters(encodeLeadFilters({ ...DEFAULT_LEAD_FILTERS, minValue: 0 }));
-    expect(zero?.minValue).toBe(0);
-    const pos = decodeLeadFilters(encodeLeadFilters({ ...DEFAULT_LEAD_FILTERS, minValue: 1000 }));
-    expect(pos?.minValue).toBe(1000);
-    const neg = encodeLeadFilters({ ...DEFAULT_LEAD_FILTERS, minValue: -5 } as never);
-    expect(decodeLeadFilters(neg)).toBeNull();
+  it("rejects malformed payloads", () => {
+    expect(decodeLeadFilters(null)).toBeNull();
+    expect(decodeLeadFilters("")).toBeNull();
+    expect(decodeLeadFilters("not-json")).toBeNull();
+    expect(decodeLeadFilters(JSON.stringify({ status: 7, source: "all", minValue: null, followUpDate: "" }))).toBeNull();
+    expect(
+      decodeLeadFilters(JSON.stringify({ status: "new", source: "call", minValue: "lots", followUpDate: "" })),
+    ).toBeNull();
+    expect(
+      decodeLeadFilters(JSON.stringify({ status: "new", source: "call", minValue: null, followUpDate: 15 })),
+    ).toBeNull();
+    expect(decodeLeadFilters(JSON.stringify({ status: "new" }))).toBeNull();
   });
 });
 
-describe("leadFiltersEqual", () => {
-  it("compares filter sets by value", () => {
-    const a = { status: "New", source: "Call", minValue: 5, followUpDate: "2026-01-01" };
-    const b = { status: "New", source: "Call", minValue: 5, followUpDate: "2026-01-01" };
-    const c = { ...a, status: "Won" };
+describe("session-29: the saved-views list (our persistence superset)", () => {
+  it("round-trips the views list", () => {
+    const views: SavedLeadView[] = [
+      { name: "My Pipeline", filters: { status: "new", source: "all", minValue: null, followUpDate: "" } },
+      { name: "Big deals", filters: { status: "all", source: "partner", minValue: 50000, followUpDate: "" } },
+    ];
+    expect(decodeSavedLeadViews(encodeSavedLeadViews(views))).toEqual(views);
+  });
+
+  it("an empty list round-trips (vs null for malformed payloads)", () => {
+    expect(decodeSavedLeadViews(encodeSavedLeadViews([]))).toEqual([]);
+    expect(decodeSavedLeadViews(null)).toBeNull();
+    expect(decodeSavedLeadViews("garbage")).toBeNull();
+    expect(decodeSavedLeadViews(JSON.stringify([{ name: "X", filters: { status: "New" } }]))).toBeNull();
+  });
+
+  it("applySavedView returns the view's filters", () => {
+    const view: SavedLeadView = {
+      name: "Won only",
+      filters: { status: "won", source: "all", minValue: null, followUpDate: "" },
+    };
+    expect(applySavedView(view)).toEqual(view.filters);
+  });
+
+  it("the views live under their own storage key", () => {
+    expect(LEAD_VIEWS_STORAGE_KEY).toBe("neo-crm.leads.views");
+  });
+});
+
+describe("session-29: the (Active) suffix predicate (live-confirmed)", () => {
+  it("the defaults are NOT active", () => {
+    expect(filtersActive(DEFAULT_LEAD_FILTERS)).toBe(false);
+  });
+
+  it("any set filter is active — status, source, minValue, or follow-up date", () => {
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, status: "new" })).toBe(true);
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, source: "call" })).toBe(true);
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, minValue: 100 })).toBe(true);
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, followUpDate: "2026-10-15" })).toBe(true);
+    // minValue 0 is falsy — the reference's some(v => v && v !== "all")
+    // treats it as inactive, mirrored.
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, minValue: 0 })).toBe(false);
+  });
+});
+
+describe("session-29: the overdue predicate (the reference's ee)", () => {
+  it("null / empty / absent dates are never overdue", () => {
+    expect(isOverdueFollowUp(null)).toBe(false);
+    expect(isOverdueFollowUp(undefined)).toBe(false);
+    expect(isOverdueFollowUp("")).toBe(false);
+  });
+
+  it("future dates are NOT overdue; a later-today datetime is not either", () => {
+    const laterToday = new Date(Date.now() + 3_600_000).toISOString();
+    expect(isOverdueFollowUp(laterToday)).toBe(false);
+    expect(isOverdueFollowUp("2999-01-01")).toBe(false);
+  });
+
+  it("the reference's own quirk: a DATE-ONLY 'today' string IS overdue", () => {
+    // `new Date("2026-10-02")` parses at UTC MIDNIGHT — which is before
+    // any later moment the same day. The reference's ee has exactly this
+    // behavior (`new Date(z) < new Date()`), so a follow-up set for
+    // today renders the red border + CircleAlert for most of the day.
+    // (Pinned on the UTC date string so the assertion is timezone-safe.)
+    const utcToday = new Date().toISOString().slice(0, 10);
+    expect(isOverdueFollowUp(utcToday)).toBe(true);
+  });
+
+  it("any past date IS overdue — the red border + CircleAlert state", () => {
+    expect(isOverdueFollowUp("2020-01-01")).toBe(true);
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString();
+    expect(isOverdueFollowUp(yesterday)).toBe(true);
+  });
+});
+
+describe("session-29: equality", () => {
+  it("leadFiltersEqual compares all four fields", () => {
+    const a: LeadFilters = { status: "new", source: "call", minValue: 5, followUpDate: "2026-01-01" };
+    const b: LeadFilters = { status: "new", source: "call", minValue: 5, followUpDate: "2026-01-01" };
     expect(leadFiltersEqual(a, b)).toBe(true);
-    expect(leadFiltersEqual(a, c)).toBe(false);
-  });
-});
-
-describe("storage key", () => {
-  it("is namespaced and stable", () => {
-    expect(LEAD_FILTERS_STORAGE_KEY).toBe("neo-crm.leads.view");
+    expect(leadFiltersEqual(a, { ...b, status: "all" })).toBe(false);
+    expect(leadFiltersEqual(a, { ...b, minValue: null })).toBe(false);
   });
 });
