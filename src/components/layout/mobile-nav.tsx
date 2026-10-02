@@ -13,14 +13,18 @@
 //  - Transitions are pure CSS transform/opacity — no JS animate plugin.
 //
 // React 19 discipline:
-//  - Closes on route change via adjust-during-render (NOT setState-in-useEffect).
+//  - Closes on route change via adjust-during-render — session-35 moved
+//    that adjustment INTO AppShell, where `mobileNavOpen` lives (calling a
+//    parent's setter from a child's render body trips React's
+//    "Cannot update a component while rendering a different component"
+//    warning on non-link navigations, e.g. browser back/forward with the
+//    drawer open; the click path still closes first via onNavigate).
 //  - `inert` (native React 19 boolean prop) removes the closed drawer from
 //    the a11y tree and tab order.
 //  - Body scroll-lock with original-value cleanup; focus returns to the
 //    previously focused element on close.
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { SidebarNav, BrandMark } from "./sidebar";
 import { MOBILE_NAV_LAYOUT } from "@/lib/page-layout";
@@ -32,16 +36,15 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ open, onOpenChange }: MobileNavProps) {
-  const pathname = usePathname();
   const panelRef = React.useRef<HTMLDivElement>(null);
   const previouslyFocused = React.useRef<HTMLElement | null>(null);
 
-  // Close on navigation — adjust-during-render (React 19 lint-safe pattern).
-  const [prevPathname, setPrevPathname] = React.useState(pathname);
-  if (prevPathname !== pathname) {
-    setPrevPathname(pathname);
-    if (open) onOpenChange(false);
-  }
+  // Session-35: the close-on-route-change adjust-during-render moved INTO
+  // AppShell — the state lives there, and adjusting a parent's state from a
+  // child's render body trips React's "Cannot update a component while
+  // rendering a different component" warning (fires on non-link
+  // navigations, e.g. browser back/forward with the drawer open). The
+  // click path still closes first via SidebarNav's onNavigate.
 
   // Close automatically when the viewport grows past the mobile breakpoint.
   // S8-P1: the query MUST match the drawer's `md:hidden` range (768px) —

@@ -132,7 +132,10 @@ export const useCrmStore = create<CrmState>((set, get) => ({
 
   logout: async () => {
     await call("/api/auth/logout", { method: "POST" });
-    set({ user: null, users: [], accounts: [], contacts: [], leads: [], opportunities: [], activities: [], events: [], dashboard: null });
+    // Session-35: settings joins the reset — the previous user's picklists
+    // otherwise linger in memory into the next session until hydrate()'s
+    // fetchSettings overwrites them.
+    set({ user: null, users: [], accounts: [], contacts: [], leads: [], opportunities: [], activities: [], events: [], dashboard: null, settings: null });
   },
 
   fetchUsers: async () => {
@@ -288,6 +291,9 @@ export const useCrmStore = create<CrmState>((set, get) => ({
         get().fetchAccounts(),
         get().fetchContacts(),
         get().fetchLeads(),
+        // Session-35: the reset route wipes opportunities too — refetch the
+        // slice or the reports owner dropdown keeps listing pre-reset owners.
+        get().fetchOpportunities(),
         get().fetchActivities(),
         get().fetchEvents(),
         get().fetchSettings(),

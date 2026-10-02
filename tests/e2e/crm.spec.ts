@@ -1941,6 +1941,19 @@ test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async (
     "src",
     /\/api\/uploads\//,
   );
+
+  // Session-35 (S35-P2): the image LOADS, not just renders an <img> tag —
+  // the GET route went missing from git once (the unanchored gitignore
+  // `uploads/` pattern silently ignored src/app/api/uploads/), every
+  // uploaded photo 404'd on fresh clones, and this suite stayed green
+  // because it only asserted the src ATTRIBUTE. Never again: fetch the
+  // URL for real and demand image bytes back.
+  const topbarSrc = await page
+    .locator('button[aria-label="Account menu"] img')
+    .getAttribute("src");
+  const imageResponse = await page.request.get(topbarSrc!);
+  expect(imageResponse.status()).toBe(200);
+  expect(imageResponse.headers()["content-type"]).toMatch(/^image\//);
 });
 
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {

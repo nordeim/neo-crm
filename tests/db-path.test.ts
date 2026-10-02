@@ -208,6 +208,26 @@ describe("runtimeDatabaseUrl (standalone launch contexts — session-34)", () =>
       expect(url).not.toBe(`file:${join(repo, ".next", "db", "custom.db")}`);
     });
   });
+
+  it("keeps an ABSOLUTE launch .env value as-is (session-35 guard — never re-anchored)", () => {
+    const { repo, standalone } = buildStandaloneRepo();
+    // The documented production form (docs/DEPLOYMENT.md §4): an ABSOLUTE
+    // path in the launch <repo>/.env while the traced .next/standalone/.env
+    // is a stale RELATIVE copy. The session-34 launch-dir branch tests the
+    // bun signature WITHOUT the isRelativeFileUrl guard on the launch value
+    // — and bunAbsolutized() happens to pass an absolute ref through
+    // path.resolve unchanged, so the signature MATCHES and the seam would
+    // re-anchor the absolute URL into a corrupted
+    // <repo>/prisma/var/lib/… path (junk directories included). Absolute
+    // URLs are intentional overrides by the seam's own header contract.
+    writeFileSync(join(repo, ".env"), 'DATABASE_URL="file:/var/lib/neo-crm/custom.db"\n');
+    withEnv("file:/var/lib/neo-crm/custom.db", () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).toBe("file:/var/lib/neo-crm/custom.db");
+    });
+    // And no junk directories were created on the way.
+    expect(existsSync(join(repo, "prisma", "var"))).toBe(false);
+  });
 });
 
 describe("resolveDatabaseUrl", () => {

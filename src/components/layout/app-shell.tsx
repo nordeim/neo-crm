@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 import { SidebarNav, BrandMark } from "./sidebar";
 import { MobileNav } from "./mobile-nav";
 import { Topbar } from "./topbar";
@@ -19,6 +20,18 @@ import type { User as AppUser } from "@/types";
 export function AppShell({ user, children }: { user: AppUser; children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
   const hydrate = useCrmStore((s) => s.hydrate);
+
+  // Close the drawer on navigation — adjust-during-render for this
+  // component's OWN state (the sanctioned React pattern). Session-35:
+  // moved here from MobileNav — adjusting the parent's state from the
+  // child's render body tripped React's cross-component render warning
+  // on non-link navigations (browser back/forward with the drawer open).
+  const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = React.useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    if (mobileNavOpen) setMobileNavOpen(false);
+  }
 
   // One-time bootstrap of the client store from the session cookie.
   React.useEffect(() => {

@@ -43,33 +43,43 @@ export async function POST(req: Request) {
     if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
   }
 
-  const activity = await db.activity.create({
-    data: {
-      type,
-      subject,
-      notes: asString(body.notes, { optional: true, max: 2000 }) ?? null,
-      status,
-      priority,
-      dueAt: asDate(body.dueAt) ?? new Date(),
-      completedAt: status === "completed" ? new Date() : null,
-      relatedType: asString(body.relatedType, { optional: true, max: 40 }) ?? null,
-      relatedName: asString(body.relatedName, { optional: true, max: 160 }) ?? null,
-      accountId: asString(body.accountId, { optional: true }) ?? null,
-      contactId,
-      ownerId: guard.user.id,
-    },
-    include: {
-      account: { select: { id: true, name: true } },
-      contact: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
+  // Session-35 (S35-P5): the accountId FK guard the POST side was missing
+  // (contactId was already checked) + the envelope-held failure path.
+  const accountId = asString(body.accountId, { optional: true }) ?? null;
+  try {
+    if (accountId) {
+      const account = await db.account.findUnique({ where: { id: accountId } });
+      if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
+    }
+    const activity = await db.activity.create({
+      data: {
+        type,
+        subject,
+        notes: asString(body.notes, { optional: true, max: 2000 }) ?? null,
+        status,
+        priority,
+        dueAt: asDate(body.dueAt) ?? new Date(),
+        completedAt: status === "completed" ? new Date() : null,
+        relatedType: asString(body.relatedType, { optional: true, max: 40 }) ?? null,
+        relatedName: asString(body.relatedName, { optional: true, max: 160 }) ?? null,
+        accountId,
+        contactId,
+        ownerId: guard.user.id,
+      },
+      include: {
+        account: { select: { id: true, name: true } },
+        contact: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
 
-  // Touch the related contact/account "last activity" stamps.
-  const now = new Date();
-  if (contactId) await db.contact.update({ where: { id: contactId }, data: { lastActivityAt: now } }).catch(() => null);
-  const accountId = asString(body.accountId, { optional: true });
-  if (accountId) await db.account.update({ where: { id: accountId }, data: { lastActivityAt: now } }).catch(() => null);
+    // Touch the related contact/account "last activity" stamps.
+    const now = new Date();
+    if (contactId) await db.contact.update({ where: { id: contactId }, data: { lastActivityAt: now } }).catch(() => null);
+    if (accountId) await db.account.update({ where: { id: accountId }, data: { lastActivityAt: now } }).catch(() => null);
 
-  return ok(activity);
+    return ok(activity);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

@@ -74,15 +74,31 @@ export async function PUT(req: Request, { params }: Params) {
   if ("photoUrl" in body) data.photoUrl = asString(body.photoUrl, { optional: true, max: 500 }) ?? null;
   if ("status" in body) data.status = asString(body.status, { optional: true, max: 20 }) ?? "active";
 
-  const contact = await db.contact.update({
-    where: { id },
-    data,
-    include: {
-      account: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(contact);
+  // Session-35 (S35-P5): FK existence guards on PUT — the POST-side
+  // vocabulary — plus the envelope-held failure path. A stale dropdown id
+  // would otherwise throw Prisma P2003 as an unhandled rejection (a raw
+  // non-envelope 500); any other DB failure lands in ERR.INTERNAL now.
+  try {
+    if (typeof data.accountId === "string" && data.accountId) {
+      const account = await db.account.findUnique({ where: { id: data.accountId } });
+      if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
+    }
+    if (typeof data.ownerId === "string" && data.ownerId) {
+      const owner = await db.user.findUnique({ where: { id: data.ownerId } });
+      if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
+    }
+    const contact = await db.contact.update({
+      where: { id },
+      data,
+      include: {
+        account: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(contact);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function DELETE(_req: Request, { params }: Params) {

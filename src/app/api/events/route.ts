@@ -56,26 +56,37 @@ export async function POST(req: Request) {
     if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
   }
 
-  const event = await db.event.create({
-    data: {
-      title,
-      description: asString(body.description, { optional: true, max: 1000 }) ?? null,
-      type,
-      status,
-      startAt,
-      endAt,
-      allDay: body.allDay === true,
-      location: asString(body.location, { optional: true, max: 200 }) ?? null,
-      relatedType: asString(body.relatedType, { optional: true, max: 40 }) ?? null,
-      accountId: asString(body.accountId, { optional: true }) ?? null,
-      contactId,
-      ownerId: guard.user.id,
-    },
-    include: {
-      account: { select: { id: true, name: true } },
-      contact: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(event);
+  // Session-35 (S35-P5): the accountId FK guard the POST side was missing
+  // (contactId was already checked) + the envelope-held failure path.
+  const accountId = asString(body.accountId, { optional: true }) ?? null;
+  try {
+    if (accountId) {
+      const account = await db.account.findUnique({ where: { id: accountId } });
+      if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
+    }
+    const event = await db.event.create({
+      data: {
+        title,
+        description: asString(body.description, { optional: true, max: 1000 }) ?? null,
+        type,
+        status,
+        startAt,
+        endAt,
+        allDay: body.allDay === true,
+        location: asString(body.location, { optional: true, max: 200 }) ?? null,
+        relatedType: asString(body.relatedType, { optional: true, max: 40 }) ?? null,
+        accountId,
+        contactId,
+        ownerId: guard.user.id,
+      },
+      include: {
+        account: { select: { id: true, name: true } },
+        contact: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(event);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

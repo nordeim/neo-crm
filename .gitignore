@@ -51,5 +51,8 @@ test-results/
 playwright-report/
 .vitest/
 
-# session-30: uploaded files (the UploadFile mirror — like db/, never committed)
-uploads/
+# session-30: uploaded files (the UploadFile mirror — like db/, never committed).
+# session-35: ANCHORED to the repo root — the unanchored `uploads/` form also
+# matched src/app/api/uploads/ and silently kept the GET route out of git
+# (the fresh-clone broken-photo bug).
+/uploads/

@@ -46,16 +46,30 @@ export async function PUT(req: Request, { params }: Params) {
     data.status = status;
   }
 
-  const event = await db.event.update({
-    where: { id },
-    data,
-    include: {
-      account: { select: { id: true, name: true } },
-      contact: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(event);
+  // Session-35 (S35-P5): FK existence guards on PUT — the POST-side
+  // vocabulary — plus the envelope-held failure path.
+  try {
+    if (typeof data.accountId === "string" && data.accountId) {
+      const account = await db.account.findUnique({ where: { id: data.accountId } });
+      if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
+    }
+    if (typeof data.contactId === "string" && data.contactId) {
+      const contact = await db.contact.findUnique({ where: { id: data.contactId } });
+      if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
+    }
+    const event = await db.event.update({
+      where: { id },
+      data,
+      include: {
+        account: { select: { id: true, name: true } },
+        contact: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(event);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function DELETE(_req: Request, { params }: Params) {

@@ -95,7 +95,16 @@ describe("session-30: the uploads GET route serves the bytes", () => {
 });
 
 describe("session-30: the uploads directory is gitignored like db/", () => {
-  it(".gitignore carries the uploads/ entry", () => {
-    expect(gitignore()).toMatch(/^uploads\/$/m);
+  // Session-35: the pin was RE-ANCHORED. The original `^uploads/$` form
+  // encoded the DEFECT — an unanchored gitignore segment matches the same
+  // directory name at ANY depth, so it silently ignored
+  // src/app/api/uploads/ too, and the GET route above was never committed
+  // (authored session-30, lost on every fresh clone; the long-lived
+  // sandbox kept it alive as an untracked file while the repo shipped
+  // broken). The anchored `/uploads/` ignores ONLY the repo-root runtime
+  // folder.
+  it(".gitignore carries the ANCHORED /uploads/ entry (never the unanchored form)", () => {
+    expect(gitignore()).toMatch(/^\/uploads\/$/m);
+    expect(gitignore()).not.toMatch(/^uploads\/$/m);
   });
 });

@@ -199,7 +199,18 @@ export function runtimeDatabaseUrl(cwd: string = process.cwd()): string {
     const launchDir = repoRootFromStandaloneCwd(cwd);
     if (launchDir && launchDir !== cwd) {
       const launchEnvUrl = readDatabaseUrlFromEnvAt(launchDir);
-      if (launchEnvUrl && envUrl === bunAbsolutized(launchEnvUrl, launchDir)) {
+      // Session-35 guard: only a RELATIVE launch value can be a bun
+      // absolutization candidate. An absolute launch .env value (the
+      // documented production form, docs/DEPLOYMENT.md §4) passes through
+      // path.resolve unchanged inside bunAbsolutized(), so its signature
+      // would MATCH and the seam would re-anchor it into a corrupted
+      // <repo>/prisma/var/lib/… path. Absolute URLs are intentional
+      // overrides by this seam's own header contract.
+      if (
+        launchEnvUrl &&
+        isRelativeFileUrl(launchEnvUrl) &&
+        envUrl === bunAbsolutized(launchEnvUrl, launchDir)
+      ) {
         // Re-anchor on the launch directory's own value through the
         // ALREADY-VALIDATED standalone root (the schema rule — identical
         // to resolveDatabaseUrl, but anchored exactly where bun loaded it).

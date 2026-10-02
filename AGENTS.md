@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (802 checks)         | `bun run test`                         |
+| Unit tests (817 checks)         | `bun run test`                         |
 | Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (802) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (817) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1363,6 +1363,42 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   launch directory) and re-anchors through `urlForRoot()` — pinned by 3
   new checks in tests/db-path.test.ts (the RED re-anchor + the e2e-style
   override guard + the launch-from-standalone guard).
+
+- **The uploads-GET-route recovery + the API robustness layer (session-35)**
+  — the uploads GET route (`src/app/api/uploads/[name]/route.ts`, public,
+  the pinned `UPLOAD_NAME_RE` 32-hex charset, `CONTENT_TYPES`, immutable
+  caching) was documented since session-30 and pinned by
+  `tests/upload-api.test.ts` but was NEVER IN GIT: the unanchored gitignore
+  pattern `uploads/` matched `src/app/api/uploads/` at ANY depth
+  (gitignore segments without an interior/leading slash are not
+  root-anchored), so the file lived as an untracked leftover in the
+  long-lived sandbox — gates green there — while every FRESH CLONE shipped
+  3 red unit checks and every uploaded photo 404ing behind an e2e mask
+  (the S30-P2/P3 specs asserted only the `src` ATTRIBUTE, never the
+  load). Fixed: `.gitignore` now carries the ANCHORED `/uploads/` form
+  (the runtime folder stays ignored), the route restored, `db/.gitkeep`
+  committed (the db/-at-root contract exists on fresh clones), the
+  gitignore pin re-anchored with a negative guard, and the profile-photo
+  e2e now `page.request.get`s the topbar avatar src demanding 200 +
+  `image/*`. Same session: the db-path launch-dir branch gained the
+  `isRelativeFileUrl(launchEnvUrl)` guard (an absolute production `.env`
+  value — the documented DEPLOYMENT.md §4 form — would otherwise match
+  the bun signature and re-anchor into a corrupted `<repo>/prisma/var/…`
+  path); the mobile-nav close-on-route-change adjust-during-render moved
+  INTO `AppShell` (own-state adjustment — the sanctioned pattern; calling
+  the parent's setter from `MobileNav`'s render tripped React's
+  "Cannot update a component while rendering a different component"
+  warning on back/forward navigations); the PUT `[id]` routes gained the
+  FK existence guards the POST side already had (contacts/leads:
+  accountId + ownerId; accounts: ownerId; events: accountId + contactId —
+  the "Selected company/owner/contact does not exist" vocabulary) plus
+  the activities/events POST `accountId` checks, all wrapped in
+  try/catch → `ERR.INTERNAL()` so Prisma failures (P2003, SQLITE_BUSY)
+  stay inside the `{ ok, error }` envelope; and the store hygiene —
+  `resetData()` refetches `fetchOpportunities()` (the reset route wipes
+  opps; the reports owner dropdown stays stale without it), `logout()`
+  clears `settings` (no cross-session picklist leakage). Pinned by
+  `tests/api-robustness.test.ts` (14 checks) + 1 db-path check.
 
 ## Conventions that differ from defaults
 

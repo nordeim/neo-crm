@@ -42,12 +42,22 @@ export async function PUT(req: Request, { params }: Params) {
     data.tier = tier;
   }
 
-  const account = await db.account.update({
-    where: { id },
-    data,
-    include: { owner: { select: { id: true, name: true, avatarColor: true } } },
-  });
-  return ok(account);
+  // Session-35 (S35-P5): FK existence guard on PUT — the POST-side
+  // vocabulary — plus the envelope-held failure path.
+  try {
+    if (typeof data.ownerId === "string" && data.ownerId) {
+      const owner = await db.user.findUnique({ where: { id: data.ownerId } });
+      if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
+    }
+    const account = await db.account.update({
+      where: { id },
+      data,
+      include: { owner: { select: { id: true, name: true, avatarColor: true } } },
+    });
+    return ok(account);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
