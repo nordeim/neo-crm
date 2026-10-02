@@ -574,3 +574,17 @@ Stage Summary:
 - Gate green: lint 0/0 · tsc 0 · 600/600 unit (+75) · 92/92 e2e (+5) · build clean; 28 verified screenshots; docs at SKILL v1.24.0; the two s45 pointers CLOSED (the computed Account Health tab, the calendar chip contract) + the systemic chart-internals layer
 - Ready: commit on main + SSH-wrapper push (paramiko shim at /home/z/my-project/bin/ssh)
 - Next session pointers: the reference's contact-detail/edit dialog (AAe — the role/priority/engagement/photo fields, a dead-or-reachable path to disambiguate), the account-edit dialog's full field set, a drift re-sweep on the next live visit; the bundle cached at scripts/reference-bundle.js in the sandbox (not committed); the s27 census-method lessons — the local curl'd bundle beats the in-page cache (navigation resets it), the lucide icon identity resolves through the SVG path data (the `us` checkbox glyph), and the axis-line "hiding" was a wrong-selector conclusion (the reference renders STOCK #666 axes — verify the selector before concluding absence)
+
+---
+Task ID: 27-push (repo)
+Agent: main (Super Z)
+Task: The session-27 push record (the established dual-commit pattern)
+
+Work Log:
+- Gate green before push (rule 2): lint 0/0 · tsc 0 · 600/600 unit (38 suites) · build clean · 92/92 e2e (1.8m single-worker)
+- Commit ab4e65c on main (55 files, +2403/-514); the paramiko shim verified present at /home/z/my-project/bin/ssh (executable, venv python with paramiko); the operator key materialized to /tmp/session27-deploy.key (0600, outside the repo), fingerprint SHA256:3ddaNlFhMz1JXiGEDgVEaRsUzI4Ev0IpGEEB7NnU4PU (ed25519 — identical to the session-26 record, the same operator deploy key)
+- Dry-run clean (fast-forward f986f0a..ab4e65c, remote untouched), then the real push via docs/ssh_git_wrapper_v3.py --remote git@github.com:nordeim/neo-crm.git
+- PUSH VERIFIED: remote refs/heads/main @ ab4e65c == local HEAD; tracking ref synced by the wrapper; independently re-verified via GIT_SSH_COMMAND ls-remote (ab4e65cd8cd9e99e63c56636761b35d8e32c4cfb); the operator key shredded (random overwrite + remove) after both the wrapper's and the independent verification — no /tmp key residue
+
+Stage Summary:
+- Session 27 pushed to main; this record rides the second and final commit of the session
