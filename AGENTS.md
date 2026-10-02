@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (779 checks)         | `bun run test`                         |
+| Unit tests (793 checks)         | `bun run test`                         |
 | Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (779) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (793) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1311,10 +1311,27 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   plants 12 opps (4 won = $337.0K — the e2e's All-Time pin — 2 lost, 6
   open) + 3 Opportunity-linked activities for the at-risk join;
   `GET /api/opportunities` is LIST-ONLY (the read-only mirror); the
-  reset route wipes them. KNOWN COSMETIC DIVERGENCE: our REPORT_PERIODS
-  ids are today/week/month/quarter/ytd/all where the bundle's state
-  uses thisWeek/thisMonth — same labels, same behavior, only the wire
-  ids differ (documented; the s25 saved-reports schema keeps ours).
+  reset route wipes them. The s31 REPORT_PERIODS wire-id divergence
+  (our week/month vs the bundle's thisWeek/thisMonth) was CLOSED in
+  session-32 — see the next block.
+
+- **Every currency figure rides a LITERAL scale formula — never a
+  magnitude-branching formatter (session-32)** — bundle-decoded: the
+  dashboard's currency KPI cards are ALWAYS `$${(v/1e3).toFixed(1)}k`
+  (Deals Closed, Revenue This Month) and `$${(v/1e3).toFixed(0)}k`
+  (Sales Target — the "$0k" hardcoded-target quirk) at ANY magnitude
+  ("$0.0k" at zero, "$1400.0k" at 1.4M — NEVER the M form, NEVER a
+  bare number); the accounts' revenue family is ALWAYS
+  `$${(v/1e6).toFixed(1)}M` (the Total Revenue KPI + the table's
+  revenue cells — "$0.0M" at zero, "$0.9M" at 900k). Express these
+  through `formatCompactCurrency(v, { scale: "k" | "M", decimals })`
+  (src/lib/format.ts); the no-scale default keeps the legacy
+  magnitude branching (the topbar search hint). The REPORT_PERIODS
+  wire ids are today/thisWeek/thisMonth/quarter/ytd/all — the s25
+  week/month ids were zero-data inferences, disproven by the bundle's
+  i3e reports filter; stale saved-view localStorage entries migrate
+  through `normalizeSavedPeriod()` (src/lib/saved-reports.ts, wired
+  into the reports page's onLoad).
 
 ## Conventions that differ from defaults
 

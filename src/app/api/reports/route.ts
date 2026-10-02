@@ -21,14 +21,16 @@ import type { ReportsData } from "@/types";
 export const dynamic = "force-dynamic";
 
 function periodStart(period: string, now: Date): Date {
-  // Session-25 (S25-P6): the reference's SHORT period vocabulary —
-  // today/week/month/quarter/ytd/all (REPORT_PERIODS ids).
+  // Session-25 (S25-P6) + Session-32 (S32-P4): the reference's period
+  // vocabulary with its WIRE ids — today/thisWeek/thisMonth/quarter/
+  // ytd/all (REPORT_PERIODS ids; the s25 week/month inferences corrected
+  // by the bundle decode of the i3e reports filter).
   switch (period) {
     case "today":
       return startOfDay(now);
-    case "week":
+    case "thisWeek":
       return startOfWeek(now, "monday");
-    case "month":
+    case "thisMonth":
       return startOfMonth(now);
     case "quarter":
       return startOfQuarter(now);

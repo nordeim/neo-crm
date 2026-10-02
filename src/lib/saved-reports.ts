@@ -1,5 +1,6 @@
 /**
- * Saved report views — the localStorage seam (session-25, S25-P4).
+ * Saved report views — the localStorage seam (session-25, S25-P4;
+ * period ids corrected session-32, S32-P4).
  *
  * The reference's "Saved Reports (N)" button opens a "Save Custom Report
  * View" dialog whose Save persists the current filter set + column
@@ -19,14 +20,18 @@
  * round-trips are lossless and any malformed payload decodes to null so
  * the page falls back to an empty list instead of crashing.
  *
- * The period vocabulary is the reference's SHORT form (today / week /
- * month / quarter / ytd / all — today, quarter and ytd each verified
- * live via saved-report probes; the ids are REPORT_PERIODS ids, so the
- * stored values are byte-faithful).
+ * The period vocabulary is the reference's WIRE form (today / thisWeek /
+ * thisMonth / quarter / ytd / all — today, quarter and ytd verified live
+ * via saved-report probes; thisWeek/thisMonth proven by the s32 bundle
+ * decode of the i3e reports filter; the ids are REPORT_PERIODS ids, so
+ * the stored values are byte-faithful). Stale s25 entries carrying the
+ * inferred week/month ids migrate through normalizeSavedPeriod().
  */
 
+import { REPORT_PERIODS } from "@/lib/constants";
+
 export interface SavedReportFilters {
-  /** REPORT_PERIODS id (today/week/month/quarter/ytd/all). */
+  /** REPORT_PERIODS id (today/thisWeek/thisMonth/quarter/ytd/all). */
   dateRange: string;
   stage: string;
   source: string;
@@ -76,6 +81,19 @@ export const DEFAULT_SAVED_COLUMNS: SavedReportColumns = {
 
 export function encodeSavedReports(list: SavedReport[]): string {
   return JSON.stringify(list);
+}
+
+/** Session-32 (S32-P4): migrate a stored dateRange id to the current
+ * REPORT_PERIODS wire vocabulary. The s25 ids were
+ * today/week/month/quarter/ytd/all — week/month were INFERRED (the s32
+ * bundle decode proves the reference's wire ids are thisWeek/thisMonth).
+ * Stale localStorage entries carrying the legacy ids keep their meaning;
+ * unknown values fall back to the default period ("quarter") so a Load
+ * never 400s the API. */
+export function normalizeSavedPeriod(raw: string): string {
+  if (raw === "week") return "thisWeek";
+  if (raw === "month") return "thisMonth";
+  return REPORT_PERIODS.some((p) => p.id === raw) ? raw : "quarter";
 }
 
 export function decodeSavedReports(raw: string | null): SavedReport[] | null {

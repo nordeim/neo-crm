@@ -61,6 +61,53 @@ describe("currency formatting", () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Session-32 (S32-P1): the FIXED-SCALE variants — the reference renders
+// every dashboard/accounts currency figure through a LITERAL scale formula,
+// never a magnitude-branching formatter. The bundle (index-DZ-xbrIm.js):
+//   dashboard Deals Closed / Revenue This Month: `$${(v/1e3).toFixed(1)}k`
+//   dashboard Sales Target:                      `$${(v/1e3).toFixed(0)}k`
+//   accounts Total Revenue KPI + revenue cells:  `$${(v/1e6).toFixed(1)}M`
+// The `scale` option mirrors those literals at ANY magnitude — "$0.0k" and
+// "$1400.0k" are BOTH valid k-scale outputs; "$0.0M" and "$0.9M" are BOTH
+// valid M-scale outputs. The no-scale default keeps the legacy
+// magnitude-branching behavior (the topbar hint + the s1-s24 pins).
+// ---------------------------------------------------------------------------
+
+describe("session-32: the fixed-scale currency variants (S32-P1)", () => {
+  it("scale 'k' mirrors the dashboard's literal /1e3 formula at ANY magnitude", () => {
+    // Deals Closed / Revenue This Month: toFixed(1) — note 950/1e3 is
+    // 0.95 in float → "0.9" (the literal formula's own behavior).
+    expect(formatCompactCurrency(0, { scale: "k" })).toBe("$0.0k");
+    expect(formatCompactCurrency(950, { scale: "k" })).toBe("$0.9k");
+    expect(formatCompactCurrency(337_000, { scale: "k" })).toBe("$337.0k");
+    expect(formatCompactCurrency(1_400_000, { scale: "k" })).toBe("$1400.0k");
+  });
+
+  it("scale 'k' with decimals 0 mirrors the Sales Target formula ($0k)", () => {
+    expect(formatCompactCurrency(0, { scale: "k", decimals: 0 })).toBe("$0k");
+    expect(formatCompactCurrency(50_000, { scale: "k", decimals: 0 })).toBe("$50k");
+    expect(formatCompactCurrency(153_000, { scale: "k", decimals: 0 })).toBe("$153k");
+  });
+
+  it("scale 'M' mirrors the accounts' literal /1e6 formula at ANY magnitude", () => {
+    expect(formatCompactCurrency(0, { scale: "M" })).toBe("$0.0M");
+    expect(formatCompactCurrency(500_000, { scale: "M" })).toBe("$0.5M");
+    expect(formatCompactCurrency(900_000, { scale: "M" })).toBe("$0.9M");
+    expect(formatCompactCurrency(77_500_000, { scale: "M" })).toBe("$77.5M");
+  });
+
+  it("the scale variants keep negatives signed and null as zero", () => {
+    expect(formatCompactCurrency(-337_000, { scale: "k" })).toBe("-$337.0k");
+    expect(formatCompactCurrency(null, { scale: "M" })).toBe("$0.0M");
+  });
+
+  it("the no-scale default keeps the legacy magnitude branching (the topbar hint)", () => {
+    expect(formatCompactCurrency(950)).toBe("$950");
+    expect(formatCompactCurrency(1_400_000)).toBe("$1.4M");
+  });
+});
+
 describe("date formatting", () => {
   const mar4 = new Date(2026, 2, 4, 15, 30);
 

@@ -236,7 +236,7 @@ export default function AccountsPage() {
         />
         <BarStatCard
           label="Total Revenue"
-          value={formatCompactCurrency(totalRevenue)}
+          value={formatCompactCurrency(totalRevenue, { scale: "M" })}
           delta="+3.6%"
           bars={revenueSpark}
           barColor={CHART_COLORS.purple400}
@@ -343,7 +343,10 @@ export default function AccountsPage() {
                           </Badge>
                         </span>
                         <span className="text-sm font-semibold text-foreground">
-                          {a.annualRevenue != null ? formatCompactCurrency(a.annualRevenue) : "—"}
+                          {/* Session-32 (S32-P3): the M-scale form — the
+                              reference's revenue convention (its table cell
+                              renders the literal `$${(v/1e6).toFixed(1)}M`). */}
+                          {a.annualRevenue != null ? formatCompactCurrency(a.annualRevenue, { scale: "M" }) : "—"}
                         </span>
                       </div>
                       <div className="mt-3 flex items-center justify-between border-t border-line pt-3 text-xs text-muted">

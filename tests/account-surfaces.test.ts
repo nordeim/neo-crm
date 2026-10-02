@@ -158,3 +158,33 @@ describe("session-28: the Oce filter sidebar alignment", () => {
     expect(src).toContain("Filter");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-32 (S32-P3): the accounts revenue family — the bundle renders
+// BOTH the Total Revenue KPI and every revenue cell through the LITERAL
+// `$${(v/1e6).toFixed(1)}M` formula (zv KPI + the table cell) — never the
+// magnitude-branching compact default. "$0.0M" at zero, "$0.9M" at
+// Brightline's seeded 900k, "$77.5M" at the seeded total.
+// ---------------------------------------------------------------------------
+
+describe("session-32: the accounts revenue formats (S32-P3)", () => {
+  it("the Total Revenue KPI uses the fixed M scale", () => {
+    const src = page();
+    const kpi = src.slice(src.indexOf('label="Total Revenue"'), src.indexOf('label="Total Revenue"') + 300);
+    expect(kpi).toMatch(/scale: "M"/);
+  });
+
+  it("the table row's Revenue cell keeps the literal /1e6 formula with the '-' fallback", () => {
+    const src = page();
+    expect(src).toMatch(/a\.annualRevenue \? `\$\$\{\(a\.annualRevenue \/ 1e6\)\.toFixed\(1\)\}M` : "-"/);
+  });
+
+  it("the Cards-view revenue cell uses the fixed M scale too (the S8-3 superset stays format-consistent)", () => {
+    const src = page();
+    // The cards view renders a.annualRevenue via the seam's M scale —
+    // the same convention the reference's table cell uses. Anchor: the
+    // `view === "Cards"` conditional (the comment anchor is stripped).
+    const cardsRegion = src.slice(src.indexOf('view === "Cards"'), src.indexOf('view === "Cards"') + 8000);
+    expect(cardsRegion).toMatch(/scale: "M"/);
+  });
+});

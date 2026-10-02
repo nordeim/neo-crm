@@ -21,13 +21,25 @@ export function formatCurrency(value: number | null | undefined): string {
  */
 export function formatCompactCurrency(
   value: number | null | undefined,
-  options?: { decimals?: number; upper?: boolean },
+  options?: { decimals?: number; upper?: boolean; scale?: "k" | "M" },
 ): string {
   const decimals = options?.decimals ?? 1;
   const suffixK = options?.upper ? "K" : "k";
   const v = value ?? 0;
   const abs = Math.abs(v);
   const sign = v < 0 ? "-" : "";
+  // Session-32 (S32-P1): the FIXED-SCALE variants mirror the reference's
+  // LITERAL formulas — the dashboard's currency KPIs are always
+  // `$${(v/1e3).toFixed(n)}k` and the accounts' revenue family always
+  // `$${(v/1e6).toFixed(1)}M`, at ANY magnitude ("$0.0k" and "$1400.0k"
+  // are both valid k-scale outputs; "$0.0M" and "$0.9M" both valid M).
+  // No scale (the default) keeps the legacy magnitude branching.
+  if (options?.scale === "k") {
+    return `${sign}$${(abs / 1_000).toFixed(decimals)}${suffixK}`;
+  }
+  if (options?.scale === "M") {
+    return `${sign}$${(abs / 1_000_000).toFixed(decimals)}M`;
+  }
   if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(decimals)}M`;
   if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(decimals)}${suffixK}`;
   // Sub-1000: the legacy default keeps the bare rounded number (pinned by

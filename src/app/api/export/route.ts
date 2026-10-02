@@ -6,15 +6,17 @@ import { REPORT_PERIODS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
-/** The /api/reports period vocabulary (session-25, S25-P6) — the
- *  reference's SHORT ids: today/week/month/quarter/ytd/all. */
+/** The /api/reports period vocabulary (session-25 S25-P6 + session-32
+ *  S32-P4) — the reference's WIRE ids: today/thisWeek/thisMonth/quarter/
+ *  ytd/all (the s25 week/month inferences corrected by the bundle
+ *  decode). */
 function reportPeriodStart(period: string, now: Date): Date {
   switch (period) {
     case "today":
       return startOfDay(now);
-    case "week":
+    case "thisWeek":
       return startOfWeek(now, "monday");
-    case "month":
+    case "thisMonth":
       return startOfMonth(now);
     case "quarter":
       return startOfQuarter(now);

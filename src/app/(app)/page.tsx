@@ -151,18 +151,24 @@ export default function DashboardPage() {
             the real totals but feeds the sparks/deltas fixed literals. The
             sparks below mirror those arrays verbatim (KPI_STATICS); the
             Sales Target progress text is NEUTRAL text-gray-600. */}
+        {/* Session-32 (S32-P2): the reference's currency KPIs are LITERAL
+            /1e3 formulas (the Eke bundle decode) — Deals Closed + Revenue
+            This Month `$${(v/1e3).toFixed(1)}k`, Sales Target
+            `$${(v/1e3).toFixed(0)}k` (the "$0k" hardcoded-target quirk) —
+            expressed via the format seam's fixed k scale; NEVER the
+            magnitude-branching compact default. */}
         <KpiCard label="Total Leads" value={k?.totalLeads ?? 0} delta={KPI_STATICS.deltas.totalLeads}>
           <Sparkline values={[...KPI_STATICS.sparks.totalLeads]} color={CHART_COLORS.emerald} variant="line" />
         </KpiCard>
-        <KpiCard label="Deals Closed" value={formatCompactCurrency(k?.dealsClosedValue ?? 0)}>
+        <KpiCard label="Deals Closed" value={formatCompactCurrency(k?.dealsClosedValue ?? 0, { scale: "k" })}>
           <Sparkline values={[...KPI_STATICS.sparks.dealsClosed]} color={CHART_COLORS.cyan400} />
         </KpiCard>
-        <KpiCard label="Revenue This Month" value={formatCompactCurrency(k?.revenueThisMonth ?? 0)} delta={KPI_STATICS.deltas.revenueThisMonth}>
+        <KpiCard label="Revenue This Month" value={formatCompactCurrency(k?.revenueThisMonth ?? 0, { scale: "k" })} delta={KPI_STATICS.deltas.revenueThisMonth}>
           <Sparkline values={[...KPI_STATICS.sparks.revenueThisMonth]} color={CHART_COLORS.green400} />
         </KpiCard>
         <KpiCard
           label="Sales Target"
-          value={formatCompactCurrency(k?.salesTarget ?? 0)}
+          value={formatCompactCurrency(k?.salesTarget ?? 0, { scale: "k", decimals: 0 })}
           valueNote={`${k?.salesTargetProgress ?? 0}%`}
         >
           <Sparkline

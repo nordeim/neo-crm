@@ -36,7 +36,7 @@ import { KPI_STATICS } from "@/lib/page-layout";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
 import { toCsv } from "@/lib/csv";
 import { exportReportsPdf, exportTablePdf, isoDateSuffix } from "@/lib/pdf-export";
-import { listSavedReports, saveReport, type SavedReport, type SavedReportColumns } from "@/lib/saved-reports";
+import { listSavedReports, saveReport, normalizeSavedPeriod, type SavedReport, type SavedReportColumns } from "@/lib/saved-reports";
 import type { ReportsData } from "@/types";
 
 export default function ReportsPage() {
@@ -300,7 +300,10 @@ export default function ReportsPage() {
               setSaveDialogOpen(false);
             }}
             onLoad={(report: SavedReport) => {
-              setPeriod(report.filters.dateRange);
+              // Session-32 (S32-P4): normalize the stored dateRange — stale
+              // s25 entries (week/month) migrate to the wire ids; unknown
+              // values fall back to "quarter" so a Load never 400s.
+              setPeriod(normalizeSavedPeriod(report.filters.dateRange));
               setOwner(report.filters.owner);
               setStage(report.filters.stage);
               setStatus(report.filters.status);

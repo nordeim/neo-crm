@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (779) → `bun run build` → `bun run test:e2e` (106). For UI
+   `bun run test` (793) → `bun run build` → `bun run test:e2e` (106). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,7 +107,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (779 checks)               |
+| `bun run test`      | Vitest unit suites (793 checks)               |
 | `bun run test:e2e`  | Playwright E2E (106 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 779 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 793 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -192,9 +192,12 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   set, the filter-aware `type=report` branch, `downloadBlob()`, and the
   per-table client-side blobs with the reference's SHORTER CSV
   prefixes),
-  `tests/report-periods.test.ts` (session-25: the 6-entry period
-  vocabulary — today/week/month/quarter/ytd/all, the `periodStart()`
-  today/ytd mappings, the `quarter` default),
+  `tests/report-periods.test.ts` (session-25 + the session-32 id
+  correction: the 6-entry period vocabulary — today/thisWeek/thisMonth/
+  quarter/ytd/all (the bundle's WIRE ids; the s25 week/month inferences
+  disproven), the `periodStart()` mappings in both API routes, the
+  `quarter` default, and the `normalizeSavedPeriod()` legacy-id
+  migration for stale saved-view localStorage entries),
   `tests/settings-data-tab.test.ts` (session-26: the three
   CardDescriptions + the per-index button margins + the trash2 icon),
   `tests/reset-flow.test.ts` (session-26: the native confirm/alert
@@ -447,11 +450,15 @@ React-hooks rules that matter here (violations are errors):
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin — metadata, robots.txt, sitemap.xml, OG/Twitter cards (consumed via `src/lib/site.ts`, inlined at build time) | `http://localhost:3000` |
 
 Currency DISPLAY is always `$`-attached, with three DOM-pinned per-page
-variants: dashboard compact lowercase (`$145.0k` / `$1.4M`), reports compact
+variants: dashboard compact lowercase (`$337.0k` / `$1400.0k` — the
+fixed `scale: "k"` formulas, NEVER the M form), accounts
+`scale: "M"` (`$77.5M` / `$0.9M` at ANY magnitude), reports compact
 UPPERCASE K (`$542.0K` won / `$196K` lost via `formatCompactCurrency`
-options), leads FULL (`$687,000` via `formatCurrency`) — the reference app
-ignores its own Default Currency setting and so do we (the Settings field
-still stores `AED`).
+options), leads FULL (`$687,000` via `formatCurrency`) — the reference
+ignores its own Default Currency setting and so do we (the Settings
+field still stores `AED`). Every reference currency figure rides a
+LITERAL scale formula (session-32) — express them through the
+`scale` option, never the magnitude-branching default.
 
 ## Anti-Patterns to Avoid
 

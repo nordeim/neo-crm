@@ -422,15 +422,18 @@ export const REPORT_TABS = [
   { id: "health", label: "Account Health" },
 ] as const;
 
-// Session-25 (S25-P6): the reference's SIX periods with its SHORT ids —
-// its expanded listbox reads Today / This Week / This Month / This
-// Quarter / YTD / All Time, and its saved-report localStorage carries
-// dateRange values "today"/"quarter"/"ytd" (each verified live). The
-// this_* vocabulary + the This Year option are retired.
+// Session-25 (S25-P6) + Session-32 (S32-P4): the reference's SIX periods
+// with its WIRE ids — its expanded listbox reads Today / This Week / This
+// Month / This Quarter / YTD / All Time. The s25 ids were
+// today/week/month/quarter/ytd/all (week/month inferred from the
+// pattern); the s32 bundle decode of the i3e reports filter proves the
+// wire ids are today/thisWeek/thisMonth/quarter/ytd/all. Stale s25
+// localStorage entries migrate through normalizeSavedPeriod()
+// (src/lib/saved-reports.ts).
 export const REPORT_PERIODS = [
   { id: "today", label: "Today" },
-  { id: "week", label: "This Week" },
-  { id: "month", label: "This Month" },
+  { id: "thisWeek", label: "This Week" },
+  { id: "thisMonth", label: "This Month" },
   { id: "quarter", label: "This Quarter" },
   { id: "ytd", label: "YTD" },
   { id: "all", label: "All Time" },

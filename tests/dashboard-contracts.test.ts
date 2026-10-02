@@ -236,3 +236,36 @@ describe("session-31: the Recent Deals row (the bundle's _.map — opportunities
     expect(region).toMatch(/"Proposal"/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-32 (S32-P2): the currency KPI VALUES — the bundle renders all
+// three through LITERAL /1e3 formulas (never the magnitude-branching
+// compact default): Deals Closed + Revenue This Month
+// `$${(v/1e3).toFixed(1)}k`, Sales Target `$${(v/1e3).toFixed(0)}k`
+// (the "$0k" hardcoded-target quirk). Our call sites express them through
+// the format seam's fixed-scale option.
+// ---------------------------------------------------------------------------
+
+describe("session-32: the currency KPI value formulas (S32-P2)", () => {
+  it("Deals Closed + Revenue This Month use the fixed k scale (1 decimal)", () => {
+    const src = page();
+    const deals = src.slice(src.indexOf('label="Deals Closed"'), src.indexOf('label="Deals Closed"') + 300);
+    expect(deals).toMatch(/scale: "k"/);
+    const revenue = src.slice(src.indexOf('label="Revenue This Month"'), src.indexOf('label="Revenue This Month"') + 300);
+    expect(revenue).toMatch(/scale: "k"/);
+  });
+
+  it("the Sales Target card uses the fixed k scale with ZERO decimals (the $0k quirk)", () => {
+    const src = page();
+    const target = src.slice(src.indexOf('label="Sales Target"'), src.indexOf('label="Sales Target"') + 400);
+    expect(target).toMatch(/scale: "k", decimals: 0/);
+  });
+
+  it("no KPI value keeps the bare magnitude-branching default", () => {
+    const src = page();
+    for (const label of ['label="Deals Closed"', 'label="Revenue This Month"', 'label="Sales Target"']) {
+      const region = src.slice(src.indexOf(label), src.indexOf(label) + 300);
+      expect(region).not.toMatch(/formatCompactCurrency\((k\?\.?\w+ \?\? 0)\)/);
+    }
+  });
+});
