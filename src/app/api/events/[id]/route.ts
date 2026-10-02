@@ -11,9 +11,6 @@ export async function PUT(req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.event.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Event");
-
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
 
@@ -47,8 +44,22 @@ export async function PUT(req: Request, { params }: Params) {
   }
 
   // Session-35 (S35-P5): FK existence guards on PUT — the POST-side
-  // vocabulary — plus the envelope-held failure path.
+  // vocabulary — plus the envelope-held failure path. Session-36 (S36-P1):
+  // the end≥start invariant the POST side enforces, checked against the
+  // MERGED record (patch semantics — an absent field keeps the existing
+  // row's value; checking only the patch's own startAt would let
+  // {endAt: <early>} slip past an unchanged later startAt). Session-36
+  // (S36-P2): the existence fetch moved INSIDE the try.
   try {
+    const existing = await db.event.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Event");
+
+    const effectiveStart = (data.startAt as Date | undefined) ?? existing.startAt;
+    const effectiveEnd = data.endAt !== undefined ? (data.endAt as Date | null) : existing.endAt;
+    if (effectiveEnd && effectiveEnd < effectiveStart) {
+      return ERR.BAD_REQUEST("End time must be after start time");
+    }
+
     if (typeof data.accountId === "string" && data.accountId) {
       const account = await db.account.findUnique({ where: { id: data.accountId } });
       if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
@@ -77,9 +88,14 @@ export async function DELETE(_req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.event.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Event");
+  // Session-36 (S36-P2): the delete is envelope-held.
+  try {
+    const existing = await db.event.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Event");
 
-  await db.event.delete({ where: { id } });
-  return ok({ deleted: id });
+    await db.event.delete({ where: { id } });
+    return ok({ deleted: id });
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

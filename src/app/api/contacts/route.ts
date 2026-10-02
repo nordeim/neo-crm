@@ -57,41 +57,54 @@ export async function POST(req: Request) {
   if (companySize && !(COMPANY_SIZES as readonly string[]).includes(companySize)) {
     return ERR.BAD_REQUEST("Invalid company size");
   }
+  // Session-36 (S36-P4): photoUrl accepts only the documented URL shapes
+  // (our upload flow's /api/uploads/<name> or an https:// link like the
+  // reference's CDN data) — never a data:/javascript: URL or an arbitrary
+  // tracker rendered to every viewer.
   const photoUrl = asString(body.photoUrl, { optional: true, max: 500 }) ?? null;
-
-  const accountId = asString(body.accountId, { optional: true }) ?? null;
-  if (accountId) {
-    const account = await db.account.findUnique({ where: { id: accountId } });
-    if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
+  if (photoUrl && !photoUrl.startsWith("/api/uploads/") && !photoUrl.startsWith("https://")) {
+    return ERR.BAD_REQUEST("Invalid photo URL");
   }
 
-  const ownerId = asString(body.ownerId, { optional: true }) ?? null;
-  if (ownerId) {
-    const owner = await db.user.findUnique({ where: { id: ownerId } });
-    if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
-  }
+  // Session-36 (S36-P2): the FK guards + create are envelope-held now —
+  // every DB call in the handler inside the try.
+  try {
+    const accountId = asString(body.accountId, { optional: true }) ?? null;
+    if (accountId) {
+      const account = await db.account.findUnique({ where: { id: accountId } });
+      if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
+    }
 
-  const contact = await db.contact.create({
-    data: {
-      name,
-      email,
-      phone: asString(body.phone, { optional: true, max: 40 }) ?? null,
-      company: asString(body.company, { optional: true, max: 120 }) ?? null,
-      position: asString(body.position, { optional: true, max: 80 }) ?? null,
-      source: asString(body.source, { optional: true, max: 40 }) ?? null,
-      priority,
-      role,
-      engagementLevel,
-      companySize,
-      photoUrl,
-      accountId,
-      ownerId,
-      lastActivityAt: new Date(),
-    },
-    include: {
-      account: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(contact);
+    const ownerId = asString(body.ownerId, { optional: true }) ?? null;
+    if (ownerId) {
+      const owner = await db.user.findUnique({ where: { id: ownerId } });
+      if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
+    }
+
+    const contact = await db.contact.create({
+      data: {
+        name,
+        email,
+        phone: asString(body.phone, { optional: true, max: 40 }) ?? null,
+        company: asString(body.company, { optional: true, max: 120 }) ?? null,
+        position: asString(body.position, { optional: true, max: 80 }) ?? null,
+        source: asString(body.source, { optional: true, max: 40 }) ?? null,
+        priority,
+        role,
+        engagementLevel,
+        companySize,
+        photoUrl,
+        accountId,
+        ownerId,
+        lastActivityAt: new Date(),
+      },
+      include: {
+        account: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(contact);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

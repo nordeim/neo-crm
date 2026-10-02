@@ -11,9 +11,6 @@ export async function PUT(req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.contact.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Contact");
-
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
 
@@ -71,14 +68,28 @@ export async function PUT(req: Request, { params }: Params) {
     }
     data.companySize = companySize;
   }
-  if ("photoUrl" in body) data.photoUrl = asString(body.photoUrl, { optional: true, max: 500 }) ?? null;
+  if ("photoUrl" in body) {
+    // Session-36 (S36-P4): photoUrl accepts only the documented URL shapes
+    // (our upload flow's /api/uploads/<name> or an https:// link like the
+    // reference's CDN data) — never a data:/javascript: URL or an arbitrary
+    // tracker rendered to every viewer.
+    const photoUrl = asString(body.photoUrl, { optional: true, max: 500 }) ?? null;
+    if (photoUrl && !photoUrl.startsWith("/api/uploads/") && !photoUrl.startsWith("https://")) {
+      return ERR.BAD_REQUEST("Invalid photo URL");
+    }
+    data.photoUrl = photoUrl;
+  }
   if ("status" in body) data.status = asString(body.status, { optional: true, max: 20 }) ?? "active";
 
   // Session-35 (S35-P5): FK existence guards on PUT — the POST-side
   // vocabulary — plus the envelope-held failure path. A stale dropdown id
   // would otherwise throw Prisma P2003 as an unhandled rejection (a raw
   // non-envelope 500); any other DB failure lands in ERR.INTERNAL now.
+  // Session-36 (S36-P2): the existence fetch moved INSIDE the try — every
+  // DB call in the handler is envelope-held now.
   try {
+    const existing = await db.contact.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Contact");
     if (typeof data.accountId === "string" && data.accountId) {
       const account = await db.account.findUnique({ where: { id: data.accountId } });
       if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
@@ -106,9 +117,15 @@ export async function DELETE(_req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.contact.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Contact");
+  // Session-36 (S36-P2): the delete is envelope-held (SQLITE_BUSY-class
+  // failures stay inside { ok, error } instead of a raw non-JSON 500).
+  try {
+    const existing = await db.contact.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Contact");
 
-  await db.contact.delete({ where: { id } });
-  return ok({ deleted: id });
+    await db.contact.delete({ where: { id } });
+    return ok({ deleted: id });
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

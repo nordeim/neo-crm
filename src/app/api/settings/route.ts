@@ -79,11 +79,16 @@ export async function PUT(req: Request) {
     data.firstDayOfWeek = dow;
   }
 
-  await db.setting.upsert({
-    where: { id: "singleton" },
-    update: data,
-    create: { id: "singleton", ...data },
-  });
+  // Session-36 (S36-P2): the upsert + re-read are envelope-held.
+  try {
+    await db.setting.upsert({
+      where: { id: "singleton" },
+      update: data,
+      create: { id: "singleton", ...data },
+    });
 
-  return ok(await readSettings());
+    return ok(await readSettings());
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

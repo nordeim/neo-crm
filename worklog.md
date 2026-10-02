@@ -854,3 +854,40 @@ Work Log:
 
 Stage Summary:
 - Session 35 pushed to main; this record rides the second and final commit of the session
+
+---
+
+## Session 36 (2026-10-03) — the envelope completion + the input-hardening family
+
+- Pulled `8264312` (the operator's `docs/session_64.md`); baseline gate
+  on the clean tree: lint 0/0 · tsc 0 · 817/817 (48 suites) — the
+  documented state exactly.
+- Two audit agents: the session-35 re-audit (headline fixes genuine;
+  NEW: the five DELETEs + three POST creates + users PATCH + settings
+  PUT + activities [id] update unwrapped; the reset outside a
+  transaction; the weak file-wide try/catch pins) + the
+  deferred-findings audit (events PUT invariant → HIGH; upload CL
+  pre-gate / photoUrl guard / health 503 → MEDIUM; six stay deferred
+  with re-confirmed rationale — reset role-gating would break the
+  demo-user e2e).
+- Standing-layer drift re-sweep: 32nd session NO DRIFT (the bundle
+  md5-identical — 7th consecutive; the reference mobile-nav absence at
+  390px; the demo data zero; our drawer live both directions; zero
+  overflow on all nine routes; the FK envelope 400 live).
+- RED-first (17 + 2 failing pins), then S36-P1..P5: the events PUT
+  end≥start invariant against the MERGED record; the envelope
+  completion (per-handler `handlerBlock()` slices) + the atomic
+  `$transaction` reset; the upload Content-Length pre-gate; the
+  photoUrl prefix guard (null / /api/uploads/ / https://); the honest
+  health 503 with the fresh-boot e2e proof.
+- Gate: lint 0/0 · tsc 0 · **838/838 unit (+21)** · build · **106/106
+  e2e (fresh-boot — db/e2e.db + .auth deleted first)**.
+- LIVE: the invariant both directions; the CL pre-gate 400 in 54ms on
+  a 100MB declared length; a small upload still 200s; `data:`/
+  `javascript:` photoUrls 400 with "Invalid photo URL"; null clears;
+  health 200/db:"up"; the drawer open/Escape/back clean.
+- 4 screenshots (02/11/12 re-captured + 44 NEW — the calendar
+  events-invariant surface); docs realigned at SKILL **v1.33.0**
+  (§16ab + project_state + frontmatter), README 838 badge + the
+  session-36 paragraph, AGENTS 838 + the session-36 block, CLAUDE 838,
+  PAD the s36 row, docs/session_65.md, the plan's execution record.

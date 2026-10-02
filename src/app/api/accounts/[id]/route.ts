@@ -11,9 +11,6 @@ export async function PUT(req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.account.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Account");
-
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
 
@@ -43,8 +40,11 @@ export async function PUT(req: Request, { params }: Params) {
   }
 
   // Session-35 (S35-P5): FK existence guard on PUT — the POST-side
-  // vocabulary — plus the envelope-held failure path.
+  // vocabulary — plus the envelope-held failure path. Session-36 (S36-P2):
+  // the existence fetch moved INSIDE the try.
   try {
+    const existing = await db.account.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Account");
     if (typeof data.ownerId === "string" && data.ownerId) {
       const owner = await db.user.findUnique({ where: { id: data.ownerId } });
       if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
@@ -65,9 +65,14 @@ export async function DELETE(_req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.account.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Account");
+  // Session-36 (S36-P2): the delete is envelope-held.
+  try {
+    const existing = await db.account.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Account");
 
-  await db.account.delete({ where: { id } });
-  return ok({ deleted: id });
+    await db.account.delete({ where: { id } });
+    return ok({ deleted: id });
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

@@ -21,6 +21,17 @@ export async function POST(request: Request) {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
 
+  // Session-36 (S36-P3): pre-gate on the declared Content-Length BEFORE
+  // formData() buffers the body — a multi-GB body must be rejected without
+  // ever being read into memory. The 64KB allowance covers multipart
+  // overhead (boundaries + part headers). Documented limitation: a chunked
+  // upload without Content-Length bypasses this gate; the post-parse
+  // ceiling below remains the backstop.
+  const declaredLength = Number(request.headers.get("content-length") ?? 0);
+  if (declaredLength > MAX_UPLOAD_BYTES + 64 * 1024) {
+    return ERR.BAD_REQUEST("File too large (max 5MB)");
+  }
+
   const form = await request.formData().catch(() => null);
   const file = form?.get("file");
   if (!(file instanceof File)) {

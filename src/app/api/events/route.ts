@@ -51,15 +51,16 @@ export async function POST(req: Request) {
   if (endAt && endAt < startAt) return ERR.BAD_REQUEST("End time must be after start time");
 
   const contactId = asString(body.contactId, { optional: true }) ?? null;
-  if (contactId) {
-    const contact = await db.contact.findUnique({ where: { id: contactId } });
-    if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
-  }
-
+  const accountId = asString(body.accountId, { optional: true }) ?? null;
   // Session-35 (S35-P5): the accountId FK guard the POST side was missing
   // (contactId was already checked) + the envelope-held failure path.
-  const accountId = asString(body.accountId, { optional: true }) ?? null;
+  // Session-36 (S36-P2): the contactId guard moved INSIDE the try — every
+  // DB call in the handler is envelope-held.
   try {
+    if (contactId) {
+      const contact = await db.contact.findUnique({ where: { id: contactId } });
+      if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
+    }
     if (accountId) {
       const account = await db.account.findUnique({ where: { id: accountId } });
       if (!account) return ERR.BAD_REQUEST("Selected company does not exist");

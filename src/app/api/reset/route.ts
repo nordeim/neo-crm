@@ -13,15 +13,25 @@ export async function POST(req: Request) {
     return ERR.BAD_REQUEST('Type "RESET" to confirm');
   }
 
-  await db.activity.deleteMany();
-  await db.event.deleteMany();
-  await db.lead.deleteMany();
-  // Session-31: the reference's reset wipes opportunities too (its confirm
-  // message has said "opportunities" since the s26 decode).
-  await db.opportunity.deleteMany();
-  await db.contact.deleteMany();
-  await db.account.deleteMany();
-  await db.savedReport.deleteMany();
+  // Session-36 (S36-P2): the seven deleteMany calls run INSIDE one
+  // $transaction — a mid-chain failure used to leave a PARTIAL wipe plus a
+  // raw non-envelope 500; now the wipe is atomic and the failure path is
+  // envelope-held.
+  try {
+    await db.$transaction([
+      db.activity.deleteMany(),
+      db.event.deleteMany(),
+      db.lead.deleteMany(),
+      // Session-31: the reference's reset wipes opportunities too (its confirm
+      // message has said "opportunities" since the s26 decode).
+      db.opportunity.deleteMany(),
+      db.contact.deleteMany(),
+      db.account.deleteMany(),
+      db.savedReport.deleteMany(),
+    ]);
 
-  return ok({ reset: true });
+    return ok({ reset: true });
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

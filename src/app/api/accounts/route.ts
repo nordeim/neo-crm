@@ -33,28 +33,33 @@ export async function POST(req: Request) {
   const status = asString(body.status, { optional: true }) ?? "active";
   if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
 
-  const ownerId = asString(body.ownerId, { optional: true }) ?? null;
-  if (ownerId) {
-    const owner = await db.user.findUnique({ where: { id: ownerId } });
-    if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
-  }
+  // Session-36 (S36-P2): the FK guard + create are envelope-held now.
+  try {
+    const ownerId = asString(body.ownerId, { optional: true }) ?? null;
+    if (ownerId) {
+      const owner = await db.user.findUnique({ where: { id: ownerId } });
+      if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
+    }
 
-  const account = await db.account.create({
-    data: {
-      name,
-      industry: asString(body.industry, { optional: true, max: 80 }) ?? null,
-      email: asString(body.email, { optional: true, max: 160 }) ?? null,
-      phone: asString(body.phone, { optional: true, max: 40 }) ?? null,
-      website: asString(body.website, { optional: true, max: 200 }) ?? null,
-      annualRevenue: asNumber(body.annualRevenue) ?? null,
-      employees: asInt(body.employees) ?? null,
-      tier,
-      isKey: body.isKey === true,
-      status,
-      ownerId,
-      lastActivityAt: new Date(),
-    },
-    include: { owner: { select: { id: true, name: true, avatarColor: true } } },
-  });
-  return ok(account);
+    const account = await db.account.create({
+      data: {
+        name,
+        industry: asString(body.industry, { optional: true, max: 80 }) ?? null,
+        email: asString(body.email, { optional: true, max: 160 }) ?? null,
+        phone: asString(body.phone, { optional: true, max: 40 }) ?? null,
+        website: asString(body.website, { optional: true, max: 200 }) ?? null,
+        annualRevenue: asNumber(body.annualRevenue) ?? null,
+        employees: asInt(body.employees) ?? null,
+        tier,
+        isKey: body.isKey === true,
+        status,
+        ownerId,
+        lastActivityAt: new Date(),
+      },
+      include: { owner: { select: { id: true, name: true, avatarColor: true } } },
+    });
+    return ok(account);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

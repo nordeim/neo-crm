@@ -29,14 +29,29 @@ export async function PATCH(request: Request) {
   if (!name || name.trim().length < 2) return ERR.BAD_REQUEST("Name must be at least 2 characters");
 
   // photoUrl: string | null | undefined (absent = keep the stored value).
+  // Session-36 (S36-P4): accepts only the documented URL shapes — our
+  // upload flow's /api/uploads/<name> or an https:// link like the
+  // reference's CDN data — never a data:/javascript: URL or an arbitrary
+  // tracker rendered to every viewer.
   let photoUrl: string | null | undefined;
   if (body.photoUrl === null) photoUrl = null;
-  else if (typeof body.photoUrl === "string") photoUrl = body.photoUrl.slice(0, 300);
+  else if (typeof body.photoUrl === "string") {
+    const raw = body.photoUrl.slice(0, 300);
+    if (!raw.startsWith("/api/uploads/") && !raw.startsWith("https://")) {
+      return ERR.BAD_REQUEST("Invalid photo URL");
+    }
+    photoUrl = raw;
+  }
 
-  const user = await db.user.update({
-    where: { id: guard.user.id },
-    data: { name: name.trim(), ...(photoUrl !== undefined ? { photoUrl } : {}) },
-    select: { id: true, email: true, name: true, avatarColor: true, photoUrl: true, role: true },
-  });
-  return ok(user);
+  // Session-36 (S36-P2): the update is envelope-held.
+  try {
+    const user = await db.user.update({
+      where: { id: guard.user.id },
+      data: { name: name.trim(), ...(photoUrl !== undefined ? { photoUrl } : {}) },
+      select: { id: true, email: true, name: true, avatarColor: true, photoUrl: true, role: true },
+    });
+    return ok(user);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

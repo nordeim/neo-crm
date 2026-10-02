@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (817 checks)         | `bun run test`                         |
+| Unit tests (838 checks)         | `bun run test`                         |
 | Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (817) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (838) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1399,6 +1399,41 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   opps; the reports owner dropdown stays stale without it), `logout()`
   clears `settings` (no cross-session picklist leakage). Pinned by
   `tests/api-robustness.test.ts` (14 checks) + 1 db-path check.
+
+- **The envelope-completion + input-hardening layer (session-36)** — the
+  re-audit found the session-35 robustness claim broader than its
+  implementation: the five DELETE handlers, the three POST creates
+  (contacts/leads/accounts), the `users` PATCH update, the `settings`
+  PUT upsert and the `activities/[id]` update still let Prisma failures
+  escape as raw non-envelope 500s, and `/api/reset` ran its seven
+  `deleteMany` calls sequentially outside a transaction (partial-wipe
+  risk). Fixed (all RED-first, 17 + 2 failing pins before the code):
+  every mutating DB call in every handler now inside try/catch →
+  `ERR.INTERNAL()` (the activities/events POST `contactId` guards and
+  the `[id]` routes' existence fetches moved inside the try; leads' PUT
+  is one whole-handler try because its stage parsing reads
+  `existing.closedAt`); the reset wipe is ATOMIC inside
+  `db.$transaction`; the events PUT gained the end≥start invariant its
+  own POST enforces, checked against the MERGED record
+  (`effectiveStart`/`effectiveEnd` vs `existing` — an endAt-only patch
+  can no longer slip past an unchanged later startAt); the upload POST
+  pre-gates on the declared `content-length` BEFORE `formData()`
+  buffers the body (`> MAX_UPLOAD_BYTES + 64KB` overhead allowance,
+  same "File too large (max 5MB)" vocabulary; chunked-encoding bypass
+  documented, post-parse ceiling the backstop); `photoUrl` on users
+  PATCH + contacts POST/PUT accepts only `null`, `/api/uploads/…` or
+  `https://…` (`data:`/`javascript:` payloads killed); and `/api/health`
+  returns an honest `503 SERVICE_UNAVAILABLE` on db-down (the
+  playwright webServer probe still passes on a healthy boot — verified
+  by a fresh-boot e2e run with `db/e2e.db` + `.auth` deleted: SQLite
+  auto-creates the file, `SELECT 1` succeeds, 106/106). Pinned by the
+  extended `tests/api-robustness.test.ts` (32 checks — the per-handler
+  `handlerBlock()` slices are STRONGER than file-wide regexes) + 3 new
+  upload-api checks. Deferred with re-confirmed rationale: reset
+  role-gating (the seeded demo user's role is `"user"` — a gate breaks
+  the demo-user e2e), list-endpoint caps, trusted-proxy limiter,
+  updateLead supersede guard, hydrate per-slice redesign, SavedReport
+  dead model.
 
 ## Conventions that differ from defaults
 

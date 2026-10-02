@@ -108,3 +108,30 @@ describe("session-30: the uploads directory is gitignored like db/", () => {
     expect(gitignore()).not.toMatch(/^uploads\/$/m);
   });
 });
+
+describe("session-36: the upload POST pre-gates on Content-Length (no unbounded buffering)", () => {
+  // formData() buffers the WHOLE multipart body in memory before the
+  // 5MB ceiling can reject it — a session-holder could POST a multi-GB
+  // body first. The pre-gate reads the declared Content-Length and
+  // rejects early, with the SAME vocabulary the post-parse ceiling uses.
+  // Documented limitation: chunked uploads without a Content-Length
+  // bypass the pre-gate (the post-parse check remains the backstop).
+  it("rejects oversized Content-Length BEFORE formData() buffers the body", () => {
+    const src = postRoute();
+    const cl = src.indexOf("content-length");
+    const fd = src.indexOf("formData()");
+    expect(cl).toBeGreaterThanOrEqual(0);
+    expect(fd).toBeGreaterThanOrEqual(0);
+    expect(cl).toBeLessThan(fd);
+  });
+
+  it("the pre-gate compares against MAX_UPLOAD_BYTES plus a multipart overhead allowance", () => {
+    const src = postRoute();
+    expect(src).toMatch(/MAX_UPLOAD_BYTES\s*\+/);
+  });
+
+  it("the pre-gate reuses the post-parse ceiling's exact vocabulary", () => {
+    const src = postRoute();
+    expect(src).toMatch(/File too large \(max 5MB\)/);
+  });
+});

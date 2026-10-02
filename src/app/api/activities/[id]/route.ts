@@ -44,16 +44,22 @@ export async function PUT(req: Request, { params }: Params) {
     data.completedAt = status === "completed" ? new Date() : null;
   }
 
-  const activity = await db.activity.update({
-    where: { id },
-    data,
-    include: {
-      account: { select: { id: true, name: true } },
-      contact: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(activity);
+  // Session-36 (S36-P2): the update is envelope-held (SQLITE_BUSY-class
+  // failures stay inside { ok, error } instead of a raw non-JSON 500).
+  try {
+    const activity = await db.activity.update({
+      where: { id },
+      data,
+      include: {
+        account: { select: { id: true, name: true } },
+        contact: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(activity);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
@@ -61,9 +67,14 @@ export async function DELETE(_req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.activity.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Activity");
+  // Session-36 (S36-P2): the delete is envelope-held.
+  try {
+    const existing = await db.activity.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Activity");
 
-  await db.activity.delete({ where: { id } });
-  return ok({ deleted: id });
+    await db.activity.delete({ where: { id } });
+    return ok({ deleted: id });
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

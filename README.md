@@ -52,7 +52,7 @@ first boot.
 | 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 817 Vitest unit checks + 106 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 838 Vitest unit checks + 106 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -175,7 +175,7 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 817 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness)
+bun run test          # 838 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness)
 bun run build         # E2E runs against the standalone production build
 bun run test:e2e      # 106 Playwright checks on :3100 with its own db/e2e.db
 ```
@@ -324,6 +324,22 @@ render warning on browser back/forward), FK existence guards on every
 PUT `[id]` body + the missing POST-side `accountId` checks with
 try/catch → `ERR.INTERNAL()` so DB failures stay inside the
 `{ ok, error }` envelope, and the store's reset/logout hygiene),
+and the session-36 envelope-completion + input-hardening layer (the
+re-audit found the session-35 robustness claim broader than its
+implementation — the five DELETE handlers, the three POST creates, the
+users PATCH update, the settings PUT upsert and the activities `[id]`
+update still let Prisma failures escape as raw non-envelope 500s, and
+the reset route's seven `deleteMany` calls ran outside a transaction
+with a partial-wipe risk on mid-chain failure; now every mutating DB
+call in every handler is inside try/catch → `ERR.INTERNAL()`, the
+reset wipe is atomic inside `db.$transaction`, the events PUT enforces
+the end≥start invariant its own POST carries — checked against the
+MERGED record so an endAt-only patch can't slip past an unchanged
+startAt, the upload POST pre-gates on the declared Content-Length
+before `formData()` buffers the body, `photoUrl` accepts only `null`,
+`/api/uploads/…` or `https://…` (no `data:`/`javascript:` payloads),
+and `/api/health` returns an honest 503 on db-down while the Playwright
+boot probe still passes — fresh-boot e2e verified),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,
