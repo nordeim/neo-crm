@@ -676,3 +676,17 @@ Work Log:
 Stage Summary:
 - Session 30 COMPLETE: gate green (lint 0/0 · tsc 0 · 741/741 unit · 106/106 e2e); 37 screenshots; docs at SKILL v1.27.0; the s51 photo pointer CLOSED + the drift re-sweep done + the scroll-cap family fixed
 - Ready: commit on main + the SSH-wrapper push; next pointers: the Opportunity-split question (the last s51 pointer), the Scan Card/Import AI extraction (base44-only), the standing drift re-sweep
+
+---
+Task ID: 30-push (repo)
+Agent: main (Super Z)
+Task: The session-30 push record (the established dual-commit pattern)
+
+Work Log:
+- Gate green before push (rule 2): lint 0/0 · tsc 0 · 741/741 unit (46 suites) · build clean · 106/106 e2e (2.3m single-worker)
+- Commit dcf942b on main (44 files, +1282/-91); the paramiko shim verified at /home/z/my-project/bin/ssh; the operator key materialized to /tmp/session30-deploy.key (0600, outside the repo), fingerprint SHA256:3ddaNlFhMz1JXiGEDgVEaRsUzI4Ev0IpGEEB7NnU4PU (ed25519 — identical to the session-26/27/28/29 records, the same operator deploy key)
+- Dry-run clean (fast-forward 9d9c8a8..dcf942b, remote untouched), then the real push via docs/ssh_git_wrapper_v3.py --remote git@github.com:nordeim/neo-crm.git
+- PUSH VERIFIED: remote refs/heads/main @ dcf942b == local HEAD; tracking ref synced by the wrapper; independently re-verified via GIT_SSH_COMMAND ls-remote (dcf942be17a0e16553ff4e21b853ffbee04cea3e); the operator key shredded (random overwrite + remove) after both verifications — no /tmp key residue
+
+Stage Summary:
+- Session 30 pushed to main; this record rides the second and final commit of the session
