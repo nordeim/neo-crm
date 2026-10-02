@@ -740,3 +740,17 @@ Work Log:
 Stage Summary:
 - Session 32 COMPLETE: gate green (lint 0/0 · tsc 0 · 793/793 unit · 106/106 e2e); 6 screenshots; docs at SKILL v1.29.0; the literal-scale currency doctrine mirrored end-to-end + the s25 period-id inference corrected with the localStorage migration shim + the dead controls confirmed live as documented supersets
 - Ready: commit on main + the SSH-wrapper push; next pointers: the base44-only AI extraction (documented divergence — no action possible), the standing drift re-sweep, the Opportunity create/edit UI (absent on BOTH sides — read-only entity, mirrored)
+
+---
+Task ID: 32-push (repo)
+Agent: main (Super Z)
+Task: The session-32 push record (the established dual-commit pattern)
+
+Work Log:
+- Gate green before push (rule 2): lint 0/0 · tsc 0 · 793/793 unit (47 suites) · build clean · 106/106 e2e (2.4m single-worker)
+- Commit 7d834d4 on main (24 files, +653/-71); the paramiko shim verified at /home/z/my-project/bin/ssh; the operator key materialized to /tmp/session32-deploy.key (0600, outside the repo), fingerprint SHA256:3ddaNlFhMz1JXiGEDgVEaRsUzI4Ev0IpGEEB7NnU4PU (ed25519 — identical to the session-26/27/28/29/30/31 records, the same operator deploy key)
+- Dry-run clean (fast-forward edb3723..7d834d4, remote untouched), then the real push via docs/ssh_git_wrapper_v3.py --remote git@github.com:nordeim/neo-crm.git
+- PUSH VERIFIED: remote refs/heads/main @ 7d834d4 == local HEAD; tracking ref synced by the wrapper; independently re-verified via GIT_SSH_COMMAND ls-remote (7d834d4a39b0bbb760a0836ce0a25f5df7ccc42b); the operator key shredded (random overwrite + remove) after both verifications — no /tmp key residue
+
+Stage Summary:
+- Session 32 pushed to main; this record rides the second and final commit of the session
