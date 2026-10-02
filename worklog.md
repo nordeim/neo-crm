@@ -839,3 +839,18 @@ Work Log:
 Stage Summary:
 - Session 35 COMPLETE: gate green (lint 0/0 · tsc 0 · 817/817 unit · 106/106 e2e); 4 screenshots; docs at SKILL v1.32.0; the repository is whole again — the uploads GET route tracked (the gitignore can no longer silently ban source paths), db/ exists on fresh clones, DB failures stay inside the API envelope with proper FK vocabulary, the db-path seam honors absolute production .env values, the mobile-nav follows the sanctioned React own-state pattern, and the e2e demands real image bytes
 - Ready: commit on main + the SSH-wrapper push; next pointers: the deferred LOW findings (reset role-gating, health 503, list caps, trusted-proxy limiter, photoUrl prefix, upload Content-Length, updateLead debounce, hydrate ordering, events PUT invariant — all documented with rationale), the base44-only AI extraction (no action possible), the Opportunity create/edit UI (absent BOTH sides), the standing drift re-sweep (bundle-stable six consecutive sessions)
+
+---
+Task ID: 35-push (repo)
+Agent: main (Super Z)
+Task: The session-35 push record (the established dual-commit pattern)
+
+Work Log:
+- Gate green before push (rule 2): lint 0/0 · tsc 0 · 817/817 unit (48 suites) · build clean · 106/106 e2e (2.4m single-worker)
+- Commit 1468867 on main (29 files, +975/-113); the paramiko shim deployed at /home/z/my-project/bin/ssh (the sandbox reset took the old one; re-built from the runbook's Appendix A after installing paramiko 5.0.0 into the venv python); the operator key materialized to /tmp/session35-deploy.key (0600, outside the repo), fingerprint SHA256:3ddaNlFhMz1JXiGEDgVEaRsUzI4Ev0IpGEEB7NnU4PU (ed25519 — identical to the session-26..34 records, the same operator deploy key)
+- Dry-run clean with the EXPLICIT --remote flag (fast-forward f63608e..1468867, remote untouched — the §16z lesson held: the wrapper's DEFAULT_REMOTE is still the stale task-management.git)
+- Real push via docs/ssh_git_wrapper_v3.py --remote git@github.com:nordeim/neo-crm.git
+- PUSH VERIFIED: remote refs/heads/main @ 1468867 == local HEAD; tracking ref synced by the wrapper; independently re-verified via GIT_SSH_COMMAND ls-remote (146886766cad21c4605ccbbb89e6b8d27734e9fa); the operator key shredded (random overwrite + remove) after both verifications — no /tmp key residue
+
+Stage Summary:
+- Session 35 pushed to main; this record rides the second and final commit of the session
