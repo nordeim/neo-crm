@@ -103,7 +103,7 @@ describe("session-27: the API's account-health data (S27-P1)", () => {
     const route = stripComments(read("src/app/api/reports/route.ts") ?? "");
     expect(route).toMatch(/accountHealth\(/);
     expect(route).not.toMatch(/ACCOUNT_STATUS_META\[s\]\.color/);
-    const ix = route.indexOf("const lostAccountIds");
+    const ix = route.indexOf("const lostOppAccounts");
     const block = route.slice(ix, ix + 1000);
     expect(block).toMatch(/accountHealth\(/);
     expect(block).toMatch(/HEALTH_STATES/);
@@ -111,14 +111,14 @@ describe("session-27: the API's account-health data (S27-P1)", () => {
 
   it("topAccounts SORTS by revenue desc before the slice (the reference's sort)", () => {
     const route = stripComments(read("src/app/api/reports/route.ts") ?? "");
-    const ix = route.indexOf("const lostAccountIds");
+    const ix = route.indexOf("const lostOppAccounts");
     const block = route.slice(ix, ix + 1400);
     expect(block).toMatch(/sort\(/);
   });
 
   it("atRiskAccounts derives from the computed health (slice 20) and ships daysSinceActivity", () => {
     const route = stripComments(read("src/app/api/reports/route.ts") ?? "");
-    const ix = route.indexOf("const lostAccountIds");
+    const ix = route.indexOf("const lostOppAccounts");
     const block = route.slice(ix, ix + 1600);
     expect(block).toMatch(/slice\(0, 20\)/);
     expect(block).toMatch(/daysSinceActivity/);

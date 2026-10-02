@@ -1,107 +1,128 @@
 import { db } from "@/lib/db";
 import { ok, isGuarded, requireSession } from "@/lib/api";
-import { PIPELINE_STAGES, STAGE_META, PIPELINE_LABELS, CHART_COLORS, isDroppedStage } from "@/lib/constants";
-import { addMonths, startOfMonth } from "@/lib/format";
-import type { DashboardData } from "@/types";
+import { PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
+import type { DashboardData, Opportunity } from "@/types";
 
 export const dynamic = "force-dynamic";
+
+// Session-31 (S31-P2): the dashboard re-derivation — the bundle's Eke memo
+// (index-DZ-xbrIm.js) computed against BOTH models: leads feed totalLeads,
+// the conversion rate and the avg sales cycle; OPPORTUNITIES feed
+// dealsClosedValue, revenueThisMonth, the pipeline chart, the revenue
+// chart, Top Reps and Recent Deals. salesTarget is the reference's
+// HARDCODED 0 (its literal `V=0`) with targetProgress 0.
+
+/** The reference's FIXED 7-label window — hardcoded in its bundle, it does
+ *  NOT track the data months (the labels stay Nov..May forever; the data
+ *  indexes the last 7 months relative to now). */
+const REVENUE_LABELS = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"] as const;
+
+function serializeOpportunity(o: {
+  id: string;
+  name: string;
+  accountName: string | null;
+  stage: string;
+  amount: number;
+  probability: number | null;
+  closeDate: Date | null;
+  source: string | null;
+  owner: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}): Opportunity {
+  return {
+    ...o,
+    closeDate: o.closeDate?.toISOString() ?? null,
+    createdAt: o.createdAt.toISOString(),
+    updatedAt: o.updatedAt.toISOString(),
+  };
+}
 
 export async function GET() {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
 
   const now = new Date();
-  const monthStart = startOfMonth(now);
-  const prevMonthStart = addMonths(monthStart, -1);
-  const sixMonthsAgo = addMonths(monthStart, -5);
 
-  const [leads, users, activities] = await Promise.all([
+  const [leads, opportunities, activities] = await Promise.all([
     db.lead.findMany({ include: { owner: { select: { id: true, name: true, avatarColor: true } } } }),
-    db.user.findMany({ select: { id: true, name: true, avatarColor: true } }),
+    db.opportunity.findMany({ orderBy: { createdAt: "desc" } }),
     db.activity.findMany({ where: { status: "scheduled" }, orderBy: { dueAt: "asc" } }),
   ]);
 
+  const wonOpps = opportunities.filter((o) => o.stage === "closed_won");
   const wonLeads = leads.filter((l) => l.stage === "won");
-  const lostLeads = leads.filter((l) => isDroppedStage(l.stage));
-  const openLeads = leads.filter((l) => l.stage !== "won" && !isDroppedStage(l.stage));
 
-  // ---- KPIs ----
+  // ---- KPIs (the Eke memo) ----
   const totalLeads = leads.length;
-  const totalLeadsPrev = leads.filter((l) => l.createdAt >= prevMonthStart && l.createdAt < monthStart).length;
-  const totalLeadsCurrent = leads.filter((l) => l.createdAt >= monthStart).length;
 
-  const dealsClosed = wonLeads.length;
-  const dealsClosedValue = wonLeads.reduce((s, l) => s + l.value, 0);
+  // WON-OPP amount sum (NOT won-lead values).
+  const dealsClosedValue = wonOpps.reduce((s, o) => s + (o.amount || 0), 0);
 
-  const revenueThisMonth = wonLeads
-    .filter((l) => l.closedAt && l.closedAt >= monthStart)
-    .reduce((s, l) => s + l.value, 0);
-  const revenuePrevMonth = wonLeads
-    .filter((l) => l.closedAt && l.closedAt >= prevMonthStart && l.closedAt < monthStart)
-    .reduce((s, l) => s + l.value, 0);
+  // Won opps whose UPDATED month is the current one (the reference groups
+  // by updated_date, not close_date).
+  const curMonth = now.getMonth();
+  const revenueThisMonth = wonOpps
+    .filter((o) => o.updatedAt.getMonth() === curMonth)
+    .reduce((s, o) => s + (o.amount || 0), 0);
 
-  // Monthly sales target: a simple derived target (total open pipeline / 4,
-  // floored at a base 50K) — the reference hardcodes targets; deriving keeps
-  // the demo honest while remaining tunable in settings via defaultCurrency.
-  const openPipeline = openLeads.reduce((s, l) => s + l.value, 0);
-  const salesTarget = Math.max(50000, Math.round(openPipeline / 4));
-  const salesTargetProgress = salesTarget > 0 ? Math.min(100, Math.round((revenueThisMonth / salesTarget) * 100)) : 0;
+  // The reference's HARDCODED zero target (its literal V=0) — the Sales
+  // Target card renders $0k / 0% on both sides. Our derived
+  // max(50_000, openPipeline/4) model is retired.
+  const salesTarget = 0;
+  const salesTargetProgress = 0;
 
-  const conversionRate = leads.length > 0 ? Math.round((dealsClosed / leads.length) * 1000) / 10 : 0;
+  // Conversion rate: the WON-LEAD share of all leads, one decimal (the
+  // reference's toFixed(1) — a string on the wire).
+  const conversionRate = leads.length > 0 ? ((wonLeads.length / leads.length) * 100).toFixed(1) : "0";
 
-  const wonWithDates = wonLeads.filter((l) => l.closedAt);
-  const avgSalesCycleDays = avgDays(
-    wonWithDates.map((l) => l.createdAt),
-    wonWithDates.map((l) => l.closedAt ?? l.createdAt),
-  );
-  // Cycle delta: compare this quarter's wins vs all-time average.
-  const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-  const quarterWins = wonWithDates.filter((l) => (l.closedAt ?? l.createdAt) >= quarterStart);
-  const avgSalesCycleDelta =
-    quarterWins.length >= 2
-      ? Math.round(avgDays(quarterWins.map((l) => l.createdAt), quarterWins.map((l) => l.closedAt ?? l.createdAt)) - avgSalesCycleDays)
-      : null;
+  // Avg sales cycle: the average AGE of the won leads — floor((now −
+  // created)/day) per lead, averaged, rounded (NOT created→closed; the
+  // s29 H/U doctrine now applied to the dashboard KPI too).
+  const avgSalesCycleDays =
+    wonLeads.length > 0
+      ? Math.round(
+          wonLeads.reduce(
+            (s, l) => s + Math.floor((now.getTime() - l.createdAt.getTime()) / 86_400_000),
+            0,
+          ) / wonLeads.length,
+        )
+      : 0;
 
-  // ---- Pipeline by stage ----
+  // ---- Pipeline by stage: the 5 OPP stages with VALUE sums ----
   const pipeline = PIPELINE_STAGES.map((stage) => {
-    const rows = leads.filter((l) => l.stage === stage);
+    const rows = opportunities.filter((o) => o.stage === stage);
     return {
       stage,
       label: PIPELINE_LABELS[stage] ?? stage,
       count: rows.length,
-      value: rows.reduce((s, l) => s + l.value, 0),
-      color: STAGE_META[stage]?.color ?? CHART_COLORS.gray,
+      value: rows.reduce((s, o) => s + (o.amount || 0), 0),
     };
   });
 
-  // ---- Revenue over time: 7 ticks = current month + 6 back. The reference
-  // renders 7 month labels under its "Last 6 months" caption (DOM-verified
-  // Nov..May) — "last 6 months" excluding today's partial month.
-  const revenueOverTime: DashboardData["revenueOverTime"] = [];
-  for (let i = 6; i >= 0; i -= 1) {
-    const m = addMonths(monthStart, -i);
-    const next = addMonths(m, 1);
-    const won = wonLeads
-      .filter((l) => l.closedAt && l.closedAt >= m && l.closedAt < next)
-      .reduce((s, l) => s + l.value, 0);
-    const target = Math.round(salesTarget * (0.8 + 0.05 * (6 - i)));
-    revenueOverTime.push({
-      month: m.toLocaleString("en-US", { month: "short" }),
-      won,
-      target,
-    });
+  // ---- Revenue over time: the FIXED Nov..May labels + the 55k±random
+  // target (the reference recomputes the random per render; per request is
+  // our server-side expression of the same variance) ----
+  const revenueOverTime: DashboardData["revenueOverTime"] = REVENUE_LABELS.map((month, i) => {
+    const m = (curMonth - 6 + i + 12) % 12;
+    const won = wonOpps
+      .filter((o) => o.updatedAt.getMonth() === m)
+      .reduce((s, o) => s + (o.amount || 0), 0);
+    return { month, won, target: Math.round(55_000 + Math.random() * 10_000) };
+  });
+
+  // ---- Top performing reps: WON opps by the owner STRING, slice(0,3) ----
+  const repsMap = new Map<string, { name: string; deals: number; value: number }>();
+  for (const o of wonOpps) {
+    if (!o.owner) continue;
+    const entry = repsMap.get(o.owner) ?? { name: o.owner, deals: 0, value: 0 };
+    entry.deals += 1;
+    entry.value += o.amount || 0;
+    repsMap.set(o.owner, entry);
   }
+  const topReps = [...repsMap.values()].sort((a, b) => b.value - a.value).slice(0, 3);
 
-  // ---- Top performing reps ----
-  const topReps = users
-    .map((u) => {
-      const wins = wonLeads.filter((l) => l.ownerId === u.id);
-      return { id: u.id, name: u.name, avatarColor: u.avatarColor, deals: wins.length, value: wins.reduce((s, l) => s + l.value, 0) };
-    })
-    .sort((a, b) => b.value - a.value || b.deals - a.deals)
-    .slice(0, 6);
-
-  // ---- Lead sources ----
+  // ---- Lead sources (LEADS — unchanged) ----
   const sourceMap = new Map<string, { count: number; value: number }>();
   for (const l of leads) {
     const key = l.source || "Unknown";
@@ -114,7 +135,7 @@ export async function GET() {
     .map(([source, v]) => ({ source, ...v }))
     .sort((a, b) => b.count - a.count);
 
-  // ---- Upcoming activities ----
+  // ---- Upcoming activities (unchanged) ----
   const upcomingActivities = activities
     .filter((a) => a.dueAt && a.dueAt >= now)
     .slice(0, 6)
@@ -123,35 +144,22 @@ export async function GET() {
       daysUntil: a.dueAt ? Math.ceil((a.dueAt.getTime() - now.getTime()) / 86_400_000) : 0,
     }));
 
-  // ---- Recent deals ----
-  const recentDeals = leads
+  // ---- Recent deals: OPPS by updatedAt desc, slice(0,5) ----
+  const recentDeals = opportunities
     .slice()
     .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-    .slice(0, 6)
-    .map((l) => ({
-      ...l,
-      createdAt: l.createdAt.toISOString(),
-      updatedAt: l.updatedAt.toISOString(),
-      expectedCloseDate: l.expectedCloseDate?.toISOString() ?? null,
-      closedAt: l.closedAt?.toISOString() ?? null,
-      nextFollowUp: l.nextFollowUp?.toISOString() ?? null,
-      account: null,
-      owner: l.owner ? { id: l.owner.id, name: l.owner.name, avatarColor: l.owner.avatarColor } : null,
-    }));
+    .slice(0, 5)
+    .map(serializeOpportunity);
 
   const data: DashboardData = {
     kpis: {
       totalLeads,
-      totalLeadsDelta: totalLeadsPrev > 0 ? Math.round(((totalLeadsCurrent - totalLeadsPrev) / totalLeadsPrev) * 1000) / 10 : totalLeadsCurrent > 0 ? null : 0,
-      dealsClosed,
       dealsClosedValue,
       revenueThisMonth,
-      revenueDelta: revenuePrevMonth > 0 ? Math.round(((revenueThisMonth - revenuePrevMonth) / revenuePrevMonth) * 1000) / 10 : revenueThisMonth > 0 ? null : 0,
       salesTarget,
       salesTargetProgress,
       conversionRate,
       avgSalesCycleDays,
-      avgSalesCycleDelta,
     },
     pipeline,
     revenueOverTime,
@@ -168,13 +176,4 @@ export async function GET() {
   };
 
   return ok(data);
-}
-
-function avgDays(starts: Date[], ends: Date[]): number {
-  if (starts.length === 0) return 0;
-  let total = 0;
-  for (let i = 0; i < starts.length; i += 1) {
-    total += Math.max(0, ends[i].getTime() - starts[i].getTime());
-  }
-  return Math.round(total / starts.length / 86_400_000);
 }

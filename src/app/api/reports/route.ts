@@ -2,15 +2,19 @@ import { db } from "@/lib/db";
 import { ok, ERR, asString, isGuarded, requireSession } from "@/lib/api";
 import {
   ACTIVITY_TYPE_META,
-  CHART_COLORS,
-  FUNNEL_STAGES,
   REPORT_PERIODS,
-  STAGE_META,
-  isDroppedStage,
-  reportsBucketCounts,
 } from "@/lib/constants";
 import { accountHealth, HEALTH_STATES } from "@/lib/account-health";
-import { agingCounts, forecastAccuracySeries, monthsFromEvents } from "@/lib/reports-data";
+import {
+  agingCounts,
+  countByMonth,
+  dealsAtRiskRows,
+  forecastAccuracySeries,
+  monthKey,
+  pipelineStageCounts,
+  revenueByMonth,
+  wonLostByMonth,
+} from "@/lib/reports-data";
 import { addMonths, startOfDay, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
 import type { ReportsData } from "@/types";
 
@@ -45,191 +49,170 @@ export async function GET(req: Request) {
   // "all" is the UI's "no filter" sentinel — normalize to null so it never
   // reaches Prisma as a literal value.
   const notAll = (v: string | null) => (v && v !== "all" ? v : null);
-  const ownerId = notAll(url.searchParams.get("ownerId"));
+  const owner = notAll(url.searchParams.get("owner"));
   const stage = notAll(url.searchParams.get("stage"));
   const status = notAll(url.searchParams.get("status"));
+  const source = notAll(url.searchParams.get("source"));
 
   const now = new Date();
   const from = periodStart(period, now);
 
-  const ownerFilter = ownerId ? { ownerId } : {};
-  const leadWhere = {
-    ...ownerFilter,
+  // Session-31 (S31-P3): the reference's filter model — OPPORTUNITIES carry
+  // the full filter set (period by created_date + stage + source + owner +
+  // status); LEADS filter by period + source ONLY; ACTIVITIES by period
+  // (their date). The owner value is the OPP's owner NAME STRING (the
+  // reference's owner dropdown lists the distinct opp owners).
+  const oppWhere = {
+    ...(period !== "all" ? { createdAt: { gte: from } } : {}),
     ...(stage ? { stage } : {}),
-    ...(status ? { status } : {}),
+    ...(source ? { source } : {}),
+    ...(owner ? { owner } : {}),
+    ...(status === "won"
+      ? { stage: "closed_won" }
+      : status === "lost"
+        ? { stage: "closed_lost" }
+        : {}),
+  };
+  const leadWhere = {
+    ...(period !== "all" ? { createdAt: { gte: from } } : {}),
+    ...(source ? { source } : {}),
   };
 
-  const [leads, activities, accounts, users] = await Promise.all([
+  const [leads, opportunities, activities, accounts] = await Promise.all([
     db.lead.findMany({
       where: leadWhere,
       include: {
         owner: { select: { id: true, name: true, avatarColor: true } },
         account: { select: { name: true } },
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { createdAt: "desc" },
     }),
-    db.activity.findMany({
-      where: { ...ownerFilter, createdAt: { gte: from } },
-      include: { owner: { select: { id: true, name: true, avatarColor: true } } },
-    }),
+    db.opportunity.findMany({ where: oppWhere, orderBy: { createdAt: "desc" } }),
+    db.activity.findMany({ orderBy: { createdAt: "desc" }, include: { owner: { select: { name: true } } } }),
     db.account.findMany({
       include: { _count: { select: { contacts: true, leads: true } } },
       orderBy: { annualRevenue: "desc" },
     }),
-    db.user.findMany({ select: { id: true, name: true, avatarColor: true } }),
   ]);
 
-  const wonLeads = leads.filter((l) => l.stage === "won" && (l.closedAt ?? l.createdAt) >= from);
-  // "Lost Deals" keeps the strict lost filter (the card is labeled Lost);
-  // open excludes every dropped stage (lost + unqualified).
-  const lostLeads = leads.filter((l) => l.stage === "lost" && (l.closedAt ?? l.createdAt) >= from);
-  const openLeads = leads.filter((l) => l.stage !== "won" && !isDroppedStage(l.stage));
+  // The reference's status filter open/won/lost maps onto the OPP stages
+  // (open = neither closed branch) — the query above carries won/lost
+  // directly; open needs the post-filter (Prisma has no != neither pair).
+  const filteredOpps =
+    status === "open"
+      ? opportunities.filter((o) => o.stage !== "closed_won" && o.stage !== "closed_lost")
+      : opportunities;
+  const wonOpps = filteredOpps.filter((o) => o.stage === "closed_won");
+  const lostOpps = filteredOpps.filter((o) => o.stage === "closed_lost");
+  const openOpps = filteredOpps.filter((o) => o.stage !== "closed_won" && o.stage !== "closed_lost");
+  const closedOpps = [...wonOpps, ...lostOpps];
 
-  // Previous period for deltas
-  const prevFrom = period === "all_time" ? new Date(0) : periodStart(period, addMonths(now, -3));
-  const prevWon = leads.filter((l) => l.stage === "won" && (l.closedAt ?? l.createdAt) >= prevFrom && (l.closedAt ?? l.createdAt) < from);
-  const prevLost = leads.filter((l) => l.stage === "lost" && (l.closedAt ?? l.createdAt) >= prevFrom && (l.closedAt ?? l.createdAt) < from);
+  // The activity's date (the reference's Activity.date) + the period filter —
+  // its `ld(date, {start, end})` bounds the window at BOTH ends (future-
+  // dated activities are excluded from finite periods; the "all" period
+  // skips the date check entirely).
+  const activityDate = (a: { dueAt: Date | null; createdAt: Date }) => a.dueAt ?? a.createdAt;
+  const filteredActivities =
+    period === "all"
+      ? activities
+      : activities.filter((a) => activityDate(a) >= from && activityDate(a) <= now);
 
-  const wonValue = wonLeads.reduce((s, l) => s + l.value, 0);
-  const lostValue = lostLeads.reduce((s, l) => s + l.value, 0);
-  const conversionRate = leads.length > 0 ? Math.round((wonLeads.length / leads.length) * 1000) / 10 : 0;
+  // ---- KPI row (the reference's m memo) ----
+  const kpis: ReportsData["kpis"] = {
+    totalLeads: leads.length,
+    // openLeads counts new+contacted ONLY (NOT qualified — the bundle's
+    // `X.status==="new"||X.status==="contacted"`).
+    openLeads: leads.filter((l) => l.stage === "new" || l.stage === "contacted").length,
+    wonDeals: wonOpps.length,
+    wonValue: wonOpps.reduce((s, o) => s + (o.amount || 0), 0),
+    lostDeals: lostOpps.length,
+    lostValue: lostOpps.reduce((s, o) => s + (o.amount || 0), 0),
+    // The OPPORTUNITY conversion rate: won/(won+lost), one decimal.
+    conversionRate:
+      wonOpps.length + lostOpps.length > 0
+        ? ((wonOpps.length / (wonOpps.length + lostOpps.length)) * 100).toFixed(1)
+        : "0",
+  };
 
-  const pctDelta = (cur: number, prev: number): number | null =>
-    prev > 0 ? Math.round(((cur - prev) / prev) * 1000) / 10 : cur > 0 ? null : 0;
+  // ---- tab 1: the close_date month series (insertion order) ----
+  const revenueOverTime = revenueByMonth(wonOpps);
+  const wonVsLostOverTime = wonLostByMonth(closedOpps);
 
-  // ---- time series (session-10 S10-9: ROW-DERIVED month series — one entry
-  // per DISTINCT closed month, EMPTY at zero (which is why the reference
-  // renders no month ticks at zero data); the DASHBOARD's fixed 7-month
-  // window lives in /api/dashboard and is unchanged) ----
-  const closedEvents = [...wonLeads, ...lostLeads].map((l) => ({
-    closedAt: l.closedAt,
-    createdAt: l.createdAt,
-    value: l.value,
-    kind: l.stage === "won" ? ("won" as const) : ("lost" as const),
-  }));
-  const closedMonths = monthsFromEvents(closedEvents);
-  const byMonth = (month: string, kind: "won" | "lost") =>
-    closedEvents.filter(
-      (e) => e.kind === kind && (e.closedAt ?? e.createdAt).toLocaleString("en-US", { month: "short" }) === month,
-    );
-  const revenueOverTime: ReportsData["revenueOverTime"] = closedMonths.map((m) => {
-    // Months present carry their won value; target keeps the derived
-    // formula (won * 1.15 + 10000) used since the series was introduced.
-    const won = byMonth(m.month, "won").reduce((s, e) => s + e.value, 0);
-    return { month: m.month, won, target: Math.round(won * 1.15 + 10000) };
-  });
-  const wonVsLostOverTime: ReportsData["wonVsLostOverTime"] = closedMonths.map((m) => ({
-    month: m.month,
-    won: byMonth(m.month, "won").length,
-    lost: byMonth(m.month, "lost").length,
-  }));
+  // ---- the 8-slug Conversion Funnel SPLIT (leads + opps) ----
+  const pipeline = pipelineStageCounts(leads, filteredOpps);
 
-  // ---- per-stage counts/values (shared by the 8-slug pipeline + funnel) ----
-  const stageCounts: Record<string, number> = {};
-  const stageValues: Record<string, number> = {};
-  for (const l of leads) {
-    stageCounts[l.stage] = (stageCounts[l.stage] ?? 0) + 1;
-    stageValues[l.stage] = (stageValues[l.stage] ?? 0) + l.value;
+  // ---- tab 1/2 "Pipeline by Stage": OPEN opps grouped by stage (raw
+  // slugs, first-seen order — the reference's plain-object grouping) ----
+  const byStage = new Map<string, { stage: string; count: number; value: number }>();
+  for (const o of openOpps) {
+    const key = o.stage || "unknown";
+    const entry = byStage.get(key) ?? { stage: key, count: 0, value: 0 };
+    entry.count += 1;
+    entry.value += o.amount || 0;
+    byStage.set(key, entry);
   }
+  const pipelineByStageRows = [...byStage.values()];
 
-  // ---- pipeline (session-10 S10-6: the reference's 8 RAW slugs via
-  // reportsBucketCounts — counts double-report new/prospecting and
-  // qualified/qualification, won maps to closed_won; colors follow the
-  // underlying stage; labels are the RAW slugs, the reference's quirk) ----
-  const slugStage = (slug: string) =>
-    slug === "prospecting" ? "new" : slug === "qualification" ? "qualified" : slug === "closed_won" ? "won" : slug;
-  const pipeline: ReportsData["pipeline"] = reportsBucketCounts(stageCounts).map((b) => {
-    const stage = slugStage(b.slug);
-    return {
-      slug: b.slug,
-      label: b.slug, // RAW slug — the reference's quirk (no title-casing)
-      count: b.count,
-      value: stageValues[stage] ?? 0,
-      color: STAGE_META[stage]?.color ?? CHART_COLORS.gray,
-    };
-  });
-
-  // ---- tab-2 pipeline (S10-8: ROW-DERIVED — the open-lead stages present;
-  // empty at zero like the reference's empty chart) ----
-  const pipelineByStageRows: ReportsData["pipelineByStageRows"] = [...new Set(openLeads.map((l) => l.stage))]
-    .map((stage) => {
-      const rows = openLeads.filter((l) => l.stage === stage);
-      return {
-        stage,
-        label: STAGE_META[stage]?.label ?? stage,
-        count: rows.length,
-        value: rows.reduce((acc, l) => acc + l.value, 0),
-        color: STAGE_META[stage]?.color ?? CHART_COLORS.gray,
-      };
-    })
-    .sort((a, b) => b.value - a.value);
-
-  // ---- funnel (session-10 S10-7: the 4-stage FUNNEL_STAGES list, always
-  // four entries, cumulative counts; rendered as a recharts FunnelChart) ----
-  const reachedStage = (order: string[]) =>
-    leads.filter((l) => order.includes(l.stage) || l.stage === "won").length;
-  const funnel: ReportsData["funnel"] = FUNNEL_STAGES.map((s) => {
-    const count =
-      s === "new"
-        ? leads.length
-        : s === "qualified"
-          ? reachedStage(["qualified", "proposal", "negotiation"])
-          : s === "won"
-            ? (stageCounts["won"] ?? 0)
-            : (stageCounts["lost"] ?? 0);
-    return { id: s, label: STAGE_META[s]?.label ?? s, count, color: STAGE_META[s]?.color ?? CHART_COLORS.gray };
-  });
-
-  // ---- activities (session-10 S10-8: ROW-DERIVED — the types actually
-  // present, empty at zero like the reference's tab-3 charts) ----
-  const presentTypes = [...new Set(activities.map((a) => a.type))];
+  // ---- tab 3: activities ----
+  const presentTypes = [...new Set(filteredActivities.map((a) => a.type))];
   const activitiesByType: ReportsData["activitiesByType"] = presentTypes
     .map((t) => ({
       type: t,
       label: ACTIVITY_TYPE_META[t]?.label ?? t,
-      count: activities.filter((a) => a.type === t).length,
-      color: ACTIVITY_TYPE_META[t]?.color ?? CHART_COLORS.gray,
+      count: filteredActivities.filter((a) => a.type === t).length,
+      color: ACTIVITY_TYPE_META[t]?.color ?? "#9ca3af",
     }))
     .sort((a, b) => b.count - a.count);
 
-  // "Activity Log by Owner" — Owner/Activities rows (the reference's
-  // 2-column table; row-derived).
-  const activitiesByOwner: ReportsData["activitiesByOwner"] = users
-    .map((u) => ({ name: u.name, total: activities.filter((a) => a.ownerId === u.id).length }))
-    .filter((u) => u.total > 0)
-    .sort((a, b) => b.total - a.total);
-
-  // ---- lead sources ----
-  const sourceMap = new Map<string, { leads: number; won: number; value: number }>();
-  for (const l of leads) {
-    const key = l.source || "Unknown";
-    const e = sourceMap.get(key) ?? { leads: 0, won: 0, value: 0 };
-    e.leads += 1;
-    if (l.stage === "won") {
-      e.won += 1;
-      e.value += l.value;
-    }
-    sourceMap.set(key, e);
+  // "Activity Log by Owner" — grouped by the owner NAME (the reference's
+  // created_by||"Unassigned"), sorted desc, slice(0,10).
+  const ownerMap = new Map<string, number>();
+  for (const a of filteredActivities) {
+    const key = a.owner?.name ?? "Unassigned";
+    ownerMap.set(key, (ownerMap.get(key) ?? 0) + 1);
   }
-  const leadSources = [...sourceMap.entries()]
-    .map(([source, v]) => ({
-      source,
-      leads: v.leads,
-      won: v.won,
-      value: v.value,
-      winRate: v.leads > 0 ? Math.round((v.won / v.leads) * 1000) / 10 : 0,
-    }))
+  const activitiesByOwner = [...ownerMap.entries()]
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10);
+
+  // ---- tab 4: sources (the split model — leads from LEADS, the rest from
+  // OPPORTUNITIES) ----
+  const sourceKeys = new Set<string>([
+    ...leads.map((l) => l.source || "Unknown"),
+    ...filteredOpps.map((o) => o.source || "Unknown"),
+  ]);
+  const leadSources: ReportsData["leadSources"] = [...sourceKeys]
+    .map((source) => {
+      const leadsForSource = leads.filter((l) => (l.source || "Unknown") === source);
+      const oppsForSource = filteredOpps.filter((o) => (o.source || "Unknown") === source);
+      const won = oppsForSource.filter((o) => o.stage === "closed_won");
+      const lost = oppsForSource.filter((o) => o.stage === "closed_lost");
+      const total = oppsForSource.reduce((s, o) => s + (o.amount || 0), 0);
+      return {
+        source,
+        leads: leadsForSource.length,
+        won: won.length,
+        lost: lost.length,
+        revenue: won.reduce((s, o) => s + (o.amount || 0), 0),
+        winRate:
+          won.length + lost.length > 0
+            ? ((won.length / (won.length + lost.length)) * 100).toFixed(1)
+            : "0",
+        avgValue: oppsForSource.length > 0 ? Math.round(total / oppsForSource.length) : 0,
+      };
+    })
     .sort((a, b) => b.leads - a.leads);
 
-  // ---- account health (session-27 S27-P1: the reference's COMPUTED
-  // health — daysSinceActivity from the account's latest activity (the
-  // 999 sentinel when never) + the closed_lost rule; NOT the stored
-  // status distribution our scaffold shipped. The stored Account.health
-  // column stays on the accounts page/export contract (s26).) ----
-  const lostAccountIds = new Set(leads.filter((l) => l.stage === "lost" && l.accountId).map((l) => l.accountId as string));
+  // ---- tab 5: account health (the closed_lost-OPP rule) ----
+  const lostOppAccounts = new Set(lostOpps.map((o) => o.accountName ?? ""));
   const accountHealthRows = accounts.map((a) => ({
     account: a,
-    ...accountHealth({ lastActivityAt: a.lastActivityAt ?? null, hasLostDeals: lostAccountIds.has(a.id), now }),
+    ...accountHealth({
+      lastActivityAt: a.lastActivityAt ?? null,
+      hasLostDeals: lostOppAccounts.has(a.name),
+      now,
+    }),
   }));
   const accountHealthDistribution = HEALTH_STATES.map((name) => ({
     name,
@@ -261,7 +244,101 @@ export async function GET(req: Request) {
     openLeads: a._count.leads,
   }));
 
-  // ---- tables ----
+  // ---- tables (the reference's slices: 10 / 10 / 10 / 20) ----
+  const recentWonDeals = wonOpps.slice(0, 10).map((o) => ({
+    id: o.id,
+    name: o.name,
+    account: o.accountName,
+    amount: o.amount,
+  }));
+
+  const topDeals = filteredOpps
+    .slice()
+    .sort((a, b) => (b.amount || 0) - (a.amount || 0))
+    .slice(0, 10)
+    .map((o) => ({ id: o.id, name: o.name, stage: o.stage, amount: o.amount }));
+
+  // ---- tab 2 additions ----
+  const agingPipeline = agingCounts(
+    openOpps.map((o) => ({ createdAt: o.createdAt })),
+    now.getTime(),
+  );
+
+  const forecastingAccuracy = forecastAccuracySeries(
+    closedOpps.map((o) => ({
+      closeDate: o.closeDate,
+      createdAt: o.createdAt,
+      amount: o.amount,
+      probability: o.probability,
+      stage: o.stage,
+    })),
+  );
+
+  // Forecast by Probability: the OPEN opps banded by their OWN probability
+  // (the s10 stage-weight proxy retired; the 76-100 band can now carry data).
+  const forecastByProbability: ReportsData["forecastByProbability"] = (
+    ["0-25", "26-50", "51-75", "76-100"] as const
+  ).map((band) => ({
+    band,
+    value: Math.round(
+      openOpps
+        .filter((o) => {
+          const p = o.probability || 0;
+          return p <= 25 ? band === "0-25" : p <= 50 ? band === "26-50" : p <= 75 ? band === "51-75" : band === "76-100";
+        })
+        .reduce((s, o) => s + (o.amount || 0), 0),
+    ),
+  }));
+
+  // Open Deals by Stage: list order (createdAt desc), slice(0,10) — the
+  // raw stage slug rides the row (the page renders it in the outline badge).
+  const openDealsByStage = openOpps.slice(0, 10).map((o) => ({
+    id: o.id,
+    deal: o.name,
+    stage: o.stage,
+    amount: o.amount,
+  }));
+
+  const dealsAtRisk = dealsAtRiskRows(
+    openOpps.map((o) => ({
+      id: o.id,
+      name: o.name,
+      accountName: o.accountName,
+      amount: o.amount,
+    })),
+    activities.map((a) => ({
+      relatedType: a.relatedType,
+      relatedName: a.relatedName,
+      date: a.dueAt ?? a.createdAt,
+    })),
+    now.getTime(),
+  );
+
+  // ---- tab 3 series ----
+  const activitiesOverTime = countByMonth(
+    filteredActivities.map((a) => ({ date: activityDate(a) })),
+  );
+  // Activities vs Wins: the ACTIVITY months, each joined with the won-OPP
+  // count whose close month matches (the reference maps over its activity
+  // months only — not a union).
+  const activitiesVsWins = activitiesOverTime.map((m) => ({
+    month: m.month,
+    activities: m.count,
+    wins: wonOpps.filter((o) => o.closeDate && monthKey(o.closeDate) === m.month).length,
+  }));
+
+  // Overdue: past-date NON-Note activities, slice(0,20) (the reference's
+  // `f.date&&isBefore(now,f.date)&&f.type!=="Note"`).
+  const overdueActivities = filteredActivities
+    .filter((a) => activityDate(a) < now && a.type !== "note")
+    .slice(0, 20)
+    .map((a) => ({
+      id: a.id,
+      subject: a.subject,
+      type: ACTIVITY_TYPE_META[a.type]?.label ?? a.type,
+      dueAt: a.dueAt?.toISOString() ?? null,
+    }));
+
   const serializeLead = (l: (typeof leads)[number]) => ({
     ...l,
     createdAt: l.createdAt.toISOString(),
@@ -272,111 +349,14 @@ export async function GET(req: Request) {
     account: null,
     contact: null,
   });
-
-  const recentWonDeals = wonLeads.slice(0, 6).map(serializeLead);
-  const topDeals = leads.slice().sort((a, b) => b.value - a.value).slice(0, 6).map(serializeLead);
-
-  // ---- session-10 (S10-8): the tab 2-4 additions ----
-  const agingPipeline: ReportsData["agingPipeline"] = agingCounts(
-    openLeads.map((l) => ({ updatedAt: l.updatedAt, createdAt: l.createdAt })),
-    now.getTime(),
-  );
-
-  const forecastingAccuracy: ReportsData["forecastingAccuracy"] = forecastAccuracySeries(
-    revenueOverTime.map((m) => ({ month: m.month, forecast: m.target, actual: m.won })),
-  );
-
-  // Weighted open-pipeline value by stage (negotiation .6 / proposal .4 /
-  // qualified .25 / rest .1 — the weighted-forecast weights). Session-27
-  // (S27-P4): the reference's Forecast by Probability chart is a PIE over
-  // the FIXED 4 bands "0-25"/"26-50"/"51-75"/"76-100" with AMOUNT sums.
-  // Our Lead model carries no per-deal probability — the stage weight is
-  // the documented band proxy (0.25 → 0-25, 0.4 → 26-50, 0.6 → 51-75; the
-  // 76-100 band stays empty in our approximation).
-  const weightFor = (stage: string) =>
-    stage === "negotiation" ? 0.6 : stage === "proposal" ? 0.4 : stage === "qualified" ? 0.25 : 0.1;
-  const bandFor = (stage: string) => {
-    const w = weightFor(stage) * 100;
-    return w <= 25 ? "0-25" : w <= 50 ? "26-50" : w <= 75 ? "51-75" : "76-100";
-  };
-  const forecastByProbability: ReportsData["forecastByProbability"] = ["0-25", "26-50", "51-75", "76-100"].map(
-    (band) => ({
-      band,
-      value: Math.round(
-        openLeads.filter((l) => bandFor(l.stage) === band).reduce((s, l) => s + l.value, 0),
-      ),
-    }),
-  );
-
-  const openDealsByStage: ReportsData["openDealsByStage"] = openLeads
-    .slice()
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 6)
-    .map((l) => ({
-      id: l.id,
-      deal: l.name,
-      stage: STAGE_META[l.stage]?.label ?? l.stage,
-      amount: l.value,
-    }));
-
-  const atRiskCutoff = new Date(now.getTime() - 14 * 86_400_000);
-  const dealsAtRisk: ReportsData["dealsAtRisk"] = openLeads
-    .filter((l) => l.updatedAt < atRiskCutoff)
-    .slice(0, 6)
-    .map((l) => ({
-      id: l.id,
-      deal: l.name,
-      account: l.account?.name ?? null,
-      amount: l.value,
-    }));
-
-  const activityMonths = monthsFromEvents(
-    activities.map((a) => ({ closedAt: null, createdAt: a.createdAt, value: 0 })),
-  );
-  const activitiesOverTime: ReportsData["activitiesOverTime"] = activityMonths.map((m) => ({
-    month: m.month,
-    count: m.count,
-  }));
-  const activitiesVsWins: ReportsData["activitiesVsWins"] = [
-    ...new Set([...activityMonths.map((m) => m.month), ...closedMonths.map((m) => m.month)]),
-  ].map((month) => ({
-    month,
-    activities: activities.filter((a) => a.createdAt.toLocaleString("en-US", { month: "short" }) === month).length,
-    wins: closedEvents.filter(
-      (e) => e.kind === "won" && (e.closedAt ?? e.createdAt).toLocaleString("en-US", { month: "short" }) === month,
-    ).length,
-  }));
-
-  const overdueActivities: ReportsData["overdueActivities"] = activities
-    .filter((a) => a.status !== "completed" && a.dueAt && a.dueAt < now)
-    .slice(0, 6)
-    .map((a) => ({
-      id: a.id,
-      subject: a.subject,
-      type: ACTIVITY_TYPE_META[a.type]?.label ?? a.type,
-      dueAt: a.dueAt?.toISOString() ?? null,
-    }));
-
-  const leadsListBySource: ReportsData["leadsListBySource"] = leads.slice(0, 10).map(serializeLead);
+  const leadsListBySource = leads.slice(0, 10).map(serializeLead);
 
   const data: ReportsData = {
-    kpis: {
-      totalLeads: leads.length,
-      totalLeadsDelta: null,
-      openLeads: openLeads.length,
-      openLeadsDelta: null,
-      wonDeals: wonLeads.length,
-      wonValue,
-      wonDelta: pctDelta(wonLeads.length, prevWon.length),
-      lostDeals: lostLeads.length,
-      lostValue,
-      lostDelta: pctDelta(lostLeads.length, prevLost.length),
-      conversionRate,
-    },
+    kpis,
     revenueOverTime,
+    wonVsLostOverTime,
     pipeline,
     pipelineByStageRows,
-    funnel,
     activitiesByType,
     activitiesByOwner,
     leadSources,
@@ -386,7 +366,6 @@ export async function GET(req: Request) {
     accountSummary,
     recentWonDeals,
     topDeals,
-    wonVsLostOverTime,
     agingPipeline,
     forecastingAccuracy,
     forecastByProbability,

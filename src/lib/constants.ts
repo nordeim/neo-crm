@@ -23,12 +23,55 @@ export function isDroppedStage(stage: string): boolean {
   return DROPPED_STAGES.includes(stage);
 }
 
-export const PIPELINE_STAGES: readonly LeadStage[] = [
-  "new",
-  "qualified",
+// Session-31 (S31-P1): the OPPORTUNITY stage vocabulary — the reference's
+// SECOND deal model (bundle-decoded from index-DZ-xbrIm.js). The reference
+// ships a full Opportunity entity with NO create-edit UI (the leads
+// "Convert to Opportunity" item is dead — no onClick; no New Opportunity
+// dialog exists); its data feeds the dashboard, all five reports tabs, and
+// both insights surfaces.
+export const OPPORTUNITY_STAGES = [
+  "prospecting",
+  "qualification",
   "proposal",
   "negotiation",
-  "won",
+  "closed_won",
+  "closed_lost",
+] as const;
+export type OpportunityStage = (typeof OPPORTUNITY_STAGES)[number];
+
+/** True when an opportunity stage ends the deal (either closed branch). */
+export function isClosedOppStage(stage: string): boolean {
+  return stage === "closed_won" || stage === "closed_lost";
+}
+
+/**
+ * The OPP badge tints — the reference's P map (its table/insight badges):
+ * prospecting blue, qualification PURPLE (not the lead cyan), proposal
+ * yellow, negotiation orange, closed_won green, closed_lost red.
+ */
+export const OPP_STAGE_META: Record<string, { label: string; badge: string; color: string }> = {
+  prospecting: { label: "Prospecting", badge: "bg-blue-100 text-blue-800", color: "#3b82f6" },
+  qualification: { label: "Qualification", badge: "bg-purple-100 text-purple-800", color: "#06b6d4" },
+  proposal: { label: "Proposal", badge: "bg-yellow-100 text-yellow-800", color: "#eab308" },
+  negotiation: { label: "Negotiation", badge: "bg-orange-100 text-orange-800", color: "#f97316" },
+  closed_won: { label: "Won", badge: "bg-green-100 text-green-800", color: "#10b981" },
+  closed_lost: { label: "Lost", badge: "bg-red-100 text-red-800", color: "#ef4444" },
+};
+
+/**
+ * Session-31 REDEFINITION: the dashboard's stage vocabulary IS the
+ * opportunity open+won vocabulary (the reference's chart maps
+ * ["prospecting","qualification","proposal","negotiation","closed_won"]
+ * with VALUE sums from OPPORTUNITIES). The scaffold-era lead-stage list
+ * (new/qualified/…) was a zero-data inference; the labels stay
+ * Prospecting/Qualification/Proposal/Negotiation/Won via PIPELINE_LABELS.
+ */
+export const PIPELINE_STAGES: readonly OpportunityStage[] = [
+  "prospecting",
+  "qualification",
+  "proposal",
+  "negotiation",
+  "closed_won",
 ];
 
 export interface StageMeta {
@@ -59,11 +102,15 @@ export const STAGE_META: Record<string, StageMeta> = {
 
 /** Dashboard funnel uses friendlier names for two stages. */
 export const PIPELINE_LABELS: Record<string, string> = {
+  prospecting: "Prospecting",
+  qualification: "Qualification",
+  proposal: "Proposal",
+  negotiation: "Negotiation",
+  closed_won: "Won",
+  closed_lost: "Lost",
   new: "Prospecting",
   contacted: "Contacted",
   qualified: "Qualification",
-  proposal: "Proposal",
-  negotiation: "Negotiation",
   won: "Won",
   lost: "Lost",
   unqualified: "Unqualified",
@@ -100,11 +147,14 @@ export const LEAD_INLINE_STATUS_OPTIONS: Array<{ value: string; label: string }>
 // ---------------------------------------------------------------------------
 
 /**
- * S10-6: the reference's reports tab-1 "Pipeline by Stage" chart renders
- * EIGHT raw slug X ticks — a merged-list quirk (its dashboard aliases
- * new≡Prospecting and qualified≡Qualification, plus won≡closed_won, all
- * leaked into one list, raw snake_case, no title-casing). Mirrored per the
- * strict-mirror precedent ("Add new industrie" typo, dead controls).
+ * S10-6: the reports Conversion Funnel's EIGHT raw slugs. Session-31
+ * CORRECTION (bundle-decoded): the list is a CONCATENATION — the leads'
+ * new/contacted/qualified counts (by lead status) followed by the
+ * OPPORTUNITY five-stage counts (prospecting/qualification/proposal/
+ * negotiation/closed_won). The s10 "merged-list double-report" reading
+ * (new≡prospecting, qualified≡qualification, won→closed_won) was a
+ * zero-data inference and is RETIRED — reports-data.ts's
+ * pipelineStageCounts(leads, opps) builds the real split.
  */
 export const REPORTS_PIPELINE_SLUGS = [
   "new",
@@ -116,31 +166,6 @@ export const REPORTS_PIPELINE_SLUGS = [
   "negotiation",
   "closed_won",
 ] as const;
-
-/**
- * S10-6 (zero-data-informed mapping, quirk register): converts per-stage
- * lead counts (our vocabulary) into the reference's 8-slug bucket list.
- * The reference's merged list double-reports its new leads under both
- * "new" and "prospecting" and its qualified leads under both "qualified"
- * and "qualification"; won maps to closed_won. Counts input uses OUR stage
- * vocabulary; see /api/reports.
- */
-export function reportsBucketCounts(
-  counts: Record<string, number>,
-): Array<{ slug: string; count: number }> {
-  const stageCount = (s: string) => counts[s] ?? 0;
-  return REPORTS_PIPELINE_SLUGS.map((slug) => ({
-    slug,
-    count:
-      slug === "prospecting"
-        ? stageCount("new")
-        : slug === "qualification"
-          ? stageCount("qualified")
-          : slug === "closed_won"
-            ? stageCount("won")
-            : stageCount(slug),
-  }));
-}
 
 /**
  * S10-7: the reference's Conversion Funnel is a recharts FunnelChart with

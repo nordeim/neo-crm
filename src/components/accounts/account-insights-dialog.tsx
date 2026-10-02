@@ -9,8 +9,9 @@
 //   (text-sm text-gray-500) + the status badge (active = green-100/
 //   green-800, else gray-100/gray-800)
 // - THREE stat cards (grid grid-cols-3 gap-4, p-4 text-center):
-//   Total Revenue `$X.XM` (the closed_won sum, blue), Open Deals (not
-//   closed_lost, green), Contacts (purple)
+//   Total Revenue `$X.XM` (the closed_won OPP sum, blue), Open Deals
+//   (green — NOTE the reference's own quirk: `stage !== "closed_lost"`
+//   ONLY, so WON deals count too), Contacts (purple)
 // - the Recent Activities / Contacts / Open Deals tabs:
 //   - activities: the type-tinted w-10 h-10 icon rows (Email = blue-100/
 //     blue-600 Mail, Call = green-100/green-600 Phone, else purple-100/
@@ -21,9 +22,9 @@
 //   - deals: the OPEN deals only (neither closed_lost nor closed_won) —
 //     name, "Close Date: " + date, $amount + the stage badge
 //
-// The reference matches rows by name (`related_to_name`/`account_name`)
-// — our relational ids are the equivalent seam (activities by accountId,
-// contacts by account, leads by accountId).
+// Session-31: the deals surfaces derive from OPPORTUNITIES matched by the
+// account NAME string (the reference's account_name join); activities
+// still match by our relational accountId.
 
 import * as React from "react";
 import { CalendarDays, Mail, Phone, Users } from "lucide-react";
@@ -36,8 +37,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
-import type { Account, Activity, Contact, Lead } from "@/types";
-import { formatCompactCurrency } from "@/lib/format";
+import { OPP_STAGE_META } from "@/lib/constants";
+import type { Account, Activity, Contact, Opportunity } from "@/types";
 
 function initials(name: string): string {
   return name
@@ -53,25 +54,30 @@ export function AccountInsightsDialog({
   account,
   activities,
   contacts,
-  leads,
+  opportunities,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   account: Account | null;
   activities: Activity[];
   contacts: Contact[];
-  leads: Lead[];
+  opportunities: Opportunity[];
 }) {
   const [tab, setTab] = React.useState("activities");
   if (!account) return null;
 
   const accountActivities = activities.filter((a) => a.accountId === account.id);
   const accountContacts = contacts.filter((c) => c.accountId === account.id);
-  const accountDeals = leads.filter((l) => l.accountId === account.id);
-  const wonRevenue = accountDeals
-    .filter((d) => d.status === "closed_won")
-    .reduce((sum, d) => sum + (d.value || 0), 0);
-  const openDeals = accountDeals.filter((d) => d.status !== "closed_lost" && d.status !== "closed_won");
+  // Session-31: the reference's account_name join — the OPPS matched by
+  // the account NAME string.
+  const accountOpps = opportunities.filter((o) => o.accountName === account.name);
+  const wonRevenue = accountOpps
+    .filter((o) => o.stage === "closed_won")
+    .reduce((sum, o) => sum + (o.amount || 0), 0);
+  // The reference's own quirk: the Open Deals COUNT card filters
+  // `stage !== "closed_lost"` ONLY — won deals count toward it.
+  const notLostCount = accountOpps.filter((o) => o.stage !== "closed_lost").length;
+  const openDeals = accountOpps.filter((o) => o.stage !== "closed_lost" && o.stage !== "closed_won");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -98,7 +104,7 @@ export function AccountInsightsDialog({
           <Card>
             <CardContent className="p-4 text-center">
               <Phone className="w-6 h-6 mx-auto mb-2 text-green-600" />
-              <div className="text-2xl font-bold">{openDeals.length}</div>
+              <div className="text-2xl font-bold">{notLostCount}</div>
               <div className="text-xs text-gray-500">Open Deals</div>
             </CardContent>
           </Card>
@@ -187,12 +193,12 @@ export function AccountInsightsDialog({
                     <p className="text-sm font-medium">{d.name}</p>
                     <p className="text-xs text-gray-500 mt-1">
                       Close Date:{" "}
-                      {d.expectedCloseDate ? new Date(d.expectedCloseDate).toLocaleDateString() : "—"}
+                      {d.closeDate ? new Date(d.closeDate).toLocaleDateString() : "—"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold">{formatCompactCurrency(d.value)}</p>
-                    <Badge className="mt-1 text-xs">{d.stage}</Badge>
+                    <p className="text-sm font-semibold">${(d.amount || 0).toLocaleString()}</p>
+                    <Badge className={`mt-1 text-xs ${OPP_STAGE_META[d.stage]?.badge ?? ""}`}>{d.stage}</Badge>
                   </div>
                 </div>
               ))

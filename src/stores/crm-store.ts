@@ -6,6 +6,7 @@
 
 import { create } from "zustand";
 import type {
+  Opportunity,
   Account,
   Activity,
   Contact,
@@ -52,6 +53,7 @@ export interface CrmState {
   accounts: Account[];
   contacts: Contact[];
   leads: Lead[];
+  opportunities: Opportunity[];
   activities: Activity[];
   events: CrmEvent[];
   settings: Settings | null;
@@ -64,6 +66,7 @@ export interface CrmState {
   fetchAccounts: () => Promise<void>;
   fetchContacts: () => Promise<void>;
   fetchLeads: () => Promise<void>;
+  fetchOpportunities: () => Promise<void>;
   fetchActivities: () => Promise<void>;
   fetchEvents: (from?: string, to?: string) => Promise<void>;
   fetchSettings: () => Promise<void>;
@@ -101,6 +104,7 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   accounts: [],
   contacts: [],
   leads: [],
+  opportunities: [],
   activities: [],
   events: [],
   settings: null,
@@ -115,6 +119,7 @@ export const useCrmStore = create<CrmState>((set, get) => ({
         get().fetchAccounts(),
         get().fetchContacts(),
         get().fetchLeads(),
+        get().fetchOpportunities(),
         get().fetchActivities(),
         get().fetchEvents(),
         get().fetchSettings(),
@@ -127,7 +132,7 @@ export const useCrmStore = create<CrmState>((set, get) => ({
 
   logout: async () => {
     await call("/api/auth/logout", { method: "POST" });
-    set({ user: null, users: [], accounts: [], contacts: [], leads: [], activities: [], events: [], dashboard: null });
+    set({ user: null, users: [], accounts: [], contacts: [], leads: [], opportunities: [], activities: [], events: [], dashboard: null });
   },
 
   fetchUsers: async () => {
@@ -148,6 +153,11 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   fetchLeads: async () => {
     const res = await call<Lead[]>("/api/leads");
     if (res.ok) set({ leads: res.data });
+  },
+
+  fetchOpportunities: async () => {
+    const res = await call<Opportunity[]>("/api/opportunities");
+    if (res.ok) set({ opportunities: res.data });
   },
 
   fetchActivities: async () => {

@@ -30,7 +30,6 @@ import { FilterPolygon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -39,8 +38,8 @@ import { KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { RevenueLineChart, SingleBarChart, dollarFormatter } from "@/components/charts/charts";
 import { AccountDialog, ActivityDialog, ContactDialog, EventDialog, LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { STAGE_META, CHART_COLORS, LEAD_SOURCE_OPTIONS, PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
-import { formatCompactCurrency, formatDate } from "@/lib/format";
+import { OPP_STAGE_META, CHART_COLORS, LEAD_SOURCE_OPTIONS, PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
+import { formatCompactCurrency } from "@/lib/format";
 
 type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
@@ -60,15 +59,18 @@ export default function DashboardPage() {
     if (hydrated) fetchDashboard();
   }, [hydrated, fetchDashboard]);
 
-  // Client-side filtered deal rows (Recent Deals respects the filter bar).
+  // Client-side filtered deal rows (Recent Deals respects the filter bar) —
+  // session-31: the rows are OPPORTUNITIES now (the reference's `_` memo
+  // filters its opp list by owner/stage/source); the owner filter rides the
+  // lead-owner select our bar has shipped since s6 (kept for parity).
   const filteredDeals = React.useMemo(() => {
     let rows = dashboard?.recentDeals ?? [];
-    if (stage !== "all") rows = rows.filter((l) => l.stage === stage);
-    if (source !== "all") rows = rows.filter((l) => l.source === source);
+    if (stage !== "all") rows = rows.filter((o) => o.stage === stage);
+    if (source !== "all") rows = rows.filter((o) => o.source === source);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       rows = rows.filter(
-        (l) => l.name.toLowerCase().includes(q) || (l.company ?? "").toLowerCase().includes(q),
+        (o) => o.name.toLowerCase().includes(q) || (o.accountName ?? "").toLowerCase().includes(q),
       );
     }
     return rows;
@@ -337,18 +339,29 @@ export default function DashboardPage() {
                   <span>Owner</span>
                 </div>
               </div>
+              {/* Session-31 (S31-P2): the row contract, bundle-decoded (it
+                  was unverifiable at the reference's zero data — the card
+                  renders its header row alone there). Each row: the
+                  blue-100 INITIALS box + name + the static "Top Admin"
+                  subtitle; right: $Xk + the Won/Active badge. */}
               {(dashboard?.topReps ?? []).map((r) => (
-                <div key={r.id} className="flex items-center justify-between text-sm">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <Avatar name={r.name} color={r.avatarColor} size="sm" />
-                    <span className="truncate font-medium text-foreground">{r.name}</span>
-                  </span>
-                  <div className="flex items-center gap-8">
-                    <span className="text-right">
-                      <span className="font-semibold text-foreground">{r.deals}</span>
-                      <span className="block text-[11px] text-muted">{formatCompactCurrency(r.value)}</span>
+                <div key={r.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs font-semibold">
+                      {r.name.split(" ").map((p) => p[0]).join("")}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{r.name}</p>
+                      <p className="text-xs text-gray-500">Top Admin</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-semibold">
+                      ${(r.value / 1e3).toFixed(0)}k
                     </span>
-                    <span className="text-xs text-muted">{r.name}</span>
+                    <Badge className={r.deals > 0 ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}>
+                      {r.deals > 0 ? "Won" : "Active"}
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -472,28 +485,25 @@ export default function DashboardPage() {
           ) : dealsView === "Cards" ? (
             /* S8-2 functional superset: the reference's view-switcher is
                dead; picking Cards here renders a compact card grid instead
-               of the compact table. */
+               of the compact table. Session-31: the rows are opportunities. */
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredDeals.map((l) => (
+              {filteredDeals.map((o) => (
                 <div
-                  key={l.id}
+                  key={o.id}
                   className="rounded-lg border border-line bg-surface p-4 transition-colors hover:bg-line-soft/40"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium text-foreground">{l.name}</p>
-                    <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
-                      {STAGE_META[l.stage]?.label ?? l.stage}
+                    <p className="text-sm font-medium text-foreground">{o.name}</p>
+                    <Badge variant="outline" className={OPP_STAGE_META[o.stage]?.badge}>
+                      {o.stage === "closed_won" ? "Won" : o.stage}
                     </Badge>
                   </div>
-                  <p className="mt-1 text-xs text-muted">{l.company ?? "—"}</p>
+                  <p className="mt-1 text-xs text-muted">{o.accountName ?? "—"}</p>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="text-sm font-semibold text-foreground">
-                      {formatCompactCurrency(l.value)}
+                      ${(o.amount || 0).toLocaleString()}
                     </span>
-                    <span className="flex items-center gap-1.5 text-xs text-muted">
-                      {l.owner && <Avatar name={l.owner.name} color={l.owner.avatarColor} size="sm" />}
-                      {l.owner?.name ?? "Unassigned"}
-                    </span>
+                    <span className="text-xs text-muted">{o.owner ?? "Unassigned"}</span>
                   </div>
                 </div>
               ))}
@@ -519,27 +529,49 @@ export default function DashboardPage() {
                 </thead>
                 <tbody>
                   {/* At zero rows the reference renders the headers with an
-                      EMPTY tbody — no empty-state paragraph. */}
-                  {filteredDeals.map((l) => (
-                    <tr key={l.id} className="border-b border-line text-xs text-muted transition-colors hover:bg-line-soft/60">
-                      <td className="py-2 font-medium text-foreground">{l.name}</td>
-                      <td className="py-2">{l.company ?? "—"}</td>
-                      <td className="py-2 font-semibold text-foreground">{formatCompactCurrency(l.value)}</td>
-                      <td className="py-2">
-                        <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
-                          {STAGE_META[l.stage]?.label ?? l.stage}
+                      EMPTY tbody — no empty-state paragraph.
+                      Session-31 (S31-P2): the ROW contract bundle-decoded —
+                      the Lead cell is the gray-200 icon box + name/account
+                      stack; Deal Value is $ toLocaleString; the FIRST Status
+                      badge carries the OPP P-map with the RAW slug (Won for
+                      closed_won); the Owner cell is the blue-100 box + the
+                      owner STRING; the SECOND Status badge is the
+                      Contacted/Proposal copy-paste quirk. */}
+                  {filteredDeals.map((o) => (
+                    <tr key={o.id} className="border-b border-line text-xs text-muted transition-colors hover:bg-line-soft/60">
+                      <td className="py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gray-200 rounded-full" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{o.name}</p>
+                            <p className="text-xs text-gray-500">{o.accountName}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-sm">{o.accountName}</td>
+                      <td className="text-sm font-semibold text-foreground">
+                        ${(o.amount || 0).toLocaleString()}
+                      </td>
+                      <td>
+                        <Badge className={OPP_STAGE_META[o.stage]?.badge ?? "bg-gray-100 text-gray-800"}>
+                          {o.stage === "closed_won" ? "Won" : o.stage}
                         </Badge>
                       </td>
-                      <td className="py-2">
-                        <span className="flex items-center gap-2">
-                          {l.owner && <Avatar name={l.owner.name} color={l.owner.avatarColor} size="sm" />}
-                          <span>{l.owner?.name ?? "Unassigned"}</span>
-                        </span>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-blue-100 rounded-full" />
+                          <span className="text-sm">{o.owner}</span>
+                        </div>
                       </td>
-                      <td className="py-2">{formatDate(l.closedAt ?? l.expectedCloseDate)}</td>
-                      <td className="py-2">
-                        <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
-                          {STAGE_META[l.stage]?.label ?? l.stage}
+                      <td className="text-sm text-gray-600">
+                        {o.closeDate ? new Date(o.closeDate).toLocaleDateString() : ""}
+                      </td>
+                      <td>
+                        {/* The reference's copy-paste quirk: the second
+                            Status badge shows "Contacted" (or "Proposal"
+                            for negotiation) — mirrored verbatim. */}
+                        <Badge variant="outline" className="text-xs">
+                          {o.stage === "closed_won" ? "Contacted" : o.stage === "negotiation" ? "Proposal" : "Contacted"}
                         </Badge>
                       </td>
                       <td className="w-8" />

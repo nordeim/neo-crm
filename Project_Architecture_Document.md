@@ -664,7 +664,7 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — leads-filters seam (session-8) | 1 | 12 | `tests/lead-filters.test.ts` | Vitest |
 | Unit — layout + chrome + anatomy contracts (DOM-pinned, sessions 6–17) | 1 | 175 | `tests/page-layout.test.ts` | Vitest |
 | Unit — design tokens (shadow/blur/border-split/foreground/base-font re-pins, ring, cursor rule, inks, th/td platform reset — sessions 9–16) | 1 | 15 | `tests/design-tokens.test.ts` | Vitest |
-| Unit — reports-data seam (aging, forecast accuracy, month series — session-10) | 1 | 7 | `tests/reports-data.test.ts` | Vitest |
+| Unit — reports-data seam (the 8-slug pipelineStageCounts SPLIT, the insertion-order "MMM yyyy" month keys, the actual/forecasted accuracy formula, the created-date aging, the last-activity at-risk join — session-31 rewrite) | 1 | 15 | `tests/reports-data.test.ts` | Vitest |
 | Unit — login-reset seam (view swaps, submit gating — session-11) | 1 | 14 | `tests/login-reset.test.ts` | Vitest |
 | Unit — page-titles (auth absolute titles — session-13) | 1 | 2 | `tests/page-titles.test.ts` | Vitest |
 | Unit — charts-contracts (dashed grid + funnel type — session-13) | 1 | 4 | `tests/charts-contracts.test.ts` | Vitest |
@@ -700,11 +700,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — upload-api (the self-hosted UploadFile mirror — POST /api/upload with the image check + the 5MB ceiling, GET /api/uploads/[name] with the pinned name charset, uploads/ gitignored — session-30) | 1 | 11 | `tests/upload-api.test.ts` | Vitest |
 | Unit — contact-photo (the AAe photo section — the img/initials/User render, the remove X, the camera + the MIME trio, the alert strings, the Uploading hint, the John Doe Name field, the W7 photo-less negative, the slide-over initial-only negative, the dialog scroll-cap layer — session-30) | 1 | 26 | `tests/contact-photo.test.ts` | Vitest |
 | Unit — profile-photo (the aCe flow — the image/* input with no type alert, the toast vocabulary, the schema + API photoUrl carriage, the 500ms-reload save, the topbar img branch — session-30) | 1 | 11 | `tests/profile-photo.test.ts` | Vitest |
+| Unit — opportunity-model (the Opportunity entity — the six-stage vocabulary + the P/O badge maps, the PIPELINE_STAGES opp redefinition, the schema/seed/API/store/reset pins, the dashboard KPI derivations incl. the hardcoded-0 sales target + the FIXED Nov..May labels, the reports derivations incl. the 8-slug funnel split + the opp-based KPI row — session-31) | 1 | 21 | `tests/opportunity-model.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26, and the session-27 chart-internals + Account Health / calendar layer — the computed health PIE + horizontal Top-10 + red at-risk rows + the dashboard Follow-up rows + the static KPI sparks + the calendar chip Edit dialog + the single-blue by-type bars, and the session-28 entity layer — the contacts slide-over + the W7/wce/Mke edit dialogs + the inline role select + the Account Insights dialog + the kke filter panel, and the session-29 leads interactive layer — the inline Value/Status/Date editing round-trip + the overdue border + CircleAlert + the orange Target box + the sticky thead + the dead Convert item + the "(Active)" suffix + the prompt-based Save View + the loadable Saved Views select, and the session-30 photo-upload layer — the New Contact photo round-trip rendering + persisting with the remove X verified + the profile photo round-trip with the toast + both avatar renders + the topbar pickup after the 500ms reload) | 1 | 89 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **46** | **741 unit + 106 e2e** | | |
+| **Total** | **47** | **779 unit + 106 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -1118,7 +1119,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 741/741
+- [ ] `bun run test` — 779/779
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 106/106
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -1188,7 +1189,7 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 741 unit checks |
+| `bun run test` | root | 779 unit checks |
 | `bun run test:e2e` | root | 106 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |
@@ -1241,7 +1242,7 @@ files. Push via the SSH wrapper (§8.4).
 | `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |
 | `src/lib/lead-filters.ts` | 90 | Leads Filters popover persist/restore seam — `encodeLeadFilters`/`decodeLeadFilters` pure pair (localStorage key `neo-crm.leads.view`), vocabulary-guarded decoding, pinned by `tests/lead-filters.test.ts` (session-8) |
 | `src/lib/login-reset.ts` | 100 | Session-11 login reset-password seam — `LOGIN_RESET_LAYOUT` (the two view contracts: classes for the reset/sent views, the lighter slate-400 placeholder, the `mb-4` v4-correct back-gap), `nextLoginView()` swap table, `canSubmitReset()` gating — pinned by `tests/login-reset.test.ts` |
-| `src/lib/reports-data.ts` | ~120 | Session-10 reports derivations — `agingCounts` (fixed 4-bucket aging), `forecastAccuracySeries` (per-month accuracy + the Average Accuracy caption), `monthsFromEvents` (row-derived month series) — pinned by `tests/reports-data.test.ts` |
+| `src/lib/reports-data.ts` | ~200 | Session-31 reports derivations — `pipelineStageCounts` (the 8-slug leads+opps funnel SPLIT), `monthKey`/`countByMonth`/`revenueByMonth`/`wonLostByMonth` (the insertion-order "MMM yyyy" close-month series), `forecastAccuracySeries` (the actual/forecasted formula), `agingCounts` (created-date age), `dealsAtRiskRows` (the last-activity join) — pinned by `tests/reports-data.test.ts` |
 | `src/lib/page-layout.ts` | 627 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint, stock-primitive pins, CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT) consumed by every page — sessions 6–11 |
 | `src/lib/csv.ts` | 74 | RFC-4180 serializer/parser (export + import) |
 | `src/app/(app)/*/page.tsx` + `*-page.tsx` | — | Session-10 pattern: thin SERVER `page.tsx` wrappers (per-page metadata titles) rendering the renamed client parts — client pages cannot export metadata; per-route `layout.tsx` hit a Next 16 typed-routes bug |

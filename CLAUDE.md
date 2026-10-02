@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (741) → `bun run build` → `bun run test:e2e` (106). For UI
+   `bun run test` (779) → `bun run build` → `bun run test:e2e` (106). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,7 +107,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (741 checks)               |
+| `bun run test`      | Vitest unit suites (779 checks)               |
 | `bun run test:e2e`  | Playwright E2E (106 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
@@ -116,14 +116,16 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 741 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 779 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
   reports vocabularies: the 8 raw slugs, FUNNEL_STAGES, AGING_BUCKETS),
   `tests/lead-filters.test.ts` (the popover Save View encode/decode seam),
-  `tests/reports-data.test.ts` (session-10: aging bucketing, forecast
-  accuracy, row-derived month series),
+  `tests/reports-data.test.ts` (session-31 rewrite: the 8-slug
+  pipelineStageCounts SPLIT, the insertion-order "MMM yyyy" month keys,
+  the actual/forecasted accuracy formula, the created-date aging, the
+  last-activity at-risk join),
   `tests/login-reset.test.ts` (session-11: the login card's in-place
   reset-password flow — view swaps, submit gating, back navigation),
   `tests/page-titles.test.ts` (session-13: the auth pages' ABSOLUTE
@@ -241,6 +243,12 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   `tests/profile-photo.test.ts` (session-30: the aCe flow — the
   image/* input with no type alert, the toast vocabulary, the schema +
   API photoUrl carriage, the 500ms-reload save, the topbar img branch),
+  `tests/opportunity-model.test.ts` (session-31: the Opportunity entity
+  — the six-stage vocabulary + the P/O badge maps, the PIPELINE_STAGES
+  opp redefinition, the schema/seed/API/store/reset pins, the dashboard
+  KPI derivations incl. the hardcoded-0 sales target + the FIXED
+  Nov..May labels, and the reports derivations incl. the 8-slug funnel
+  split + the opp-based KPI row),
   `tests/dashboard-contracts.test.ts` (session-27: the O-map legend
   chips, the KPI statics, the checkbox-row lists),
   `tests/leads-charts.test.ts` (session-27: the 5-status pipeline, the
@@ -343,7 +351,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 741).
+the seam (currently 779).
 
 ## Code Quality Standards
 

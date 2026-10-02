@@ -89,17 +89,16 @@ test("reports page loads analytics tabs with seeded data", async ({ page }) => {
   // Regression: the "all" filter sentinel must not leak into the query —
   // the view (owner/stage/status=all) must show the seeded pipeline, not
   // zeros. Session-18 fixed a TIME BOMB here: the assertion hardcoded the
-  // quarter-relative won total ($542.0k — the subset of seeded closes that
-  // happened to fall in Q3 2026) and broke on 2026-10-01 when the quarter
-  // rolled over to Q4 and the server-side periodStart() window no longer
-  // contained any seeded close. The deterministic expression: switch the
-  // period to All Time and pin the date-independent all-time won total
-  // (145k+98k+210k+42k+66k+87k+39k = $687.0K — every seeded won deal, no
-  // wall-clock dependence). The lead created by the earlier test is stage
-  // "new" and never reaches the won total either way.
+  // quarter-relative won total and broke on the quarter rollover; the
+  // deterministic expression is the All-Time window. Session-31: the Won
+  // Deals KPI now derives from WON OPPORTUNITIES (the s31 bundle decode —
+  // the reference's reports KPI memo), so the pin is the seeded opp set:
+  // 87k+145k+39k+66k = $337.0K across 4 won deals, all-time, no
+  // wall-clock dependence. Leads created by earlier tests never reach the
+  // opp total.
   await page.getByRole("combobox").first().click();
   await page.getByRole("option", { name: "All Time" }).click();
-  await expect(page.getByText("7 $687.0K").first()).toBeVisible();
+  await expect(page.getByText("4 $337.0K").first()).toBeVisible();
 
   await page.getByRole("tab", { name: "Account Health" }).click();
   await expect(page.getByText("Account Health Distribution")).toBeVisible();
@@ -1466,6 +1465,14 @@ test("the import round-trip: file → result box → auto-close (S26-P6)", async
 
 test("the Account Health tab renders the PIE + horizontal top-10 + red-tinted at-risk rows (S27-P1/P2)", async ({ page }) => {
   await page.goto("/reports");
+  // Session-31: the health tab's lost-deal rule joins the PERIOD-FILTERED
+  // opportunities (the reference's r3e receives filteredOpportunities), so
+  // the seeded closed_lost opps (-70/-80 days) only surface under All Time
+  // — the quarter default correctly renders them filtered out (the old
+  // route never period-filtered its leads; the s31 model does, exactly
+  // like the reference).
+  await page.getByRole("combobox").first().click();
+  await page.getByRole("option", { name: "All Time" }).click();
   await page.getByRole("tab", { name: "Account Health" }).click();
   // The health distribution is a FULL PIE (recharts sectors) — the seeded
   // accounts produce at least one slice per computed state.

@@ -39,44 +39,45 @@ export async function GET(req: Request) {
   const type = url.searchParams.get("type") ?? "report";
   if (type !== "report") return ERR.BAD_REQUEST("Invalid type");
   const download = url.searchParams.get("download") === "1";
-  // The report CSV's Owner column needs the user names (session-25).
-  const usersCache = await db.user.findMany();
 
   let csv = "";
   let filename = "";
 
   {
-    // Session-25 (S25-P5): the reports header CSV — the reference's
-    // crm_report_YYYY-MM-DD.csv (SINGULAR "report", unlike the PDF's
-    // plural crm_reports): Deal Name,Account,Amount,Stage,Source,Owner,
-    // Close Date — the deal rows filtered by the SAME period/owner/
-    // stage/status params as /api/reports (the row mapping is reasoned
-    // from the column set: one row per lead in the filtered window).
+    // Session-25 (S25-P5) + Session-31: the reports header CSV — the
+    // reference's crm_report_YYYY-MM-DD.csv (SINGULAR "report", unlike the
+    // PDF's plural crm_reports): Deal Name,Account,Amount,Stage,Source,
+    // Owner,Close Date — one row per OPPORTUNITY in the filtered window
+    // (the reference's `y` export maps its filteredOppportunities), with
+    // the SAME period/owner/stage/status filter model as /api/reports.
     const period = asString(url.searchParams.get("period")) ?? "quarter";
     if (!REPORT_PERIODS.some((p) => p.id === period)) return ERR.BAD_REQUEST("Invalid period");
     const notAll = (v: string | null) => (v && v !== "all" ? v : null);
-    const ownerId = notAll(url.searchParams.get("ownerId"));
+    const owner = notAll(url.searchParams.get("owner"));
     const stage = notAll(url.searchParams.get("stage"));
     const status = notAll(url.searchParams.get("status"));
+    const source = notAll(url.searchParams.get("source"));
     const now = new Date();
     const from = reportPeriodStart(period, now);
-    const leadWhere = {
-      ...(ownerId ? { ownerId } : {}),
+    const oppWhere = {
+      ...(owner ? { owner } : {}),
       ...(stage ? { stage } : {}),
-      ...(status ? { status } : {}),
+      ...(source ? { source } : {}),
+      ...(status === "won" ? { stage: "closed_won" } : status === "lost" ? { stage: "closed_lost" } : {}),
       ...(period === "all" ? {} : { createdAt: { gte: from } }),
     };
-    const rows = await db.lead.findMany({ where: leadWhere, orderBy: { value: "desc" } });
-    const ownerName = (id: string | null) =>
-      usersCache.find((u) => u.id === id)?.name ?? "";
+    let rows = await db.opportunity.findMany({ where: oppWhere, orderBy: { createdAt: "desc" } });
+    if (status === "open") {
+      rows = rows.filter((o) => o.stage !== "closed_won" && o.stage !== "closed_lost");
+    }
     const columns: CsvColumn<(typeof rows)[number]>[] = [
       { header: "Deal Name", value: (r) => r.name },
-      { header: "Account", value: (r) => r.company },
-      { header: "Amount", value: (r) => r.value },
+      { header: "Account", value: (r) => r.accountName },
+      { header: "Amount", value: (r) => r.amount },
       { header: "Stage", value: (r) => r.stage },
       { header: "Source", value: (r) => r.source },
-      { header: "Owner", value: (r) => ownerName(r.ownerId) },
-      { header: "Close Date", value: (r) => formatDate(r.closedAt) },
+      { header: "Owner", value: (r) => r.owner },
+      { header: "Close Date", value: (r) => formatDate(r.closeDate) },
     ];
     csv = toCsv(rows, columns);
     filename = csvFilename("crm_report");

@@ -11,7 +11,6 @@ import {
   REPORTS_PIPELINE_SLUGS,
   STAGE_META,
   isDroppedStage,
-  reportsBucketCounts,
 } from "@/lib/constants";
 
 // Session-4 parity pins: every color below was extracted from the LIVE
@@ -145,21 +144,21 @@ describe("session-10 vocabulary pins (reports/chart internals)", () => {
     ]);
   });
 
-  it("the 8-slug bucket mapping double-reports new and qualified under their dashboard aliases", () => {
-    // Zero-data-informed mapping (quirk register): the reference's merged
-    // list double-reports its new leads under both "new" and "prospecting"
-    // and its qualified leads under both "qualified" and "qualification";
-    // won maps to closed_won. See reportsBucketCounts().
-    const counts = reportsBucketCounts({ new: 3, contacted: 2, qualified: 4, proposal: 1, negotiation: 5, won: 6, lost: 7, unqualified: 8 });
-    expect(counts).toEqual([
-      { slug: "new", count: 3 },
-      { slug: "contacted", count: 2 },
-      { slug: "qualified", count: 4 },
-      { slug: "prospecting", count: 3 },
-      { slug: "qualification", count: 4 },
-      { slug: "proposal", count: 1 },
-      { slug: "negotiation", count: 5 },
-      { slug: "closed_won", count: 6 },
+  it("the 8-slug list is the leads+opps CONCATENATION order (session-31 correction)", () => {
+    // The s10 "merged-list double-report" reading is RETIRED: the
+    // bundle-decoded funnel is the leads' new/contacted/qualified counts
+    // followed by the OPPORTUNITY five-stage counts
+    // (reports-data.ts pipelineStageCounts). The slug ORDER is pinned; the
+    // split itself is pinned by tests/reports-data.test.ts.
+    expect(REPORTS_PIPELINE_SLUGS).toEqual([
+      "new",
+      "contacted",
+      "qualified",
+      "prospecting",
+      "qualification",
+      "proposal",
+      "negotiation",
+      "closed_won",
     ]);
   });
 });

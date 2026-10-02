@@ -35,7 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
-import type { Activity, Contact, Lead } from "@/types";
+import type { Activity, Contact, Opportunity } from "@/types";
 import {
   CONTACT_PRIORITY_META,
   ENGAGEMENT_BARS_SOLID,
@@ -52,21 +52,21 @@ function mmmDyyyy(d: string): string {
 export function ContactDetailPanel({
   contact,
   activities,
-  deals,
+  opportunities,
   onClose,
 }: {
   contact: Contact | null;
   activities: Activity[];
-  deals: Lead[];
+  /** Session-31: the reference's Pke joins OPPORTUNITIES by
+   *  account_name === contact.company (bundle: Opportunity.filter). */
+  opportunities: Opportunity[];
   onClose: () => void;
 }) {
   const [tab, setTab] = React.useState("activities");
   if (!contact) return null;
 
   const contactActivities = activities.filter((a) => a.contactId === contact.id);
-  const contactDeals = deals.filter(
-    (l) => l.contactId === contact.id || l.company === contact.company,
-  );
+  const contactDeals = opportunities.filter((o) => o.accountName === contact.company);
   const bars = engagementBarCount(contact.engagementLevel);
 
   return (
@@ -218,7 +218,7 @@ export function ContactDetailPanel({
                       <div>
                         <p className="font-medium">{d.name}</p>
                         <p className="text-sm text-gray-600">
-                          $ {d.value == null ? 0 : d.value.toLocaleString()}
+                          $ {d.amount == null ? 0 : d.amount.toLocaleString()}
                         </p>
                       </div>
                       <Badge>{d.stage}</Badge>

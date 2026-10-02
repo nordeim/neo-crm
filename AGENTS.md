@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (741 checks)         | `bun run test`                         |
+| Unit tests (779 checks)         | `bun run test`                         |
 | Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (741) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (779) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1256,6 +1256,65 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   Lead CREATE is the bare `max-w-lg` — both cap-FREE, the reference's
   own inconsistency, mirrored. The Account Insights dialog keeps its
   `max-w-3xl max-h-[80vh]` (s28, unchanged).
+
+- **The Opportunity model is the reference's SECOND deal layer (session-31,
+  the last s51 pointer CLOSED)** — bundle-decoded from index-DZ-xbrIm.js:
+  the reference ships a full Opportunity entity (name / account_name
+  STRING / stage / amount / probability / close_date / source / owner
+  STRING) with NO create-edit UI anywhere (the leads "Convert to
+  Opportunity" item is DEAD — no onClick; no New Opportunity dialog
+  exists). Its data feeds: the DASHBOARD (the pipeline chart's 5 OPP
+  stages with VALUE sums — PIPELINE_STAGES is the opp vocabulary now,
+  labels Prospecting/Qualification/Proposal/Negotiation/Won; the revenue
+  chart over the FIXED `["Nov","Dec","Jan","Feb","Mar","Apr","May"]`
+  label window — hardcoded in the reference, it does NOT track the data
+  months — with `55e3 + random*1e4` targets, won grouped by updatedAt
+  month; Top Reps = won opps by the owner STRING `{name, deals, value}`
+  value-desc slice(0,3) rendered as the initials box + "Top Admin"
+  subtitle + `$Xk` + the Won/Active badge; Recent Deals = opps by
+  updatedAt desc slice(0,5) with the icon-box Lead cell, `$ toLocaleString`
+  values, the P-map RAW-slug badge (Won for closed_won), the blue-100
+  owner box + owner STRING, and the SECOND Status badge's
+  Contacted/Proposal COPY-PASTE QUIRK; the KPIs: dealsClosedValue +
+  revenueThisMonth from WON OPPS, salesTarget HARDCODED 0 with
+  targetProgress 0 (the bundle's literal `V=0`), conversionRate = won
+  LEADS/leads toFixed(1), avgSalesCycle = the average AGE of won leads —
+  now−created per lead, floored, averaged, rounded), ALL FIVE reports
+  tabs (the KPI row: openLeads = leads new+contacted ONLY, won/lost +
+  conversion from OPPS won/(won+lost); the 8-slug Conversion Funnel is
+  the CONCATENATION of the leads' new/contacted/qualified counts + the
+  OPP five-stage counts — reports-data.ts `pipelineStageCounts`, the
+  s10 "merged-list double-report" reading RETIRED; the month series
+  group by close_date under "MMM yyyy" keys in INSERTION order
+  (newest-first — the reference's unsorted Object.entries quirk);
+  Forecasting Accuracy = the ACTUAL/FORECASTED formula — forecasted =
+  amount × (probability||50)/100, accuracy = actual/forecasted × 100
+  toFixed(1), UNCLAMPED (>100% possible), average = the mean of the
+  parsed values; Forecast by Probability bands the OPEN opps by their
+  OWN probability (the stage-weight proxy retired); Aging = created_date
+  age; Deals at Risk = the LAST Opportunity-linked activity >14 days or
+  NEVER (the 999 sentinel), slice(0,20), bg-red-50 rows; the sources
+  tab: leads from LEADS, won/lost/revenue/winRate/avgValue from OPPS;
+  the account-health lost rule joins closed_lost OPPS by account NAME;
+  the tables: recentWon 10 / topDeals 10 (amount-desc) / openDeals 10
+  (LIST order) / atRisk 20, the Amount cells `$ toLocaleString`, the
+  stage cells OUTLINE badges with the RAW slugs; the reports filter
+  model: OPPS by period(created_date)+stage+source+owner+status
+  (open/won/lost), LEADS by period+source ONLY, activities by
+  [start, now] (future-dated EXCLUDED from finite periods); the owner
+  dropdown lists the DISTINCT opp owner strings), and the insights
+  surfaces (the Ece dialog: opps by account_name, Total Revenue
+  `$X.XM` from won opps, the Open Deals COUNT quirk `!== closed_lost`
+  ONLY — won deals count; the Pke slide-over's Deals tab: opps where
+  account_name === contact.company). The Prisma model carries
+  accountName/owner as NAME STRINGS (the reference's model); the seed
+  plants 12 opps (4 won = $337.0K — the e2e's All-Time pin — 2 lost, 6
+  open) + 3 Opportunity-linked activities for the at-risk join;
+  `GET /api/opportunities` is LIST-ONLY (the read-only mirror); the
+  reset route wipes them. KNOWN COSMETIC DIVERGENCE: our REPORT_PERIODS
+  ids are today/week/month/quarter/ytd/all where the bundle's state
+  uses thisWeek/thisMonth — same labels, same behavior, only the wire
+  ids differ (documented; the s25 saved-reports schema keeps ours).
 
 ## Conventions that differ from defaults
 

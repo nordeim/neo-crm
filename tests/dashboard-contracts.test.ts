@@ -165,3 +165,74 @@ describe("session-27: the Upcoming Activities checkbox rows (S27-P8)", () => {
     expect(region).not.toMatch(/ACTIVITY_TYPE_META/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-31 (S31-P2): the Top Reps + Recent Deals ROW contracts —
+// bundle-decoded from index-DZ-xbrIm.js. Both rows were UNVERIFIABLE at the
+// reference's zero data (the Top Reps card renders its header row alone; the
+// Recent Deals table renders headers + an empty tbody) — the bundle now
+// carries the full row JSX.
+// ---------------------------------------------------------------------------
+
+describe("session-31: the Top Performing Sales Reps row (the bundle's y.map)", () => {
+  it("the row is the initials box + name + 'Top Admin' subtitle + $Xk + the Won/Active badge", () => {
+    const src = page();
+    const region = src.slice(src.indexOf("Top Performing Sales Reps"), src.indexOf("Top Performing Sales Reps") + 2600);
+    // initials box: w-8 h-8 bg-blue-100 text-blue-600 text-xs font-semibold
+    expect(region).toMatch(/w-8 h-8 bg-blue-100/);
+    expect(region).toMatch(/text-blue-600/);
+    expect(region).toMatch(/Top Admin/);
+    // value: $${(value/1e3).toFixed(0)}k — NOT formatCompactCurrency
+    expect(region).toMatch(/toFixed\(0\)/);
+    expect(region).not.toMatch(/formatCompactCurrency/);
+    // the Won/Active badge pair
+    expect(region).toMatch(/Won/);
+    expect(region).toMatch(/Active/);
+    expect(region).toMatch(/bg-green-100 text-green-800/);
+    expect(region).toMatch(/bg-blue-100 text-blue-800/);
+  });
+
+  it("the rep list derives from WON OPPORTUNITIES by owner string, slice(0,3)", () => {
+    const src = page();
+    const region = src.slice(src.indexOf("Top Performing Sales Reps"), src.indexOf("Top Performing Sales Reps") + 2600);
+    expect(region).toMatch(/topReps/);
+  });
+});
+
+describe("session-31: the Recent Deals row (the bundle's _.map — opportunities)", () => {
+  const recentRegion = () => {
+    const src = page();
+    return src.slice(src.indexOf("Recent Deals"), src.indexOf("Recent Deals") + 7000);
+  };
+
+  it("the Lead cell is the icon box + name/account_name stack (py-3, flex gap-2)", () => {
+    const region = recentRegion();
+    expect(region).toMatch(/py-3/);
+    expect(region).toMatch(/w-8 h-8 bg-gray-200/);
+    expect(region).toMatch(/text-sm font-medium/);
+    expect(region).toMatch(/text-xs text-gray-500/);
+  });
+
+  it("Deal Value renders $${amount.toLocaleString()} (NOT compact currency)", () => {
+    const region = recentRegion();
+    expect(region).toMatch(/toLocaleString\(\)/);
+    expect(region).not.toMatch(/formatCompactCurrency/);
+  });
+
+  it("the first Status badge uses the OPP P-map with the RAW slug (Won for closed_won)", () => {
+    const region = recentRegion();
+    expect(region).toMatch(/OPP_STAGE_META/);
+    expect(region).toMatch(/"Won"/);
+  });
+
+  it("the Owner cell is the w-6 h-6 bg-blue-100 box + the owner STRING", () => {
+    const region = recentRegion();
+    expect(region).toMatch(/w-6 h-6 bg-blue-100/);
+  });
+
+  it("the SECOND Status badge is the outline Contacted/Proposal copy-paste quirk", () => {
+    const region = recentRegion();
+    expect(region).toMatch(/"Contacted"/);
+    expect(region).toMatch(/"Proposal"/);
+  });
+});

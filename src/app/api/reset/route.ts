@@ -16,6 +16,9 @@ export async function POST(req: Request) {
   await db.activity.deleteMany();
   await db.event.deleteMany();
   await db.lead.deleteMany();
+  // Session-31: the reference's reset wipes opportunities too (its confirm
+  // message has said "opportunities" since the s26 decode).
+  await db.opportunity.deleteMany();
   await db.contact.deleteMany();
   await db.account.deleteMany();
   await db.savedReport.deleteMany();

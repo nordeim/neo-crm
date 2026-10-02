@@ -76,6 +76,7 @@ export default function ContactsPage() {
     contacts,
     activities,
     leads,
+    opportunities,
     users,
     settings,
     hydrated,
@@ -932,7 +933,7 @@ export default function ContactsPage() {
       <ContactDetailPanel
         contact={detailContact}
         activities={activities}
-        deals={leads}
+        opportunities={opportunities}
         onClose={() => setDetailContact(null)}
       />
 

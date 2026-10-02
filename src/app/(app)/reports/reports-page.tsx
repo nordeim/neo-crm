@@ -30,7 +30,7 @@ import {
   percentFormatter,
 } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
-import { LEAD_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
+import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
 import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
 import { KPI_STATICS } from "@/lib/page-layout";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
@@ -40,12 +40,19 @@ import { listSavedReports, saveReport, type SavedReport, type SavedReportColumns
 import type { ReportsData } from "@/types";
 
 export default function ReportsPage() {
-  const { users, fetchReports, hydrated } = useCrmStore();
+  // Session-31: the owner filter is the OPPORTUNITY owner STRING (the
+  // reference's owner dropdown lists the DISTINCT opp owners — not the
+  // user directory); the stage select offers the OPP stage vocabulary.
+  const { opportunities, fetchReports, hydrated } = useCrmStore();
   const [tab, setTab] = React.useState("sales");
   const [period, setPeriod] = React.useState("quarter");
-  const [ownerId, setOwnerId] = React.useState("all");
+  const [owner, setOwner] = React.useState("all");
   const [stage, setStage] = React.useState("all");
   const [status, setStatus] = React.useState("all");
+  const oppOwners = React.useMemo(
+    () => [...new Set(opportunities.map((o) => o.owner).filter((n): n is string => Boolean(n)))],
+    [opportunities],
+  );
   const [data, setData] = React.useState<ReportsData | null>(null);
   // Session-25 (S25-P4): the saved-report views — the count drives the
   // button label (the reference's live "Saved Reports (N)"), the list
@@ -77,14 +84,14 @@ export default function ReportsPage() {
     (async () => {
       await Promise.resolve(); // yield: all setState happens in async continuations
       if (cancelled) return;
-      const res = await fetchReports({ period, ownerId, stage, status });
+      const res = await fetchReports({ period, owner, stage, status });
       if (cancelled) return;
       if (res.ok) setData(res.data);
     })();
     return () => {
       cancelled = true;
     };
-  }, [hydrated, period, ownerId, stage, status, fetchReports]);
+  }, [hydrated, period, owner, stage, status, fetchReports]);
 
   const k = data?.kpis;
 
@@ -129,22 +136,28 @@ export default function ReportsPage() {
             </div>
             <div className={REPORTS_FILTER_BAR.selectWrap}>
               <UserIcon className={REPORTS_FILTER_BAR.selectIcon} />
-              <Select value={ownerId} onValueChange={setOwnerId}>
+              {/* Session-31: the reference's owner dropdown lists the
+                  DISTINCT OPPORTUNITY owner strings (its `p` memo) — not
+                  the user directory. */}
+              <Select value={owner} onValueChange={setOwner}>
                 <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Owners</SelectItem>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                  {oppOwners.map((name) => (
+                    <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            {/* Session-31: the stage select is the OPP vocabulary — all
+                six stages, the Closed Won / Closed Lost labels (the
+                reference's lCe filter card). */}
             <Select value={stage} onValueChange={setStage}>
               <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Stages</SelectItem>
-                {LEAD_STAGES.map((s) => (
-                  <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+                {OPPORTUNITY_STAGES.map((s) => (
+                  <SelectItem key={s} value={s}>{OPP_STAGE_META[s]?.label ?? s}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -153,8 +166,8 @@ export default function ReportsPage() {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="closed_won">Closed Won</SelectItem>
-                <SelectItem value="closed_lost">Closed Lost</SelectItem>
+                <SelectItem value="won">Won</SelectItem>
+                <SelectItem value="lost">Lost</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -164,7 +177,7 @@ export default function ReportsPage() {
               size="sm"
               onClick={() => {
                 setPeriod("quarter");
-                setOwnerId("all");
+                setOwner("all");
                 setStage("all");
                 setStatus("all");
               }}
@@ -180,7 +193,7 @@ export default function ReportsPage() {
               size="sm"
               onClick={() =>
                 downloadFile(
-                  `/api/export?type=report&period=${encodeURIComponent(period)}&ownerId=${encodeURIComponent(ownerId)}&stage=${encodeURIComponent(stage)}&status=${encodeURIComponent(status)}&download=1`,
+                  `/api/export?type=report&period=${encodeURIComponent(period)}&owner=${encodeURIComponent(owner)}&stage=${encodeURIComponent(stage)}&status=${encodeURIComponent(status)}&download=1`,
                 )
               }
             >
@@ -273,13 +286,13 @@ export default function ReportsPage() {
           <SaveReportDialog
             open={saveDialogOpen}
             onOpenChange={setSaveDialogOpen}
-            filters={{ dateRange: period, stage, source: "all", status, owner: ownerId }}
+            filters={{ dateRange: period, stage, source: "all", status, owner }}
             savedCount={savedCount}
             savedList={savedList}
             onSave={(name: string, columns: SavedReportColumns) => {
               const count = saveReport({
                 name,
-                filters: { dateRange: period, stage, source: "all", status, owner: ownerId },
+                filters: { dateRange: period, stage, source: "all", status, owner },
                 columns,
               });
               setSavedCount(count);
@@ -288,7 +301,7 @@ export default function ReportsPage() {
             }}
             onLoad={(report: SavedReport) => {
               setPeriod(report.filters.dateRange);
-              setOwnerId(report.filters.owner);
+              setOwner(report.filters.owner);
               setStage(report.filters.stage);
               setStatus(report.filters.status);
               setSaveDialogOpen(false);
@@ -309,9 +322,11 @@ function SalesTab({ data }: { data: ReportsData | null }) {
           {/* Session-27 (S27-P3): the reference's tab-1 revenue chart is a
               SINGLE #3b82f6 strokeWidth-2 LINE over {month, revenue} with
               a $ tooltip — NOT the dashboard's won/target areas our
-              scaffold reused here. */}
+              scaffold reused here. Session-31: the series derives from WON
+              OPP amounts by close month ("MMM yyyy" keys, insertion
+              order). */}
           <TrendLineChart
-            data={(data?.revenueOverTime ?? []).map((r) => ({ month: r.month, revenue: r.won }))}
+            data={(data?.revenueOverTime ?? []).map((r) => ({ month: r.month, revenue: r.revenue }))}
             xKey="month"
             series={[{ key: "revenue", name: "Revenue", stroke: "#3b82f6" }]}
             formatter={dollarFormatter}
@@ -332,9 +347,11 @@ function SalesTab({ data }: { data: ReportsData | null }) {
         <ChartCard title="Pipeline by Stage">
           {/* Session-27 (S27-P3): ROW-DERIVED (open deals by stage — EMPTY
               at zero, like the reference) with the violet VALUE bars and
-              the "Value ($)" series name on a plain-number tooltip. */}
+              the "Value ($)" series name on a plain-number tooltip.
+              Session-31: the rows are OPEN OPPORTUNITIES grouped by their
+              RAW stage slugs (the reference's plain-object grouping). */}
           <SingleBarChart
-            data={(data?.pipelineByStageRows ?? []).map((p) => ({ stage: p.label, value: p.value }))}
+            data={(data?.pipelineByStageRows ?? []).map((p) => ({ stage: p.stage, value: p.value }))}
             xKey="stage"
             dataKey="value"
             fill="#8b5cf6"
@@ -377,16 +394,19 @@ function DealTables({ data }: { data: ReportsData | null }) {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {/* Session-31: the rows are WON OPPORTUNITIES slice(0,10) —
+                  Deal/Account/Amount with the $ toLocaleString cell (the
+                  reference's table cells, NOT compact currency). */}
               {(data?.recentWonDeals ?? []).length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No won deals</TableCell>
                 </TableRow>
               ) : (
-              data!.recentWonDeals.map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell className="font-medium text-foreground">{l.name}</TableCell>
-                  <TableCell className="text-muted">{l.company ?? "—"}</TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
+              data!.recentWonDeals.map((d) => (
+                <TableRow key={d.id}>
+                  <TableCell className="font-medium text-foreground">{d.name}</TableCell>
+                  <TableCell className="text-muted">{d.account ?? "—"}</TableCell>
+                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -408,20 +428,20 @@ function DealTables({ data }: { data: ReportsData | null }) {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {/* Session-31: ALL opportunities amount-desc slice(0,10); the
+                  Stage cell is the OUTLINE badge with the RAW slug. */}
               {(data?.topDeals ?? []).length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No deals</TableCell>
                 </TableRow>
               ) : (
-              data!.topDeals.map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell className="font-medium text-foreground">{l.name}</TableCell>
+              data!.topDeals.map((d) => (
+                <TableRow key={d.id}>
+                  <TableCell className="font-medium text-foreground">{d.name}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={STAGE_META[l.stage]?.badge}>
-                      {STAGE_META[l.stage]?.label ?? l.stage}
-                    </Badge>
+                    <Badge variant="outline">{d.stage}</Badge>
                   </TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.value)}</TableCell>
+                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -452,9 +472,13 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
   return (
     <div className="space-y-6">
       <ChartCard title="Forecasting Accuracy" wide>
+        {/* Session-31: the series is the reference's actual/forecasted
+            model — forecasted = amount × (probability||50)/100 per closed
+            opp, actual = won amounts, grouped by close month (the s10
+            100−|diff| formula retired). */}
         <TrendLineChart
           height={300}
-          data={(data?.revenueOverTime ?? []).map((r) => ({ month: r.month, forecasted: r.target, actual: r.won }))}
+          data={(data?.forecastingAccuracy.points ?? []).map((p) => ({ month: p.month, forecasted: p.forecasted, actual: p.actual }))}
           xKey="month"
           series={[
             { key: "forecasted", name: "Forecasted", stroke: "#3b82f6" },
@@ -470,7 +494,7 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Pipeline by Stage">
           <SingleBarChart
-            data={(data?.pipelineByStageRows ?? []).map((p) => ({ stage: p.label, value: p.value }))}
+            data={(data?.pipelineByStageRows ?? []).map((p) => ({ stage: p.stage, value: p.value }))}
             xKey="stage"
             dataKey="value"
             fill="#3b82f6"
@@ -547,16 +571,19 @@ function DealsTables({ data }: { data: ReportsData | null }) {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {/* Session-31: OPEN OPPORTUNITIES in list order slice(0,10) —
+                  the Stage cell is the OUTLINE badge with the RAW slug, the
+                  Amount cell the $ toLocaleString form. */}
               {(data?.openDealsByStage ?? []).length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No open deals</TableCell>
                 </TableRow>
               ) : (
-              data!.openDealsByStage.map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell className="font-medium text-foreground">{l.deal}</TableCell>
-                  <TableCell className="text-muted">{l.stage}</TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.amount)}</TableCell>
+              data!.openDealsByStage.map((d) => (
+                <TableRow key={d.id}>
+                  <TableCell className="font-medium text-foreground">{d.deal}</TableCell>
+                  <TableCell><Badge variant="outline">{d.stage}</Badge></TableCell>
+                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -586,16 +613,18 @@ function DealsTables({ data }: { data: ReportsData | null }) {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {/* Session-31: the reference's at-risk rows carry bg-red-50 —
+                  open opps with no linked activity for >14 days, slice(0,20). */}
               {(data?.dealsAtRisk ?? []).length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No at-risk deals</TableCell>
                 </TableRow>
               ) : (
-              data!.dealsAtRisk.map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell className="font-medium text-foreground">{l.deal}</TableCell>
-                  <TableCell className="text-muted">{l.account ?? "—"}</TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(l.amount)}</TableCell>
+              data!.dealsAtRisk.map((d) => (
+                <TableRow key={d.id} className="bg-red-50">
+                  <TableCell className="font-medium text-foreground">{d.deal}</TableCell>
+                  <TableCell className="text-muted">{d.account ?? "—"}</TableCell>
+                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -743,8 +772,10 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
           />
         </ChartCard>
         <ChartCard title="Win Rate by Source (%)">
+          {/* Session-31: the OPPORTUNITY win rate — won/(won+lost) per
+              source, one decimal (NOT the lead-based share). */}
           <SingleBarChart
-            data={rows.map((r) => ({ source: r.source, winRate: r.winRate }))}
+            data={rows.map((r) => ({ source: r.source, winRate: Number(r.winRate) }))}
             xKey="source"
             dataKey="winRate"
             fill="#10b981"
@@ -753,10 +784,12 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
           />
         </ChartCard>
         <ChartCard title="Avg Deal Value by Source">
+          {/* Session-31: the OPPORTUNITY average — Math.round(total/count)
+              per source (the API's avgValue). */}
           <SingleBarChart
             data={rows.map((r) => ({
               source: r.source,
-              avgValue: r.won > 0 ? Math.round(r.value / r.won) : 0,
+              avgValue: r.avgValue,
             }))}
             xKey="source"
             dataKey="avgValue"
@@ -825,7 +858,9 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
                     <TableCell className="font-medium text-foreground">{r.source}</TableCell>
                     <TableCell className="text-right text-muted">{r.leads}</TableCell>
                     <TableCell className="text-right text-muted">{r.won}</TableCell>
-                    <TableCell className="text-right font-semibold text-foreground">{formatCompactCurrency(r.value)}</TableCell>
+                    {/* Session-31: the reference's revenue cell —
+                        `$${(revenue/1e3).toFixed(0)}K`. */}
+                    <TableCell className="text-right font-semibold text-foreground">${(r.revenue / 1e3).toFixed(0)}K</TableCell>
                   </TableRow>
                 ))
                 )}

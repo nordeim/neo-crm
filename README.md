@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-801%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-885%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -52,7 +52,7 @@ first boot.
 | 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 741 Vitest unit checks + 106 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 779 Vitest unit checks + 106 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -175,7 +175,7 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 741 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo)
+bun run test          # 779 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model)
 bun run build         # E2E runs against the standalone production build
 bun run test:e2e      # 106 Playwright checks on :3100 with its own db/e2e.db
 ```
@@ -267,6 +267,16 @@ the reference's dialog scroll-cap layer — `max-h-[90vh] overflow-y-
 auto` on the contact create + the Event/Activity family + Save Custom
 Report, the bare `max-w-2xl` account create, its own inconsistency
 mirrored),
+and the session-31 Opportunity-split layer (the reference's SECOND deal
+model, bundle-decoded: the Opportunity entity with NO create-edit UI —
+its data feeding the dashboard's pipeline chart + Top Reps + Recent
+Deals + the won-opp KPIs with the HARDCODED $0 sales target, the FIXED
+Nov..May revenue labels, ALL FIVE reports tabs (the 8-slug funnel as the
+leads+opps CONCATENATION, the actual/forecasted accuracy formula, the
+probability bands, the created-date aging, the last-activity at-risk
+join, the opp-based sources + account health), the insights dialogs'
+account_name joins, the list-only `/api/opportunities` + the seeded
+demo opps),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

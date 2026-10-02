@@ -192,6 +192,31 @@ model Activity {
   @@index([status])
 }
 
+// Session-31 (S31-P1): the reference's SECOND deal model (bundle-decoded
+// from index-DZ-xbrIm.js). The reference ships a full Opportunity entity
+// with NO create-edit UI (the leads "Convert to Opportunity" item is dead —
+// no onClick; no New Opportunity dialog exists); its data feeds the
+// dashboard, all five reports tabs, and both insights surfaces.
+// accountName/owner are NAME STRINGS — the reference stores display names,
+// not relations (its Top Reps card groups by the owner string; its
+// insights join by account_name).
+model Opportunity {
+  id          String    @id @default(cuid())
+  name        String
+  accountName String?
+  stage       String    @default("prospecting") // prospecting | qualification | proposal | negotiation | closed_won | closed_lost
+  amount      Float     @default(0)
+  probability Int? // 0-100 — feeds the Forecast by Probability bands + the accuracy forecast
+  closeDate   DateTime?
+  source      String?
+  owner       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([stage])
+  @@index([accountName])
+}
+
 model SavedReport {
   id        String   @id @default(cuid())
   name      String

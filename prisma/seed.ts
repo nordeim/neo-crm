@@ -273,6 +273,59 @@ async function main() {
     });
   }
 
+  // ---- opportunities (session-31: the reference's SECOND deal model) -----------
+  // Bundle-decoded from index-DZ-xbrIm.js: the Opportunity entity has NO
+  // create-edit UI on the reference (the dead "Convert to Opportunity"
+  // item) — its data feeds the dashboard, all five reports tabs, and both
+  // insights surfaces. accountName/owner are NAME STRINGS (the reference's
+  // model). The four won amounts (87k+145k+39k+66k = $337.0K) are the e2e's
+  // date-independent All-Time pin.
+  await db.opportunity.deleteMany();
+  const oppSeed: Array<{
+    name: string;
+    accountName: string;
+    stage: string;
+    amount: number;
+    probability: number;
+    close: number | null; // closeDate offset (closed opps only)
+    created: number;
+    updated: number;
+    source: string;
+    owner: string;
+  }> = [
+    // won (4) — $337.0K total
+    { name: "Compliance tracking renewal", accountName: "Meridian Financial", stage: "closed_won", amount: 87_000, probability: 90, close: -12, created: -45, updated: -1, source: "referral", owner: "Sara Chen" },
+    { name: "Fleet telemetry rollout", accountName: "Emirates Global Trading", stage: "closed_won", amount: 145_000, probability: 85, close: -20, created: -60, updated: -20, source: "partner", owner: "Omar Haddad" },
+    { name: "LMS migration", accountName: "Brightline Education", stage: "closed_won", amount: 39_000, probability: 80, close: -9, created: -38, updated: -1, source: "email", owner: "Lena Fischer" },
+    { name: "Retail analytics upgrade", accountName: "Cedar Retail Group", stage: "closed_won", amount: 66_000, probability: 75, close: -33, created: -55, updated: -33, source: "website", owner: "Sara Chen" },
+    // lost (2) — $92.0K
+    { name: "Predictive maintenance POC", accountName: "Al Noor Manufacturing", stage: "closed_lost", amount: 64_000, probability: 40, close: -25, created: -70, updated: -25, source: "call", owner: "Omar Haddad" },
+    { name: "Cold-chain tracking", accountName: "Sahara Logistics", stage: "closed_lost", amount: 28_000, probability: 30, close: -40, created: -80, updated: -40, source: "email", owner: "Lena Fischer" },
+    // open (6) across the four open stages — $525K pipeline
+    { name: "AI forecasting pilot", accountName: "Falcon Analytics", stage: "prospecting", amount: 58_000, probability: 20, close: null, created: -5, updated: -2, source: "website", owner: "Sara Chen" },
+    { name: "Turbine telemetry POC", accountName: "Northwind Energy", stage: "prospecting", amount: 132_000, probability: 15, close: null, created: -3, updated: -3, source: "partner", owner: "Omar Haddad" },
+    { name: "Supply chain visibility", accountName: "Emirates Global Trading", stage: "qualification", amount: 110_000, probability: 40, close: null, created: -8, updated: -8, source: "call", owner: "Lena Fischer" },
+    { name: "Patient portal integration", accountName: "Oasis Healthcare", stage: "proposal", amount: 95_000, probability: 60, close: null, created: -21, updated: -21, source: "referral", owner: "Sara Chen" },
+    { name: "Procurement dashboard", accountName: "Meridian Financial", stage: "negotiation", amount: 76_000, probability: 75, close: null, created: -16, updated: -16, source: "partner", owner: "Omar Haddad" },
+    { name: "Gulf ERP connector", accountName: "Gulf Tech Solutions", stage: "negotiation", amount: 54_000, probability: 70, close: null, created: -12, updated: -12, source: "email", owner: "Lena Fischer" },
+  ];
+  for (const o of oppSeed) {
+    await db.opportunity.create({
+      data: {
+        name: o.name,
+        accountName: o.accountName,
+        stage: o.stage,
+        amount: o.amount,
+        probability: o.probability,
+        closeDate: o.close !== null ? iso(o.close, 15) : null,
+        source: o.source,
+        owner: o.owner,
+        createdAt: iso(o.created, 9),
+        updatedAt: iso(o.updated, 16),
+      },
+    });
+  }
+
   // ---- activities -----------------------------------------------------------------
   const activitySeed: Array<{
     type: string;
@@ -282,6 +335,10 @@ async function main() {
     ownerIdx: number;
     contactIdx?: number;
     notes?: string;
+    // Session-31: the Opportunity-related activities (the reports Deals at
+    // Risk join — relatedType "Opportunity" + the freeform relatedName).
+    relatedType?: string;
+    relatedName?: string;
   }> = [
     { type: "call", subject: "Discovery call — fleet rollout", status: "completed", due: -12, ownerIdx: 0, contactIdx: 0, notes: "Confirmed budget cycle opens next quarter." },
     { type: "email", subject: "Sent pricing to Meridian", status: "completed", due: -9, ownerIdx: 1, contactIdx: 4 },
@@ -303,6 +360,12 @@ async function main() {
     { type: "meeting", subject: "Pipeline review — weekly", status: "completed", due: -3, ownerIdx: 0 },
     { type: "call", subject: "Intro call — Falcon Analytics", status: "completed", due: -6, ownerIdx: 3, contactIdx: 9 },
     { type: "email", subject: "Case study request", status: "scheduled", due: 5, ownerIdx: 0, contactIdx: 1 },
+    // Opportunity-linked (session-31): AI forecasting pilot is FRESH (2d —
+    // not at risk); Supply chain visibility (20d) + Procurement dashboard
+    // (30d) are stale — the at-risk table's live rows.
+    { type: "meeting", subject: "Scoping session — AI forecasting", status: "completed", due: -2, ownerIdx: 0, relatedType: "Opportunity", relatedName: "AI forecasting pilot", notes: "Requirements + success criteria agreed." },
+    { type: "call", subject: "Stakeholder alignment — supply chain", status: "completed", due: -20, ownerIdx: 2, relatedType: "Opportunity", relatedName: "Supply chain visibility" },
+    { type: "email", subject: "Pricing follow-up — procurement", status: "completed", due: -30, ownerIdx: 1, relatedType: "Opportunity", relatedName: "Procurement dashboard" },
   ];
 
   for (const a of activitySeed) {
@@ -317,6 +380,8 @@ async function main() {
         completedAt: a.status === "completed" ? iso(a.due, 16) : null,
         accountId: a.contactIdx !== undefined ? (contacts[a.contactIdx]?.accountId ?? null) : null,
         contactId: a.contactIdx !== undefined ? (contacts[a.contactIdx]?.id ?? null) : null,
+        relatedType: a.relatedType ?? null,
+        relatedName: a.relatedName ?? null,
         ownerId: pick(a.ownerIdx).id,
         createdAt: iso(a.due - (a.status === "completed" ? 0 : 2), 9),
       },

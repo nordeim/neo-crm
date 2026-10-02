@@ -39,6 +39,7 @@ export default function AccountsPage() {
     accounts,
     contacts,
     leads,
+    opportunities,
     users,
     activities,
     settings,
@@ -643,7 +644,7 @@ export default function AccountsPage() {
         account={insightsAccount}
         activities={activities}
         contacts={contacts}
-        leads={leads}
+        opportunities={opportunities}
       />
 
       <AccountDialog open={dialogOpen} onOpenChange={setDialogOpen} account={editing} />
