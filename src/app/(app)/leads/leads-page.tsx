@@ -47,10 +47,10 @@ import {
   leadFiltersEqual,
   type LeadFilters,
 } from "@/lib/lead-filters";
-import { ConversionFunnel, PipelineBarChart, WonLostLineChart } from "@/components/charts/charts";
+import { ConversionFunnel, GroupedBarsChart, SingleBarChart, dollarFormatter } from "@/components/charts/charts";
 import { LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { CHART_COLORS, FUNNEL_STAGES, STAGE_META, isDroppedStage } from "@/lib/constants";
+import { CHART_COLORS, LEADS_FUNNEL, STAGE_META, isDroppedStage } from "@/lib/constants";
 import { avgDaysBetween, formatCompactCurrency, formatCurrency, formatDate } from "@/lib/format";
 import type { Lead } from "@/types";
 
@@ -143,13 +143,14 @@ export default function LeadsPage() {
     won.map((l) => l.closedAt ?? l.createdAt),
   );
 
-  // Reference chart vocabulary: New / Qualified / Won / Lost on a count axis.
-  const pipelineByStage = ["new", "qualified", "won", "lost"].map((s) => ({
-    label: STAGE_META[s].label,
-    stage: s,
-    count: filtered.filter((l) => l.stage === s).length,
+  // Session-27 (S27-P9, bundle-extracted `Xke`): the FIVE-status
+  // vocabulary (new/contacted/qualified/won/lost — Capitalized labels;
+  // "Contacted" elides from the ticks at the 331px card, recharts tick
+  // elision) with the VALUE sums per status. The bars are single #3b82f6
+  // (the $ tooltip + tick 12 live on the chart wiring below).
+  const pipelineByStage = ["new", "contacted", "qualified", "won", "lost"].map((s) => ({
+    stage: s.charAt(0).toUpperCase() + s.slice(1),
     value: filtered.filter((l) => l.stage === s).reduce((acc, l) => acc + l.value, 0),
-    color: STAGE_META[s].color,
   }));
 
   // Won vs lost by month — session-10 (S10-9): ROW-DERIVED month series
@@ -176,26 +177,27 @@ export default function LeadsPage() {
     return [...byKey.entries()].sort((a, b) => a[1].sort - b[1].sort).map(([, v]) => ({ month: v.month, won: v.won, lost: v.lost }));
   }, [won, lost]);
 
-  // Session-10 (S10-7): the funnel is the 4-stage FUNNEL_STAGES list
-  // (New/Qualified/Won/Lost — the same vocabulary as the sibling
-  // "Pipeline Value by Stage" chart), rendered as a recharts FunnelChart.
-  // Cumulative counts; always four entries (no count>0 filter — the
-  // reference renders 4 trapezoid groups even at zero data).
+  // Session-27 (S27-P9, bundle-extracted): the funnel's true vocabulary —
+  // New Leads / Contacted / Qualified / Won with STATUS-CUMULATIVE counts
+  // (new / contacted+qualified+won / qualified+won / won) and the
+  // reference's fills #3b82f6/#8b5cf6/#10b981/#22c55e (LEADS_FUNNEL).
+  // The old FUNNEL_STAGES new/qualified/won/lost reading was inferred from
+  // the zero-data DOM (where the funnel renders nothing).
   const funnel = React.useMemo(() => {
-    const reached = (order: string[]) =>
-      leads.filter((l) => order.includes(l.stage) || l.stage === "won").length;
-    const count = (s: string) => leads.filter((l) => l.stage === s).length;
-    return FUNNEL_STAGES.map((s) => {
-      const c =
-        s === "new"
-          ? leads.length
-          : s === "qualified"
-            ? reached(["qualified", "proposal", "negotiation"])
-            : s === "won"
-              ? count("won")
-              : count("lost");
-      return { id: s, label: STAGE_META[s]?.label ?? s, count: c, color: STAGE_META[s]?.color ?? CHART_COLORS.gray };
-    });
+    const n = (stages: string[]) => leads.filter((l) => stages.includes(l.stage)).length;
+    return LEADS_FUNNEL.map((f) => ({
+      id: f.id,
+      label: f.label,
+      color: f.fill,
+      count:
+        f.id === "new-leads"
+          ? n(["new"])
+          : f.id === "contacted"
+            ? n(["contacted", "qualified", "won"])
+            : f.id === "qualified"
+              ? n(["qualified", "won"])
+              : n(["won"]),
+    }));
   }, [leads]);
 
 
@@ -450,7 +452,15 @@ export default function LeadsPage() {
             <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Pipeline Value by Stage</CardTitle>
           </CardHeader>
           <CardContent>
-            <PipelineBarChart data={pipelineByStage} height={250} />
+            <SingleBarChart
+              data={pipelineByStage}
+              xKey="stage"
+              dataKey="value"
+              fill="#3b82f6"
+              formatter={dollarFormatter}
+              tickFontSize={12}
+              height={250}
+            />
           </CardContent>
         </Card>
         <Card>
@@ -458,7 +468,16 @@ export default function LeadsPage() {
             <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Won vs Lost Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <WonLostLineChart data={wonVsLost} height={250} />
+            <GroupedBarsChart
+              data={wonVsLost}
+              xKey="month"
+              series={[
+                { key: "won", name: "Won", fill: "#10b981" },
+                { key: "lost", name: "Lost", fill: "#ef4444" },
+              ]}
+              tickFontSize={12}
+              height={250}
+            />
           </CardContent>
         </Card>
         <Card>

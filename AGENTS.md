@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (525 checks)         | `bun run test`                         |
-| Browser E2E (87 checks)         | `bun run test:e2e` (needs build first) |
+| Unit tests (600 checks)         | `bun run test`                         |
+| Browser E2E (92 checks)         | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (525) → `bun run build` → `bun run test:e2e` (87). There is no
+`bun run test` (600) → `bun run build` → `bun run test:e2e` (92). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -399,8 +399,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   monthsFromEvents), `avatar` helpers,
   the chart palette (`constants.test.ts`), the dialog/filter vocabularies,
   the layout+chrome contracts (`tests/page-layout.test.ts`, 58 pins across
-  sessions 6–8 + session-10's stock-primitive pins) — 391 Vitest checks across
-  20 suites (session-13 added `tests/page-titles.test.ts` for the auth
+  sessions 6–8 + session-10's stock-primitive pins) — 596 Vitest checks across
+  38 suites (session-13 added `tests/page-titles.test.ts` for the auth
   absolute titles and `tests/charts-contracts.test.ts` for the grid dashes +
   funnel type; session-14 added `tests/profile-route.test.ts` for the
   `/Profile` casing alias; session-15 added the 18-check DIALOG_FAMILY layer
@@ -1017,6 +1017,70 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   "No valid contacts found. Make sure your file has name and email
   columns." / "Failed to import contacts. Please try again."). NO
   template link — the reference ships none.
+
+- **The chart internals are a per-surface bundle-pinned layer (session-27)** —
+  the reference's Cartesian charts ship STOCK recharts axes (the axis line
+  AND tick lines render at the default #666; stock margins; no
+  allowDecimals) — the scaffold-era `axisLine={false} tickLine={false}` +
+  custom margins are ALL retired. The parameterized family in
+  `src/components/charts/charts.tsx`: `SingleBarChart` (one Bar, single
+  fill, optional radius/name/formatter/tick/grid), `GroupedBarsChart`
+  (the won/lost + Activities/Won-Deals PAIRS + stock Legend),
+  `TrendLineChart` (1-2 strokeWidth-2 lines), `LabelPieChart` (the FULL
+  pie — outerRadius 90/100, labelLine false, per-slice label formatter,
+  palette Cells, NO innerRadius/paddingAngle/Legend), and
+  `HorizontalBarChart` (the funnel #06b6d4 YAxis-width-100 and the tab-5
+  Top-10 #3b82f6 YAxis-width-120 $). `PipelineBarChart`/`WonLostLineChart`/
+  `DonutChart`/`FunnelBarChart` are RETIRED; `RevenueLineChart` survives
+  ONLY as the dashboard's won/target areas (fillOpacity .6/.3, STOCK
+  strokeWidth, $ tooltip, tick 12).
+- **The reference HARDCODES its KPI sparklines and deltas (session-27)** —
+  the dashboard sparks are the static arrays in `KPI_STATICS`
+  ([10,12,11,14,13,15] etc.), the deltas the literals "+5.3%"/"+15%", the
+  reports sparks the single array [65,72,68,85,78,92]; the Sales Target
+  progress is a NEUTRAL `valueNote` (text-gray-600), never a green/red
+  delta. NEVER feed these cards real series — the reference's cards
+  always show the same shapes. The dashboard pipeline's per-stage colors
+  live ONLY in the `PIPELINE_LEGEND` chips (w-3 h-3 rounded squares via
+  the O-map of bg-*-500 classes, looked up by the LABEL slug — the "Won"
+  label misses `closed_won` and falls back to bg-gray-400, the reference's
+  own quirk); the bars are single #3b82f6.
+- **The dashboard's Lead Sources + Upcoming Activities are checkbox rows
+  (session-27)** — `p-2 hover:bg-gray-50 rounded` rows with the INERT
+  stock Checkbox + "Follow up with {source}" (slice 4) / description +
+  related + `toLocaleDateString()`. The invented progress-bar and
+  colored-dot lists are retired. NEVER reintroduce data-driven sparks or
+  bar lists on these cards.
+- **The Account Health tab is COMPUTED, not stored (session-27)** —
+  `src/lib/account-health.ts`: `daysSinceActivity` from the account's
+  latest activity (999 = never) and `health = days>60 || hasLostDeals ?
+  "At Risk" : days>30 ? "Needs Attention" : "Healthy"`. The distribution
+  is a LabelPieChart (outerRadius 100, `${name}: ${value}` labels, fills
+  #10b981/#f59e0b/#ef4444); the Top-10 a horizontal #3b82f6 chart
+  (sorted by revenue desc, YAxis width 120, $ tooltip); the at-risk rows
+  `bg-red-50` with `lastActivityText` ("Nd ago"/"Never") + the
+  `bg-red-100 text-red-800` "At Risk" badge (slice 20); the summary
+  statuses outline Badges with the `|| "-"` industry. The STORED
+  `Account.health` (s26) stays on the accounts export only.
+- **The calendar chips are the interactive layer (session-27)** — the day
+  cells' event chips carry the `EVENT_TYPE_CHIP` tints (bg-*-100 +
+  text-*-800 + a solid bg-*-600 dot, w-1.5 h-1.5) + title-only text +
+  `onClick → the EDIT dialog` (cursor-pointer); the day numbers are PLAIN
+  TEXT (`text-xs sm:text-sm font-medium mb-1` — no circle pill); "+N
+  more" is a separate line after the chips; the Upcoming rows are the
+  `p-3 border rounded-lg hover:bg-gray-50` tall-bar family (w-2 h-12
+  colored bar + `formatMonthDayTime` "MMM d, h:mm a" + related + Pen/
+  Phone/MessageCircle ghost buttons); the Agenda is the FILTERED events
+  list (slice 10) in the 40×40 tinted-square rows with the
+  EllipsisVertical Edit/Delete dropdown. Our clickable day-cells stay the
+  accessible superset over the reference's inert divs.
+- **The leads rail vocabulary is the 5-status list (session-27)** —
+  "Pipeline Value by Stage" = new/contacted/qualified/won/lost with VALUE
+  sums (single #3b82f6 bars, $ tooltip, tick 12; "Contacted" elides from
+  the ticks at the 331px card — recharts tick elision, the reference's
+  own behavior); the funnel labels are New Leads/Contacted/Qualified/Won
+  (status-cumulative, fills #3b82f6/#8b5cf6/#10b981/#22c55e —
+  `LEADS_FUNNEL`); won-vs-lost is grouped BARS + stock Legend.
 
 ## Conventions that differ from defaults
 

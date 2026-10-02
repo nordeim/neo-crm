@@ -200,9 +200,10 @@ export interface ReportsData {
    *  (row-derived; the reference's 2-column table). */
   activitiesByOwner: Array<{ name: string; total: number }>;
   leadSources: Array<{ source: string; leads: number; won: number; value: number; winRate: number }>;
-  accountHealth: Array<{ status: string; label: string; count: number; color: string }>;
+  /** Session-27 (S27-P1): the COMPUTED health distribution (name/value pairs for the pie). */
+  accountHealth: Array<{ name: string; value: number }>;
   topAccounts: Array<{ id: string; name: string; revenue: number; industry: string | null }>;
-  atRiskAccounts: Array<{ id: string; name: string; lastActivityAt: string | null; status: string }>;
+  atRiskAccounts: Array<{ id: string; name: string; daysSinceActivity: number; health: string }>;
   accountSummary: Array<{ id: string; name: string; industry: string | null; status: string; contacts: number; openLeads: number }>;
   recentWonDeals: Array<Lead>;
   topDeals: Array<Lead>;
@@ -211,8 +212,8 @@ export interface ReportsData {
   agingPipeline: Array<{ label: string; count: number }>;
   /** The tab-2 wide chart + its "Average Accuracy: N%" caption. */
   forecastingAccuracy: { points: Array<{ month: string; accuracy: number }>; average: number };
-  /** Row-derived weighted open-pipeline value by stage (empty at zero). */
-  forecastByProbability: Array<{ label: string; weighted: number }>;
+  /** Session-27 (S27-P4): the FIXED 4 probability bands with value sums (the reference's pie data). */
+  forecastByProbability: Array<{ band: string; value: number }>;
   /** Open deals table rows (Deal/Stage/Amount). */
   openDealsByStage: Array<{ id: string; deal: string; stage: string; amount: number }>;
   /** Open leads with no activity for 14+ days (Deal/Account/Amount). */

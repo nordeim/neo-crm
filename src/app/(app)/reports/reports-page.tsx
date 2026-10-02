@@ -18,9 +18,21 @@ import {
   REPORTS_FILTER_BAR,
   REPORTS_TABLE_CARD,
 } from "@/lib/page-layout";
-import { DonutChart, FunnelBarChart, PipelineBarChart, RevenueLineChart, WonLostLineChart } from "@/components/charts/charts";
+import {
+  GroupedBarsChart,
+  HorizontalBarChart,
+  LabelPieChart,
+  RevenueLineChart,
+  SingleBarChart,
+  TrendLineChart,
+  ConversionFunnel,
+  dollarFormatter,
+  percentFormatter,
+} from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
 import { LEAD_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
+import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
+import { KPI_STATICS } from "@/lib/page-layout";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
 import { toCsv } from "@/lib/csv";
 import { exportReportsPdf, exportTablePdf, isoDateSuffix } from "@/lib/pdf-export";
@@ -187,15 +199,20 @@ export default function ReportsPage() {
       {/* Session-25 (S25-P1): no skeleton pass — the KPI row renders
           immediately with zeros (the `k?.x ?? 0` reads below). */}
       <>
-          {/* Reference KPI row (session-5 anatomy): square rounded-lg tinted
-              chips, count + amount INLINE in one text-2xl font-bold value,
-              uppercase-K currency on this page ($542.0K won / $196K lost). */}
+          {/* Reference KPI row (session-5 anatomy + S27-P5): square
+              rounded-lg tinted chips, the amount INLINE on Won Deals
+              ($542.0K) but a delta-column SUBTITLE on Lost Deals ($196K) —
+              the reference's own split — uppercase-K currency on this page. */}
           <div className={PAGE_KPI_GRIDS.reports}>
-            <CircleStatCard label="Total Leads" value={k?.totalLeads ?? 0} icon={<Target className="h-5 w-5" />} color="#3b82f6">
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#3b82f6" variant="line" className="h-full" />
+            {/* Session-27 (S27-P5): the reference HARDCODES these sparklines
+                (its `z=X=>[65,72,68,85,78,92]` — one static array shared by
+                every sparkline card) and the Lost Deals amount is a
+                SUBTITLE in the delta column, not part of the bold value. */}
+            <CircleStatCard label="Total Leads" value={(k?.totalLeads ?? 0).toLocaleString()} icon={<Target className="h-5 w-5" />} color="#3b82f6">
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#3b82f6" variant="line" className="h-full" />
             </CircleStatCard>
-            <CircleStatCard label="Open Leads" value={k?.openLeads ?? 0} icon={<Users className="h-5 w-5" />} color="#f97316">
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#f97316" variant="line" className="h-full" />
+            <CircleStatCard label="Open Leads" value={(k?.openLeads ?? 0).toLocaleString()} icon={<Users className="h-5 w-5" />} color="#f97316">
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#f97316" variant="line" className="h-full" />
             </CircleStatCard>
             <CircleStatCard
               label="Won Deals"
@@ -203,14 +220,15 @@ export default function ReportsPage() {
               icon={<TrendingUp className="h-5 w-5" />}
               color="#10b981"
             >
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#10b981" variant="line" className="h-full" />
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#10b981" variant="line" className="h-full" />
             </CircleStatCard>
-            {/* Session-12 (S12-P6): the reference's LOST DEALS card ships NO
-                sparkline (KPI_SPARK.lostDealsSpark) — only Total Leads /
-                Open Leads / Won Deals / Conversion Rate carry one. */}
+            {/* Session-12 (S12-P6) + Session-27 (S27-P5): NO sparkline on
+                Lost Deals, and the $XK amount is the SUBTITLE in the delta
+                column (the reference's own won-inline/lost-subtitle split). */}
             <CircleStatCard
               label="Lost Deals"
-              value={<>{" "}{k?.lostDeals ?? 0} {formatCompactCurrency(k?.lostValue ?? 0, { upper: true, decimals: 0 })}</>}
+              value={k?.lostDeals ?? 0}
+              subValue={formatCompactCurrency(k?.lostValue ?? 0, { upper: true, decimals: 0 })}
               icon={<TrendingDown className="h-5 w-5" />}
               color="#ef4444"
             />
@@ -223,7 +241,7 @@ export default function ReportsPage() {
               icon={<Target className="h-5 w-5" />}
               color="#8b5cf6"
             >
-              <Sparkline values={data?.revenueOverTime?.map((r) => r.won) ?? []} color="#8b5cf6" variant="line" className="h-full" />
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#8b5cf6" variant="line" className="h-full" />
             </CircleStatCard>
           </div>
 
@@ -288,29 +306,53 @@ function SalesTab({ data }: { data: ReportsData | null }) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title="Revenue Over Time">
-          {/* Reference Sales Overview revenue chart: no legend, both series
-              filled areas (mirrors the dashboard chart). */}
-          <RevenueLineChart
-            hideLegend
-            data={data?.revenueOverTime ?? []}
-            series={[
-              { key: "won", label: "Won", color: CHART_COLORS.emerald, filled: true },
-              { key: "target", label: "Target", color: CHART_COLORS.red, filled: true },
-            ]}
+          {/* Session-27 (S27-P3): the reference's tab-1 revenue chart is a
+              SINGLE #3b82f6 strokeWidth-2 LINE over {month, revenue} with
+              a $ tooltip — NOT the dashboard's won/target areas our
+              scaffold reused here. */}
+          <TrendLineChart
+            data={(data?.revenueOverTime ?? []).map((r) => ({ month: r.month, revenue: r.won }))}
+            xKey="month"
+            series={[{ key: "revenue", name: "Revenue", stroke: "#3b82f6" }]}
+            formatter={dollarFormatter}
           />
         </ChartCard>
         <ChartCard title="Won vs Lost Over Time">
-          <WonLostLineChart data={data?.wonVsLostOverTime ?? []} />
+          {/* Session-27 (S27-P3): grouped BARS with the stock Legend (the
+              reference's wonlost family — never the scaffold's lines). */}
+          <GroupedBarsChart
+            data={data?.wonVsLostOverTime ?? []}
+            xKey="month"
+            series={[
+              { key: "won", name: "Won", fill: "#10b981" },
+              { key: "lost", name: "Lost", fill: "#ef4444" },
+            ]}
+          />
         </ChartCard>
         <ChartCard title="Pipeline by Stage">
-          <PipelineBarChart data={data?.pipeline ?? []} />
+          {/* Session-27 (S27-P3): ROW-DERIVED (open deals by stage — EMPTY
+              at zero, like the reference) with the violet VALUE bars and
+              the "Value ($)" series name on a plain-number tooltip. */}
+          <SingleBarChart
+            data={(data?.pipelineByStageRows ?? []).map((p) => ({ stage: p.label, value: p.value }))}
+            xKey="stage"
+            dataKey="value"
+            fill="#8b5cf6"
+            name="Value ($)"
+          />
         </ChartCard>
         <ChartCard title="Conversion Funnel">
-          {/* Session-13 (S13-P8): the reference's reports funnel is a
-              HORIZONTAL BAR chart over the 8 raw stage slugs (its own
-              pipeline vocabulary), not a trapezoid FunnelChart — the
-              pipeline seam (reportsBucketCounts) is the same fixed list. */}
-          <FunnelBarChart data={data?.pipeline ?? []} />
+          {/* Session-27 (S27-P3): the funnel's horizontal bars carry a
+              SINGLE cyan fill (#06b6d4) with a stage YAxis at width 100 —
+              no per-stage Cells, no radius/maxBarSize. The data is the
+              fixed 8-slug bucket list (the s10 quirk register). */}
+          <HorizontalBarChart
+            data={(data?.pipeline ?? []).map((p) => ({ stage: p.slug, count: p.count }))}
+            yKey="stage"
+            yWidth={100}
+            dataKey="count"
+            fill="#06b6d4"
+          />
         </ChartCard>
       </div>
       <DealTables data={data} />
@@ -395,39 +437,63 @@ function DealTables({ data }: { data: ReportsData | null }) {
 
 function PipelineTab({ data }: { data: ReportsData | null }) {
   // Session-10 (S10-8): rebuilt to the reference's tab-2 structure —
-  // "Forecasting Accuracy" (WIDE line chart + the centered
-  // "Average Accuracy: N%" caption, DOM-extracted: <p class="text-sm
-  // text-gray-500"> under the chart), "Pipeline by Stage" (row-derived),
+  // "Forecasting Accuracy" (WIDE chart + the centered
+  // "Average Accuracy: N%" caption), "Pipeline by Stage" (row-derived),
   // "Forecast by Probability", "Aging Pipeline" (the fixed 4 buckets), then
   // the "Open Deals by Stage" + "Deals at Risk" tables with their Export
   // CSV / Export PDF buttons. NO KPI cards (the reference ships none here —
   // our old 4 KPI cards + duplicated DealTables are removed).
+  // Session-27 (S27-P4): the chart internals are bundle-pinned — the
+  // forecast chart is a TWO-LINE trend (forecasted #3b82f6 / actual
+  // #10b981, $ tooltip), the pipeline bars are single-blue VALUE bars,
+  // the forecast-by-probability chart is a PIE over the 4 fixed bands,
+  // and the aging bars are violet with the "age" XAxis.
   const aging = data?.agingPipeline ?? [];
   return (
     <div className="space-y-6">
       <ChartCard title="Forecasting Accuracy" wide>
-        <RevenueLineChart
+        <TrendLineChart
           height={300}
-          data={(data?.forecastingAccuracy.points ?? []).map((p) => ({ month: p.month, accuracy: p.accuracy }))}
-          series={[{ key: "accuracy", label: "Accuracy %", color: CHART_COLORS.blue }]}
+          data={(data?.revenueOverTime ?? []).map((r) => ({ month: r.month, forecasted: r.target, actual: r.won }))}
+          xKey="month"
+          series={[
+            { key: "forecasted", name: "Forecasted", stroke: "#3b82f6" },
+            { key: "actual", name: "Actual", stroke: "#10b981" },
+          ]}
+          formatter={dollarFormatter}
         />
-        <p className="mt-2 text-center text-sm text-gray-500">
-          Average Accuracy: {data?.forecastingAccuracy.average ?? 0}%
+        <p className="mt-4 text-center text-sm text-gray-500">
+          Average Accuracy:{" "}
+          <span className="text-lg font-bold text-gray-900">{data?.forecastingAccuracy.average ?? 0}%</span>
         </p>
       </ChartCard>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Pipeline by Stage">
-          <PipelineBarChart data={(data?.pipelineByStageRows ?? []).map((p) => ({ label: p.label, value: p.value, count: p.count, color: p.color }))} height={300} />
+          <SingleBarChart
+            data={(data?.pipelineByStageRows ?? []).map((p) => ({ stage: p.label, value: p.value }))}
+            xKey="stage"
+            dataKey="value"
+            fill="#3b82f6"
+            formatter={dollarFormatter}
+            height={300}
+          />
         </ChartCard>
         <ChartCard title="Forecast by Probability">
-          <PipelineBarChart
-            data={(data?.forecastByProbability ?? []).map((f) => ({ label: f.label, value: f.weighted, count: f.weighted, color: CHART_COLORS.blue }))}
+          <LabelPieChart
+            data={data?.forecastByProbability ?? []}
+            outerRadius={90}
+            labelFor={(e) => `${e.band}%: $${(Number(e.value ?? 0) / 1e3).toFixed(0)}K`}
+            fills={["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899"]}
+            formatter={dollarFormatter}
             height={300}
           />
         </ChartCard>
         <ChartCard title="Aging Pipeline">
-          <PipelineBarChart
-            data={aging.map((a) => ({ label: a.label, value: a.count, count: a.count, color: CHART_COLORS.blue }))}
+          <SingleBarChart
+            data={aging.map((a) => ({ age: a.label, count: a.count }))}
+            xKey="age"
+            dataKey="count"
+            fill="#8b5cf6"
             height={300}
           />
         </ChartCard>
@@ -545,27 +611,41 @@ function DealsTables({ data }: { data: ReportsData | null }) {
 
 function ActivityTab({ data }: { data: ReportsData | null }) {
   // Session-10 (S10-8): rebuilt to the reference's tab-3 structure — three
-  // row-derived charts (Activities by Type, Activities Over Time,
-  // Activities vs Wins) + the Overdue Activities and Activity Log by Owner
-  // tables. The old single donut + calls/emails/meetings table are removed.
+  //   charts (Activities by Type, Activities Over Time, Activities vs Wins)
+  //   + the Overdue Activities and Activity Log by Owner tables.
+  // Session-27 (S27-P4): the chart internals are bundle-pinned — by-type
+  //   is a PIE (`${type}: ${count}` labels, the 5-color palette),
+  //   over-time is a SINGLE #3b82f6 line, vs-wins is grouped BARS
+  //   (Activities/Won Deals), and the overdue rows carry bg-red-50 +
+  //   outline-Badge types.
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Activities by Type">
-          <PipelineBarChart
-            data={(data?.activitiesByType ?? []).map((a) => ({ label: a.label, value: a.count, count: a.count, color: a.color }))}
+          <LabelPieChart
+            data={(data?.activitiesByType ?? []).map((a) => ({ type: a.label, value: a.count }))}
+            outerRadius={90}
+            labelFor={(e) => `${e.type}: ${e.value}`}
+            fills={["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899", "#f97316"]}
             height={300}
           />
         </ChartCard>
         <ChartCard title="Activities Over Time">
-          <WonLostLineChart
-            data={(data?.activitiesOverTime ?? []).map((m) => ({ month: m.month, won: m.count, lost: 0 }))}
+          <TrendLineChart
+            data={data?.activitiesOverTime ?? []}
+            xKey="month"
+            series={[{ key: "count", name: "Activities", stroke: "#3b82f6" }]}
             height={300}
           />
         </ChartCard>
         <ChartCard title="Activities vs Wins">
-          <WonLostLineChart
-            data={(data?.activitiesVsWins ?? []).map((m) => ({ month: m.month, won: m.activities, lost: m.wins }))}
+          <GroupedBarsChart
+            data={data?.activitiesVsWins ?? []}
+            xKey="month"
+            series={[
+              { key: "activities", name: "Activities", fill: "#3b82f6" },
+              { key: "wins", name: "Won Deals", fill: "#10b981" },
+            ]}
             height={300}
           />
         </ChartCard>
@@ -591,9 +671,11 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
                   </TableRow>
                 ) : (
                 data!.overdueActivities.map((a) => (
-                  <TableRow key={a.id}>
+                  <TableRow key={a.id} className="bg-red-50">
                     <TableCell className="font-medium text-foreground">{a.subject}</TableCell>
-                    <TableCell className="text-muted">{a.type}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{a.type}</Badge>
+                    </TableCell>
                     <TableCell className="text-muted">{a.dueAt ? formatDate(a.dueAt) : "—"}</TableCell>
                   </TableRow>
                 ))
@@ -640,28 +722,46 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
 
 function SourcesTab({ data }: { data: ReportsData | null }) {
   // Session-10 (S10-8): rebuilt to the reference's tab-4 structure — three
-  // charts (Leads by Source, Win Rate by Source (%), Avg Deal Value by
-  // Source) + the Leads List by Source and Source Performance Summary
-  // tables (Source/Leads/Won/Revenue, empty row "No data").
+  //   charts (Leads by Source, Win Rate by Source (%), Avg Deal Value by
+  //   Source) + the Leads List by Source and Source Performance Summary
+  //   tables (Source/Leads/Won/Revenue, empty row "No data").
+  // Session-27 (S27-P4): bundle-pinned internals — by-source is a PIE
+  //   (`${source}: ${count}` labels, the 5-color palette), win-rate is
+  //   #10b981 bars with the % tooltip, avg-value is #8b5cf6 bars with
+  //   the $ tooltip.
   const rows = data?.leadSources ?? [];
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Leads by Source">
-          <PipelineBarChart
-            data={rows.map((r) => ({ label: r.source, value: r.leads, count: r.leads, color: CHART_COLORS.blue }))}
+          <LabelPieChart
+            data={rows.map((r) => ({ source: r.source, value: r.leads }))}
+            outerRadius={90}
+            labelFor={(e) => `${e.source}: ${e.value}`}
+            fills={["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899", "#f97316"]}
             height={300}
           />
         </ChartCard>
         <ChartCard title="Win Rate by Source (%)">
-          <PipelineBarChart
-            data={rows.map((r) => ({ label: r.source, value: r.winRate, count: r.winRate, color: CHART_COLORS.green }))}
+          <SingleBarChart
+            data={rows.map((r) => ({ source: r.source, winRate: r.winRate }))}
+            xKey="source"
+            dataKey="winRate"
+            fill="#10b981"
+            formatter={percentFormatter}
             height={300}
           />
         </ChartCard>
         <ChartCard title="Avg Deal Value by Source">
-          <PipelineBarChart
-            data={rows.map((r) => ({ label: r.source, value: r.value, count: r.value, color: CHART_COLORS.violet }))}
+          <SingleBarChart
+            data={rows.map((r) => ({
+              source: r.source,
+              avgValue: r.won > 0 ? Math.round(r.value / r.won) : 0,
+            }))}
+            xKey="source"
+            dataKey="avgValue"
+            fill="#8b5cf6"
+            formatter={dollarFormatter}
             height={300}
           />
         </ChartCard>
@@ -741,22 +841,31 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
 // ---- Tab: Account Health ---------------------------------------------------------
 
 function HealthTab({ data }: { data: ReportsData | null }) {
+  // Session-27 (S27-P1/P2): the reference's Account Health tab,
+  // bundle-extracted — the health distribution PIE (the computed
+  // Healthy/Needs Attention/At Risk vocabulary, `${name}: ${value}`
+  // labels, the 3-color palette), the horizontal Top 10 by revenue
+  // (sorted desc), the red-tinted At Risk table ("Nd ago"/"Never", the
+  // red "At Risk" badge), and the Account Summary with outline badges.
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title="Account Health Distribution">
-          <DonutChart
-            data={(data?.accountHealth ?? []).map((a) => ({ name: a.label, value: a.count, color: a.color }))}
+          <LabelPieChart
+            data={data?.accountHealth ?? []}
+            outerRadius={100}
+            labelFor={(e) => `${e.name}: ${e.value}`}
+            fills={[...HEALTH_PIE_FILLS]}
           />
         </ChartCard>
         <ChartCard title="Top 10 Accounts by Revenue">
-          <PipelineBarChart
-            data={(data?.topAccounts ?? []).map((a, i) => ({
-              label: a.name.length > 12 ? `${a.name.slice(0, 12)}…` : a.name,
-              count: i + 1,
-              value: a.revenue,
-              color: CHART_COLORS.blue,
-            }))}
+          <HorizontalBarChart
+            data={(data?.topAccounts ?? []).map((a) => ({ name: a.name, revenue: a.revenue }))}
+            yKey="name"
+            yWidth={120}
+            dataKey="revenue"
+            fill="#3b82f6"
+            formatter={dollarFormatter}
           />
         </ChartCard>
       </div>
@@ -781,10 +890,12 @@ function HealthTab({ data }: { data: ReportsData | null }) {
                   </TableRow>
                 ) : (
                 data!.atRiskAccounts.map((a) => (
-                  <TableRow key={a.id}>
+                  <TableRow key={a.id} className="bg-red-50">
                     <TableCell className="font-medium text-foreground">{a.name}</TableCell>
-                    <TableCell className="text-muted">{a.lastActivityAt ? formatDate(a.lastActivityAt) : "—"}</TableCell>
-                    <TableCell className="capitalize text-muted">{a.status}</TableCell>
+                    <TableCell className="text-muted">{lastActivityText(a.daysSinceActivity)}</TableCell>
+                    <TableCell>
+                      <Badge className="bg-red-100 text-red-800">At Risk</Badge>
+                    </TableCell>
                   </TableRow>
                 ))
                 )}
@@ -814,8 +925,10 @@ function HealthTab({ data }: { data: ReportsData | null }) {
                 data!.accountSummary.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell className="font-medium text-foreground">{a.name}</TableCell>
-                    <TableCell className="text-muted">{a.industry ?? "—"}</TableCell>
-                    <TableCell className="capitalize text-muted">{a.status}</TableCell>
+                    <TableCell className="text-muted">{a.industry || "-"}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{a.status}</Badge>
+                    </TableCell>
                   </TableRow>
                 ))
                 )}

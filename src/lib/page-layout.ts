@@ -1161,6 +1161,58 @@ export const KPI_SPARK = {
   lostDealsSpark: false,
 } as const;
 
+/**
+ * Session-27 (S27-P6, bundle-extracted): the dashboard pipeline chart's
+ * custom LEGEND chip row — the per-stage colors live HERE (w-3 h-3
+ * rounded squares on Tailwind bg-* classes), never on the bars (which
+ * are single #3b82f6). The reference's own quirk, mirrored: the "Won"
+ * label MISSES the map (the map keys are the snake_case slugs) and falls
+ * back to bg-gray-400 — the s13 "Won = grey #9ca3af" pin explained (it
+ * is a lookup miss, not a mapped color).
+ */
+export const PIPELINE_LEGEND = {
+  row: "flex flex-wrap gap-4 mt-4 text-xs",
+  chip: "flex items-center gap-2",
+  swatch: "w-3 h-3 rounded",
+  label: "text-gray-600",
+  stageClass: {
+    prospecting: "bg-blue-500",
+    qualification: "bg-cyan-500",
+    proposal: "bg-yellow-500",
+    negotiation: "bg-orange-500",
+    closed_won: "bg-green-500",
+    closed_lost: "bg-red-500",
+  } as Record<string, string>,
+  fallbackClass: "bg-gray-400",
+  /** The chip label format: `${stage}: $${(v / 1e3).toFixed(1)}k`. */
+  valueFormat: "toFixed(1)k",
+} as const;
+
+/**
+ * Session-27 (S27-P7, bundle-extracted): the dashboard KPI family's
+ * HARDCODED STATIC deltas + sparkline arrays. The reference literally
+ * hardcodes these (its `g` KPI memo computes real totals but feeds the
+ * sparks/deltas fixed literals) — our real-data sparks rendered EMPTY in
+ * the current quarter where the reference always shows the shape. The
+ * Sales Target progress text is NEUTRAL text-gray-600 (never a delta).
+ */
+export const KPI_STATICS = {
+  deltas: {
+    totalLeads: "+5.3%",
+    revenueThisMonth: "+15%",
+  },
+  sparks: {
+    totalLeads: [10, 12, 11, 14, 13, 15], // line #10b981
+    dealsClosed: [40, 55, 45, 70, 60, 80, 75], // bars bg-cyan-400
+    revenueThisMonth: [30, 40, 50, 45, 60, 70, 80], // bars bg-green-400
+    salesTarget: [30, 45, 60, 50, 70, 65, 75], // bars: first 4 #fbbf24, rest #3b82f6
+    conversionRate: [25, 28, 30, 29, 32, 31], // area #8b5cf6
+    avgSalesCycle: [30, 28, 29, 27, 26, 26], // line #10b981
+  },
+  /** The reports KPI cards' static spark (all four sparkline cards share it). */
+  reportsSpark: [65, 72, 68, 85, 78, 92],
+} as const;
+
 /** Session-12 (S12-P6): the stat-card icon chips are SOLID color-50
  *  surfaces on the reference (computed: #eff6ff / #fff7ed / #f0fdf4 /
  *  #fef2f2 / #faf5ff) — not 10%-alpha tints of the series color. Keyed

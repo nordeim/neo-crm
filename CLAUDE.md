@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (525) → `bun run build` → `bun run test:e2e` (87). For UI
+   `bun run test` (600) → `bun run build` → `bun run test:e2e` (92). For UI
    changes, also drive the real app in a browser at both desktop and mobile
    widths — especially the mobile drawer regression suite.
 6. **DELIVER** — Conventional Commit, push via the SSH wrapper, report what
@@ -107,8 +107,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (525 checks)               |
-| `bun run test:e2e`  | Playwright E2E (87 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (600 checks)               |
+| `bun run test:e2e`  | Playwright E2E (92 checks, needs build first) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
 
@@ -116,7 +116,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 525 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 600 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -209,6 +209,17 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   `tests/import-dialog.test.ts` (session-26: the reference's Import
   Contacts dialog — the copy, the dropzone family, the chosen-file box,
   the Required/Optional columns, the footer gating, no template link),
+  `tests/charts-internals.test.ts` (session-27: the chart-family rewrite
+  — the stock-axis correction, the five parameterized families, the
+  retired scaffold components, the per-surface wirings),
+  `tests/account-health-tab.test.ts` (session-27: the computed
+  account-health seam + the API + the tab-5 rendering pins),
+  `tests/dashboard-contracts.test.ts` (session-27: the O-map legend
+  chips, the KPI statics, the checkbox-row lists),
+  `tests/leads-charts.test.ts` (session-27: the 5-status pipeline, the
+  grouped bars, the LEADS_FUNNEL vocabulary),
+  `tests/calendar-cells.test.ts` (session-27: the EVENT_TYPE_CHIP tints,
+  the plain day numbers, the clickable chips, the tall-bar/agenda rows),
   `tests/page-layout.test.ts` (the DOM-pinned layout + chrome contracts,
   sessions 6–11: KPI ladders, page headers, rails, filter bars, the
   shell/sidebar/topbar anatomy, the login card, stat-card and card-header
@@ -233,7 +244,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 87 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 92 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -272,7 +283,13 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   visible immediately post-login with zero skeleton pass, the Reports
   header PDF downloading a real client-side `crm_reports_*.pdf`, the
   per-table Export PDF/CSV artifacts, the Save Custom Report View
-  round-trip, and the period dropdown's 6-option vocabulary).
+  round-trip, and the period dropdown's 6-option vocabulary), and
+  session-27's chart-internals + Account Health / calendar layer (the
+  computed health-distribution PIE with its slice labels, the horizontal
+  Top-10 with the $ axis, the red-tinted at-risk rows + red badges +
+  the Nd-ago vocabulary, the outline-badge summary, the dashboard's
+  Follow-up checkbox rows + static KPI sparklines, the calendar chip
+  opening the Edit Event dialog, the single-blue by-type bars).
 
 ### Test Commands
 
@@ -290,7 +307,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 525).
+the seam (currently 600).
 
 ## Code Quality Standards
 

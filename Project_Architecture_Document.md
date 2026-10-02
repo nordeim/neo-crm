@@ -687,11 +687,16 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — entity-export (the raw-dump seam — first-row-keys header, quoted values, empty-at-zero, singular prefixes + the quoted page-level exports incl. Health + the dead branches retired — session-26) | 1 | 16 | `tests/entity-export.test.ts` | Vitest |
 | Unit — account-health (the stored health field — the schema default, the seeded three-state vocabulary, the export column — session-26) | 1 | 4 | `tests/account-health.test.ts` | Vitest |
 | Unit — import-dialog (the reference's Import Contacts dialog — the copy, the dropzone family, the chosen-file box, the Required/Optional columns, the footer gating, no template link — session-26) | 1 | 9 | `tests/import-dialog.test.ts` | Vitest |
+| Unit — charts-internals (the chart-family rewrite — the stock-axis correction, SingleBarChart/GroupedBarsChart/TrendLineChart/LabelPieChart/HorizontalBarChart, the retired scaffold components, the per-surface wirings — session-27) | 1 | 25 | `tests/charts-internals.test.ts` | Vitest |
+| Unit — account-health-tab (the computed health seam — the days>60\|\|lost / days>30 rules, the 999 sentinel, "Nd ago"/"Never", the API's computed distribution + sorted top-10 + the slice-20 at-risk list, the tab-5 rendering pins — session-27) | 1 | 15 | `tests/account-health-tab.test.ts` | Vitest |
+| Unit — dashboard-contracts (the O-map legend chips with the Won fallback, the KPI static deltas + spark arrays, the checkbox-row Lead Sources + Upcoming Activities — session-27) | 1 | 15 | `tests/dashboard-contracts.test.ts` | Vitest |
+| Unit — leads-charts (the 5-status pipeline vocabulary with value sums, the grouped wonlost bars, the LEADS_FUNNEL labels/colors — session-27) | 1 | 8 | `tests/leads-charts.test.ts` | Vitest |
+| Unit — calendar-cells (the EVENT_TYPE_CHIP tint map, the plain-text day numbers, the clickable chips, the "+N more" lines, the tall-bar upcoming rows, the 40×40 agenda squares + the filtered slice 10 + the EllipsisVertical dropdown — session-27) | 1 | 17 | `tests/calendar-cells.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
-| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26) | 1 | 70 | `tests/e2e/crm.spec.ts` | Playwright |
+| E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26, and the session-27 chart-internals + Account Health / calendar layer — the computed health PIE + horizontal Top-10 + red at-risk rows + the dashboard Follow-up rows + the static KPI sparks + the calendar chip Edit dialog + the single-blue by-type bars) | 1 | 75 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **37** | **525 unit + 87 e2e** | | |
+| **Total** | **42** | **600 unit + 92 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -1105,7 +1110,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 525/525
+- [ ] `bun run test` — 600/600
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 73/73
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -1175,7 +1180,7 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 525 unit checks |
+| `bun run test` | root | 600 unit checks |
 | `bun run test:e2e` | root | 87 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |

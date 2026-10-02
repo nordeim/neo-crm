@@ -2,13 +2,44 @@
 
 // Recharts wrappers styled to the NEO CRM palette.
 //
-// Session-10 (S10-4/S10-5): the reference ships recharts DEFAULT tooltips
-// (no `content` prop — the `recharts-default-tooltip` white box with a 1px
-// #ccc border) and renders the REAL chart at all-zero data (ticks, zero
-// bars, legends — no empty-state placeholder boxes). Both of our session-1
-// inventions (the custom ChartTooltip and the ChartEmpty early-returns)
-// are retired here; this reverses the "friendly placeholder" decision
-// documented in AGENTS/CLAUDE (see the session-10 plan).
+// Session-27 REWRITE (the chart-internals layer, bundle-extracted): the
+// reference's minified bundle is ground truth for every chart config its
+// zero-data DOM cannot express, and it revealed a SYSTEMIC scaffold-era
+// divergence — our entire family hid the axes (axisLine={false}
+// tickLine={false} + custom margins + width 32/56 + allowDecimals={false})
+// while the reference ships STOCK recharts axes (live SVG: axis line AND
+// tick lines at the default #666, stock 5/5/5/5 margins, stock 60px YAxis
+// width). Every Cartesian wrapper here now ships stock axes; the only
+// props the reference passes are the ones we mirror per surface:
+//
+//   SingleBarChart     one Bar, single fill, optional radius/name/
+//                      formatter/tick size/grid (the reference's default
+//                      bar family — dashboard pipeline #3b82f6 radius
+//                      [8,8,0,0] $ tick12; tab-1 pipeline #8b5cf6
+//                      "Value ($)"; aging #8b5cf6; win-rate #10b981 %;
+//                      avg-value #8b5cf6 $; by-type #3b82f6 radius
+//                      [4,4,0,0] tick10 NO grid)
+//   GroupedBarsChart   the won/lost + Activities/Won-Deals PAIRS with the
+//                      stock <Legend /> (bar pairs, never lines)
+//   TrendLineChart     1-2 strokeWidth-2 lines (tab-1 revenue, tab-2
+//                      forecasted/actual, activities over time)
+//   LabelPieChart      the FULL pie (cx/cy 50%, labelLine false, outer
+//                      radius 90/100, per-slice label formatter, palette
+//                      Cells) — replaces the old donut
+//   HorizontalBarChart layout="vertical" bars (funnel #06b6d4 width 100,
+//                      top-10 #3b82f6 width 120 $) with plain bars (no
+//                      radius/maxBarSize/Cells)
+//   RevenueLineChart   the DASHBOARD's won/target areas only — re-pinned
+//                      to fillOpacity .6/.3 + STOCK strokeWidth + $
+//                      tooltip + tick 12 (s27-P7)
+//   ConversionFunnel   the leads FunnelChart (LabelList right, per-item
+//                      fills — the s13 shape, kept)
+//
+// Session-10 (S10-4/S10-5, still true): the reference passes NO `content`
+// to <Tooltip> (the stock recharts-default-tooltip white box) and renders
+// the REAL chart at all-zero data. Session-13 (S13-P8, still true): the
+// grid is dashed "3 3" EXPLICITLY on every gridded chart (recharts'
+// default grid is SOLID).
 
 import * as React from "react";
 import {
@@ -31,152 +62,128 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CHART_COLORS } from "@/lib/constants";
-import { formatCompactCurrency } from "@/lib/format";
 
-// Session-10 (S10-11 family + VLM round): the reference passes NO tick
-// style on its charts — the ticks render at the recharts DEFAULT (12px
-// #666). Session-13 correction (S13-P8): the grid is NOT the recharts
-// default — the default CartesianGrid is SOLID; the reference passes
-// strokeDasharray="3 3" EXPLICITLY (grid-line attribute extraction on
-// every gridded chart: dashboard 2, reports tab-1 4, leads 2 — all
-// "3 3" #ccc). The s10 "dashed default" comment was a misreading.
-
-/**
- * Reference dashboard pipeline chart: vertical bars of the per-stage COUNT
- * (integer Y axis) with a value legend underneath showing "Stage: $x.xk"
- * per stage — exactly the reference anatomy.
- */
-export function PipelineBarChart({
-  data,
-  // Session-11 (S11-P4): the reference's dashboard pipeline renders at
-  // 300px (`.recharts-wrapper` measured 534×300); the leads rail passes
-  // 250 explicitly (381px cards).
-  height = 300,
-}: {
-  data: Array<{ label: string; value: number; count: number; color: string }>;
-  height?: number;
-}) {
-  return (
-    <div>
-      <div style={{ height }} className="chart-no-outline">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="label" axisLine={false} tickLine={false} />
-            <YAxis axisLine={false} tickLine={false} width={32} allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="count" name="Leads" radius={[6, 6, 0, 0]} maxBarSize={48}>
-              {data.map((d) => (
-                <Cell key={d.label} fill={d.color} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-        {data.map((d) => (
-          <span key={d.label} className="inline-flex items-center gap-1.5 text-xs text-muted">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: d.color }} />
-            {d.label}: {formatCompactCurrency(d.value)}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
+/** The reference's tooltip formatters (bundle-extracted verbatim). */
+export function dollarFormatter(v: number): string {
+  return `$${v.toLocaleString()}`;
 }
 
+export function percentFormatter(v: number): string {
+  return `${v}%`;
+}
+
+type AxisTick = { fontSize: number } | undefined;
+
 /**
- * Reference revenue chart: "Won" teal line + "Target" red line carried on a
- * pale red AREA fill, raw (unformatted) Y-axis values like the reference.
+ * The reference's single-series vertical bar chart. Stock axes/margins
+ * everywhere; ONE Bar carrying the single fill (never per-datum Cells).
  */
-export function RevenueLineChart({
+export function SingleBarChart({
   data,
-  // Session-11 (S11-P4): the reference's dashboard revenue chart renders
-  // at 300px (534×300).
+  xKey,
+  dataKey,
+  fill,
+  name,
+  radius,
+  formatter,
+  tickFontSize,
   height = 300,
-  series,
-  hideLegend = false,
+  grid = true,
 }: {
   data: Array<Record<string, string | number>>;
+  xKey: string;
+  dataKey: string;
+  fill: string;
+  /** The Bar's series name (tab-1 pipeline ships "Value ($)" — a plain-number tooltip shows it). */
+  name?: string;
+  radius?: [number, number, number, number];
+  formatter?: (v: number) => string;
+  tickFontSize?: number;
   height?: number;
-  series: Array<{ key: string; label: string; color: string; dashed?: boolean; filled?: boolean }>;
-  /** The reference Reports page ships its revenue chart WITHOUT a legend
-      (DOM-verified) — the dashboard version keeps one. */
-  hideLegend?: boolean;
+  grid?: boolean;
 }) {
+  const tick: AxisTick = tickFontSize ? { fontSize: tickFontSize } : undefined;
   return (
     <div style={{ height }} className="chart-no-outline">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" axisLine={false} tickLine={false} />
-          <YAxis axisLine={false} tickLine={false} width={56} />
-          <Tooltip />
-          {/* Session-11 (S11-P7): the reference ships the recharts DEFAULT
-              legend (plainline icons, series-colored text — Won #10b981 /
-              Target #ef4444). Our custom circle-8px/gray variant is retired,
-              same rule as the s10 tooltip sweep: no props where the
-              reference passes none. */}
-          {!hideLegend && <Legend />}
-          {series.map((s) =>
-            s.filled ? (
-              <Area
-                key={s.key}
-                type="monotone"
-                dataKey={s.key}
-                name={s.label}
-                stroke={s.color}
-                strokeWidth={2.5}
-                fill={s.color}
-                fillOpacity={0.08}
-                strokeDasharray={s.dashed ? "6 4" : undefined}
-                activeDot={{ r: 4 }}
-              />
-            ) : (
-              <Line
-                key={s.key}
-                type="monotone"
-                dataKey={s.key}
-                name={s.label}
-                stroke={s.color}
-                strokeWidth={2.5}
-                strokeDasharray={s.dashed ? "6 4" : undefined}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-            ),
-          )}
-        </ComposedChart>
+        <BarChart data={data}>
+          {grid && <CartesianGrid strokeDasharray="3 3" />}
+          <XAxis dataKey={xKey} tick={tick} />
+          <YAxis tick={tick} />
+          <Tooltip formatter={formatter} />
+          <Bar dataKey={dataKey} fill={fill} radius={radius} name={name} />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
 
-export function WonLostLineChart({
+/**
+ * The grouped-bar pair family (the reference's won-vs-lost and
+ * Activities/Won-Deals charts — bar PAIRS with the stock Legend, never
+ * the lines our scaffold shipped).
+ */
+export function GroupedBarsChart({
   data,
-  // Session-11 (S11-P4): the reference's reports tab-1 won-vs-lost renders
-  // at 300px; the leads rail passes 250 explicitly.
+  xKey,
+  series,
+  height = 300,
+  tickFontSize,
+}: {
+  data: Array<Record<string, string | number>>;
+  xKey: string;
+  series: Array<{ key: string; name: string; fill: string }>;
+  height?: number;
+  tickFontSize?: number;
+}) {
+  const tick: AxisTick = tickFontSize ? { fontSize: tickFontSize } : undefined;
+  return (
+    <div style={{ height }} className="chart-no-outline">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey={xKey} tick={tick} />
+          <YAxis tick={tick} />
+          <Tooltip />
+          <Legend />
+          {series.map((s) => (
+            <Bar key={s.key} dataKey={s.key} name={s.name} fill={s.fill} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/**
+ * The 1-2 line trend family (strokeWidth 2 — the reference's explicit
+ * value). Dots render at the recharts default (the reference passes no
+ * dot prop on its main-chart lines).
+ */
+export function TrendLineChart({
+  data,
+  xKey,
+  series,
+  formatter,
   height = 300,
 }: {
-  data: Array<{ month: string; won: number; lost: number }>;
+  data: Array<Record<string, string | number>>;
+  xKey: string;
+  series: Array<{ key: string; name: string; stroke: string }>;
+  formatter?: (v: number) => string;
   height?: number;
 }) {
   return (
     <div style={{ height }} className="chart-no-outline">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" axisLine={false} tickLine={false} />
-          <YAxis axisLine={false} tickLine={false} width={32} allowDecimals={false} />
-          <Tooltip />
-          {/* Session-11 (S11-P7): default legend — the leads/reports
-              zero-state renders it empty (row-derived series), but the
-              populated style is the recharts default everywhere else we
-              could measure; same no-props rule as the tooltip sweep. */}
-          <Legend />
-          <Line type="monotone" dataKey="won" name="Won" stroke={CHART_COLORS.green} strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
-          <Line type="monotone" dataKey="lost" name="Lost" stroke={CHART_COLORS.red} strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
+          <XAxis dataKey={xKey} />
+          <YAxis />
+          <Tooltip formatter={formatter} />
+          {series.map((s) => (
+            <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.stroke} strokeWidth={2} />
+          ))}
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -184,69 +191,156 @@ export function WonLostLineChart({
 }
 
 /**
- * S10-7 (re-scoped session-13): the reference's LEADS "Conversion Funnel"
- * renders NOTHING at zero data (no axes, no grid, no shapes — the s10
- * trapezoid observation was an inference, unverifiable today). We keep
- * the recharts FunnelChart here for the LEADS surface only; the REPORTS
- * tab-1 funnel is the DOM-verified FunnelBarChart below (S13-P8).
+ * The label-PIE family — a FULL pie (cx/cy 50%, labelLine false, no
+ * innerRadius/paddingAngle/Legend) with per-slice label text and palette
+ * Cells. The reference's four pies: Account Health (outerRadius 100,
+ * `${name}: ${value}`, [#10b981,#f59e0b,#ef4444]), Forecast by
+ * Probability (90, `${band}%: $${(v/1e3).toFixed(0)}K`, 4 colors),
+ * Activities by Type + Leads by Source (90, `${x}: ${count}`, 5 colors).
  */
-/**
- * S13-P8: the reference's REPORTS tab-1 "Conversion Funnel" is a
- * HORIZONTAL BAR chart — DOM-verified 2026-09-30: 534x300, CartesianGrid
- * dashed "3 3" (15 lines), XAxis NUMERIC (0-4 at zero data), YAxis
- * CATEGORY carrying the EIGHT raw slugs (new/contacted/qualified/
- * prospecting/qualification/proposal/negotiation/closed_won — exactly
- * REPORTS_PIPELINE_SLUGS), no legend. The data seam is the reports
- * pipeline buckets (reportsBucketCounts — the fixed 8-slug list renders
- * ticks at any data volume like the reference).
- */
-export function FunnelBarChart({
+export function LabelPieChart({
   data,
+  outerRadius,
+  labelFor,
+  fills,
+  formatter,
   height = 300,
 }: {
-  data: Array<{ slug: string; count: number; color: string }>;
+  data: Array<Record<string, string | number>>;
+  outerRadius: number;
+  /** Receives the slice's entry (name/band/type/source… + value) — the reference's label callbacks. */
+  labelFor: (entry: Record<string, unknown> & { value?: number }) => string;
+  fills: string[];
+  formatter?: (v: number) => string;
   height?: number;
 }) {
   return (
     <div style={{ height }} className="chart-no-outline">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical" margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" axisLine={false} tickLine={false} allowDecimals={false} />
-          <YAxis
-            type="category"
-            dataKey="slug"
-            axisLine={false}
-            tickLine={false}
-            width={90}
-            interval={0}
-          />
-          <Tooltip />
-          <Bar dataKey="count" name="Leads" radius={[0, 6, 6, 0]} maxBarSize={24}>
-            {data.map((d) => (
-              <Cell key={d.slug} fill={d.color} />
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={labelFor}
+            outerRadius={outerRadius}
+          >
+            {data.map((d, i) => (
+              <Cell key={i} fill={fills[i % fills.length]} />
             ))}
-          </Bar>
+          </Pie>
+          <Tooltip formatter={formatter} />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/**
+ * The horizontal-bar family (layout="vertical"): the reports Conversion
+ * Funnel (#06b6d4, YAxis stage width 100) and the tab-5 Top 10 Accounts
+ * by Revenue (#3b82f6, YAxis name width 120, $ tooltip). Plain bars —
+ * the reference passes no radius/maxBarSize and no Cells here.
+ */
+export function HorizontalBarChart({
+  data,
+  yKey,
+  yWidth,
+  dataKey,
+  fill,
+  formatter,
+  height = 300,
+}: {
+  data: Array<Record<string, string | number>>;
+  yKey: string;
+  yWidth: number;
+  dataKey: string;
+  fill: string;
+  formatter?: (v: number) => string;
+  height?: number;
+}) {
+  return (
+    <div style={{ height }} className="chart-no-outline">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} layout="vertical">
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis type="number" />
+          <YAxis type="category" dataKey={yKey} width={yWidth} />
+          <Tooltip formatter={formatter} />
+          <Bar dataKey={dataKey} fill={fill} />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
+
+/**
+ * The DASHBOARD's revenue chart — the won/target AREA pair only (every
+ * other surface that was wired here in the scaffold era now ships the
+ * reference's own chart type via the families above). Session-27
+ * re-pin: fillOpacity .6 (won) / .3 (target), STOCK strokeWidth (the
+ * reference passes none — 1), the $ tooltip, tick fontSize 12 and stock
+ * axes/margins.
+ */
+export function RevenueLineChart({
+  data,
+  height = 300,
+  series,
+  tickFontSize,
+}: {
+  data: Array<Record<string, string | number>>;
+  height?: number;
+  series: Array<{ key: string; label: string; color: string; fillOpacity?: number }>;
+  tickFontSize?: number;
+}) {
+  const tick: AxisTick = tickFontSize ? { fontSize: tickFontSize } : undefined;
+  return (
+    <div style={{ height }} className="chart-no-outline">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="month" tick={tick} />
+          <YAxis tick={tick} />
+          <Tooltip formatter={dollarFormatter} />
+          {/* The reference ships the recharts DEFAULT legend (plainline
+              icons, series-colored text) — no props. */}
+          <Legend />
+          {series.map((s) => (
+            <Area
+              key={s.key}
+              type="monotone"
+              dataKey={s.key}
+              name={s.label}
+              stroke={s.color}
+              fill={s.color}
+              fillOpacity={s.fillOpacity ?? 0.3}
+            />
+          ))}
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+/**
+ * The LEADS page's Conversion Funnel — a recharts FunnelChart (the s13
+ * shape: its own data prop with per-datum fills + a right-side LabelList).
+ * The reference's funnel labels/fills are pinned by LEADS_FUNNEL in
+ * constants.ts (New Leads/Contacted/Qualified/Won on
+ * #3b82f6/#8b5cf6/#10b981/#22c55e) — see tests/leads-charts.test.ts.
+ */
 export function ConversionFunnel({
   data,
-  // Session-11 (S11-P4): the reference's funnels render at 300px on the
-  // reports tabs (the leads rail passes 250 explicitly).
   height = 300,
 }: {
   data: Array<{ id: string; label: string; count: number; color: string }>;
   height?: number;
 }) {
-  // recharts Funnel takes its own `data` (each datum carries its fill) with
-  // a LabelList child — the canonical FunnelChart shape; at zero data it
-  // renders the four empty trapezoid groups like the reference.
   const funnelData = data.map((d) => ({
-    label: d.label,
-    count: d.count,
+    ...d,
+    value: d.count,
     fill: d.color,
   }));
   return (
@@ -254,36 +348,10 @@ export function ConversionFunnel({
       <ResponsiveContainer width="100%" height="100%">
         <FunnelChart>
           <Tooltip />
-          <FunnelBar dataKey="count" data={funnelData} isAnimationActive={false}>
-            <LabelList position="right" dataKey="label" fill="#111827" fontSize={12} />
+          <FunnelBar dataKey="value" data={funnelData} isAnimationActive={false}>
+            <LabelList position="right" fill="#000" stroke="none" dataKey="label" />
           </FunnelBar>
         </FunnelChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-export function DonutChart({
-  data,
-  height = 240,
-  centerLabel,
-}: {
-  data: Array<{ name: string; value: number; color: string }>;
-  height?: number;
-  centerLabel?: string;
-}) {
-  return (
-    <div style={{ height }} className="chart-no-outline">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie data={data} dataKey="value" nameKey="name" innerRadius="55%" outerRadius="80%" paddingAngle={2} strokeWidth={2}>
-            {data.map((d) => (
-              <Cell key={d.name} fill={d.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: "#6b7280" }} />
-        </PieChart>
       </ResponsiveContainer>
     </div>
   );

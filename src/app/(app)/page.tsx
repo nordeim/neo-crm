@@ -11,6 +11,8 @@ import {
   EMPTY_STATE,
   TOP_REPS,
   CARD_TITLE_OVERRIDE,
+  KPI_STATICS,
+  PIPELINE_LEGEND,
 } from "@/lib/page-layout";
 import * as React from "react";
 import {
@@ -32,13 +34,13 @@ import { Avatar } from "@/components/ui/avatar";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/label";
 import { KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
-import { PipelineBarChart, RevenueLineChart } from "@/components/charts/charts";
+import { RevenueLineChart, SingleBarChart, dollarFormatter } from "@/components/charts/charts";
 import { AccountDialog, ActivityDialog, ContactDialog, EventDialog, LeadDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { STAGE_META, CHART_COLORS, LEAD_SOURCES, PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
-import { formatCompactCurrency, formatDate, timeUntil } from "@/lib/format";
-import { ACTIVITY_TYPE_META } from "@/lib/constants";
+import { formatCompactCurrency, formatDate } from "@/lib/format";
 
 type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
@@ -73,10 +75,6 @@ export default function DashboardPage() {
   }, [dashboard, stage, source, search]);
 
   const k = dashboard?.kpis;
-  // Monthly won revenue — feeds the KPI sparklines (Deals Closed / Revenue /
-  // Sales Target), mirroring the reference dashboard's bar strips.
-  const rev = dashboard?.revenueOverTime ?? [];
-  const sparkWon = rev.map((r) => r.won);
 
   return (
     // Session-16 (S16-P2): the page owns its padding (the shell-level
@@ -146,39 +144,42 @@ export default function DashboardPage() {
           entity-fetch-abort probe). The `!k` skeleton branch is retired;
           the cards read `k?.x ?? 0` exactly like the reports page. */}
       <div className={PAGE_KPI_GRIDS.dashboard}>
-        <KpiCard label="Total Leads" value={k?.totalLeads ?? 0} delta={k?.totalLeadsDelta ?? undefined}>
-          <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
+        {/* Session-27 (S27-P7): the reference HARDCODES its KPI deltas
+            ("+5.3%" / "+15%") and sparkline arrays — its KPI memo computes
+            the real totals but feeds the sparks/deltas fixed literals. The
+            sparks below mirror those arrays verbatim (KPI_STATICS); the
+            Sales Target progress text is NEUTRAL text-gray-600. */}
+        <KpiCard label="Total Leads" value={k?.totalLeads ?? 0} delta={KPI_STATICS.deltas.totalLeads}>
+          <Sparkline values={[...KPI_STATICS.sparks.totalLeads]} color={CHART_COLORS.emerald} variant="line" />
         </KpiCard>
         <KpiCard label="Deals Closed" value={formatCompactCurrency(k?.dealsClosedValue ?? 0)}>
-          <Sparkline values={sparkWon} color={CHART_COLORS.cyan400} />
+          <Sparkline values={[...KPI_STATICS.sparks.dealsClosed]} color={CHART_COLORS.cyan400} />
         </KpiCard>
-        <KpiCard label="Revenue This Month" value={formatCompactCurrency(k?.revenueThisMonth ?? 0)} delta={k?.revenueDelta ?? undefined}>
-          <Sparkline values={sparkWon} color={CHART_COLORS.green400} />
+        <KpiCard label="Revenue This Month" value={formatCompactCurrency(k?.revenueThisMonth ?? 0)} delta={KPI_STATICS.deltas.revenueThisMonth}>
+          <Sparkline values={[...KPI_STATICS.sparks.revenueThisMonth]} color={CHART_COLORS.green400} />
         </KpiCard>
         <KpiCard
           label="Sales Target"
           value={formatCompactCurrency(k?.salesTarget ?? 0)}
-          delta={k?.salesTargetProgress}
+          valueNote={`${k?.salesTargetProgress ?? 0}%`}
         >
           <Sparkline
-            values={rev.map((r) => Math.max(r.won, r.target))}
-            colorFor={(_, i) => (rev[i].won >= rev[i].target ? CHART_COLORS.blue : CHART_COLORS.amber400)}
-            color={CHART_COLORS.amber400}
+            values={[...KPI_STATICS.sparks.salesTarget]}
+            colorFor={(_, i) => (i < 4 ? "#fbbf24" : "#3b82f6")}
+            color="#fbbf24"
           />
         </KpiCard>
         <KpiCard label="Conversion Rate" value={`${k?.conversionRate ?? 0}%`}>
-          <Sparkline values={sparkWon} color={CHART_COLORS.violet} variant="area" />
+          <Sparkline values={[...KPI_STATICS.sparks.conversionRate]} color={CHART_COLORS.violet} variant="area" />
         </KpiCard>
           {/* Session-13 (S13-P10): the reference's Avg. Sales Cycle card
-              carries NO delta — value + "days" unit only (its other KPI
-              cards DO render deltas at zero data, so a delta element here
-              would render if it existed). Our "+1d" delta is retired. */}
+              carries NO delta — value + "days" unit only. */}
           <KpiCard
             label="Avg. Sales Cycle"
             value={k?.avgSalesCycleDays ?? 0}
             suffix="days"
           >
-            <Sparkline values={sparkWon} color={CHART_COLORS.emerald} variant="line" />
+            <Sparkline values={[...KPI_STATICS.sparks.avgSalesCycle]} color={CHART_COLORS.emerald} variant="line" />
           </KpiCard>
       </div>
 
@@ -245,14 +246,49 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts — session-6: plain lg:grid-cols-2 gap-6 (the reference has
-          no 3/2 col-span split). */}
+          no 3/2 col-span split). Session-27 (S27-P6/P7): the chart
+          internals are bundle-pinned — the pipeline bars are SINGLE
+          #3b82f6 with radius [8,8,0,0] on the VALUE dataKey ($ tooltip,
+          tick 12), with the per-stage colors living in the LEGEND CHIPS
+          below; the revenue areas carry fillOpacity .6 (won) / .3 (target)
+          with STOCK strokeWidth + the $ tooltip + tick 12. */}
       <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Sales Pipeline by Stage</CardTitle>
           </CardHeader>
           <CardContent>
-            <PipelineBarChart data={dashboard?.pipeline ?? []} />
+            <SingleBarChart
+              data={(dashboard?.pipeline ?? []).map((p) => ({ stage: p.label, value: p.value }))}
+              xKey="stage"
+              dataKey="value"
+              fill="#3b82f6"
+              radius={[8, 8, 0, 0]}
+              formatter={dollarFormatter}
+              tickFontSize={12}
+            />
+            {/* The O-map legend chips — the per-stage colors live HERE
+                (w-3 h-3 rounded squares on Tailwind bg-* classes), with
+                the reference's own lookup-miss quirk: the "Won" label
+                misses the snake_case map and falls back to bg-gray-400. */}
+            <div className={PIPELINE_LEGEND.row}>
+              {(dashboard?.pipeline ?? []).map((p) => (
+                <div key={p.stage} className={PIPELINE_LEGEND.chip}>
+                  {/* The reference looks the class up by the LABEL slug
+                      (stage.toLowerCase().replace(" ","_")) — so its "Won"
+                      label misses the closed_won key and falls back to
+                      gray-400. Our internal stage ids differ (new vs
+                      prospecting), so the label-based lookup is the
+                      faithful expression of the same mechanism. */}
+                  <div
+                    className={`${PIPELINE_LEGEND.swatch} ${PIPELINE_LEGEND.stageClass[p.label.toLowerCase().replace(" ", "_")] ?? PIPELINE_LEGEND.fallbackClass}`}
+                  />
+                  <span className={PIPELINE_LEGEND.label}>
+                    {p.label}: ${(p.value / 1e3).toFixed(1)}k
+                  </span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -263,11 +299,13 @@ export default function DashboardPage() {
           <CardContent>
             <RevenueLineChart
               data={dashboard?.revenueOverTime ?? []}
+              tickFontSize={12}
               series={[
                 // Both series are filled Areas on the reference (DOM-verified
-                // recharts-area-area ×2: Won #10b981, Target #ef4444).
-                { key: "won", label: "Won", color: CHART_COLORS.emerald, filled: true },
-                { key: "target", label: "Target", color: CHART_COLORS.red, filled: true },
+                // recharts-area ×2) — fillOpacity .6 won / .3 target,
+                // STOCK strokeWidth (the reference passes none).
+                { key: "won", label: "Won", color: CHART_COLORS.emerald, fillOpacity: 0.6 },
+                { key: "target", label: "Target", color: CHART_COLORS.red, fillOpacity: 0.3 },
               ]}
             />
           </CardContent>
@@ -331,31 +369,22 @@ export default function DashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            {/* Session-9 (S9-10): at zero data the reference renders an
-                EMPTY space-y-3 container — no empty-state paragraph. */}
-            {(dashboard?.leadSources ?? []).length === 0 ? (
-              <div className="space-y-3" />
-            ) : (
-              <div className="flex flex-col gap-2.5">
-                {(dashboard?.leadSources ?? []).slice(0, 6).map((s) => {
-                  const max = dashboard?.leadSources[0]?.count || 1;
-                  return (
-                    <div key={s.source}>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-foreground">{s.source}</span>
-                        <span className="text-muted">{s.count}</span>
-                      </div>
-                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-line-soft">
-                        <div
-                          className="h-full rounded-full bg-primary"
-                          style={{ width: `${Math.max(6, Math.round((s.count / max) * 100))}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            {/* Session-27 (S27-P8, bundle-extracted): the rows are the
+                checkbox family — [inert Checkbox] "Follow up with {source}"
+                … count — p-2 hover:bg-gray-50 rounded rows in a space-y-3,
+                FOUR max (slice(0,4)). At zero data the container renders
+                EMPTY (S9-10). Our old progress-bar list was an invention. */}
+            <div className="space-y-3">
+              {(dashboard?.leadSources ?? []).slice(0, 4).map((s) => (
+                <div key={s.source} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                  <div className="flex items-center gap-3">
+                    <Checkbox />
+                    <span className="text-sm">Follow up with {s.source}</span>
+                  </div>
+                  <span className="text-xs text-gray-500">{s.count}</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -372,27 +401,30 @@ export default function DashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
+            {/* Session-27 (S27-P8, bundle-extracted): the rows are the
+                checkbox family — [inert Checkbox] description +
+                related-name subtext … toLocaleDateString — the same
+                p-2 hover:bg-gray-50 rounded rows; empty = the centered
+                py-4 gray paragraph. Our old colored-dot rows were an
+                invention. */}
             {(dashboard?.upcomingActivities ?? []).length === 0 ? (
-              <p className={EMPTY_STATE.dashboardList}>No upcoming activities</p>
+              <p className="text-sm text-gray-500 text-center py-4">No upcoming activities</p>
             ) : (
-              <div className="flex flex-col gap-3">
-                {(dashboard?.upcomingActivities ?? []).slice(0, 5).map((a) => {
-                  const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call;
-                  return (
-                    <div key={a.id} className="flex items-start gap-2.5">
-                      <span
-                        className="mt-1 h-2 w-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: meta.color }}
-                      />
-                      <div className="min-w-0">
-                        <p className="truncate text-xs font-medium text-foreground">{a.subject}</p>
-                        <p className="text-[11px] text-muted">
-                          {meta.label} · {a.dueAt ? timeUntil(a.dueAt) : "—"}
-                        </p>
+              <div className="space-y-3">
+                {(dashboard?.upcomingActivities ?? []).map((a) => (
+                  <div key={a.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                    <div className="flex items-center gap-3">
+                      <Checkbox />
+                      <div>
+                        <p className="text-sm">{a.subject}</p>
+                        <p className="text-xs text-gray-500">{a.relatedName ?? a.type}</p>
                       </div>
                     </div>
-                  );
-                })}
+                    <span className="text-xs text-gray-500">
+                      {a.dueAt ? new Date(a.dueAt).toLocaleDateString() : ""}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>

@@ -4,7 +4,21 @@ import * as React from "react";
 // Session-17 (S17-P2e): the reference's calendar KPI chips ship
 // `calendar` (blank body — CalendarDays adds day dots) and `users`
 // (two-person — User is one).
-import { Calendar, ChevronLeft, ChevronRight, Clock, Phone, Plus, Search, Target, Users } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  EllipsisVertical,
+  MessageCircle,
+  Pen,
+  Phone,
+  Plus,
+  Search,
+  Target,
+  Users,
+} from "lucide-react";
+import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +27,13 @@ import { Checkbox, Label } from "@/components/ui/label";
 import { PageHeader, TrendStatCard } from "@/components/shared/page-parts";
 import { EventDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { EVENT_TYPE_META, EVENT_STATUS_META } from "@/lib/constants";
+import { EVENT_TYPE_CHIP, EVENT_TYPE_META, EVENT_STATUS_META } from "@/lib/constants";
 import {
   addDays,
   calendarGrid,
   endOfDay,
   formatDate,
+  formatMonthDayTime,
   formatMonthYear,
   formatTime,
   isSameDay,
@@ -136,8 +151,6 @@ export default function CalendarPage() {
     .filter((e) => new Date(e.startAt) >= today && e.status !== "cancelled")
     .sort((a, b) => +new Date(a.startAt) - +new Date(b.startAt))
     .slice(0, 6);
-
-  const dayAgenda = eventsOn(selectedDay);
 
   // Green trend texts (reference shows "^ +N" deltas per card).
   const trend = (current: number, previous: number) =>
@@ -318,27 +331,49 @@ export default function CalendarPage() {
                     aria-label={`${formatDate(day)} — ${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}`}
                     aria-pressed={isSelected}
                   >
-                    <span className="flex items-center justify-between">
-                      <span
-                        className={cn(
-                          "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
-                          isToday && !isSelected ? "bg-primary text-white" : isSelected ? "text-white" : inMonth ? "text-foreground" : "text-subtle",
-                        )}
-                      >
-                        {day.getDate()}
-                      </span>
-                      {dayEvents.length > 2 && <span className={cn("text-[10px]", isSelected ? "text-white/80" : "text-muted")}>+{dayEvents.length - 2}</span>}
+                    {/* Session-27 (S27-P11, bundle-extracted): the day
+                        number is PLAIN TEXT (text-xs sm:text-sm
+                        font-medium mb-1, text-white on today) — the
+                        scaffold's h-6 w-6 rounded-full circle pill is
+                        retired. */}
+                    <span className={cn("text-xs sm:text-sm font-medium mb-1", isToday || isSelected ? "text-white" : "")}>
+                      {day.getDate()}
                     </span>
                     <span className="mt-auto flex flex-col gap-0.5">
-                      {dayEvents.slice(0, 2).map((e) => (
-                        <span
-                          key={e.id}
-                          className="truncate rounded px-1 py-0.5 text-[10px] font-medium leading-tight text-white"
-                          style={{ backgroundColor: isSelected ? (inMonth ? "rgba(255,255,255,0.25)" : undefined) : (EVENT_TYPE_META[e.type]?.color ?? "#6b7280") }}
-                        >
-                          {formatTime(e.startAt)} {e.title}
+                      {dayEvents.slice(0, 2).map((e) => {
+                        const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting;
+                        return (
+                          <span
+                            key={e.id}
+                            title={e.title}
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              setEditing(e);
+                              setDefaultStart(null);
+                              setDialogOpen(true);
+                            }}
+                            className={cn(
+                              "cursor-pointer truncate rounded px-1 py-0.5 text-xs",
+                              isSelected
+                                ? "bg-white/20 text-white"
+                                : `${chip.bg} ${chip.text}`,
+                            )}
+                          >
+                            <span
+                              className={cn("inline-block w-1.5 h-1.5 rounded-full mr-1", isSelected ? "bg-white" : chip.dot)}
+                            />
+                            {e.title}
+                          </span>
+                        );
+                      })}
+                      {/* The "+N more" overflow — a SEPARATE line after the
+                          chips (the reference reads "+N more", never the
+                          scaffold's inline "+N"). */}
+                      {dayEvents.length > 2 && (
+                        <span className={cn("text-xs", isSelected ? "text-white" : "text-gray-500")}>
+                          +{dayEvents.length - 2} more
                         </span>
-                      ))}
+                      )}
                     </span>
                   </button>
                 );
@@ -355,76 +390,116 @@ export default function CalendarPage() {
               divs everywhere else. */}
           <Card className="p-6">
             <h3 className="mb-4 text-lg font-semibold">Upcoming Events</h3>
-            <div className="flex flex-col gap-3">
+            <div className="space-y-3">
               {upcoming.length === 0 ? (
-                <p className={EMPTY_STATE.calendar}>No upcoming events</p>
+                <p className="text-center text-gray-500 py-8">No upcoming events</p>
               ) : (
-                upcoming.map((e) => (
-                  <button
-                    key={e.id}
-                    type="button"
-                    className="flex items-start gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-line-soft"
-                    onClick={() => {
-                      setEditing(e);
-                      setDefaultStart(null);
-                      setDialogOpen(true);
-                    }}
-                  >
-                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: EVENT_TYPE_META[e.type]?.color }} />
-                    <span className="min-w-0">
-                      <span className="block truncate text-xs font-medium text-foreground">{e.title}</span>
-                      <span className="block text-[11px] text-muted">
-                        {formatDate(e.startAt)} · {formatTime(e.startAt)} · {timeUntil(e.startAt)}
-                      </span>
-                    </span>
-                  </button>
-                ))
+                upcoming.map((e) => {
+                  /* Session-27 (S27-P11, bundle-extracted): the TALL-BAR
+                      row family — a w-2 h-12 rounded-full type-colored
+                      bar + title + "MMM d, h:mm a" + the related line +
+                      three ghost icon actions (Pen / Phone-on-call /
+                      MessageCircle). */
+                  const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting;
+                  return (
+                    <div key={e.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                      <div className={cn("w-2 h-12 rounded-full", chip.dot)} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-gray-900">{e.title}</p>
+                        <p className="text-sm text-gray-600">{formatMonthDayTime(e.startAt)}</p>
+                        {(e.account?.name ?? e.contact?.name) && (
+                          <p className="text-xs text-gray-500">
+                            {e.relatedType ?? "Contact"}: {e.account?.name ?? e.contact?.name}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          aria-label="Edit event"
+                          onClick={() => {
+                            setEditing(e);
+                            setDefaultStart(null);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Pen className="h-4 w-4" />
+                        </Button>
+                        {e.type === "call" && (
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Call contact">
+                            <Phone className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Message contact">
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </div>
           </Card>
 
           <Card className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Agenda View</h3>
-              {/* Functional superset: the selected-day context (the
-                  reference's agenda is empty at rest — no date shown). */}
-              <span className="text-xs text-muted">{formatDate(selectedDay)}</span>
-            </div>
-            <div className="flex flex-col gap-2.5">
-              {dayAgenda.length === 0 ? (
-                <p className={EMPTY_STATE.calendar}>No events found</p>
+            <h3 className="mb-4 text-lg font-semibold">Agenda View</h3>
+            <div className="space-y-3">
+              {/* Session-27 (S27-P11, bundle-extracted): the agenda is the
+                  FILTERED events list (search + type + date filters,
+                  slice(0,10)) — NOT the selected-day list our scaffold
+                  invented — and each row is the 40×40 TINTED SQUARE family
+                  with the Edit/Delete actions in an EllipsisVertical
+                  dropdown. */}
+              {visible.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">No events found</p>
               ) : (
-                dayAgenda.map((e) => (
-                  <div key={e.id} className="rounded-lg border border-line p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-foreground">{e.title}</p>
-                        <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
-                          <Clock className="h-3 w-3" /> {formatTime(e.startAt)}
-                          {e.location && <span className="truncate">· {e.location}</span>}
-                        </p>
+                visible.slice(0, 10).map((e) => {
+                  const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting;
+                  return (
+                    <div key={e.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", chip.bg)}>
+                        <div className={cn("w-2 h-2 rounded-full", chip.dot)} />
                       </div>
-                      <Badge variant="outline" className={EVENT_STATUS_META[e.status]?.badge}>
-                        {EVENT_STATUS_META[e.status]?.label ?? e.status}
-                      </Badge>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-gray-900">{e.title}</p>
+                        <p className="text-sm text-gray-600">{formatMonthDayTime(e.startAt)}</p>
+                        {(e.account?.name ?? e.contact?.name) && (
+                          <p className="text-xs text-gray-500">
+                            {e.relatedType ?? "Contact"}: {e.account?.name ?? e.contact?.name}
+                          </p>
+                        )}
+                      </div>
+                      <Dropdown>
+                        <DropdownTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Event actions">
+                            <EllipsisVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownTrigger>
+                        <DropdownContent align="end">
+                          <DropdownItem
+                            onClick={() => {
+                              setEditing(e);
+                              setDefaultStart(null);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            Edit
+                          </DropdownItem>
+                          <DropdownItem
+                            className="text-red-600"
+                            onClick={async () => {
+                              if (window.confirm(`Delete "${e.title}"?`)) await deleteEvent(e.id);
+                            }}
+                          >
+                            Delete
+                          </DropdownItem>
+                        </DropdownContent>
+                      </Dropdown>
                     </div>
-                    <div className="mt-2 flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => { setEditing(e); setDefaultStart(null); setDialogOpen(true); }}>
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-danger hover:bg-danger-soft"
-                        onClick={async () => {
-                          if (window.confirm(`Delete "${e.title}"?`)) await deleteEvent(e.id);
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </Card>

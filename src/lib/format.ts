@@ -74,6 +74,22 @@ export function formatMonthYear(d: Date | string | number): string {
   return `${MONTHS_LONG[date.getMonth()]} ${date.getFullYear()}`;
 }
 
+/**
+ * Session-27 (S27-P11): the reference's upcoming/agenda row timestamp —
+ * date-fns format "MMM d, h:mm a" (e.g. "Oct 5, 10:00 AM"), hand-rolled
+ * here (no date-fns dependency).
+ */
+export function formatMonthDayTime(d: Date | string | number | null | undefined): string {
+  if (!d) return "—";
+  const date = asDate(d);
+  if (Number.isNaN(date.getTime())) return "—";
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  let h = date.getHours();
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${months[date.getMonth()]} ${date.getDate()}, ${h}:${date.getMinutes().toString().padStart(2, "0")} ${ampm}`;
+}
+
 export function formatTime(d: Date | string | number | null | undefined): string {
   if (!d) return "—";
   const date = asDate(d);

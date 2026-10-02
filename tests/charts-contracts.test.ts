@@ -31,28 +31,33 @@ describe("session-13: CartesianGrid dashes (S13-P8a)", () => {
   });
 });
 
-describe("session-13: reports funnel becomes a horizontal bar chart (S13-P8b)", () => {
-  it("exports a FunnelBarChart with a vertical layout", () => {
-    expect(src).toContain("export function FunnelBarChart");
-    const m = src.match(/export function FunnelBarChart[\s\S]{0,1600}?<\/ResponsiveContainer>/);
+describe("session-13/27: reports funnel is a horizontal bar chart (S13-P8b, re-pinned S27-P3)", () => {
+  // Session-27: the FunnelBarChart was superseded by the parameterized
+  // HorizontalBarChart family — the funnel mounts it with the bundle-
+  // extracted config (SINGLE cyan #06b6d4 fill, stage YAxis width 100,
+  // no radius/maxBarSize/Cells). The s13 intent (horizontal bars over
+  // the 8 slugs, never a trapezoid funnel, on reports) is preserved.
+  it("exports the HorizontalBarChart family with a vertical layout", () => {
+    expect(src).toContain("export function HorizontalBarChart");
+    const m = src.match(/export function HorizontalBarChart[\s\S]{0,1600}?<\/ResponsiveContainer>/);
     expect(m).toBeTruthy();
     expect(m![0]).toContain('layout="vertical"');
   });
 
-  it("the funnel grid is dashed and its axes are numeric X + category Y", () => {
-    const m = src.match(/export function FunnelBarChart[\s\S]{0,1600}?<\/ResponsiveContainer>/);
+  it("the family grid is dashed and its axes are numeric X + category Y with the yWidth prop", () => {
+    const m = src.match(/export function HorizontalBarChart[\s\S]{0,1600}?<\/ResponsiveContainer>/);
     expect(m).toBeTruthy();
     expect(m![0]).toContain('strokeDasharray="3 3"');
     expect(m![0]).toMatch(/<XAxis[^>]*type="number"/);
-    expect(m![0]).toMatch(/<YAxis[^>]*type="category"/);
+    expect(m![0]).toMatch(/<YAxis[^>]*type="category"[^>]*width=\{yWidth\}/);
   });
 
-  it("the reports tab-1 card mounts FunnelBarChart, not the trapezoid funnel", () => {
+  it("the reports tab-1 card mounts the horizontal bar family, not the trapezoid funnel", () => {
     const reports = readFileSync(
       path.resolve(import.meta.dirname, "../src/app/(app)/reports/reports-page.tsx"),
       "utf8",
     );
-    expect(reports).toContain("<FunnelBarChart");
+    expect(reports).toContain("<HorizontalBarChart");
     // The trapezoid ConversionFunnel may remain for the leads page
     // (the reference's leads funnel renders NOTHING at zero data —
     // unverifiable, documented inference) but must NOT mount on reports.

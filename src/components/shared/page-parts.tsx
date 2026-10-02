@@ -64,11 +64,16 @@ export function DeltaText({
   invert = false,
   className,
 }: {
-  delta: number | null | undefined;
+  /** Session-27 (S27-P7): a STRING delta renders verbatim in green — the
+      reference HARDCODES its KPI deltas ("+5.3%", "+15%") as literals. */
+  delta: number | string | null | undefined;
   suffix?: string;
   invert?: boolean;
   className?: string;
 }) {
+  if (typeof delta === "string") {
+    return <span className={cn("text-xs text-green-600", className)}>{delta}</span>;
+  }
   if (typeof delta !== "number") return null;
   const neutral = delta === 0;
   const good = invert ? delta < 0 : delta > 0;
@@ -135,15 +140,18 @@ export function KpiCard({
   delta,
   deltaSuffix = "%",
   invertDelta = false,
+  valueNote,
   children,
 }: {
   label: string;
   value: React.ReactNode;
   /** Small gray unit suffix next to the value ("days"). */
   suffix?: string;
-  delta?: number | null;
+  delta?: number | string | null;
   deltaSuffix?: string;
   invertDelta?: boolean;
+  /** Session-27 (S27-P7): a NEUTRAL text-xs text-gray-600 note in the value row (the Sales Target progress). */
+  valueNote?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -160,6 +168,12 @@ export function KpiCard({
             text-foreground additions were real computed diffs. */}
         <p className={KPI_VALUE}>{value}</p>
         {suffix && <span className="mb-1 text-xs text-muted">{suffix}</span>}
+        {valueNote !== undefined && (
+          /* Session-27 (S27-P7): the reference's Sales Target progress — a
+             NEUTRAL text-xs text-gray-600 note in the value row, never a
+             green/red delta. */
+          <span className="mb-1 text-xs text-gray-600">{valueNote}</span>
+        )}
         <DeltaText delta={delta} suffix={deltaSuffix} invert={invertDelta} className="mb-1" />
       </div>
       {children && <div className={KPI_SPARK.dashboardContainer}>{children}</div>}
@@ -402,15 +416,21 @@ export function CircleStatCard({
             <p className="mb-1 text-xs text-muted">{label}</p>
             <p className="flex flex-wrap items-baseline gap-1.5 text-2xl font-bold leading-tight text-foreground">
               {value}
-              {subValue !== undefined && <span>{subValue}</span>}
             </p>
           </div>
         </div>
       </div>
-      {children && (
+      {(children || subValue !== undefined) && (
         <div className={KPI_SPARK.reportsWrapper}>
           <div className={cn(KPI_SPARK.reportsSlot, KPI_SPARK.reportsMaxWidth)}>{children}</div>
-          <div className="flex flex-col items-end" />
+          {/* Session-27 (S27-P5): the reference's `ay` card renders the
+              subtitle (Lost Deals' $XK) in the bottom-right delta column —
+              text-xs text-gray-500 mt-1 — NOT inline with the value. */}
+          <div className="flex flex-col items-end">
+            {subValue !== undefined && (
+              <div className="mt-1 text-xs text-gray-500">{subValue}</div>
+            )}
+          </div>
         </div>
       )}
     </div>

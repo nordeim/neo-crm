@@ -1457,6 +1457,89 @@ test("the import round-trip: file → result box → auto-close (S26-P6)", async
   await expect(page.getByText("E2E Import").first()).toBeVisible();
 });
 
+// ---- Session-27: the chart-internals + Account Health / calendar layer ----------
+
+test("the Account Health tab renders the PIE + horizontal top-10 + red-tinted at-risk rows (S27-P1/P2)", async ({ page }) => {
+  await page.goto("/reports");
+  await page.getByRole("tab", { name: "Account Health" }).click();
+  // The health distribution is a FULL PIE (recharts sectors) — the seeded
+  // accounts produce at least one slice per computed state.
+  const sectors = page.locator(".recharts-pie .recharts-sector, .recharts-pie-sector");
+  await expect(sectors.first()).toBeVisible();
+  await expect(sectors).not.toHaveCount(0);
+  // The pie slice labels render the `${name}: ${value}` shape.
+  await expect(page.getByText(/Healthy: \d+/).first()).toBeVisible();
+  // The top-10 chart is a HORIZONTAL bar chart (numeric X + category Y with
+  // the seeded account names as ticks).
+  const chart = page.locator(".recharts-wrapper").filter({ hasText: /Northwind|Meridian/ }).first();
+  await expect(chart).toBeVisible();
+  // The at-risk table: the red "At Risk" badges on bg-red-50 rows.
+  const atRiskBadge = page.locator("table .bg-red-100.text-red-800").first();
+  await expect(atRiskBadge).toBeVisible();
+  const redRow = page.locator("tr.bg-red-50").first();
+  await expect(redRow).toBeVisible();
+  // The "Nd ago" / "Never" last-activity vocabulary.
+  await expect(page.getByText(/\d+d ago|Never/).first()).toBeVisible();
+  // The Account Summary statuses render as outline badges (the stock
+  // inline-flex rounded-full border span) — the summary's first status
+  // cell carries one where the old plain-text cell had none.
+  const summaryBadge = page.locator("table span.inline-flex.rounded-full.border").first();
+  await expect(summaryBadge).toBeVisible();
+});
+
+test("the dashboard Lead Sources rows are the checkbox family with 'Follow up with' text (S27-P8)", async ({ page }) => {
+  await page.goto("/Dashboard");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await page.waitForTimeout(800);
+  // The seeded leads produce source rows: the checkbox + the follow-up text.
+  const row = page.getByText(/Follow up with/).first();
+  await expect(row).toBeVisible();
+  // The inert stock checkbox renders on each row (role=checkbox buttons).
+  const checkboxes = page.locator('div:has(> div > button[role="checkbox"])').filter({ hasText: "Follow up with" });
+  await expect(checkboxes.first()).toBeVisible();
+});
+
+test("the dashboard KPI sparklines render the STATIC arrays (S27-P7)", async ({ page }) => {
+  await page.goto("/Dashboard");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await page.waitForTimeout(800);
+  // The reference's hardcoded sparks ALWAYS render (our old real-data
+  // sparks rendered empty in dataless quarters) — expect line/area curves
+  // in the KPI row + the CSS bar strips on the bars-variant cards.
+  const kpiRow = page.locator("main .grid").first();
+  const sparklineCharts = kpiRow.locator(".recharts-wrapper");
+  await expect(sparklineCharts.first()).toBeVisible();
+  const delta = page.getByText("+5.3%");
+  await expect(delta).toBeVisible();
+});
+
+test("the calendar day chips open the EDIT dialog (S27-P11, seeded events)", async ({ page }) => {
+  await page.goto("/calendar");
+  await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+  await page.waitForTimeout(800);
+  // A seeded event chip (tinted, with its colored dot) — click → edit dialog.
+  const chip = page.locator('main .cursor-pointer.truncate').first();
+  await expect(chip).toBeVisible();
+  await chip.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByRole("dialog").getByText(/Update Event|Event Details|Edit Event/).first()).toBeVisible();
+});
+
+test("the activities by-type chart bars are single-blue with the small radius (S27-P10)", async ({ page }) => {
+  await page.goto("/activities");
+  await expect(page.getByRole("heading", { name: "Activities", exact: true })).toBeVisible();
+  await page.waitForTimeout(800);
+  const bars = page.locator(".recharts-bar-rectangle path, .recharts-bar-rectangle rect");
+  await expect(bars.first()).toBeVisible();
+  const fills = await bars.evaluateAll((els) =>
+    (els as SVGElement[]).map((el) => el.getAttribute("fill")),
+  );
+  // Every bar carries the SAME single fill (#3b82f6) — the per-type colors
+  // live only in the chips row below.
+  expect(fills.length).toBeGreaterThan(0);
+  expect(new Set(fills)).toEqual(new Set(["#3b82f6"]));
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();
@@ -1505,3 +1588,4 @@ test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must no
   const body = await page.evaluate(() => document.body.innerText);
   expect(body).not.toContain("E2E Import");
 });
+

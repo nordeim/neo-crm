@@ -513,22 +513,18 @@ export default function ActivitiesPage() {
               <p className={BY_TYPE_CARD.subtitle}>{BY_TYPE_CARD.subtitleText}</p>
             </CardHeader>
             <CardContent className={BY_TYPE_CARD.body}>
-              {/* Session-10 (S10-11): the by-type chart — NO CartesianGrid,
-                  150px tall, ticks at fontSize 10 with the recharts-default
-                  #666 fill, and the DEFAULT tooltip. Series colors follow
-                  the reference's chip swatches (S13-P5): blue / violet /
-                  amber / emerald / teal. */}
-              <div className="h-[150px] chart-no-outline">
+              {/* Session-27 (S27-P10, bundle-extracted): the by-type bars
+                  are a SINGLE #3b82f6 fill with radius [4,4,0,0] and NO
+                  grid (no CartesianGrid), stock axes, tick fontSize 10 —
+                  the per-type colors live ONLY in the chips row below
+                  (S13-P5). No maxBarSize, no interval override. */}
+              <div className="chart-no-outline" style={{ height: 150 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={byType} margin={{ top: 8, right: 4, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="label" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <BarChart data={byType}>
+                    <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
                     <Tooltip />
-                    <Bar dataKey="count" name="Logged" radius={[6, 6, 0, 0]} maxBarSize={36}>
-                      {byType.map((t) => (
-                        <Cell key={t.type} fill={t.color} />
-                      ))}
-                    </Bar>
+                    <Bar dataKey="count" name="Logged" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

@@ -129,6 +129,43 @@ export function reportsBucketCounts(
 export const FUNNEL_STAGES = ["new", "qualified", "won", "lost"] as const;
 
 /**
+ * Session-27 (S27-P9, bundle-extracted from the reference's leads `Xke`
+ * component): the LEADS Conversion Funnel's true vocabulary — the labels
+ * are New Leads / Contacted / Qualified / Won (NOT the FUNNEL_STAGES
+ * new/qualified/won/lost our scaffold inferred from the zero-data DOM,
+ * where the funnel renders nothing and the sibling chart's ticks elide
+ * "Contacted" at 331px). The counts are STATUS-CUMULATIVE:
+ *
+ *   New Leads  = status "new"
+ *   Contacted  = status in [contacted, qualified, won]
+ *   Qualified  = status in [qualified, won]
+ *   Won        = status "won"
+ */
+export const LEADS_FUNNEL = [
+  { id: "new-leads", label: "New Leads", fill: "#3b82f6" },
+  { id: "contacted", label: "Contacted", fill: "#8b5cf6" },
+  { id: "qualified", label: "Qualified", fill: "#10b981" },
+  { id: "won", label: "Won", fill: "#22c55e" },
+] as const;
+
+/**
+ * Session-27 (S27-P11, bundle-extracted `B` map): the calendar's
+ * event-type CHIP tints — the day-cell chips + rail rows carry
+ * bg-*-100 / text-*-800 SURFACES with solid bg-*-600 DOTS (meeting blue /
+ * call green / demo purple / task orange / reminder yellow / appointment
+ * cyan). The solid EVENT_TYPE_META.color entries stay on the quick-log
+ * + agenda-dot surfaces that already use them.
+ */
+export const EVENT_TYPE_CHIP: Record<string, { bg: string; text: string; dot: string }> = {
+  meeting: { bg: "bg-blue-100", text: "text-blue-800", dot: "bg-blue-600" },
+  call: { bg: "bg-green-100", text: "text-green-800", dot: "bg-green-600" },
+  demo: { bg: "bg-purple-100", text: "text-purple-800", dot: "bg-purple-600" },
+  task: { bg: "bg-orange-100", text: "text-orange-800", dot: "bg-orange-600" },
+  reminder: { bg: "bg-yellow-100", text: "text-yellow-800", dot: "bg-yellow-600" },
+  appointment: { bg: "bg-cyan-100", text: "text-cyan-800", dot: "bg-cyan-600" },
+};
+
+/**
  * S10-8: the reference's tab-2 "Aging Pipeline" bar chart renders 4 bar
  * rects at zero — a FIXED bucket list (ticks <30 days / 30-60 days /
  * >90 days render; the 60-90 label elides at 331px — recharts tick

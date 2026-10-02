@@ -2,7 +2,6 @@ import { db } from "@/lib/db";
 import { ok, ERR, asString, isGuarded, requireSession } from "@/lib/api";
 import {
   ACTIVITY_TYPE_META,
-  ACCOUNT_STATUS_META,
   CHART_COLORS,
   FUNNEL_STAGES,
   REPORT_PERIODS,
@@ -10,6 +9,7 @@ import {
   isDroppedStage,
   reportsBucketCounts,
 } from "@/lib/constants";
+import { accountHealth, HEALTH_STATES } from "@/lib/account-health";
 import { agingCounts, forecastAccuracySeries, monthsFromEvents } from "@/lib/reports-data";
 import { addMonths, startOfDay, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
 import type { ReportsData } from "@/types";
@@ -221,29 +221,35 @@ export async function GET(req: Request) {
     }))
     .sort((a, b) => b.leads - a.leads);
 
-  // ---- account health ----
-  const accountHealth = Object.keys(ACCOUNT_STATUS_META).map((s) => ({
-    status: s,
-    label: ACCOUNT_STATUS_META[s].label,
-    count: accounts.filter((a) => a.status === s).length,
-    color: ACCOUNT_STATUS_META[s].color,
+  // ---- account health (session-27 S27-P1: the reference's COMPUTED
+  // health — daysSinceActivity from the account's latest activity (the
+  // 999 sentinel when never) + the closed_lost rule; NOT the stored
+  // status distribution our scaffold shipped. The stored Account.health
+  // column stays on the accounts page/export contract (s26).) ----
+  const lostAccountIds = new Set(leads.filter((l) => l.stage === "lost" && l.accountId).map((l) => l.accountId as string));
+  const accountHealthRows = accounts.map((a) => ({
+    account: a,
+    ...accountHealth({ lastActivityAt: a.lastActivityAt ?? null, hasLostDeals: lostAccountIds.has(a.id), now }),
+  }));
+  const accountHealthDistribution = HEALTH_STATES.map((name) => ({
+    name,
+    value: accountHealthRows.filter((r) => r.health === name).length,
   }));
 
   const topAccounts = accounts
     .filter((a) => a.annualRevenue)
+    .sort((a, b) => (b.annualRevenue ?? 0) - (a.annualRevenue ?? 0))
     .slice(0, 10)
     .map((a) => ({ id: a.id, name: a.name, revenue: a.annualRevenue ?? 0, industry: a.industry }));
 
-  const staleDays = 45;
-  const staleCutoff = new Date(now.getTime() - staleDays * 86_400_000);
-  const atRiskAccounts = accounts
-    .filter((a) => (a.lastActivityAt ?? a.createdAt) < staleCutoff || a.status === "churned")
-    .slice(0, 10)
-    .map((a) => ({
-      id: a.id,
-      name: a.name,
-      lastActivityAt: a.lastActivityAt?.toISOString() ?? null,
-      status: a.status,
+  const atRiskAccounts = accountHealthRows
+    .filter((r) => r.health === "At Risk")
+    .slice(0, 20)
+    .map((r) => ({
+      id: r.account.id,
+      name: r.account.name,
+      daysSinceActivity: r.daysSinceActivity,
+      health: r.health,
     }));
 
   const accountSummary = accounts.slice(0, 10).map((a) => ({
@@ -281,13 +287,26 @@ export async function GET(req: Request) {
   );
 
   // Weighted open-pipeline value by stage (negotiation .6 / proposal .4 /
-  // qualified .25 / rest .1 — the weighted-forecast weights).
+  // qualified .25 / rest .1 — the weighted-forecast weights). Session-27
+  // (S27-P4): the reference's Forecast by Probability chart is a PIE over
+  // the FIXED 4 bands "0-25"/"26-50"/"51-75"/"76-100" with AMOUNT sums.
+  // Our Lead model carries no per-deal probability — the stage weight is
+  // the documented band proxy (0.25 → 0-25, 0.4 → 26-50, 0.6 → 51-75; the
+  // 76-100 band stays empty in our approximation).
   const weightFor = (stage: string) =>
     stage === "negotiation" ? 0.6 : stage === "proposal" ? 0.4 : stage === "qualified" ? 0.25 : 0.1;
-  const forecastByProbability: ReportsData["forecastByProbability"] = pipelineByStageRows
-    .map((p) => ({ label: p.label, weighted: Math.round(p.value * weightFor(p.stage)) }))
-    .filter((p) => p.weighted > 0)
-    .sort((a, b) => b.weighted - a.weighted);
+  const bandFor = (stage: string) => {
+    const w = weightFor(stage) * 100;
+    return w <= 25 ? "0-25" : w <= 50 ? "26-50" : w <= 75 ? "51-75" : "76-100";
+  };
+  const forecastByProbability: ReportsData["forecastByProbability"] = ["0-25", "26-50", "51-75", "76-100"].map(
+    (band) => ({
+      band,
+      value: Math.round(
+        openLeads.filter((l) => bandFor(l.stage) === band).reduce((s, l) => s + l.value, 0),
+      ),
+    }),
+  );
 
   const openDealsByStage: ReportsData["openDealsByStage"] = openLeads
     .slice()
@@ -361,7 +380,7 @@ export async function GET(req: Request) {
     activitiesByType,
     activitiesByOwner,
     leadSources,
-    accountHealth,
+    accountHealth: accountHealthDistribution,
     topAccounts,
     atRiskAccounts,
     accountSummary,
