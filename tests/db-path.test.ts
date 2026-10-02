@@ -143,6 +143,73 @@ describe("runtimeDatabaseUrl (cwd .env discovery)", () => {
   });
 });
 
+describe("runtimeDatabaseUrl (standalone launch contexts — session-34)", () => {
+  // The production layout: <repo>/{.env, prisma/schema.prisma} plus the
+  // traced .next/standalone/{.env} copy the server chdirs into at boot.
+  function buildStandaloneRepo(): { repo: string; standalone: string } {
+    const repo = mkdtempSync(join(tmpdir(), "neo-crm-standalone-"));
+    tempDirs.push(repo);
+    mkdirSync(join(repo, "prisma"), { recursive: true });
+    writeFileSync(join(repo, "prisma", "schema.prisma"), "// schema stub\n");
+    writeFileSync(join(repo, ".env"), 'DATABASE_URL="file:../db/custom.db"\n');
+    const standalone = join(repo, ".next", "standalone");
+    mkdirSync(standalone, { recursive: true });
+    writeFileSync(join(standalone, ".env"), 'DATABASE_URL="file:../db/custom.db"\n');
+    return { repo, standalone };
+  }
+
+  function withEnv(value: string | undefined, fn: () => void) {
+    const prev = process.env.DATABASE_URL;
+    if (value === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = value;
+    try {
+      fn();
+    } finally {
+      if (prev === undefined) delete process.env.DATABASE_URL;
+      else process.env.DATABASE_URL = prev;
+    }
+  }
+
+  it("re-anchors a bun-absolutized env var when the standalone server was launched from the repo root", () => {
+    const { repo, standalone } = buildStandaloneRepo();
+    // What bun exports at launch: <repo>/.env's value absolutized against
+    // the LAUNCH cwd (the repo root) — the parent-of-repo location whose
+    // directory does not even exist. The cwd-side comparison (post-chdir,
+    // against .next/standalone) misses it, so the seam must recognize the
+    // launch-dir .env signature before treating the value as an override.
+    const launchAbsolutized = `file:${join(repo, "..", "db", "custom.db")}`;
+    withEnv(launchAbsolutized, () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).toBe(`file:${join(repo, "db", "custom.db")}`);
+    });
+  });
+
+  it("keeps an intentional e2e-style override when launched from the repo root", () => {
+    const { standalone } = buildStandaloneRepo();
+    // Playwright's webServer override: a relative URL neither .env signature
+    // can produce — must be honored as an intentional override (re-anchored
+    // through the schema rule, never passed through raw).
+    withEnv("file:../db/e2e.db", () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).not.toBe(process.env.DATABASE_URL);
+      expect(url).toContain("/db/e2e.db");
+    });
+  });
+
+  it("re-anchors when launched from inside .next/standalone (the traced .env)", () => {
+    const { repo, standalone } = buildStandaloneRepo();
+    // Launching from the standalone folder itself: bun loaded the traced
+    // .env and absolutized against .next/standalone.
+    const standaloneAbsolutized = `file:${join(standalone, "..", "db", "custom.db")}`;
+    withEnv(standaloneAbsolutized, () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).not.toBe(process.env.DATABASE_URL);
+      expect(url).toContain("/db/custom.db");
+      expect(url).not.toBe(`file:${join(repo, ".next", "db", "custom.db")}`);
+    });
+  });
+});
+
 describe("resolveDatabaseUrl", () => {
   it("passes through non-file URLs untouched", () => {
     expect(resolveDatabaseUrl("postgresql://u:p@localhost:5432/db")).toBe(

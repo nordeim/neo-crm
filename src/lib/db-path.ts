@@ -54,12 +54,11 @@ function repoRootFromModule(): string | null {
   return null;
 }
 
-function repoRootFromStandaloneCwd(): string | null {
+function repoRootFromStandaloneCwd(dir: string = process.cwd()): string | null {
   try {
-    const cwd = process.cwd();
-    if (!cwd.includes(".next")) return null;
+    if (!dir.includes(".next")) return null;
     // <repo>/.next/standalone -> <repo>
-    const root = resolve(cwd, "..", "..");
+    const root = resolve(dir, "..", "..");
     if (existsSync(join(root, "prisma", "schema.prisma"))) return root;
   } catch {
     // ignore
@@ -161,21 +160,56 @@ export function effectiveDatabaseUrl(input: {
   return resolveDatabaseUrl(envUrl ?? envFileUrl ?? DEFAULT_DATABASE_URL);
 }
 
+/** The DATABASE_URL value of the .env file at `dir`, if one exists. */
+function readDatabaseUrlFromEnvAt(dir: string): string | undefined {
+  const envPath = join(dir, ".env");
+  if (existsSync(envPath)) {
+    return parseEnvFile(readFileSync(envPath, "utf8")).DATABASE_URL;
+  }
+  return undefined;
+}
+
 /**
  * Runtime convenience: combines process.env.DATABASE_URL with the .env
  * file at `cwd` (if any) through effectiveDatabaseUrl. Used by the Prisma
  * client singleton (src/lib/db.ts), the seed script (prisma/seed.ts) and
  * the CLI wrapper (scripts/prisma-env.ts) so every consumer applies the
  * same rules.
+ *
+ * STANDALONE LAUNCH RECOVERY (session-34): the standalone server.js runs
+ * `process.chdir(__dirname)` at boot — AFTER bun already absolutized a
+ * relative `file:` DATABASE_URL against the LAUNCH directory's .env
+ * (typically <repo>/.env via `bun run start` from the repo root). The
+ * cwd-side bun signature (computed against the post-chdir cwd, whose .env
+ * is the traced .next/standalone copy) then MISSES that value, and the
+ * env var would be mistaken for an intentional override — handing the
+ * engine a parent-of-repo path that cannot even be created. Before
+ * accepting that, test the signature of the .env at the validated
+ * standalone repo root (the launch directory). A caller-provided override
+ * (e.g. the e2e suite's file:../db/e2e.db) matches neither signature and
+ * is still honored exactly as before.
  */
 export function runtimeDatabaseUrl(cwd: string = process.cwd()): string {
-  let envFileUrl: string | undefined;
-  const envPath = join(cwd, ".env");
-  if (existsSync(envPath)) {
-    envFileUrl = parseEnvFile(readFileSync(envPath, "utf8")).DATABASE_URL;
+  const envUrl = process.env.DATABASE_URL;
+  const envFileUrl = readDatabaseUrlFromEnvAt(cwd);
+  if (envUrl && isRelativeFileUrl(envFileUrl)) {
+    if (envUrl === bunAbsolutized(envFileUrl, cwd)) {
+      return resolveDatabaseUrl(envFileUrl);
+    }
+    const launchDir = repoRootFromStandaloneCwd(cwd);
+    if (launchDir && launchDir !== cwd) {
+      const launchEnvUrl = readDatabaseUrlFromEnvAt(launchDir);
+      if (launchEnvUrl && envUrl === bunAbsolutized(launchEnvUrl, launchDir)) {
+        // Re-anchor on the launch directory's own value through the
+        // ALREADY-VALIDATED standalone root (the schema rule — identical
+        // to resolveDatabaseUrl, but anchored exactly where bun loaded it).
+        const ref = launchEnvUrl.slice("file:".length);
+        return urlForRoot(launchDir, ref);
+      }
+    }
   }
   return effectiveDatabaseUrl({
-    envUrl: process.env.DATABASE_URL,
+    envUrl,
     envFileUrl,
     envFileDir: cwd,
   });

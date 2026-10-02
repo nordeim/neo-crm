@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (799 checks)         | `bun run test`                         |
+| Unit tests (802 checks)         | `bun run test`                         |
 | Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (799) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (802) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1347,6 +1347,22 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   extended `DASHBOARD_HEADER` contract (src/lib/page-layout.ts), with
   render pins in tests/page-layout.test.ts +
   tests/dashboard-contracts.test.ts.
+
+- **The standalone-launch database-path recovery (session-34)** — the
+  production start (`bun run start` from the repo root) could NOT open
+  the database: bun absolutizes the relative `file:` `DATABASE_URL`
+  against the LAUNCH directory's .env, but the standalone `server.js`
+  runs `process.chdir(__dirname)` into `.next/standalone` before the
+  Prisma client boots, so `runtimeDatabaseUrl()`'s bun-signature
+  comparison ran against the post-chdir cwd (whose .env is the traced
+  `.next/standalone` copy) — a mismatch that turned the launch-time
+  absolutization into an apparent "intentional override" and handed the
+  engine a parent-of-repo path (SQLITE_CANTOPEN — every db route 500'd,
+  `/api/health` reported `db:"down"`). The seam now ALSO tests the
+  signature of the .env at the validated standalone repo root (the
+  launch directory) and re-anchors through `urlForRoot()` — pinned by 3
+  new checks in tests/db-path.test.ts (the RED re-anchor + the e2e-style
+  override guard + the launch-from-standalone guard).
 
 ## Conventions that differ from defaults
 
