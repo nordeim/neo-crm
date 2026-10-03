@@ -64,7 +64,7 @@ import {
   lastActivityCe,
 } from "@/lib/constants";
 import { timeAgo } from "@/lib/format";
-import { csvFilename } from "@/lib/csv";
+import { csvFilename, parseCsv } from "@/lib/csv";
 import { toQuotedCsv } from "@/lib/entity-export";
 import type { Contact } from "@/types";
 
@@ -83,7 +83,7 @@ export default function ContactsPage() {
     deleteContact,
     updateContact,
     fetchContacts,
-    createContact,
+    importContacts,
   } = useCrmStore();
   const [search, setSearch] = React.useState("");
   // Session-28 (S28-P5): the reference's kke FILTER MODEL — checkbox
@@ -224,22 +224,25 @@ export default function ContactsPage() {
     if (!importFile) return;
     setImportBusy(true);
     try {
-      const text = await importFile.text();
-      const rows = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((r) => r.trim().length > 0);
-      const header = rows[0]?.split(",").map((h) => h.trim().toLowerCase()) ?? [];
+      // Session-38 (S38-P3): the tested parseCsv seam (RFC-4180 quotes —
+      // BOM, CRLF, embedded commas, blank-row filtering all unit-pinned
+      // in tests/csv.test.ts). The naive row.split(",") + quote-strip
+      // replace silently CORRUPTED quoted cells with commas ("Last, First"
+      // became name "Last" + a shifted email column).
+      const rows = parseCsv(await importFile.text());
+      const header = (rows[0] ?? []).map((h) => h.trim().toLowerCase());
       const idx = (name: string) => header.indexOf(name);
       if (idx("name") < 0 && idx("email") < 0) {
         setImportBusy(false);
         setImportResult({ success: false, message: "Could not map any CSV column to the target schema" });
         return;
       }
-      let created = 0;
-      for (const row of rows.slice(1)) {
-        const cells = row.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+      const inputs: Record<string, unknown>[] = [];
+      for (const cells of rows.slice(1)) {
         const name = cells[idx("name")] ?? "";
         const email = cells[idx("email")] ?? "";
         if (!name || !email) continue;
-        const res = await createContact({
+        inputs.push({
           name,
           email,
           phone: cells[idx("phone")] || undefined,
@@ -247,8 +250,10 @@ export default function ContactsPage() {
           position: cells[idx("position")] || undefined,
           source: cells[idx("source")] || "email",
         });
-        if (res.ok) created += 1;
       }
+      // Session-38 (S38-P3): the batch action — ONE slice refetch after
+      // the loop (the per-row createContact refetch was O(N²) network).
+      const created = await importContacts(inputs);
       setImportBusy(false);
       if (created > 0) {
         setImportResult({

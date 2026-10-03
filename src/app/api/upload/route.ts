@@ -50,9 +50,17 @@ export async function POST(request: Request) {
     return ERR.BAD_REQUEST("File too large (max 5MB)");
   }
 
-  const name = `${randomUUID().replace(/-/g, "")}.${ext}`;
-  const bytes = Buffer.from(await file.arrayBuffer());
-  await writeFile(join(uploadsDir(), name), bytes);
+  // Session-38 (S38-P5): the write path joins the envelope — an
+  // ENOSPC/EACCES on the uploadsDir() mkdir or the writeFile answers
+  // ERR.INTERNAL inside { ok, error } instead of a raw non-JSON 500
+  // mid-upload (the I/O face of the DB-envelope family).
+  try {
+    const name = `${randomUUID().replace(/-/g, "")}.${ext}`;
+    const bytes = Buffer.from(await file.arrayBuffer());
+    await writeFile(join(uploadsDir(), name), bytes);
 
-  return ok({ file_url: `/api/uploads/${name}` });
+    return ok({ file_url: `/api/uploads/${name}` });
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

@@ -17,14 +17,18 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (873 checks)         | `bun run test`                         |
-| Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (896 checks)         | `bun run test`                         |
+| Browser E2E (107 checks)        | `bun run test:e2e` (needs build first) |
+| The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (873) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (896) → `bun run build` → `bun run test:e2e` (107) — or the
+one-command `bun run gate` (session-38: the same chain as a package script,
+so the build always precedes the e2e boot — a leftover :3100 server would
+otherwise silently test stale code). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1474,6 +1478,51 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the duplicate fetch, it does not dedupe), SavedReport, photoUrl
   onError fallback, the 11 e2e `waitForTimeout` sleeps (on first
   observed flake), the mobile-navigation post-wipe ordering coupling.
+
+- **The silent-bug + parser + proof-coverage layer (session-38)** — the
+  re-audit verified all four session-37 claims genuine but found a
+  16-session-old silent bug inside a file s37 restructured: the signup
+  `nameFromEmail` fallback was DEAD CODE (`asString`'s non-optional form
+  returns `""` for an absent name, and `"" ?? fallback` keeps `""` — an
+  empty string is not nullish), so every UI signup (the s21
+  no-name-field contract) stored `name: ""` — the "?" avatars and the
+  blank owners dropdown. Fixed with `optional: true` on the name parse
+  (LIVE: a probe signup now stores "Probe S38"); `photoUrl` carries the
+  exact silent-coercion class the s37 FK guards closed, one field over
+  (a numeric payload SILENTLY CLEARED the photo on the contacts PUT —
+  LIVE-proven — and was silently IGNORED on the users PATCH): all three
+  writers now guard with `isBadFK` → 400 "Invalid photo URL", with the
+  trim harmonized (both families accept+store a leading-space `https://`
+  URL); the Import dialog graduated to the TESTED `parseCsv` seam
+  (RFC-4180 quoted cells with embedded commas import WHOLE — the naive
+  `row.split(",")` silently corrupted them into wrong names + shifted
+  columns) + the store's `importContacts` batch (ONE slice refetch
+  after the loop — the per-row `createContact` refetch was O(N²)
+  network); the upload POST's `uploadsDir()` mkdir + `writeFile`
+  wrapped in try/catch → `ERR.INTERNAL()` (ENOSPC/EACCES mid-upload
+  stays in the envelope); all four rate-limited auth routes run
+  `sweepRateLimits()` (it ran only from login — the signup/verify/
+  resend buckets were swept only when someone next logged in); and the
+  `bun run gate` umbrella script chains the documented gate order as
+  one package script. Proof-coverage completion: the reset POST joined
+  the containment pins (the `$transaction` can no longer slide out of
+  the try unseen — it had only the s36 presence-style pin), the
+  settings-GET pin gained its `toMatch(readSettings)` presence check
+  (it was vacuously satisfiable — `allInsideTry` returns true when the
+  regex matches nothing), the auth-family containment regex extended to
+  the wrapped reads (`findUnique`/`count`), and the health route's
+  `db.$queryRaw` got an explicit containment pin (the `DB_CALL` regex
+  misses Prisma `$`-APIs). Pinned by `tests/api-robustness.test.ts`
+  (87 checks) + `tests/gate-script.test.ts` (3) + the new quoted-comma
+  import e2e. Deferred with sharpened rationale: the non-FK
+  asString/asDate/asNumber coercion surface (dueAt/status/value/endAt —
+  silent mutation on PUT, the deliberate FK-first scope), the CSV
+  formula-injection + embedded-quote family (the byte-exact reference
+  format is itself the pinned contract — lands with the deploy-posture
+  decision), the signup admin TOCTOU race, the dead exported api.ts
+  helpers, hydrate error vs logged-out, the login/verify timing
+  side-channel, the upload MIME trust (contained: extension lock +
+  nosniff + randomUUID names).
 
 ## Conventions that differ from defaults
 

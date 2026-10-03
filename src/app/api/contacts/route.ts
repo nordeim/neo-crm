@@ -61,6 +61,12 @@ export async function POST(req: Request) {
   // (our upload flow's /api/uploads/<name> or an https:// link like the
   // reference's CDN data) — never a data:/javascript: URL or an arbitrary
   // tracker rendered to every viewer.
+  // Session-38 (S38-P2): a PRESENT non-string photoUrl (number/object/
+  // boolean) is a 400 — the same type contract the s37 FK guards enforce.
+  // It used to ride asString's optional coercion to null: a silent
+  // absence on POST (and a SILENT CLEAR on the PUT side — LIVE-proven
+  // with {"photoUrl": 999}).
+  if (isBadFK(body.photoUrl)) return ERR.BAD_REQUEST("Invalid photo URL");
   const photoUrl = asString(body.photoUrl, { optional: true, max: 500 }) ?? null;
   if (photoUrl && !photoUrl.startsWith("/api/uploads/") && !photoUrl.startsWith("https://")) {
     return ERR.BAD_REQUEST("Invalid photo URL");

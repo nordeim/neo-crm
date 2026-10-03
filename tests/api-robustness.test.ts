@@ -437,3 +437,168 @@ describe("session-37: photoUrl cap parity across the three writers (S37-P5)", ()
     expect(route("src/app/api/contacts/[id]/route.ts")).toMatch(/photoUrl,\s*\{\s*optional:\s*true,\s*max:\s*500\s*\}/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-38 pins (S38-P1..P6). The re-audit's findings: the signup
+// nameFromEmail fallback is DEAD CODE (asString's non-optional "" defeats
+// the ?? — every UI signup stores name: ""); photoUrl carries the exact
+// silent-coercion class s37 graduated for FKs (a numeric payload silently
+// CLEARS on the contacts PUT, is silently IGNORED on the users PATCH —
+// LIVE-proven); the import loop uses naive split(",") instead of the tested
+// parseCsv seam (quoted commas corrupt rows) + a full-list refetch per row;
+// the upload POST's writeFile/mkdirSync escape the envelope (raw 500s on
+// ENOSPC); sweepRateLimits runs only from login; and the proof coverage has
+// four holes (reset unpinned, settings-GET vacuous, auth reads unpinned,
+// $-APIs invisible to DB_CALL).
+// ---------------------------------------------------------------------------
+
+describe("session-38: the signup name-fallback revival (S38-P1)", () => {
+  it("the name parse is OPTIONAL so the ?? nameFromEmail fallback actually fires", () => {
+    const post = handlerBlock(route("src/app/api/auth/signup/route.ts"), "POST");
+    // The trap: asString's NON-optional form returns "" for an absent
+    // name, and "" ?? fallback keeps "" (empty string is not nullish) —
+    // the fallback has been dead since s21. The optional form returns
+    // undefined, which is nullish, so the ?? fires.
+    expect(post).toMatch(/asString\(body\.name,\s*\{\s*max:\s*80,\s*optional:\s*true\s*\}\)/);
+    expect(post).toMatch(/\?\?\s*nameFromEmail\(/);
+  });
+
+  it("the fallback helper derives a display name from the email local part", () => {
+    const src = route("src/app/api/auth/signup/route.ts");
+    expect(src).toMatch(/function nameFromEmail\(/);
+    // The fallback must survive the optional-parse fix (not be deleted
+    // as "unused" — it is the absent-name path).
+    expect(src).toMatch(/const name = asString\(body\.name/);
+  });
+});
+
+describe("session-38: the photoUrl type-guard family (S38-P2)", () => {
+  it("contacts POST rejects a present non-string photoUrl (was a silent clear)", () => {
+    const post = handlerBlock(route("src/app/api/contacts/route.ts"), "POST");
+    expect(post).toMatch(/isBadFK\(body\.photoUrl\)/);
+    expect(post).toMatch(/Invalid photo URL/);
+  });
+
+  it("contacts PUT rejects a present non-string photoUrl (LIVE-proven silent clear)", () => {
+    const put = handlerBlock(route("src/app/api/contacts/[id]/route.ts"), "PUT");
+    expect(put).toMatch(/isBadFK\(body\.photoUrl\)/);
+    expect(put).toMatch(/Invalid photo URL/);
+  });
+
+  it("users PATCH rejects a present non-string photoUrl (was a silent ignore)", () => {
+    const patch = handlerBlock(route("src/app/api/users/route.ts"), "PATCH");
+    expect(patch).toMatch(/isBadFK\(body\.photoUrl\)/);
+    expect(patch).toMatch(/Invalid photo URL/);
+  });
+
+  it("the trim is harmonized — users PATCH trims like the contacts writers (F12)", () => {
+    const patch = handlerBlock(route("src/app/api/users/route.ts"), "PATCH");
+    // Contacts trim via asString before the prefix check; users sliced
+    // raw, so " https://…" was accepted+trimmed on contacts but 400ed
+    // on the profile. Both writers now trim.
+    expect(patch).toMatch(/body\.photoUrl\.trim\(\)\.slice\(0,\s*500\)/);
+  });
+});
+
+/** Slice one store action out of the (comment-stripped) store source:
+ *  from the IMPLEMENTATION `name: async` (not the interface's type line)
+ *  to the store's action-closing `\n  },`. */
+function actionBlock(src: string, name: string): string {
+  const start = src.indexOf(`${name}: async`);
+  if (start < 0) return "";
+  const end = src.indexOf("\n  },", start);
+  return end > start ? src.slice(start, end) : src.slice(start, start + 900);
+}
+
+describe("session-38: the import parser graduation (S38-P3)", () => {
+  it("the contacts page's runImport uses the tested parseCsv seam (not naive split)", () => {
+    const src = route("src/app/(app)/contacts/contacts-page.tsx");
+    expect(src).toMatch(/parseCsv\(/);
+    // The naive parser is GONE: split(",") + the quote-strip replace
+    // corrupted quoted cells with embedded commas (wrong name, shifted
+    // email columns).
+    expect(src).not.toMatch(/row\.split\(","\)/);
+    expect(src).not.toMatch(/\^"\|"\$/);
+  });
+
+  it("runImport batches through the store's importContacts (no per-row createContact)", () => {
+    const src = route("src/app/(app)/contacts/contacts-page.tsx");
+    expect(src).toMatch(/importContacts/);
+    const run = src.slice(src.indexOf("runImport"), src.indexOf("runImport") + 1500);
+    expect(run).not.toMatch(/createContact/);
+  });
+
+  it("the store's importContacts refetches the slice exactly ONCE, after the loop", () => {
+    const block = actionBlock(store(), "importContacts");
+    expect(block).toMatch(/for\s*\(const \w+ of \w+\)/);
+    // Exactly one refetch — the O(N²) per-row createContact refetch is
+    // the regression this pin guards.
+    expect(block.match(/fetchContacts\(/g)?.length ?? 0).toBe(1);
+    // …and it comes AFTER the loop's close, not inside it.
+    expect(block).toMatch(/created \+= 1;\s*\}\s*await get\(\)\.fetchContacts\(\);/);
+  });
+});
+
+describe("session-38: the upload write envelope (S38-P5)", () => {
+  it("the upload POST's write path (uploadsDir mkdir + writeFile) is envelope-held", () => {
+    const post = handlerBlock(route("src/app/api/upload/route.ts"), "POST");
+    expect(post).toMatch(/writeFile\(/);
+    expect(post).toMatch(/uploadsDir\(/);
+    // Containment: ENOSPC/EACCES on the mkdir or the write answers
+    // ERR.INTERNAL inside { ok, error } — not a raw non-JSON 500.
+    expect(allInsideTry(post, /writeFile\(|uploadsDir\(/)).toBe(true);
+    expect(post).toMatch(/ERR\.INTERNAL/);
+  });
+});
+
+describe("session-38: the limiter sweep hygiene (S38-P6)", () => {
+  it.each([
+    "src/app/api/auth/login/route.ts",
+    "src/app/api/auth/signup/route.ts",
+    "src/app/api/auth/verify/route.ts",
+    "src/app/api/auth/resend/route.ts",
+  ])("%s sweeps the limiter buckets (the opportunistic cleanup)", (rel) => {
+    // The audit's sharpened note: the sweep ran ONLY from login, so the
+    // signup/verify/resend buckets were swept only when someone next
+    // logged in. All four rate-limited auth routes now run it (login's
+    // own placement — after the bucket read — is untouched; the sweep
+    // is opportunistic either way).
+    const src = route(rel);
+    expect(src).toMatch(/sweepRateLimits\(\);/);
+    const post = handlerBlock(src, "POST");
+    expect(post).toMatch(/sweepRateLimits\(\);/);
+  });
+});
+
+describe("session-38: the proof-coverage completion (S38-P4 — strengthening pins)", () => {
+  it("reset POST holds every deleteMany inside the envelope (containment, not presence)", () => {
+    const post = handlerBlock(route("src/app/api/reset/route.ts"), "POST");
+    expect(post).toMatch(/db\.\w+\.deleteMany\(/);
+    expect(allInsideTry(post, /db\.\w+\.deleteMany\(/)).toBe(true);
+    expect(post).toMatch(/\$transaction/);
+    expect(post).toMatch(/ERR\.INTERNAL/);
+  });
+
+  it("settings GET keeps its readSettings call (presence — the pin was vacuously satisfiable)", () => {
+    const get = handlerBlock(route("src/app/api/settings/route.ts"), "GET");
+    expect(get).toMatch(/readSettings\(/);
+    expect(allInsideTry(get, /readSettings\(/)).toBe(true);
+    expect(get).toMatch(/ERR\.INTERNAL/);
+  });
+
+  it.each([
+    "src/app/api/auth/signup/route.ts",
+    "src/app/api/auth/verify/route.ts",
+    "src/app/api/auth/resend/route.ts",
+  ])("%s: the wrapped READS are containment-pinned too (findUnique/count)", (rel) => {
+    const post = handlerBlock(route(rel), "POST");
+    expect(allInsideTry(post, /db\.user\.(create|update|findUnique|count)\(/)).toBe(true);
+  });
+
+  it("health GET's $queryRaw is containment-pinned (the DB_CALL $-API blind spot)", () => {
+    const get = handlerBlock(route("src/app/api/health/route.ts"), "GET");
+    expect(get).toMatch(/db\.\$queryRaw/);
+    expect(allInsideTry(get, /db\.\$queryRaw/)).toBe(true);
+  });
+});
+

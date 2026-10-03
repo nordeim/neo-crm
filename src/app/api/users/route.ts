@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { asString, ok, isGuarded, requireSession, ERR } from "@/lib/api";
+import { asString, ok, isBadFK, isGuarded, requireSession, ERR } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +33,13 @@ export async function PATCH(request: Request) {
   // upload flow's /api/uploads/<name> or an https:// link like the
   // reference's CDN data — never a data:/javascript: URL or an arbitrary
   // tracker rendered to every viewer.
+  // Session-38 (S38-P2): a PRESENT non-string photoUrl is a 400 — it
+  // used to match NEITHER branch and was silently IGNORED (absent
+  // semantics), the users-side face of the same silent-coercion class
+  // the contacts writers cleared on. The trim harmonizes with the
+  // contacts writers (asString trims there): a leading-space https://
+  // URL stores trimmed on BOTH surfaces now, not 400 here only.
+  if (isBadFK(body.photoUrl)) return ERR.BAD_REQUEST("Invalid photo URL");
   let photoUrl: string | null | undefined;
   if (body.photoUrl === null) photoUrl = null;
   else if (typeof body.photoUrl === "string") {
@@ -40,7 +47,7 @@ export async function PATCH(request: Request) {
     // writers use (asString max:500). The 300 truncation silently broke
     // 301–500-char https:// URLs on the profile while contacts stored
     // them whole (the s36 "normalized" claim, finally true).
-    const raw = body.photoUrl.slice(0, 500);
+    const raw = body.photoUrl.trim().slice(0, 500);
     if (!raw.startsWith("/api/uploads/") && !raw.startsWith("https://")) {
       return ERR.BAD_REQUEST("Invalid photo URL");
     }

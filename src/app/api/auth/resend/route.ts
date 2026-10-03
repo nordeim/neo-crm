@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { ok, ERR, asString } from "@/lib/api";
-import { clientKey, rateLimit } from "@/lib/rate-limit";
+import { clientKey, rateLimit, sweepRateLimits } from "@/lib/rate-limit";
 import { VERIFICATION_TTL_MS, isVerificationPending, verificationResentMessage } from "@/lib/verification";
 import { generateVerificationCode, hashVerificationCode } from "@/lib/verification-server";
 
@@ -18,6 +18,9 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   const limit = rateLimit(`resend:${clientKey(req)}`, 5, 15 * 60 * 1000);
   if (!limit.allowed) return ERR.RATE_LIMITED();
+  // Session-38 (S38-P6): the opportunistic bucket sweep (login's
+  // placement, mirrored — see the signup note).
+  sweepRateLimits();
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");

@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { ok, ERR, asString } from "@/lib/api";
 import { hashPassword } from "@/lib/auth";
-import { clientKey, rateLimit } from "@/lib/rate-limit";
+import { clientKey, rateLimit, sweepRateLimits } from "@/lib/rate-limit";
 import { VERIFICATION_TTL_MS } from "@/lib/verification";
 import { generateVerificationCode, hashVerificationCode } from "@/lib/verification-server";
 
@@ -26,6 +26,11 @@ function nameFromEmail(email: string): string {
 export async function POST(req: Request) {
   const limit = rateLimit(`signup:${clientKey(req)}`, 10, 15 * 60 * 1000);
   if (!limit.allowed) return ERR.RATE_LIMITED();
+  // Session-38 (S38-P6): the opportunistic bucket sweep — the audit
+  // found it ran ONLY from login, so the signup/verify/resend buckets
+  // were cleaned only when someone next logged in (bounded, but
+  // dishonest; login's own placement, mirrored here).
+  sweepRateLimits();
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
@@ -33,7 +38,12 @@ export async function POST(req: Request) {
   // Session-21 (S21-P4): the reference's signup form has NO name field —
   // the name is derived from the email local part. The optional body name
   // stays accepted (API compatibility) but is no longer required.
-  const name = asString(body.name, { max: 80 }) ?? nameFromEmail(asString(body.email, { max: 160 }) ?? "");
+  // Session-38 (S38-P1): the parse is OPTIONAL — asString's non-optional
+  // form returns "" for an absent name, and "" ?? fallback keeps "" (an
+  // empty string is not nullish), so the nameFromEmail fallback was DEAD
+  // CODE for 16 sessions: every UI signup stored name: "" (the "?"
+  // avatars). The optional form returns undefined, so the ?? fires.
+  const name = asString(body.name, { max: 80, optional: true }) ?? nameFromEmail(asString(body.email, { max: 160 }) ?? "");
   const email = (asString(body.email, { max: 160 }) ?? "").toLowerCase();
   const password = typeof body.password === "string" ? body.password : "";
 

@@ -81,6 +81,10 @@ export async function PUT(req: Request, { params }: Params) {
     // (our upload flow's /api/uploads/<name> or an https:// link like the
     // reference's CDN data) — never a data:/javascript: URL or an arbitrary
     // tracker rendered to every viewer.
+    // Session-38 (S38-P2): a PRESENT non-string photoUrl is a 400 — it
+    // used to ride asString's optional coercion to null: a SILENT photo
+    // CLEAR on PUT (LIVE-proven with {"photoUrl": 999} → 200 + null).
+    if (isBadFK(body.photoUrl)) return ERR.BAD_REQUEST("Invalid photo URL");
     const photoUrl = asString(body.photoUrl, { optional: true, max: 500 }) ?? null;
     if (photoUrl && !photoUrl.startsWith("/api/uploads/") && !photoUrl.startsWith("https://")) {
       return ERR.BAD_REQUEST("Invalid photo URL");

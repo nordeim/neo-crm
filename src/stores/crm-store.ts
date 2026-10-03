@@ -80,6 +80,10 @@ export interface CrmState {
   createContact: (input: Record<string, unknown>) => Promise<Result<Contact, string>>;
   updateContact: (id: string, input: Record<string, unknown>) => Promise<Result<Contact, string>>;
   deleteContact: (id: string) => Promise<Result<null, string>>;
+  // Session-38 (S38-P3): the Import dialog's batch path — serial POSTs
+  // with ONE slice refetch after the loop (createContact's per-call
+  // refetch made an N-row import O(N²) network).
+  importContacts: (inputs: Record<string, unknown>[]) => Promise<number>;
 
   createLead: (input: Record<string, unknown>) => Promise<Result<Lead, string>>;
   updateLead: (id: string, input: Record<string, unknown>) => Promise<Result<Lead, string>>;
@@ -208,6 +212,18 @@ export const useCrmStore = create<CrmState>((set, get) => ({
     const res = await call<Contact>("/api/contacts", { method: "POST", body: JSON.stringify(input) });
     if (res.ok) await get().fetchContacts();
     return res;
+  },
+  // Session-38 (S38-P3): the import batch — the reference's flow is a
+  // serial per-row create; the difference is the refetch, ONCE after
+  // the loop (the naive per-row createContact refetch was O(N²)).
+  importContacts: async (inputs) => {
+    let created = 0;
+    for (const input of inputs) {
+      const res = await call<Contact>("/api/contacts", { method: "POST", body: JSON.stringify(input) });
+      if (res.ok) created += 1;
+    }
+    await get().fetchContacts();
+    return created;
   },
   updateContact: async (id, input) => {
     const res = await call<Contact>(`/api/contacts/${id}`, { method: "PUT", body: JSON.stringify(input) });

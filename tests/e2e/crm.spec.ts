@@ -1461,6 +1461,41 @@ test("the import round-trip: file → result box → auto-close (S26-P6)", async
   await expect(page.getByText("E2E Import").first()).toBeVisible();
 });
 
+test("the import round-trip parses QUOTED cells with embedded commas (S38-P3)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "Import" }).click();
+  // A quoted cell with an embedded comma — the naive row.split(",")
+  // corrupted this into name "Quoted" + a shifted email column; the
+  // parseCsv seam (RFC-4180 quotes) keeps the cell whole.
+  await page.setInputFiles('input[type=file]', {
+    name: "e2e-quoted.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from('name,email,company,source\n"Quoted, Comma","quoted@test.local","Acme, Inc",website'),
+  });
+  await page.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(page.getByText("Successfully imported 1 contact")).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 6000 });
+  // The name renders WHOLE in the table (dual-mounted Table/Cards; scope
+  // to the first match).
+  await expect(page.getByText("Quoted, Comma").first()).toBeVisible();
+  // Cleanup: remove the probe contact via the API so later row-order
+  // assertions stand (the page.request shares the storageState context —
+  // the s35 photo-bytes precedent). Verified API-side: the page's store
+  // does not refetch after an out-of-band delete, so a DOM count here
+  // would race the stale slice (the dual-mounted Table/Cards views).
+  const res = await page.request.get("/api/contacts");
+  const body = (await res.json()) as { ok: boolean; data: Array<{ id: string; email: string }> };
+  const probe = body.data.find((c) => c.email === "quoted@test.local");
+  expect(probe).toBeDefined();
+  const del = await page.request.delete(`/api/contacts/${probe!.id}`);
+  expect(del.ok()).toBe(true);
+  const after = (await (await page.request.get("/api/contacts")).json()) as {
+    data: Array<{ email: string }>;
+  };
+  expect(after.data.find((c) => c.email === "quoted@test.local")).toBeUndefined();
+});
+
+
 // ---- Session-27: the chart-internals + Account Health / calendar layer ----------
 
 test("the Account Health tab renders the PIE + horizontal top-10 + red-tinted at-risk rows (S27-P1/P2)", async ({ page }) => {
