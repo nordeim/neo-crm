@@ -4,6 +4,7 @@ import { downloadBlob, downloadFile } from "@/lib/download";
 import * as React from "react";
 import { Bookmark, Calendar as CalendarIcon, Download, FileText, RotateCcw, Target, TrendingDown, TrendingUp, User as UserIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -290,14 +291,23 @@ export default function ReportsPage() {
             savedCount={savedCount}
             savedList={savedList}
             onSave={(name: string, columns: SavedReportColumns) => {
-              const count = saveReport({
-                name,
-                filters: { dateRange: period, stage, source: "all", status, owner },
-                columns,
-              });
-              setSavedCount(count);
-              setSavedList(listSavedReports());
-              setSaveDialogOpen(false);
+              // Session-44 (S44-P4): the saveReport family rides localStorage
+              // (saved-reports.ts setItem) — a quota/private-mode exception
+              // used to escape the React event handler uncaught (no toast,
+              // the dialog stranded open). The leads-page saveView
+              // convention: surface the storage failure.
+              try {
+                const count = saveReport({
+                  name,
+                  filters: { dateRange: period, stage, source: "all", status, owner },
+                  columns,
+                });
+                setSavedCount(count);
+                setSavedList(listSavedReports());
+                setSaveDialogOpen(false);
+              } catch {
+                toast.error("Could not save report", "Browser storage is unavailable.");
+              }
             }}
             onLoad={(report: SavedReport) => {
               // Session-32 (S32-P4): normalize the stored dateRange — stale

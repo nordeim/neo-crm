@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1050 checks)        | `bun run test`                         |
+| Unit tests (1080 checks)        | `bun run test`                         |
 | Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1050) → `bun run build` → `bun run test:e2e` (108) — or the
+`bun run test` (1080) → `bun run build` → `bun run test:e2e` (108) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1716,6 +1716,42 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   + stale results; the catch resets results + dropdown); P5 the events
   GET `from`/`to` window params reject garbage (400 "Invalid from/to
   date" — the filter used to silently DROP, returning everything).
+
+- **The health/status + clear-parity layer (session-44)** — the last
+  dead schema field + the UI clear family. `Account.health` was
+  carried by the schema, wire type, seed and the badge/CSV readers
+  but silently dropped by BOTH accounts verbs (LIVE-proven: POST
+  `{"health":"At Risk"}` → 200 + "Healthy" — the stored badge frozen
+  at its seed value forever; the N-43a shape one model over) — now
+  accepted + membership-validated on POST + PUT against the new
+  `ACCOUNT_HEALTH_STATUSES` constant. The contacts POST `status`
+  silent drop closed (the PUT has accepted it since s42-P4; every
+  contact was created "active" regardless of payload — the
+  N-42b PUT-accepts-POST-drops mirror). THE UI CLEAR-PARITY SWEEP
+  (F-44a, parity-PROVEN live both directions on the reference: the
+  reference's edit dialog PERSISTS clears — a cleared description
+  stays "", Related To "None" clears back to the placeholder; our
+  dual-verb dialogs mapped emptied fields to `undefined`, which
+  JSON.stringify DROPS, so the PUT's `"X" in body` branch skipped
+  and the OLD value persisted while the save toasted success):
+  21 payload mappings across all five dual-verb dialogs (account
+  industry/email/phone/website/annualRevenue/employees/ownerId,
+  contact accountId, lead email/phone/company/source +
+  expectedCloseDate/nextFollowUp, event description/location/
+  relatedType-"none"/endAt, activity notes/relatedType/relatedName)
+  now map empty → null (and "none" → "") — the EntityEditDialog
+  pages' own convention applied to the layer that missed it;
+  behavior-identical on create (null/"" ≡ absent through the
+  optional parses). Plus: the reports saveReport localStorage write
+  joined the leads-page saveView guard convention (a quota/private-
+  mode failure toasts "Could not save report" instead of throwing
+  uncaught through the React event handler); the topbar search
+  resets on a non-ok envelope too (a JSON 401/500 body no longer
+  silently strands stale results — only network rejections hit the
+  s43 catch); and the reports' dead account include removed (the
+  leads findMany fetched `account: {select: {name: true}}` only for
+  serializeLead to overwrite it with `account: null` — a wasted LEFT
+  JOIN on every reports read; the owner include stays).
 
 ## Conventions that differ from defaults
 

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadString, isBadNumber, isBadBool, isGuarded, requireSession } from "@/lib/api";
-import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
+import { ACCOUNT_STATUSES, ACCOUNT_TIERS, ACCOUNT_HEALTH_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +73,19 @@ export async function PUT(req: Request, { params }: Params) {
     const tier = asString(body.tier);
     if (!tier || !(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Invalid tier");
     data.tier = tier;
+  }
+  // Session-44 (S44-P1): health joins the PUT vocabulary — the badge's
+  // stored value was frozen at its seed forever (neither verb accepted a
+  // health payload). Present "" is the sibling enums' 400 (a required
+  // enum on a defaulted column — a bad value, not a clear); absent is
+  // no-change.
+  if ("health" in body) {
+    if (isBadString(body.health)) return ERR.BAD_REQUEST("Invalid health status");
+    const health = asString(body.health, { max: 20 });
+    if (!health || !(ACCOUNT_HEALTH_STATUSES as readonly string[]).includes(health)) {
+      return ERR.BAD_REQUEST("Invalid health status");
+    }
+    data.health = health;
   }
 
   // Session-35 (S35-P5): FK existence guard on PUT — the POST-side

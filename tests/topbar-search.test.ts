@@ -50,3 +50,19 @@ describe("session-43: the topbar search fetch is wrapped (S43-P4)", () => {
     expect(timer).toMatch(/setResults\(null\)/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-44 (S44-P5): the envelope-reset — the N-44g micro. The s43-P4
+// catch only fired on a NETWORK-level rejection; a JSON 401/500 envelope
+// (body?.ok falsy) silently no-oped, leaving stale results open. The
+// catch's reset now applies to the envelope path too.
+// ---------------------------------------------------------------------------
+
+describe("session-44: the topbar search resets on a non-ok envelope too (S44-P5)", () => {
+  it("the !body?.ok path resets BOTH the results and the dropdown (the catch's own reset)", () => {
+    const src = topbar();
+    expect(src).toMatch(
+      /if\s*\(body\?\.ok\)\s*\{[\s\S]*?\}\s*else\s*\{[\s\S]*?setResults\(null\);[\s\S]*?setOpen\(false\);[\s\S]*?\}/,
+    );
+  });
+});

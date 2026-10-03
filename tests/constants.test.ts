@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ACCOUNT_HEALTH_STATUSES,
   AGING_BUCKETS,
   CHART_COLORS,
   CONTACT_SOURCES,
@@ -160,5 +161,16 @@ describe("session-10 vocabulary pins (reports/chart internals)", () => {
       "negotiation",
       "closed_won",
     ]);
+  });
+});
+
+
+// Session-44 (S44-P1): the Account.health vocabulary — the route-side
+// membership constant for the last dead schema field (the schema default
+// "Healthy", the seed's three values, the badge map's three keys — one
+// named vocabulary instead of three anonymous literals).
+describe("session-44: the account health vocabulary (S44-P1)", () => {
+  it("ACCOUNT_HEALTH_STATUSES matches the seed + the badge map exactly", () => {
+    expect(ACCOUNT_HEALTH_STATUSES).toEqual(["Healthy", "At Risk", "Needs Attention"]);
   });
 });

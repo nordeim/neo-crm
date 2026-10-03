@@ -1163,3 +1163,84 @@ describe("session-43: events GET from/to reject garbage (S43-P5)", () => {
     expect(get).toMatch(/Invalid to date/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-44 (S44-P1): Account.health — the last dead schema field
+// end-to-end (the N-43a shape one model over). The schema
+// (prisma/schema.prisma:62, default "Healthy"), the wire type
+// (types/index.ts:31), the seed ("Healthy"/"At Risk"/"Needs Attention")
+// and two UI readers (the accounts-page badge + the CSV Health column)
+// all carried it, but NEITHER accounts verb accepted it — LIVE-proven:
+// POST {"name":"…","health":"At Risk"} → 200 + health:"Healthy"; PUT
+// {"health":"Needs Attention"} → 200 + health:"Healthy" (the payload
+// silently dropped on BOTH verbs; the stored column frozen at its seed
+// value forever). The fix: the ACCOUNT_HEALTH_STATUSES vocabulary +
+// both verbs' branches (the accounts status/tier shapes).
+// ---------------------------------------------------------------------------
+
+describe("session-44: accounts accept health on both verbs (S44-P1)", () => {
+  it("the POST guards + stores health (absent keeps the schema default)", () => {
+    const post = handlerBlock(route("src/app/api/accounts/route.ts"), "POST");
+    expect(post).toMatch(/isBadString\(body\.health\)/);
+    expect(post).toMatch(/Invalid health status/);
+    expect(post).toMatch(/ACCOUNT_HEALTH_STATUSES/);
+    // The create-default semantics (the priority shape): absent/""/null →
+    // "Healthy", a present garbage string 400s.
+    expect(post).toMatch(/asString\(body\.health,\s*\{\s*optional:\s*true,\s*max:\s*20\s*\}\)\s*\?\?\s*"Healthy"/);
+    expect(post).toMatch(/^\s*health,/m);
+  });
+
+  it("the PUT branch validates + assigns (present \"\" is a 400, absent is no-change)", () => {
+    const put = handlerBlock(route("src/app/api/accounts/[id]/route.ts"), "PUT");
+    expect(put).toMatch(/"health" in body/);
+    expect(put).toMatch(/isBadString\(body\.health\)/);
+    expect(put).toMatch(/Invalid health status/);
+    expect(put).toMatch(/ACCOUNT_HEALTH_STATUSES/);
+    // The s43-P2 narrow shape: a non-optional parse never returns
+    // undefined, so `!health ||` is the live tsc narrow.
+    expect(put).toMatch(/!health \|\|/);
+    expect(put).toMatch(/data\.health = health/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-44 (S44-P2): contacts POST silently dropped `status` — the PUT
+// accepts it (s42-P4: isBadString + CONTACT_STATUSES membership, present
+// "" is a 400) but the POST had no branch and no create-data field —
+// LIVE-proven: POST {"name":"…","status":"inactive"} → 200 +
+// status:"active" (every contact created "active" regardless of payload;
+// the N-42b PUT-accepts-POST-drops mirror). The fix: the PUT's own
+// vocabulary adapted to create-default semantics (the POST priority
+// shape — absent/""/null keep "active", a present garbage string 400s).
+// ---------------------------------------------------------------------------
+
+describe("session-44: contacts POST accepts status (S44-P2)", () => {
+  it("the POST guards + stores status (absent keeps the schema default)", () => {
+    const post = handlerBlock(route("src/app/api/contacts/route.ts"), "POST");
+    expect(post).toMatch(/isBadString\(body\.status\)/);
+    expect(post).toMatch(/Invalid status/);
+    expect(post).toMatch(/CONTACT_STATUSES/);
+    expect(post).toMatch(/asString\(body\.status,\s*\{\s*optional:\s*true,\s*max:\s*20\s*\}\)\s*\?\?\s*"active"/);
+    expect(post).toMatch(/^\s*status,/m);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-44 (S44-P6): the dead account include — the reports leads
+// findMany fetched `account: {select: {name: true}}` but serializeLead
+// unconditionally overwrote it with `account: null`, so the fetched name
+// was NEVER delivered (the table renders name/source/stage only) — a
+// wasted LEFT JOIN on every reports read. The owner include STAYS (it
+// feeds the serializer's consumers).
+// ---------------------------------------------------------------------------
+
+describe("session-44: the reports leads findMany drops the dead account include (S44-P6)", () => {
+  it("the leads query keeps the owner include and no longer fetches the discarded account name", () => {
+    const src = route("src/app/api/reports/route.ts");
+    const leadQueryAt = src.indexOf("db.lead.findMany");
+    expect(leadQueryAt).toBeGreaterThanOrEqual(0);
+    const leadQuery = src.slice(leadQueryAt, leadQueryAt + 400);
+    expect(leadQuery).toMatch(/owner:\s*\{\s*select:\s*\{\s*id:\s*true,\s*name:\s*true,\s*avatarColor:\s*true\s*\}\s*\}/);
+    expect(leadQuery).not.toMatch(/account:\s*\{/);
+  });
+});

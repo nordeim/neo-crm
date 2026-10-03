@@ -331,6 +331,12 @@ export const ACCOUNT_HEALTH_BADGE: Record<string, string> = {
   "Needs Attention": "bg-red-100 text-red-800",
 };
 
+// Session-44 (S44-P1): the route-side membership vocabulary for the
+// account health field — the seed's three values and the badge map's
+// three keys, one named constant instead of anonymous literals (the
+// ACCOUNT_STATUSES pattern).
+export const ACCOUNT_HEALTH_STATUSES = ["Healthy", "At Risk", "Needs Attention"] as const;
+
 // The ce() last-activity formatter (bundle-extracted): Never / Today /
 // "1 day ago" / "N days ago" (<30) / "N months ago" (floor 30). The
 // reference computes it with moment; this is the pure equivalent.

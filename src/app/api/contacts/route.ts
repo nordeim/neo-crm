@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { ok, ERR, asString, asFKId, isBadFK, isBadString, isGuarded, requireSession } from "@/lib/api";
-import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, ENGAGEMENT_LEVELS, COMPANY_SIZES } from "@/lib/constants";
+import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, ENGAGEMENT_LEVELS, COMPANY_SIZES, CONTACT_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +76,17 @@ export async function POST(req: Request) {
   if (companySize && !(COMPANY_SIZES as readonly string[]).includes(companySize)) {
     return ERR.BAD_REQUEST("Invalid company size");
   }
+  // Session-44 (S44-P2): status joins the POST — the PUT has accepted it
+  // since s42-P4, but the POST silently dropped it (LIVE-proven:
+  // {"status":"inactive"} → 200 + "active"; every contact created
+  // "active" regardless of payload). The create-default semantics (the
+  // priority shape): absent/""/null keep "active", a present garbage
+  // string 400s.
+  if (isBadString(body.status)) return ERR.BAD_REQUEST("Invalid status");
+  const status = asString(body.status, { optional: true, max: 20 }) ?? "active";
+  if (!(CONTACT_STATUSES as readonly string[]).includes(status)) {
+    return ERR.BAD_REQUEST("Invalid status");
+  }
   // Session-36 (S36-P4): photoUrl accepts only the documented URL shapes
   // (our upload flow's /api/uploads/<name> or an https:// link like the
   // reference's CDN data) — never a data:/javascript: URL or an arbitrary
@@ -127,6 +138,7 @@ export async function POST(req: Request) {
         role,
         engagementLevel,
         companySize,
+        status,
         photoUrl,
         accountId,
         ownerId,

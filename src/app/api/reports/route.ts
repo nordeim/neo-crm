@@ -95,7 +95,6 @@ export async function GET(req: Request) {
           where: leadWhere,
           include: {
             owner: { select: { id: true, name: true, avatarColor: true } },
-            account: { select: { name: true } },
           },
           orderBy: { createdAt: "desc" },
         }),

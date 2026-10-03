@@ -70,6 +70,13 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
         if (body?.ok) {
           setResults(body.data);
           setOpen(true);
+        } else {
+          // Session-44 (S44-P5): the envelope path resets too — a JSON
+          // 401/500 envelope (body?.ok falsy) used to silently no-op,
+          // leaving stale results open (only a network-level rejection
+          // hit the catch below).
+          setResults(null);
+          setOpen(false);
         }
       } catch {
         setResults(null);

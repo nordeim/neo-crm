@@ -150,16 +150,16 @@ function AccountForm({
     setPending(true);
     const payload = {
       name: form.name,
-      industry: form.industry || undefined,
-      email: form.email || undefined,
-      phone: form.phone || undefined,
-      website: form.website || undefined,
-      annualRevenue: form.annualRevenue ? Number(form.annualRevenue) : undefined,
-      employees: form.employees ? Number(form.employees) : undefined,
+      industry: form.industry || null,
+      email: form.email || null,
+      phone: form.phone || null,
+      website: form.website || null,
+      annualRevenue: form.annualRevenue ? Number(form.annualRevenue) : null,
+      employees: form.employees ? Number(form.employees) : null,
       tier: form.tier,
       status: form.status,
       isKey: form.isKey,
-      ownerId: form.ownerId || undefined,
+      ownerId: form.ownerId || null,
     };
     const res = account ? await updateAccount(account.id, payload) : await createAccount(payload);
     setPending(false);
@@ -458,8 +458,8 @@ function ContactForm({
     }
     setPending(true);
     const res = contact
-      ? await updateContact(contact.id, { ...form, accountId: form.accountId || undefined })
-      : await createContact({ ...form, accountId: form.accountId || undefined });
+      ? await updateContact(contact.id, { ...form, accountId: form.accountId || null })
+      : await createContact({ ...form, accountId: form.accountId || null });
     setPending(false);
     if (res.ok) {
       toast.success(contact ? "Contact updated" : "Contact created", form.name);
@@ -745,14 +745,14 @@ function LeadForm({
     setPending(true);
     const payload = {
       name: form.name,
-      email: form.email || undefined,
-      phone: form.phone || undefined,
-      company: form.company || undefined,
+      email: form.email || null,
+      phone: form.phone || null,
+      company: form.company || null,
       value: form.value ? Number(form.value) : 0,
       stage: form.stage,
-      source: form.source || undefined,
-      expectedCloseDate: form.expectedCloseDate ? new Date(form.expectedCloseDate).toISOString() : undefined,
-      nextFollowUp: form.nextFollowUp ? new Date(form.nextFollowUp).toISOString() : undefined,
+      source: form.source || null,
+      expectedCloseDate: form.expectedCloseDate ? new Date(form.expectedCloseDate).toISOString() : null,
+      nextFollowUp: form.nextFollowUp ? new Date(form.nextFollowUp).toISOString() : null,
     };
     const res = lead ? await updateLead(lead.id, payload) : await createLead(payload);
     setPending(false);
@@ -1032,13 +1032,13 @@ function EventForm({
     setPending(true);
     const payload = {
       title: form.title,
-      description: form.description || undefined,
+      description: form.description || null,
       type: form.type,
       status: form.status,
       startAt: new Date(form.startAt).toISOString(),
-      endAt: form.endAt ? new Date(form.endAt).toISOString() : undefined,
-      location: form.location || undefined,
-      relatedType: form.relatedType === "none" ? undefined : form.relatedType,
+      endAt: form.endAt ? new Date(form.endAt).toISOString() : null,
+      location: form.location || null,
+      relatedType: form.relatedType === "none" ? "" : form.relatedType,
     };
     const res = event ? await updateEvent(event.id, payload) : await createEvent(payload);
     setPending(false);
@@ -1214,12 +1214,12 @@ function ActivityForm({
     const payload = {
       type: form.type,
       subject: form.subject,
-      notes: form.notes || undefined,
+      notes: form.notes || null,
       dueAt: new Date(form.dueAt).toISOString(),
       status: form.status,
       priority: form.priority,
-      relatedType: form.relatedType || undefined,
-      relatedName: form.relatedName || undefined,
+      relatedType: form.relatedType || null,
+      relatedName: form.relatedName || null,
     };
     const res = activity ? await updateActivity(activity.id, payload) : await createActivity(payload);
     setPending(false);

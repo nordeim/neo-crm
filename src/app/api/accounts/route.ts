@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isBadString, isBadBool, isGuarded, requireSession } from "@/lib/api";
-import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
+import { ACCOUNT_STATUSES, ACCOUNT_TIERS, ACCOUNT_HEALTH_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +43,17 @@ export async function POST(req: Request) {
   const status = asString(body.status, { optional: true }) ?? "active";
   if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
 
+  // Session-44 (S44-P1): the last dead schema field — health was carried
+  // by the schema + wire type + seed + the badge/CSV readers but silently
+  // dropped on BOTH verbs (LIVE-proven: POST {"health":"At Risk"} → 200 +
+  // "Healthy"). The create-default semantics (the status shape): absent/
+  // ""/null keep the schema default, a present garbage string 400s.
+  if (isBadString(body.health)) return ERR.BAD_REQUEST("Invalid health status");
+  const health = asString(body.health, { optional: true, max: 20 }) ?? "Healthy";
+  if (!(ACCOUNT_HEALTH_STATUSES as readonly string[]).includes(health)) {
+    return ERR.BAD_REQUEST("Invalid health status");
+  }
+
   // Session-36 (S36-P2): the FK guard + create are envelope-held now.
   // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
   // coercion to null; the dead asDate import removed.
@@ -80,6 +91,7 @@ export async function POST(req: Request) {
         tier,
         isKey: body.isKey === true,
         status,
+        health,
         ownerId,
         lastActivityAt: new Date(),
       },
