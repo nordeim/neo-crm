@@ -4,10 +4,9 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Mail, Search } from "lucide-react";
 import {
-  Dropdown,
-  DropdownContent,
-  DropdownItem,
-  DropdownTrigger,
+  // Session-47 (S47-P4, N-47g): the Popover-based Dropdown family left
+  // this import block when the account menu migrated to the stock Menu*
+  // primitives — dead weight, lint-invisible (no-unused-vars off).
   Menu,
   MenuContent,
   MenuItem,

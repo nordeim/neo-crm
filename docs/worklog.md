@@ -142,3 +142,19 @@ Work Log:
 
 Stage Summary:
 - PUSHED: session-26 commit on main -> git@github.com:nordeim/neo-crm.git via the SSH wrapper; all suites green (525 unit / 87 e2e); docs at SKILL v1.23.0; the reference's import path (its base44 AI-extraction platform dependency) deliberately replaced by the local CSV parse — documented divergence
+
+---
+Task ID: 47 (repo)
+Agent: main (Super Z)
+Task: Session 47 — the export-rewire + vocabulary + feedback layer (the F-47 audit quartet): the dashboard's five dead export affordances rewired to the client-side entity-export family, the insights icon vocabulary, the leads inline-edit debounced feedback, the topbar import hygiene
+
+Work Log:
+- Fresh clone (sandbox reset); baseline gate green (lint 0/0 · tsc · 1119/1119); drift sweep 43rd clean (md5 identical, 18th stable); reference mobile-nav defect stands, our drawer verified all directions, zero 390px overflow ×9 routes, no Tailwind v4 bug
+- Dual audits (47-a: the seven s46 families GENUINE, pins mechanically non-vacuous in a pre-fix worktree, zero regressions; 47-b: zero graduations, 13 ledger items + 4 pointers re-confirmed) + manual validation of every headline claim at file:line (incl. the reference bundle decode: its dashboard trio carries NO onClick and its activity types are Capitalized — both parity facts that shaped the fixes)
+- RED: 11 failing pins + 1 happy-path regression guard across 4 new suites (dashboard-export 6, insights-vocabulary 2, leads-inline-feedback 3, topbar-import-hygiene 1); all 1119 pre-existing green through RED
+- GREEN: the five dashboard affordances → the pages' own client-side builders verbatim (leads_/contacts_/accounts_/activity_ ISO files, zero /api/export references, one new download e2e); the six insights comparisons lowercased (tints + icon map verbatim); the three leads arrows chained into one 500 ms debounced failure toast + unmount cleanup; the topbar dead Dropdown import block removed
+- Gate: lint 0/0 · tsc 0 · 1131/1131 unit (67 suites) · build clean · 109/109 e2e fresh CI=1 (the new dashboard-export e2e #77); LIVE: four menu downloads + the one-click primary with the URL staying /, the green Phone icon on the seeded call (was all-purple), the offline burst → exactly ONE toast, zero residue 15/24/10/23/12
+- Screenshots 02/11/12 + 55-insights-activity-icons NEW (02+55 VLM-verified); docs realigned (README 1240, AGENTS 1131/109, CLAUDE 1131, PAD s47 row/67 suites, SKILL v1.44.0 §16am, session_87.md, the plan's execution record, both worklogs)
+
+Stage Summary:
+- SHIPPED: session-47 commit on main via the SSH wrapper (key shredded after) — the dashboard exports alive again after 18 dead sessions, the insights icons matched to our vocabulary, the leads inline edits now feedback-complete, the e2e coverage gap closed

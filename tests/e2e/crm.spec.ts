@@ -1403,6 +1403,39 @@ test("the contacts page export downloads the quoted 7-column CSV (S26-P5)", asyn
   expect(body.split("\n")[0]).toBe('"Name","Email","Phone","Company","Position","Status","Source"');
 });
 
+test("the dashboard export trio downloads the client-side CSVs (S47-P1)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  // Let the shell bootstrap hydrate the entity slices (the builders map
+  // the store's lists — at zero rows the guards would no-op).
+  await page.waitForTimeout(600);
+  // The outline Export opens the menu; its Leads item fires the leads
+  // builder (the s29 leads-page convention: leads_ISO.csv, unquoted
+  // header + quoted value cells). The URL must STAY / — the pre-S47-P1
+  // wiring navigated the browser to the raw 400 JSON body.
+  const menuDownloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export" }).first().click();
+  await page.getByRole("button", { name: "Leads" }).click();
+  const menuDownload = await menuDownloadPromise;
+  expect(menuDownload.suggestedFilename()).toMatch(/^leads_\d{4}-\d{2}-\d{2}\.csv$/);
+  const menuPath = await menuDownload.path();
+  const { readFileSync } = await import("node:fs");
+  const menuBody = readFileSync(menuPath!, "utf8");
+  expect(menuBody.split("\n")[0]).toBe(
+    "Name,Email,Phone,Company,Value,Status,Source,Next Follow-up",
+  );
+  expect(menuBody.split("\n")[1]).toMatch(/^"/);
+  // The primary (filled) Export is the one-click leads export — the
+  // documented job (dashboard-contracts.test.ts:284-291).
+  const directDownloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export" }).last().click();
+  const directDownload = await directDownloadPromise;
+  expect(directDownload.suggestedFilename()).toMatch(/^leads_\d{4}-\d{2}-\d{2}\.csv$/);
+  // No navigation happened — the dashboard is still the page.
+  expect(page.url()).toContain("/");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+});
+
 test("the accounts page export downloads the quoted 10-column CSV incl. Health (S26-P5)", async ({ page }) => {
   await page.goto("/accounts");
   await expect(page.getByRole("heading", { name: "Accounts" })).toBeVisible();

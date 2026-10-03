@@ -1,6 +1,9 @@
 "use client";
 
-import { downloadFile } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
+import { csvFilename } from "@/lib/csv";
+import { entityDumpCsv, entityExportFilename, toQuotedCsv, unquotedHeaderCsv } from "@/lib/entity-export";
+import { toDateInputValue } from "@/lib/lead-filters";
 import {
   DASHBOARD_CARD,
   DASHBOARD_HEADER,
@@ -44,7 +47,7 @@ import { formatCompactCurrency } from "@/lib/format";
 type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
 export default function DashboardPage() {
-  const { dashboard, hydrated, fetchDashboard } = useCrmStore();
+  const { dashboard, hydrated, fetchDashboard, leads, contacts, accounts, activities } = useCrmStore();
   const [stage, setStage] = React.useState("all");
   const [source, setSource] = React.useState("all");
   const [search, setSearch] = React.useState("");
@@ -77,6 +80,68 @@ export default function DashboardPage() {
   }, [dashboard, stage, source, search]);
 
   const k = dashboard?.kpis;
+
+  // Session-47 (S47-P1, F-47a): the dashboard export rewire — the five
+  // affordances rode downloadFile("/api/export?type=…&download=1"), dead
+  // since the s29 re-scope (the route answers type=report only; every
+  // entity click NAVIGATED the browser to the raw 400 JSON body). The
+  // reference's own header trio is dead (no onClick — bundle-verified);
+  // ours is the documented functional superset, now wired to the
+  // CLIENT-SIDE entity-export family — the pages' own s26/s29
+  // conventions verbatim: the builders, the filenames, the zero-guards.
+  // All four slices are hydrated by the shell bootstrap.
+  function exportLeadsCsv() {
+    const header = ["Name", "Email", "Phone", "Company", "Value", "Status", "Source", "Next Follow-up"];
+    const rows = leads.map((l) => [
+      l.name,
+      l.email || "",
+      l.phone || "",
+      l.company || "",
+      String(l.value || 0),
+      l.stage,
+      l.source || "",
+      toDateInputValue(l.nextFollowUp),
+    ]);
+    downloadBlob(unquotedHeaderCsv(header, rows), entityExportFilename("Leads"), "text/csv");
+  }
+
+  function exportContactsCsv() {
+    if (contacts.length === 0) return;
+    const header = ["Name", "Email", "Phone", "Company", "Position", "Status", "Source"];
+    const rows = contacts.map((c) => [
+      c.name || "",
+      c.email || "",
+      c.phone || "",
+      c.company || "",
+      c.position || "",
+      c.status || "",
+      c.source || "",
+    ]);
+    downloadBlob(toQuotedCsv(header, rows), csvFilename("contacts"), "text/csv");
+  }
+
+  function exportAccountsCsv() {
+    if (accounts.length === 0) return;
+    const header = ["Name", "Industry", "Phone", "Email", "Website", "Annual Revenue", "Employees", "Status", "Tier", "Health"];
+    const rows = accounts.map((a) => [
+      a.name || "",
+      a.industry || "",
+      a.phone || "",
+      a.email || "",
+      a.website || "",
+      String(a.annualRevenue || ""),
+      String(a.employees || ""),
+      a.status || "",
+      a.tier || "",
+      a.health || "",
+    ]);
+    downloadBlob(toQuotedCsv(header, rows), csvFilename("accounts"), "text/csv");
+  }
+
+  function exportActivitiesCsv() {
+    if (activities.length === 0) return;
+    downloadBlob(entityDumpCsv(activities), entityExportFilename("Activity"), "text/csv");
+  }
 
   return (
     // Session-16 (S16-P2): the page owns its padding (the shell-level
@@ -117,10 +182,10 @@ export default function DashboardPage() {
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">
-                <DropdownItem onClick={() => downloadFile("/api/export?type=leads&download=1")}>Leads</DropdownItem>
-                <DropdownItem onClick={() => downloadFile("/api/export?type=contacts&download=1")}>Contacts</DropdownItem>
-                <DropdownItem onClick={() => downloadFile("/api/export?type=accounts&download=1")}>Accounts</DropdownItem>
-                <DropdownItem onClick={() => downloadFile("/api/export?type=activities&download=1")}>Activities</DropdownItem>
+                <DropdownItem onClick={exportLeadsCsv}>Leads</DropdownItem>
+                <DropdownItem onClick={exportContactsCsv}>Contacts</DropdownItem>
+                <DropdownItem onClick={exportAccountsCsv}>Accounts</DropdownItem>
+                <DropdownItem onClick={exportActivitiesCsv}>Activities</DropdownItem>
               </DropdownContent>
             </Dropdown>
             {/* Session-8 (S8-1): the reference's primary Export renders its
@@ -129,9 +194,7 @@ export default function DashboardPage() {
             <Button
               variant="default"
               size="sm"
-              onClick={() => {
-                downloadFile("/api/export?type=leads&download=1");
-              }}
+              onClick={exportLeadsCsv}
             >
               <Download className="h-4 w-4 mr-2" />
               {DASHBOARD_HEADER.primaryExportLabel}

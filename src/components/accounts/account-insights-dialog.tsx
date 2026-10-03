@@ -132,20 +132,28 @@ export function AccountInsightsDialog({
             {accountActivities.length === 0 ? (
               <p className="text-center text-gray-500 py-8">No recent activities</p>
             ) : (
+              /* Session-47 (S47-P2, F-47b): the icon comparisons match OUR
+               * lowercase Activity.type vocabulary (ACTIVITY_TYPES — the
+               * seed and every other surface lowercase). The reference's
+               * own dialog compares Capitalized "Email"/"Call" because ITS
+               * storage is Capitalized (bundle: ["Call","Email","Meeting",
+               * "Task","Note"]); mirrored verbatim the comparisons were
+               * dead here — every row fell to the purple CalendarDays
+               * fallback. The tint classes + icon mapping stay verbatim. */
               accountActivities.slice(0, 5).map((a) => (
                 <div key={a.id} className="flex items-start gap-3 p-3 border rounded-lg">
                   <div
                     className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      a.type === "Email"
+                      a.type === "email"
                         ? "bg-blue-100 text-blue-600"
-                        : a.type === "Call"
+                        : a.type === "call"
                           ? "bg-green-100 text-green-600"
                           : "bg-purple-100 text-purple-600"
                     }`}
                   >
-                    {a.type === "Email" ? (
+                    {a.type === "email" ? (
                       <Mail className="w-5 h-5" />
-                    ) : a.type === "Call" ? (
+                    ) : a.type === "call" ? (
                       <Phone className="w-5 h-5" />
                     ) : (
                       <CalendarDays className="w-5 h-5" />

@@ -17,15 +17,15 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1119 checks)        | `bun run test`                         |
-| Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1131 checks)        | `bun run test`                         |
+| Browser E2E (109 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1119) → `bun run build` → `bun run test:e2e` (108) — or the
+`bun run test` (1131) → `bun run build` → `bun run test:e2e` (109) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1826,6 +1826,37 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `DropdownContent` itself (`e.stopPropagation()` composed after
   `{...props}`; item handlers unaffected, LIVE-verified via View
   Insights).
+
+- **The export-rewire + vocabulary + feedback layer (session-47)** —
+  the F-47 audit quartet. The dashboard export rewire (F-47a, MED:
+  the five affordances — the outline Export's four menu items + the
+  primary Export — rode `downloadFile("/api/export?type=…")`, dead
+  since the s29 route re-scope 400s every non-report type, so every
+  click NAVIGATED the browser to the raw 400 JSON body; the
+  reference's own trio is dead — bundle-verified — ours is the
+  documented functional superset): all five now build CLIENT-SIDE
+  CSVs via the pages' own conventions verbatim (leads:
+  `unquotedHeaderCsv` 8-col `leads_ISO.csv`; contacts:
+  `toQuotedCsv` 7-col `contacts_ISO.csv`; accounts: `toQuotedCsv`
+  10-col `accounts_ISO.csv`; activities: the settings raw-dump
+  `activity_ISO.csv`) — zero `/api/export` references remain, and a
+  NEW download e2e closes the coverage gap that hid the bug for 18
+  sessions. The insights icon vocabulary (F-47b: the dialog compared
+  Capitalized `"Email"`/`"Call"` against our lowercase storage —
+  every activity row fell to the purple CalendarDays fallback; the
+  REFERENCE stores Capitalized types so ITS comparisons match ITS
+  storage): the six comparison sites lowercased, the tint classes +
+  icon mapping verbatim — email/call now render their blue Mail /
+  green Phone icons. The leads inline-edit feedback (F-47f: the three
+  s29-P2 onChange arrows called `updateLead` fire-and-forget — a
+  failed PUT silently reverted the user's edit; missed by the s46
+  census because arrows, not async/awaits): the three sites chain
+  `.then(onLeadEditResult)` into ONE shared 500 ms debounced failure
+  toast (the s46-P2 lesson — a failing per-keystroke burst on the
+  value input collapses into a single "Could not update lead"), with
+  an unmount cleanup. The topbar hygiene (N-47g): the dead Dropdown
+  import block removed (only the Menu* family is used; lint-invisible
+  because no-unused-vars is off).
 
 ## Conventions that differ from defaults
 

@@ -116,6 +116,24 @@ export default function LeadsPage() {
     return () => clearTimeout(t);
   }, []);
 
+  // Session-47 (S47-P3, F-47f): the inline-edit failure feedback — the
+  // s46-P1 convention adapted to the fire-and-forget onChange arrows (the
+  // s46 census missed them: arrows, not async/await sites; a failed PUT
+  // silently reverted via updateLead's unconditional refetch — the user's
+  // edit vanished). ONE shared 500 ms trailing window: the value input
+  // mutates PER KEYSTROKE and a failing burst must not toast per
+  // keystroke (the s46-P2 DefaultsEditor lesson) — the burst collapses
+  // into a single "Could not update lead".
+  const leadEditFailTimer = React.useRef<number | undefined>(undefined);
+  const onLeadEditResult = (res: { ok: boolean; error?: string }) => {
+    if (res.ok) return;
+    window.clearTimeout(leadEditFailTimer.current);
+    leadEditFailTimer.current = window.setTimeout(() => {
+      toast.error("Could not update lead", res.error);
+    }, 500);
+  };
+  React.useEffect(() => () => window.clearTimeout(leadEditFailTimer.current), []);
+
   // Session-29 (S29-P3, live-verified): Save View fires the NATIVE
   // prompt("Enter view name:") — the s8 "inert" pin was the s26
   // native-dialog auto-dismiss hazard. The current filter set is saved
@@ -531,7 +549,9 @@ export default function LeadsPage() {
                       <Input
                         type="number"
                         value={l.value || ""}
-                        onChange={(e) => updateLead(l.id, { value: parseFloat(e.target.value) || 0 })}
+                        onChange={(e) => {
+                          void updateLead(l.id, { value: parseFloat(e.target.value) || 0 }).then(onLeadEditResult);
+                        }}
                         className="w-24 h-8 text-sm"
                         placeholder="$0"
                         aria-label={`Value for ${l.name}`}
@@ -543,7 +563,9 @@ export default function LeadsPage() {
                           (proposal/negotiation/unqualified — our
                           merged-model artifacts) render a BLANK trigger
                           (Radix's unmatched-value behavior, mirrored). */}
-                      <Select value={l.stage} onValueChange={(v) => updateLead(l.id, { stage: v })}>
+                      <Select value={l.stage} onValueChange={(v) => {
+                        void updateLead(l.id, { stage: v }).then(onLeadEditResult);
+                      }}>
                         <SelectTrigger className="w-32 h-8" aria-label={`Status for ${l.name}`}>
                           <SelectValue />
                         </SelectTrigger>
@@ -565,7 +587,9 @@ export default function LeadsPage() {
                         <Input
                           type="date"
                           value={toDateInputValue(l.nextFollowUp)}
-                          onChange={(e) => updateLead(l.id, { nextFollowUp: e.target.value || null })}
+                          onChange={(e) => {
+                            void updateLead(l.id, { nextFollowUp: e.target.value || null }).then(onLeadEditResult);
+                          }}
                           className={cn("w-36 h-8 text-sm", isOverdueFollowUp(l.nextFollowUp) && "border-red-500")}
                           aria-label={`Next follow-up for ${l.name}`}
                         />
