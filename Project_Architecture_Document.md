@@ -706,11 +706,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the standalone-launch database-path recovery (the RED re-anchor pin [bun absolutized against the LAUNCH dir while server.js chdirs into .next/standalone → re-anchored on the validated repo root through urlForRoot] + the e2e-style override guard + the launch-from-standalone guard — session-34) | 1 | 3 | `tests/db-path.test.ts` | Vitest |
 | Unit — the uploads-GET-route recovery + the API robustness layer (the ANCHORED `/uploads/` gitignore pin with its negative guard [the unanchored form silently ignored `src/app/api/uploads/` — the GET route was never committed] + the FK-guard/envelope/store source contracts across the four PUT `[id]` routes + the activities/events POSTs + the store's resetData-fetchOpportunities + logout-clears-settings — session-35) + the db-path absolute-launch-.env passthrough guard | 2 | 15 | `tests/api-robustness.test.ts` `tests/db-path.test.ts` `tests/upload-api.test.ts` | Vitest |
 | Unit — the envelope-completion + input-hardening layer (the events PUT end≥start invariant against the MERGED record + the per-handler `handlerBlock()` try/catch slices across the five DELETEs / three POST creates / users PATCH / settings PUT / activities `[id]` update / the atomic `$transaction` reset + the photoUrl prefix guards + the health 503 pin — session-36) + the upload Content-Length pre-gate ordering pins | 2 | 21 | `tests/api-robustness.test.ts` `tests/upload-api.test.ts` | Vitest |
+| Unit — the containment-proof + FK-type-hardening layer (the auth-family envelope completion [signup/verify/resend] + the activities `[id]` fetch-inside + the settings GET wrap + the `asFKId`/`isBadFK` non-string-FK 400s at all 16 parse sites across 9 route files + the `trySpans`/`allInsideTry` CONTAINMENT pins [every db call inside a try→catch span — the span end anchored on the `} catch` clause so promise `.catch` chains don't truncate] + the photoUrl cap-parity pin — session-37) | 1 | 35 | `tests/api-robustness.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26, and the session-27 chart-internals + Account Health / calendar layer — the computed health PIE + horizontal Top-10 + red at-risk rows + the dashboard Follow-up rows + the static KPI sparks + the calendar chip Edit dialog + the single-blue by-type bars, and the session-28 entity layer — the contacts slide-over + the W7/wce/Mke edit dialogs + the inline role select + the Account Insights dialog + the kke filter panel, and the session-29 leads interactive layer — the inline Value/Status/Date editing round-trip + the overdue border + CircleAlert + the orange Target box + the sticky thead + the dead Convert item + the "(Active)" suffix + the prompt-based Save View + the loadable Saved Views select, and the session-30 photo-upload layer — the New Contact photo round-trip rendering + persisting with the remove X verified + the profile photo round-trip with the toast + both avatar renders + the topbar pickup after the 500ms reload) | 1 | 89 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **48** | **838 unit + 106 e2e** | | |
+| **Total** | **48** | **873 unit + 106 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -1124,7 +1125,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 838/838
+- [ ] `bun run test` — 873/873
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 106/106
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -1194,7 +1195,7 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 838 unit checks |
+| `bun run test` | root | 873 unit checks |
 | `bun run test:e2e` | root | 106 browser checks (build first) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |

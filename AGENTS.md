@@ -17,14 +17,14 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (838 checks)         | `bun run test`                         |
+| Unit tests (873 checks)         | `bun run test`                         |
 | Browser E2E (106 checks)        | `bun run test:e2e` (needs build first) |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (838) → `bun run build` → `bun run test:e2e` (106). There is no
+`bun run test` (873) → `bun run build` → `bun run test:e2e` (106). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1434,6 +1434,46 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the demo-user e2e), list-endpoint caps, trusted-proxy limiter,
   updateLead supersede guard, hydrate per-slice redesign, SavedReport
   dead model.
+
+- **The containment-proof + FK-type-hardening layer (session-37)** — the
+  re-audit found the session-36 "every mutating DB call" claim one
+  family short: the auth routes' four writes (signup's `user.create`,
+  verify's two `user.update`s, resend's `user.update`), the
+  `activities/[id]` PUT's existence fetch (the only `[id]` route still
+  running it outside the try) and the settings GET's lazy singleton
+  create (inside `readSettings`, reached from a GET) all still escaped
+  the envelope; and the s36 pins proved PRESENCE, not CONTAINMENT (a
+  write could move back out of the try and every pin stayed green).
+  Fixed (RED-first, 18 failing pins before the code): the auth family
+  wraps its DB tails in try/catch → `ERR.INTERNAL()` (the in-try 4xx
+  returns bypass the catch by construction — the wrong-code ladder's
+  400/429 verified live); the activities fetch moved inside the try
+  (missing-id + malformed-body now answers 400 before 404, matching
+  the sibling `[id]` routes); the settings GET wraps `readSettings()`;
+  the deferred non-string FK coercion graduated — `asFKId`/`isBadFK`
+  in `src/lib/api.ts` + guards at all 16 parse sites across 9 route
+  files, so `{"accountId": 123}` / `{}` / `true` is a 400 "Invalid
+  company/owner/contact selection" instead of a SILENT FK clear
+  (UI-invisible: selects emit string ids or `""`; `""`/`null` keep
+  their clear semantics); the users PATCH photoUrl cap normalized to
+  500 (the contacts writers' ceiling — the s36 "normalized" claim,
+  finally true); two dead imports removed. The pins now assert
+  CONTAINMENT (`trySpans`/`allInsideTry` — every `db.<model>.<verb>`
+  call in the handler block must fall inside a try→catch span; the
+  span end anchors on the try's `} catch` CLAUSE so the promise
+  `.catch(() => null)` chains don't truncate the span). Pinned by
+  `tests/api-robustness.test.ts` (67 checks) + 1 strengthened
+  upload-api pin. Closed as documented non-issues: the auth-routes'
+  read guards (the only GET under `/api/auth` is `me` — the public
+  session probe by design) and the middleware question (none exists;
+  page auth is the `(app)/layout.tsx` server redirect). Deferred with
+  sharpened rationale: reset role-gating (the no-RBAC doctrine),
+  list-endpoint caps (the client requires full sets), trusted-proxy
+  limiter (+ the 6-e2e-runs/15-min limiter margin note), updateLead
+  supersede guard, hydrate redesign (the naive fix only SERIALIZES
+  the duplicate fetch, it does not dedupe), SavedReport, photoUrl
+  onError fallback, the 11 e2e `waitForTimeout` sleeps (on first
+  observed flake), the mobile-navigation post-wipe ordering coupling.
 
 ## Conventions that differ from defaults
 

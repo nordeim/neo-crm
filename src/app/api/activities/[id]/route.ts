@@ -11,9 +11,6 @@ export async function PUT(req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
-  const existing = await db.activity.findUnique({ where: { id } });
-  if (!existing) return ERR.NOT_FOUND("Activity");
-
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
 
@@ -46,7 +43,14 @@ export async function PUT(req: Request, { params }: Params) {
 
   // Session-36 (S36-P2): the update is envelope-held (SQLITE_BUSY-class
   // failures stay inside { ok, error } instead of a raw non-JSON 500).
+  // Session-37 (S37-P2): the existence fetch moved INSIDE the try — the
+  // last [id] route to join (a DB failure on the read stays inside the
+  // envelope; missing-id + malformed-body now answers 400 before 404,
+  // matching the four sibling [id] routes' ordering).
   try {
+    const existing = await db.activity.findUnique({ where: { id } });
+    if (!existing) return ERR.NOT_FOUND("Activity");
+
     const activity = await db.activity.update({
       where: { id },
       data,

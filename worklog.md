@@ -891,3 +891,45 @@ Stage Summary:
   (§16ab + project_state + frontmatter), README 838 badge + the
   session-36 paragraph, AGENTS 838 + the session-36 block, CLAUDE 838,
   PAD the s36 row, docs/session_65.md, the plan's execution record.
+
+## Session 37 (2026-10-03) — the containment proof + the FK-type hardening
+
+- Pulled `edf079e` (the operator's `docs/session_66.md`); baseline gate
+  on the clean tree: lint 0/0 · tsc 0 · 838/838 (48 suites) — the
+  documented state exactly; the dev server alive and healthy.
+- Two audit agents: the session-36 re-audit (P1–P5 genuine; NEW: F1
+  the auth family's four writes unwrapped — the plan deferred only the
+  auth READ guards; F2 the activities [id] PUT fetch outside the try;
+  F3 the s36 pins prove PRESENCE not CONTAINMENT; F4 the settings GET's
+  lazy singleton create; F5 the photoUrl 300/500 "normalized" claim
+  false; F6 two dead imports) + the deferred-findings graduation audit
+  (ONE graduation: the non-string FK coercion — a silent FK clear on
+  PUT; TWO closures as documented non-issues: the auth read guards +
+  the middleware question; the rest re-confirmed with sharpened
+  rationales).
+- Standing-layer drift re-sweep: 33rd session NO DRIFT (the bundle
+  md5-identical — 8th consecutive; the reference mobile-nav absence at
+  390px; the demo data zero; our drawer live both directions; zero
+  overflow on all nine routes; the FK envelope 400 live).
+- RED-first (18 failing pins — the first run's 20 included two FALSE
+  reds from the pin's own span-anchor flaw: a bare indexOf("catch")
+  truncates at req.json().catch — re-anchored on the `} catch`
+  CLAUSE), then S37-P1..P5: the auth-family envelope; the activities
+  fetch inside the try + the settings GET wrap; asFKId/isBadFK at all
+  16 FK parse sites across 9 route files ("Invalid company/owner/
+  contact selection"); the containment pins + the direction/constant
+  pins; the photoUrl cap 300→500 + the dead imports.
+- Gate: lint 0/0 · tsc 0 · **873/873 unit (+35)** · build · **106/106
+  e2e**.
+- LIVE: signup 200 + the wrong-code 400 ladder (not swallowed) +
+  resend 200; the FK-400s on numeric/object/boolean payloads; null
+  clears; a valid FK stores; the 400-char https photoUrl stores whole;
+  the drawer open/Escape clean; the seeded dashboard $337.0k/$126.0k/
+  $0k; the signup probe user cleaned from the dev DB.
+- 4 screenshots (02/11/12 re-captured + 45 the auth-signup surface
+  NEW — VLM-verified styling, the "Full Name" field-list read was a
+  hallucination disproven against the code); docs realigned at SKILL
+  **v1.34.0** (§16ac + project_state + frontmatter + the stale
+  title-version fix), README 979 badge + the session-37 paragraph,
+  AGENTS 873 + the session-37 block, CLAUDE 873, PAD the s37 row,
+  docs/session_67.md, the plan's execution record.

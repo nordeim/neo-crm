@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { EVENT_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -24,8 +24,16 @@ export async function PUT(req: Request, { params }: Params) {
   if ("location" in body) data.location = asString(body.location, { optional: true, max: 200 }) ?? null;
   if ("relatedType" in body) data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
   if ("allDay" in body) data.allDay = body.allDay === true;
-  if ("accountId" in body) data.accountId = asString(body.accountId, { optional: true }) ?? null;
-  if ("contactId" in body) data.contactId = asString(body.contactId, { optional: true }) ?? null;
+  // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
+  // coercion to null (the silent FK clear on PUT).
+  if ("accountId" in body) {
+    if (isBadFK(body.accountId)) return ERR.BAD_REQUEST("Invalid company selection");
+    data.accountId = asFKId(body.accountId);
+  }
+  if ("contactId" in body) {
+    if (isBadFK(body.contactId)) return ERR.BAD_REQUEST("Invalid contact selection");
+    data.contactId = asFKId(body.contactId);
+  }
   if ("startAt" in body) {
     const startAt = asDate(body.startAt);
     if (!startAt) return ERR.BAD_REQUEST("Start date and time are required");

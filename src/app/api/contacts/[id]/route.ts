@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, ENGAGEMENT_LEVELS, COMPANY_SIZES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -31,8 +31,16 @@ export async function PUT(req: Request, { params }: Params) {
   if ("company" in body) data.company = asString(body.company, { optional: true, max: 120 }) ?? null;
   if ("position" in body) data.position = asString(body.position, { optional: true, max: 80 }) ?? null;
   if ("source" in body) data.source = asString(body.source, { optional: true, max: 40 }) ?? null;
-  if ("accountId" in body) data.accountId = asString(body.accountId, { optional: true }) ?? null;
-  if ("ownerId" in body) data.ownerId = asString(body.ownerId, { optional: true }) ?? null;
+  // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
+  // coercion to null (the silent FK clear on PUT).
+  if ("accountId" in body) {
+    if (isBadFK(body.accountId)) return ERR.BAD_REQUEST("Invalid company selection");
+    data.accountId = asFKId(body.accountId);
+  }
+  if ("ownerId" in body) {
+    if (isBadFK(body.ownerId)) return ERR.BAD_REQUEST("Invalid owner selection");
+    data.ownerId = asFKId(body.ownerId);
+  }
   if ("priority" in body) {
     // Session-28 (S28-P1): the Key/Standard/At Risk vocabulary with the
     // legacy hot/warm/cold set still accepted (mapped).

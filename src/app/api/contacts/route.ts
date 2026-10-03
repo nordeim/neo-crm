@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, ENGAGEMENT_LEVELS, COMPANY_SIZES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -67,15 +67,18 @@ export async function POST(req: Request) {
   }
 
   // Session-36 (S36-P2): the FK guards + create are envelope-held now —
-  // every DB call in the handler inside the try.
+  // every DB call in the handler inside the try. Session-37 (S37-P3):
+  // a non-string FK payload is a 400, not a silent coercion to null.
   try {
-    const accountId = asString(body.accountId, { optional: true }) ?? null;
+    if (isBadFK(body.accountId)) return ERR.BAD_REQUEST("Invalid company selection");
+    const accountId = asFKId(body.accountId);
     if (accountId) {
       const account = await db.account.findUnique({ where: { id: accountId } });
       if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
     }
 
-    const ownerId = asString(body.ownerId, { optional: true }) ?? null;
+    if (isBadFK(body.ownerId)) return ERR.BAD_REQUEST("Invalid owner selection");
+    const ownerId = asFKId(body.ownerId);
     if (ownerId) {
       const owner = await db.user.findUnique({ where: { id: ownerId } });
       if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");

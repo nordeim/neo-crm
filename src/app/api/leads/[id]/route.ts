@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { LEAD_STAGES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -35,8 +35,16 @@ export async function PUT(req: Request, { params }: Params) {
     if ("company" in body) data.company = asString(body.company, { optional: true, max: 120 }) ?? null;
     if ("value" in body) data.value = asNumber(body.value) ?? 0;
     if ("source" in body) data.source = asString(body.source, { optional: true, max: 40 }) ?? null;
-    if ("accountId" in body) data.accountId = asString(body.accountId, { optional: true }) ?? null;
-    if ("ownerId" in body) data.ownerId = asString(body.ownerId, { optional: true }) ?? null;
+    // Session-37 (S37-P3): a non-string FK payload is a 400, not a
+    // silent coercion to null (the silent FK clear on PUT).
+    if ("accountId" in body) {
+      if (isBadFK(body.accountId)) return ERR.BAD_REQUEST("Invalid company selection");
+      data.accountId = asFKId(body.accountId);
+    }
+    if ("ownerId" in body) {
+      if (isBadFK(body.ownerId)) return ERR.BAD_REQUEST("Invalid owner selection");
+      data.ownerId = asFKId(body.ownerId);
+    }
     if ("expectedCloseDate" in body) data.expectedCloseDate = asDate(body.expectedCloseDate) ?? null;
     if ("nextFollowUp" in body) data.nextFollowUp = asDate(body.nextFollowUp) ?? null;
     if ("stage" in body) {

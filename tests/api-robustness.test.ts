@@ -237,3 +237,203 @@ describe("session-36: health tells the truth when the database is down", () => {
     expect(catchBlock).toMatch(/503/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-37 pins (S37-P1..P5). The re-audit found the session-36 envelope
+// claim one family short: the AUTH routes' four mutating calls (signup's
+// user.create, verify's two user.updates, resend's user.update) were
+// unwrapped; the activities [id] PUT still ran its existence fetch OUTSIDE
+// the try; the settings GET's lazy singleton create (inside readSettings)
+// escaped the envelope. The deferred audit graduated the non-string FK
+// coercion (a numeric/object FK payload silently coerced to a null FK —
+// a SILENT CLEAR on PUT). And the s36 pins proved PRESENCE, not
+// CONTAINMENT — a write could move back out of the try and every pin
+// stayed green. The pins below assert containment: every DB call in the
+// handler block must fall inside a try→catch span.
+// ---------------------------------------------------------------------------
+
+/** All try→catch spans in a (comment-stripped) handler block, as
+ * [start, catchIndex) pairs. The span END anchors on the try's catch
+ * CLAUSE (`} catch`) — a bare indexOf("catch") would truncate at the
+ * promise `.catch(() => null)` chains these handlers carry (req.json's
+ * inside leads' whole-handler try; the fire-and-forget lastActivityAt
+ * updates) and mis-slice the span. Caveat: `} catch` inside a string
+ * literal could in principle match — none of the pinned handlers
+ * carries one (verified per-file). */
+function trySpans(block: string): Array<[number, number]> {
+  const spans: Array<[number, number]> = [];
+  let from = 0;
+  for (;;) {
+    const t = block.indexOf("try {", from);
+    if (t < 0) break;
+    const c = block.indexOf("} catch", t);
+    if (c < 0) break;
+    spans.push([t, c]);
+    from = c + 7;
+  }
+  return spans;
+}
+
+/** true when EVERY match of re in block falls inside some try→catch span
+ *  (and at least one span exists). A DB call outside every try — before
+ *  the try, or after the catch — returns false: the containment proof. */
+function allInsideTry(block: string, re: RegExp): boolean {
+  const spans = trySpans(block);
+  if (spans.length === 0) return false;
+  const g = new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g");
+  let m: RegExpExecArray | null;
+  while ((m = g.exec(block)) !== null) {
+    const idx = m.index;
+    if (!spans.some(([s, e]) => idx >= s && idx < e)) return false;
+  }
+  return true;
+}
+
+const DB_CALL = /\bdb\.\w+\.\w+\(/;
+
+describe("session-37: the auth family joins the envelope (S37-P1)", () => {
+  it.each([
+    "src/app/api/auth/signup/route.ts",
+    "src/app/api/auth/verify/route.ts",
+    "src/app/api/auth/resend/route.ts",
+  ])("%s holds every mutating DB call inside try/catch → ERR.INTERNAL", (rel) => {
+    const post = handlerBlock(route(rel), "POST");
+    expect(post).toMatch(/db\.user\.(create|update)\(/);
+    expect(allInsideTry(post, /db\.user\.(create|update)\(/)).toBe(true);
+    expect(post).toMatch(/ERR\.INTERNAL/);
+  });
+});
+
+describe("session-37: the containment proof (S37-P2 + P4)", () => {
+  it.each([
+    "src/app/api/contacts/[id]/route.ts",
+    "src/app/api/leads/[id]/route.ts",
+    "src/app/api/accounts/[id]/route.ts",
+    "src/app/api/events/[id]/route.ts",
+    "src/app/api/activities/[id]/route.ts",
+  ])("%s: PUT holds EVERY DB call inside the envelope (incl. the existence fetch)", (rel) => {
+    const put = handlerBlock(route(rel), "PUT");
+    expect(put).toMatch(DB_CALL);
+    expect(allInsideTry(put, DB_CALL)).toBe(true);
+    expect(put).toMatch(/ERR\.INTERNAL/);
+  });
+
+  it.each([
+    "src/app/api/contacts/[id]/route.ts",
+    "src/app/api/leads/[id]/route.ts",
+    "src/app/api/accounts/[id]/route.ts",
+    "src/app/api/events/[id]/route.ts",
+    "src/app/api/activities/[id]/route.ts",
+  ])("%s: DELETE holds every DB call inside the envelope", (rel) => {
+    const del = handlerBlock(route(rel), "DELETE");
+    expect(del).toMatch(DB_CALL);
+    expect(allInsideTry(del, DB_CALL)).toBe(true);
+  });
+
+  it.each([
+    "src/app/api/contacts/route.ts",
+    "src/app/api/leads/route.ts",
+    "src/app/api/accounts/route.ts",
+    "src/app/api/activities/route.ts",
+    "src/app/api/events/route.ts",
+  ])("%s: POST holds every DB call inside the envelope", (rel) => {
+    const post = handlerBlock(route(rel), "POST");
+    expect(post).toMatch(DB_CALL);
+    expect(allInsideTry(post, DB_CALL)).toBe(true);
+  });
+
+  it("users PATCH holds every DB call inside the envelope", () => {
+    const patch = handlerBlock(route("src/app/api/users/route.ts"), "PATCH");
+    expect(patch).toMatch(DB_CALL);
+    expect(allInsideTry(patch, DB_CALL)).toBe(true);
+  });
+
+  it("settings PUT holds every DB call (incl. readSettings) inside the envelope", () => {
+    const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
+    expect(allInsideTry(put, /db\.\w+\.\w+\(|readSettings\(/)).toBe(true);
+  });
+
+  it("settings GET wraps its readSettings (the lazy singleton create) in the envelope", () => {
+    const get = handlerBlock(route("src/app/api/settings/route.ts"), "GET");
+    expect(allInsideTry(get, /readSettings\(/)).toBe(true);
+    expect(get).toMatch(/ERR\.INTERNAL/);
+  });
+
+  it("events/[id] PUT pins the invariant's comparison DIRECTION (a flipped operator fails)", () => {
+    const put = handlerBlock(route("src/app/api/events/[id]/route.ts"), "PUT");
+    expect(put).toMatch(/effectiveEnd\s*&&\s*effectiveEnd\s*<\s*effectiveStart/);
+  });
+});
+
+describe("session-37: FK ids reject non-string payloads (S37-P3, no silent coercion)", () => {
+  it("asFKId maps the clear/absent shapes to null and trims strings", async () => {
+    const api = await import("@/lib/api");
+    expect(typeof api.asFKId).toBe("function");
+    expect(api.asFKId(undefined)).toBeNull();
+    expect(api.asFKId(null)).toBeNull();
+    expect(api.asFKId("")).toBeNull();
+    expect(api.asFKId("   ")).toBeNull();
+    expect(api.asFKId(" c1a2b3 ")).toBe("c1a2b3");
+    expect(api.asFKId("c1a2b3")).toBe("c1a2b3");
+  });
+
+  it("isBadFK flags every present non-string payload (numbers, booleans, objects)", async () => {
+    const api = await import("@/lib/api");
+    expect(typeof api.isBadFK).toBe("function");
+    expect(api.isBadFK(undefined)).toBe(false);
+    expect(api.isBadFK(null)).toBe(false);
+    expect(api.isBadFK("")).toBe(false);
+    expect(api.isBadFK("abc")).toBe(false);
+    expect(api.isBadFK(123)).toBe(true);
+    expect(api.isBadFK(0)).toBe(true);
+    expect(api.isBadFK(true)).toBe(true);
+    expect(api.isBadFK({})).toBe(true);
+    expect(api.isBadFK([])).toBe(true);
+  });
+
+  // The coercing parse pattern must be GONE from all nine route files,
+  // replaced by the isBadFK guard at every FK field the route accepts.
+  const FK_SITES: Array<[string, string[]]> = [
+    ["src/app/api/contacts/route.ts", ["accountId", "ownerId"]],
+    ["src/app/api/contacts/[id]/route.ts", ["accountId", "ownerId"]],
+    ["src/app/api/leads/route.ts", ["ownerId", "accountId"]],
+    ["src/app/api/leads/[id]/route.ts", ["accountId", "ownerId"]],
+    ["src/app/api/events/route.ts", ["contactId", "accountId"]],
+    ["src/app/api/events/[id]/route.ts", ["accountId", "contactId"]],
+    ["src/app/api/activities/route.ts", ["contactId", "accountId"]],
+    ["src/app/api/accounts/route.ts", ["ownerId"]],
+    ["src/app/api/accounts/[id]/route.ts", ["ownerId"]],
+  ];
+
+  it.each(FK_SITES)("%s guards its FK fields with isBadFK → asFKId", (rel, fks) => {
+    const src = route(rel);
+    // The silent-coercion pattern is gone…
+    expect(src).not.toMatch(/asString\(body\.(accountId|ownerId|contactId)\s*,/);
+    // …and every FK field this route accepts is guarded + parsed by the
+    // new helpers.
+    for (const fk of fks) {
+      expect(src).toMatch(new RegExp(`isBadFK\\(body\\.${fk}\\)`));
+      expect(src).toMatch(new RegExp(`asFKId\\(body\\.${fk}\\)`));
+    }
+  });
+
+  it("the FK-400 vocabulary stays in the family (company / owner / contact)", () => {
+    const contacts = route("src/app/api/contacts/route.ts");
+    expect(contacts).toMatch(/Invalid company selection/);
+    expect(contacts).toMatch(/Invalid owner selection/);
+    const events = route("src/app/api/events/route.ts");
+    expect(events).toMatch(/Invalid contact selection/);
+    expect(events).toMatch(/Invalid company selection/);
+  });
+});
+
+describe("session-37: photoUrl cap parity across the three writers (S37-P5)", () => {
+  it("users PATCH no longer truncates at 300 — the shared 500 cap", () => {
+    const patch = handlerBlock(route("src/app/api/users/route.ts"), "PATCH");
+    expect(patch).not.toMatch(/slice\(0,\s*300\)/);
+    expect(patch).toMatch(/500/);
+    // The contacts writers already cap at 500 (asString max).
+    expect(route("src/app/api/contacts/route.ts")).toMatch(/photoUrl,\s*\{\s*optional:\s*true,\s*max:\s*500\s*\}/);
+    expect(route("src/app/api/contacts/[id]/route.ts")).toMatch(/photoUrl,\s*\{\s*optional:\s*true,\s*max:\s*500\s*\}/);
+  });
+});

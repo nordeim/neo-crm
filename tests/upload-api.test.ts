@@ -128,6 +128,9 @@ describe("session-36: the upload POST pre-gates on Content-Length (no unbounded 
   it("the pre-gate compares against MAX_UPLOAD_BYTES plus a multipart overhead allowance", () => {
     const src = postRoute();
     expect(src).toMatch(/MAX_UPLOAD_BYTES\s*\+/);
+    // Session-37 (S37-P4): the overhead constant is pinned too — a silent
+    // re-tune of the allowance (or a dropped constant) fails this pin.
+    expect(src).toMatch(/64\s*\*\s*1024/);
   });
 
   it("the pre-gate reuses the post-parse ceiling's exact vocabulary", () => {

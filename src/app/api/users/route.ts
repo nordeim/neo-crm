@@ -36,7 +36,11 @@ export async function PATCH(request: Request) {
   let photoUrl: string | null | undefined;
   if (body.photoUrl === null) photoUrl = null;
   else if (typeof body.photoUrl === "string") {
-    const raw = body.photoUrl.slice(0, 300);
+    // Session-37 (S37-P5): the cap is 500 — the same ceiling the contacts
+    // writers use (asString max:500). The 300 truncation silently broke
+    // 301–500-char https:// URLs on the profile while contacts stored
+    // them whole (the s36 "normalized" claim, finally true).
+    const raw = body.photoUrl.slice(0, 500);
     if (!raw.startsWith("/api/uploads/") && !raw.startsWith("https://")) {
       return ERR.BAD_REQUEST("Invalid photo URL");
     }

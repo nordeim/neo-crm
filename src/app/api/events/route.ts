@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { EVENT_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -50,8 +50,12 @@ export async function POST(req: Request) {
   const endAt = asDate(body.endAt);
   if (endAt && endAt < startAt) return ERR.BAD_REQUEST("End time must be after start time");
 
-  const contactId = asString(body.contactId, { optional: true }) ?? null;
-  const accountId = asString(body.accountId, { optional: true }) ?? null;
+  // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
+  // coercion to null.
+  if (isBadFK(body.contactId)) return ERR.BAD_REQUEST("Invalid contact selection");
+  const contactId = asFKId(body.contactId);
+  if (isBadFK(body.accountId)) return ERR.BAD_REQUEST("Invalid company selection");
+  const accountId = asFKId(body.accountId);
   // Session-35 (S35-P5): the accountId FK guard the POST side was missing
   // (contactId was already checked) + the envelope-held failure path.
   // Session-36 (S36-P2): the contactId guard moved INSIDE the try — every

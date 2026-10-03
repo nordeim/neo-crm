@@ -37,7 +37,15 @@ async function readSettings(): Promise<Settings> {
 export async function GET() {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
-  return ok(await readSettings());
+  // Session-37 (S37-P2): readSettings lazily CREATES the singleton row
+  // when missing — a mutating call reached from a GET; its failure path
+  // joins the envelope (the PUT's readSettings call was already inside
+  // its try — the GET's was the gap).
+  try {
+    return ok(await readSettings());
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function PUT(req: Request) {

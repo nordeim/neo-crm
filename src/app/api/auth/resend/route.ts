@@ -25,24 +25,30 @@ export async function POST(req: Request) {
   const email = (asString(body.email, { max: 160 }) ?? "").toLowerCase();
   if (!email) return ERR.BAD_REQUEST("Email is required");
 
-  const user = await db.user.findUnique({ where: { email } });
-  if (!user || !user.verificationCodeHash || !isVerificationPending(user.verificationExpiresAt)) {
-    // Unknown account or nothing to resend: answer with the same info
-    // banner (the reference's non-leaking posture) — a rate-limited no-op.
+  // Session-37 (S37-P1): the auth family joins the envelope — the
+  // findUnique/update failures stay inside { ok, error }.
+  try {
+    const user = await db.user.findUnique({ where: { email } });
+    if (!user || !user.verificationCodeHash || !isVerificationPending(user.verificationExpiresAt)) {
+      // Unknown account or nothing to resend: answer with the same info
+      // banner (the reference's non-leaking posture) — a rate-limited no-op.
+      return ok({ resent: true, message: verificationResentMessage() });
+    }
+
+    const code = generateVerificationCode();
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        verificationCodeHash: hashVerificationCode(code),
+        verificationAttempts: 0,
+        verificationExpiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
+      },
+    });
+
+    console.info(`[verification] code for ${email}: ${code} (expires in 15 minutes)`);
+
     return ok({ resent: true, message: verificationResentMessage() });
+  } catch {
+    return ERR.INTERNAL();
   }
-
-  const code = generateVerificationCode();
-  await db.user.update({
-    where: { id: user.id },
-    data: {
-      verificationCodeHash: hashVerificationCode(code),
-      verificationAttempts: 0,
-      verificationExpiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
-    },
-  });
-
-  console.info(`[verification] code for ${email}: ${code} (expires in 15 minutes)`);
-
-  return ok({ resent: true, message: verificationResentMessage() });
 }

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +27,12 @@ export async function PUT(req: Request, { params }: Params) {
   if ("annualRevenue" in body) data.annualRevenue = asNumber(body.annualRevenue) ?? null;
   if ("employees" in body) data.employees = asInt(body.employees) ?? null;
   if ("isKey" in body) data.isKey = body.isKey === true;
-  if ("ownerId" in body) data.ownerId = asString(body.ownerId, { optional: true }) ?? null;
+  // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
+  // coercion to null (the silent FK clear on PUT).
+  if ("ownerId" in body) {
+    if (isBadFK(body.ownerId)) return ERR.BAD_REQUEST("Invalid owner selection");
+    data.ownerId = asFKId(body.ownerId);
+  }
   if ("status" in body) {
     const status = asString(body.status) ?? "active";
     if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");

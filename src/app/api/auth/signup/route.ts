@@ -40,38 +40,46 @@ export async function POST(req: Request) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return ERR.BAD_REQUEST("Enter a valid email address");
   if (password.length < 8) return ERR.BAD_REQUEST("Password must be at least 8 characters");
 
-  const existing = await db.user.findUnique({ where: { email } });
-  if (existing) {
-    // Session-21 (S21-P6): the reference's banner text — "A user with this
-    // email already exists" (ours said "An account with…"; existing-email
-    // probes on both apps).
-    return ERR.BAD_REQUEST("A user with this email already exists");
+  // Session-37 (S37-P1): the auth family joins the envelope — the
+  // findUnique/count/create failures (SQLITE_BUSY-class) stay inside
+  // { ok, error } instead of a raw non-JSON 500. The validation prefixes
+  // above touch no DB and stay outside.
+  try {
+    const existing = await db.user.findUnique({ where: { email } });
+    if (existing) {
+      // Session-21 (S21-P6): the reference's banner text — "A user with this
+      // email already exists" (ours said "An account with…"; existing-email
+      // probes on both apps).
+      return ERR.BAD_REQUEST("A user with this email already exists");
+    }
+
+    const count = await db.user.count();
+
+    // Session-21 (S21-P5): signup no longer signs the account in — it mints
+    // a 6-digit verification code and the login card swaps to the verify
+    // view ("Verify your email", live-verified on the reference). The code
+    // is stored HASHED (scrypt, the auth layer's format) with a 15-minute
+    // expiry; a self-hosted deployment has no mail transport, so the code
+    // is logged to the SERVER console for the demo workflow (never shipped
+    // to the client, never committed).
+    const code = generateVerificationCode();
+    const user = await db.user.create({
+      data: {
+        name,
+        email,
+        passwordHash: hashPassword(password),
+        avatarColor: NAME_COLORS[count % NAME_COLORS.length],
+        role: count === 0 ? "admin" : "rep",
+        verificationCodeHash: hashVerificationCode(code),
+        verificationAttempts: 0,
+        verificationExpiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
+      },
+    });
+
+    console.info(`[verification] code for ${email}: ${code} (expires in 15 minutes)`);
+
+    return ok({ id: user.id, email: user.email, requiresVerification: true });
+  } catch {
+    return ERR.INTERNAL();
   }
-
-  const count = await db.user.count();
-
-  // Session-21 (S21-P5): signup no longer signs the account in — it mints
-  // a 6-digit verification code and the login card swaps to the verify
-  // view ("Verify your email", live-verified on the reference). The code
-  // is stored HASHED (scrypt, the auth layer's format) with a 15-minute
-  // expiry; a self-hosted deployment has no mail transport, so the code
-  // is logged to the SERVER console for the demo workflow (never shipped
-  // to the client, never committed).
-  const code = generateVerificationCode();
-  const user = await db.user.create({
-    data: {
-      name,
-      email,
-      passwordHash: hashPassword(password),
-      avatarColor: NAME_COLORS[count % NAME_COLORS.length],
-      role: count === 0 ? "admin" : "rep",
-      verificationCodeHash: hashVerificationCode(code),
-      verificationAttempts: 0,
-      verificationExpiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
-    },
-  });
-
-  console.info(`[verification] code for ${email}: ${code} (expires in 15 minutes)`);
-
-  return ok({ id: user.id, email: user.email, requiresVerification: true });
 }

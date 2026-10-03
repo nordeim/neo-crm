@@ -39,42 +39,51 @@ export async function POST(req: Request) {
     return ERR.BAD_REQUEST(verificationIncompleteMessage());
   }
 
-  const user = await db.user.findUnique({ where: { email } });
-  if (!user || !user.verificationCodeHash || !isVerificationPending(user.verificationExpiresAt)) {
-    // No pending code: behave like the reference's generic failure (the
-    // banner family) without leaking whether the account exists.
-    return fail("VERIFICATION_INVALID", verificationLockoutMessage(), 400);
-  }
+  // Session-37 (S37-P1): the whole DB tail joins the envelope — the
+  // findUnique and both user.update failures stay inside { ok, error }.
+  // The 4xx returns inside the try bypass the catch by construction
+  // (returns are not throws); setSessionCookie is cookie-signing only
+  // (no DB) and rides the try for simplicity.
+  try {
+    const user = await db.user.findUnique({ where: { email } });
+    if (!user || !user.verificationCodeHash || !isVerificationPending(user.verificationExpiresAt)) {
+      // No pending code: behave like the reference's generic failure (the
+      // banner family) without leaking whether the account exists.
+      return fail("VERIFICATION_INVALID", verificationLockoutMessage(), 400);
+    }
 
-  // The lockout check rides BEFORE the code compare (the reference's
-  // ladder: five wrong submissions, then the lockout message repeats).
-  if (isVerificationLockedOut(user.verificationAttempts)) {
-    return fail("VERIFICATION_LOCKED", verificationLockoutMessage(), 429);
-  }
-
-  if (!verifyVerificationCode(code, user.verificationCodeHash)) {
-    const attempts = user.verificationAttempts + 1;
-    await db.user.update({
-      where: { id: user.id },
-      data: { verificationAttempts: attempts },
-    });
-    if (isVerificationLockedOut(attempts)) {
+    // The lockout check rides BEFORE the code compare (the reference's
+    // ladder: five wrong submissions, then the lockout message repeats).
+    if (isVerificationLockedOut(user.verificationAttempts)) {
       return fail("VERIFICATION_LOCKED", verificationLockoutMessage(), 429);
     }
-    const remaining = VERIFICATION_MAX_ATTEMPTS - attempts;
-    return fail("VERIFICATION_INVALID", verificationRemainingMessage(remaining), 400);
-  }
 
-  // Success: clear the code, sign the account in (the reference's
-  // post-verification funnel completes into the session).
-  await db.user.update({
-    where: { id: user.id },
-    data: {
-      verificationCodeHash: null,
-      verificationAttempts: 0,
-      verificationExpiresAt: null,
-    },
-  });
-  await setSessionCookie(user.id);
-  return ok({ id: user.id, email: user.email, verified: true });
+    if (!verifyVerificationCode(code, user.verificationCodeHash)) {
+      const attempts = user.verificationAttempts + 1;
+      await db.user.update({
+        where: { id: user.id },
+        data: { verificationAttempts: attempts },
+      });
+      if (isVerificationLockedOut(attempts)) {
+        return fail("VERIFICATION_LOCKED", verificationLockoutMessage(), 429);
+      }
+      const remaining = VERIFICATION_MAX_ATTEMPTS - attempts;
+      return fail("VERIFICATION_INVALID", verificationRemainingMessage(remaining), 400);
+    }
+
+    // Success: clear the code, sign the account in (the reference's
+    // post-verification funnel completes into the session).
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        verificationCodeHash: null,
+        verificationAttempts: 0,
+        verificationExpiresAt: null,
+      },
+    });
+    await setSessionCookie(user.id);
+    return ok({ id: user.id, email: user.email, verified: true });
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

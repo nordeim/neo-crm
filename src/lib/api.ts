@@ -47,6 +47,22 @@ export function asString(v: unknown, { max = 500, optional = false } = {}): stri
   return s.slice(0, max);
 }
 
+/** Session-37 (S37-P3): a PRESENT FK payload must be a string (or an
+ *  explicit null). Non-string values used to ride asString's optional
+ *  coercion to `undefined` → `null` — a SILENT FK clear on PUT. Routes
+ *  pair this with a 400 ("Invalid company/owner/contact selection"). */
+export function isBadFK(v: unknown): boolean {
+  return v !== undefined && v !== null && typeof v !== "string";
+}
+
+/** Session-37 (S37-P3): FK id parse — null/""/whitespace → null (the
+ *  explicit clear), a string → the trimmed id. Guard with isBadFK first:
+ *  this helper silently clears non-strings by design (the asString
+ *  semantics the selects' "" emissions rely on). */
+export function asFKId(v: unknown): string | null {
+  return asString(v, { optional: true }) ?? null;
+}
+
 export function asRequiredString(v: unknown, field: string, { max = 500 } = {}): string | null {
   if (typeof v !== "string" || v.trim().length === 0) return null;
   if (field === "") return null;

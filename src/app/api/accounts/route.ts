@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -34,8 +34,11 @@ export async function POST(req: Request) {
   if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
 
   // Session-36 (S36-P2): the FK guard + create are envelope-held now.
+  // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
+  // coercion to null; the dead asDate import removed.
   try {
-    const ownerId = asString(body.ownerId, { optional: true }) ?? null;
+    if (isBadFK(body.ownerId)) return ERR.BAD_REQUEST("Invalid owner selection");
+    const ownerId = asFKId(body.ownerId);
     if (ownerId) {
       const owner = await db.user.findUnique({ where: { id: ownerId } });
       if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
