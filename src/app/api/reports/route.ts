@@ -46,7 +46,11 @@ export async function GET(req: Request) {
   if (isGuarded(guard)) return guard.response;
 
   const url = new URL(req.url);
-  const period = asString(url.searchParams.get("period")) ?? "quarter";
+  // Session-42 (S42-P6): the parse went OPTIONAL — the non-optional form
+  // returned "" for a missing param (never undefined), so the `?? "quarter"`
+  // default was DEAD and a bare GET answered 400 "Invalid period"
+  // (LIVE-discovered; the store always sends an explicit period).
+  const period = asString(url.searchParams.get("period"), { optional: true }) ?? "quarter";
   if (!REPORT_PERIODS.some((p) => p.id === period)) return ERR.BAD_REQUEST("Invalid period");
   // "all" is the UI's "no filter" sentinel — normalize to null so it never
   // reaches Prisma as a literal value.
@@ -80,22 +84,34 @@ export async function GET(req: Request) {
     ...(source ? { source } : {}),
   };
 
-  const [leads, opportunities, activities, accounts] = await Promise.all([
-    db.lead.findMany({
-      where: leadWhere,
-      include: {
-        owner: { select: { id: true, name: true, avatarColor: true } },
-        account: { select: { name: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    db.opportunity.findMany({ where: oppWhere, orderBy: { createdAt: "desc" } }),
-    db.activity.findMany({ orderBy: { createdAt: "desc" }, include: { owner: { select: { name: true } } } }),
-    db.account.findMany({
-      include: { _count: { select: { contacts: true, leads: true } } },
-      orderBy: { annualRevenue: "desc" },
-    }),
-  ]);
+  // Session-42 (S42-P1): the read family joined the envelope — every
+  // derivation below is pure computation on the fetched arrays (no db
+  // call, nothing that throws), so only the reads need the wrap; the
+  // null-guard answers the { ok, error } envelope on failure.
+  const rows = await (async () => {
+    try {
+      return await Promise.all([
+        db.lead.findMany({
+          where: leadWhere,
+          include: {
+            owner: { select: { id: true, name: true, avatarColor: true } },
+            account: { select: { name: true } },
+          },
+          orderBy: { createdAt: "desc" },
+        }),
+        db.opportunity.findMany({ where: oppWhere, orderBy: { createdAt: "desc" } }),
+        db.activity.findMany({ orderBy: { createdAt: "desc" }, include: { owner: { select: { name: true } } } }),
+        db.account.findMany({
+          include: { _count: { select: { contacts: true, leads: true } } },
+          orderBy: { annualRevenue: "desc" },
+        }),
+      ]);
+    } catch {
+      return null;
+    }
+  })();
+  if (!rows) return ERR.INTERNAL();
+  const [leads, opportunities, activities, accounts] = rows;
 
   // The reference's status filter open/won/lost maps onto the OPP stages
   // (open = neither closed branch) — the query above carries won/lost

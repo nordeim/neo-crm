@@ -106,3 +106,40 @@ describe("session-41: isBadNumber's non-finite edges (Infinity + NaN)", () => {
     expect(isBadNumber(Number("abc"))).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-42 (S42-P2): the boolean edge matrix — the strict-bool idioms
+// (`isKey: body.isKey === true`, `allDay: body.allDay === true`)
+// silently stored FALSE for a present non-boolean and silently CLEARED
+// an existing true on PUT (LIVE-proven: a key account PUT
+// {"isKey":"yes"} → 200 + isKey:false — the s41 silent-drop class, one
+// type-shape over). isBadBool is the isBadString shape for booleans:
+// only a PRESENT non-boolean is bad. The UI writers are real checkbox
+// booleans (or absent — the event dialog has no all-day control), so
+// no legit payload can trip the guard.
+// ---------------------------------------------------------------------------
+
+describe("session-42: isBadBool (the strict-bool silent-clear family)", () => {
+  it("is exported (the isBadString shape, one type over)", async () => {
+    const api = await import("../src/lib/api");
+    expect(typeof api.isBadBool).toBe("function");
+  });
+
+  it("absent, null, and real booleans are NOT bad (the checkbox payload shapes)", async () => {
+    const api = await import("../src/lib/api");
+    expect(api.isBadBool(undefined)).toBe(false);
+    expect(api.isBadBool(null)).toBe(false);
+    expect(api.isBadBool(true)).toBe(false);
+    expect(api.isBadBool(false)).toBe(false);
+  });
+
+  it("every present non-boolean IS bad (the === true silent-clear class)", async () => {
+    const api = await import("../src/lib/api");
+    expect(api.isBadBool("yes")).toBe(true);
+    expect(api.isBadBool("true")).toBe(true);
+    expect(api.isBadBool(1)).toBe(true);
+    expect(api.isBadBool(0)).toBe(true);
+    expect(api.isBadBool({})).toBe(true);
+    expect(api.isBadBool([])).toBe(true);
+  });
+});

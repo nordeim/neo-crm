@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, isGuarded, requireSession } from "@/lib/api";
 import { PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
 import type { DashboardData, Opportunity } from "@/types";
 
@@ -44,11 +44,22 @@ export async function GET() {
 
   const now = new Date();
 
-  const [leads, opportunities, activities] = await Promise.all([
-    db.lead.findMany({ include: { owner: { select: { id: true, name: true, avatarColor: true } } } }),
-    db.opportunity.findMany({ orderBy: { createdAt: "desc" } }),
-    db.activity.findMany({ where: { status: "scheduled" }, orderBy: { dueAt: "asc" } }),
-  ]);
+  // Session-42 (S42-P1): the read family joined the envelope — every
+  // derivation below is pure computation on the fetched arrays, so only
+  // the reads need the wrap; the null-guard answers the envelope.
+  const rows = await (async () => {
+    try {
+      return await Promise.all([
+        db.lead.findMany({ include: { owner: { select: { id: true, name: true, avatarColor: true } } } }),
+        db.opportunity.findMany({ orderBy: { createdAt: "desc" } }),
+        db.activity.findMany({ where: { status: "scheduled" }, orderBy: { dueAt: "asc" } }),
+      ]);
+    } catch {
+      return null;
+    }
+  })();
+  if (!rows) return ERR.INTERNAL();
+  const [leads, opportunities, activities] = rows;
 
   const wonOpps = opportunities.filter((o) => o.stage === "closed_won");
   const wonLeads = leads.filter((l) => l.stage === "won");

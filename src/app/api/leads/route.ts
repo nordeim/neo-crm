@@ -7,14 +7,19 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
-  const leads = await db.lead.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      account: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(leads);
+  // Session-42 (S42-P1): the list read joined the envelope.
+  try {
+    const leads = await db.lead.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        account: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(leads);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function POST(req: Request) {

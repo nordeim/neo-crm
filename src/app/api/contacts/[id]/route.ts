@@ -113,9 +113,15 @@ export async function PUT(req: Request, { params }: Params) {
     // Session-40 (S40-P2): status had NO type guard and NO enum check —
     // {"status":123} silently reset an inactive contact to "active"
     // (LIVE-proven) and {"status":"banana"} stored verbatim.
+    // Session-42 (S42-P4): the parse went NON-OPTIONAL — the optional
+    // form's `?? "active"` fired on a present "" and silently reset an
+    // inactive contact (LIVE-proven; the only optional-parse enum on
+    // PUT whose default passes the membership check). A present ""
+    // is now the sibling enums' 400 (status is a required enum — ""
+    // is a bad value, not a clear).
     if (isBadString(body.status)) return ERR.BAD_REQUEST("Invalid status");
-    const status = asString(body.status, { optional: true, max: 20 }) ?? "active";
-    if (!(CONTACT_STATUSES as readonly string[]).includes(status)) {
+    const status = asString(body.status, { max: 20 });
+    if (!status || !(CONTACT_STATUSES as readonly string[]).includes(status)) {
       return ERR.BAD_REQUEST("Invalid status");
     }
     data.status = status;

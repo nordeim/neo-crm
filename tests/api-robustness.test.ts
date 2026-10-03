@@ -401,6 +401,10 @@ describe("session-37: FK ids reject non-string payloads (S37-P3, no silent coerc
     ["src/app/api/events/route.ts", ["contactId", "accountId"]],
     ["src/app/api/events/[id]/route.ts", ["accountId", "contactId"]],
     ["src/app/api/activities/route.ts", ["contactId", "accountId"]],
+    // Session-42 (S42-P3): the census row the s37 sweep missed — the
+    // activities [id] PUT had NO FK branches at all (the POST accepts
+    // both), so its links could never be re-assigned or cleared.
+    ["src/app/api/activities/[id]/route.ts", ["contactId", "accountId"]],
     ["src/app/api/accounts/route.ts", ["ownerId"]],
     ["src/app/api/accounts/[id]/route.ts", ["ownerId"]],
   ];
@@ -892,6 +896,10 @@ describe("session-41: the session-read envelope (S41-P4 — every protected rout
     const block = m![0];
     expect(block).toMatch(/try\s*\{/);
     expect(block).toMatch(/getSessionUser\(\)/);
+    // Session-42 (S42-P5): presence upgraded to CONTAINMENT — the call
+    // drifting back outside the try must fail the pin (the N-42d
+    // strengthening; GREEN-on-arrival by construction).
+    expect(allInsideTry(block, /getSessionUser\(\)/)).toBe(true);
     expect(block).toMatch(/ERR\.INTERNAL/);
   });
 
@@ -899,6 +907,136 @@ describe("session-41: the session-read envelope (S41-P4 — every protected rout
     const get = handlerBlock(route("src/app/api/auth/me/route.ts"), "GET");
     expect(get).toMatch(/try\s*\{/);
     expect(get).toMatch(/getSessionUser\(\)/);
+    // Session-42 (S42-P5): the containment upgrade, same as above.
+    expect(allInsideTry(get, /getSessionUser\(\)/)).toBe(true);
     expect(get).toMatch(/ERR\.INTERNAL/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-42 (S42-P1): the GET list routes join the envelope. The s37
+// family closed PUT/DELETE/POST; the s41-P4 layer closed the shared
+// session read; the 11 GET list handlers were the LAST raw reads — a
+// SQLITE_BUSY-class failure during a list read answered a raw non-JSON
+// 500 on each (the store degrades it to "Request failed (500)" instead
+// of the house message). Per-route try/catch — NOT a HOC wrapper, which
+// would break the handlerBlock slicing these pins (and every older
+// family) rely on. The deliberate keeps: the (app) layout + signup page
+// (honest 500 pages, the s41-P4 doctrine) and health (its own 503).
+// ---------------------------------------------------------------------------
+
+describe("session-42: the GET list routes hold every DB call inside the envelope (S42-P1)", () => {
+  it.each([
+    "src/app/api/contacts/route.ts",
+    "src/app/api/leads/route.ts",
+    "src/app/api/accounts/route.ts",
+    "src/app/api/activities/route.ts",
+    "src/app/api/events/route.ts",
+    "src/app/api/opportunities/route.ts",
+    "src/app/api/users/route.ts",
+    "src/app/api/dashboard/route.ts",
+    "src/app/api/reports/route.ts",
+    "src/app/api/search/route.ts",
+    "src/app/api/export/route.ts",
+  ])("%s: GET holds every DB call inside try/catch → ERR.INTERNAL", (rel) => {
+    const get = handlerBlock(route(rel), "GET");
+    // Presence pairing (the §16ad vacuous-lesson): the handler must
+    // actually read the DB before containment can mean anything…
+    expect(get).toMatch(DB_CALL);
+    // …then EVERY read sits inside a try→catch span…
+    expect(allInsideTry(get, DB_CALL)).toBe(true);
+    // …and the catch answers the envelope.
+    expect(get).toMatch(/ERR\.INTERNAL/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-42 (S42-P2): the strict-bool silent-clear family. The strict
+// `=== true` idioms silently stored FALSE for a present non-boolean and
+// silently CLEARED an existing true on PUT (LIVE-proven: a key account
+// PUT {"isKey":"yes"} → 200 + isKey:false — the s41 silent-drop class,
+// one type-shape over). isBadBool rejects only a PRESENT non-boolean;
+// the UI writers are real checkbox booleans (or absent — the event
+// dialog has no all-day control), so the surface is API-only.
+// ---------------------------------------------------------------------------
+
+describe("session-42: booleans reject the present-non-boolean class (S42-P2)", () => {
+  it.each([
+    // [route, verb, field, message]
+    ["src/app/api/accounts/route.ts", "POST", "isKey", "Invalid key account"],
+    ["src/app/api/accounts/[id]/route.ts", "PUT", "isKey", "Invalid key account"],
+    ["src/app/api/events/route.ts", "POST", "allDay", "Invalid all-day flag"],
+    ["src/app/api/events/[id]/route.ts", "PUT", "allDay", "Invalid all-day flag"],
+  ])("%s %s: %s rejects present non-booleans (400 %s)", (rel, verb, field, message) => {
+    const block = handlerBlock(route(rel), verb);
+    expect(block).toMatch(guardCall("isBadBool", field));
+    expect(block).toMatch(message);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-42 (S42-P3): activities/[id] PUT silently IGNORED contactId/
+// accountId — no branch existed (the POST route accepts both), so an
+// activity's account/contact links could never be re-assigned or cleared
+// via the API and the caller's payload was dropped without error
+// (LIVE-proven: PUT {"contactId":<id>} → 200 + contactId still null).
+// The contacts/[id] FK shape, mirrored verbatim.
+// ---------------------------------------------------------------------------
+
+describe("session-42: activities/[id] PUT accepts contactId/accountId (S42-P3)", () => {
+  it("the PUT guards + parses both FK fields (the contacts/[id] shape)", () => {
+    const put = handlerBlock(route("src/app/api/activities/[id]/route.ts"), "PUT");
+    expect(put).toMatch(guardCall("isBadFK", "contactId"));
+    expect(put).toMatch(guardCall("isBadFK", "accountId"));
+    expect(put).toMatch(/asFKId\(body\.contactId\)/);
+    expect(put).toMatch(/asFKId\(body\.accountId\)/);
+  });
+
+  it("the PUT checks FK existence inside the try (the POST's own vocabulary)", () => {
+    const put = handlerBlock(route("src/app/api/activities/[id]/route.ts"), "PUT");
+    expect(put).toMatch(/db\.contact\.findUnique/);
+    expect(put).toMatch(/Selected contact does not exist/);
+    expect(put).toMatch(/db\.account\.findUnique/);
+    expect(put).toMatch(/Selected company does not exist/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-42 (S42-P4): contacts/[id] PUT {"status":""} silently RESET an
+// inactive contact to "active" — the only optional-parse enum on PUT
+// whose ?? default passes the membership check (LIVE-proven). The
+// sibling-enum shape now: non-optional parse + membership (a present
+// '' is a BAD value, not a clear).
+// ---------------------------------------------------------------------------
+
+describe("session-42: contacts/[id] PUT status \"\" is a 400, not a silent reset (S42-P4)", () => {
+  it("the status parse is non-optional — no ?? \"active\" default can fire on a present value", () => {
+    const put = handlerBlock(route("src/app/api/contacts/[id]/route.ts"), "PUT");
+    // The silent-reset shape is gone…
+    expect(put).not.toMatch(/asString\(body\.status,\s*\{[^}]*optional:\s*true[^}]*\}\)\s*\?\?\s*"active"/);
+    // …replaced by the sibling-enum shape (non-optional parse).
+    expect(put).toMatch(/const status = asString\(body\.status, \{ max: 20 \}\)/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-42 (S42-P6): the bare-request period default — LIVE-discovered
+// during the post-fix verification (the warm-up probe itself): a GET
+// /api/reports (or /api/export?type=report) WITHOUT an explicit period
+// returned 400 "Invalid period" — the `?? "quarter"` defaults were DEAD
+// (non-optional asString(null) returns "", never undefined, and "" is
+// not nullish). The documented default-quarter contract is unreachable
+// for API consumers; the store always sends an explicit period, which
+// is why no e2e ever tripped it. The s40 dead-?? shape with a real
+// behavioral consequence.
+// ---------------------------------------------------------------------------
+
+describe("session-42: the bare-request period default is reachable (S42-P6)", () => {
+  it.each([
+    "src/app/api/reports/route.ts",
+    "src/app/api/export/route.ts",
+  ])("%s: a missing period param defaults to quarter (the optional parse)", (rel) => {
+    const get = handlerBlock(route(rel), "GET");
+    expect(get).toMatch(/asString\(url\.searchParams\.get\("period"\),\s*\{\s*optional:\s*true\s*\}\)\s*\?\?\s*"quarter"/);
   });
 });

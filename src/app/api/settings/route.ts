@@ -100,8 +100,12 @@ export async function PUT(req: Request) {
     data.calendarView = asString(body.calendarView, { max: 20, optional: true }) ?? "month";
   }
   if ("firstDayOfWeek" in body) {
-    const dow = asString(body.firstDayOfWeek, { max: 10 }) ?? "monday";
-    if (!["monday", "sunday"].includes(dow)) return ERR.BAD_REQUEST("First day of week must be monday or sunday");
+    // Session-42 (S42-P5): the dead `?? "monday"` removed — non-optional
+    // asString returns "" (never undefined), so the fallback could never
+    // fire; a present "" already 400s on the enum below (the s40
+    // dead-?? shape).
+    const dow = asString(body.firstDayOfWeek, { max: 10 });
+    if (!dow || !["monday", "sunday"].includes(dow)) return ERR.BAD_REQUEST("First day of week must be monday or sunday");
     data.firstDayOfWeek = dow;
   }
 

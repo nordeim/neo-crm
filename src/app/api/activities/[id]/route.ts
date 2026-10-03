@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, isBadString, isBadDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadString, isBadDate, isBadFK, isGuarded, requireSession } from "@/lib/api";
 import { ACTIVITY_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -56,6 +56,19 @@ export async function PUT(req: Request, { params }: Params) {
     data.status = status;
     data.completedAt = status === "completed" ? new Date() : null;
   }
+  // Session-42 (S42-P3): the FK branches the route was missing entirely —
+  // a PUT contactId/accountId used to be silently IGNORED (the caller's
+  // payload dropped without error; an activity's links could never be
+  // re-assigned or cleared via the API). The contacts/[id] shape,
+  // verbatim.
+  if ("contactId" in body) {
+    if (isBadFK(body.contactId)) return ERR.BAD_REQUEST("Invalid contact selection");
+    data.contactId = asFKId(body.contactId);
+  }
+  if ("accountId" in body) {
+    if (isBadFK(body.accountId)) return ERR.BAD_REQUEST("Invalid company selection");
+    data.accountId = asFKId(body.accountId);
+  }
 
   // Session-36 (S36-P2): the update is envelope-held (SQLITE_BUSY-class
   // failures stay inside { ok, error } instead of a raw non-JSON 500).
@@ -66,6 +79,17 @@ export async function PUT(req: Request, { params }: Params) {
   try {
     const existing = await db.activity.findUnique({ where: { id } });
     if (!existing) return ERR.NOT_FOUND("Activity");
+
+    // Session-42 (S42-P3): FK existence guards — the POST route's own
+    // vocabulary (a stale dropdown id must be a 400, not a raw P2003).
+    if (typeof data.contactId === "string" && data.contactId) {
+      const contact = await db.contact.findUnique({ where: { id: data.contactId } });
+      if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
+    }
+    if (typeof data.accountId === "string" && data.accountId) {
+      const account = await db.account.findUnique({ where: { id: data.accountId } });
+      if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
+    }
 
     const activity = await db.activity.update({
       where: { id },

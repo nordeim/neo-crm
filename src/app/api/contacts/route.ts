@@ -7,14 +7,22 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
-  const contacts = await db.contact.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      account: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(contacts);
+  // Session-42 (S42-P1): the list read joined the envelope — the GET
+  // handlers were the last raw reads (a SQLITE_BUSY-class failure
+  // answered a raw non-JSON 500; the store degraded it to
+  // "Request failed (500)" instead of the house message).
+  try {
+    const contacts = await db.contact.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        account: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(contacts);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function POST(req: Request) {

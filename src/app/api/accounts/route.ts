@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isBadString, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isBadString, isBadBool, isGuarded, requireSession } from "@/lib/api";
 import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -7,14 +7,19 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
-  const accounts = await db.account.findMany({
-    orderBy: [{ name: "asc" }],
-    include: {
-      owner: { select: { id: true, name: true, avatarColor: true } },
-      _count: { select: { contacts: true, leads: true, activities: true } },
-    },
-  });
-  return ok(accounts);
+  // Session-42 (S42-P1): the list read joined the envelope.
+  try {
+    const accounts = await db.account.findMany({
+      orderBy: [{ name: "asc" }],
+      include: {
+        owner: { select: { id: true, name: true, avatarColor: true } },
+        _count: { select: { contacts: true, leads: true, activities: true } },
+      },
+    });
+    return ok(accounts);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function POST(req: Request) {
@@ -59,6 +64,10 @@ export async function POST(req: Request) {
     if (isBadString(body.email)) return ERR.BAD_REQUEST("Invalid email");
     if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
     if (isBadString(body.website)) return ERR.BAD_REQUEST("Invalid website");
+    // Session-42 (S42-P2): the strict-bool silent-clear family —
+    // {"isKey":"yes"} used to silently store false (the === true
+    // idiom's non-boolean edge).
+    if (isBadBool(body.isKey)) return ERR.BAD_REQUEST("Invalid key account");
     const account = await db.account.create({
       data: {
         name,

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, isGuarded, requireSession } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +12,13 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
-  const opportunities = await db.opportunity.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-  return ok(opportunities);
+  // Session-42 (S42-P1): the list read joined the envelope.
+  try {
+    const opportunities = await db.opportunity.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return ok(opportunities);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }

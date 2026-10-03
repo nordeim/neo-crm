@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadString, isBadDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadString, isBadDate, isBadBool, isGuarded, requireSession } from "@/lib/api";
 import { EVENT_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,13 @@ export async function PUT(req: Request, { params }: Params) {
     if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
     data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
   }
-  if ("allDay" in body) data.allDay = body.allDay === true;
+  // Session-42 (S42-P2): the strict-bool silent-clear family — a
+  // present non-boolean used to silently CLEAR an existing true. The
+  // event dialog has no all-day control, so the surface is API-only.
+  if ("allDay" in body) {
+    if (isBadBool(body.allDay)) return ERR.BAD_REQUEST("Invalid all-day flag");
+    data.allDay = body.allDay === true;
+  }
   // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
   // coercion to null (the silent FK clear on PUT).
   if ("accountId" in body) {

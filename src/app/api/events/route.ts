@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isBadString, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isBadString, isBadBool, isGuarded, requireSession } from "@/lib/api";
 import { EVENT_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -12,20 +12,25 @@ export async function GET(req: Request) {
   const from = asDate(url.searchParams.get("from"));
   const to = asDate(url.searchParams.get("to"));
 
-  const events = await db.event.findMany({
-    where: {
-      ...(from || to
-        ? { startAt: { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) } }
-        : {}),
-    },
-    orderBy: { startAt: "asc" },
-    include: {
-      account: { select: { id: true, name: true } },
-      contact: { select: { id: true, name: true } },
-      owner: { select: { id: true, name: true, avatarColor: true } },
-    },
-  });
-  return ok(events);
+  // Session-42 (S42-P1): the list read joined the envelope.
+  try {
+    const events = await db.event.findMany({
+      where: {
+        ...(from || to
+          ? { startAt: { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) } }
+          : {}),
+      },
+      orderBy: { startAt: "asc" },
+      include: {
+        account: { select: { id: true, name: true } },
+        contact: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, avatarColor: true } },
+      },
+    });
+    return ok(events);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 export async function POST(req: Request) {
@@ -83,6 +88,11 @@ export async function POST(req: Request) {
     if (isBadString(body.description)) return ERR.BAD_REQUEST("Invalid description");
     if (isBadString(body.location)) return ERR.BAD_REQUEST("Invalid location");
     if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
+    // Session-42 (S42-P2): the strict-bool silent-clear family —
+    // {"allDay":"yes"} used to silently store false (the === true
+    // idiom's non-boolean edge; the event dialog has no all-day
+    // control, so the surface is API-only).
+    if (isBadBool(body.allDay)) return ERR.BAD_REQUEST("Invalid all-day flag");
     const event = await db.event.create({
       data: {
         title,

@@ -7,11 +7,16 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
-  const users = await db.user.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, email: true, name: true, avatarColor: true, photoUrl: true, role: true },
-  });
-  return ok(users);
+  // Session-42 (S42-P1): the list read joined the envelope.
+  try {
+    const users = await db.user.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, email: true, name: true, avatarColor: true, photoUrl: true, role: true },
+    });
+    return ok(users);
+  } catch {
+    return ERR.INTERNAL();
+  }
 }
 
 /** Update the signed-in user's own profile (Full Name + photo — email/role

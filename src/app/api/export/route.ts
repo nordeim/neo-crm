@@ -52,7 +52,10 @@ export async function GET(req: Request) {
     // Owner,Close Date — one row per OPPORTUNITY in the filtered window
     // (the reference's `y` export maps its filteredOppportunities), with
     // the SAME period/owner/stage/status filter model as /api/reports.
-    const period = asString(url.searchParams.get("period")) ?? "quarter";
+    // Session-42 (S42-P6): the parse went OPTIONAL — the non-optional form
+    // returned "" for a missing param, so the `?? "quarter"` default was
+    // DEAD and a bare export answered 400 "Invalid period".
+    const period = asString(url.searchParams.get("period"), { optional: true }) ?? "quarter";
     if (!REPORT_PERIODS.some((p) => p.id === period)) return ERR.BAD_REQUEST("Invalid period");
     const notAll = (v: string | null) => (v && v !== "all" ? v : null);
     const owner = notAll(url.searchParams.get("owner"));
@@ -68,10 +71,18 @@ export async function GET(req: Request) {
       ...(status === "won" ? { stage: "closed_won" } : status === "lost" ? { stage: "closed_lost" } : {}),
       ...(period === "all" ? {} : { createdAt: { gte: from } }),
     };
-    let rows = await db.opportunity.findMany({ where: oppWhere, orderBy: { createdAt: "desc" } });
-    if (status === "open") {
-      rows = rows.filter((o) => o.stage !== "closed_won" && o.stage !== "closed_lost");
-    }
+    // Session-42 (S42-P1): the read joined the envelope — the CSV build
+    // below is pure; on failure the catch answers the { ok, error }
+    // envelope (the download flow only consumes the CSV on 200).
+    const fetched = await (async () => {
+      try {
+        return await db.opportunity.findMany({ where: oppWhere, orderBy: { createdAt: "desc" } });
+      } catch {
+        return null;
+      }
+    })();
+    if (!fetched) return ERR.INTERNAL();
+    const rows = status === "open" ? fetched.filter((o) => o.stage !== "closed_won" && o.stage !== "closed_lost") : fetched;
     const columns: CsvColumn<(typeof rows)[number]>[] = [
       { header: "Deal Name", value: (r) => r.name },
       { header: "Account", value: (r) => r.accountName },

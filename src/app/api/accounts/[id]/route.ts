@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadString, isBadNumber, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadString, isBadNumber, isBadBool, isGuarded, requireSession } from "@/lib/api";
 import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +48,13 @@ export async function PUT(req: Request, { params }: Params) {
     if (isBadNumber(body.employees)) return ERR.BAD_REQUEST("Invalid employee count");
     data.employees = asInt(body.employees) ?? null;
   }
-  if ("isKey" in body) data.isKey = body.isKey === true;
+  // Session-42 (S42-P2): the strict-bool silent-clear family — a
+  // present non-boolean used to silently CLEAR an existing true (a key
+  // account de-keyed without an error — LIVE-proven).
+  if ("isKey" in body) {
+    if (isBadBool(body.isKey)) return ERR.BAD_REQUEST("Invalid key account");
+    data.isKey = body.isKey === true;
+  }
   // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
   // coercion to null (the silent FK clear on PUT).
   if ("ownerId" in body) {

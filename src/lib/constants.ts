@@ -253,9 +253,6 @@ export const CONTACT_SOURCE_LABEL: Record<string, string> = Object.fromEntries(
   CONTACT_SOURCE_OPTIONS.map((o) => [o.value, o.label]),
 );
 
-// The plain (no-emoji) source options the reference's EDIT dialogs ship.
-export const EDIT_SOURCE_OPTIONS = ["Call", "Email", "Website", "Partner", "Referral"] as const;
-
 // The contact PRIORITY vocabulary: Key / Standard / At Risk (NOT the lead
 // hot/warm/cold temperature — bundle `ne` map + the Pke slide-over's `i`).
 export const CONTACT_PRIORITIES_REF = ["Key", "Standard", "At Risk"] as const;

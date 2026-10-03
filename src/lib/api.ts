@@ -106,6 +106,19 @@ export function isBadNumber(v: unknown): boolean {
   return true;
 }
 
+/** Session-42 (S42-P2): the strict-bool silent-clear family —
+ *  `data.isKey = body.isKey === true` silently stored FALSE for a
+ *  present non-boolean ({"isKey":"yes"} → 200 + false) and silently
+ *  CLEARED an existing true on PUT (a key account de-keyed without an
+ *  error — LIVE-proven). The isBadString shape one type over: only a
+ *  PRESENT non-boolean is bad; absent/null keep the false-default
+ *  (POST) and no-change (PUT) semantics. The UI writers are real
+ *  checkbox booleans (Radix onCheckedChange) or absent — the surface
+ *  is API-only. */
+export function isBadBool(v: unknown): boolean {
+  return v !== undefined && v !== null && typeof v !== "boolean";
+}
+
 export function asNumber(v: unknown): number | undefined {
   if (v === undefined || v === null || v === "") return undefined;
   const n = Number(v);
