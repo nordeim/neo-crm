@@ -21,6 +21,19 @@ async function readSettings(): Promise<Settings> {
     row = await db.setting.create({ data: { id: "singleton" } });
   }
   return {
+    // Session-48 (S48-P2): the contactSources defaults stay the
+    // reference's own Capitalized six, VERBATIM — part of the
+    // source-vocabulary reconciliation record (the operator decision).
+    // Bundle-verified 2026-10-04: the reference's settings contactSources
+    // is an entity-backed CRUD list whose ONLY consumer is the settings
+    // page's own ConfigEditor — it drives nothing functional THERE either.
+    // Our mirror therefore persists this free-form user list while the
+    // functional vocabulary (the dialogs' hardcoded raw values) stays
+    // case-disjoint — the fragmentation IS the reference's product
+    // design. Do NOT "reconcile" by wiring this list into the dialogs or
+    // by validating source against it: both would break parity (the
+    // dialogs' options are bundle-pinned; the import accepts arbitrary
+    // strings BY the reference's own design).
     contactSources: parseList(row.contactSources, ["Email", "Phone", "Website", "Referral", "Event", "Social Media"]),
     leadStages: parseList(row.leadStages, ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"]),
     activityTypes: parseList(row.activityTypes, ["call", "email", "meeting", "whatsapp", "task", "note"]),

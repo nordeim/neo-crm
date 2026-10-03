@@ -125,6 +125,15 @@ export async function POST(req: Request) {
     if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
     if (isBadString(body.company)) return ERR.BAD_REQUEST("Invalid company");
     if (isBadString(body.position)) return ERR.BAD_REQUEST("Invalid position");
+    // Session-48 (S48-P2): source stays FREE-FORM — the s48 reconciliation
+    // record (constants.ts's Session-48 comment). NO enum-membership: the
+    // vocabulary is deliberately fragmented across five surfaces (the
+    // dialogs' raw lowercase values, the seed maps, the CSV import's
+    // arbitrary strings + "email" fallback, the settings list's Capitalized
+    // free-form labels) — every candidate list is case-disjoint from
+    // another surface, so a single-list guard would 400 either
+    // dialog-created rows or import rows, and the reference itself accepts
+    // arbitrary import strings. String-ness + the 40-char cap only.
     if (isBadString(body.source)) return ERR.BAD_REQUEST("Invalid source");
     const contact = await db.contact.create({
       data: {

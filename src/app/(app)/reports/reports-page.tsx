@@ -1,6 +1,6 @@
 "use client";
 
-import { downloadBlob, downloadFile } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
 import * as React from "react";
 import { Bookmark, Calendar as CalendarIcon, Download, FileText, RotateCcw, Target, TrendingDown, TrendingUp, User as UserIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, CHART_COLORS, REPORT_PE
 import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
 import { KPI_STATICS } from "@/lib/page-layout";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
-import { toCsv } from "@/lib/csv";
+import { toCsv, csvFilename } from "@/lib/csv";
 import { exportReportsPdf, exportTablePdf, isoDateSuffix } from "@/lib/pdf-export";
 import { listSavedReports, saveReport, normalizeSavedPeriod, type SavedReport, type SavedReportColumns } from "@/lib/saved-reports";
 import type { ReportsData } from "@/types";
@@ -192,11 +192,53 @@ export default function ReportsPage() {
                 wired to before. */}
             <Button
               size="sm"
-              onClick={() =>
-                downloadFile(
-                  `/api/export?type=report&period=${encodeURIComponent(period)}&owner=${encodeURIComponent(owner)}&stage=${encodeURIComponent(stage)}&status=${encodeURIComponent(status)}&download=1`,
-                )
-              }
+              onClick={() => {
+                // Session-48 (S48-P4, N-48g): the F-47a mechanism's LAST
+                // instance retired — downloadFile set window.location.href,
+                // so a non-200 (an expired session's 401 envelope, an
+                // INTERNAL 500) NAVIGATED the browser to the raw JSON body
+                // instead of downloading. The reference's own reports
+                // export is a CLIENT-side blob (bundle-verified — it cannot
+                // fail-navigate); our s25 architecture keeps the route as
+                // the single-source filter/artifact seam, so this is the
+                // fetch->blob flow: the artifact bytes stay EXACTLY the
+                // route's (BOM + CRLF + escapeCell quoting), and failures
+                // surface through the s46 convention instead of stranding
+                // the user on a JSON page.
+                void (async () => {
+                  try {
+                    const res = await fetch(
+                      `/api/export?type=report&period=${encodeURIComponent(period)}&owner=${encodeURIComponent(owner)}&stage=${encodeURIComponent(stage)}&status=${encodeURIComponent(status)}&download=1`,
+                    );
+                    if (!res.ok) {
+                      // The route's { ok, error } envelope — same shape the
+                      // store's call() surfaces everywhere else.
+                      const envelope = (await res.json().catch(() => null)) as
+                        | { ok: false; error?: { message?: string } }
+                        | null;
+                      toast.error(
+                        "Could not export report",
+                        envelope?.error?.message ?? "Export failed — please try again",
+                      );
+                      return;
+                    }
+                    // res.text() alone would STRIP the route's BOM
+                    // (TextDecoder skips it by default) — decode with
+                    // ignoreBOM so the artifact bytes round-trip EXACTLY
+                    // (the s25-pinned download=1 convention).
+                    const csv = new TextDecoder("utf-8", { ignoreBOM: true }).decode(
+                      await res.arrayBuffer(),
+                    );
+                    // The route owns the artifact's name (Content-Disposition);
+                    // the csvFilename fallback mirrors its own convention.
+                    const disposition = res.headers.get("content-disposition") ?? "";
+                    const match = /filename="([^"]+)"/.exec(disposition);
+                    downloadBlob(csv, match?.[1] ?? csvFilename("crm_report"), "text/csv");
+                  } catch {
+                    toast.error("Could not export report", "Network error — check your connection and try again");
+                  }
+                })();
+              }}
             >
               <Download className={REPORTS_FILTER_BAR.barBtnIcon} /> Export CSV
             </Button>

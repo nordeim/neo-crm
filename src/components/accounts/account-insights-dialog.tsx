@@ -37,7 +37,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
-import { OPP_STAGE_META } from "@/lib/constants";
+import { ACTIVITY_TYPE_META, OPP_STAGE_META } from "@/lib/constants";
 import type { Account, Activity, Contact, Opportunity } from "@/types";
 
 function initials(name: string): string {
@@ -165,7 +165,16 @@ export function AccountInsightsDialog({
                       {new Date(a.dueAt ?? a.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <Badge variant="outline" className="text-xs">{a.type}</Badge>
+                  {/* Session-48 (S48-P3, N-48b): the badge renders the
+                      house display-case label (ACTIVITY_TYPE_META — the
+                      activities page + the reports route idiom) instead of
+                      the raw lowercase slug: the reference's badge renders
+                      ITS raw type, which is Capitalized in ITS storage;
+                      ours stores lowercase, so the label map renders the
+                      same DISPLAY the reference renders. */}
+                  <Badge variant="outline" className="text-xs">
+                    {ACTIVITY_TYPE_META[a.type]?.label ?? a.type}
+                  </Badge>
                 </div>
               ))
             )}

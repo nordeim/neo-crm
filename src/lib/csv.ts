@@ -5,9 +5,36 @@ export interface CsvColumn<T> {
   value: (row: T) => string | number | null | undefined;
 }
 
+/**
+ * Session-48 (S48-P1): the CSV formula-injection guard — the operator's
+ * posture-(b) decision, covering BOTH this seam and entity-export.ts's
+ * qq() (the client-side family). A cell whose FIRST character is
+ * `=`, `+`, `@`, tab (U+0009) or CR (U+000D) is a formula-entry vector
+ * in spreadsheet consumers (OWASP CSV injection); prefixing the single
+ * quote — Excel's own text marker — renders the cell as text while
+ * keeping the artifact RFC-4180-well-formed. Every safe cell stays
+ * BYTE-IDENTICAL (the s41-P2 quote-doubling precedent: the pinned
+ * reference format untouched for safe fixtures).
+ *
+ * `-` is DELIBERATELY EXCLUDED (the (b)-vs-(c) line): negative numbers
+ * and dash-prefixed free text stay exact — full-OWASP would mangle them
+ * for a materially narrower residual vector (modern Excel blocks DDE by
+ * default). The phone cost of guarding `+` is accepted and documented:
+ * Excel renders `+971…` MORE faithfully as text than the current
+ * formula-evaluated `971…`; raw-text/re-import consumers see the `'`
+ * (parseCsv strips no markers — tests/csv-formula-guard.test.ts pins the
+ * whole contract, including the round-trip trade-off).
+ *
+ * The three STATIC import templates (csv-templates.ts) stay OUTSIDE the
+ * guard — our own example content, no attacker-controlled data.
+ */
+export function guardFormulaPrefix(s: string): string {
+  return /^[=+@\t\r]/.test(s) ? `'${s}` : s;
+}
+
 function escapeCell(v: string | number | null | undefined): string {
   if (v === null || v === undefined) return "";
-  const s = String(v);
+  const s = guardFormulaPrefix(String(v));
   if (/[",\n\r]/.test(s)) {
     return `"${s.replace(/"/g, '""')}"`;
   }

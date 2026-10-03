@@ -1283,6 +1283,41 @@ test("the per-table Export CSV downloads the table's own columns (S25-P5)", asyn
   expect(download.suggestedFilename()).toMatch(/^open_deals_\d{4}-\d{2}-\d{2}\.csv$/);
 });
 
+test("the reports header Export CSV downloads the route's artifact (S48-P4)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  // Widen the window to All Time — the seeded opportunities were created
+  // 33-60 days back, outside the default quarter start (the export maps
+  // the page's live filter model, exactly like the pre-fix navigation did).
+  await page.getByRole("combobox").first().click();
+  await page.getByRole("option", { name: "All Time" }).click();
+  // The header Export CSV — the F-47a mechanism's last instance before
+  // S48-P4 (downloadFile's window.location.href navigated to the raw JSON
+  // envelope on any non-200; zero e2e coverage is exactly how the
+  // dashboard's five dead affordances survived 18 green sessions). The
+  // fetch->blob flow keeps the route as the artifact source: the BOM'd
+  // 7-column header + the seeded rows, downloading (not navigating) with
+  // the URL staying /reports.
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export CSV" }).first().click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^crm_report_\d{4}-\d{2}-\d{2}\.csv$/);
+  const path = await download.path();
+  const { readFileSync } = await import("node:fs");
+  const body = readFileSync(path!, "utf8");
+  // The route's artifact verbatim: the download=1 BOM + the CRLF-joined
+  // 7-column header (the s25-pinned convention).
+  expect(body.startsWith("\uFEFFDeal Name,Account,Amount,Stage,Source,Owner,Close Date")).toBe(true);
+  // A seeded data row follows (the default quarter window's filtered
+  // opportunities — escapeCell quotes only when needed).
+  const lines = body.split("\r\n");
+  expect(lines.length).toBeGreaterThan(1);
+  expect(lines[1]!).toContain(",");
+  // No navigation happened — the reports page is still the page.
+  expect(page.url()).toContain("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+});
+
 test("the Save Custom Report View round-trip (S25-P4)", async ({ page }) => {
   await page.goto("/reports");
   await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();

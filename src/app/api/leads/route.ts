@@ -40,6 +40,13 @@ export async function POST(req: Request) {
   const stage = asString(body.stage, { optional: true }) ?? "new";
   if (!(LEAD_STAGES as readonly string[]).includes(stage)) return ERR.BAD_REQUEST("Invalid stage");
 
+  // Session-48 (S48-P2): source stays FREE-FORM — the s48 reconciliation
+  // record (constants.ts's Session-48 comment). NO enum-membership (the
+  // stage above IS enum-checked — the contrast is deliberate): the
+  // vocabulary is deliberately fragmented across five surfaces, every
+  // candidate list is case-disjoint from another, and the reference
+  // itself accepts arbitrary import strings for source. String-ness +
+  // the 40-char cap only.
   if (isBadString(body.source)) return ERR.BAD_REQUEST("Invalid source");
   const source = asString(body.source, { optional: true, max: 40 }) ?? null;
 

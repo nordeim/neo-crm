@@ -3,7 +3,7 @@ import {
   ACCOUNT_HEALTH_STATUSES,
   AGING_BUCKETS,
   CHART_COLORS,
-  CONTACT_SOURCES,
+  CONTACT_SOURCE_OPTIONS,
   EVENT_TYPES,
   EVENT_TYPE_META,
   FUNNEL_STAGES,
@@ -67,11 +67,19 @@ describe("dialog/filter vocabularies (session-5 DOM-verified)", () => {
     expect([...LEAD_SOURCES]).toEqual(["call", "email", "website", "partner"]);
   });
 
-  it("contact create dialog \"How did you meet?\" emoji options", () => {
+  it("contact create dialog \"How did you meet?\" emoji options (the living vocabulary)", () => {
     // Live "Create New Contact" listbox: 📞 Phone Call, ✉️ Email, 🌐 Website,
     // 🤝 Partner Referral, 👥 Personal Referral (emoji included — the trigger
     // itself renders "✉️ Email").
-    expect([...CONTACT_SOURCES]).toEqual([
+    //
+    // Session-48 (S48-P2): the pin re-anchored from the removed src-dead
+    // CONTACT_SOURCES constant to the LIVING vocabulary — the s28-corrected
+    // CONTACT_SOURCE_OPTIONS pairs these same emoji labels with the RAW
+    // values the reference stores (call/email/website/partner/referral);
+    // its own pin lives at contact-model.test.ts:108. The s48
+    // reconciliation record + the dead-constant removal: constants.ts's
+    // Session-48 comment block + tests/source-vocabulary.test.ts.
+    expect(CONTACT_SOURCE_OPTIONS.map((o) => o.label)).toEqual([
       "📞 Phone Call",
       "✉️ Email",
       "🌐 Website",

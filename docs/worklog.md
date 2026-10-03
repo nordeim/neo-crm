@@ -158,3 +158,16 @@ Work Log:
 
 Stage Summary:
 - SHIPPED: session-47 commit on main via the SSH wrapper (key shredded after) — the dashboard exports alive again after 18 dead sessions, the insights icons matched to our vocabulary, the leads inline edits now feedback-complete, the e2e coverage gap closed
+
+---
+Task ID: 48
+Agent: main (session-48)
+Task: The session-48 remediation — the two operator decisions (CSV posture b + the source-vocabulary documented-parity posture) + N-48b/N-48g, RED-first, gated, LIVE-verified, shipped
+
+Work Log:
+- Baseline verified (042bfe0, lint 0/0 · tsc 0 · 1131/1131), the 44th drift sweep clean (19th stable bundle), the dual audits clean (four s47 families genuine, zero graduations), the decision evidence extracted from the bundle (ContactSource consumed only by the settings page; the reference's reports export a client-side blob).
+- The decisions landed: (1) posture (b) — guardFormulaPrefix shared by csv.ts escapeCell + entity-export.ts qq (= + @ tab CR, '-excluded, templates/import untouched); (2) documented parity — the src-dead CONTACT_SOURCES + its contradictory comment removed, no enum-membership, settings defaults verbatim, the record in-file at four sites. Plus the insights badge display-case (ACTIVITY_TYPE_META labels) and the reports export fetch→blob flow (downloadFile retired, the BOM preserved via ignoreBOM).
+- Gate: lint 0/0 · tsc 0 · 1150/1150 (71 suites, +19) · build clean · 110/110 e2e (+1, the coverage-gap closer). LIVE-verified both directions (the guard probes, the badges, the reports blob + offline toast, the drawer + 390px sweep + the Tailwind v4 contract), zero probe residue. Screenshots 02/11/12 + 56/57 NEW (VLM-verified). Docs at SKILL v1.45.0 + docs/session_89.md. Commit on main + the wrapper push (key shredded).
+
+Stage Summary:
+- Session 48 SHIPPED: the seven-session deferral closed evidence-first — every export guarded, the vocabulary posture documented with the reference's own bundle as evidence, the last navigation seam retired.

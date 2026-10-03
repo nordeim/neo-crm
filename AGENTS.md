@@ -17,15 +17,15 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1131 checks)        | `bun run test`                         |
-| Browser E2E (109 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1150 checks)        | `bun run test`                         |
+| Browser E2E (110 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1131) → `bun run build` → `bun run test:e2e` (109) — or the
+`bun run test` (1150) → `bun run build` → `bun run test:e2e` (110) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1857,6 +1857,39 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   an unmount cleanup. The topbar hygiene (N-47g): the dead Dropdown
   import block removed (only the Menu* family is used; lint-invisible
   because no-unused-vars is off).
+
+- **Session-48 (SKILL v1.45.0)** — the two long-deferred operator
+  decisions landed, both evidence-first. (1) The CSV formula-injection
+  posture (b): a shared `guardFormulaPrefix` in `csv.ts` (cells whose
+  first char is `=`, `+`, `@`, tab or CR gain the Excel `'` text marker
+  INSIDE the quoting) applied in `escapeCell` AND imported into
+  entity-export.ts's `qq` — both export families guarded by one helper;
+  safe cells byte-identical (the s41-P2 precedent), `-` deliberately
+  excluded (negative numbers / dash text stay exact), the three static
+  import templates and the import parser untouched (our own content /
+  the reference's arbitrary-string surface), the round-trip `'`
+  documented and pinned. (2) The source-vocabulary reconciliation:
+  DOCUMENTED PARITY, not a merge — NEW bundle evidence (the reference's
+  settings contactSources is an entity-backed CRUD list whose ONLY
+  consumer is the settings page itself) closes the seven-session
+  deferral: the src-dead CONTACT_SOURCES constant + its
+  self-contradicting s5 comment removed (the living
+  CONTACT_SOURCE_OPTIONS/SOURCE_PAIRS stay pinned where they live), NO
+  enum-membership on the routes' source (free-form, string-ness + 40
+  chars — the reference accepts arbitrary import strings), the settings
+  Capitalized defaults verbatim, the whole posture recorded in-file at
+  constants.ts + settings/route.ts + both validation routes. Plus two
+  audit findings fixed: the insights dialog's type badges render
+  ACTIVITY_TYPE_META labels (Call/Meeting — the reference's display
+  case from our lowercase storage, N-48b), and the reports header
+  Export CSV — the F-47a mechanism's last instance — left
+  `downloadFile`'s window.location.href (a non-200 navigated to the raw
+  JSON envelope) for the fetch→blob flow with the s46 failure toast,
+  the Content-Disposition filename, and a BOM-preserving `ignoreBOM`
+  decode (res.text() STRIPS the BOM — TextDecoder default — the e2e's
+  first run caught it); `downloadFile` retired (zero consumers; the
+  navigation seam left the codebase) + a new download e2e closing the
+  zero-coverage gap.
 
 ## Conventions that differ from defaults
 

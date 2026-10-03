@@ -21,6 +21,7 @@
  */
 
 import { isoDateSuffix } from "@/lib/pdf-export";
+import { guardFormulaPrefix } from "@/lib/csv";
 
 /**
  * The RFC-4180 cell-quoter (session-41, S41-P2). Every builder in this
@@ -31,8 +32,15 @@ import { isoDateSuffix } from "@/lib/pdf-export";
  * the unescaped `"${v}"` wrap (its defect); our fix is byte-identical
  * for every quote-free cell, so the pinned reference format — the
  * filenames, the headers, the quote-free fixtures — is untouched.
+ *
+ * Session-48 (S48-P1): the formula-injection guard rides the same seam
+ * (the operator's posture-(b) decision — csv.ts's guardFormulaPrefix,
+ * shared by BOTH export families): a cell starting with `=`/`+`/`@`/
+ * tab/CR gains the `'` text marker INSIDE the quoting, so spreadsheet
+ * consumers render it as text instead of evaluating it. Safe cells stay
+ * byte-identical; `-` stays unguarded (the documented exclusion).
  */
-const qq = (v: unknown): string => `"${String(v).replace(/"/g, '""')}"`;
+const qq = (v: unknown): string => `"${guardFormulaPrefix(String(v)).replace(/"/g, '""')}"`;
 
 /** Raw dump: the header is the FIRST row's own keys; every value quoted. */
 export function entityDumpCsv(rows: object[]): string {

@@ -3,7 +3,10 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Session-47 pins (S47-P2): the account-insights icon vocabulary — the
-// F-47b audit. The dialog's six comparison sites compared Capitalized
+// F-47b audit. The dialog's comparison sites (s48 correction, N-48a:
+// exactly FOUR — the tint ternary ×2 + the icon ternary ×2; the
+// session-47 records said "six (×3 each)" — the fix and these pins were
+// unaffected, they assert presence, not count) compared Capitalized
 // "Email"/"Call" against our lowercase Activity.type vocabulary
 // (ACTIVITY_TYPES call/email/meeting/whatsapp/task/note — the seed and
 // every other surface lowercase), so both branches were DEAD with real

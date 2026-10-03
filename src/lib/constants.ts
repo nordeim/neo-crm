@@ -225,22 +225,29 @@ export const AGING_BUCKETS = [
 ] as const;
 
 
-// Session-5: the reference's Create Contact dialog labels its source select
-// "How did you meet?" and ships emoji-prefixed options (the trigger itself
-// renders "✉️ Email"). Stored values include the emoji — mirrored exactly.
-export const CONTACT_SOURCES = [
-  "📞 Phone Call",
-  "✉️ Email",
-  "🌐 Website",
-  "🤝 Partner Referral",
-  "👥 Personal Referral",
-] as const;
-
 // Session-28 (S28-P1): the reference's contact model, bundle-extracted.
 // Its SOURCE stores RAW values (call/email/website/partner/referral) —
-// the emoji strings above are CREATE-DIALOG LABELS ONLY (its table badge
+// the create dialog's emoji strings are LABELS ONLY (its table badge
 // and its CSV export carry the raw value; its EDIT dialog's source select
 // is plain "Call/Email/Website/Partner/Referral" with no emojis).
+//
+// Session-48 (S48-P2): the source-vocabulary RECONCILIATION record — the
+// operator decision, landed after seven sessions of deferral. The
+// vocabulary is deliberately FRAGMENTED, mirroring the reference's own
+// product design (bundle-verified 2026-10-04): its settings
+// contactSources is an ENTITY-BACKED CRUD list whose ONLY consumer is
+// the settings page's own ConfigEditor (exactly one ContactSource.list
+// query site in the bundle — it drives nothing functional); its create
+// dialog HARDCODES the five emoji options below; its DB stores the raw
+// values. The five disagreeing surfaces (create dialog / edit dialog /
+// seed maps / CSV import arbitrary + "email" fallback / settings
+// Capitalized defaults) all stand — NO enum-membership on the routes
+// (a single-list guard is case-disjoint from another surface and would
+// 400 the reference's own accepted arbitrary import strings), the
+// settings list feeds no consumer BY DESIGN. The src-dead s5-era
+// CONTACT_SOURCES constant (zero src consumers; its "stored values
+// include the emoji" header comment contradicted this correction) was
+// removed this session — THIS options list is the surviving vocabulary.
 export const CONTACT_SOURCE_OPTIONS = [
   { value: "call", label: "📞 Phone Call" },
   { value: "email", label: "✉️ Email" },
