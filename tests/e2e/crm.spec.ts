@@ -1425,7 +1425,7 @@ test("the accounts page export downloads the quoted 10-column CSV incl. Health (
 
 test("the Import Contacts dialog matches the reference's structure (S26-P6)", async ({ page }) => {
   await page.goto("/contacts");
-  await page.getByRole("button", { name: "Import" }).click();
+  await page.getByRole("button", { name: "Import", exact: true }).click();
   const dlg = page.getByRole("dialog");
   await expect(dlg.getByRole("heading", { name: "Import Contacts" })).toBeVisible();
   await expect(dlg.getByText("Upload a CSV or Excel file with contact information")).toBeVisible();
@@ -1443,7 +1443,7 @@ test("the Import Contacts dialog matches the reference's structure (S26-P6)", as
 
 test("the import round-trip: file → result box → auto-close (S26-P6)", async ({ page }) => {
   await page.goto("/contacts");
-  await page.getByRole("button", { name: "Import" }).click();
+  await page.getByRole("button", { name: "Import", exact: true }).click();
   await page.setInputFiles('input[type=file]', {
     name: "e2e-import.csv",
     mimeType: "text/csv",

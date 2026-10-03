@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadString, isBadNumber, isGuarded, requireSession } from "@/lib/api";
 import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -20,12 +20,34 @@ export async function PUT(req: Request, { params }: Params) {
     if (!name) return ERR.BAD_REQUEST("Account name is required");
     data.name = name;
   }
-  if ("industry" in body) data.industry = asString(body.industry, { optional: true, max: 80 }) ?? null;
-  if ("email" in body) data.email = asString(body.email, { optional: true, max: 160 }) ?? null;
-  if ("phone" in body) data.phone = asString(body.phone, { optional: true, max: 40 }) ?? null;
-  if ("website" in body) data.website = asString(body.website, { optional: true, max: 200 }) ?? null;
-  if ("annualRevenue" in body) data.annualRevenue = asNumber(body.annualRevenue) ?? null;
-  if ("employees" in body) data.employees = asInt(body.employees) ?? null;
+  // Session-40 (S40-P2): the silent-clear family — isBadFK's class,
+  // one parse-shape over (a present non-string rode the optional
+  // coercion to null on PUT).
+  if ("industry" in body) {
+    if (isBadString(body.industry)) return ERR.BAD_REQUEST("Invalid industry");
+    data.industry = asString(body.industry, { optional: true, max: 80 }) ?? null;
+  }
+  if ("email" in body) {
+    if (isBadString(body.email)) return ERR.BAD_REQUEST("Invalid email");
+    data.email = asString(body.email, { optional: true, max: 160 }) ?? null;
+  }
+  if ("phone" in body) {
+    if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
+    data.phone = asString(body.phone, { optional: true, max: 40 }) ?? null;
+  }
+  if ("website" in body) {
+    if (isBadString(body.website)) return ERR.BAD_REQUEST("Invalid website");
+    data.website = asString(body.website, { optional: true, max: 200 }) ?? null;
+  }
+  if ("annualRevenue" in body) {
+    // Number()'s truthy/array edges silently stored a number before.
+    if (isBadNumber(body.annualRevenue)) return ERR.BAD_REQUEST("Invalid annual revenue");
+    data.annualRevenue = asNumber(body.annualRevenue) ?? null;
+  }
+  if ("employees" in body) {
+    if (isBadNumber(body.employees)) return ERR.BAD_REQUEST("Invalid employee count");
+    data.employees = asInt(body.employees) ?? null;
+  }
   if ("isKey" in body) data.isKey = body.isKey === true;
   // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
   // coercion to null (the silent FK clear on PUT).

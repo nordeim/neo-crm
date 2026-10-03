@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asDate, asFKId, isBadFK, isBadString, isBadDate, isBadNumber, isGuarded, requireSession } from "@/lib/api";
 import { LEAD_STAGES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -30,11 +30,31 @@ export async function PUT(req: Request, { params }: Params) {
       if (!name) return ERR.BAD_REQUEST("Lead name is required");
       data.name = name;
     }
-    if ("email" in body) data.email = asString(body.email, { optional: true, max: 160 }) ?? null;
-    if ("phone" in body) data.phone = asString(body.phone, { optional: true, max: 40 }) ?? null;
-    if ("company" in body) data.company = asString(body.company, { optional: true, max: 120 }) ?? null;
-    if ("value" in body) data.value = asNumber(body.value) ?? 0;
-    if ("source" in body) data.source = asString(body.source, { optional: true, max: 40 }) ?? null;
+    // Session-40 (S40-P2): the non-FK silent-clear family — a present
+    // non-string used to ride the optional coercion to null (the
+    // isBadFK class one parse-shape over).
+    if ("email" in body) {
+      if (isBadString(body.email)) return ERR.BAD_REQUEST("Invalid email");
+      data.email = asString(body.email, { optional: true, max: 160 }) ?? null;
+    }
+    if ("phone" in body) {
+      if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
+      data.phone = asString(body.phone, { optional: true, max: 40 }) ?? null;
+    }
+    if ("company" in body) {
+      if (isBadString(body.company)) return ERR.BAD_REQUEST("Invalid company");
+      data.company = asString(body.company, { optional: true, max: 120 }) ?? null;
+    }
+    if ("value" in body) {
+      // Number()'s truthy/array edges (true→1, [5]→5, []→0) silently
+      // stored a number before the guard.
+      if (isBadNumber(body.value)) return ERR.BAD_REQUEST("Invalid value");
+      data.value = asNumber(body.value) ?? 0;
+    }
+    if ("source" in body) {
+      if (isBadString(body.source)) return ERR.BAD_REQUEST("Invalid source");
+      data.source = asString(body.source, { optional: true, max: 40 }) ?? null;
+    }
     // Session-37 (S37-P3): a non-string FK payload is a 400, not a
     // silent coercion to null (the silent FK clear on PUT).
     if ("accountId" in body) {
@@ -45,8 +65,16 @@ export async function PUT(req: Request, { params }: Params) {
       if (isBadFK(body.ownerId)) return ERR.BAD_REQUEST("Invalid owner selection");
       data.ownerId = asFKId(body.ownerId);
     }
-    if ("expectedCloseDate" in body) data.expectedCloseDate = asDate(body.expectedCloseDate) ?? null;
-    if ("nextFollowUp" in body) data.nextFollowUp = asDate(body.nextFollowUp) ?? null;
+    if ("expectedCloseDate" in body) {
+      // An unparseable string silently cleared the date before the
+      // guard (asDate("garbage") → undefined → null).
+      if (isBadDate(body.expectedCloseDate)) return ERR.BAD_REQUEST("Invalid expected close date");
+      data.expectedCloseDate = asDate(body.expectedCloseDate) ?? null;
+    }
+    if ("nextFollowUp" in body) {
+      if (isBadDate(body.nextFollowUp)) return ERR.BAD_REQUEST("Invalid follow-up date");
+      data.nextFollowUp = asDate(body.nextFollowUp) ?? null;
+    }
     if ("stage" in body) {
       const stage = asString(body.stage) ?? "new";
       if (!(LEAD_STAGES as readonly string[]).includes(stage)) return ERR.BAD_REQUEST("Invalid stage");

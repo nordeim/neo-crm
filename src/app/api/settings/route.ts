@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asInt, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asInt, isBadString, isBadNumber, isGuarded, requireSession } from "@/lib/api";
 import type { Settings } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -69,18 +69,36 @@ export async function PUT(req: Request) {
     }
   }
 
+  // Session-40 (S40-P3): the dead-fallback revival — the quartet used
+  // NON-optional asString, and "" is not nullish, so `?? "default"
+  // NEVER fired: a present non-string (or "") silently stored ""
+  // (LIVE-proven: {"defaultCurrency":123} → 200 + ""). The s38
+  // signup-name fix shape: optional:true makes the fallback live, and
+  // the type guard makes a bad payload a 400 instead of a silent
+  // empty-string corruption.
   if ("defaultCurrency" in body) {
-    const currency = asString(body.defaultCurrency, { max: 8 }) ?? "AED";
+    if (isBadString(body.defaultCurrency)) return ERR.BAD_REQUEST("Invalid currency");
+    const currency = asString(body.defaultCurrency, { max: 8, optional: true }) ?? "AED";
     data.defaultCurrency = currency.toUpperCase();
   }
-  if ("defaultLeadStage" in body) data.defaultLeadStage = asString(body.defaultLeadStage, { max: 40 }) ?? "new";
-  if ("defaultTier" in body) data.defaultTier = asString(body.defaultTier, { max: 4 }) ?? "B";
+  if ("defaultLeadStage" in body) {
+    if (isBadString(body.defaultLeadStage)) return ERR.BAD_REQUEST("Invalid default lead stage");
+    data.defaultLeadStage = asString(body.defaultLeadStage, { max: 40, optional: true }) ?? "new";
+  }
+  if ("defaultTier" in body) {
+    if (isBadString(body.defaultTier)) return ERR.BAD_REQUEST("Invalid default tier");
+    data.defaultTier = asString(body.defaultTier, { max: 4, optional: true }) ?? "B";
+  }
   if ("followUpDays" in body) {
+    if (isBadNumber(body.followUpDays)) return ERR.BAD_REQUEST("Invalid follow-up days");
     const days = asInt(body.followUpDays) ?? 3;
     if (days < 0 || days > 90) return ERR.BAD_REQUEST("Follow-up days must be between 0 and 90");
     data.followUpDays = days;
   }
-  if ("calendarView" in body) data.calendarView = asString(body.calendarView, { max: 20 }) ?? "month";
+  if ("calendarView" in body) {
+    if (isBadString(body.calendarView)) return ERR.BAD_REQUEST("Invalid calendar view");
+    data.calendarView = asString(body.calendarView, { max: 20, optional: true }) ?? "month";
+  }
   if ("firstDayOfWeek" in body) {
     const dow = asString(body.firstDayOfWeek, { max: 10 }) ?? "monday";
     if (!["monday", "sunday"].includes(dow)) return ERR.BAD_REQUEST("First day of week must be monday or sunday");

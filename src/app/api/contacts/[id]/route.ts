@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
-import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, ENGAGEMENT_LEVELS, COMPANY_SIZES } from "@/lib/constants";
+import { ok, ERR, asString, asFKId, isBadFK, isBadString, isGuarded, requireSession } from "@/lib/api";
+import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, CONTACT_STATUSES, ENGAGEMENT_LEVELS, COMPANY_SIZES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -21,16 +21,31 @@ export async function PUT(req: Request, { params }: Params) {
     data.name = name;
   }
   if ("email" in body) {
+    // Session-40 (S40-P2): the silent-clear family (isBadFK's class,
+    // one parse-shape over).
+    if (isBadString(body.email)) return ERR.BAD_REQUEST("Invalid email");
     const email = asString(body.email, { optional: true, max: 160 }) ?? null;
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return ERR.BAD_REQUEST("Enter a valid email address");
     }
     data.email = email;
   }
-  if ("phone" in body) data.phone = asString(body.phone, { optional: true, max: 40 }) ?? null;
-  if ("company" in body) data.company = asString(body.company, { optional: true, max: 120 }) ?? null;
-  if ("position" in body) data.position = asString(body.position, { optional: true, max: 80 }) ?? null;
-  if ("source" in body) data.source = asString(body.source, { optional: true, max: 40 }) ?? null;
+  if ("phone" in body) {
+    if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
+    data.phone = asString(body.phone, { optional: true, max: 40 }) ?? null;
+  }
+  if ("company" in body) {
+    if (isBadString(body.company)) return ERR.BAD_REQUEST("Invalid company");
+    data.company = asString(body.company, { optional: true, max: 120 }) ?? null;
+  }
+  if ("position" in body) {
+    if (isBadString(body.position)) return ERR.BAD_REQUEST("Invalid position");
+    data.position = asString(body.position, { optional: true, max: 80 }) ?? null;
+  }
+  if ("source" in body) {
+    if (isBadString(body.source)) return ERR.BAD_REQUEST("Invalid source");
+    data.source = asString(body.source, { optional: true, max: 40 }) ?? null;
+  }
   // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
   // coercion to null (the silent FK clear on PUT).
   if ("accountId" in body) {
@@ -56,6 +71,7 @@ export async function PUT(req: Request, { params }: Params) {
   // Session-28 (S28-P1): the new first-class fields ride PATCH too (the
   // inline role select updates role alone).
   if ("role" in body) {
+    if (isBadString(body.role)) return ERR.BAD_REQUEST("Invalid role");
     const role = asString(body.role, { optional: true, max: 60 }) ?? null;
     if (role && !(CONTACT_ROLES as readonly string[]).includes(role)) {
       return ERR.BAD_REQUEST("Invalid role");
@@ -63,6 +79,7 @@ export async function PUT(req: Request, { params }: Params) {
     data.role = role;
   }
   if ("engagementLevel" in body) {
+    if (isBadString(body.engagementLevel)) return ERR.BAD_REQUEST("Invalid engagement level");
     const engagementLevel = asString(body.engagementLevel, { optional: true, max: 20 }) ?? null;
     if (engagementLevel && !(ENGAGEMENT_LEVELS as readonly string[]).includes(engagementLevel)) {
       return ERR.BAD_REQUEST("Invalid engagement level");
@@ -70,6 +87,7 @@ export async function PUT(req: Request, { params }: Params) {
     data.engagementLevel = engagementLevel;
   }
   if ("companySize" in body) {
+    if (isBadString(body.companySize)) return ERR.BAD_REQUEST("Invalid company size");
     const companySize = asString(body.companySize, { optional: true, max: 40 }) ?? null;
     if (companySize && !(COMPANY_SIZES as readonly string[]).includes(companySize)) {
       return ERR.BAD_REQUEST("Invalid company size");
@@ -91,7 +109,17 @@ export async function PUT(req: Request, { params }: Params) {
     }
     data.photoUrl = photoUrl;
   }
-  if ("status" in body) data.status = asString(body.status, { optional: true, max: 20 }) ?? "active";
+  if ("status" in body) {
+    // Session-40 (S40-P2): status had NO type guard and NO enum check —
+    // {"status":123} silently reset an inactive contact to "active"
+    // (LIVE-proven) and {"status":"banana"} stored verbatim.
+    if (isBadString(body.status)) return ERR.BAD_REQUEST("Invalid status");
+    const status = asString(body.status, { optional: true, max: 20 }) ?? "active";
+    if (!(CONTACT_STATUSES as readonly string[]).includes(status)) {
+      return ERR.BAD_REQUEST("Invalid status");
+    }
+    data.status = status;
+  }
 
   // Session-35 (S35-P5): FK existence guards on PUT — the POST-side
   // vocabulary — plus the envelope-held failure path. A stale dropdown id

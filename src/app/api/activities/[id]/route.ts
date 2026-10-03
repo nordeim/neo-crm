@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, isBadString, isBadDate, isGuarded, requireSession } from "@/lib/api";
 import { ACTIVITY_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +20,26 @@ export async function PUT(req: Request, { params }: Params) {
     if (!subject) return ERR.BAD_REQUEST("Activity details are required");
     data.subject = subject;
   }
-  if ("notes" in body) data.notes = asString(body.notes, { optional: true, max: 2000 }) ?? null;
-  if ("relatedType" in body) data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
-  if ("relatedName" in body) data.relatedName = asString(body.relatedName, { optional: true, max: 160 }) ?? null;
-  if ("dueAt" in body) data.dueAt = asDate(body.dueAt) ?? null;
+  // Session-40 (S40-P2): the silent-clear family — isBadFK's class,
+  // one parse-shape over.
+  if ("notes" in body) {
+    if (isBadString(body.notes)) return ERR.BAD_REQUEST("Invalid notes");
+    data.notes = asString(body.notes, { optional: true, max: 2000 }) ?? null;
+  }
+  if ("relatedType" in body) {
+    if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
+    data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
+  }
+  if ("relatedName" in body) {
+    if (isBadString(body.relatedName)) return ERR.BAD_REQUEST("Invalid related name");
+    data.relatedName = asString(body.relatedName, { optional: true, max: 160 }) ?? null;
+  }
+  if ("dueAt" in body) {
+    // An unparseable string silently cleared the date before the
+    // guard (asDate("garbage") → undefined → null).
+    if (isBadDate(body.dueAt)) return ERR.BAD_REQUEST("Invalid due date");
+    data.dueAt = asDate(body.dueAt) ?? null;
+  }
   if ("priority" in body) {
     const priority = asString(body.priority) ?? "normal";
     if (!["high", "normal", "low"].includes(priority)) return ERR.BAD_REQUEST("Invalid priority");

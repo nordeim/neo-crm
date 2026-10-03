@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadString, isBadDate, isGuarded, requireSession } from "@/lib/api";
 import { EVENT_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -20,9 +20,20 @@ export async function PUT(req: Request, { params }: Params) {
     if (!title) return ERR.BAD_REQUEST("Event title is required");
     data.title = title;
   }
-  if ("description" in body) data.description = asString(body.description, { optional: true, max: 1000 }) ?? null;
-  if ("location" in body) data.location = asString(body.location, { optional: true, max: 200 }) ?? null;
-  if ("relatedType" in body) data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
+  // Session-40 (S40-P2): the silent-clear family — isBadFK's class,
+  // one parse-shape over.
+  if ("description" in body) {
+    if (isBadString(body.description)) return ERR.BAD_REQUEST("Invalid description");
+    data.description = asString(body.description, { optional: true, max: 1000 }) ?? null;
+  }
+  if ("location" in body) {
+    if (isBadString(body.location)) return ERR.BAD_REQUEST("Invalid location");
+    data.location = asString(body.location, { optional: true, max: 200 }) ?? null;
+  }
+  if ("relatedType" in body) {
+    if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
+    data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
+  }
   if ("allDay" in body) data.allDay = body.allDay === true;
   // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
   // coercion to null (the silent FK clear on PUT).
@@ -39,7 +50,14 @@ export async function PUT(req: Request, { params }: Params) {
     if (!startAt) return ERR.BAD_REQUEST("Start date and time are required");
     data.startAt = startAt;
   }
-  if ("endAt" in body) data.endAt = asDate(body.endAt) ?? null;
+  if ("endAt" in body) {
+    // Session-40 (S40-P2): a bad-type endAt BOTH silently cleared the
+    // end time AND bypassed the s36 end≥start invariant below (a null
+    // effectiveEnd skips the merged-record check — LIVE-proven with
+    // {"endAt": {"$gt": …}} → 200 + endAt null).
+    if (isBadDate(body.endAt)) return ERR.BAD_REQUEST("Invalid end date");
+    data.endAt = asDate(body.endAt) ?? null;
+  }
   if ("type" in body) {
     const type = asString(body.type) ?? "meeting";
     if (!(EVENT_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid event type");

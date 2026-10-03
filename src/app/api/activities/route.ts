@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isGuarded, requireSession } from "@/lib/api";
 import { ACTIVITY_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -56,6 +56,9 @@ export async function POST(req: Request) {
       const account = await db.account.findUnique({ where: { id: accountId } });
       if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
     }
+    // Session-40 (S40-P4): the WORST inventing twin — a bad-type dueAt
+    // silently invented NOW (asDate → undefined → new Date()).
+    if (isBadDate(body.dueAt)) return ERR.BAD_REQUEST("Invalid due date");
     const activity = await db.activity.create({
       data: {
         type,

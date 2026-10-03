@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isGuarded, requireSession } from "@/lib/api";
 import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +44,10 @@ export async function POST(req: Request) {
       if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
     }
 
+    // Session-40 (S40-P4): the POST-side inventing twins (revenue/
+    // employees silently nulled on a bad type).
+    if (isBadNumber(body.annualRevenue)) return ERR.BAD_REQUEST("Invalid annual revenue");
+    if (isBadNumber(body.employees)) return ERR.BAD_REQUEST("Invalid employee count");
     const account = await db.account.create({
       data: {
         name,

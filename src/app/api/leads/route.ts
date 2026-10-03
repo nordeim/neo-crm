@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asDate, asFKId, isBadFK, isBadNumber, isBadDate, isGuarded, requireSession } from "@/lib/api";
 import { LEAD_STAGES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +51,12 @@ export async function POST(req: Request) {
     }
 
     const closed = stage === "won" || stage === "lost";
+    // Session-40 (S40-P4): the POST-side inventing twins — a bad type
+    // silently INVENTED data (value→0, the dates→null) instead of
+    // rejecting. The PUT guards' exact shapes.
+    if (isBadNumber(body.value)) return ERR.BAD_REQUEST("Invalid value");
+    if (isBadDate(body.expectedCloseDate)) return ERR.BAD_REQUEST("Invalid expected close date");
+    if (isBadDate(body.nextFollowUp)) return ERR.BAD_REQUEST("Invalid follow-up date");
     const lead = await db.lead.create({
       data: {
         name,

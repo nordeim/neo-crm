@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isGuarded, requireSession } from "@/lib/api";
 import { EVENT_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +47,10 @@ export async function POST(req: Request) {
   const status = asString(body.status, { optional: true }) ?? "scheduled";
   if (!["scheduled", "completed", "cancelled"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
 
+  // Session-40 (S40-P4): the invariant twin — a bad-type endAt
+  // silently nulled the end time (the end≥start check below skips a
+  // null endAt, the s36 invariant's own bypass).
+  if (isBadDate(body.endAt)) return ERR.BAD_REQUEST("Invalid end date");
   const endAt = asDate(body.endAt);
   if (endAt && endAt < startAt) return ERR.BAD_REQUEST("End time must be after start time");
 

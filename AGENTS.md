@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (909 checks)         | `bun run test`                         |
+| Unit tests (966 checks)         | `bun run test`                         |
 | Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (909) → `bun run build` → `bun run test:e2e` (108) — or the
+`bun run test` (966) → `bun run build` → `bun run test:e2e` (108) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1568,6 +1568,54 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   non-FK coercion family is first in line for session 40 if the
   operator wants family symmetry; the Excel .xlsx accept stays — the
   file-input vocabulary is the S26-P6 pinned reference contract.
+
+- **The non-FK coercion-guard layer (session-40)** — the graduation
+  audit's headline quantified the family at 37 silent PUT members +
+  40 silent POST members (the ledger's "~15 PUT sites" UNDERCOUNTED —
+  the 19 `?? null` optional-string clears were never counted), every
+  one the isBadFK class one parse-shape over: a present non-string
+  (or, for dates, an unparseable string; for numbers, a boolean/array
+  payload through `Number()`'s truthy edges) rode the lenient parse
+  helpers into a SILENT mutation. Three LIVE-proven examples before
+  the fix: `PUT {"status": 123}` on a contact silently reset
+  "inactive" → "active" (contacts/[id]:94 had NO type guard and NO
+  enum check — `CONTACT_STATUSES` was not even imported);
+  `PUT {"defaultCurrency": 123}` on settings stored `""` through a
+  DEAD `?? "AED"` fallback (the non-optional `asString` returns ""
+  and "" is not nullish — the s38 signup lesson with four unapplied
+  instances); `PUT {"endAt": {}}` on an event cleared the end time
+  AND bypassed the s36 end≥start invariant (a null effectiveEnd
+  skips the merged-record check). THE FIXES (S40-P1..P6, RED-first —
+  exactly the predicted 57 failing pins before the code): P1 the
+  three predicates in `src/lib/api.ts` — `isBadString` (the general
+  isBadFK mirror), `isBadDate` (stricter: garbage STRINGS are bad
+  too; `""` stays the explicit clear), `isBadNumber` (finite numbers
+  + numeric strings good; `true`/`[5]`/`[]`/`" "` bad) — with
+  behavior tests on the real edge matrix (`tests/coercion-guards.test.ts`);
+  P2 the PUT-side sweep at 30 field sites across the five [id]
+  routes (email/phone/company/position/source/industry/website/
+  notes/relatedType/relatedName/description/location strings,
+  role/engagementLevel/companySize classifiers, the four dates, the
+  three numerics) + the contacts `status` type guard AND its
+  `CONTACT_STATUSES` membership; P3 the settings quartet's
+  `optional: true` revival (the fallbacks are live again — `""`/
+  null now default instead of storing "") + the five settings
+  guards; P4 the POST-side inventing twins (leads value/dates,
+  accounts revenue/employees, activities dueAt — which silently
+  invented NOW — events endAt); P5 login's `findUnique` +
+  cookie-set tail joined the envelope (the last unwrapped auth
+  read; login also joined the auth-reads containment it.each); P6
+  hygiene — the dead `asRequiredString`/`asOneOf` exports deleted
+  and `exact: true` on the two earlier import tests' toolbar
+  clicks. The UI-payload census proved the surface API-only (every
+  real writer sends typed values), so no UI path can trip a guard.
+  Pinned by `tests/coercion-guards.test.ts` (11) +
+  `tests/api-robustness.test.ts` (143 checks now — +47 s40 rows).
+  Deferred re-confirmed: the POST-side enum defaults + string nulls
+  (lenient-create, no data destroyed), the strict-bool
+  `isKey`/`allDay` idioms, the CSV injection family (deploy-posture),
+  the Excel accept (S26-P6 parity), the partial-import success
+  conflation (reference-atomic, vocabulary-pinned).
 
 ## Conventions that differ from defaults
 

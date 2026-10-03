@@ -588,6 +588,7 @@ describe("session-38: the proof-coverage completion (S38-P4 — strengthening pi
   });
 
   it.each([
+    "src/app/api/auth/login/route.ts",
     "src/app/api/auth/signup/route.ts",
     "src/app/api/auth/verify/route.ts",
     "src/app/api/auth/resend/route.ts",
@@ -598,6 +599,9 @@ describe("session-38: the proof-coverage completion (S38-P4 — strengthening pi
     // vacuously TRUE on zero matches, so a route that lost all its
     // reads kept the pin green. Every auth route carries at least the
     // findUnique; signup additionally the count.
+    // Session-40 (S40-P5): login joins — its findUnique was the only
+    // auth read left outside the envelope (a raw non-JSON 500 on a
+    // SQLITE_BUSY-class failure).
     expect(post).toMatch(/db\.user\.findUnique\(/);
     if (rel.endsWith("signup/route.ts")) {
       expect(post).toMatch(/db\.user\.count\(/);
@@ -690,3 +694,118 @@ describe("session-39: the sweep placement harmonization (S39-P7)", () => {
   });
 });
 
+
+// ---------------------------------------------------------------------------
+// Session-40 (S40-P2/P3/P4/P5): the non-FK coercion family graduates.
+// The graduation audit quantified 37 silent PUT members + 40 silent POST
+// members — the ledger's "~15 PUT sites" undercounted (the 19 `?? null`
+// optional-string clears were never counted). Every silent member is the
+// isBadFK class one parse-shape over: a present non-string rides
+// asString/asDate/asNumber's lenient coercion into a SILENT mutation
+// ({"status":123} reset an inactive contact to active — LIVE-proven;
+// {"endAt":{}} cleared the end time AND bypassed the s36 invariant;
+// {"defaultCurrency":123} stored "" through a dead ?? fallback).
+// ---------------------------------------------------------------------------
+
+const guardCall = (guard: string, field: string) =>
+  new RegExp(`${guard}\\(body\\.${field}\\)`);
+
+describe("session-40: the PUT-side type-guard sweep (S40-P2 — the silent-mutation family)", () => {
+  it.each([
+    // [route, field, guard, message] — the s37 FK-guard shape, one
+    // parse family over. Every row was a LIVE-verified silent mutation.
+    ["src/app/api/leads/[id]/route.ts", "email", "isBadString", "Invalid email"],
+    ["src/app/api/leads/[id]/route.ts", "phone", "isBadString", "Invalid phone number"],
+    ["src/app/api/leads/[id]/route.ts", "company", "isBadString", "Invalid company"],
+    ["src/app/api/leads/[id]/route.ts", "source", "isBadString", "Invalid source"],
+    ["src/app/api/leads/[id]/route.ts", "value", "isBadNumber", "Invalid value"],
+    ["src/app/api/leads/[id]/route.ts", "expectedCloseDate", "isBadDate", "Invalid expected close date"],
+    ["src/app/api/leads/[id]/route.ts", "nextFollowUp", "isBadDate", "Invalid follow-up date"],
+    ["src/app/api/contacts/[id]/route.ts", "email", "isBadString", "Invalid email"],
+    ["src/app/api/contacts/[id]/route.ts", "phone", "isBadString", "Invalid phone number"],
+    ["src/app/api/contacts/[id]/route.ts", "company", "isBadString", "Invalid company"],
+    ["src/app/api/contacts/[id]/route.ts", "position", "isBadString", "Invalid position"],
+    ["src/app/api/contacts/[id]/route.ts", "source", "isBadString", "Invalid source"],
+    ["src/app/api/contacts/[id]/route.ts", "role", "isBadString", "Invalid role"],
+    ["src/app/api/contacts/[id]/route.ts", "engagementLevel", "isBadString", "Invalid engagement level"],
+    ["src/app/api/contacts/[id]/route.ts", "companySize", "isBadString", "Invalid company size"],
+    ["src/app/api/contacts/[id]/route.ts", "status", "isBadString", "Invalid status"],
+    ["src/app/api/accounts/[id]/route.ts", "industry", "isBadString", "Invalid industry"],
+    ["src/app/api/accounts/[id]/route.ts", "email", "isBadString", "Invalid email"],
+    ["src/app/api/accounts/[id]/route.ts", "phone", "isBadString", "Invalid phone number"],
+    ["src/app/api/accounts/[id]/route.ts", "website", "isBadString", "Invalid website"],
+    ["src/app/api/accounts/[id]/route.ts", "annualRevenue", "isBadNumber", "Invalid annual revenue"],
+    ["src/app/api/accounts/[id]/route.ts", "employees", "isBadNumber", "Invalid employee count"],
+    ["src/app/api/activities/[id]/route.ts", "notes", "isBadString", "Invalid notes"],
+    ["src/app/api/activities/[id]/route.ts", "relatedType", "isBadString", "Invalid related type"],
+    ["src/app/api/activities/[id]/route.ts", "relatedName", "isBadString", "Invalid related name"],
+    ["src/app/api/activities/[id]/route.ts", "dueAt", "isBadDate", "Invalid due date"],
+    ["src/app/api/events/[id]/route.ts", "description", "isBadString", "Invalid description"],
+    ["src/app/api/events/[id]/route.ts", "location", "isBadString", "Invalid location"],
+    ["src/app/api/events/[id]/route.ts", "relatedType", "isBadString", "Invalid related type"],
+    ["src/app/api/events/[id]/route.ts", "endAt", "isBadDate", "Invalid end date"],
+  ])("%s: %s rejects the present-non-string class (400 %s)", (rel, field, guard, message) => {
+    const put = handlerBlock(route(rel), "PUT");
+    expect(put).toMatch(guardCall(guard, field));
+    expect(put).toMatch(message);
+  });
+
+  it("contacts/[id] status gains the CONTACT_STATUSES membership (N-B5: \"banana\" stored verbatim)", () => {
+    const put = handlerBlock(route("src/app/api/contacts/[id]/route.ts"), "PUT");
+    expect(put).toMatch(/CONTACT_STATUSES/);
+    expect(put).toMatch(/Invalid status/);
+  });
+});
+
+describe("session-40: the settings dead-fallback revival + guards (S40-P3 — N-B4)", () => {
+  it.each([
+    ["defaultCurrency", "isBadString", "Invalid currency"],
+    ["defaultLeadStage", "isBadString", "Invalid default lead stage"],
+    ["defaultTier", "isBadString", "Invalid default tier"],
+    ["calendarView", "isBadString", "Invalid calendar view"],
+    ["followUpDays", "isBadNumber", "Invalid follow-up days"],
+  ])("settings PUT %s: the type guard (400 %s)", (field, guard, message) => {
+    const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
+    expect(put).toMatch(guardCall(guard, field));
+    expect(put).toMatch(message);
+  });
+
+  it("the quartet's ?? fallbacks are LIVE (optional: true — \"\" is not nullish, the s38 lesson)", () => {
+    const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
+    for (const field of ["defaultCurrency", "defaultLeadStage", "defaultTier", "calendarView"]) {
+      const m = put.match(new RegExp(`asString\\(body\\.${field},[^)]*\\)`));
+      expect(m).not.toBeNull();
+      expect(m![0]).toMatch(/optional:\s*true/);
+    }
+  });
+});
+
+describe("session-40: the POST-side inventing twins (S40-P4 — bad types silently invent data)", () => {
+  it.each([
+    // leads: value→0, the dates→null
+    ["src/app/api/leads/route.ts", "value", "isBadNumber", "Invalid value"],
+    ["src/app/api/leads/route.ts", "expectedCloseDate", "isBadDate", "Invalid expected close date"],
+    ["src/app/api/leads/route.ts", "nextFollowUp", "isBadDate", "Invalid follow-up date"],
+    // accounts: revenue/employees→null
+    ["src/app/api/accounts/route.ts", "annualRevenue", "isBadNumber", "Invalid annual revenue"],
+    ["src/app/api/accounts/route.ts", "employees", "isBadNumber", "Invalid employee count"],
+    // activities: dueAt→new Date() — the WORST (invents NOW)
+    ["src/app/api/activities/route.ts", "dueAt", "isBadDate", "Invalid due date"],
+    // events: endAt→null — the invariant twin
+    ["src/app/api/events/route.ts", "endAt", "isBadDate", "Invalid end date"],
+  ])("%s: %s rejects the inventing class (400 %s)", (rel, field, guard, message) => {
+    const post = handlerBlock(route(rel), "POST");
+    expect(post).toMatch(guardCall(guard, field));
+    expect(post).toMatch(message);
+  });
+});
+
+describe("session-40: the login envelope (S40-P5 — the last unwrapped auth read)", () => {
+  it("login POST wraps its read + cookie-set tail in try/catch → ERR.INTERNAL", () => {
+    const post = handlerBlock(route("src/app/api/auth/login/route.ts"), "POST");
+    expect(post).toMatch(/try\s*\{/);
+    expect(post).toMatch(/db\.user\.findUnique\(/);
+    expect(allInsideTry(post, /db\.user\.findUnique\(/)).toBe(true);
+    expect(post).toMatch(/ERR\.INTERNAL/);
+  });
+});
