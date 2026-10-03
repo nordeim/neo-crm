@@ -17,18 +17,21 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (896 checks)         | `bun run test`                         |
-| Browser E2E (107 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (909 checks)         | `bun run test`                         |
+| Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (896) → `bun run build` → `bun run test:e2e` (107) — or the
-one-command `bun run gate` (session-38: the same chain as a package script,
-so the build always precedes the e2e boot — a leftover :3100 server would
-otherwise silently test stale code). There is no
+`bun run test` (909) → `bun run build` → `bun run test:e2e` (108) — or the
+one-command `bun run gate` (session-38: the same chain as a package
+script, so the build always precedes the e2e boot; session-39: the e2e
+step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
+gate ALWAYS boots the just-built server — chaining the build alone did
+NOT close the stale-server hazard, because a leftover :3100 listener
+was reused regardless of build timing). There is no
 hosted CI; the local gate is the only gate. `next.config.ts` sets
 `ignoreBuildErrors` — the explicit `typecheck` step is what catches type
 errors; never skip it.
@@ -1523,6 +1526,48 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   helpers, hydrate error vs logged-out, the login/verify timing
   side-channel, the upload MIME trust (contained: extension lock +
   nosniff + randomUUID names).
+
+- **The error-semantics + gate-integrity layer (session-39)** — the
+  re-audit verified all six session-38 fix families genuine but found
+  the gate script's own header claim FALSE in the reuse scenario
+  (`reuseExistingServer: !process.env.CI` reuses a leftover :3100
+  standalone listener regardless of the preceding `bun run build` — a
+  running process holds the OLD code in memory while the rebuild swaps
+  static assets underneath, so `bun run gate` could go green on stale
+  server code): the e2e step now runs under `CI=1` (fresh boot + kill
+  on exit; plain `bun run test:e2e` keeps the reuse ergonomics for
+  iteration). The Import dialog's failure banner conflated "every
+  POST failed" (expired session, network drop — `call()` swallows the
+  fetch rejection) with "the CSV had no valid rows": both rendered
+  "No valid contacts found…"; `importContacts` now returns
+  `{ created, attempted }` and the banner is the reference's own
+  "Failed to import contacts. Please try again." when rows were
+  attempted but none landed (LIVE: a fetch-rejecting probe through the
+  real dialog; E2E: the 108th check drives it with route.abort). The
+  profile `save()` gained the try/catch/finally its sibling upload
+  always had — a network throw no longer strands the Save button busy
+  with no toast (LIVE-verified via the same fetch patch). The signup
+  name family completed: `{"name": 123}` is a 400 "Invalid name"
+  instead of silently deriving (the photoUrl guard's shape, one field
+  over), and the DERIVED name is capped at the explicit-name ceiling
+  of 80 (LIVE: a 140-a local part derives exactly 80 chars). The lint
+  gate enforces `--max-warnings 0` — the documented "lint 0/0"
+  standard is load-bearing, not conventional. The sweep placement on
+  the three s38 auth routes moved before the denied return (login's
+  exact placement — denied requests sweep too; the code finally
+  matches its own "mirrored" comment). The auth-reads containment
+  pin gained its presence pairing (`allInsideTry` is vacuously true
+  on zero matches). Test hygiene: the quoted-comma e2e cleanup now
+  deletes ALL matching emails (Contact.email is not unique — a
+  leftover probe from an aborted run poisoned the next run's final
+  assertion), and the toolbar Import clicks use `exact: true` (a row
+  named "E2E Import" gives its Call/Email/WhatsApp/Actions buttons
+  substring matches — a 5-way strict-mode violation that only
+  surfaced mid-suite, never in isolation). Deferred re-confirmed
+  (zero graduations, all 20 ledger rationales hold at f7aac8c): the
+  non-FK coercion family is first in line for session 40 if the
+  operator wants family symmetry; the Excel .xlsx accept stays — the
+  file-input vocabulary is the S26-P6 pinned reference contract.
 
 ## Conventions that differ from defaults
 

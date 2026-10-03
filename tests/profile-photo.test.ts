@@ -113,3 +113,22 @@ describe("session-30: the topbar avatar img branch", () => {
     expect(src).toMatch(/object-cover/);
   });
 });
+
+describe("session-39: the profile save envelope (S39-P3)", () => {
+  it("save() is try/catch-wrapped with setSaving in a finally — a network throw cannot strand the busy state", () => {
+    const src = pageRaw();
+    const start = src.indexOf("async function save()");
+    expect(start).toBeGreaterThan(-1);
+    const body = src.slice(start, start + 1400);
+    // The sibling uploadPhoto has had this shape since s30; save() was
+    // a bare await chain — a network throw mid-save propagated from
+    // `void save()` as an unhandled rejection and setSaving(false)
+    // never ran (the Save button stayed busy forever, no toast).
+    expect(body).toMatch(/try\s*\{/);
+    expect(body).toMatch(/\}\s*catch/);
+    expect(body).toMatch(/finally\s*\{/);
+    expect(body).toMatch(/setSaving\(false\);\s*\}/);
+    // The catch surfaces the existing failure vocabulary, not silence.
+    expect(body).toMatch(/Failed to update profile/);
+  });
+});

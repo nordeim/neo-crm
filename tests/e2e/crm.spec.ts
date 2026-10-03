@@ -1463,7 +1463,9 @@ test("the import round-trip: file → result box → auto-close (S26-P6)", async
 
 test("the import round-trip parses QUOTED cells with embedded commas (S38-P3)", async ({ page }) => {
   await page.goto("/contacts");
-  await page.getByRole("button", { name: "Import" }).click();
+  // S39 robustness: exact:true — the earlier round-trip test's
+  // "E2E Import" row makes a non-exact toolbar click ambiguous.
+  await page.getByRole("button", { name: "Import", exact: true }).click();
   // A quoted cell with an embedded comma — the naive row.split(",")
   // corrupted this into name "Quoted" + a shifted email column; the
   // parseCsv seam (RFC-4180 quotes) keeps the cell whole.
@@ -1485,14 +1487,58 @@ test("the import round-trip parses QUOTED cells with embedded commas (S38-P3)", 
   // would race the stale slice (the dual-mounted Table/Cards views).
   const res = await page.request.get("/api/contacts");
   const body = (await res.json()) as { ok: boolean; data: Array<{ id: string; email: string }> };
-  const probe = body.data.find((c) => c.email === "quoted@test.local");
-  expect(probe).toBeDefined();
-  const del = await page.request.delete(`/api/contacts/${probe!.id}`);
-  expect(del.ok()).toBe(true);
+  // Session-39 (S39-P7): the cleanup deletes ALL matching emails —
+  // Contact.email is not unique, and a leftover probe from an aborted
+  // run made the next run's final assertion fail until manual cleanup
+  // (the single-match find() deleted only the FIRST row).
+  const probes = body.data.filter((c) => c.email === "quoted@test.local");
+  expect(probes.length).toBeGreaterThan(0);
+  for (const p of probes) {
+    const del = await page.request.delete(`/api/contacts/${p.id}`);
+    expect(del.ok()).toBe(true);
+  }
   const after = (await (await page.request.get("/api/contacts")).json()) as {
     data: Array<{ email: string }>;
   };
-  expect(after.data.find((c) => c.email === "quoted@test.local")).toBeUndefined();
+  expect(after.data.filter((c) => c.email === "quoted@test.local")).toHaveLength(0);
+});
+
+test("the import failure banner distinguishes all-POSTs-failed from no-valid-rows (S39-P2)", async ({ page }) => {
+  await page.goto("/contacts");
+  // S39 robustness: exact:true on the TOOLBAR click — a row named
+  // "E2E Import" (left by the earlier round-trip test until the reset
+  // flow wipes it) gives its Call/Email/WhatsApp/Actions buttons
+  // substring matches on a non-exact "Import" (a 5-way strict-mode
+  // violation). When the dialog is OPEN, Radix aria-hides the toolbar,
+  // so the submit's exact "Import" stays unambiguous.
+  await page.getByRole("button", { name: "Import", exact: true }).click();
+  // A VALID row whose POST fails — the route aborts every /api/contacts
+  // POST (the network-failure class `call()` swallows): created stays 0
+  // while attempted is 1, which used to render the WRONG banner ("No
+  // valid contacts found…") instead of the failure vocabulary.
+  await page.route("**/api/contacts", (route) => {
+    if (route.request().method() === "POST") return route.abort();
+    return route.continue();
+  });
+  await page.setInputFiles('input[type=file]', {
+    name: "e2e-fail.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("name,email\nFail Probe,fail@test.local"),
+  });
+  await page.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(page.getByText("Failed to import contacts. Please try again.")).toBeVisible();
+  // …and the no-rows banner stays distinct: a header-only CSV keeps the
+  // "No valid contacts found" vocabulary (attempted === 0).
+  await page.getByRole("button", { name: "Cancel" }).click();
+  await page.getByRole("button", { name: "Import", exact: true }).click();
+  await page.setInputFiles('input[type=file]', {
+    name: "e2e-empty.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("name,email\n"),
+  });
+  await page.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(page.getByText("No valid contacts found. Make sure your file has name and email columns.")).toBeVisible();
+  await page.getByRole("button", { name: "Cancel" }).click();
 });
 
 

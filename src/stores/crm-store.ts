@@ -83,7 +83,7 @@ export interface CrmState {
   // Session-38 (S38-P3): the Import dialog's batch path — serial POSTs
   // with ONE slice refetch after the loop (createContact's per-call
   // refetch made an N-row import O(N²) network).
-  importContacts: (inputs: Record<string, unknown>[]) => Promise<number>;
+  importContacts: (inputs: Record<string, unknown>[]) => Promise<{ created: number; attempted: number }>;
 
   createLead: (input: Record<string, unknown>) => Promise<Result<Lead, string>>;
   updateLead: (id: string, input: Record<string, unknown>) => Promise<Result<Lead, string>>;
@@ -216,14 +216,19 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   // Session-38 (S38-P3): the import batch — the reference's flow is a
   // serial per-row create; the difference is the refetch, ONCE after
   // the loop (the naive per-row createContact refetch was O(N²)).
+  // Session-39 (S39-P2): the return is { created, attempted } — a bare
+  // count cannot tell "the CSV had no valid rows" from "every POST
+  // failed" (expired session, network drop), and the page rendered the
+  // wrong banner for the second case.
   importContacts: async (inputs) => {
     let created = 0;
+    const attempted = inputs.length;
     for (const input of inputs) {
       const res = await call<Contact>("/api/contacts", { method: "POST", body: JSON.stringify(input) });
       if (res.ok) created += 1;
     }
     await get().fetchContacts();
-    return created;
+    return { created, attempted };
   },
   updateContact: async (id, input) => {
     const res = await call<Contact>(`/api/contacts/${id}`, { method: "PUT", body: JSON.stringify(input) });

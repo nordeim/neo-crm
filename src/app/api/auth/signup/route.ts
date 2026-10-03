@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString } from "@/lib/api";
+import { ok, ERR, asString, isBadFK } from "@/lib/api";
 import { hashPassword } from "@/lib/auth";
 import { clientKey, rateLimit, sweepRateLimits } from "@/lib/rate-limit";
 import { VERIFICATION_TTL_MS } from "@/lib/verification";
@@ -25,12 +25,16 @@ function nameFromEmail(email: string): string {
 
 export async function POST(req: Request) {
   const limit = rateLimit(`signup:${clientKey(req)}`, 10, 15 * 60 * 1000);
-  if (!limit.allowed) return ERR.RATE_LIMITED();
   // Session-38 (S38-P6): the opportunistic bucket sweep — the audit
   // found it ran ONLY from login, so the signup/verify/resend buckets
   // were cleaned only when someone next logged in (bounded, but
-  // dishonest; login's own placement, mirrored here).
+  // dishonest).
+  // Session-39 (S39-P7): login's EXACT placement — before the denied
+  // return, so denied requests sweep too (the s38 placement was after
+  // the return, and the code finally matches its own "mirrored"
+  // comment).
   sweepRateLimits();
+  if (!limit.allowed) return ERR.RATE_LIMITED();
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
@@ -43,7 +47,14 @@ export async function POST(req: Request) {
   // empty string is not nullish), so the nameFromEmail fallback was DEAD
   // CODE for 16 sessions: every UI signup stored name: "" (the "?"
   // avatars). The optional form returns undefined, so the ?? fires.
-  const name = asString(body.name, { max: 80, optional: true }) ?? nameFromEmail(asString(body.email, { max: 160 }) ?? "");
+  // Session-39 (S39-P4): a PRESENT non-string name is a 400 — the same
+  // type contract the s38 photoUrl guards enforce one field over
+  // ({"name": 123} used to ride the optional coercion to undefined and
+  // silently derive). The derived name is capped at the explicit-name
+  // ceiling: nameFromEmail returns the email local part, up to ~150
+  // chars under the 160 email cap.
+  if (isBadFK(body.name)) return ERR.BAD_REQUEST("Invalid name");
+  const name = (asString(body.name, { max: 80, optional: true }) ?? nameFromEmail(asString(body.email, { max: 160 }) ?? "")).slice(0, 80);
   const email = (asString(body.email, { max: 160 }) ?? "").toLowerCase();
   const password = typeof body.password === "string" ? body.password : "";
 

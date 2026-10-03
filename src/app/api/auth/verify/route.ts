@@ -27,10 +27,11 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(req: Request) {
   const limit = rateLimit(`verify:${clientKey(req)}`, 20, 15 * 60 * 1000);
-  if (!limit.allowed) return ERR.RATE_LIMITED();
   // Session-38 (S38-P6): the opportunistic bucket sweep (login's
-  // placement, mirrored — see the signup note).
+  // placement — see the signup note; S39-P7 moved it before the denied
+  // return so denied requests sweep too).
   sweepRateLimits();
+  if (!limit.allowed) return ERR.RATE_LIMITED();
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");

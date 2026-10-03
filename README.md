@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-1003%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-1017%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -52,7 +52,7 @@ first boot.
 | 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 896 Vitest unit checks + 107 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 909 Vitest unit checks + 108 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
 
 ## Architecture
 
@@ -175,10 +175,10 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 896 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script)
+bun run test          # 909 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 107 Playwright checks on :3100 with its own db/e2e.db
-bun run gate          # the full gate in one command: lint → typecheck → test → build → e2e
+bun run test:e2e      # 108 Playwright checks on :3100 with its own db/e2e.db
+bun run gate          # the full gate in one command: lint → typecheck → test → build → CI=1 e2e (the CI=1 prefix forces a fresh e2e server — a leftover :3100 listener is never reused)
 ```
 
 E2E coverage: logged-out surface (redirects, bad credentials — the
@@ -369,8 +369,30 @@ a full-list refetch per row; the upload POST's mkdir/writeFile joined
 the envelope (ENOSPC answers `{ ok, error }`, not a raw 500); all four
 rate-limited auth routes run the limiter's opportunistic sweep; and the
 `bun run gate` umbrella script encodes the documented gate order in one
-command — build chained before the e2e boot, closing the stale-server
-class),
+command — build chained before the e2e boot, and the e2e step runs
+with `CI=1` so `reuseExistingServer` evaluates false and the gate
+ALWAYS boots the just-built server — the session-39 correction of the
+stale-server claim),
+and the session-39 error-semantics + gate-integrity layer (the
+dual-audit's findings, all RED-first: the gate's stale-server claim
+was FALSE in the reuse scenario — a leftover `:3100` standalone
+listener was REUSED regardless of the preceding build, so `bun run
+gate` could go green on stale in-memory server code; the e2e step now
+runs under `CI=1`, forcing a fresh boot while plain `bun run
+test:e2e` keeps the reuse ergonomics; the Import dialog's failure
+banner conflated "every POST failed" (expired session, network drop)
+with "no valid rows" — both rendered "No valid contacts found…";
+`importContacts` now returns `{ created, attempted }` and the banner
+is the reference's own "Failed to import contacts. Please try
+again." when rows were attempted but none landed; the profile
+`save()` gained the try/catch/finally its sibling upload always had —
+a network throw no longer strands the Save button busy with no toast;
+the signup name family completed — `{"name": 123}` is a 400
+"Invalid name" instead of silently deriving, and the DERIVED name is
+capped at the explicit-name ceiling of 80; the lint gate enforces
+`--max-warnings 0` so the documented 0/0 standard is load-bearing;
+and the sweep placement on the three s38 auth routes finally matches
+login's (before the denied return — denied requests sweep too)),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,
@@ -407,7 +429,7 @@ proxy; session cookies are marked `Secure` whenever `NODE_ENV=production`.
 ## Contributing
 
 - Work on `main` with atomic Conventional Commits (`:tada: feat:`, `:bug: fix:`, `:memo: docs:`).
-- Gate before every push: `bun run lint && bun run typecheck && bun run test && bun run build && bun run test:e2e`.
+- Gate before every push: `bun run lint && bun run typecheck && bun run test && bun run build && CI=1 bun run test:e2e` (or just `bun run gate`).
 - React 19 rules apply: no `setState` inside effect bodies (use remount-via-key
   or adjust-during-render), no `forwardRef`, no components created during render.
 - Tailwind v4: tokens in `@theme` as literal hex — never a JS config, never

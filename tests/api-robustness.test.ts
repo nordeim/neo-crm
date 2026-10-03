@@ -467,8 +467,9 @@ describe("session-38: the signup name-fallback revival (S38-P1)", () => {
     const src = route("src/app/api/auth/signup/route.ts");
     expect(src).toMatch(/function nameFromEmail\(/);
     // The fallback must survive the optional-parse fix (not be deleted
-    // as "unused" — it is the absent-name path).
-    expect(src).toMatch(/const name = asString\(body\.name/);
+    // as "unused" — it is the absent-name path). Session-39 re-anchor:
+    // the expression is now parenthesized for the .slice(0, 80) cap.
+    expect(src).toMatch(/const name = \(asString\(body\.name/);
   });
 });
 
@@ -593,12 +594,99 @@ describe("session-38: the proof-coverage completion (S38-P4 — strengthening pi
   ])("%s: the wrapped READS are containment-pinned too (findUnique/count)", (rel) => {
     const post = handlerBlock(route(rel), "POST");
     expect(allInsideTry(post, /db\.user\.(create|update|findUnique|count)\(/)).toBe(true);
+    // Session-39 (S39-P5): the presence pairing — allInsideTry is
+    // vacuously TRUE on zero matches, so a route that lost all its
+    // reads kept the pin green. Every auth route carries at least the
+    // findUnique; signup additionally the count.
+    expect(post).toMatch(/db\.user\.findUnique\(/);
+    if (rel.endsWith("signup/route.ts")) {
+      expect(post).toMatch(/db\.user\.count\(/);
+    }
   });
 
   it("health GET's $queryRaw is containment-pinned (the DB_CALL $-API blind spot)", () => {
     const get = handlerBlock(route("src/app/api/health/route.ts"), "GET");
     expect(get).toMatch(/db\.\$queryRaw/);
     expect(allInsideTry(get, /db\.\$queryRaw/)).toBe(true);
+  });
+});
+
+describe("session-39: the import error semantics (S39-P2)", () => {
+  it("importContacts returns { created, attempted } — the count alone cannot tell failure from empty", () => {
+    const block = actionBlock(store(), "importContacts");
+    // The s38 action returned a bare count; `created === 0` conflated
+    // "the CSV had no valid rows" with "every POST failed" (expired
+    // session, network drop) — the wrong banner either way.
+    expect(block).toMatch(/attempted/);
+    expect(block).toMatch(/return\s*\{\s*created,\s*attempted\s*\}/);
+  });
+
+  it("runImport distinguishes all-POSTs-failed from no-valid-rows (the reference's vocabulary)", () => {
+    const src = route("src/app/(app)/contacts/contacts-page.tsx");
+    const run = src.slice(src.indexOf("async function runImport"), src.indexOf("async function runImport") + 2200);
+    // The three-way branch: attempted > 0 with created === 0 is the
+    // "Failed to import contacts" case; attempted === 0 is the
+    // "No valid contacts found" case. Both strings are the reference's
+    // pinned vocabulary (S26-P6) — the branch assigns each to its
+    // correct cause.
+    expect(run).toMatch(/created > 0/);
+    expect(run).toMatch(/attempted > 0/);
+    expect(run).toMatch(/Failed to import contacts\. Please try again\./);
+    expect(run).toMatch(/No valid contacts found\. Make sure your file has name and email columns\./);
+    // The failure branch must NOT be reachable only via the outer
+    // catch — it is the created===0 && attempted>0 assignment.
+    const failureIdx = run.indexOf("Failed to import contacts");
+    const catchIdx = run.indexOf("} catch");
+    expect(failureIdx).toBeGreaterThan(-1);
+    expect(failureIdx).toBeLessThan(catchIdx);
+  });
+
+  it("the store's importContacts still refetches exactly ONCE, after the loop (the s38 shape holds)", () => {
+    const block = actionBlock(store(), "importContacts");
+    expect(block.match(/fetchContacts\(/g)?.length ?? 0).toBe(1);
+    expect(block).toMatch(/created \+= 1;\s*\}\s*await get\(\)\.fetchContacts\(\);/);
+  });
+});
+
+describe("session-39: the signup name family completion (S39-P4)", () => {
+  it("a present non-string name is a 400 (the photoUrl guard's shape, one field over)", () => {
+    const post = handlerBlock(route("src/app/api/auth/signup/route.ts"), "POST");
+    // {"name": 123} used to ride asString's optional coercion to
+    // undefined and silently derive from the email — the same
+    // coercion class the s38 photoUrl guards closed.
+    expect(post).toMatch(/isBadFK\(body\.name\)/);
+    expect(post).toMatch(/Invalid name/);
+  });
+
+  it("the DERIVED name is capped at the explicit-name ceiling (80)", () => {
+    const src = route("src/app/api/auth/signup/route.ts");
+    // nameFromEmail returns the email local part — up to ~150 chars
+    // under the 160 email cap, vs the 80 an explicit name gets. The
+    // combined expression now caps both paths.
+    const m = src.match(/const name = ([^;]+);/);
+    expect(m).not.toBeNull();
+    expect(m![1]).toMatch(/slice\(0,\s*80\)/);
+  });
+});
+
+describe("session-39: the sweep placement harmonization (S39-P7)", () => {
+  it.each([
+    "src/app/api/auth/login/route.ts",
+    "src/app/api/auth/signup/route.ts",
+    "src/app/api/auth/verify/route.ts",
+    "src/app/api/auth/resend/route.ts",
+  ])("%s sweeps BEFORE the rate-limit return (denied requests sweep too)", (rel) => {
+    const src = route(rel);
+    const post = handlerBlock(src, "POST");
+    // Login sweeps before the !allowed return; the three s38 routes
+    // swept after it, so a storm of denied requests never pruned the
+    // bucket map. The placement is now uniform — the code finally
+    // matches its own \"mirrored\" comment.
+    const sweepIdx = post.indexOf("sweepRateLimits();");
+    const deniedIdx = post.indexOf("!limit.allowed");
+    expect(sweepIdx).toBeGreaterThan(-1);
+    expect(deniedIdx).toBeGreaterThan(-1);
+    expect(sweepIdx).toBeLessThan(deniedIdx);
   });
 });
 

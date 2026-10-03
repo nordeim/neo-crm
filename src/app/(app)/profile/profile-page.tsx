@@ -117,21 +117,30 @@ function ProfileForm({
   async function save() {
     if (!dirty) return;
     setSaving(true);
-    const res = await fetch("/api/users", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), photoUrl: photoUrl || null }),
-    });
-    const body = await res.json().catch(() => null);
-    setSaving(false);
-    if (body?.ok) {
-      toast.success("Profile updated successfully", "");
-      // Session-30 (S30-P3): the reference reloads after 500ms so the
-      // topbar avatar (server-rendered session user) picks up the photo.
-      await onSaved();
-      setTimeout(() => window.location.reload(), 500);
-    } else {
-      toast.error("Failed to update profile", body?.error?.message ?? "Please try again.");
+    // Session-39 (S39-P3): the envelope — the sibling uploadPhoto has
+    // had this shape since s30; a bare await chain let a network throw
+    // propagate from `void save()` as an unhandled rejection with the
+    // Save button stranded busy. The finally un-busies every path.
+    try {
+      const res = await fetch("/api/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), photoUrl: photoUrl || null }),
+      });
+      const body = await res.json().catch(() => null);
+      if (body?.ok) {
+        toast.success("Profile updated successfully", "");
+        // Session-30 (S30-P3): the reference reloads after 500ms so the
+        // topbar avatar (server-rendered session user) picks up the photo.
+        await onSaved();
+        setTimeout(() => window.location.reload(), 500);
+      } else {
+        toast.error("Failed to update profile", body?.error?.message ?? "Please try again.");
+      }
+    } catch {
+      toast.error("Failed to update profile", "Please try again.");
+    } finally {
+      setSaving(false);
     }
   }
 

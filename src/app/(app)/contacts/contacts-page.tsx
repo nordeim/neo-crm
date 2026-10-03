@@ -253,7 +253,11 @@ export default function ContactsPage() {
       }
       // Session-38 (S38-P3): the batch action — ONE slice refetch after
       // the loop (the per-row createContact refetch was O(N²) network).
-      const created = await importContacts(inputs);
+      // Session-39 (S39-P2): the three-way branch — a bare `created`
+      // count conflated "no valid rows" with "every POST failed" (the
+      // all-failed case got the no-rows banner). The vocabulary is the
+      // reference's own (S26-P6); only the branch conditions changed.
+      const { created, attempted } = await importContacts(inputs);
       setImportBusy(false);
       if (created > 0) {
         setImportResult({
@@ -266,6 +270,8 @@ export default function ContactsPage() {
           resetImportDialog();
           setImportOpen(false);
         }, 2000);
+      } else if (attempted > 0) {
+        setImportResult({ success: false, message: "Failed to import contacts. Please try again." });
       } else {
         setImportResult({ success: false, message: "No valid contacts found. Make sure your file has name and email columns." });
       }
