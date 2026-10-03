@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
@@ -122,9 +123,9 @@ export default function ActivitiesPage() {
   const upcoming = baseFiltered.filter((a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) > endOfDay(today));
   const completed = baseFiltered.filter((a) => a.status === "completed");
 
-  const todayCount = activities.filter((a) => new Date(a.createdAt ?? a.dueAt ?? a.createdAt) >= startOfDay(today)).length;
+  const todayCount = activities.filter((a) => new Date(a.createdAt ?? a.dueAt) >= startOfDay(today)).length;
   const yesterdayCount = activities.filter((a) => {
-    const d = new Date(a.createdAt ?? a.dueAt ?? a.createdAt);
+    const d = new Date(a.createdAt ?? a.dueAt);
     return d >= startOfDay(new Date(today.getTime() - 86400000)) && d < startOfDay(today);
   }).length;
   const todayDelta =
@@ -193,7 +194,12 @@ export default function ActivitiesPage() {
   }));
 
   async function toggleComplete(a: Activity) {
-    await updateActivity(a.id, { status: a.status === "completed" ? "scheduled" : "completed" });
+    const res = await updateActivity(a.id, { status: a.status === "completed" ? "scheduled" : "completed" });
+    // Session-46 (S46-P1): the checkbox mutation was fire-and-forget — a
+    // failed toggle left the box unchanged with zero feedback.
+    if (!res.ok) {
+      toast.error("Could not update activity", res.error);
+    }
   }
 
   function openEditActivity(a: Activity) {
@@ -388,7 +394,12 @@ export default function ActivitiesPage() {
                                   aria-label="Delete activity"
                                   className="text-danger hover:bg-danger-soft"
                                   onClick={async () => {
-                                    if (window.confirm("Delete this activity?")) await deleteActivity(a.id);
+                                    if (window.confirm("Delete this activity?")) {
+                                      const res = await deleteActivity(a.id);
+                                      // Session-46 (S46-P1): the failure
+                                      // convention.
+                                      if (!res.ok) toast.error("Could not delete activity", res.error);
+                                    }
                                   }}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />

@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { FilterPolygon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -187,12 +188,22 @@ export default function ContactsPage() {
   // Session-28 (S28-P3): the inline role update — the reference's row
   // select fires the mutation immediately (X = the async update).
   async function updateRole(id: string, role: string) {
-    await updateContact(id, { role });
+    const res = await updateContact(id, { role });
+    // Session-46 (S46-P1): the row select's mutation was fire-and-forget —
+    // a failed role update left the select showing the un-persisted value
+    // with zero feedback.
+    if (!res.ok) {
+      toast.error("Could not update contact", res.error);
+    }
   }
 
   async function onDelete(contact: Contact) {
     if (!window.confirm(`Delete "${contact.name}"? This cannot be undone.`)) return;
-    await deleteContact(contact.id);
+    const res = await deleteContact(contact.id);
+    // Session-46 (S46-P1): the entity-dialogs failure convention.
+    if (!res.ok) {
+      toast.error("Could not delete contact", res.error);
+    }
   }
 
   /** Session-26 (S26-P5): the reference's contacts page export
@@ -905,6 +916,7 @@ export default function ContactsPage() {
       {/* Session-28 (S28-P2): the W7 Edit Contact dialog — a SEPARATE
           max-w-2xl dialog (NOT the create form), wired to the ⋮ Edit item. */}
       <EntityEditDialog
+        key={editTarget?.id ?? "none"}
         open={editOpen}
         onOpenChange={(o) => {
           setEditOpen(o);
@@ -937,6 +949,10 @@ export default function ContactsPage() {
           if (res.ok) {
             setEditOpen(false);
             setEditTarget(null);
+          } else {
+            // Session-46 (S46-P1): a failed PUT used to strand the dialog
+            // open with a dead-feeling Save.
+            toast.error("Could not save contact", res.error);
           }
         }}
       />

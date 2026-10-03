@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -490,7 +491,11 @@ export default function CalendarPage() {
                           <DropdownItem
                             className="text-red-600"
                             onClick={async () => {
-                              if (window.confirm(`Delete "${e.title}"?`)) await deleteEvent(e.id);
+                              if (window.confirm(`Delete "${e.title}"?`)) {
+                                const res = await deleteEvent(e.id);
+                                // Session-46 (S46-P1): the failure convention.
+                                if (!res.ok) toast.error("Could not delete event", res.error);
+                              }
                             }}
                           >
                             Delete

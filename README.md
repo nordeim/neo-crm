@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-1203%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-1227%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -175,7 +175,7 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 1095 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene)
+bun run test          # 1119 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment)
 bun run build         # E2E runs against the standalone production build
 bun run test:e2e      # 108 Playwright checks on :3100 with its own db/e2e.db
 bun run gate          # the full gate in one command: lint → typecheck → test → build → CI=1 e2e (the CI=1 prefix forces a fresh e2e server — a leftover :3100 listener is never reused)
@@ -495,6 +495,25 @@ calendar `fetchEvents` last-call-wins token — only the newest call's
 resolution may write the events slice, rapid month flips can't strand the
 stale month; and the format.ts hygiene pair — three dead exports removed
 plus `formatMonthYear` gaining the sibling NaN guard),
+and the session-46 mutation-feedback + settings-write + dialog-repair
+layer (the ten silent mutation-failure sites now toast per the
+codebase's own convention — three EntityEditDialog submits that used
+to strand open on a failed PUT, five inline deletes (one behind a
+literally empty `if (res.ok) {}`), and two fire-and-forget inline
+mutations; the settings DefaultsEditor's per-keystroke PUT collision
+with the membership guards — a red toast per keystroke while typing a
+stage name — replaced by one 500 ms trailing debounced, serialized
+flush with an unmount flush so a typed edit is never lost; the failed
+picklist add now reverts its phantom chip (guarded so a user who kept
+editing is never clobbered) and the settings remount keys moved off
+JSON length onto the full serialization; the topbar envelope reset
+made abort-aware like its catch; and two LIVE-discovered pre-existing
+bugs — the three edit dialogs opened with EMPTY fields (the form
+useState captured the empty `initial` at page mount; a per-target
+remount key now re-initializes the form on every open) and the ghost
+dialog under every row-menu action (Radix portal clicks bubbled
+through the React tree to the TableRow's onClick — the dropdown
+content now contains its clicks)),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

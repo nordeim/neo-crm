@@ -4,6 +4,7 @@ import { downloadBlob } from "@/lib/download";
 import * as React from "react";
 import { Building2, Download, MoreVertical, Plus, Search, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +39,6 @@ export default function AccountsPage() {
   const {
     accounts,
     contacts,
-    leads,
     opportunities,
     users,
     activities,
@@ -173,8 +173,11 @@ export default function AccountsPage() {
   async function onDelete(account: Account) {
     if (!window.confirm(`Delete "${account.name}"? This cannot be undone.`)) return;
     const res = await deleteAccount(account.id);
-    if (res.ok) {
-      // toast handled globally by store refresh; add explicit feedback:
+    // Session-46 (S46-P1): the failed delete was fully silent (the store's
+    // call() is total and toasts nothing — the old comment claiming a
+    // global toast was false). The entity-dialogs convention:
+    if (!res.ok) {
+      toast.error("Could not delete account", res.error);
     }
   }
 
@@ -598,6 +601,7 @@ export default function AccountsPage() {
           Revenue / Employees numbers, the 3-option Status), wired to the ⋮
           Edit item. */}
       <EntityEditDialog
+        key={editTarget?.id ?? "none"}
         open={editOpen}
         onOpenChange={(o) => {
           setEditOpen(o);
@@ -632,6 +636,11 @@ export default function AccountsPage() {
           if (res.ok) {
             setEditOpen(false);
             setEditTarget(null);
+          } else {
+            // Session-46 (S46-P1): a failed PUT used to strand the dialog
+            // open with a dead-feeling Save — the entity-dialogs convention
+            // toasts and the user keeps their edit.
+            toast.error("Could not save account", res.error);
           }
         }}
       />

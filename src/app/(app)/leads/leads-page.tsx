@@ -286,7 +286,11 @@ export default function LeadsPage() {
 
   async function onDelete(lead: Lead) {
     if (!window.confirm(`Delete "${lead.name}"? This cannot be undone.`)) return;
-    await deleteLead(lead.id);
+    const res = await deleteLead(lead.id);
+    // Session-46 (S46-P1): the entity-dialogs failure convention.
+    if (!res.ok) {
+      toast.error("Could not delete lead", res.error);
+    }
   }
 
   return (
@@ -656,6 +660,7 @@ export default function LeadsPage() {
       {/* Session-28 (S28-P2): the Mke Edit Lead dialog — max-w-2xl, the
           4-option status set + the 4-option source, Estimated Value. */}
       <EntityEditDialog
+        key={editTarget?.id ?? "none"}
         open={editOpen}
         onOpenChange={(o) => {
           setEditOpen(o);
@@ -688,6 +693,10 @@ export default function LeadsPage() {
           if (res.ok) {
             setEditOpen(false);
             setEditTarget(null);
+          } else {
+            // Session-46 (S46-P1): a failed PUT used to strand the dialog
+            // open with a dead-feeling Save.
+            toast.error("Could not save lead", res.error);
           }
         }}
       />

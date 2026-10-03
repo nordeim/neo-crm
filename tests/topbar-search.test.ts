@@ -62,8 +62,13 @@ describe("session-44: the topbar search resets on a non-ok envelope too (S44-P5)
   it("the !body?.ok path resets BOTH the results and the dropdown (the catch's own reset)", () => {
     const src = topbar();
     expect(src).toMatch(
-      /if\s*\(body\?\.ok\)\s*\{[\s\S]*?\}\s*else\s*\{[\s\S]*?setResults\(null\);[\s\S]*?setOpen\(false\);[\s\S]*?\}/,
+      /if\s*\(body\?\.ok\)\s*\{[\s\S]*?\}\s*else(?:\s+if\s*\(!controller\.signal\.aborted\))?\s*\{[\s\S]*?setResults\(null\);[\s\S]*?setOpen\(false\);[\s\S]*?\}/,
     );
+    // Session-46 (S46-P4) evolution: the envelope reset gained the
+    // abort-awareness gate (} else { → } else if (!controller.signal.
+    // aborted) {) — the pinned INTENT (the envelope path resets BOTH
+    // results and dropdown) is unchanged; the s46 pin below pins the
+    // gate itself.
   });
 });
 
@@ -110,5 +115,31 @@ describe("session-45: the topbar search aborts superseded fetches (S45-P3)", () 
     // The REAL-failure reset survives below the handoff check.
     expect(catchBlock).toMatch(/setResults\(null\);/);
     expect(catchBlock).toMatch(/setOpen\(false\);/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-46 (S46-P4): the envelope reset's abort-awareness — the N-46a
+// finding. The s45-P3 catch treats an abort as a handoff, but the s44-P5
+// ENVELOPE reset (the !body?.ok branch) did not: an abort landing during
+// the body-parse window resolves `body` to null via the swallowed
+// `.catch(() => null)`, routing a SUPERSEDED run into the reset branch —
+// a transient close of the newer run's dropdown (self-correcting within
+// 250 ms + fetch, but the asymmetry was real). The gate: the reset now
+// carries the same handoff semantics as the catch. (The s44-P5 pin above
+// evolves WITH this fix — its `} else {` shape becomes `} else if (!…)` —
+// the pinned intent, the envelope path resetting BOTH results and
+// dropdown, is preserved.)
+// ---------------------------------------------------------------------------
+
+describe("session-46: the topbar envelope reset is abort-aware (S46-P4)", () => {
+  it("the !body?.ok reset is gated on !controller.signal.aborted (a superseded run cannot close the newer dropdown)", () => {
+    const src = topbar();
+    const effectAt = src.indexOf("React.useEffect");
+    expect(effectAt).toBeGreaterThanOrEqual(0);
+    const effect = src.slice(effectAt, effectAt + 2000);
+    expect(effect).toMatch(
+      /else\s+if\s*\(!controller\.signal\.aborted\)\s*\{[\s\S]{0,200}setResults\(null\);[\s\S]{0,120}setOpen\(false\);/,
+    );
   });
 });

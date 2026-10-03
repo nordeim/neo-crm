@@ -29,6 +29,17 @@ function DropdownContent({
           className,
         )}
         {...props}
+        onClick={(e) => {
+          props.onClick?.(e);
+          // Session-46 (S46-P7): click containment — the items render in
+          // a portal, but React synthetic clicks still bubble through the
+          // REACT tree to clickable ancestors (a TableRow's onClick), so
+          // every row-menu action ALSO opened the row-click dialog (the
+          // F-46g ghost). Item handlers run first; the bubbling stops
+          // here. Radix's composeEventHandlers does not stop it for us
+          // (source-verified in @radix-ui/primitive).
+          e.stopPropagation();
+        }}
       />
     </PopoverPrimitive.Portal>
   );

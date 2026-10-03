@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1095 checks)        | `bun run test`                         |
+| Unit tests (1119 checks)        | `bun run test`                         |
 | Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1095) → `bun run build` → `bun run test:e2e` (108) — or the
+`bun run test` (1119) → `bun run build` → `bun run test:e2e` (108) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1785,6 +1785,47 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   removed (`formatCompactNumber`/`monthName`/`monthShort` — zero
   callers in src + tests) + `formatMonthYear` gained the sibling NaN
   guard (`"not-a-date"` → `"—"`, was `"undefined NaN"`).
+
+- **The mutation-feedback + settings-write + dialog-repair layer
+  (session-46)** — the F-46 audit trio + the two LIVE-discovered
+  pre-existing bugs. The mutation-failure silence family (F-46a: the
+  store's `call()` is total and toasts NOTHING — an accounts-page
+  comment falsely claimed a global toast — while entity-dialogs,
+  profile and the settings editors toast every failure): ten
+  page-level sites now carry the convention (`toast.error("Could not
+  save/delete/update X", res.error)` — three EntityEditDialog submits
+  that used to strand the dialog open on a failed PUT, five inline
+  deletes, two fire-and-forget inline mutations; importContacts was
+  already handled by the s39-P2 banner). The settings write seam
+  (F-46b: the reference mirrors an immediate-PUT-per-change idiom but
+  validates nothing — OUR s43-P3 membership guards collided, a red
+  toast per keystroke while typing a stage name): the DefaultsEditor
+  now rides ONE shared 500 ms trailing debounce with a serialized
+  flush chain (a `flushing` guard + re-schedule-on-completion — two
+  PUTs can never race within the editor) and an unmount flush (a
+  typed edit is not lost on navigation); the no-save-button parity
+  line holds. The picklist rollback (F-46c): a failed add reverts its
+  phantom chip, guarded by reference equality so a user who kept
+  editing is never clobbered; the settings remount keys moved off
+  JSON length onto the full serialization (same-length snapshots
+  could collide). The topbar envelope reset made abort-aware
+  (N-46a: `else if (!controller.signal.aborted)` — the same handoff
+  semantics the s45-P3 catch carries; the s44-P5 pin evolved with it,
+  intent preserved). The hygiene pair: the unused `leads`
+  destructure + the dead `?? a.createdAt` tail removed. The two
+  LIVE discoveries: **F-46f** the three EntityEditDialogs opened with
+  EMPTY fields (the `form` useState captured the empty `initial` at
+  PAGE MOUNT — no key, no re-sync; masked by F-46a because the empty
+  submit 400'd silently) — fixed with `key={editTarget?.id ??
+  "none"}` (the settings editors' own keyed-remount convention);
+  **F-46g** the ghost dialog under every row-menu action (the custom
+  Dropdown renders items in a Radix Popover portal and React
+  synthetic clicks on portal content bubble through the REACT tree
+  to the TableRow's onClick — Edit/View-Insights/Delete ALSO opened
+  the row-click dialog) — fixed with click containment in
+  `DropdownContent` itself (`e.stopPropagation()` composed after
+  `{...props}`; item handlers unaffected, LIVE-verified via View
+  Insights).
 
 ## Conventions that differ from defaults
 

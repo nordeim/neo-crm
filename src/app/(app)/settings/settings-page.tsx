@@ -146,7 +146,7 @@ export default function SettingsPage() {
         <TabsPanel tab="config" className="mt-2 space-y-4">
           {tab === "config" &&
             (settings ? (
-              <ConfigEditor key={`cfg-${JSON.stringify(settings).length}`} settings={settings} />
+              <ConfigEditor key={`cfg-${JSON.stringify(settings)}`} settings={settings} />
             ) : (
               <p className="py-10 text-center text-sm text-muted">Loading settings…</p>
             ))}
@@ -155,7 +155,7 @@ export default function SettingsPage() {
         <TabsPanel tab="defaults" className="mt-2 space-y-4">
           {tab === "defaults" &&
             (settings ? (
-              <DefaultsEditor key={`def-${JSON.stringify(settings).length}`} settings={settings} />
+              <DefaultsEditor key={`def-${JSON.stringify(settings)}`} settings={settings} />
             ) : (
               <p className="py-10 text-center text-sm text-muted">Loading settings…</p>
             ))}
@@ -339,9 +339,18 @@ function ConfigEditor({ settings }: { settings: Settings }) {
   // immediately, so the picklists always mirror the stored settings.
   function mutate(key: keyof typeof lists, fn: (arr: string[]) => string[]) {
     setLists((l) => {
+      const prev = l[key];
       const next = { ...l, [key]: fn(l[key]) };
       void updateSettings(next).then((res) => {
-        if (!res.ok) toast.error("Could not save", res.error);
+        if (!res.ok) {
+          toast.error("Could not save", res.error);
+          // Session-46 (S46-P3): the guarded revert — a failed PUT (label
+          // > 60 chars / 41st entry → 400) used to leave the phantom item
+          // in the editor. The revert only fires when the list is still
+          // the failed snapshot (reference equality — a user who kept
+          // editing is not clobbered).
+          setLists((cur) => (cur[key] === next[key] ? { ...cur, [key]: prev } : cur));
+        }
       });
       return next;
     });
@@ -403,16 +412,57 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
     firstDayOfWeek: settings.firstDayOfWeek,
   }));
 
-  // Reference behavior: no save button — each change persists immediately.
+  // Session-46 (S46-P2): the debounced persist. The reference mirrors an
+  // immediate-PUT-per-change idiom, but its settings API validates
+  // NOTHING — ours carries the s43-P3 membership guards (stage/tier), so
+  // a per-keystroke PUT collided with a guaranteed-failing intermediate
+  // (typing "N" in Default Lead Stage → 400 → a red toast per keystroke)
+  // and left a last-RESOLVED-wins write race. ONE shared trailing
+  // debounce (500 ms): the no-save-button parity line holds (changes
+  // still persist automatically), the guards meet only the FINAL value,
+  // and the flush is serialized so two PUTs can never race within this
+  // editor. The unmount cleanup flushes a pending snapshot — a typed
+  // edit is not lost on navigation.
+  const pendingRef = React.useRef<typeof defaults | null>(null);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flushingRef = React.useRef(false);
+
+  async function flush(): Promise<void> {
+    const pending = pendingRef.current;
+    if (!pending || flushingRef.current) return;
+    flushingRef.current = true;
+    pendingRef.current = null;
+    try {
+      const res = await updateSettings(pending);
+      if (!res.ok) toast.error("Could not save", res.error);
+    } finally {
+      flushingRef.current = false;
+      // A snapshot that arrived while this PUT was in flight re-runs the
+      // flush — strictly after the in-flight one resolved.
+      if (pendingRef.current) {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => void flush(), 0);
+      }
+    }
+  }
+
   function set<K extends keyof typeof defaults>(key: K, value: (typeof defaults)[K]) {
     setDefaults((d) => {
       const next = { ...d, [key]: value };
-      void updateSettings(next).then((res) => {
-        if (!res.ok) toast.error("Could not save", res.error);
-      });
+      pendingRef.current = next;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => void flush(), 500);
       return next;
     });
   }
+
+  React.useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      void flush();
+    },
+    [],
+  );
 
   return (
     <div className="flex flex-col gap-4">

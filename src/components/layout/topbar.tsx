@@ -78,11 +78,16 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
         if (body?.ok) {
           setResults(body.data);
           setOpen(true);
-        } else {
+        } else if (!controller.signal.aborted) {
           // Session-44 (S44-P5): the envelope path resets too — a JSON
           // 401/500 envelope (body?.ok falsy) used to silently no-op,
           // leaving stale results open (only a network-level rejection
           // hit the catch below).
+          // Session-46 (S46-P4): the reset is abort-aware now — an abort
+          // landing during the body-parse window resolves `body` to null
+          // via the swallowed .catch(() => null); without this gate a
+          // SUPERSEDED run took the envelope path and transiently closed
+          // the newer run's dropdown. Same handoff semantics as the catch.
           setResults(null);
           setOpen(false);
         }
