@@ -229,3 +229,47 @@ describe("dealsAtRiskRows — the last-related-activity join (>14 days or never)
     expect(rows14).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-41 (S41-P3): the relatedType case-insensitive join. The
+// Activity/Event dialogs send LOWERCASE related types ("opportunity" —
+// ACTIVITY_RELATED_OPTIONS), the seed stores capitalized "Opportunity",
+// and the join was case-SENSITIVE: a UI-logged "Related To: Opportunity"
+// activity never joined the Deals at Risk table. The reference joins on
+// a real FK (related_to_id), so its UI-created activities always join.
+// ---------------------------------------------------------------------------
+
+describe("session-41: the relatedType case-insensitive join (S41-P3 — UI-created activities join)", () => {
+  const now = new Date("2026-10-02T12:00:00Z").getTime();
+  const opps = [{ id: "o1", name: "Fresh deal", accountName: "Acme", amount: 10 }];
+
+  it("a LOWERCASE \"opportunity\" activity joins the at-risk computation (the UI's vocabulary)", () => {
+    const rows = dealsAtRiskRows(
+      opps,
+      [{ relatedType: "opportunity", relatedName: "Fresh deal", date: new Date(now - 2 * DAY) }],
+      now,
+    );
+    expect(rows).toHaveLength(0); // the fresh lowercase activity keeps the deal healthy
+    const stale = dealsAtRiskRows(
+      [{ id: "o2", name: "Stale", accountName: "B", amount: 1 }],
+      [{ relatedType: "opportunity", relatedName: "Stale", date: new Date(now - 30 * DAY) }],
+      now,
+    );
+    expect(stale.map((r) => r.deal)).toEqual(["Stale"]); // and a stale one flags it
+  });
+
+  it("ANY casing joins (\"OPPORTUNITY\" too) — the seeded \"Opportunity\" rows unchanged", () => {
+    const rows = dealsAtRiskRows(
+      opps,
+      [{ relatedType: "OPPORTUNITY", relatedName: "Fresh deal", date: new Date(now - 2 * DAY) }],
+      now,
+    );
+    expect(rows).toHaveLength(0);
+    const seeded = dealsAtRiskRows(
+      opps,
+      [{ relatedType: "Opportunity", relatedName: "Fresh deal", date: new Date(now - 2 * DAY) }],
+      now,
+    );
+    expect(seeded).toHaveLength(0);
+  });
+});

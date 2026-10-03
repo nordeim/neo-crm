@@ -180,7 +180,9 @@ export default function ContactsPage() {
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
 
-  const sources = settings?.contactSources ?? ["Email", "Phone", "Website", "Referral"];
+  // Session-41 (S41-P5): the dead `sources` var deleted — zero reads (the
+  // kke filter panel uses `sourcesF` + the static CONTACT_SOURCE_OPTIONS;
+  // the settings-managed contactSources list drives nothing functional).
 
   // Session-28 (S28-P3): the inline role update — the reference's row
   // select fires the mutation immediately (X = the async update).

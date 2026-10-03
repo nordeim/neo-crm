@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isBadString, isGuarded, requireSession } from "@/lib/api";
 import { ACTIVITY_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -28,12 +28,19 @@ export async function POST(req: Request) {
   const subject = asString(body.subject, { max: 200 });
   if (!subject) return ERR.BAD_REQUEST("Activity details are required");
 
+  // Session-41 (S41-P1): the POST-side lenient-create completion — the
+  // enum type-gaps closed (a non-string type/status/priority used to
+  // silently default to "call"/"scheduled"/"normal"). The PUT twins'
+  // guards + vocabulary.
+  if (isBadString(body.type)) return ERR.BAD_REQUEST("Invalid activity type");
   const type = asString(body.type, { optional: true }) ?? "call";
   if (!(ACTIVITY_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid activity type");
 
+  if (isBadString(body.status)) return ERR.BAD_REQUEST("Invalid status");
   const status = asString(body.status, { optional: true }) ?? "scheduled";
   if (!["scheduled", "completed"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
 
+  if (isBadString(body.priority)) return ERR.BAD_REQUEST("Invalid priority");
   const priority = asString(body.priority, { optional: true }) ?? "normal";
   if (!["high", "normal", "low"].includes(priority)) return ERR.BAD_REQUEST("Invalid priority");
 
@@ -59,6 +66,11 @@ export async function POST(req: Request) {
     // Session-40 (S40-P4): the WORST inventing twin — a bad-type dueAt
     // silently invented NOW (asDate → undefined → new Date()).
     if (isBadDate(body.dueAt)) return ERR.BAD_REQUEST("Invalid due date");
+    // Session-41 (S41-P1): the create-inline string parses — the silent
+    // ?? null drops closed (the PUT twins' guards + vocabulary).
+    if (isBadString(body.notes)) return ERR.BAD_REQUEST("Invalid notes");
+    if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
+    if (isBadString(body.relatedName)) return ERR.BAD_REQUEST("Invalid related name");
     const activity = await db.activity.create({
       data: {
         type,

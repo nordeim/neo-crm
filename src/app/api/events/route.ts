@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isBadString, isGuarded, requireSession } from "@/lib/api";
 import { EVENT_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -41,9 +41,14 @@ export async function POST(req: Request) {
   const startAt = asDate(body.startAt);
   if (!startAt) return ERR.BAD_REQUEST("Start date and time are required");
 
+  // Session-41 (S41-P1): the POST-side lenient-create completion — the
+  // enum type-gaps closed (a non-string type/status used to silently
+  // default to "meeting"/"scheduled"). The PUT twins' guards + vocabulary.
+  if (isBadString(body.type)) return ERR.BAD_REQUEST("Invalid event type");
   const type = asString(body.type, { optional: true }) ?? "meeting";
   if (!(EVENT_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid event type");
 
+  if (isBadString(body.status)) return ERR.BAD_REQUEST("Invalid status");
   const status = asString(body.status, { optional: true }) ?? "scheduled";
   if (!["scheduled", "completed", "cancelled"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
 
@@ -73,6 +78,11 @@ export async function POST(req: Request) {
       const account = await db.account.findUnique({ where: { id: accountId } });
       if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
     }
+    // Session-41 (S41-P1): the create-inline string parses — the silent
+    // ?? null drops closed (the PUT twins' guards + vocabulary).
+    if (isBadString(body.description)) return ERR.BAD_REQUEST("Invalid description");
+    if (isBadString(body.location)) return ERR.BAD_REQUEST("Invalid location");
+    if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
     const event = await db.event.create({
       data: {
         title,

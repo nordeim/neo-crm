@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (966 checks)         | `bun run test`                         |
+| Unit tests (1008 checks)        | `bun run test`                         |
 | Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (966) → `bun run build` → `bun run test:e2e` (108) — or the
+`bun run test` (1008) → `bun run build` → `bun run test:e2e` (108) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1616,6 +1616,43 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `isKey`/`allDay` idioms, the CSV injection family (deploy-posture),
   the Excel accept (S26-P6 parity), the partial-import success
   conflation (reference-atomic, vocabulary-pinned).
+
+- **The POST-side lenient-create + export-integrity layer (session-41)**
+  — the graduation audit's headline: the ledger's "lenient-create, no
+  data destroyed" rationale was FALSE as stated — a present non-string
+  payload IS silently destroyed on POST (`{"phone":123}` → 200 +
+  `phone:null`, the caller's data dropped without error;
+  LIVE-proven), and the 12 enum-field type-gaps silently invent
+  defaults (`{"stage":123}` → 200 + "new"; `{"type":{}}` → "call").
+  THE FIXES (S41-P1..P5, RED-first — exactly 39 failing pins before
+  the code): P1 the 31 `isBadString` guards across the five POST
+  routes (the 19 string-null sites + the 12 enum type-gaps — each the
+  exact PUT twin's predicate + message, ZERO new vocabulary; the
+  `source` enum-MEMBERSHIP question stays deferred: source is a
+  settings-configurable vocabulary and the CSV import sends arbitrary
+  source strings); P2 the RFC-4180 `qq()` cell-quoter in
+  `src/lib/entity-export.ts` (the three builders' plain `"${v}"` wrap
+  produced MALFORMED CSV for quote-bearing values — `Acme "Best" Inc`
+  shifted columns on re-parse, corrupting our own export→import
+  round-trip; the fix is byte-identical for every quote-free cell, so
+  the pinned reference format is untouched); P3 the Deals-at-Risk
+  join went case-insensitive in `reports-data.ts` (the dialogs send
+  lowercase "opportunity", the seed stores "Opportunity" — a UI-logged
+  activity NEVER joined the table; the reference joins on a real FK);
+  P4 `requireSession()`'s shared session read + auth/me's direct read
+  joined the envelope (a DB-down session read answered a raw non-JSON
+  500 on EVERY protected route); P5 hygiene — the dead `sources` var
+  (contacts-page) + the stale `DEFAULT_SETTINGS` export (constants.ts,
+  still the pre-s28 emoji vocabulary) deleted, and isBadNumber's
+  NaN/Infinity edge matrix pinned. The UI-payload census held (the
+  e2e drove no guard). Pinned by tests/api-robustness.test.ts (176
+  checks now — +33 s41) + tests/entity-export.test.ts (+5) +
+  tests/reports-data.test.ts (+2) + tests/coercion-guards.test.ts
+  (+2). Deferred re-confirmed: the GET list routes' reads (the
+  session-42 family-symmetry candidate), the 2 source enum sites, the
+  CSV formula-injection half (deploy-posture — the operator's
+  (a) parity / (b) =@tab-CR / (c) full-OWASP decision), the 11 e2e
+  sleeps, the standing ledger.
 
 ## Conventions that differ from defaults
 

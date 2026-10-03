@@ -85,3 +85,24 @@ describe("session-40: isBadNumber (the truthy/array edges of Number())", () => {
     expect(isBadNumber({ v: 5 })).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-41 (S41-P5): the non-finite edge matrix — JSON.parse('{"v":1e999}')
+// yields Infinity (a present, typeof-number payload), and NaN arrives the
+// same way through asNumber's arithmetic. Number.isFinite() rejects both
+// in the predicate; these rows pin the branch so it cannot silently
+// regress (GREEN-on-arrival strengthening, the s38-P4 precedent).
+// ---------------------------------------------------------------------------
+
+describe("session-41: isBadNumber's non-finite edges (Infinity + NaN)", () => {
+  it("Infinity and -Infinity ARE bad (JSON.parse 1e999 overflows to Infinity)", () => {
+    expect(isBadNumber(Infinity)).toBe(true);
+    expect(isBadNumber(-Infinity)).toBe(true);
+    expect(isBadNumber(JSON.parse('{"v":1e999}').v)).toBe(true);
+  });
+
+  it("NaN IS bad (arithmetic residue — Number('')-adjacent paths)", () => {
+    expect(isBadNumber(NaN)).toBe(true);
+    expect(isBadNumber(Number("abc"))).toBe(true);
+  });
+});

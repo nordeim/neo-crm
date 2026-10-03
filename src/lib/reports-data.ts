@@ -194,8 +194,13 @@ export function dealsAtRiskRows(
   now: number,
 ): Array<{ id: string; deal: string; account: string | null; amount: number }> {
   const lastActivityDays = (opp: AtRiskOppRow): number => {
+    // Session-41 (S41-P3): the relatedType join is CASE-INSENSITIVE — the
+    // Activity/Event dialogs send lowercase ("opportunity"), the seed stores
+    // capitalized ("Opportunity"), and the case-sensitive match meant a
+    // UI-logged "Related To: Opportunity" activity NEVER joined this table.
+    // The reference joins on a real related_to_id FK (any casing joins there).
     const linked = activities
-      .filter((a) => a.relatedType === "Opportunity" && a.relatedName === opp.name && a.date)
+      .filter((a) => (a.relatedType ?? "").toLowerCase() === "opportunity" && a.relatedName === opp.name && a.date)
       .sort((a, b) => (b.date as Date).getTime() - (a.date as Date).getTime());
     const last = linked[0];
     if (!last?.date) return 999;

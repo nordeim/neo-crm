@@ -809,3 +809,96 @@ describe("session-40: the login envelope (S40-P5 — the last unwrapped auth rea
     expect(post).toMatch(/ERR\.INTERNAL/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-41 (S41-P1): the POST-side lenient-create completion. The
+// graduation audit's headline: the ledger's "lenient-create, no data
+// destroyed" rationale was FALSE as stated — a present non-string payload
+// IS silently destroyed (POST {"phone":123} → 200 + phone:null — the
+// caller's data dropped without error; LIVE-proven). Every one of the 19
+// string-null sites has a PUT twin already guarded in s40 with the
+// identical predicate + message; the 12 enum-field type-gaps silently
+// invent defaults (POST {"stage":123} → 200 + "new"; {"type":{}} →
+// "call" — LIVE-proven). The guards below close the non-string silent
+// path; the enum MEMBERSHIP checks (bad strings) already 400; the source
+// enum-membership question stays deferred (settings-configurable
+// vocabulary + the CSV import's arbitrary source strings).
+// ---------------------------------------------------------------------------
+
+describe("session-41: the POST-side lenient-create completion (S41-P1 — the silent-drop family)", () => {
+  it.each([
+    // [route, field, message] — the PUT vocabulary VERBATIM, applied at
+    // the parse site on the POST side. Every row was a LIVE-verified
+    // silent drop or silent default invention.
+    // contacts: the 9 lenient members (email regex only fires on strings;
+    // the four classifier enums default; the create-inline strings null)
+    ["src/app/api/contacts/route.ts", "email", "Invalid email"],
+    ["src/app/api/contacts/route.ts", "priority", "Invalid priority"],
+    ["src/app/api/contacts/route.ts", "role", "Invalid role"],
+    ["src/app/api/contacts/route.ts", "engagementLevel", "Invalid engagement level"],
+    ["src/app/api/contacts/route.ts", "companySize", "Invalid company size"],
+    ["src/app/api/contacts/route.ts", "phone", "Invalid phone number"],
+    ["src/app/api/contacts/route.ts", "company", "Invalid company"],
+    ["src/app/api/contacts/route.ts", "position", "Invalid position"],
+    ["src/app/api/contacts/route.ts", "source", "Invalid source"],
+    // leads: stage→"new", source/email/phone/company→null
+    ["src/app/api/leads/route.ts", "stage", "Invalid stage"],
+    ["src/app/api/leads/route.ts", "source", "Invalid source"],
+    ["src/app/api/leads/route.ts", "email", "Invalid email"],
+    ["src/app/api/leads/route.ts", "phone", "Invalid phone number"],
+    ["src/app/api/leads/route.ts", "company", "Invalid company"],
+    // accounts: tier→"B", status→"active", the four strings→null
+    ["src/app/api/accounts/route.ts", "tier", "Invalid tier"],
+    ["src/app/api/accounts/route.ts", "status", "Invalid status"],
+    ["src/app/api/accounts/route.ts", "industry", "Invalid industry"],
+    ["src/app/api/accounts/route.ts", "email", "Invalid email"],
+    ["src/app/api/accounts/route.ts", "phone", "Invalid phone number"],
+    ["src/app/api/accounts/route.ts", "website", "Invalid website"],
+    // activities: type→"call", status→"scheduled", priority→"normal",
+    // notes/relatedType/relatedName→null
+    ["src/app/api/activities/route.ts", "type", "Invalid activity type"],
+    ["src/app/api/activities/route.ts", "status", "Invalid status"],
+    ["src/app/api/activities/route.ts", "priority", "Invalid priority"],
+    ["src/app/api/activities/route.ts", "notes", "Invalid notes"],
+    ["src/app/api/activities/route.ts", "relatedType", "Invalid related type"],
+    ["src/app/api/activities/route.ts", "relatedName", "Invalid related name"],
+    // events: type→"meeting", status→"scheduled", the three strings→null
+    ["src/app/api/events/route.ts", "type", "Invalid event type"],
+    ["src/app/api/events/route.ts", "status", "Invalid status"],
+    ["src/app/api/events/route.ts", "description", "Invalid description"],
+    ["src/app/api/events/route.ts", "location", "Invalid location"],
+    ["src/app/api/events/route.ts", "relatedType", "Invalid related type"],
+  ])("%s: POST %s rejects the present-non-string class (400 %s)", (rel, field, message) => {
+    const post = handlerBlock(route(rel), "POST");
+    expect(post).toMatch(guardCall("isBadString", field));
+    expect(post).toMatch(message);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-41 (S41-P4): the session-read envelope. The s40 login wrap
+// closed the last unwrapped auth-route READ — but requireSession()'s own
+// getSessionUser() await (src/lib/auth.ts findUnique) was still bare, so
+// a SQLITE_BUSY-class failure during the SESSION read answered a raw
+// non-JSON 500 on EVERY protected route. auth/me — the only route that
+// reads the session directly — had the same hole.
+// ---------------------------------------------------------------------------
+
+describe("session-41: the session-read envelope (S41-P4 — every protected route's shared read)", () => {
+  it("requireSession wraps its getSessionUser await in try/catch → ERR.INTERNAL", () => {
+    const src = route("src/lib/api.ts");
+    const m = src.match(/export async function requireSession[\s\S]*?\n\}/);
+    expect(m).not.toBeNull();
+    const block = m![0];
+    expect(block).toMatch(/try\s*\{/);
+    expect(block).toMatch(/getSessionUser\(\)/);
+    expect(block).toMatch(/ERR\.INTERNAL/);
+  });
+
+  it("auth/me GET wraps its direct session read in try/catch → ERR.INTERNAL", () => {
+    const get = handlerBlock(route("src/app/api/auth/me/route.ts"), "GET");
+    expect(get).toMatch(/try\s*\{/);
+    expect(get).toMatch(/getSessionUser\(\)/);
+    expect(get).toMatch(/ERR\.INTERNAL/);
+  });
+});

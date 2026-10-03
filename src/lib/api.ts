@@ -28,7 +28,16 @@ export const ERR = {
 
 /** Guard: returns the session user or a 401 response (callers must return it). */
 export async function requireSession(): Promise<{ user: SessionUser } | { response: NextResponse }> {
-  const user = await getSessionUser();
+  // Session-41 (S41-P4): the shared session read joined the envelope —
+  // getSessionUser()'s findUnique is the one DB call EVERY protected route
+  // makes, and a SQLITE_BUSY-class failure here used to answer a raw
+  // non-JSON 500. The 401 path (no session / bad cookie) is unchanged.
+  let user: SessionUser | null;
+  try {
+    user = await getSessionUser();
+  } catch {
+    return { response: ERR.INTERNAL() };
+  }
   if (!user) return { response: ERR.UNAUTHORIZED() };
   return { user };
 }

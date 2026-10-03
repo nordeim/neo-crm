@@ -49,10 +49,14 @@ describe("session-26: the raw-dump seam (S26-P4)", () => {
     expect(code).toMatch(/rows\[0\]/);
   });
 
-  it("every value is double-quoted (the reference's `\"${v}\"` mapping)", () => {
+  it("every value is double-quoted (the reference's `\"${v}\"` mapping — via the s41 qq() quoter, embedded quotes doubled)", () => {
     const code = read("src/lib/entity-export.ts")!;
     expect(code).toMatch(/Object\.values\(/);
-    expect(code).toMatch(/`\$\{v\}`|"\$\{String\(v\)\}"/);
+    // session-41 (S41-P2): the plain `"${v}"` wrap became the qq() cell-quoter
+    // (RFC-4180 — a cell containing a quote doubles it). The mapping is still
+    // "every value quoted"; the quote-bearing half is pinned by the s41 block.
+    expect(code).toMatch(/const qq = \(v: unknown\): string =>/);
+    expect(code).toContain(`replace(/"/g, '""')`);
   });
 
   it("the rows join with \\n and the header joins with ,", () => {
@@ -204,5 +208,63 @@ describe("session-29: the leads page export seam (S29-P5, the U bundle extract)"
   it("an empty row set yields the header-only artifact (never an empty file)", async () => {
     const { unquotedHeaderCsv } = await import("@/lib/entity-export");
     expect(unquotedHeaderCsv(["Name", "Email"], [])).toBe("Name,Email");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-41 (S41-P2): the embedded-quote escaping. The three builders
+// wrapped every value in plain `"${v}"` with NO quote doubling — a value
+// like `Acme "Best" Inc` exported as `"Acme "Best" Inc"` (malformed CSV:
+// a column shift on re-parse, corrupting our own export→import
+// round-trip). The qq() cell-quoter doubles embedded quotes per
+// RFC-4180 — byte-identical for every quote-free cell (the pinned
+// reference-format contract untouched: the e2e pins filenames + headers
+// only, and all existing fixtures are quote-free).
+// ---------------------------------------------------------------------------
+
+describe("session-41: the embedded-quote escaping (S41-P2 — RFC-4180 in the export family)", () => {
+  it("toQuotedCsv doubles embedded quotes (Acme \"Best\" Inc → \"Acme \"\"Best\"\" Inc\")", async () => {
+    const { toQuotedCsv } = await import("@/lib/entity-export");
+    expect(
+      toQuotedCsv(["Company", "Notes"], [["Acme \"Best\" Inc", "said \"hi\""]]),
+    ).toBe('"Company","Notes"\n"Acme ""Best"" Inc","said ""hi"""');
+  });
+
+  it("entityDumpCsv doubles embedded quotes in every value cell", async () => {
+    const { entityDumpCsv } = await import("@/lib/entity-export");
+    const out = entityDumpCsv([{ name: 'Acme "Best" Inc', city: "Dubai" }]);
+    expect(out).toBe('name,city\n"Acme ""Best"" Inc","Dubai"');
+  });
+
+  it("unquotedHeaderCsv doubles embedded quotes in the VALUE cells (the header stays unquoted)", async () => {
+    const { unquotedHeaderCsv } = await import("@/lib/entity-export");
+    expect(
+      unquotedHeaderCsv(["Name", "Company"], [['Khalid', 'Acme "Best" Inc']]),
+    ).toBe('Name,Company\n"Khalid","Acme ""Best"" Inc"');
+  });
+
+  it("quote-free data is byte-identical to the pinned reference format (the contract)", async () => {
+    const { toQuotedCsv, unquotedHeaderCsv, entityDumpCsv } = await import("@/lib/entity-export");
+    expect(
+      toQuotedCsv(["Name", "Email"], [["Khalid", "k@example.com"]]),
+    ).toBe('"Name","Email"\n"Khalid","k@example.com"');
+    expect(
+      unquotedHeaderCsv(["Name", "Email", "Status"], [
+        ["Khalid", "k@example.com", "new"],
+        ["Priya", "", "won"],
+      ]),
+    ).toBe('Name,Email,Status\n"Khalid","k@example.com","new"\n"Priya","","won"');
+    expect(entityDumpCsv([{ name: "Khalid", city: "Dubai" }])).toBe(
+      'name,city\n"Khalid","Dubai"',
+    );
+  });
+
+  it("the export→import round-trip is whole again (toQuotedCsv → parseCsv → the original values)", async () => {
+    const { toQuotedCsv } = await import("@/lib/entity-export");
+    const { parseCsv } = await import("@/lib/csv");
+    const header = ["Name", "Company", "Notes"];
+    const rows = [['Khalid', 'Acme "Best" Inc', 'said "hi", twice']];
+    const parsed = parseCsv(toQuotedCsv(header, rows));
+    expect(parsed).toEqual([["Name", "Company", "Notes"], ...rows]);
   });
 });

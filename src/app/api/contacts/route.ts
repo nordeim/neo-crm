@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asFKId, isBadFK, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asFKId, isBadFK, isBadString, isGuarded, requireSession } from "@/lib/api";
 import { CONTACT_PRIORITIES, CONTACT_PRIORITIES_REF, CONTACT_ROLES, ENGAGEMENT_LEVELS, COMPANY_SIZES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +26,13 @@ export async function POST(req: Request) {
 
   const name = asString(body.name, { max: 120 });
   if (!name) return ERR.BAD_REQUEST("Name is required");
+  // Session-41 (S41-P1): the POST-side lenient-create completion — a
+  // present non-string used to ride asString's optional coercion to a
+  // SILENT drop (email:null — the caller's data destroyed without error)
+  // or a SILENT default (the classifier enums). The PUT twins' guards +
+  // vocabulary, applied at the parse site. null/absent keep the default
+  // semantics (a create cannot "clear" a field that does not exist yet).
+  if (isBadString(body.email)) return ERR.BAD_REQUEST("Invalid email");
   const email = asString(body.email, { optional: true, max: 160 }) ?? null;
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return ERR.BAD_REQUEST("Enter a valid email address");
@@ -35,6 +42,7 @@ export async function POST(req: Request) {
   // Key/Standard/At Risk — the legacy hot/warm/cold set stays accepted on
   // input (the create dialog used to send it) but maps onto the new
   // vocabulary so old clients don't break.
+  if (isBadString(body.priority)) return ERR.BAD_REQUEST("Invalid priority");
   const rawPriority = asString(body.priority, { optional: true }) ?? "Standard";
   const LEGACY_PRIORITY: Record<string, string> = { hot: "Key", warm: "Standard", cold: "At Risk" };
   const priority = LEGACY_PRIORITY[rawPriority] ?? rawPriority;
@@ -45,14 +53,17 @@ export async function POST(req: Request) {
 
   // The new first-class fields (the inline role select, the 3-bar
   // engagement cell, the company-size stack, the photo avatar).
+  if (isBadString(body.role)) return ERR.BAD_REQUEST("Invalid role");
   const role = asString(body.role, { optional: true, max: 60 }) ?? null;
   if (role && !(CONTACT_ROLES as readonly string[]).includes(role)) {
     return ERR.BAD_REQUEST("Invalid role");
   }
+  if (isBadString(body.engagementLevel)) return ERR.BAD_REQUEST("Invalid engagement level");
   const engagementLevel = asString(body.engagementLevel, { optional: true, max: 20 }) ?? null;
   if (engagementLevel && !(ENGAGEMENT_LEVELS as readonly string[]).includes(engagementLevel)) {
     return ERR.BAD_REQUEST("Invalid engagement level");
   }
+  if (isBadString(body.companySize)) return ERR.BAD_REQUEST("Invalid company size");
   const companySize = asString(body.companySize, { optional: true, max: 40 }) ?? null;
   if (companySize && !(COMPANY_SIZES as readonly string[]).includes(companySize)) {
     return ERR.BAD_REQUEST("Invalid company size");
@@ -90,6 +101,12 @@ export async function POST(req: Request) {
       if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
     }
 
+    // Session-41 (S41-P1): the create-inline string parses — the silent
+    // ?? null drops closed (the PUT twins' guards + vocabulary).
+    if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
+    if (isBadString(body.company)) return ERR.BAD_REQUEST("Invalid company");
+    if (isBadString(body.position)) return ERR.BAD_REQUEST("Invalid position");
+    if (isBadString(body.source)) return ERR.BAD_REQUEST("Invalid source");
     const contact = await db.contact.create({
       data: {
         name,

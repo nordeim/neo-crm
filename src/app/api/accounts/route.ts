@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isBadString, isGuarded, requireSession } from "@/lib/api";
 import { ACCOUNT_STATUSES, ACCOUNT_TIERS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -27,9 +27,14 @@ export async function POST(req: Request) {
   const name = asString(body.name, { max: 120 });
   if (!name) return ERR.BAD_REQUEST("Account name is required");
 
+  // Session-41 (S41-P1): the POST-side lenient-create completion — the
+  // enum type-gaps closed (a non-string tier/status used to silently
+  // default to "B"/"active"). The PUT twins' guards + vocabulary.
+  if (isBadString(body.tier)) return ERR.BAD_REQUEST("Invalid tier");
   const tier = asString(body.tier, { optional: true }) ?? "B";
   if (!(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Invalid tier");
 
+  if (isBadString(body.status)) return ERR.BAD_REQUEST("Invalid status");
   const status = asString(body.status, { optional: true }) ?? "active";
   if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
 
@@ -48,6 +53,12 @@ export async function POST(req: Request) {
     // employees silently nulled on a bad type).
     if (isBadNumber(body.annualRevenue)) return ERR.BAD_REQUEST("Invalid annual revenue");
     if (isBadNumber(body.employees)) return ERR.BAD_REQUEST("Invalid employee count");
+    // Session-41 (S41-P1): the create-inline string parses — the silent
+    // ?? null drops closed (the PUT twins' guards + vocabulary).
+    if (isBadString(body.industry)) return ERR.BAD_REQUEST("Invalid industry");
+    if (isBadString(body.email)) return ERR.BAD_REQUEST("Invalid email");
+    if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
+    if (isBadString(body.website)) return ERR.BAD_REQUEST("Invalid website");
     const account = await db.account.create({
       data: {
         name,

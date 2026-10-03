@@ -22,6 +22,18 @@
 
 import { isoDateSuffix } from "@/lib/pdf-export";
 
+/**
+ * The RFC-4180 cell-quoter (session-41, S41-P2). Every builder in this
+ * family wraps values in quotes — and a cell CONTAINING a quote must
+ * DOUBLE it or the artifact is malformed (`Acme "Best" Inc` exported
+ * as `"Acme "Best" Inc"` — a column shift on re-parse, corrupting our
+ * own export→import round-trip). The reference's own builders shipped
+ * the unescaped `"${v}"` wrap (its defect); our fix is byte-identical
+ * for every quote-free cell, so the pinned reference format — the
+ * filenames, the headers, the quote-free fixtures — is untouched.
+ */
+const qq = (v: unknown): string => `"${String(v).replace(/"/g, '""')}"`;
+
 /** Raw dump: the header is the FIRST row's own keys; every value quoted. */
 export function entityDumpCsv(rows: object[]): string {
   if (rows.length === 0) return "";
@@ -29,7 +41,7 @@ export function entityDumpCsv(rows: object[]): string {
   const header = Object.keys(first).join(",");
   const body = rows.map((r) =>
     Object.values(r as Record<string, unknown>)
-      .map((v) => `"${v}"`)
+      .map((v) => qq(v))
       .join(","),
   );
   return [header, ...body].join("\n");
@@ -47,8 +59,8 @@ export function entityExportFilename(entity: string, d = new Date()): string {
 /** The page-level family: quoted cells, a fixed header, rows joined by \n. */
 export function toQuotedCsv(header: string[], rows: string[][]): string {
   return [
-    header.map((h) => `"${h}"`).join(","),
-    ...rows.map((r) => r.map((v) => `"${v}"`).join(",")),
+    header.map((h) => qq(h)).join(","),
+    ...rows.map((r) => r.map((v) => qq(v)).join(",")),
   ].join("\n");
 }
 
@@ -59,5 +71,5 @@ export function toQuotedCsv(header: string[], rows: string[][]): string {
  *  s25 header-only capture could not see the quoting; with data it is
  *  bundle-verified). */
 export function unquotedHeaderCsv(header: string[], rows: string[][]): string {
-  return [header.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");
+  return [header.join(","), ...rows.map((r) => r.map((v) => qq(v)).join(","))].join("\n");
 }

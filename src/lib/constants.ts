@@ -460,25 +460,7 @@ export const CHART_COLORS = {
   emerald: "#10b981",
 };
 
-export const DEFAULT_SETTINGS = {
-  contactSources: [...CONTACT_SOURCES],
-  leadStages: [...LEAD_STAGES],
-  activityTypes: [...ACTIVITY_TYPES],
-  accountTiers: [...ACCOUNT_TIERS],
-  industries: [
-    "Technology",
-    "Manufacturing",
-    "Retail",
-    "Finance",
-    "Healthcare",
-    "Education",
-    "Logistics",
-    "Energy",
-  ],
-  defaultCurrency: "AED",
-  defaultLeadStage: "new",
-  defaultTier: "B",
-  followUpDays: 3,
-  calendarView: "month",
-  firstDayOfWeek: "monday",
-} as const;
+// Session-41 (S41-P5): the dead DEFAULT_SETTINGS export deleted — zero
+// consumers repo-wide (grep-verified), and it still carried the pre-s28
+// EMOJI contact-source vocabulary (a stale session-5 leftover; the s40-P6
+// dead-export precedent).
