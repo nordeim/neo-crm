@@ -50,8 +50,14 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
 
   // Debounced global search — all setState happens inside the async timer
   // callback (never synchronously in the effect body).
+  // Session-45 (S45-P3): a controller per effect run, aborted in the
+  // cleanup — the debounce only prevented same-window timer races; two
+  // in-flight fetches could still resolve out of order (a stale "ab"
+  // response overwriting "abc"'s). A superseded fetch now hands its
+  // state ownership to the newer run instead of clobbering it.
   React.useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
+    const controller = new AbortController();
     timer.current = setTimeout(async () => {
       if (query.trim().length < 2) {
         setResults(null);
@@ -65,7 +71,9 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
       // stale results (the s39 profile-save class). The catch resets
       // both the results and the dropdown.
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`, {
+          signal: controller.signal,
+        });
         const body = await res.json().catch(() => null);
         if (body?.ok) {
           setResults(body.data);
@@ -79,11 +87,15 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
           setOpen(false);
         }
       } catch {
+        // A superseded run hands state to the newer effect — only a
+        // REAL failure resets (the s43-P4 reset, unchanged).
+        if (controller.signal.aborted) return;
         setResults(null);
         setOpen(false);
       }
     }, 250);
     return () => {
+      controller.abort();
       if (timer.current) clearTimeout(timer.current);
     };
   }, [query]);

@@ -49,14 +49,6 @@ export function formatCompactCurrency(
   return `${sign}$${Math.round(abs)}`;
 }
 
-export function formatCompactNumber(value: number | null | undefined): string {
-  const v = value ?? 0;
-  const abs = Math.abs(v);
-  if (abs >= 1_000_000) return `${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${(abs / 1_000).toFixed(1)}K`;
-  return `${Math.round(abs)}`;
-}
-
 const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = [
   "January", "February", "March", "April", "May", "June",
@@ -83,6 +75,10 @@ export function formatDateShort(d: Date | string | number | null | undefined): s
 
 export function formatMonthYear(d: Date | string | number): string {
   const date = asDate(d);
+  // Session-45 (S45-P5): the sibling NaN guard — a bad input used to
+  // render "undefined NaN" instead of the em-dash convention every
+  // other formatter here carries.
+  if (Number.isNaN(date.getTime())) return "—";
   return `${MONTHS_LONG[date.getMonth()]} ${date.getFullYear()}`;
 }
 
@@ -228,14 +224,6 @@ export function calendarGrid(
     days.push(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
   }
   return days;
-}
-
-export function monthName(month: number): string {
-  return MONTHS_LONG[month] ?? "";
-}
-
-export function monthShort(month: number): string {
-  return MONTHS_SHORT[month] ?? "";
 }
 
 export function toLocalInputValue(d: Date | string | number | null | undefined): string {

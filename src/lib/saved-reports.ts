@@ -156,10 +156,18 @@ export function savedReportDate(iso: string): string {
   return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
 }
 
-/** Read the list from localStorage (null-safe — SSR + malformed JSON). */
+/** Read the list from localStorage (null-safe — SSR + malformed JSON).
+ *  Session-45 (S45-P2): merely touching window.localStorage throws
+ *  SecurityError under all-cookies-blocked Chromium — the read rides a
+ *  try/catch so a blocked storage falls back to the empty list (the
+ *  first-paint default), never an uncaught timer exception upstream. */
 export function listSavedReports(): SavedReport[] {
   if (typeof window === "undefined") return [];
-  return decodeSavedReports(window.localStorage.getItem(SAVED_REPORTS_STORAGE_KEY)) ?? [];
+  try {
+    return decodeSavedReports(window.localStorage.getItem(SAVED_REPORTS_STORAGE_KEY)) ?? [];
+  } catch {
+    return [];
+  }
 }
 
 /** Append + persist; returns the new count. */

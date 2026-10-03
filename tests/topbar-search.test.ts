@@ -66,3 +66,49 @@ describe("session-44: the topbar search resets on a non-ok envelope too (S44-P5)
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-45 (S45-P3): the AbortController — the N-45c finding. The
+// 250 ms debounce only prevents same-window timer races; two in-flight
+// fetches could still resolve out of order ("ab" fires A → "abc" fires
+// B → A resolves last → stale "ab" results overwrite B's). A controller
+// per effect run, aborted in the cleanup: a superseded fetch hands its
+// state ownership to the newer run instead of clobbering it — only a
+// REAL failure resets (the s43-P4 reset, unchanged).
+// ---------------------------------------------------------------------------
+
+describe("session-45: the topbar search aborts superseded fetches (S45-P3)", () => {
+  it("the effect creates an AbortController per run and passes its signal to the fetch", () => {
+    const src = topbar();
+    const effectAt = src.indexOf("React.useEffect");
+    expect(effectAt).toBeGreaterThanOrEqual(0);
+    const effect = src.slice(effectAt, effectAt + 2000);
+    expect(effect).toMatch(/new AbortController\(\)/);
+    expect(effect).toMatch(/signal:\s*controller\.signal/);
+  });
+
+  it("the cleanup aborts the controller (a superseded run cannot clobber the newer one)", () => {
+    const src = topbar();
+    const effectAt = src.indexOf("React.useEffect");
+    const effect = src.slice(effectAt, effectAt + 2000);
+    const cleanupAt = effect.indexOf("return () =>");
+    expect(cleanupAt).toBeGreaterThanOrEqual(0);
+    const cleanup = effect.slice(cleanupAt, cleanupAt + 300);
+    expect(cleanup).toMatch(/controller\.abort\(\)/);
+    expect(cleanup).toMatch(/clearTimeout\(timer\.current\)/);
+  });
+
+  it("the catch treats an abort as a handoff, not a failure (aborted → return, no reset)", () => {
+    const src = topbar();
+    const effectAt = src.indexOf("React.useEffect");
+    const effect = src.slice(effectAt, effectAt + 2000);
+    const catchAt = effect.indexOf("} catch {");
+    expect(catchAt).toBeGreaterThanOrEqual(0);
+    const catchBlock = effect.slice(catchAt, catchAt + 300);
+    expect(catchBlock).toMatch(/controller\.signal\.aborted/);
+    expect(catchBlock).toMatch(/return;/);
+    // The REAL-failure reset survives below the handoff check.
+    expect(catchBlock).toMatch(/setResults\(null\);/);
+    expect(catchBlock).toMatch(/setOpen\(false\);/);
+  });
+});

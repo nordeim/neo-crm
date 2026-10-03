@@ -202,8 +202,22 @@ export default function ReportsPage() {
             </Button>
             {/* Session-25 (S25-P2): the header PDF — the reference's
                 html2canvas + jsPDF full-content capture
-                (crm_reports_YYYY-MM-DD.pdf), no print dialog, no toast. */}
-            <Button variant="outline" size="sm" onClick={() => void exportReportsPdf()}>
+                (crm_reports_YYYY-MM-DD.pdf), no print dialog, no toast
+                on the happy path.
+                Session-45 (S45-P1): the capture itself is rejectable
+                (html2canvas-pro on huge canvases / mid-capture DOM
+                mutations) — the bare `void` left an unhandled
+                rejection + a dead-feeling button. The s44-P4
+                convention: surface it, never strand it. */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void exportReportsPdf().catch(() => {
+                  toast.error("Could not export PDF", "Please try again.");
+                });
+              }}
+            >
               <FileText className={REPORTS_FILTER_BAR.barBtnIcon} /> PDF
             </Button>
           </div>

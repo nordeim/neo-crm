@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1080 checks)        | `bun run test`                         |
+| Unit tests (1095 checks)        | `bun run test`                         |
 | Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1080) → `bun run build` → `bun run test:e2e` (108) — or the
+`bun run test` (1095) → `bun run build` → `bun run test:e2e` (108) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1752,6 +1752,39 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   leads findMany fetched `account: {select: {name: true}}` only for
   serializeLead to overwrite it with `account: null` — a wasted LEFT
   JOIN on every reports read; the owner include stays).
+
+- **The unwrapped-surface + stale-response layer (session-45)** — the
+  last rejectable `void`-async + the stale-response family. The reports
+  PDF button's `onClick={() => void exportReportsPdf()}` was the ONLY
+  genuinely rejectable discarded promise in src (`pdf-export.ts` has no
+  internal catch; html2canvas-pro rejects on huge-canvas/memory failures
+  and mid-capture DOM mutations — an unhandled rejection + a
+  dead-feeling button with no toast) — now carries the s44-P4
+  convention: `.catch(() => toast.error("Could not export PDF",
+  "Please try again."))`, happy path unchanged. The localStorage READ
+  guards complete the s44 write-guard family (F-45b: exactly 2 unguarded
+  reads repo-wide, both inside uncaught setTimeout callbacks —
+  `listSavedReports()` and the leads saved-views mount timer; merely
+  touching `window.localStorage` throws SecurityError under
+  all-cookies-blocked Chromium) — both now ride try/catch and fall back
+  to the empty list (the first-paint default). The topbar search gained
+  its AbortController (N-45c: the 250 ms debounce prevented same-window
+  timer races, not out-of-order resolutions — "ab" fires A, "abc" fires
+  B, A resolves last → stale "ab" results overwrote B's): one
+  controller per effect run, `signal` on the fetch, `controller.abort()`
+  in the cleanup, the aborted early-return in the catch (only a REAL
+  failure resets — the s43-P4 reset unchanged). The calendar
+  `fetchEvents` gained a last-call-wins token (F-45e: it was
+  last-RESOLVED-wins — rapid month flips could strand the stale month's
+  slice; a monotonically increasing module token, the set guarded by
+  `token === eventsFetchToken`; the hydrate → calendar-effect handoff
+  resolves in the calendar's favor, the correct owner; LIVE-verified
+  both directions — 3 rapid flips to January 2027 show zero chips
+  under January's grid, flipping back restores October's 11 seeded
+  chips). The format.ts hygiene pair (F-45c/d): three dead exports
+  removed (`formatCompactNumber`/`monthName`/`monthShort` — zero
+  callers in src + tests) + `formatMonthYear` gained the sibling NaN
+  guard (`"not-a-date"` → `"—"`, was `"undefined NaN"`).
 
 ## Conventions that differ from defaults
 

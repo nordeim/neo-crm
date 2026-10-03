@@ -43,6 +43,16 @@ async function call<T>(path: string, init?: RequestInit): Promise<Result<T, stri
   }
 }
 
+// Session-45 (S45-P4): the events-slice last-call-wins token. fetchEvents
+// had no AbortController and was last-RESOLVED-wins — rapid calendar
+// month flips could strand the stale month's slice (Feb resolving after
+// Mar shows February's events under March's cursor). A monotonically
+// increasing token per call: only the newest call's resolution may write
+// the slice. Sequential flows are unaffected (the token only skips a
+// write when a NEWER call exists — the hydrate → calendar-effect
+// handoff resolves in the calendar's favor, the correct owner).
+let eventsFetchToken = 0;
+
 export interface CrmState {
   // session
   user: User | null;
@@ -173,9 +183,10 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
 
   fetchEvents: async (from, to) => {
+    const token = ++eventsFetchToken;
     const qs = from || to ? `?${new URLSearchParams({ ...(from ? { from } : {}), ...(to ? { to } : {}) })}` : "";
     const res = await call<CrmEvent[]>(`/api/events${qs}`);
-    if (res.ok) set({ events: res.data });
+    if (res.ok && token === eventsFetchToken) set({ events: res.data });
   },
 
   fetchSettings: async () => {

@@ -102,8 +102,16 @@ export default function LeadsPage() {
   // the defaults.
   React.useEffect(() => {
     const t = setTimeout(() => {
-      const views = decodeSavedLeadViews(window.localStorage.getItem(LEAD_VIEWS_STORAGE_KEY));
-      if (views && views.length > 0) setSavedViews((prev) => (prev.length === 0 ? views : prev));
+      // Session-45 (S45-P2): the storage read rides a try/catch — a
+      // blocked storage (all-cookies-blocked Chromium) keeps the empty
+      // list instead of throwing inside the uncaught timer; the write
+      // path already toasts.
+      try {
+        const views = decodeSavedLeadViews(window.localStorage.getItem(LEAD_VIEWS_STORAGE_KEY));
+        if (views && views.length > 0) setSavedViews((prev) => (prev.length === 0 ? views : prev));
+      } catch {
+        // Blocked storage — keep the empty list (the first-paint default).
+      }
     }, 0);
     return () => clearTimeout(t);
   }, []);
