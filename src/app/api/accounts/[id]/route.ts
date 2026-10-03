@@ -62,13 +62,16 @@ export async function PUT(req: Request, { params }: Params) {
     data.ownerId = asFKId(body.ownerId);
   }
   if ("status" in body) {
-    const status = asString(body.status) ?? "active";
-    if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
+    // Session-43 (S43-P2): the dead `?? "active"` / `?? "B"` removed
+    // (the s42-P5 shape — non-optional asString returns "", never
+    // undefined; the fallbacks could never fire).
+    const status = asString(body.status);
+    if (!status || !(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
     data.status = status;
   }
   if ("tier" in body) {
-    const tier = asString(body.tier) ?? "B";
-    if (!(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Invalid tier");
+    const tier = asString(body.tier);
+    if (!tier || !(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Invalid tier");
     data.tier = tier;
   }
 

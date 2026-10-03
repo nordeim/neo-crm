@@ -65,13 +65,15 @@ export async function PUT(req: Request, { params }: Params) {
     data.endAt = asDate(body.endAt) ?? null;
   }
   if ("type" in body) {
-    const type = asString(body.type) ?? "meeting";
-    if (!(EVENT_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid event type");
+    // Session-43 (S43-P2): the dead `?? "meeting"` removed (the s42-P5
+    // shape — non-optional asString returns "", never undefined).
+    const type = asString(body.type);
+    if (!type || !(EVENT_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid event type");
     data.type = type;
   }
   if ("status" in body) {
-    const status = asString(body.status) ?? "scheduled";
-    if (!["scheduled", "completed", "cancelled"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
+    const status = asString(body.status);
+    if (!status || !["scheduled", "completed", "cancelled"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
     data.status = status;
   }
 

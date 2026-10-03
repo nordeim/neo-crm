@@ -61,6 +61,17 @@ export async function POST(req: Request) {
       if (!account) return ERR.BAD_REQUEST("Selected company does not exist");
     }
 
+    // Session-43 (S43-P1): Lead.contactId joins the FK family — the
+    // schema + wire type carried the relation but this create silently
+    // DROPPED the payload (LIVE-proven: {"contactId":<id>} → 200 +
+    // null). The ownerId/accountId shape, verbatim.
+    if (isBadFK(body.contactId)) return ERR.BAD_REQUEST("Invalid contact selection");
+    const contactId = asFKId(body.contactId);
+    if (contactId) {
+      const contact = await db.contact.findUnique({ where: { id: contactId } });
+      if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
+    }
+
     const closed = stage === "won" || stage === "lost";
     // Session-40 (S40-P4): the POST-side inventing twins — a bad type
     // silently INVENTED data (value→0, the dates→null) instead of
@@ -88,6 +99,7 @@ export async function POST(req: Request) {
         nextFollowUp: asDate(body.nextFollowUp) ?? null,
         accountId,
         ownerId,
+        contactId,
       },
       include: {
         account: { select: { id: true, name: true } },

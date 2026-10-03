@@ -41,18 +41,20 @@ export async function PUT(req: Request, { params }: Params) {
     data.dueAt = asDate(body.dueAt) ?? null;
   }
   if ("priority" in body) {
-    const priority = asString(body.priority) ?? "normal";
-    if (!["high", "normal", "low"].includes(priority)) return ERR.BAD_REQUEST("Invalid priority");
+    // Session-43 (S43-P2): the dead `?? "normal"` removed (the s42-P5
+    // shape — non-optional asString returns "", never undefined).
+    const priority = asString(body.priority);
+    if (!priority || !["high", "normal", "low"].includes(priority)) return ERR.BAD_REQUEST("Invalid priority");
     data.priority = priority;
   }
   if ("type" in body) {
-    const type = asString(body.type) ?? "call";
-    if (!(ACTIVITY_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid activity type");
+    const type = asString(body.type);
+    if (!type || !(ACTIVITY_TYPES as readonly string[]).includes(type)) return ERR.BAD_REQUEST("Invalid activity type");
     data.type = type;
   }
   if ("status" in body) {
-    const status = asString(body.status) ?? "scheduled";
-    if (!["scheduled", "completed"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
+    const status = asString(body.status);
+    if (!status || !["scheduled", "completed"].includes(status)) return ERR.BAD_REQUEST("Invalid status");
     data.status = status;
     data.completedAt = status === "completed" ? new Date() : null;
   }

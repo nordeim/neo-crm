@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1032 checks)        | `bun run test`                         |
+| Unit tests (1050 checks)        | `bun run test`                         |
 | Browser E2E (108 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1032) → `bun run build` → `bun run test:e2e` (108) — or the
+`bun run test` (1050) → `bun run build` → `bun run test:e2e` (108) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1683,13 +1683,39 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   period" — the `?? "quarter"` defaults were dead code, unreachable
   since `asString(null)` returns `""`; the optional parse makes the
   documented default reachable in reports + export). Pinned by
-  tests/api-robustness.test.ts (196 checks now — +20 s42) +
-  tests/coercion-guards.test.ts (+4). Deferred re-confirmed: the 2
-  source enum-membership sites (the vocabulary fragmented across five
-  disagreeing surfaces — a product decision), the CSV
-  formula-injection half (the operator's (a)/(b)/(c) decision), the
-  11 e2e sleeps, the standing ledger (13 re-confirmed), the
-  signup-page session read (the (app)-layout honest-500 doctrine).
+  tests/api-robustness.test.ts (212 checks now — +16 s43) +
+  tests/topbar-search.test.ts (+2). Deferred re-confirmed: the 2
+  source enum-membership sites (the vocabulary-reconciliation product
+  decision), the reports/export filter membership asymmetry (owner is
+  an arbitrary NAME STRING — membership impossible; source is the
+  fragmented vocabulary; garbage filters yield EMPTY reports, GET-only,
+  no corruption), the CSV formula-injection decision for the operator,
+  the 11 e2e sleeps, the standing ledger, the signup-page session read.
+
+- **The Lead.contactId + settings-quartet + dead-?? completion layer
+  (session-43)** — the last silently-dropped payload field: `Lead.
+  contactId` was carried by the schema AND the wire type but NO leads
+  route accepted it (LIVE-proven: POST `{"contactId":<id>}` → 200 +
+  null on BOTH verbs — the N-42b shape one level up; the wire type has
+  no `contact` object, so no include changes). THE FIXES (S43-P1..P5,
+  RED-first — exactly 20 failing pins before the code): P1 the FK
+  branch pair on both leads routes (the s42-P3 activities shape
+  verbatim + the FK_SITES census rows); P2 the NINE dead `??
+  "<enum>"` fallbacks removed from the [id] PUT routes (leads stage,
+  activities priority/type/status, events type/status, accounts
+  status/tier, contacts priority — non-optional `asString` returns ""
+  never undefined, so the fallbacks were dead; behavior-identical, the
+  enums already 400 on ""; the auth `?? ""` twins are TYPE-load-
+  bearing and stay); P3 the settings defaults quartet (defaultLeadStage
+  vs LEAD_STAGES + defaultTier vs ACCOUNT_TIERS + calendarView vs
+  month/week/agenda — a poisoned default used to save verbatim and
+  flow into the create dialogs' initial values, LIVE-proven; plus the
+  firstDayOfWeek isBadString guard); P4 the topbar global search's
+  debounced fetch — the ONLY unwrapped fetch in src — joined the
+  try/catch family (a network failure stranded an unhandled rejection
+  + stale results; the catch resets results + dropdown); P5 the events
+  GET `from`/`to` window params reject garbage (400 "Invalid from/to
+  date" — the filter used to silently DROP, returning everything).
 
 ## Conventions that differ from defaults
 

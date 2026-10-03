@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { ok, ERR, asString, asInt, isBadString, isBadNumber, isGuarded, requireSession } from "@/lib/api";
+import { ACCOUNT_TIERS, LEAD_STAGES } from "@/lib/constants";
 import type { Settings } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -83,11 +84,24 @@ export async function PUT(req: Request) {
   }
   if ("defaultLeadStage" in body) {
     if (isBadString(body.defaultLeadStage)) return ERR.BAD_REQUEST("Invalid default lead stage");
-    data.defaultLeadStage = asString(body.defaultLeadStage, { max: 40, optional: true }) ?? "new";
+    // Session-43 (S43-P3): membership vs LEAD_STAGES — the create
+    // routes' own vocabulary. A poisoned default (LIVE-proven:
+    // "banana-probe" saved verbatim) flowed into the lead dialog's
+    // initial stage and made every subsequent create 400 confusingly.
+    // The optional parse keeps the s40-P3 revival (""/null → the
+    // default, not a 400).
+    const stage = asString(body.defaultLeadStage, { max: 40, optional: true }) ?? "new";
+    if (!(LEAD_STAGES as readonly string[]).includes(stage)) return ERR.BAD_REQUEST("Default lead stage must be a valid stage");
+    data.defaultLeadStage = stage;
   }
   if ("defaultTier" in body) {
     if (isBadString(body.defaultTier)) return ERR.BAD_REQUEST("Invalid default tier");
-    data.defaultTier = asString(body.defaultTier, { max: 4, optional: true }) ?? "B";
+    // Session-43 (S43-P3): membership vs ACCOUNT_TIERS (the accounts
+    // routes' own vocabulary — the tier default seeds the account
+    // dialog's initial value).
+    const tier = asString(body.defaultTier, { max: 4, optional: true }) ?? "B";
+    if (!(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Default account tier must be A, B or C");
+    data.defaultTier = tier;
   }
   if ("followUpDays" in body) {
     if (isBadNumber(body.followUpDays)) return ERR.BAD_REQUEST("Invalid follow-up days");
@@ -97,13 +111,22 @@ export async function PUT(req: Request) {
   }
   if ("calendarView" in body) {
     if (isBadString(body.calendarView)) return ERR.BAD_REQUEST("Invalid calendar view");
-    data.calendarView = asString(body.calendarView, { max: 20, optional: true }) ?? "month";
+    // Session-43 (S43-P3): membership vs the settings UI's own Select
+    // vocabulary (month/week/agenda — the settings-page dropdown is the
+    // only writer).
+    const view = asString(body.calendarView, { max: 20, optional: true }) ?? "month";
+    if (!view || !["month", "week", "agenda"].includes(view)) return ERR.BAD_REQUEST("Calendar view must be month, week or agenda");
+    data.calendarView = view;
   }
   if ("firstDayOfWeek" in body) {
     // Session-42 (S42-P5): the dead `?? "monday"` removed — non-optional
     // asString returns "" (never undefined), so the fallback could never
     // fire; a present "" already 400s on the enum below (the s40
     // dead-?? shape).
+    // Session-43 (S43-P3): the isBadString guard its sibling quintet
+    // has — a non-string now 400s with the type vocabulary, not the
+    // enum message.
+    if (isBadString(body.firstDayOfWeek)) return ERR.BAD_REQUEST("Invalid first day of week");
     const dow = asString(body.firstDayOfWeek, { max: 10 });
     if (!dow || !["monday", "sunday"].includes(dow)) return ERR.BAD_REQUEST("First day of week must be monday or sunday");
     data.firstDayOfWeek = dow;

@@ -58,11 +58,22 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
         setOpen(false);
         return;
       }
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
-      const body = await res.json().catch(() => null);
-      if (body?.ok) {
-        setResults(body.data);
-        setOpen(true);
+      // Session-43 (S43-P4): the wrap — this was the ONLY unwrapped
+      // fetch in src (the store's call(), the login card, the profile
+      // and the entity dialogs are all wrapped). A network failure
+      // rejected the timer callback → an unhandled rejection + silently
+      // stale results (the s39 profile-save class). The catch resets
+      // both the results and the dropdown.
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);
+        const body = await res.json().catch(() => null);
+        if (body?.ok) {
+          setResults(body.data);
+          setOpen(true);
+        }
+      } catch {
+        setResults(null);
+        setOpen(false);
       }
     }, 250);
     return () => {

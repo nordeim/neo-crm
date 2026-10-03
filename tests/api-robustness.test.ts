@@ -396,8 +396,12 @@ describe("session-37: FK ids reject non-string payloads (S37-P3, no silent coerc
   const FK_SITES: Array<[string, string[]]> = [
     ["src/app/api/contacts/route.ts", ["accountId", "ownerId"]],
     ["src/app/api/contacts/[id]/route.ts", ["accountId", "ownerId"]],
-    ["src/app/api/leads/route.ts", ["ownerId", "accountId"]],
-    ["src/app/api/leads/[id]/route.ts", ["accountId", "ownerId"]],
+    // Session-43 (S43-P1): Lead.contactId joins the census — the schema +
+    // wire type carried the relation but NO leads route accepted it (a
+    // contactId payload was silently dropped on BOTH verbs — the
+    // N-42b shape one level up, LIVE-proven).
+    ["src/app/api/leads/route.ts", ["ownerId", "accountId", "contactId"]],
+    ["src/app/api/leads/[id]/route.ts", ["accountId", "ownerId", "contactId"]],
     ["src/app/api/events/route.ts", ["contactId", "accountId"]],
     ["src/app/api/events/[id]/route.ts", ["accountId", "contactId"]],
     ["src/app/api/activities/route.ts", ["contactId", "accountId"]],
@@ -1038,5 +1042,124 @@ describe("session-42: the bare-request period default is reachable (S42-P6)", ()
   ])("%s: a missing period param defaults to quarter (the optional parse)", (rel) => {
     const get = handlerBlock(route(rel), "GET");
     expect(get).toMatch(/asString\(url\.searchParams\.get\("period"\),\s*\{\s*optional:\s*true\s*\}\)\s*\?\?\s*"quarter"/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-43 (S43-P1): Lead.contactId — the schema (prisma/schema.prisma)
+// and the wire type (types/index.ts) carried the relation, but NO leads
+// route accepted it: a contactId payload was silently dropped on BOTH
+// verbs (LIVE-proven: POST {"name":…,"contactId":<real id>} → 200 +
+// contactId:null — the N-42b shape one level up; activities was the same
+// class, fixed s42-P3). The wire type has NO `contact` object, so the
+// fix is the FK branch pair + the create-data field + the existence
+// checks — no include changes.
+// ---------------------------------------------------------------------------
+
+describe("session-43: leads accept contactId on both verbs (S43-P1)", () => {
+  it("the POST create data carries contactId (the dropped field stores now)", () => {
+    const post = handlerBlock(route("src/app/api/leads/route.ts"), "POST");
+    expect(post).toMatch(/isBadFK\(body\.contactId\)/);
+    expect(post).toMatch(/asFKId\(body\.contactId\)/);
+    // The create data itself must carry the parsed field (the silent
+    // drop was exactly here: the payload parsed nowhere, stored nowhere).
+    const createAt = post.indexOf("db.lead.create");
+    expect(createAt).toBeGreaterThanOrEqual(0);
+    expect(post.slice(createAt)).toMatch(/contactId/);
+  });
+
+  it("the PUT checks contactId existence inside the try (the POST's own vocabulary)", () => {
+    const put = handlerBlock(route("src/app/api/leads/[id]/route.ts"), "PUT");
+    expect(put).toMatch(/db\.contact\.findUnique/);
+    expect(put).toMatch(/Selected contact does not exist/);
+    // The parse-side branch too (a non-string FK is a 400, not a silent
+    // coercion — the s37-P3 doctrine).
+    expect(put).toMatch(guardCall("isBadFK", "contactId"));
+    expect(put).toMatch(/asFKId\(body\.contactId\)/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-43 (S43-P2): the nine dead-`??` enum-default sites — non-
+// optional asString returns "" (never undefined), so `?? "<enum>"` can
+// never fire and "" already 400s on the membership check below (the
+// exact shape s42-P5 removed from settings, ×9). The removals are
+// behavior-identical; the pins keep the dead fallbacks from creeping
+// back (each row asserts the NON-OPTIONAL parse carries no `??`).
+// ---------------------------------------------------------------------------
+
+describe("session-43: the nine dead-?? enum defaults are gone (S43-P2)", () => {
+  it.each([
+    ["src/app/api/leads/[id]/route.ts", "stage"],
+    ["src/app/api/activities/[id]/route.ts", "priority"],
+    ["src/app/api/activities/[id]/route.ts", "type"],
+    ["src/app/api/activities/[id]/route.ts", "status"],
+    ["src/app/api/events/[id]/route.ts", "type"],
+    ["src/app/api/events/[id]/route.ts", "status"],
+    ["src/app/api/accounts/[id]/route.ts", "status"],
+    ["src/app/api/accounts/[id]/route.ts", "tier"],
+    ["src/app/api/contacts/[id]/route.ts", "priority"],
+  ])("%s: asString(body.%s) carries no dead ?? fallback", (rel, field) => {
+    const put = handlerBlock(route(rel), "PUT");
+    // The non-optional parse (no options object) must not ride a `??` —
+    // optional parses with `{ optional: true }` are NOT matched (their
+    // ?? defaults are live code).
+    expect(put).not.toMatch(new RegExp(`asString\\(body\\.${field}\\)\\s*\\?\\?`));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-43 (S43-P3): the settings defaults quartet — the trio lacked
+// membership (LIVE-proven: {"defaultLeadStage":"banana-probe"} → 200 +
+// saved verbatim; a poisoned default flows into the create dialogs'
+// initial values and makes every subsequent create 400 confusingly —
+// the free-text UI Inputs are the vector), and firstDayOfWeek lacked
+// the isBadString guard its sibling quintet has. The firstDayOfWeek
+// sibling shape, applied to the family.
+// ---------------------------------------------------------------------------
+
+describe("session-43: the settings defaults quartet completes (S43-P3)", () => {
+  it("defaultLeadStage membership vs LEAD_STAGES (the create routes' own vocabulary)", () => {
+    const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
+    expect(put).toMatch(/LEAD_STAGES/);
+    expect(put).toMatch(/Default lead stage must be a valid stage/);
+  });
+
+  it("defaultTier membership vs ACCOUNT_TIERS", () => {
+    const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
+    expect(put).toMatch(/ACCOUNT_TIERS/);
+    expect(put).toMatch(/Default account tier must be A, B or C/);
+  });
+
+  it("calendarView membership vs the settings UI's own Select vocabulary", () => {
+    const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
+    expect(put).toMatch(/month/);
+    expect(put).toMatch(/Calendar view must be month, week or agenda/);
+  });
+
+  it("firstDayOfWeek gains the isBadString guard its sibling quintet has", () => {
+    const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
+    expect(put).toMatch(guardCall("isBadString", "firstDayOfWeek"));
+    expect(put).toMatch(/Invalid first day of week/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-43 (S43-P5): events GET from/to — asDate("garbage") →
+// undefined → the window filter silently DROPPED (the caller asked for
+// a window, got everything). The period precedent (400 on garbage)
+// applied: a present-but-unparseable date param is a 400, not a silent
+// filter drop. isBadDate semantics for URL params: absent (null)
+// passes, empty "" passes (≡ absent, the house GET convention), a
+// garbage string rejects.
+// ---------------------------------------------------------------------------
+
+describe("session-43: events GET from/to reject garbage (S43-P5)", () => {
+  it("the from/to guards carry the isBadDate shape + the exact vocabulary", () => {
+    const get = handlerBlock(route("src/app/api/events/route.ts"), "GET");
+    expect(get).toMatch(/isBadDate\(fromRaw\)/);
+    expect(get).toMatch(/Invalid from date/);
+    expect(get).toMatch(/isBadDate\(toRaw\)/);
+    expect(get).toMatch(/Invalid to date/);
   });
 });

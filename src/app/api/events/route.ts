@@ -9,8 +9,18 @@ export async function GET(req: Request) {
   if (isGuarded(guard)) return guard.response;
 
   const url = new URL(req.url);
-  const from = asDate(url.searchParams.get("from"));
-  const to = asDate(url.searchParams.get("to"));
+  // Session-43 (S43-P5): a present-but-unparseable window param is a
+  // 400, not a silent filter drop — asDate("garbage") → undefined used
+  // to DROP the window (the caller asked for a window, got everything;
+  // the period param's own 400-on-garbage precedent). isBadDate
+  // semantics for URL params: absent (null) passes, empty "" passes
+  // (≡ absent, the house GET convention), a garbage string rejects.
+  const fromRaw = url.searchParams.get("from");
+  const toRaw = url.searchParams.get("to");
+  if (isBadDate(fromRaw)) return ERR.BAD_REQUEST("Invalid from date");
+  if (isBadDate(toRaw)) return ERR.BAD_REQUEST("Invalid to date");
+  const from = asDate(fromRaw);
+  const to = asDate(toRaw);
 
   // Session-42 (S42-P1): the list read joined the envelope.
   try {

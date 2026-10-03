@@ -59,8 +59,12 @@ export async function PUT(req: Request, { params }: Params) {
   if ("priority" in body) {
     // Session-28 (S28-P1): the Key/Standard/At Risk vocabulary with the
     // legacy hot/warm/cold set still accepted (mapped).
-    const raw = asString(body.priority) ?? "Standard";
+    // Session-43 (S43-P2): the dead `?? "Standard"` removed (the s42-P5
+    // shape — non-optional asString returns "", never undefined; a
+    // present "" is the sibling enums' 400, not a default).
+    const raw = asString(body.priority);
     const LEGACY_PRIORITY: Record<string, string> = { hot: "Key", warm: "Standard", cold: "At Risk" };
+    if (!raw) return ERR.BAD_REQUEST("Invalid priority");
     const priority = LEGACY_PRIORITY[raw] ?? raw;
     if (!(CONTACT_PRIORITIES_REF as readonly string[]).includes(priority) &&
         !(CONTACT_PRIORITIES as readonly string[]).includes(raw)) {

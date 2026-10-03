@@ -65,6 +65,14 @@ export async function PUT(req: Request, { params }: Params) {
       if (isBadFK(body.ownerId)) return ERR.BAD_REQUEST("Invalid owner selection");
       data.ownerId = asFKId(body.ownerId);
     }
+    // Session-43 (S43-P1): the contactId branch — the PUT silently
+    // IGNORED the field while the POST (now) accepts it (the N-42b
+    // class; an activity's/lead's links could never be re-assigned or
+    // cleared via the API).
+    if ("contactId" in body) {
+      if (isBadFK(body.contactId)) return ERR.BAD_REQUEST("Invalid contact selection");
+      data.contactId = asFKId(body.contactId);
+    }
     if ("expectedCloseDate" in body) {
       // An unparseable string silently cleared the date before the
       // guard (asDate("garbage") → undefined → null).
@@ -76,8 +84,12 @@ export async function PUT(req: Request, { params }: Params) {
       data.nextFollowUp = asDate(body.nextFollowUp) ?? null;
     }
     if ("stage" in body) {
-      const stage = asString(body.stage) ?? "new";
-      if (!(LEAD_STAGES as readonly string[]).includes(stage)) return ERR.BAD_REQUEST("Invalid stage");
+      // Session-43 (S43-P2): the dead `?? "new"` removed — non-optional
+      // asString returns "" (never undefined), so the fallback could
+      // never fire; a present "" already 400s on the membership below
+      // (the s42-P5 settings shape, generalized across the family).
+      const stage = asString(body.stage);
+      if (!stage || !(LEAD_STAGES as readonly string[]).includes(stage)) return ERR.BAD_REQUEST("Invalid stage");
       data.stage = stage;
       const closed = stage === "won" || stage === "lost";
       data.status = closed ? (stage === "won" ? "closed_won" : "closed_lost") : "open";
@@ -92,6 +104,13 @@ export async function PUT(req: Request, { params }: Params) {
     if (typeof data.ownerId === "string" && data.ownerId) {
       const owner = await db.user.findUnique({ where: { id: data.ownerId } });
       if (!owner) return ERR.BAD_REQUEST("Selected owner does not exist");
+    }
+    // Session-43 (S43-P1): the contactId existence check — the POST's
+    // own vocabulary (a stale dropdown id must be a 400, not a raw
+    // P2003).
+    if (typeof data.contactId === "string" && data.contactId) {
+      const contact = await db.contact.findUnique({ where: { id: data.contactId } });
+      if (!contact) return ERR.BAD_REQUEST("Selected contact does not exist");
     }
     const lead = await db.lead.update({
       where: { id },
