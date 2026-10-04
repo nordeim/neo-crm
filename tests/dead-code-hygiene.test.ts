@@ -11,6 +11,16 @@ import { describe, expect, it } from "vitest";
 // trailing arm can only return the already-known-nullish createdAt
 // (if createdAt were non-null the FIRST arm already returned), so the
 // tail is unreachable-non-null by construction.
+//
+// Session-53 pins (S53-P3/P4, N-53c/N-53d): the orphaned-import
+// retirement + the never-caching memo. (3) the 53-b fresh-eyes census
+// found 8 imports whose only in-file reference is the import itself
+// (calendar-page ×7 + leads-page ×1 — an s27 cleanup miss), and retiring
+// the calendar's EVENT_STATUS_META import leaves that constant fully
+// src-dead (the s48 CONTACT_SOURCES / s49 LEAD_SOURCES precedent).
+// (4) the leads-page wonVsLost useMemo never cached — deps [won, lost]
+// are fresh filtered identities every render — so it is retired to the
+// plain-call sibling idiom (pipelineByStage computes plainly).
 
 function read(rel: string): string | null {
   const p = path.resolve(import.meta.dirname, "..", rel);
@@ -26,6 +36,9 @@ function stripComments(src: string) {
 
 const accounts = () => stripComments(read("src/app/(app)/accounts/accounts-page.tsx") ?? "");
 const activities = () => stripComments(read("src/app/(app)/activities/activities-page.tsx") ?? "");
+const calendar = () => stripComments(read("src/app/(app)/calendar/calendar-page.tsx") ?? "");
+const leads = () => stripComments(read("src/app/(app)/leads/leads-page.tsx") ?? "");
+const constants = () => stripComments(read("src/lib/constants.ts") ?? "");
 
 describe("session-46: the dead-code hygiene pair (S46-P5)", () => {
   it("accounts-page no longer destructures the unused leads slice", () => {
@@ -43,5 +56,44 @@ describe("session-46: the dead-code hygiene pair (S46-P5)", () => {
     // yesterdayCount).
     const live = src.match(/a\.createdAt\s*\?\?\s*a\.dueAt/g) ?? [];
     expect(live.length).toBe(2);
+  });
+});
+
+describe("session-53: the orphaned-import retirement + the never-caching memo (S53-P3/P4)", () => {
+  it("calendar-page carries none of the seven orphaned imports (N-53c)", () => {
+    const src = calendar();
+    // Each of these had exactly one in-file reference — the import
+    // itself (the s27 cleanup miss; the 53-b fresh-eyes census).
+    expect(src).not.toMatch(/\bClock\b/);
+    expect(src).not.toMatch(/\bBadge\b/);
+    expect(src).not.toMatch(/\bEVENT_TYPE_META\b/);
+    expect(src).not.toMatch(/\bEVENT_STATUS_META\b/);
+    expect(src).not.toMatch(/\bformatTime\b/);
+    expect(src).not.toMatch(/\btimeUntil\b/);
+    expect(src).not.toMatch(/\bEMPTY_STATE\b/);
+    // …while the LIVE chip map stays (the event chips render through it).
+    expect(src).toMatch(/\bEVENT_TYPE_CHIP\b/);
+  });
+
+  it("leads-page no longer imports CHART_COLORS (the reports page owns it)", () => {
+    expect(leads()).not.toMatch(/\bCHART_COLORS\b/);
+  });
+
+  it("constants: the src-dead EVENT_STATUS_META is retired (the s48/s49 precedent)", () => {
+    // Zero src consumers once the calendar import went; zero test pins
+    // ever referenced it. A record comment may remain (comment-stripped
+    // source is asserted).
+    expect(constants()).not.toMatch(/\bEVENT_STATUS_META\b/);
+  });
+
+  it("the wonVsLost computation is a plain module-scope call — the never-caching useMemo retired (N-53d)", () => {
+    const src = leads();
+    // The memo form (deps [won, lost] — fresh identities every render,
+    // so it never cached) is gone…
+    expect(src).not.toMatch(/const wonVsLost = React\.useMemo/);
+    // …replaced by the sibling idiom: a module-scope pure function
+    // called plainly (pipelineByStage computes plainly too).
+    expect(src).toMatch(/function buildWonVsLost\(won: Lead\[\], lost: Lead\[\]\)/);
+    expect(src).toMatch(/const wonVsLost = buildWonVsLost\(won, lost\)/);
   });
 });

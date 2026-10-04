@@ -8,7 +8,6 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Clock,
   EllipsisVertical,
   MessageCircle,
   Pen,
@@ -22,13 +21,17 @@ import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox, Label } from "@/components/ui/label";
 import { PageHeader, TrendStatCard } from "@/components/shared/page-parts";
 import { EventDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { EVENT_TYPE_CHIP, EVENT_TYPE_META, EVENT_STATUS_META } from "@/lib/constants";
+// Session-53 (S53-P3, N-53c): the import list narrowed to the live set —
+// seven s27-era orphans retired (Clock, Badge, EVENT_TYPE_META,
+// EVENT_STATUS_META, formatTime, timeUntil, EMPTY_STATE — each had only
+// its import as the in-file reference; EVENT_STATUS_META went fully
+// src-dead with it, retired from constants.ts the s48/s49 way).
+import { EVENT_TYPE_CHIP } from "@/lib/constants";
 import {
   addDays,
   calendarFetchBounds,
@@ -36,15 +39,12 @@ import {
   formatDate,
   formatMonthDayTime,
   formatMonthYear,
-  formatTime,
   isSameDay,
   startOfWeek,
-  timeUntil,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   CALENDAR_CARD,
-  EMPTY_STATE,
   FILTER_RAIL,
   PAGE_KPI_GRIDS,
   PAGE_ROOT,

@@ -17,15 +17,16 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1172 checks)        | `bun run test`                         |
+| Unit tests (1180 checks)        | `bun run test`                         |
 | Browser E2E (111 checks)        | `bun run test:e2e` (needs build first) |
+| DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1172) → `bun run build` → `bun run test:e2e` (111) — or the
+`bun run test` (1180) → `bun run build` → `bun run test:e2e` (111) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2012,6 +2013,40 @@ the INFO family unchanged; both standing operator decisions re-verified
 UNCHANGED (the CSV formula-injection posture (b) + the source-vocabulary
 documented parity — the bundle byte-identical for the 23rd consecutive
 session).
+
+**Session-53** (the census-seam + hygiene layer): (1) The N-53b closure
+— `scripts/census.ts` + `bun run db:census`: the sanctioned DB census
+goes through the app's own db singleton (`src/lib/db`, re-anchored by
+`runtimeDatabaseUrl`) and PRINTS the resolved path + the per-model
+counts + the seed-contract verdict (exit 1 on drift). The live proof of
+why: a raw `new PrismaClient()` from the repo root opens the
+SANDBOX-ROOT mirror db — not the repo's — under BOTH node (relative
+`file:` URL resolved against the process CWD) and bun (.env
+absolutization; the leftover outer `.env`'s absolute URL was a second
+redirection of the same class), and a SQLite engine opening a missing
+mirror path CREATES an empty db there. The session-53 intake census
+fell into exactly this trap (read the mirror's zombie-era PROBE51 as
+repo residue — N-53a, RETRACTED after the `PRAGMA database_list`
+forensics showed the engine's true file; the repo db was pristine all
+along and the s51/s52 zero-residue claims were TRUE). (2) The N-53c
+orphaned-import retirement — eight s27-era imports whose only in-file
+reference was the import itself (calendar-page ×7: Clock, Badge,
+EVENT_TYPE_META, EVENT_STATUS_META, formatTime, timeUntil, EMPTY_STATE;
+leads-page ×1: CHART_COLORS) — plus the now-src-dead EVENT_STATUS_META
+constant retired from constants.ts (the s48/s49 precedent). (3) The
+N-53d never-caching useMemo retired — the leads-page wonVsLost series
+(deps [won, lost] were fresh filtered identities every render)
+extracted VERBATIM to the module-scope `buildWonVsLost(won, lost)` and
+called plainly (the sibling pipelineByStage idiom). All pinned RED-first
+in the new `tests/db-census.test.ts` (4 pins) + the dead-code-hygiene
+session-53 describe (4 pins), proven non-vacuous in a pre-fix `fe975d6`
+worktree (8 failed | 2 passed there, 10/10 at the fix). Audits: the s52
+re-audit verified all seven checklist items GENUINE (the worktree
+arithmetic reproduced); the graduation audit: ZERO graduations — 13/13
+re-confirmed (10th consecutive session; the drift map EMPTY); both
+operator decisions re-verified UNCHANGED (the CSV posture (b) + the
+source-vocabulary parity — the bundle byte-identical for the 24th
+consecutive session).
 
 ## Conventions that differ from defaults
 

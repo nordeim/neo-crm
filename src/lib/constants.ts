@@ -417,11 +417,12 @@ export const EVENT_TYPE_META: Record<string, { label: string; color: string }> =
   appointment: { label: "Appointment", color: "#8b5cf6" },
 };
 
-export const EVENT_STATUS_META: Record<string, { label: string; badge: string }> = {
-  scheduled: { label: "Scheduled", badge: "bg-blue-50 text-blue-700 border-blue-200" },
-  completed: { label: "Completed", badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  cancelled: { label: "Cancelled", badge: "bg-gray-100 text-gray-600 border-gray-200" },
-};
+// Session-53 (S53-P3, N-53c): EVENT_STATUS_META retired — the s27 cleanup
+// left its only import (calendar-page) orphaned, and with that import gone
+// the constant had zero src consumers (the s48 CONTACT_SOURCES / s49
+// LEAD_SOURCES src-dead retirement precedent). The event STATUS vocabulary
+// itself (scheduled/completed/cancelled — schema + seed) is untouched; only
+// this never-rendered badge map is gone.
 
 export const CONTACT_PRIORITIES = ["hot", "warm", "cold"] as const;
 

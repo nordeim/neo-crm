@@ -352,7 +352,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 74 Vitest suites — 1172 checks
+│   ├── *.test.ts                # 75 Vitest suites — 1180 checks
 │   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 111 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -722,11 +722,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the create-dialog single-mode + docs-accuracy layer (the create-dialog-single-mode pins [the three Dialog wrappers carry NO entity prop, the three Forms carry NO createMode machinery, zero updateContact/updateAccount/updateLead references in the file, the three pages declare NO dead editing state] + the create-mode regression guards [the three titles + toasts + the reference's create vocabularies survive] + the EventDialog/ActivityDialog dual-mode boundary guard + the leads-inline create-default re-anchor [the raw "email" on the create-only initializer] — session-50) | 2 | 7 | `tests/create-dialog-single-mode.test.ts` `tests/leads-inline.test.ts` | Vitest |
 | Unit — the calendar window + KPI-baseline layer (the calendar-fetch-bounds pins [the trailing next-month coverage: Nov 2026's `to` = the untrimmed grid's Dec 12 cell ≥ the trimmed render's Dec 5; the zero-trailing month Oct 2026; the prev-month `from` over-coverage preserved] + the page-wiring source pins [the effect derives its window from `calendarFetchBounds` with the month-end form absent; the three KPI trend baselines read `visible`, no raw `events.filter` in the KPI region] + the neighbor guard [calendarGrid's 42-cell + monday-default contracts, the page's sunday call + whole-week trim, the Total Events pseudo-delta + trend() helper verbatim, the fetchEvents(from, to) call shape] — session-51) | 1 | 5 | `tests/calendar-fetch-bounds.test.ts` | Vitest |
 | Unit — the saveView updater-purity layer (the storage-read-guards purity pin [the leads-page saveView's `const next = [...savedViews, { name, filters }]` form + the guarded localStorage write in the handler body + NO storage access after the `setSavedViews(` call — updaters stay pure, the S44-P4 saveReport convention] — session-52) | 1 | 4 | `tests/storage-read-guards.test.ts` | Vitest |
+| Unit — the census-seam + hygiene layer (the db-census pins [scripts/census.ts exists + counts through the app's db singleton with NO raw PrismaClient, prints the resolved runtimeDatabaseUrl, carries the seed-contract EXPECTED table with the process.exit(1) drift guard, the db:census package script wired] + the dead-code-hygiene session-53 pins [the seven calendar-page orphans absent with EVENT_TYPE_CHIP surviving, the leads-page CHART_COLORS import gone, the src-dead EVENT_STATUS_META retired, the never-caching wonVsLost useMemo replaced by the module-scope buildWonVsLost plain call] — session-53) | 2 | 8 | `tests/db-census.test.ts` `tests/dead-code-hygiene.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26, and the session-27 chart-internals + Account Health / calendar layer — the computed health PIE + horizontal Top-10 + red at-risk rows + the dashboard Follow-up rows + the static KPI sparks + the calendar chip Edit dialog + the single-blue by-type bars, and the session-28 entity layer — the contacts slide-over + the W7/wce/Mke edit dialogs + the inline role select + the Account Insights dialog + the kke filter panel, and the session-29 leads interactive layer — the inline Value/Status/Date editing round-trip + the overdue border + CircleAlert + the orange Target box + the sticky thead + the dead Convert item + the "(Active)" suffix + the prompt-based Save View + the loadable Saved Views select, and the session-30 photo-upload layer — the New Contact photo round-trip rendering + persisting with the remove X verified + the profile photo round-trip with the toast + both avatar renders + the topbar pickup after the 500ms reload, and the session-39 import error-semantics layer — the route.abort-driven all-POSTs-failed banner + the header-only no-rows banner + the delete-all-matches cleanup, and the session-47 dashboard-export layer — the outline Export menu's Leads item + the primary Export both downloading the client-side `leads_ISO.csv` with the URL staying `/` [was the raw 400 JSON navigation] — and the session-48 reports-export layer — the header Export CSV downloading the route's BOM'd 7-column artifact via the fetch→blob flow with the URL staying `/reports` [was the raw JSON navigation on any non-200] — and the session-49 filter-semantics + deterministic-wait layer — the stage+status AND intersection e2e [stage=Prospecting + status=Won → the API's wonDeals 0 + the rendered "Won Deals 0 $" KPI, failing on the pre-fix overwrite code], the 12 sleeps retired to 2 annotated no-op-contract keeps [5 redundant deletes before auto-retrying assertions, 4 response-waits with the post-wipe proofs asserted on the RESPONSE BODIES, 1 race-free reorder], and the N-48e toHaveURL tightening) | 1 | 94 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **74** | **1172 unit + 111 e2e** | | |
+| **Total** | **75** | **1180 unit + 111 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -1140,7 +1141,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 1172/1172
+- [ ] `bun run test` — 1180/1180
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 111/111
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -1210,8 +1211,9 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 1172 unit checks |
+| `bun run test` | root | 1180 unit checks |
 | `bun run test:e2e` | root | 111 browser checks (build first) |
+| `bun run db:census` | root | The sanctioned DB census — resolved path + counts + the seed-contract verdict (session-53; never a raw PrismaClient) |
 | `bun run gate` | root | The full gate in one command (lint → typecheck → test → build → e2e) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
 | `bunx playwright test --project=chromium -g "mobile"` | root | Focused E2E |

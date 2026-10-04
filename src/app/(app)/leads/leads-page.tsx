@@ -60,7 +60,10 @@ import { ConversionFunnel, GroupedBarsChart, SingleBarChart, dollarFormatter } f
 import { LeadDialog } from "@/components/shared/entity-dialogs";
 import { EntityEditDialog, LEAD_EDIT_FIELDS } from "@/components/shared/entity-edit-dialog";
 import { useCrmStore } from "@/stores/crm-store";
-import { CHART_COLORS, LEADS_FUNNEL, LEAD_INLINE_STATUS_OPTIONS } from "@/lib/constants";
+// Session-53 (S53-P3, N-53c): CHART_COLORS retired from this import —
+// an s27-era orphan (the reports page owns the palette; this file's only
+// reference was the import itself).
+import { LEADS_FUNNEL, LEAD_INLINE_STATUS_OPTIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import { downloadBlob } from "@/lib/download";
 import { entityExportFilename, unquotedHeaderCsv } from "@/lib/entity-export";
@@ -68,6 +71,35 @@ import type { Lead } from "@/types";
 
 type SortKey = "name" | "email" | "value" | "createdAt";
 type SortDir = "asc" | "desc";
+
+// Session-53 (S53-P4, N-53d): the won-vs-lost month series, extracted to
+// a module-scope pure function — the body is VERBATIM the S10-9
+// row-derived series (one entry per DISTINCT closed month keyed
+// `year-month`, insertion-ordered by the first-seen sort stamp, EMPTY at
+// zero). It rode a useMemo whose deps [won, lost] were fresh filtered
+// identities every render, so the memo never cached anything — this
+// plain call is the honest form (the sibling pipelineByStage computes
+// plainly too).
+function buildWonVsLost(won: Lead[], lost: Lead[]) {
+  const key = (l: Lead) => {
+    const t = new Date(l.closedAt ?? l.createdAt);
+    return `${t.getFullYear()}-${t.getMonth()}`;
+  };
+  const byKey = new Map<string, { month: string; won: number; lost: number; sort: number }>();
+  for (const l of won) {
+    const e = byKey.get(key(l)) ?? { month: "", won: 0, lost: 0, sort: new Date(l.closedAt ?? l.createdAt).getTime() };
+    e.month = new Date(l.closedAt ?? l.createdAt).toLocaleString("en-US", { month: "short" });
+    e.won += 1;
+    byKey.set(key(l), e);
+  }
+  for (const l of lost) {
+    const e = byKey.get(key(l)) ?? { month: "", won: 0, lost: 0, sort: new Date(l.closedAt ?? l.createdAt).getTime() };
+    e.month = new Date(l.closedAt ?? l.createdAt).toLocaleString("en-US", { month: "short" });
+    e.lost += 1;
+    byKey.set(key(l), e);
+  }
+  return [...byKey.entries()].sort((a, b) => a[1].sort - b[1].sort).map(([, v]) => ({ month: v.month, won: v.won, lost: v.lost }));
+}
 
 export default function LeadsPage() {
   const { leads, hydrated, deleteLead, updateLead, fetchLeads } = useCrmStore();
@@ -247,26 +279,11 @@ export default function LeadsPage() {
   // Won vs lost by month — session-10 (S10-9): ROW-DERIVED month series
   // (one entry per DISTINCT closed month, EMPTY at zero — the reference
   // renders no month ticks at zero data on this chart; DOM-verified).
-  const wonVsLost = React.useMemo(() => {
-    const key = (l: Lead) => {
-      const t = new Date(l.closedAt ?? l.createdAt);
-      return `${t.getFullYear()}-${t.getMonth()}`;
-    };
-    const byKey = new Map<string, { month: string; won: number; lost: number; sort: number }>();
-    for (const l of won) {
-      const e = byKey.get(key(l)) ?? { month: "", won: 0, lost: 0, sort: new Date(l.closedAt ?? l.createdAt).getTime() };
-      e.month = new Date(l.closedAt ?? l.createdAt).toLocaleString("en-US", { month: "short" });
-      e.won += 1;
-      byKey.set(key(l), e);
-    }
-    for (const l of lost) {
-      const e = byKey.get(key(l)) ?? { month: "", won: 0, lost: 0, sort: new Date(l.closedAt ?? l.createdAt).getTime() };
-      e.month = new Date(l.closedAt ?? l.createdAt).toLocaleString("en-US", { month: "short" });
-      e.lost += 1;
-      byKey.set(key(l), e);
-    }
-    return [...byKey.entries()].sort((a, b) => a[1].sort - b[1].sort).map(([, v]) => ({ month: v.month, won: v.won, lost: v.lost }));
-  }, [won, lost]);
+  // Session-53 (S53-P4, N-53d): the never-caching useMemo retired — its
+  // deps [won, lost] were fresh filtered identities every render, so it
+  // never memoized anything; the plain module-scope call is the honest
+  // sibling idiom (pipelineByStage computes plainly too).
+  const wonVsLost = buildWonVsLost(won, lost);
 
   // Session-27 (S27-P9, bundle-extracted): the funnel's true vocabulary —
   // New Leads / Contacted / Qualified / Won with STATUS-CUMULATIVE counts

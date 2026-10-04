@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (1172) → `bun run build` → `bun run test:e2e` (111) — or the
+   `bun run test` (1180) → `bun run build` → `bun run test:e2e` (111) — or the
    one-command `bun run gate` (session-38: the chain as a package script,
    so the build always precedes the e2e boot; session-39: the e2e step
    runs under `CI=1`, forcing a fresh server — a leftover :3100 listener
@@ -111,17 +111,18 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (1172 checks)             |
+| `bun run test`      | Vitest unit suites (1180 checks)            |
 | `bun run test:e2e`  | Playwright E2E (111 checks, needs build first) |
 | `bun run gate`      | The full gate in one command (lint → typecheck → test → build → e2e) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
+| `bun run db:census` | Print the resolved db path + counts vs the seed contract (session-53; the sanctioned census — see the anti-patterns) |
 
 ## Testing Strategy
 
 ### Test Pyramid
 
-- **Unit (Vitest, 1172 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 1180 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -501,3 +502,13 @@ override and the launch-from-standalone contexts are guarded unchanged).
   fetch→blob round-trip (session-48 retired `downloadFile`: a non-200
   navigated the browser to the raw JSON envelope; the reports export now
   parses the envelope and toasts).
+- **Censusing the db with a raw `new PrismaClient()`** — from the repo
+  root a raw client opens the SANDBOX-ROOT mirror db, not the repo's
+  (node resolves the relative `file:` URL against the process CWD; bun
+  absolutizes it against the .env location — both land one directory
+  outside the repo, and a SQLite engine opening a missing mirror path
+  CREATES an empty db there). Session-53 proved it live: an intake
+  census read the mirror and briefly read zombie-era probe data as
+  repo-db residue. Always census through `bun run db:census` (the app's
+  own singleton + the printed resolved path — a count without its path
+  is not evidence).
