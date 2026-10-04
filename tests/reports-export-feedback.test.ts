@@ -11,9 +11,12 @@ import { describe, expect, it } from "vitest";
 // new Blob([N]) + a programmatic anchor — it cannot fail-navigate); our
 // s25 architecture keeps the route as the single-source filter/artifact
 // seam, so the fix is the fetch→blob flow: fetch → !res.ok → the s46
-// convention toast ("Could not export report") → ok → res.text() → the
-// Content-Disposition filename (fallback csvFilename("crm_report")) →
-// downloadBlob. The artifact bytes stay EXACTLY the route's (BOM + CRLF +
+// convention toast ("Could not export report") → ok → the BOM-PRESERVING
+// decode (the mid-GREEN correction: res.text()/blob.text() STRIP the
+// route's BOM via TextDecoder's default — the flow decodes the
+// arrayBuffer with TextDecoder("utf-8", { ignoreBOM: true }), N-49b) →
+// the Content-Disposition filename (fallback csvFilename("crm_report"))
+// → downloadBlob. The artifact bytes stay EXACTLY the route's (BOM + CRLF +
 // escapeCell quoting — the s25-pinned convention). downloadFile itself
 // retires (this was its sole remaining consumer; the navigation seam
 // leaves the codebase with it).

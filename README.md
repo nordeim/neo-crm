@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-1260%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-1271%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -52,7 +52,7 @@ first boot.
 | 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 1095 Vitest unit checks + 108 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) — grown to 1150 unit + 110 e2e through session-48 |
+| 🧪 Tested | 1095 Vitest unit checks + 108 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) — grown to 1160 unit + 111 e2e through session-49 |
 
 ## Architecture
 
@@ -175,9 +175,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 1150 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback)
+bun run test          # 1160 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback, reports-filter-validation)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 110 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 111 Playwright checks on :3100 with its own db/e2e.db
 bun run gate          # the full gate in one command: lint → typecheck → test → build → CI=1 e2e (the CI=1 prefix forces a fresh e2e server — a leftover :3100 listener is never reused)
 ```
 
@@ -546,6 +546,24 @@ window.location.href download seam, which navigated to the raw JSON
 envelope on any non-200 — is now the fetch→blob flow with the s46
 failure toast, the BOM byte-preserved through an ignoreBOM decode, and
 a new download e2e closing its zero-coverage gap),
+and the session-49 filter-semantics + feedback layer (the pointer-(a)
+filter-membership decision landed: the reports/export routes now
+membership-validate the genuinely-closed vocabularies — stage vs
+OPPORTUNITY_STAGES, status vs the new shared REPORT_STATUSES, both
+through the envelope's 400s, while owner (the data-dependent
+name-string join) and source (the s48 free-form parity) stay
+deliberately open with the rationale recorded in-file, and the
+saved-view Load normalizes stale stage/status entries so a Load never
+400s; the stage∧status AND-semantics parity fix — the reference's
+filter predicate ANDs every conjunct while our where-builder's
+object-spread let a status filter OVERWRITE a concurrent stage filter
+(an 18-session-old divergence, now AND-wrapped in both routes with a
+new e2e proving the empty intersection); the 12 e2e sleeps retired to
+2 annotated no-op-contract keeps (polling assertions, response-waits
+with body-level wipe proofs, and one race-free reorder); the leads
+inline-edit stale failure toast — a later success within the 500ms
+window now cancels the pending error; and the src-dead LEAD_SOURCES
+twin removed with the s48 CONTACT_SOURCES precedent),
 and the 7-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

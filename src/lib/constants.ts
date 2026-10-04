@@ -121,7 +121,14 @@ export const PIPELINE_LABELS: Record<string, string> = {
 // "call", label "Call" (bundle-extracted from the Tke/Mke selects; the
 // s28 contact-source precedent). Referral exists in the FILTERS popover's
 // five-option list only — no dialog can create it.
-export const LEAD_SOURCES = ["call", "email", "website", "partner"] as const;
+//
+// Session-49 (S49-P5, N-49c): the src-dead LEAD_SOURCES array (zero src
+// consumers; only its own constants.test.ts pin read it) was REMOVED
+// with the s48-P2 CONTACT_SOURCES precedent — the LIVING vocabulary is
+// LEAD_SOURCE_OPTIONS below (the dialogs' own list: entity-dialogs'
+// create/edit selects + the dashboard's Lead Sources rows). Source
+// stays FREE-FORM at the route boundary (the s48 documented-parity
+// decision — no canonical list exists to validate against).
 export const LEAD_SOURCE_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "call", label: "Call" },
   { value: "email", label: "Email" },
@@ -447,6 +454,22 @@ export const REPORT_PERIODS = [
   { id: "quarter", label: "This Quarter" },
   { id: "ytd", label: "YTD" },
   { id: "all", label: "All Time" },
+] as const;
+
+/**
+ * Session-49 (S49-P1, pointer (a)): the reports STATUS filter
+ * vocabulary — the reference's status select offers All Status / Open /
+ * Won / Lost (bundle: its De-value items; "all" is the page's no-filter
+ * sentinel, normalized away by notAll on the routes). ONE vocabulary
+ * shared by the reports-page select and BOTH route guards (reports +
+ * export) — the REPORT_PERIODS precedent. Won/lost map onto the OPP
+ * stages (closed_won/closed_lost) inside the routes' where builders;
+ * "open" is the post-filter (neither closed branch).
+ */
+export const REPORT_STATUSES = [
+  { id: "open", label: "Open" },
+  { id: "won", label: "Won" },
+  { id: "lost", label: "Lost" },
 ] as const;
 
 export const CHART_COLORS = {

@@ -126,8 +126,15 @@ export default function LeadsPage() {
   // into a single "Could not update lead".
   const leadEditFailTimer = React.useRef<number | undefined>(undefined);
   const onLeadEditResult = (res: { ok: boolean; error?: string }) => {
-    if (res.ok) return;
+    // Session-49 (S49-P4, N-48d): the clear is hoisted ABOVE the ok
+    // early-return — a later SUCCESS within the 500ms window cancels
+    // any pending failure toast (the s47 shape early-returned first, so
+    // a failed-then-succeeded per-keystroke burst fired a STALE "Could
+    // not update lead" although the final state persisted: one dropped
+    // PUT, the next carries the full new value). The failure path
+    // re-schedules below, preserving the s46-P2 burst collapse.
     window.clearTimeout(leadEditFailTimer.current);
+    if (res.ok) return;
     leadEditFailTimer.current = window.setTimeout(() => {
       toast.error("Could not update lead", res.error);
     }, 500);

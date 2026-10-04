@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { ERR, asString, isGuarded, requireSession } from "@/lib/api";
 import { toCsv, csvWithBom, csvFilename, type CsvColumn } from "@/lib/csv";
 import { formatDate, startOfDay, startOfMonth, startOfQuarter, startOfWeek, startOfYear } from "@/lib/format";
-import { REPORT_PERIODS } from "@/lib/constants";
+import { OPPORTUNITY_STAGES, REPORT_PERIODS, REPORT_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -62,13 +62,31 @@ export async function GET(req: Request) {
     const stage = notAll(url.searchParams.get("stage"));
     const status = notAll(url.searchParams.get("status"));
     const source = notAll(url.searchParams.get("source"));
+    // Session-49 (S49-P1, pointer (a)): the filter-membership
+    // reconciliation, shared with /api/reports (the same filter model —
+    // see that route's record for the full rationale). The CLOSED
+    // vocabularies validate (stage vs the OPP six; status vs
+    // REPORT_STATUSES — a typo'd stage used to answer a silently EMPTY
+    // export, a typo'd status a silent NO-OP); owner (the data-dependent
+    // name-string join) and source (the s48 free-form decision) stay
+    // deliberately OPEN.
+    if (stage && !OPPORTUNITY_STAGES.some((s) => s === stage)) return ERR.BAD_REQUEST("Invalid stage");
+    if (status && !REPORT_STATUSES.some((s) => s.id === status)) return ERR.BAD_REQUEST("Invalid status");
     const now = new Date();
     const from = reportPeriodStart(period, now);
     const oppWhere = {
       ...(owner ? { owner } : {}),
       ...(stage ? { stage } : {}),
       ...(source ? { source } : {}),
-      ...(status === "won" ? { stage: "closed_won" } : status === "lost" ? { stage: "closed_lost" } : {}),
+      // Session-49 (S49-P2, N-49n): AND-wrapped so a concurrent
+      // stage+status(won/lost) request yields the reference's
+      // INTERSECTION semantics (bundle D&&$&&V&&B&&R) instead of the
+      // object-spread overwrite (the old shape clobbered the stage
+      // filter — stage=prospecting&status=won exported every
+      // closed_won).
+      ...(status === "won" || status === "lost"
+        ? { AND: [{ stage: status === "won" ? "closed_won" : "closed_lost" }] }
+        : {}),
       ...(period === "all" ? {} : { createdAt: { gte: from } }),
     };
     // Session-42 (S42-P1): the read joined the envelope — the CSV build

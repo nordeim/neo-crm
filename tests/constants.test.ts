@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import {
   ACCOUNT_HEALTH_STATUSES,
   AGING_BUCKETS,
@@ -7,7 +9,7 @@ import {
   EVENT_TYPES,
   EVENT_TYPE_META,
   FUNNEL_STAGES,
-  LEAD_SOURCES,
+  LEAD_SOURCE_OPTIONS,
   LEAD_STAGES,
   REPORTS_PIPELINE_SLUGS,
   STAGE_META,
@@ -18,6 +20,20 @@ import {
 // reference app's DOM (computed styles / legend swatches / card outerHTML),
 // not from screenshots. If the reference changes, re-extract and re-pin —
 // do not "fix" these tests to match the code.
+
+/** Source read + comment strip (the s48 source-vocabulary idiom) — used
+ * by the source-structure pins that must not be tripped by the very
+ * comments documenting the shapes they assert. */
+function readConstants(): string {
+  const p = path.resolve(import.meta.dirname, "..", "src/lib/constants.ts");
+  return existsSync(p)
+    ? readFileSync(p, "utf-8")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+        .replace(/\/\/[^\n]*/g, "")
+    : "";
+}
+
 describe("chart palette parity (session-4 DOM-verified)", () => {
   it("dashboard pipeline stage colors: Proposal yellow-500, Won grey-400", () => {
     // Legend swatches on the live dashboard: rgb(59,130,246) / rgb(6,182,212)
@@ -59,12 +75,27 @@ describe("dialog/filter vocabularies (session-5 DOM-verified)", () => {
     expect(LEAD_STAGES).toContain("unqualified");
   });
 
-  it("lead create dialog Source options: the RAW call / email / website / partner", () => {
+  it("lead create dialog Source options: the RAW call / email / website / partner (the living vocabulary)", () => {
     // Session-29 (S29-P4, bundle-extracted from the Tke/Mke selects): the
     // dialogs store RAW values (value "call", label "Call") — the s28
     // contact-source precedent. Referral exists in the filters popover's
     // five-option list only.
-    expect([...LEAD_SOURCES]).toEqual(["call", "email", "website", "partner"]);
+    // Session-49 (S49-P5, N-49c): the pin re-anchored to the LIVING
+    // LEAD_SOURCE_OPTIONS (the dialogs' own list — entity-dialogs:853/:920
+    // + the dashboard's Lead Sources rows, page.tsx:298) after the
+    // src-dead LEAD_SOURCES twin was removed with the s48-P2 CONTACT_SOURCES
+    // precedent (zero src consumers; only this pin read it).
+    expect(LEAD_SOURCE_OPTIONS.map((o) => o.value)).toEqual(["call", "email", "website", "partner"]);
+  });
+
+  it("the src-dead LEAD_SOURCES constant is removed (N-49c — the s48 CONTACT_SOURCES twin)", () => {
+    // Source-structure pin (stripComments so the removal's own record
+    // comment cannot trip it): the dead export is gone; the living
+    // vocabulary LEAD_SOURCE_OPTIONS never matches (the identifier
+    // continues with "_OPTIONS").
+    const src = readConstants();
+    expect(src).not.toMatch(/export const LEAD_SOURCES\b/);
+    expect(src).toMatch(/export const LEAD_SOURCE_OPTIONS/);
   });
 
   it("contact create dialog \"How did you meet?\" emoji options (the living vocabulary)", () => {

@@ -79,4 +79,21 @@ describe("session-47: the leads inline-edit failure feedback (S47-P3, F-47f)", (
     // on a dead page.
     expect(src).toMatch(/React\.useEffect\(\(\) => \(\) => window\.clearTimeout\(leadEditFailTimer\.current\), \[\]\)/);
   });
+
+  it("a later SUCCESS cancels the pending failure toast (N-48d — the clear precedes the ok early-return)", () => {
+    const src = page();
+    const region = regionAt(src, "onLeadEditResult", 900);
+    // Session-49 (S49-P4): the clear is hoisted ABOVE the ok
+    // early-return. The s47 shape early-returned FIRST, so a failed PUT
+    // followed by a succeeding one within the 500ms window fired a
+    // STALE "Could not update lead" although the final state persisted
+    // (the recovery burst: one dropped PUT, the next carries the full
+    // new value). Ordering is the contract — both statements present,
+    // the clear strictly before the return.
+    const clearAt = region.indexOf("window.clearTimeout(");
+    const okAt = region.indexOf("if (res.ok) return");
+    expect(clearAt).toBeGreaterThanOrEqual(0);
+    expect(okAt).toBeGreaterThanOrEqual(0);
+    expect(clearAt).toBeLessThan(okAt);
+  });
 });

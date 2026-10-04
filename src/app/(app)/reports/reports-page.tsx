@@ -31,13 +31,13 @@ import {
   percentFormatter,
 } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
-import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_TABS } from "@/lib/constants";
+import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
 import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
 import { KPI_STATICS } from "@/lib/page-layout";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
 import { toCsv, csvFilename } from "@/lib/csv";
 import { exportReportsPdf, exportTablePdf, isoDateSuffix } from "@/lib/pdf-export";
-import { listSavedReports, saveReport, normalizeSavedPeriod, type SavedReport, type SavedReportColumns } from "@/lib/saved-reports";
+import { listSavedReports, saveReport, normalizeSavedPeriod, normalizeSavedStage, normalizeSavedStatus, type SavedReport, type SavedReportColumns } from "@/lib/saved-reports";
 import type { ReportsData } from "@/types";
 
 export default function ReportsPage() {
@@ -166,9 +166,12 @@ export default function ReportsPage() {
               <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="won">Won</SelectItem>
-                <SelectItem value="lost">Lost</SelectItem>
+                {/* Session-49 (S49-P1): the status vocabulary is the shared
+                    REPORT_STATUSES — the same list both route guards
+                    membership-check (the REPORT_PERIODS precedent). */}
+                {REPORT_STATUSES.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -369,10 +372,14 @@ export default function ReportsPage() {
               // Session-32 (S32-P4): normalize the stored dateRange — stale
               // s25 entries (week/month) migrate to the wire ids; unknown
               // values fall back to "quarter" so a Load never 400s.
+              // Session-49 (S49-P1, N-49m): stage/status normalize too —
+              // both routes now membership-check them, so a stale saved
+              // view must fall back to "all" rather than flip the fetch
+              // from silently-EMPTY to silently-STALE data.
               setPeriod(normalizeSavedPeriod(report.filters.dateRange));
               setOwner(report.filters.owner);
-              setStage(report.filters.stage);
-              setStatus(report.filters.status);
+              setStage(normalizeSavedStage(report.filters.stage));
+              setStatus(normalizeSavedStatus(report.filters.status));
               setSaveDialogOpen(false);
             }}
           />

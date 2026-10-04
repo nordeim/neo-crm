@@ -17,15 +17,15 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1150 checks)        | `bun run test`                         |
-| Browser E2E (110 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1160 checks)        | `bun run test`                         |
+| Browser E2E (111 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
 | Recreate DB from schema         | `bun run db:push`                      |
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1150) → `bun run build` → `bun run test:e2e` (110) — or the
+`bun run test` (1160) → `bun run build` → `bun run test:e2e` (111) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -162,10 +162,13 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   browsers. `tests/e2e/mobile-navigation.spec.ts` (7 checks, 390/700px
   viewports — the focus-entry test included) is the
   regression suite — do not weaken it.
-- **File downloads use `downloadFile()`** (`src/lib/download.ts`) — a single
-  centralized `window.location.href` for `Content-Disposition: attachment`
-  responses. Next's `no-location-assign` lint rule fires on raw assignments;
-  don't inline them again.
+- **File downloads are blob-based** (`src/lib/download.ts`'s
+  `downloadBlob` — session-48 retired the `downloadFile`
+  `window.location.href` seam: a non-200 navigated the browser to the
+  raw JSON envelope). Client-side artifacts build a Blob directly;
+  server artifacts round-trip through a fetch that parses the error
+  envelope and toasts instead of navigating. Don't inline raw
+  location assignments for downloads.
 - **View switchers + the leads filter popover (session-8)**: the reference
   ships DEAD Table/Cards selects (dashboard filter bar — empty label;
   accounts toolbar — displays "Table") plus a dead Standard/Detailed select
@@ -1890,6 +1893,45 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   first run caught it); `downloadFile` retired (zero consumers; the
   navigation seam left the codebase) + a new download e2e closing the
   zero-coverage gap.
+
+- **Session-49 (SKILL v1.46.0)** — the pointer-(a) filter-membership
+  decision + the stage∧status parity fix. (1) The reports/export
+  filter validation (deferred since the s46 audits): the
+  genuinely-CLOSED vocabularies membership-check through the envelope —
+  stage vs OPPORTUNITY_STAGES (a typo'd stage used to answer a
+  silently EMPTY report), status vs the new shared REPORT_STATUSES
+  constant (a typo'd status used to be a silent NO-OP — the
+  where-builder's else-branch dropped the filter and EVERYTHING came
+  back, the s42 strict-bool class); owner (the data-dependent
+  name-string join — a renamed owner would 400 stale saved views) and
+  source (the s48 free-form parity) stay deliberately OPEN with the
+  rationale recorded in-file at both routes; the saved-view Load
+  normalizes stale stage/status (normalizeSavedStage/Status — the s32
+  normalizeSavedPeriod precedent) so a Load never 400s. (2) The
+  stage∧status AND-semantics fix (N-49n, an 18-session-old divergence
+  found by decoding the reference's filter predicate — bundle
+  `D&&$&&V&&B&&R`, independent conjuncts): the object-spread
+  where-builder let the status branch OVERWRITE a concurrent stage
+  filter (stage=prospecting&status=won returned every closed_won; the
+  reference returns the empty intersection) — both routes now AND-wrap
+  the status conjunct, with a new e2e proving the zero intersection on
+  the seeded data. (3) The 12 e2e sleeps retired to 2 annotated
+  no-op-contract keeps (the More... dead button + the reset decline):
+  5 deleted as redundant (the following assertions already poll), 4
+  replaced by deterministic response-waits (the settings/dashboard
+  hydrations + the two post-wipe proofs asserted on the RESPONSE BODIES
+  — a bare $0/empty-state DOM poll is vacuous under the
+  instant-render-with-zeros contract), 1 race-free reorder (the reset
+  accept), and the N-48e near-vacuous `toContain("/")` tightened to the
+  file's own toHaveURL idiom. (4) The leads inline-edit stale failure
+  toast (N-48d): the clearTimeout hoisted above the ok early-return —
+  a later success within the 500ms window cancels the pending error.
+  (5) The src-dead LEAD_SOURCES twin removed (the s48 CONTACT_SOURCES
+  precedent; the pin re-anchored to the living LEAD_SOURCE_OPTIONS).
+  Plus the four stale `downloadFile` doc carriers corrected
+  (CLAUDE/AGENTS/SKILL ×2 — the anti-pattern now routes the blob
+  family) and the s48 pin-file header's res.text() narration corrected
+  (N-49b).
 
 ## Conventions that differ from defaults
 

@@ -446,6 +446,11 @@ test("the dashboard More... button is the reference's dead affordance (S24-P3)",
   // (an invention); the no-op is now pinned.
   await page.goto("/");
   await page.getByRole("button", { name: "More...", exact: true }).click();
+  // Session-49 (S49-P3): a BOUNDED no-op-contract wait — the pinned
+  // contract is "nothing happens" (no navigation, no dialog), so there
+  // is no positive signal to poll; the following auto-retrying
+  // assertions would pass vacuously at t≈0. The 300ms window is the
+  // window in which a wrong navigation would have started.
   await page.waitForTimeout(300);
   await expect(page).toHaveURL(/\/$|\/Dashboard/);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
@@ -1318,6 +1323,47 @@ test("the reports header Export CSV downloads the route's artifact (S48-P4)", as
   await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
 });
 
+test("the reports stage+status filters AND — a non-closed stage with status=won yields zero (S49-P2)", async ({ page }) => {
+  let reportsLoaded = page.waitForResponse((r) => r.url().includes("/api/reports"));
+  await page.goto("/reports");
+  await reportsLoaded;
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  // The reference's filter predicate ANDs every conjunct (bundle:
+  // D&&$&&V&&B&&R — stage `$` and the status-derived stage test `B` are
+  // INDEPENDENT), so stage=Prospecting + status=Won is the EMPTY
+  // intersection (no opp is both). Our old where-builder object-spread
+  // let the status branch OVERWRITE the stage filter — the same request
+  // returned every closed_won (the seeded workspace's Won Deals > 0,
+  // which is exactly what makes this test fail on the pre-fix code).
+  // Each select change refetches; each refetch is awaited on its own
+  // URL (the filter model rides the query string), so the assertions
+  // below read the FINAL data, not a stale render.
+  reportsLoaded = page.waitForResponse((r) => r.url().includes("stage=prospecting"));
+  await page.getByRole("combobox").nth(2).click();
+  await page.getByRole("option", { name: "Prospecting" }).click();
+  await reportsLoaded;
+  reportsLoaded = page.waitForResponse(
+    (r) => r.url().includes("stage=prospecting") && r.url().includes("status=won"),
+  );
+  await page.getByRole("combobox").nth(3).click();
+  await page.getByRole("option", { name: "Won", exact: true }).click();
+  const res = await reportsLoaded;
+  // The strongest assertion first — the API itself answers the empty
+  // intersection (wonDeals 0, the AND semantics).
+  const body = await res.json();
+  expect(body.ok).toBe(true);
+  expect(body.data.kpis.wonDeals).toBe(0);
+  // Then the rendered KPI card — "Won Deals 0 $0.0K" (the count renders
+  // inline with the compact-uppercase amount, the s27/s32 contracts).
+  // expect.poll: the auto-retrying form for a body-text regex (the
+  // store's commit may trail the response by a frame).
+  await expect
+    .poll(async () =>
+      (await page.evaluate(() => document.body.innerText)).match(/Won Deals\s+0\s+\$/) !== null,
+    )
+    .toBe(true);
+});
+
 test("the Save Custom Report View round-trip (S25-P4)", async ({ page }) => {
   await page.goto("/reports");
   await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
@@ -1393,12 +1439,21 @@ test("the template buttons download the static artifacts (S26-P3)", async ({ pag
 });
 
 test("the settings export buttons download the raw-dump CSVs (S26-P4)", async ({ page }) => {
+  // Session-49 (S49-P3): the hydration wait is a deterministic
+  // RESPONSE wait, not a sleep — the four entity slices the raw-dump
+  // builders map (contacts/accounts/leads/activities) are awaited as
+  // HTTP responses set up BEFORE the navigation (the Data tab's buttons
+  // never disable, so there is no DOM signal; the click protocol's own
+  // actionability latency covers the store's post-response commit).
+  const hydrate = Promise.all([
+    page.waitForResponse((r) => r.url().includes("/api/contacts")),
+    page.waitForResponse((r) => r.url().includes("/api/accounts")),
+    page.waitForResponse((r) => r.url().includes("/api/leads")),
+    page.waitForResponse((r) => r.url().includes("/api/activities")),
+  ]);
   await page.goto("/settings");
+  await hydrate;
   await page.getByRole("tab", { name: "Data" }).click();
-  // Let the layout hydrate land (the raw dump no-ops at zero rows — the
-  // reference downloads an EMPTY file then, but the seeded e2e workspace
-  // must produce the quoted raw rows for the content assertions).
-  await page.waitForTimeout(600);
   // The reference's m(entity): the header is the FIRST ROW's own keys and
   // every value is double-quoted — singular prefixes + ISO dates.
   const pairs: [string, RegExp][] = [
@@ -1439,11 +1494,16 @@ test("the contacts page export downloads the quoted 7-column CSV (S26-P5)", asyn
 });
 
 test("the dashboard export trio downloads the client-side CSVs (S47-P1)", async ({ page }) => {
+  // Session-49 (S49-P3): the hydration wait is the /api/leads response
+  // (set up BEFORE the navigation) + the "Follow up with" rows as the
+  // store-commit signal — the leads builder has NO zero-guard, so a
+  // pre-commit click would download a header-only CSV and fail the
+  // row assertion below (the old 600ms sleep was the same guard,
+  // arbitrary-tailed).
+  const leadsLoaded = page.waitForResponse((r) => r.url().includes("/api/leads"));
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  // Let the shell bootstrap hydrate the entity slices (the builders map
-  // the store's lists — at zero rows the guards would no-op).
-  await page.waitForTimeout(600);
+  await leadsLoaded;
+  await expect(page.getByText(/Follow up with/).first()).toBeVisible();
   // The outline Export opens the menu; its Leads item fires the leads
   // builder (the s29 leads-page convention: leads_ISO.csv, unquoted
   // header + quoted value cells). The URL must STAY / — the pre-S47-P1
@@ -1466,8 +1526,10 @@ test("the dashboard export trio downloads the client-side CSVs (S47-P1)", async 
   await page.getByRole("button", { name: "Export" }).last().click();
   const directDownload = await directDownloadPromise;
   expect(directDownload.suggestedFilename()).toMatch(/^leads_\d{4}-\d{2}-\d{2}\.csv$/);
-  // No navigation happened — the dashboard is still the page.
-  expect(page.url()).toContain("/");
+  // No navigation happened — the dashboard is still the page (N-48e:
+  // the old toContain("/") matched every URL; the file's own
+  // More... idiom pins the actual route).
+  await expect(page).toHaveURL(/\/$|\/Dashboard/);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 });
 
@@ -1651,7 +1713,8 @@ test("the Account Health tab renders the PIE + horizontal top-10 + red-tinted at
 test("the dashboard Lead Sources rows are the checkbox family with 'Follow up with' text (S27-P8)", async ({ page }) => {
   await page.goto("/Dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await page.waitForTimeout(800);
+  // Session-49 (S49-P3): the 800ms sleep retired — the row assertion
+  // below is auto-retrying (10s poll); it IS the hydration wait.
   // The seeded leads produce source rows: the checkbox + the follow-up text.
   const row = page.getByText(/Follow up with/).first();
   await expect(row).toBeVisible();
@@ -1663,7 +1726,9 @@ test("the dashboard Lead Sources rows are the checkbox family with 'Follow up wi
 test("the dashboard KPI sparklines render the STATIC arrays (S27-P7)", async ({ page }) => {
   await page.goto("/Dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await page.waitForTimeout(800);
+  // Session-49 (S49-P3): the 800ms sleep retired — the sparkline and
+  // delta assertions below are auto-retrying (and the sparks are the
+  // reference's STATIC arrays — they render independent of data).
   // The reference's hardcoded sparks ALWAYS render (our old real-data
   // sparks rendered empty in dataless quarters) — expect line/area curves
   // in the KPI row + the CSS bar strips on the bars-variant cards.
@@ -1677,7 +1742,9 @@ test("the dashboard KPI sparklines render the STATIC arrays (S27-P7)", async ({ 
 test("the calendar day chips open the EDIT dialog (S27-P11, seeded events)", async ({ page }) => {
   await page.goto("/calendar");
   await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
-  await page.waitForTimeout(800);
+  // Session-49 (S49-P3): the 800ms sleep retired — the chip assertion
+  // below is auto-retrying (the seeded events render once the events
+  // slice commits; the poll IS the wait).
   // A seeded event chip (tinted, with its colored dot) — click → edit dialog.
   const chip = page.locator('main .cursor-pointer.truncate').first();
   await expect(chip).toBeVisible();
@@ -1689,7 +1756,8 @@ test("the calendar day chips open the EDIT dialog (S27-P11, seeded events)", asy
 test("the activities by-type chart bars are single-blue with the small radius (S27-P10)", async ({ page }) => {
   await page.goto("/activities");
   await expect(page.getByRole("heading", { name: "Activities", exact: true })).toBeVisible();
-  await page.waitForTimeout(800);
+  // Session-49 (S49-P3): the 800ms sleep retired — the bars assertion
+  // below is auto-retrying; the one-shot evaluateAll runs only after it.
   const bars = page.locator(".recharts-bar-rectangle path, .recharts-bar-rectangle rect");
   await expect(bars.first()).toBeVisible();
   const fills = await bars.evaluateAll((els) =>
@@ -2080,7 +2148,10 @@ test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async (
   await page.getByLabel("Full Name").fill("sepnetflix2023 P");
   await page.getByRole("button", { name: "Save Changes" }).click();
   await expect(page.getByText("Profile updated successfully")).toBeVisible();
-  await page.waitForTimeout(1200);
+  // Session-49 (S49-P3): the 1200ms sleep retired — the TOPBAR avatar
+  // assertions below ARE the reload poll (the img exists only after the
+  // server re-renders the session user; the heading check above passes
+  // pre-reload and is only ordering, not the signal).
   await expect(page.getByText("Personal Information")).toBeVisible();
 
   // The TOPBAR avatar picked up the photo (server-rendered session user
@@ -2125,11 +2196,24 @@ test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must no
   await expect(button).toBeEnabled();
   // Decline: the input stays filled, no wipe.
   await button.click();
+  // Session-49 (S49-P3): a BOUNDED no-op-contract wait — the pinned
+  // contract is "the decline changed nothing", and toHaveValue("RESET")
+  // passes immediately in both states, so there is no positive signal
+  // to poll; the 400ms window is the window in which a wrong wipe
+  // would have landed.
   await page.waitForTimeout(400);
   await expect(page.getByPlaceholder("RESET")).toHaveValue("RESET");
   // Accept the confirm on a second click.
   await button.click();
-  await page.waitForTimeout(1500);
+  // Session-49 (S49-P3): the 1500ms sleep retired via REORDER — the
+  // auto-retrying polls move UP (the input clears + the button
+  // re-disables only after the wipe + settings refetch land), and the
+  // one-shot dialogs-array assertions follow race-free: the alert
+  // BLOCKS the page's JS until the handler accepts, and the pushes
+  // precede the accept, so the polls cannot observe the cleared input
+  // before both dialogs are recorded.
+  await expect(page.getByPlaceholder("RESET")).toHaveValue("");
+  await expect(button).toBeDisabled();
   // The reference's dialog vocabulary (bundle-extracted).
   expect(
     dialogs.some((m) =>
@@ -2137,19 +2221,32 @@ test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must no
     ),
   ).toBe(true);
   expect(dialogs.some((m) => m.includes("alert:Data reset complete"))).toBe(true);
-  // The input cleared + the button re-disabled.
-  await expect(page.getByPlaceholder("RESET")).toHaveValue("");
-  await expect(button).toBeDisabled();
   // The wipe landed: the dashboard's currency KPIs read zero (the dashboard
   // legacy format renders sub-1000 as the bare number — "$0").
+  // Session-49 (S49-P3): the 600ms sleep retired — the /api/dashboard
+  // response is awaited (set up BEFORE the goto) and the wipe is proven
+  // ON THE RESPONSE BODY (a bare $0 DOM poll would be vacuous: the
+  // instant-render-with-zeros contract renders $0 pre-hydration too).
+  const dashLoaded = page.waitForResponse((r) => r.url().includes("/api/dashboard"));
   await page.goto("/Dashboard");
+  const dashRes = await dashLoaded;
+  const dashBody = await dashRes.json();
+  expect(dashBody.ok).toBe(true);
+  expect(dashBody.data.kpis.totalLeads).toBe(0);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await page.waitForTimeout(600);
   const kpiText = await page.evaluate(() => document.body.innerText);
   expect(kpiText).toMatch(/\$0\b/);
   // And the contacts page shows its empty state.
+  // Session-49 (S49-P3): the 600ms sleep retired — the /api/contacts
+  // response is awaited with the empty list proven on the body (the
+  // empty-state row renders pre-hydration too — the response is the
+  // only meaningful signal).
+  const contactsLoaded = page.waitForResponse((r) => r.url().includes("/api/contacts"));
   await page.goto("/contacts");
-  await page.waitForTimeout(600);
+  const contactsRes = await contactsLoaded;
+  const contactsBody = await contactsRes.json();
+  expect(contactsBody.ok).toBe(true);
+  expect(contactsBody.data).toHaveLength(0);
   const body = await page.evaluate(() => document.body.innerText);
   expect(body).not.toContain("E2E Import");
 });

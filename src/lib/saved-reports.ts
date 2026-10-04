@@ -28,7 +28,7 @@
  * inferred week/month ids migrate through normalizeSavedPeriod().
  */
 
-import { REPORT_PERIODS } from "@/lib/constants";
+import { OPPORTUNITY_STAGES, REPORT_PERIODS, REPORT_STATUSES } from "@/lib/constants";
 
 export interface SavedReportFilters {
   /** REPORT_PERIODS id (today/thisWeek/thisMonth/quarter/ytd/all). */
@@ -94,6 +94,26 @@ export function normalizeSavedPeriod(raw: string): string {
   if (raw === "week") return "thisWeek";
   if (raw === "month") return "thisMonth";
   return REPORT_PERIODS.some((p) => p.id === raw) ? raw : "quarter";
+}
+
+/** Session-49 (S49-P1, N-49m): normalize a stored stage filter to the
+ * OPP stage vocabulary — the normalizeSavedPeriod precedent. The s49
+ * route validation membership-checks stage against OPPORTUNITY_STAGES,
+ * so a stale localStorage entry (a hand-edited value, or a stage id from
+ * a future vocabulary change) must fall back to the "all" sentinel
+ * before it reaches the fetch — otherwise a Load would flip from
+ * silently-EMPTY data to silently-STALE data (the reports effect
+ * swallows !ok; the normalizer keeps the fetch green). LEAD stages are
+ * NOT OPP stages — the cross-vocabulary guard. */
+export function normalizeSavedStage(raw: string): string {
+  return OPPORTUNITY_STAGES.some((s) => s === raw) ? raw : "all";
+}
+
+/** Session-49 (S49-P1, N-49m): the status twin — the reports/export
+ * routes validate status against REPORT_STATUSES (open/won/lost);
+ * anything else stored in a saved view falls back to "all". */
+export function normalizeSavedStatus(raw: string): string {
+  return REPORT_STATUSES.some((s) => s.id === raw) ? raw : "all";
 }
 
 export function decodeSavedReports(raw: string | null): SavedReport[] | null {

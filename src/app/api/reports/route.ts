@@ -2,7 +2,9 @@ import { db } from "@/lib/db";
 import { ok, ERR, asString, isGuarded, requireSession } from "@/lib/api";
 import {
   ACTIVITY_TYPE_META,
+  OPPORTUNITY_STAGES,
   REPORT_PERIODS,
+  REPORT_STATUSES,
 } from "@/lib/constants";
 import { accountHealth, HEALTH_STATES } from "@/lib/account-health";
 import {
@@ -60,6 +62,28 @@ export async function GET(req: Request) {
   const status = notAll(url.searchParams.get("status"));
   const source = notAll(url.searchParams.get("source"));
 
+  // Session-49 (S49-P1, pointer (a)): the filter-membership
+  // reconciliation — the operator decision deferred since the s46
+  // audits. The genuinely-CLOSED vocabularies validate (the "Invalid
+  // period" precedent above): stage vs the OPP six (the page select's
+  // own list — a typo'd stage used to answer a silently EMPTY report)
+  // and status vs REPORT_STATUSES (a typo'd status used to be a silent
+  // NO-OP: the where-builder's else-branch matched nothing, the filter
+  // dropped, EVERYTHING came back — the s42 strict-bool silent-coercion
+  // class). The two deliberately-OPEN params, both documented parity:
+  //   - owner: the data-dependent NAME-STRING join (the page dropdown
+  //     lists the DISTINCT opp owners — a renamed owner would 400 every
+  //     stale saved view; membership would need a DB round trip per
+  //     fetch; the reference's own list is data-derived);
+  //   - source: the s48 free-form decision (no canonical list exists —
+  //     the five vocabularies are disjoint by design; the page never
+  //     sends source at all).
+  // The saved-view Load normalizes stage/status before they reach this
+  // route (normalizeSavedStage/Status in saved-reports.ts — the s32
+  // normalizeSavedPeriod precedent, N-49m).
+  if (stage && !OPPORTUNITY_STAGES.some((s) => s === stage)) return ERR.BAD_REQUEST("Invalid stage");
+  if (status && !REPORT_STATUSES.some((s) => s.id === status)) return ERR.BAD_REQUEST("Invalid status");
+
   const now = new Date();
   const from = periodStart(period, now);
 
@@ -73,11 +97,17 @@ export async function GET(req: Request) {
     ...(stage ? { stage } : {}),
     ...(source ? { source } : {}),
     ...(owner ? { owner } : {}),
-    ...(status === "won"
-      ? { stage: "closed_won" }
-      : status === "lost"
-        ? { stage: "closed_lost" }
-        : {}),
+    // Session-49 (S49-P2, N-49n): the reference's filter predicate ANDs
+    // every conjunct (bundle: D&&$&&V&&B&&R — stage `$` and the
+    // status-derived stage test `B` are INDEPENDENT), so a concurrent
+    // stage+status(won/lost) request yields the INTERSECTION (empty for
+    // any non-closed stage). The old object-spread let this branch
+    // OVERWRITE a concurrent stage filter (stage=prospecting&status=won
+    // returned every closed_won). The AND-wrapped conjunct preserves both;
+    // status-only and stage-only requests stay byte-equivalent to before.
+    ...(status === "won" || status === "lost"
+      ? { AND: [{ stage: status === "won" ? "closed_won" : "closed_lost" }] }
+      : {}),
   };
   const leadWhere = {
     ...(period !== "all" ? { createdAt: { gte: from } } : {}),
