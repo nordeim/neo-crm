@@ -31,8 +31,8 @@ import { useCrmStore } from "@/stores/crm-store";
 import { EVENT_TYPE_CHIP, EVENT_TYPE_META, EVENT_STATUS_META } from "@/lib/constants";
 import {
   addDays,
+  calendarFetchBounds,
   calendarGrid,
-  endOfDay,
   formatDate,
   formatMonthDayTime,
   formatMonthYear,
@@ -106,8 +106,11 @@ export default function CalendarPage() {
 
   React.useEffect(() => {
     if (!hydrated) return;
-    const from = new Date(year, month - 1, 1).toISOString();
-    const to = endOfDay(new Date(year, month + 1, 0)).toISOString();
+    // Session-51 (N-51a): the window comes from the seam — its `to` bound
+    // covers the UNTRIMMED grid's last day, so the trailing next-month
+    // cells keep their events after a month flip (the old month-end
+    // bound lost them: the s45 token makes this fetch authoritative).
+    const { from, to } = calendarFetchBounds(year, month);
     fetchEvents(from, to);
   }, [hydrated, year, month, fetchEvents]);
 
@@ -158,17 +161,17 @@ export default function CalendarPage() {
     current === previous ? "±0" : current > previous ? `+${current - previous}` : `-${previous - current}`;
 
   const todaysEvents = eventsOn(today);
-  const yesterdaysEvents = events.filter((e) => isSameDay(new Date(e.startAt), addDays(today, -1))).length;
+  const yesterdaysEvents = visible.filter((e) => isSameDay(new Date(e.startAt), addDays(today, -1))).length;
   const meetingsThisWeek = visible.filter(
     (e) => e.type === "meeting" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd,
   ).length;
-  const meetingsLastWeek = events.filter(
+  const meetingsLastWeek = visible.filter(
     (e) => e.type === "meeting" && new Date(e.startAt) >= lastWeekStart && new Date(e.startAt) < weekStart,
   ).length;
   const callsThisWeek = visible.filter(
     (e) => e.type === "call" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd,
   ).length;
-  const callsLastWeek = events.filter(
+  const callsLastWeek = visible.filter(
     (e) => e.type === "call" && new Date(e.startAt) >= lastWeekStart && new Date(e.startAt) < weekStart,
   ).length;
 

@@ -3,8 +3,10 @@
 // Entity create/edit dialogs shared by the Dashboard quick-add and the
 // Accounts/Contacts/Leads/Calendar/Activities pages.
 //
-// Pattern (React 19 lint-clean): each dialog shell mounts its form only while
-// open, keyed by entity id — so the form initializes ALL state via useState
+// Pattern (React 19 lint-clean): each dialog shell mounts its form only
+// while open — the Event/Activity edit forms keyed by entity id, the
+// create forms unmounted on close (session-50: the create dialogs are
+// create-only) — so every form initializes ALL state via useState
 // initializers at mount. No setState-inside-effects, ever.
 
 import * as React from "react";

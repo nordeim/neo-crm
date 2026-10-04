@@ -226,6 +226,25 @@ export function calendarGrid(
   return days;
 }
 
+/** Fetch window for a calendar month view (session-51, N-51a). `from`
+ * deliberately over-covers a FULL previous month (the leading grid cells
+ * + the today-side KPI cards when viewing ahead); `to` covers the LAST
+ * day the grid can render — the UNTRIMMED 42-cell Sunday-anchored grid's
+ * final cell, so the trailing next-month cells are always inside the
+ * window. The old month-end bound (`endOfDay(new Date(year, month + 1,
+ * 0))`) lost the trailing cells' events after a month flip: the s45
+ * last-call-wins token makes the windowed fetch authoritative, and the
+ * page trims the grid to whole weeks whose trailing cells extend up to
+ * 6 days into the next month (e.g. Nov 2026 renders Dec 1-5). The
+ * untrimmed bound also survives future changes to the page's trim. */
+export function calendarFetchBounds(year: number, month: number): { from: string; to: string } {
+  const grid = calendarGrid(year, month, "sunday", true);
+  return {
+    from: new Date(year, month - 1, 1).toISOString(),
+    to: endOfDay(grid[grid.length - 1]).toISOString(),
+  };
+}
+
 export function toLocalInputValue(d: Date | string | number | null | undefined): string {
   if (!d) return "";
   const x = asDate(d);

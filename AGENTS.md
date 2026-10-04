@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1166 checks)        | `bun run test`                         |
+| Unit tests (1171 checks)        | `bun run test`                         |
 | Browser E2E (111 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1166) → `bun run build` → `bun run test:e2e` (111) — or the
+`bun run test` (1171) → `bun run build` → `bun run test:e2e` (111) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1956,14 +1956,44 @@ golden-path row 93→94, SKILL §4.4's stale LEAD_SOURCES inventory
 entry, AGENTS' removed source-vocabulary constants → the living
 OPTIONS pair).
 
+**Session-51** (the calendar window + KPI-baseline layer): (1) The
+N-51a fix — the calendar's month-flip fetch window is now the pure
+seam `calendarFetchBounds(year, month)` in `src/lib/format.ts`: `from`
+keeps the deliberate full-prev-month over-coverage while `to` covers
+the UNTRIMMED 42-cell Sunday-anchored grid's final cell, so the
+trailing next-month cells (up to 6 days into the next month, e.g. the
+Nov 2026 view renders Dec 1-5) keep their events after a month flip —
+the old month-end bound (`endOfDay(new Date(year, month + 1, 0))`)
+lost them because the s45 last-call-wins token makes the windowed
+fetch authoritative. LIVE-verified end-to-end (create on a trailing
+cell → flip away and back → the chip persists → delete → zero
+residue; the pre-fix behavior — the chip vanishing after the flip —
+was accidentally witnessed live through a zombie dev server from a
+prior session, a perfect A/B). (2) The N-51b fix — the calendar KPI
+trend baselines (`yesterdaysEvents`, `meetingsLastWeek`,
+`callsLastWeek`) now read `visible` (the filtered set), the same
+population as the currents, so a filtered view no longer compares a
+filtered current against an unfiltered baseline; the no-filter
+behavior is byte-identical, and the reference's own "Total Events"
+pseudo-delta quirk is untouched. Both pinned RED-first by
+tests/calendar-fetch-bounds.test.ts (4 failing pins + 1
+green-through-RED guard, proven non-vacuous in a pre-fix worktree).
+(3) The four docs/comment carriers (PAD's mobile-nav "(5 checks…)"
+→ 7, PAD's frozen repo-tree test counts → 74 suites/1171+111, the
+entity-dialogs.tsx file-header's "keyed by entity id" pattern comment
+re-worded for the create-only reality, AGENTS' stale chart-placeholder
+bullet → the session-10 real-chart-at-zero contract).
+
 ## Conventions that differ from defaults
 
 - TypeScript strict **except `noImplicitAny: false`** (sandbox default, kept).
 - Validation is hand-rolled in route handlers (trim, length caps, enum
   membership, referential checks via `asString`/`asNumber`/`asDate` in
   `src/lib/api.ts`). No schema library — zod was deliberately pruned.
-- Charts are recharts with empty-state fallbacks (`src/components/charts/`);
-  every chart must render a friendly placeholder when its data is all-zero.
+- Charts are recharts with recharts DEFAULTS (`src/components/charts/`);
+  the REAL chart renders at all-zero data (session-10 reversal — the
+  empty-state placeholder boxes are retired; fixed lists render ticks at
+  zero, row-derived series render empty).
 - Icons are lucide-react. Session-7 re-pin: sidebar nav icons are
   uniform `h-5 w-5` stroke-2 (no active/inactive stroke variation), as are
   the topbar mail/bell and search icons; content icons stay `h-4 w-4`.

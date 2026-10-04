@@ -203,7 +203,7 @@ regression suite.
   adjust-during-render (React 19 lint-safe), and auto-close when the viewport
   grows past `md` (session-7: the drawer and trigger are `md:hidden`,
   matching the reference sidebar's `hidden md:flex`). Pinned by
-  `tests/e2e/mobile-navigation.spec.ts` (5 checks, 390px viewport).
+  `tests/e2e/mobile-navigation.spec.ts` (7 checks, 390/700px viewports).
 - **Rationale:** Restores the primary navigation affordance the reference
   lost; every behavior maps to a documented Tailwind-v4/React-19 failure
   class in the skills research (overlay clipping, z-index wars, scroll-lock
@@ -352,8 +352,8 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 15 Vitest suites — 262 checks
-│   └── e2e/                     # global-setup, auth.setup, 3 spec files — 31 checks
+│   ├── *.test.ts                # 74 Vitest suites — 1171 checks
+│   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 111 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
 └── postcss.config.mjs           # @tailwindcss/postcss — REQUIRED (ADR-005)
@@ -720,11 +720,12 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the security-remainder + decision layer (the csv-formula-guard pins [the `=`/`+`/`@`/tab/CR guard inside the quoting on toCsv + toQuotedCsv + unquotedHeaderCsv + entityDumpCsv, the `-` exclusion, the no-op contract, the round-trip `'`, the templates-outside-guard, the both-seams source pin] + the source-vocabulary pins [the src-dead CONTACT_SOURCES absent, the contradictory s5 comment gone, the routes' free-form no-membership shape, the settings defaults verbatim] + the insights-badge-case pins [the ACTIVITY_TYPE_META label + raw fallback, the raw-slug badge absent] + the reports-export-feedback pins [zero downloadFile, the fetch→blob + toast shape, downloadFile retired from download.ts] — session-48) | 4 | 19 | `tests/csv-formula-guard.test.ts` `tests/source-vocabulary.test.ts` `tests/insights-badge-case.test.ts` `tests/reports-export-feedback.test.ts` | Vitest |
 | Unit — the filter-membership + AND-semantics + feedback layer (the reports-filter-validation pins [both routes' stage-vs-OPPORTUNITY_STAGES + status-vs-REPORT_STATUSES membership with the envelope 400s, the owner/source-open guard with the raw notAll spreads preserved + no owner/source 400s, the in-file reconciliation records, the normalizeSavedStage/Status functional matrix incl. the lead-stage cross-vocabulary guards, the reports-page Load normalizer wiring, the AND-wrapped status conjunct in both routes' oppWhere with the bare overwrite form absent] + the leads-inline-feedback ordering pin [the clearTimeout precedes the ok early-return — a later success cancels the pending stale toast] + the constants re-anchor [LEAD_SOURCES absent, the living LEAD_SOURCE_OPTIONS values] — session-49) | 3 | 11 | `tests/reports-filter-validation.test.ts` `tests/leads-inline-feedback.test.ts` `tests/constants.test.ts` | Vitest |
 | Unit — the create-dialog single-mode + docs-accuracy layer (the create-dialog-single-mode pins [the three Dialog wrappers carry NO entity prop, the three Forms carry NO createMode machinery, zero updateContact/updateAccount/updateLead references in the file, the three pages declare NO dead editing state] + the create-mode regression guards [the three titles + toasts + the reference's create vocabularies survive] + the EventDialog/ActivityDialog dual-mode boundary guard + the leads-inline create-default re-anchor [the raw "email" on the create-only initializer] — session-50) | 2 | 7 | `tests/create-dialog-single-mode.test.ts` `tests/leads-inline.test.ts` | Vitest |
+| Unit — the calendar window + KPI-baseline layer (the calendar-fetch-bounds pins [the trailing next-month coverage: Nov 2026's `to` = the untrimmed grid's Dec 12 cell ≥ the trimmed render's Dec 5; the zero-trailing month Oct 2026; the prev-month `from` over-coverage preserved] + the page-wiring source pins [the effect derives its window from `calendarFetchBounds` with the month-end form absent; the three KPI trend baselines read `visible`, no raw `events.filter` in the KPI region] + the neighbor guard [calendarGrid's 42-cell + monday-default contracts, the page's sunday call + whole-week trim, the Total Events pseudo-delta + trend() helper verbatim, the fetchEvents(from, to) call shape] — session-51) | 1 | 5 | `tests/calendar-fetch-bounds.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26, and the session-27 chart-internals + Account Health / calendar layer — the computed health PIE + horizontal Top-10 + red at-risk rows + the dashboard Follow-up rows + the static KPI sparks + the calendar chip Edit dialog + the single-blue by-type bars, and the session-28 entity layer — the contacts slide-over + the W7/wce/Mke edit dialogs + the inline role select + the Account Insights dialog + the kke filter panel, and the session-29 leads interactive layer — the inline Value/Status/Date editing round-trip + the overdue border + CircleAlert + the orange Target box + the sticky thead + the dead Convert item + the "(Active)" suffix + the prompt-based Save View + the loadable Saved Views select, and the session-30 photo-upload layer — the New Contact photo round-trip rendering + persisting with the remove X verified + the profile photo round-trip with the toast + both avatar renders + the topbar pickup after the 500ms reload, and the session-39 import error-semantics layer — the route.abort-driven all-POSTs-failed banner + the header-only no-rows banner + the delete-all-matches cleanup, and the session-47 dashboard-export layer — the outline Export menu's Leads item + the primary Export both downloading the client-side `leads_ISO.csv` with the URL staying `/` [was the raw 400 JSON navigation] — and the session-48 reports-export layer — the header Export CSV downloading the route's BOM'd 7-column artifact via the fetch→blob flow with the URL staying `/reports` [was the raw JSON navigation on any non-200] — and the session-49 filter-semantics + deterministic-wait layer — the stage+status AND intersection e2e [stage=Prospecting + status=Won → the API's wonDeals 0 + the rendered "Won Deals 0 $" KPI, failing on the pre-fix overwrite code], the 12 sleeps retired to 2 annotated no-op-contract keeps [5 redundant deletes before auto-retrying assertions, 4 response-waits with the post-wipe proofs asserted on the RESPONSE BODIES, 1 race-free reorder], and the N-48e toHaveURL tightening) | 1 | 94 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **73** | **1166 unit + 111 e2e** | | |
+| **Total** | **74** | **1171 unit + 111 e2e** | | |
 
 ### 7.2 Test Patterns
 
@@ -1138,7 +1139,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 1166/1166
+- [ ] `bun run test` — 1171/1171
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 111/111
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -1208,7 +1209,7 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 1166 unit checks |
+| `bun run test` | root | 1171 unit checks |
 | `bun run test:e2e` | root | 111 browser checks (build first) |
 | `bun run gate` | root | The full gate in one command (lint → typecheck → test → build → e2e) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
