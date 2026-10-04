@@ -612,7 +612,6 @@ export default function AccountsPage() {
         title="Edit Account"
         detailsTitle="Account Details"
         fields={ACCOUNT_EDIT_FIELDS}
-        entityId={editTarget?.id ?? null}
         initial={{
           name: editTarget?.name ?? "",
           industry: editTarget?.industry ?? "",

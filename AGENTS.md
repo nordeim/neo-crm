@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1198 checks)        | `bun run test`                         |
+| Unit tests (1201 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1198) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1201) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2225,6 +2225,40 @@ re-verified UNCHANGED — the CSV posture (b) STANDS (16th
 re-affirmation), the source-vocabulary documented parity STANDS AND
 EXTENDS to the N-58 family WITH the module type-contract boundary
 (the bundle byte-identical for the 29th consecutive session).
+
+**Session-59** (the dead-surface narrowing, missed-sibling +
+destructured-prop layer): (1) The N-59a closure — the types barrel's
+`SavedReport` interface RETIRED: the DB-wire-shape type (id/name/tab/
+config/createdAt) had zero references repo-wide INCLUDING its own
+file, AND it is shape-divergent from the LIVE `SavedReport` (the
+localStorage filters/columns shape in saved-reports.ts, the s25 seam)
+— the s58 SearchResult class's MISSED SIBLING, found only by the 59-b
+complementary-sweep rotation; the type shadow of ledger-10's dead
+Prisma model (the model + its reset/seed wipes stay — the documented
+deferral). The SKILL §20 carrier followed (the interface line retired
++ the stale "(192 lines)" header count refreshed to the live 277).
+(2) The N-59b closure — the entity-edit-dialog's `entityId` prop
+RETIRED with its three call-site bindings (contacts/leads/accounts
+pages): destructured + typed + passed since s28 but never read in the
+body (the N-56a lint-invisible class, DESTRUCTURED variant — an
+unused destructured binding is exactly what the OFF no-unused-vars
+rules would have flagged; the class's third face after the IMPORT
+(s56) and PROP-TYPE (s57c) variants). `editTarget` stays live through
+`initial` at every site. (3) The README badge arithmetic corrected
+(the s58 badge read 1309 where the convention demanded 1310 — the
+59-a audit catch; with s59's +3 its the badge now reads 1313 =
+1201 + 112). All pinned RED-first in the dead-code-hygiene session-59
+describe (2 RED + 1 guard, +3 its = 1201 total), proven non-vacuous in
+a pre-fix dca98e9 worktree (2 failed | 32 passed there, 34/34 at the
+fix). Audits: the s58 re-audit verified all nine checklist items
+GENUINE (the worktree arithmetic replayed: 3 failed | 28 passed
+pre-fix) + three narrative inaccuracies (the badge −1, the SKILL
+5622→5621 start-count, the §20 stale line count — all corrected or
+recorded); the graduation audit: ZERO graduations — 13/13 re-confirmed
+(16th consecutive session); both operator decisions re-verified
+UNCHANGED — the CSV posture (b) STANDS (17th re-affirmation), the
+source-vocabulary documented parity STANDS AND EXTENDS to the N-59
+family (the bundle byte-identical for the 30th consecutive session).
 
 ## Conventions that differ from defaults
 

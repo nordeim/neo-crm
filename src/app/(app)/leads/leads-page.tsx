@@ -720,7 +720,6 @@ export default function LeadsPage() {
         title="Edit Lead"
         detailsTitle="Lead Details"
         fields={LEAD_EDIT_FIELDS}
-        entityId={editTarget?.id ?? null}
         initial={{
           name: editTarget?.name ?? "",
           email: editTarget?.email ?? "",

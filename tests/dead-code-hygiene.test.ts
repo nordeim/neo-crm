@@ -464,3 +464,49 @@ describe("session-58: the dead-surface narrowing + the type-contract boundary (S
     expect(store).toMatch(/export interface CrmState/);
   });
 });
+
+describe("session-59: the dead-surface narrowing (S59-P2)", () => {
+  it("types/index.ts no longer carries the dead SavedReport interface (N-59a)", () => {
+    // 59-b fresh-eyes: the barrel's SavedReport (the DB wire shape:
+    // id/name/tab/config/createdAt) had zero references repo-wide
+    // INCLUDING its own file. The LIVE SavedReport is a different
+    // localStorage shape in src/lib/saved-reports.ts (the s25 seam,
+    // consumed by save-report-dialog + the reports page). The type
+    // shadow of ledger-10's dead Prisma model (whose only db consumers
+    // are the reset + seed-time wipes). The s54 fully-dead class, TYPE
+    // variant. The SKILL §20 carrier followed the code.
+    const src = stripComments(read("src/types/index.ts") ?? "");
+    expect(src).not.toMatch(/SavedReport/);
+  });
+
+  it("entity-edit-dialog no longer carries the dead entityId prop (N-59b)", () => {
+    // Destructured + typed + passed by all three call sites
+    // (contacts/leads/accounts) since s28, but never read in the body —
+    // the N-56a lint-invisible class, DESTRUCTURED variant (both
+    // no-unused-vars rules off; an unused destructured binding is
+    // exactly what they would have flagged). The three call-site
+    // bindings retired with it; `editTarget` stays live through
+    // `initial` at every site.
+    const src = stripComments(read("src/components/shared/entity-edit-dialog.tsx") ?? "");
+    expect(src).not.toMatch(/entityId/);
+  });
+
+  it("the living surfaces stay (guard)", () => {
+    // The LIVE SavedReport type stays exported in saved-reports.ts (the
+    // localStorage shape — the filters/columns nesting); the dialog
+    // keeps its living prop contract (initial/fields/onSubmit); the
+    // three pages keep their fields/initial bindings — the edit
+    // dialogs' real contract surface.
+    const saved = stripComments(read("src/lib/saved-reports.ts") ?? "");
+    expect(saved).toMatch(/export interface SavedReport/);
+    expect(saved).toMatch(/dateRange/);
+    expect(saved).toMatch(/wonDate/);
+    const dialog = stripComments(read("src/components/shared/entity-edit-dialog.tsx") ?? "");
+    expect(dialog).toMatch(/initial,/);
+    expect(dialog).toMatch(/onSubmit,/);
+    expect(dialog).toMatch(/fields: EditFieldSpec\[\]\[\]/);
+    expect(accounts()).toMatch(/fields=\{ACCOUNT_EDIT_FIELDS\}/);
+    expect(leads()).toMatch(/fields=\{LEAD_EDIT_FIELDS\}/);
+    expect(contacts()).toMatch(/fields=\{CONTACT_EDIT_FIELDS\}/);
+  });
+});

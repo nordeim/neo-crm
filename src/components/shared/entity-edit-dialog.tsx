@@ -140,7 +140,6 @@ export function EntityEditDialog({
   detailsTitle,
   fields,
   initial,
-  entityId,
   onSubmit,
   isLoading = false,
   readOnly = false,
@@ -151,7 +150,12 @@ export function EntityEditDialog({
   detailsTitle: string;
   fields: EditFieldSpec[][];
   initial: Record<string, string | number | null | undefined>;
-  entityId?: string | null;
+  // Session-59 (S59-P2, N-59b): the `entityId` prop RETIRED here —
+  // destructured + typed + passed by all three call sites
+  // (contacts/leads/accounts) since s28, but never read in the body
+  // (the N-56a lint-invisible class, DESTRUCTURED variant; both
+  // no-unused-vars rules off). The call-site bindings retired with
+  // it; `editTarget` stays live through `initial` at every site.
   onSubmit: (form: Record<string, string>) => void | Promise<void>;
   isLoading?: boolean;
   readOnly?: boolean;

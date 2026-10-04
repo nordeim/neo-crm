@@ -935,7 +935,6 @@ export default function ContactsPage() {
         title="Edit Contact"
         detailsTitle="Contact Details"
         fields={CONTACT_EDIT_FIELDS}
-        entityId={editTarget?.id ?? null}
         initial={{
           name: editTarget?.name ?? "",
           email: editTarget?.email ?? "",

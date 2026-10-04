@@ -159,13 +159,14 @@ export interface Settings {
   firstDayOfWeek: string;
 }
 
-export interface SavedReport {
-  id: string;
-  name: string;
-  tab: string;
-  config: string;
-  createdAt: string;
-}
+// Session-59 (S59-P2, N-59a): the `SavedReport` interface RETIRED here —
+// zero references repo-wide INCLUDING this file. The LIVE SavedReport is
+// a different localStorage shape in src/lib/saved-reports.ts (the s25
+// seam, consumed by save-report-dialog + the reports page). This one
+// mirrored the dead Prisma model's DB wire shape (the ledger-10
+// deferral — its only db consumers are the reset + seed-time wipes).
+// The s54 fully-dead class, TYPE variant. The SKILL §20 carrier
+// followed the code.
 
 // ---- computed aggregates ---------------------------------------------------
 
