@@ -66,9 +66,12 @@ export const LEAD_FILTER_SOURCE_OPTIONS = [
   "referral",
 ] as const;
 
-export function encodeLeadFilters(filters: LeadFilters): string {
-  return JSON.stringify(filters);
-}
+// Session-55 (S55-P3, N-55c): the single-filter encode/decode pair
+// retired — TEST-ONLY since the s29 saved-views supersession (the page
+// persists the VIEWS LIST through encodeSavedLeadViews/
+// decodeSavedLeadViews below; the list decoding validates through the
+// same internal asFilters). The behavioral pins re-anchored to the
+// living pair in tests/lead-filters.test.ts.
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -101,16 +104,7 @@ function asFilters(parsed: unknown): LeadFilters | null {
   return { status, source, minValue, followUpDate };
 }
 
-export function decodeLeadFilters(payload: string | null): LeadFilters | null {
-  if (typeof payload !== "string" || payload.length === 0) return null;
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(payload);
-  } catch {
-    return null;
-  }
-  return asFilters(parsed);
-}
+// (decodeLeadFilters retired here — see the record comment above.)
 
 export function leadFiltersEqual(a: LeadFilters, b: LeadFilters): boolean {
   return (

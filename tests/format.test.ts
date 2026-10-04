@@ -10,8 +10,6 @@ import {
   calendarGrid,
   addMonths,
   startOfMonth,
-  avgDaysBetween,
-  percentDelta,
   toLocalInputValue,
 } from "@/lib/format";
 
@@ -193,29 +191,17 @@ describe("calendarGrid", () => {
   });
 });
 
-describe("analytics helpers", () => {
-  it("averages day-differences", () => {
-    const a = avgDaysBetween(
-      [new Date(2026, 0, 1), new Date(2026, 0, 11)],
-      [new Date(2026, 0, 11), new Date(2026, 0, 31)],
-    );
-    expect(a).toBe(15);
-  });
+// Session-55 (S55-P2, N-55b): the "analytics helpers" describe retired
+// with its dead subject — avgDaysBetween + percentDelta were TEST-ONLY
+// (the live derivations are the leads-page inline avgCycle + the
+// dashboard's hardcoded KPI_STATICS deltas). Only the live
+// toLocalInputValue it survives, re-homed below.
 
-  it("returns 0 for mismatched inputs", () => {
-    expect(avgDaysBetween([], [])).toBe(0);
-    expect(avgDaysBetween([new Date()], [])).toBe(0);
-  });
-
-  it("computes percent deltas with null for divide-by-zero", () => {
-    expect(percentDelta(110, 100)).toBeCloseTo(10);
-    expect(percentDelta(0, 0)).toBe(0);
-    expect(percentDelta(50, 0)).toBeNull();
-  });
-
+describe("local datetime input values", () => {
   it("serializes local datetime input values", () => {
     const v = toLocalInputValue(new Date(2026, 8, 29, 14, 5));
     expect(v).toBe("2026-09-29T14:05");
     expect(toLocalInputValue(null)).toBe("");
   });
 });
+

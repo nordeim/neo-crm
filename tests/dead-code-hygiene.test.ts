@@ -38,7 +38,10 @@ const accounts = () => stripComments(read("src/app/(app)/accounts/accounts-page.
 const activities = () => stripComments(read("src/app/(app)/activities/activities-page.tsx") ?? "");
 const calendar = () => stripComments(read("src/app/(app)/calendar/calendar-page.tsx") ?? "");
 const leads = () => stripComments(read("src/app/(app)/leads/leads-page.tsx") ?? "");
+const reports = () => stripComments(read("src/app/(app)/reports/reports-page.tsx") ?? "");
 const constants = () => stripComments(read("src/lib/constants.ts") ?? "");
+const format = () => stripComments(read("src/lib/format.ts") ?? "");
+const leadFilters = () => stripComments(read("src/lib/lead-filters.ts") ?? "");
 
 describe("session-46: the dead-code hygiene pair (S46-P5)", () => {
   it("accounts-page no longer destructures the unused leads slice", () => {
@@ -163,5 +166,74 @@ describe("session-54: the calendar memo family + the dead-vocabulary retirement 
     const calendarRaw = read("src/app/(app)/calendar/calendar-page.tsx") ?? "";
     expect(contactsRaw).toMatch(/S54-P4: the reference's own inert affordances/);
     expect(calendarRaw).toMatch(/S54-P4: the reference's own inert affordances/);
+  });
+});
+
+describe("session-55: the orphaned-import + test-only-seam retirement (S55-P1/P2/P3)", () => {
+  it("reports-page carries none of the four orphaned imports (N-55a)", () => {
+    const src = reports();
+    // Each had exactly one in-file reference — the import itself (the
+    // N-53c class in reports; the s53 sweep missed this file). The
+    // exports stay alive on their real owners (page.tsx owns
+    // KpiCard/RevenueLineChart, leads-page owns ConversionFunnel, the
+    // palette is shared) — this is import narrowing, not retirement.
+    expect(src).not.toMatch(/\bKpiCard\b/);
+    expect(src).not.toMatch(/\bRevenueLineChart\b/);
+    expect(src).not.toMatch(/\bConversionFunnel\b/);
+    expect(src).not.toMatch(/\bCHART_COLORS\b/);
+    // …while the live siblings from the same import lines stay.
+    expect(src).toMatch(/\bCircleStatCard\b/);
+    expect(src).toMatch(/\bPageHeader\b/);
+    expect(src).toMatch(/\bSparkline\b/);
+    expect(src).toMatch(/\bGroupedBarsChart\b/);
+    expect(src).toMatch(/\bTrendLineChart\b/);
+    expect(src).toMatch(/\bOPP_STAGE_META\b/);
+  });
+
+  it("format: the TEST-ONLY analytics pair is retired (N-55b)", () => {
+    const src = format();
+    // avgDaysBetween + percentDelta had zero non-test consumers (the
+    // live derivations are the leads-page inline avgCycle + the
+    // dashboard's hardcoded KPI_STATICS deltas). The s48/s49/s53/s54
+    // retirement precedent; record comments may remain (comment-stripped
+    // source is asserted).
+    expect(src).not.toMatch(/\bavgDaysBetween\b/);
+    expect(src).not.toMatch(/\bpercentDelta\b/);
+    // …while the living formatters stay.
+    expect(src).toMatch(/\bformatCurrency\b/);
+    expect(src).toMatch(/\bformatCompactCurrency\b/);
+    expect(src).toMatch(/\bcalendarGrid\b/);
+    expect(src).toMatch(/\bcalendarFetchBounds\b/);
+  });
+
+  it("lead-filters: the TEST-ONLY encode/decode pair is retired (N-55c)", () => {
+    const src = leadFilters();
+    // encodeLeadFilters + decodeLeadFilters were src-dead since the s29
+    // saved-views supersession (the page persists the VIEWS LIST; the
+    // list decoding validates through the internal asFilters directly).
+    // The behavioral pins re-anchored to the living pair in
+    // tests/lead-filters.test.ts (the s54 ACCOUNT_EDIT_STATUSES
+    // precedent).
+    expect(src).not.toMatch(/\bencodeLeadFilters\b/);
+    expect(src).not.toMatch(/\bdecodeLeadFilters\b/);
+  });
+
+  it("the living saved-views seam survives (the re-anchor's subject)", () => {
+    const src = leadFilters();
+    // The guards: the living pair + its validation core + the equality
+    // helper all stay exported — the retirement must not over-reach.
+    expect(src).toMatch(/export function encodeSavedLeadViews\(/);
+    expect(src).toMatch(/export function decodeSavedLeadViews\(/);
+    expect(src).toMatch(/export function leadFiltersEqual\(/);
+    expect(src).toMatch(/function asFilters\(/);
+  });
+
+  it("the leads-page stale palette-ownership claim is corrected (N-55e)", () => {
+    // RAW source: the claim is inside a comment. The s53 record comment
+    // said “the reports page owns the palette” — the palette is shared
+    // (page.tsx/activities/accounts), and after N-55a the reports page
+    // does not import it at all.
+    const leadsRaw = read("src/app/(app)/leads/leads-page.tsx") ?? "";
+    expect(leadsRaw).not.toMatch(/the reports page owns the palette/);
   });
 });

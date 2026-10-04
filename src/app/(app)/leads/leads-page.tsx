@@ -60,9 +60,10 @@ import { ConversionFunnel, GroupedBarsChart, SingleBarChart, dollarFormatter } f
 import { LeadDialog } from "@/components/shared/entity-dialogs";
 import { EntityEditDialog, LEAD_EDIT_FIELDS } from "@/components/shared/entity-edit-dialog";
 import { useCrmStore } from "@/stores/crm-store";
-// Session-53 (S53-P3, N-53c): CHART_COLORS retired from this import —
-// an s27-era orphan (the reports page owns the palette; this file's only
-// reference was the import itself).
+// Session-53 (S53-P3, N-53c; wording corrected session-55, N-55e):
+// CHART_COLORS retired from this import — an s27-era orphan (the palette
+// is shared across pages.tsx/activities/accounts, not owned by any one
+// surface; this file's only reference was the import itself).
 import { LEADS_FUNNEL, LEAD_INLINE_STATUS_OPTIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import { downloadBlob } from "@/lib/download";

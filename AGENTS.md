@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1182 checks)        | `bun run test`                         |
+| Unit tests (1184 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1182) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1184) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2091,6 +2091,39 @@ operator decisions re-verified UNCHANGED — the CSV posture (b) STANDS,
 the source-vocabulary documented parity STANDS AND EXTENDS to the
 N-54b family (the bundle byte-identical for the 25th consecutive
 session).
+
+**Session-55** (the orphaned-import + test-only-seam retirement): (1)
+The N-55a closure — reports-page.tsx carried FOUR lint-invisible
+orphaned imports (KpiCard, RevenueLineChart, ConversionFunnel,
+CHART_COLORS — each exactly one in-file reference = the import itself;
+the N-53c class, this file simply was not in the s53 sweep's file set)
+narrowed away with a record comment; the s53 leads-page record
+comment's stale "the reports page owns the palette" claim corrected
+(N-55e — the palette is shared page.tsx/activities/accounts). (2) The
+N-55b/N-55c test-only-seam retirements — the s48/s49/s54 retirement
+policy extended to seam-level helpers per the standing
+source-vocabulary operator decision: format.ts avgDaysBetween +
+percentDelta (zero non-test consumers; the live derivations are the
+leads-page inline avgCycle + the KPI_STATICS statics) and lead-filters.ts
+encodeLeadFilters + decodeLeadFilters (src-dead since the s29
+saved-views supersession — the page persists the VIEWS LIST; the list
+decoding validates through the same internal asFilters). The four
+encode/decode behavioral its RE-ANCHORED to the living
+encodeSavedLeadViews/decodeSavedLeadViews pair (the s54
+ACCOUNT_EDIT_STATUSES precedent — the legacy-vocabulary + malformed
+rejections stay pinned where they live); the format analytics its
+retired with their dead subject. (3) The PAD lead-filters row corrected
+to the living storage key `neo-crm.leads.views` (N-55d). All pinned
+RED-first in the dead-code-hygiene session-55 describe (4 RED + 1
+guard, +5 its − 3 stale its = 1184 total), proven non-vacuous in a
+pre-fix d4b6a61 worktree (4 failed | 55 passed there, 59/59 at the
+fix). Audits: the s54 re-audit verified all nine checklist items
+GENUINE (the worktree arithmetic reproduced); the graduation audit:
+ZERO graduations — 13/13 re-confirmed (12th consecutive session; the
+drift map EMPTY); both operator decisions re-verified UNCHANGED — the
+CSV posture (b) STANDS, the source-vocabulary documented parity STANDS
+AND EXTENDS to the seam-level test-only family (the bundle
+byte-identical for the 26th consecutive session).
 
 ## Conventions that differ from defaults
 

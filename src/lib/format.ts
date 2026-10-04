@@ -253,23 +253,9 @@ export function toLocalInputValue(d: Date | string | number | null | undefined):
   return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}`;
 }
 
-/** Average of N day-differences in whole days. */
-export function avgDaysBetween(starts: Array<Date | string | number>, ends: Array<Date | string | number>): number {
-  if (starts.length === 0 || starts.length !== ends.length) return 0;
-  let total = 0;
-  let n = 0;
-  for (let i = 0; i < starts.length; i += 1) {
-    const a = asDate(starts[i]).getTime();
-    const b = asDate(ends[i]).getTime();
-    if (Number.isNaN(a) || Number.isNaN(b)) continue;
-    total += Math.max(0, b - a);
-    n += 1;
-  }
-  if (n === 0) return 0;
-  return Math.round(total / n / 86_400_000);
-}
-
-export function percentDelta(current: number, previous: number): number | null {
-  if (previous === 0) return current === 0 ? 0 : null;
-  return ((current - previous) / previous) * 100;
-}
+// Session-55 (S55-P2, N-55b): the analytics pair retired — avgDaysBetween
+// + percentDelta were TEST-ONLY (zero non-test consumers repo-wide). The
+// live derivations are the leads-page inline avgCycle (S29-P9) and the
+// dashboard's hardcoded KPI_STATICS deltas — no surface ever called these
+// helpers (the s48/s49/s53/s54 retirement policy extended to seam-level
+// helpers per the standing source-vocabulary operator decision).

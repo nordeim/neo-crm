@@ -5,9 +5,7 @@ import {
   LEAD_FILTER_STATUS_OPTIONS,
   LEAD_VIEWS_STORAGE_KEY,
   applySavedView,
-  decodeLeadFilters,
   decodeSavedLeadViews,
-  encodeLeadFilters,
   encodeSavedLeadViews,
   filtersActive,
   isOverdueFollowUp,
@@ -59,21 +57,29 @@ describe("session-29: the raw filter vocabularies", () => {
   });
 });
 
-describe("session-29: encode/decode (raw contract)", () => {
-  it("round-trips a raw filter set losslessly", () => {
+// Session-55 (S55-P3, N-55c): the encode/decode its RE-ANCHORED to the
+// living saved-views surface — encodeLeadFilters/decodeLeadFilters were
+// TEST-ONLY since the s29 supersession (the page persists the VIEWS LIST
+// through encodeSavedLeadViews/decodeSavedLeadViews, whose decoding
+// validates through the same internal asFilters). The behavioral classes
+// are unchanged: lossless round-trips, the legacy-vocabulary rejection,
+// the malformed-payload rejection.
+
+describe("session-29/55: the saved-views round-trip (the living seam)", () => {
+  it("round-trips a saved view with a raw filter set losslessly", () => {
     const filters: LeadFilters = {
       status: "contacted",
       source: "partner",
       minValue: 5000,
       followUpDate: "2026-10-15",
     };
-    expect(decodeLeadFilters(encodeLeadFilters(filters))).toEqual(filters);
+    const view: SavedLeadView = { name: "Big partners", filters };
+    expect(decodeSavedLeadViews(encodeSavedLeadViews([view]))).toEqual([view]);
   });
 
-  it("round-trips the all-sentinel defaults", () => {
-    expect(decodeLeadFilters(encodeLeadFilters(DEFAULT_LEAD_FILTERS))).toEqual(
-      DEFAULT_LEAD_FILTERS,
-    );
+  it("round-trips the all-sentinel defaults inside a saved view", () => {
+    const view: SavedLeadView = { name: "Everything", filters: DEFAULT_LEAD_FILTERS };
+    expect(decodeSavedLeadViews(encodeSavedLeadViews([view]))).toEqual([view]);
   });
 
   it("rejects the LEGACY capitalized vocabulary (stale saved views fall back to defaults)", () => {
@@ -81,25 +87,49 @@ describe("session-29: encode/decode (raw contract)", () => {
     // they decode to null so the page falls back to defaults instead of
     // resurrecting a dead vocabulary.
     expect(
-      decodeLeadFilters(JSON.stringify({ status: "New", source: "Call", minValue: null, followUpDate: "" })),
+      decodeSavedLeadViews(
+        JSON.stringify([{ name: "Old", filters: { status: "New", source: "Call", minValue: null, followUpDate: "" } }]),
+      ),
     ).toBeNull();
     expect(
-      decodeLeadFilters(JSON.stringify({ status: "all", source: "Referral", minValue: null, followUpDate: "" })),
+      decodeSavedLeadViews(
+        JSON.stringify([{ name: "Old", filters: { status: "all", source: "Referral", minValue: null, followUpDate: "" } }]),
+      ),
     ).toBeNull();
   });
 
   it("rejects malformed payloads", () => {
-    expect(decodeLeadFilters(null)).toBeNull();
-    expect(decodeLeadFilters("")).toBeNull();
-    expect(decodeLeadFilters("not-json")).toBeNull();
-    expect(decodeLeadFilters(JSON.stringify({ status: 7, source: "all", minValue: null, followUpDate: "" }))).toBeNull();
+    expect(decodeSavedLeadViews(null)).toBeNull();
+    expect(decodeSavedLeadViews("")).toBeNull();
+    expect(decodeSavedLeadViews("not-json")).toBeNull();
+    // A non-array top level is not a views list.
     expect(
-      decodeLeadFilters(JSON.stringify({ status: "new", source: "call", minValue: "lots", followUpDate: "" })),
+      decodeSavedLeadViews(JSON.stringify({ status: "new", source: "call", minValue: null, followUpDate: "" })),
+    ).toBeNull();
+    // An empty name is not a view.
+    expect(
+      decodeSavedLeadViews(
+        JSON.stringify([{ name: "", filters: { status: "new", source: "call", minValue: null, followUpDate: "" } }]),
+      ),
+    ).toBeNull();
+    // Bad filter types are not a filter set.
+    expect(
+      decodeSavedLeadViews(
+        JSON.stringify([{ name: "X", filters: { status: 7, source: "all", minValue: null, followUpDate: "" } }]),
+      ),
     ).toBeNull();
     expect(
-      decodeLeadFilters(JSON.stringify({ status: "new", source: "call", minValue: null, followUpDate: 15 })),
+      decodeSavedLeadViews(
+        JSON.stringify([{ name: "X", filters: { status: "new", source: "call", minValue: "lots", followUpDate: "" } }]),
+      ),
     ).toBeNull();
-    expect(decodeLeadFilters(JSON.stringify({ status: "new" }))).toBeNull();
+    expect(
+      decodeSavedLeadViews(
+        JSON.stringify([{ name: "X", filters: { status: "new", source: "call", minValue: null, followUpDate: 15 } }]),
+      ),
+    ).toBeNull();
+    // A missing filters object is not a view.
+    expect(decodeSavedLeadViews(JSON.stringify([{ name: "X" }]))).toBeNull();
   });
 });
 

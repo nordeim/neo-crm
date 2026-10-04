@@ -352,7 +352,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 75 Vitest suites — 1182 checks
+│   ├── *.test.ts                # 75 Vitest suites — 1184 checks
 │   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 111 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -724,18 +724,19 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the saveView updater-purity layer (the storage-read-guards purity pin [the leads-page saveView's `const next = [...savedViews, { name, filters }]` form + the guarded localStorage write in the handler body + NO storage access after the `setSavedViews(` call — updaters stay pure, the S44-P4 saveReport convention] — session-52) | 1 | 4 | `tests/storage-read-guards.test.ts` | Vitest |
 | Unit — the census-seam + hygiene layer (the db-census pins [scripts/census.ts exists + counts through the app's db singleton with NO raw PrismaClient, prints the resolved runtimeDatabaseUrl, carries the seed-contract EXPECTED table with the process.exit(1) drift guard, the db:census package script wired] + the dead-code-hygiene session-53 pins [the seven calendar-page orphans absent with EVENT_TYPE_CHIP surviving, the leads-page CHART_COLORS import gone, the src-dead EVENT_STATUS_META retired, the never-caching wonVsLost useMemo replaced by the module-scope buildWonVsLost plain call] — session-53) | 2 | 8 | `tests/db-census.test.ts` `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-vocabulary retirement + calendar-memo layer (the N-54b pins [the seven FULLY-DEAD vocabulary exports absent — OPEN_STAGES/isClosedOppStage/CONTACT_SOURCE_LABEL/LEAD_EDIT_STATUSES/LEAD_EDIT_SOURCES/TIER_META/PRIORITY_META; the TEST-ONLY family absent — DROPPED_STAGES/isDroppedStage/REPORTS_PIPELINE_SLUGS/FUNNEL_STAGES/ACCOUNT_EDIT_STATUSES] + the N-54a calendar pins [the visible/eventsOn never-caching wrappers retired for the module-scope buildVisibleEvents plain call] + the re-anchors [the Dropped-equals-lost-STRICTLY live filter, the ACCOUNT_STATUSES select wiring — contact-model] + the ghost-action annotation markers + the census-banner derivation pin [no hardcoded count literal — db-census, with pin 2 strengthened to the `database: ${url}` print form] — session-54) | 4 | 8 | `tests/dead-code-hygiene.test.ts` `tests/db-census.test.ts` `tests/constants.test.ts` `tests/contact-model.test.ts` | Vitest |
+| Unit — the orphaned-import + test-only-seam retirement layer (the N-55a pins [reports-page carries none of the four orphaned imports — KpiCard/RevenueLineChart/ConversionFunnel/CHART_COLORS — while the live siblings stay] + the N-55b pins [format.ts avgDaysBetween/percentDelta absent, the living formatters stay] + the N-55c pins [lead-filters.ts encodeLeadFilters/decodeLeadFilters absent] + the guards [the living saved-views seam survives; the leads-page stale palette-ownership claim corrected] — with the four encode/decode behavioral its RE-ANCHORED to the saved-views pair in tests/lead-filters.test.ts + the format analytics its retired [−3] — session-55) | 3 | 5 | `tests/dead-code-hygiene.test.ts` `tests/format.test.ts` `tests/lead-filters.test.ts` | Vitest |
 | E2E — auth (logged out + the reset-password flow + session-21's in-place signup/verify funnel) | 1 | 9 | `tests/e2e/auth.spec.ts` | Playwright |
 | E2E — setup (login) | 1 | 1 | `tests/e2e/auth.setup.ts` | Playwright |
 | E2E — golden path (+ titles, reports tabs, chart geometry, custom 404, account menu, funnel, by-type, settings Defaults/Data + /Profile alias, entity-dialog geometry, the session-16 responsive layer, the session-17 stock button/checkbox layer, the session-18 document-metadata layer, the session-19 PWA + per-route metadata layer, the session-20 HTTP response-header layer, the session-22 typography layer, the session-23 tabs ARIA + keyboard layer, the session-24 route-case layer — capital routes render in place, the capitalized sidebar hrefs, the case-insensitive active state, capital auth 404s, the dead More... — and the session-25 loading + export-contract layer — zero skeleton pass, the real client-side PDF/CSV artifacts, the Save Custom Report View round-trip, the 6-option period vocabulary — and the session-26 Settings import/export layer — the three Data-tab descriptions, the static template artifacts, the raw-dump singular-prefix exports, the quoted page-level CSVs incl. Health, the Import Contacts round-trip with its result box + auto-close, the reset flow's decline-holds/accept-wipes native-dialog round-trip — sessions 10–26, and the session-27 chart-internals + Account Health / calendar layer — the computed health PIE + horizontal Top-10 + red at-risk rows + the dashboard Follow-up rows + the static KPI sparks + the calendar chip Edit dialog + the single-blue by-type bars, and the session-28 entity layer — the contacts slide-over + the W7/wce/Mke edit dialogs + the inline role select + the Account Insights dialog + the kke filter panel, and the session-29 leads interactive layer — the inline Value/Status/Date editing round-trip + the overdue border + CircleAlert + the orange Target box + the sticky thead + the dead Convert item + the "(Active)" suffix + the prompt-based Save View + the loadable Saved Views select, and the session-30 photo-upload layer — the New Contact photo round-trip rendering + persisting with the remove X verified + the profile photo round-trip with the toast + both avatar renders + the topbar pickup after the 500ms reload, and the session-39 import error-semantics layer — the route.abort-driven all-POSTs-failed banner + the header-only no-rows banner + the delete-all-matches cleanup, and the session-47 dashboard-export layer — the outline Export menu's Leads item + the primary Export both downloading the client-side `leads_ISO.csv` with the URL staying `/` [was the raw 400 JSON navigation] — and the session-48 reports-export layer — the header Export CSV downloading the route's BOM'd 7-column artifact via the fetch→blob flow with the URL staying `/reports` [was the raw JSON navigation on any non-200] — and the session-49 filter-semantics + deterministic-wait layer — the stage+status AND intersection e2e [stage=Prospecting + status=Won → the API's wonDeals 0 + the rendered "Won Deals 0 $" KPI, failing on the pre-fix overwrite code], the 12 sleeps retired to 2 annotated no-op-contract keeps [5 redundant deletes before auto-retrying assertions, 4 response-waits with the post-wipe proofs asserted on the RESPONSE BODIES, 1 race-free reorder], and the N-48e toHaveURL tightening — and the session-54 month-flip trailing-cell layer [a next-month event created on a trailing cell through the dialog PERSISTS the month flip — the s51 N-51a fetch-window proof end-to-end — then deleted via the Demos-filtered agenda with zero residue]) | 1 | 95 | `tests/e2e/crm.spec.ts` | Playwright |
 | E2E — mobile nav regression (+ focus entry — session 12) | 1 | 7 | `tests/e2e/mobile-navigation.spec.ts` | Playwright |
-| **Total** | **75** | **1182 unit + 112 e2e** | | |
+| **Total** | **75** | **1184 unit + 112 e2e** | | |
 
 > **Counting convention (session-54, N-54h)**: the per-session rows
 > count the FILES TOUCHED by that session's pin additions and the checks
 > those rows added or re-anchored — NOT the file's total checks, and NOT
 > a summable column (shared files like `constants.test.ts` appear in
 > several session rows). The **Total** row counts files and checks at
-> HEAD: 75 Vitest suites with 1182 checks + 111+1 e2e checks in 4 spec
+> HEAD: 75 Vitest suites with 1184 checks + 111+1 e2e checks in 4 spec
 > files. Verify counts by run (`bun run test`, `bun run test:e2e`),
 > never by summing the table.
 
@@ -1151,7 +1152,7 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 1182/1182
+- [ ] `bun run test` — 1184/1184
 - [ ] `bun run build` — standalone build succeeds
 - [ ] `bun run test:e2e` — 112/112
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
@@ -1221,7 +1222,7 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 1182 unit checks |
+| `bun run test` | root | 1184 unit checks |
 | `bun run test:e2e` | root | 112 browser checks (build first) |
 | `bun run db:census` | root | The sanctioned DB census — resolved path + counts + the seed-contract verdict (session-53; never a raw PrismaClient) |
 | `bun run gate` | root | The full gate in one command (lint → typecheck → test → build → e2e) |
@@ -1274,7 +1275,7 @@ files. Push via the SSH wrapper (§8.4).
 | `src/lib/db.ts` | 22 | `globalThis` Prisma singleton (the only sanctioned constructor) |
 | `src/lib/format.ts` | 221 | Currency/date/relative-time/calendar-grid pure helpers |
 | `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |
-| `src/lib/lead-filters.ts` | 90 | Leads Filters popover persist/restore seam — `encodeLeadFilters`/`decodeLeadFilters` pure pair (localStorage key `neo-crm.leads.view`), vocabulary-guarded decoding, pinned by `tests/lead-filters.test.ts` (session-8) |
+| `src/lib/lead-filters.ts` | 90 | Leads Filters popover persist/restore seam — the saved-views list pair `encodeSavedLeadViews`/`decodeSavedLeadViews` (localStorage key `neo-crm.leads.views`), vocabulary-guarded decoding through the internal `asFilters` (legacy capitalized vocabularies decode to null), pinned by `tests/lead-filters.test.ts` (sessions 8/29/55) |
 | `src/lib/login-reset.ts` | 100 | Session-11 login reset-password seam — `LOGIN_RESET_LAYOUT` (the two view contracts: classes for the reset/sent views, the lighter slate-400 placeholder, the `mb-4` v4-correct back-gap), `nextLoginView()` swap table, `canSubmitReset()` gating — pinned by `tests/login-reset.test.ts` |
 | `src/lib/reports-data.ts` | ~200 | Session-31 reports derivations — `pipelineStageCounts` (the 8-slug leads+opps funnel SPLIT), `monthKey`/`countByMonth`/`revenueByMonth`/`wonLostByMonth` (the insertion-order "MMM yyyy" close-month series), `forecastAccuracySeries` (the actual/forecasted formula), `agingCounts` (created-date age), `dealsAtRiskRows` (the last-activity join) — pinned by `tests/reports-data.test.ts` |
 | `src/lib/page-layout.ts` | 627 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint, stock-primitive pins, CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT) consumed by every page — sessions 6–11 |

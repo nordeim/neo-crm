@@ -10,7 +10,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
-import { CircleStatCard, KpiCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
+// Session-55 (S55-P1, N-55a): four orphaned imports retired from the
+// statements below — KpiCard (page-parts), RevenueLineChart +
+// ConversionFunnel (charts), CHART_COLORS (constants). Each had exactly
+// one in-file reference: the import itself (the N-53c class; the s53
+// sweep missed this file). The exports stay alive on their real owners
+// (page.tsx owns KpiCard/RevenueLineChart, leads-page owns
+// ConversionFunnel, the palette is shared).
+import { CircleStatCard, PageHeader, Sparkline } from "@/components/shared/page-parts";
 import { SaveReportDialog } from "@/components/shared/save-report-dialog";
 import {
   EMPTY_STATE,
@@ -23,15 +30,13 @@ import {
   GroupedBarsChart,
   HorizontalBarChart,
   LabelPieChart,
-  RevenueLineChart,
   SingleBarChart,
   TrendLineChart,
-  ConversionFunnel,
   dollarFormatter,
   percentFormatter,
 } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
-import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, CHART_COLORS, REPORT_PERIODS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
+import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, REPORT_PERIODS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
 import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
 import { KPI_STATICS } from "@/lib/page-layout";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
