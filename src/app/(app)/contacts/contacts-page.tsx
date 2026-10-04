@@ -53,7 +53,8 @@ import {
 // this file's full import surface). The exports stay alive on their real
 // consumers (timeAgo is LIVE in activities-page; ENGAGEMENT_LEVELS in
 // the contacts API routes; FILTER_RAIL in calendar/reports; Avatar in
-// profile + the ui kit; DropdownSeparator in leads).
+// accounts-page + the ui kit [s57 correction — profile hand-rolls its
+// avatar spans]; DropdownSeparator in leads).
 import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { CONTACTS_LAYOUT, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";

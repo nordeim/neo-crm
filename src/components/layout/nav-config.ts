@@ -38,5 +38,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/Reports", label: "Reports", icon: BarChart3 },
 ];
 
-/** Rendered directly below a thin divider (reference layout — not pinned to the bottom). */
+/** Rendered below a thin divider and pinned to the sidebar's bottom via the
+ * flex column's `mt-auto` footer group (NAV_LAYOUT.footerGroup — session-7). */
 export const NAV_FOOTER_ITEMS: NavItem[] = [{ href: "/Settings", label: "Settings", icon: Settings }];

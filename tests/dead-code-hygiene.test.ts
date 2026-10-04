@@ -39,6 +39,7 @@ const activities = () => stripComments(read("src/app/(app)/activities/activities
 const calendar = () => stripComments(read("src/app/(app)/calendar/calendar-page.tsx") ?? "");
 const contacts = () => stripComments(read("src/app/(app)/contacts/contacts-page.tsx") ?? "");
 const dashboard = () => stripComments(read("src/app/(app)/page.tsx") ?? "");
+const profilePage = () => stripComments(read("src/app/(app)/profile/profile-page.tsx") ?? "");
 const leads = () => stripComments(read("src/app/(app)/leads/leads-page.tsx") ?? "");
 const reports = () => stripComments(read("src/app/(app)/reports/reports-page.tsx") ?? "");
 const reportsRoute = () => stripComments(read("src/app/api/reports/route.ts") ?? "");
@@ -50,6 +51,7 @@ const stockDropdown = () => stripComments(read("src/components/ui/dropdown.tsx")
 const stockSelect = () => stripComments(read("src/components/ui/select.tsx") ?? "");
 const constants = () => stripComments(read("src/lib/constants.ts") ?? "");
 const format = () => stripComments(read("src/lib/format.ts") ?? "");
+const uploadsLib = () => stripComments(read("src/lib/uploads.ts") ?? "");
 const leadFilters = () => stripComments(read("src/lib/lead-filters.ts") ?? "");
 const miscModule = () => read("src/components/ui/misc.tsx");
 
@@ -262,9 +264,10 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     const src = contacts();
     // Each had exactly one in-file reference — the import itself. The
     // exports all stay alive on their real consumers (timeAgo is LIVE in
-    // activities-page:381; ENGAGEMENT_LEVELS in the contacts API routes;
-    // FILTER_RAIL/EMPTY_STATE in calendar + reports; Avatar in profile +
-    // the ui kit; DropdownSeparator in leads) — import narrowing only.
+    // activities-page:384; ENGAGEMENT_LEVELS in the contacts API routes;
+    // FILTER_RAIL/EMPTY_STATE in calendar + reports; Avatar in
+    // accounts-page + the ui kit [s57 correction]; DropdownSeparator in
+    // leads) — import narrowing only.
     expect(src).not.toMatch(/\bPencil\b/);
     expect(src).not.toMatch(/\bAvatar\b/);
     expect(src).not.toMatch(/\bDropdownSeparator\b/);
@@ -307,7 +310,9 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
   it("page-parts no longer exports CardCaption (N-56b — fully dead since the initial commit)", () => {
     const src = pageParts();
     expect(src).not.toMatch(/\bCardCaption\b/);
-    // …while the seven living page-parts exports stay.
+    // …while the living page-parts exports stay (ten at s57 count;
+    // the guard below pins the seven load-bearing ones — DeltaText/
+    // DeltaBadgeText/Sparkline are also live on their own consumers).
     expect(src).toMatch(/export function PageHeader/);
     expect(src).toMatch(/export function KpiCard/);
     expect(src).toMatch(/export function IconStatCard/);
@@ -341,7 +346,7 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
   });
 
   it("the living underlying surfaces stay exported (the narrowing is not a retirement)", () => {
-    // timeAgo (activities :381), ENGAGEMENT_LEVELS (contacts API),
+    // timeAgo (activities :384), ENGAGEMENT_LEVELS (contacts API),
     // FILTER_RAIL/EMPTY_STATE (page-layout), the stock Avatar/Cell/
     // DropdownSeparator — all still exported by their owners.
     expect(format()).toMatch(/export function timeAgo/);
@@ -369,5 +374,34 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     expect(stockSelect()).toMatch(/SelectGroup/);
     expect(stockSelect()).toMatch(/SelectLabel/);
     expect(stockSelect()).toMatch(/SelectSeparator/);
+  });
+});
+
+describe("session-57: the dead-surface narrowing + the comment-accuracy carriers (S57-P1/P2)", () => {
+  it("profile-page no longer passes the dead usersTotal prop (N-57c)", () => {
+    // 57-b fresh-eyes: the page passed usersTotal={users.length} and
+    // typed it, but ProfileForm never destructured it (dead since s10)
+    // — and the `users` store destructure existed solely to feed it.
+    // The prop, the type entry, and the destructure all retire.
+    const src = profilePage();
+    expect(src).not.toMatch(/usersTotal/);
+    expect(src).not.toMatch(/\busers\.length\b/);
+  });
+
+  it("uploads.ts no longer EXPORTS UPLOADS_DIR_NAME (N-57b — the export keyword narrows)", () => {
+    // The N-56a lint-invisible class, EXPORT variant: the constant is
+    // alive (the internal repo-root resolution consumes it) but the
+    // `export` keyword had zero external consumers repo-wide.
+    expect(uploadsLib()).not.toMatch(/export const UPLOADS_DIR_NAME/);
+  });
+
+  it("the living surfaces stay (guard)", () => {
+    // The constant itself stays for its internal consumer, and the
+    // profile form keeps its LIVE wiring — the onSaved refresh through
+    // fetchUsers + the keyed remount (the s28 edit-dialog idiom).
+    expect(uploadsLib()).toMatch(/const UPLOADS_DIR_NAME = "uploads"/);
+    const src = profilePage();
+    expect(src).toMatch(/onSaved=\{fetchUsers\}/);
+    expect(src).toMatch(/key=\{`\$\{user\.id\}-\$\{user\.name\}`\}/);
   });
 });

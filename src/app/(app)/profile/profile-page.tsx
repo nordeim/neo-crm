@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
  * each with a 48px tinted icon chip.
  */
 export default function ProfilePage() {
-  const { user, users, fetchUsers } = useCrmStore();
+  const { user, fetchUsers } = useCrmStore();
 
   return (
     // Session-16 (S16-P2): the page owns its padding — the reference's
@@ -40,7 +40,7 @@ export default function ProfilePage() {
       ) : (
         /* Keyed remount: the form initializes its local state from the
            user snapshot at mount — no setState-in-effect needed. */
-        <ProfileForm key={`${user.id}-${user.name}`} user={user} onSaved={fetchUsers} usersTotal={users.length} />
+        <ProfileForm key={`${user.id}-${user.name}`} user={user} onSaved={fetchUsers} />
       )}
     </div>
     </div>
@@ -76,7 +76,6 @@ function ProfileForm({
 }: {
   user: { id: string; name: string; email: string; role: string; photoUrl?: string | null };
   onSaved: () => Promise<void>;
-  usersTotal: number;
 }) {
   const [name, setName] = React.useState(user.name);
   const [photoUrl, setPhotoUrl] = React.useState(user.photoUrl ?? "");

@@ -171,3 +171,22 @@ Work Log:
 
 Stage Summary:
 - Session 48 SHIPPED: the seven-session deferral closed evidence-first — every export guarded, the vocabulary posture documented with the reference's own bundle as evidence, the last navigation seam retired.
+
+---
+Task ID: 57 (repo)
+Agent: main (Super Z, session-57)
+Task: The session-57 remediation — the dead-surface narrowing (the N-57c dead usersTotal prop + the N-57b dead export keyword) + the comment-accuracy carriers, RED-first, gated, LIVE-verified
+
+Work Log:
+- Fresh clone (sandbox reset); environment rebuilt (bun install + .env + db:push/db:seed); baseline gate green (lint 0/0 · tsc · 1191/1191); census MATCH through the seam
+- Drift sweep 53rd clean (28th consecutive stable bundle, md5 exact); reference census: demo data zero, mobile-nav defect stands at TRUE 390px; scandihaven stack patterns re-reviewed — already baked in
+- Dual audits (57-a: the eight s56 checklist items GENUINE, worktree arithmetic replayed 7|49 pre-fix, two comment-accuracy corrections found; 57-b: zero graduations 13/13 [14th consecutive], both operator anchors standing, fresh-eyes sweep → the N-57 family) + manual validation of every claim at file:line
+- The operator decisions: CSV posture (b) STANDS (15th re-affirmation); source-vocabulary parity EXTENDS to the N-57 family (app-owned dead surfaces narrow; the store users slice keeps its live write path; the stock mirror untouched)
+- RED: the dead-code-hygiene session-57 describe (2 RED + 1 guard) — exactly 2 failures; full suite 2 failed / 1192 passed (1194 total)
+- GREEN: the five comment corrections (nav-config mt-auto truth; Avatar attribution ×3 carriers + the :381→:384 refresh; seven→ten ×2) + the dead-surface narrowing (profile-page prop/type/destructure; uploads.ts export keyword)
+- Non-vacuousness: pre-fix 5b86880 worktree → 2 failed | 25 passed (exactly the RED set); worktree cleaned
+- Gate: lint 0/0 · tsc 0 · 1194/1194 unit (75 suites, +3) · build clean · 112/112 e2e fresh CI=1 (all 7 mobile-nav green). LIVE: Profile page full contract + save round-trip + /api/users 200; drawer both directions at TRUE 390px; zero 390px overflow ×10 routes; NO Tailwind v4 bug (blur 4px + the pinned shadow); zero probe residue (db:census MATCH)
+- Screenshots 02/11/12 re-captured + 66-profile-page NEW (all VLM-verified); docs realigned (README badge 1306, AGENTS, CLAUDE, PAD, SKILL v1.54.0 §16aw via the assert-first script, session_107.md, the plan's execution record, both worklogs); .env/.env.example re-verified (no surface change)
+
+Stage Summary:
+- Session 57 SHIPPED: the orphaned-import class's PROP and EXPORT variants swept (dead since s10 for the prop), the record-comment accuracy raised, 13/13 ledger zero graduations for the 14th consecutive session, both operator decisions standing, the reference bundle stable for the 28th consecutive session

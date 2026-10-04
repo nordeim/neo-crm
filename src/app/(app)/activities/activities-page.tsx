@@ -18,7 +18,8 @@ import {
 // Session-56 (S56-P1, N-56a): Cell narrowed out of the recharts import
 // and Avatar's whole import line deleted — each had exactly one in-file
 // reference: the import itself (the N-53c/N-55a class). Both exports
-// stay alive (charts.tsx consumes Cell; profile + the ui kit own Avatar).
+// stay alive (charts.tsx consumes Cell; accounts-page + the ui kit own
+// Avatar [s57 correction — profile hand-rolls its avatar spans]).
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";

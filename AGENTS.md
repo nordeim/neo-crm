@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1191 checks)        | `bun run test`                         |
+| Unit tests (1194 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1191) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1194) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2163,6 +2163,34 @@ decisions re-verified UNCHANGED — the CSV posture (b) STANDS, the
 source-vocabulary documented parity STANDS AND EXTENDS to the N-56
 family WITH the stock-mirror boundary (the bundle byte-identical for
 the 27th consecutive session).
+
+**Session-57** (the dead-surface narrowing + the comment-accuracy
+layer): (1) The N-57c closure — the profile page's dead `usersTotal`
+prop retired: the page passed `usersTotal={users.length}` and typed
+it, but ProfileForm never destructured it (dead since s10, the
+N-56a lint-invisible class, PROP variant), and the `users` store
+destructure existed solely to feed it (the `fetchUsers` onSaved
+refresh stays LIVE; the store's users slice keeps its live write path
+through hydrate). (2) The N-57b export-keyword narrowing —
+uploads.ts's `export const UPLOADS_DIR_NAME` had zero external
+consumers repo-wide (the EXPORT variant of the same class); the
+constant itself stays for its internal repo-root resolution. (3) The
+N-57a stale nav-config comment corrected to the live `mt-auto`
+footer truth; the s56 record comments' Avatar consumer attribution
+corrected to accounts-page (profile hand-rolls its avatar spans — the
+57-a audit correction); the page-parts "seven living exports" count
+corrected to ten; the stale activities-page line citation refreshed.
+All pinned RED-first in the dead-code-hygiene session-57 describe
+(2 RED + 1 guard, +3 its = 1194 total), proven non-vacuous in a
+pre-fix 5b86880 worktree (2 failed | 25 passed there, 27/27 at the
+fix). Audits: the s56 re-audit verified all eight checklist items
+GENUINE (the worktree arithmetic replayed: 7 failed | 49 passed
+pre-fix); the graduation audit: ZERO graduations — 13/13 re-confirmed
+(14th consecutive session; the drift map EMPTY); both operator
+decisions re-verified UNCHANGED — the CSV posture (b) STANDS (15th
+re-affirmation), the source-vocabulary documented parity STANDS AND
+EXTENDS to the N-57 family (the bundle byte-identical for the 28th
+consecutive session).
 
 ## Conventions that differ from defaults
 

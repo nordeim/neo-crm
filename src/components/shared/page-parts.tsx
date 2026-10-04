@@ -183,7 +183,8 @@ export function KpiCard({
 
 // Session-56 (S56-P2, N-56b): CardCaption retired — fully dead since the
 // initial commit (zero src consumers, zero test refs; the cards carry
-// their own caption spans). The seven living exports above stay.
+// their own caption spans). The ten living exports above stay (s57 count
+// correction — seven was the pre-retirement count).
 /** Icon chip used by the stat-card variants. */
 function IconChip({
   icon,
