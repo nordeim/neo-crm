@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1184 checks)        | `bun run test`                         |
+| Unit tests (1191 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1184) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1191) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2124,6 +2124,45 @@ drift map EMPTY); both operator decisions re-verified UNCHANGED — the
 CSV posture (b) STANDS, the source-vocabulary documented parity STANDS
 AND EXTENDS to the seam-level test-only family (the bundle
 byte-identical for the 26th consecutive session).
+
+**Session-56** (the orphaned-import sweep + the dead-module retirement):
+(1) The N-56a closure — TWELVE more lint-invisible orphaned imports
+narrowed away across six files (contacts ×6: Pencil, Avatar,
+DropdownSeparator, FILTER_RAIL, ENGAGEMENT_LEVELS, timeAgo; accounts
+×1: DropdownSeparator; activities ×2: Cell, Avatar; the dashboard ×1:
+EMPTY_STATE; the reports route ×1: addMonths — orphaned since s31;
+charts ×1: the dead-since-initial-commit `import * as React`), each
+with exactly one in-file reference (the import itself; eslint has
+BOTH no-unused-vars rules off, so only source-reading pins catch
+them). The underlying exports stay alive on their real consumers
+(timeAgo is LIVE in activities; ENGAGEMENT_LEVELS in the contacts API
+routes; FILTER_RAIL/EMPTY_STATE in calendar/reports; Avatar in
+profile; DropdownSeparator in leads) — import narrowing, not
+retirement. (2) The N-56b/N-56c/N-56f dead-surface retirements:
+page-parts' CardCaption (fully dead since the initial commit), the
+whole app-authored ui/misc.tsx module (its sole export EmptyState was
+s25-stranded; the loading-layer Skeleton pin re-anchored to the
+module's absence — the strongest form of the no-Skeleton contract),
+and format's addMonths (the seam went TEST-ONLY when the reports
+route's import narrowed — the s55 N-55b class; its one stale it
+retired with it). (3) The N-56d stale it-title corrected. (4) The
+source-vocabulary operator boundary PINNED by a new guard test: the
+retirement policy covers APP-OWNED vocabulary but NOT the vendored ui
+stock-surface mirror — unused stock exports (CardDescription,
+CardFooter, DialogClose, DialogTrigger, DropdownLabel, SelectGroup,
+SelectLabel, SelectSeparator) stay exported because the mirror's
+completeness is part of the parity contract (the s10 stock-primitive
+layer) and tree-shaking keeps the bundle byte-identical. All pinned
+RED-first in the dead-code-hygiene session-56 describe (6 RED + 2
+guards, +8 −1 stale its = 1191 total), proven non-vacuous in a
+pre-fix f7ca140 worktree (7 failed | 49 passed there, 56/56 at the
+fix). Audits: the s55 re-audit verified all nine checklist items
+GENUINE; the graduation audit: ZERO graduations — 13/13 re-confirmed
+(13th consecutive session; the drift map EMPTY); both operator
+decisions re-verified UNCHANGED — the CSV posture (b) STANDS, the
+source-vocabulary documented parity STANDS AND EXTENDS to the N-56
+family WITH the stock-mirror boundary (the bundle byte-identical for
+the 27th consecutive session).
 
 ## Conventions that differ from defaults
 

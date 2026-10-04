@@ -11,12 +11,16 @@ import {
   PAGE_ROOT,
   FILTER_BAR,
   VIEW_SWITCHER,
-  EMPTY_STATE,
   TOP_REPS,
   CARD_TITLE_OVERRIDE,
   KPI_STATICS,
   PIPELINE_LEGEND,
 } from "@/lib/page-layout";
+// Session-56 (S56-P1, N-56a): EMPTY_STATE narrowed out of the
+// page-layout block above — its only in-file reference was the import
+// itself (the N-53c/N-55a class; this page renders KPI_STATICS literal
+// zeros, not the shared empty-state token). The export stays alive
+// (reports + calendar consume it live).
 import * as React from "react";
 import {
   Download,

@@ -181,11 +181,9 @@ export function KpiCard({
   );
 }
 
-/** Secondary label used inside cards ("Last 6 months", etc.). */
-export function CardCaption({ children }: { children: React.ReactNode }) {
-  return <span className="text-xs text-muted">{children}</span>;
-}
-
+// Session-56 (S56-P2, N-56b): CardCaption retired — fully dead since the
+// initial commit (zero src consumers, zero test refs; the cards carry
+// their own caption spans). The seven living exports above stay.
 /** Icon chip used by the stat-card variants. */
 function IconChip({
   icon,

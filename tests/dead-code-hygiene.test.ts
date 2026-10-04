@@ -37,11 +37,21 @@ function stripComments(src: string) {
 const accounts = () => stripComments(read("src/app/(app)/accounts/accounts-page.tsx") ?? "");
 const activities = () => stripComments(read("src/app/(app)/activities/activities-page.tsx") ?? "");
 const calendar = () => stripComments(read("src/app/(app)/calendar/calendar-page.tsx") ?? "");
+const contacts = () => stripComments(read("src/app/(app)/contacts/contacts-page.tsx") ?? "");
+const dashboard = () => stripComments(read("src/app/(app)/page.tsx") ?? "");
 const leads = () => stripComments(read("src/app/(app)/leads/leads-page.tsx") ?? "");
 const reports = () => stripComments(read("src/app/(app)/reports/reports-page.tsx") ?? "");
+const reportsRoute = () => stripComments(read("src/app/api/reports/route.ts") ?? "");
+const charts = () => stripComments(read("src/components/charts/charts.tsx") ?? "");
+const pageParts = () => stripComments(read("src/components/shared/page-parts.tsx") ?? "");
+const stockCard = () => stripComments(read("src/components/ui/card.tsx") ?? "");
+const stockDialog = () => stripComments(read("src/components/ui/dialog.tsx") ?? "");
+const stockDropdown = () => stripComments(read("src/components/ui/dropdown.tsx") ?? "");
+const stockSelect = () => stripComments(read("src/components/ui/select.tsx") ?? "");
 const constants = () => stripComments(read("src/lib/constants.ts") ?? "");
 const format = () => stripComments(read("src/lib/format.ts") ?? "");
 const leadFilters = () => stripComments(read("src/lib/lead-filters.ts") ?? "");
+const miscModule = () => read("src/components/ui/misc.tsx");
 
 describe("session-46: the dead-code hygiene pair (S46-P5)", () => {
   it("accounts-page no longer destructures the unused leads slice", () => {
@@ -78,7 +88,7 @@ describe("session-53: the orphaned-import retirement + the never-caching memo (S
     expect(src).toMatch(/\bEVENT_TYPE_CHIP\b/);
   });
 
-  it("leads-page no longer imports CHART_COLORS (the reports page owns it)", () => {
+  it("leads-page no longer imports CHART_COLORS (the palette is shared, not reports-owned — corrected s56/N-56d)", () => {
     expect(leads()).not.toMatch(/\bCHART_COLORS\b/);
   });
 
@@ -235,5 +245,129 @@ describe("session-55: the orphaned-import + test-only-seam retirement (S55-P1/P2
     // does not import it at all.
     const leadsRaw = read("src/app/(app)/leads/leads-page.tsx") ?? "";
     expect(leadsRaw).not.toMatch(/the reports page owns the palette/);
+  });
+});
+
+// Session-56 pins (S56-P1/P2/P3, the N-56 family): the orphaned-import
+// sweep + the dead-module retirement. (1) the 56-b fresh-eyes census found
+// TWELVE more lint-invisible orphaned imports across six files (the
+// N-53c/N-55a class; eslint has BOTH no-unused-vars rules off, so only
+// source-reading pins catch them). (2) page-parts' CardCaption was fully
+// dead since the initial commit; ui/misc.tsx (an APP-AUTHORED grab-bag,
+// never part of the vendored stock mirror) carried only the s25-stranded
+// EmptyState. (3) format's addMonths became TEST-ONLY once the reports
+// route's orphaned import narrowed away (the s55 N-55b class).
+describe("session-56: the orphaned-import sweep + the dead-module retirement (S56-P1/P2/P3)", () => {
+  it("contacts-page carries none of the six orphaned imports (N-56a)", () => {
+    const src = contacts();
+    // Each had exactly one in-file reference — the import itself. The
+    // exports all stay alive on their real consumers (timeAgo is LIVE in
+    // activities-page:381; ENGAGEMENT_LEVELS in the contacts API routes;
+    // FILTER_RAIL/EMPTY_STATE in calendar + reports; Avatar in profile +
+    // the ui kit; DropdownSeparator in leads) — import narrowing only.
+    expect(src).not.toMatch(/\bPencil\b/);
+    expect(src).not.toMatch(/\bAvatar\b/);
+    expect(src).not.toMatch(/\bDropdownSeparator\b/);
+    expect(src).not.toMatch(/\bFILTER_RAIL\b/);
+    expect(src).not.toMatch(/\bENGAGEMENT_LEVELS\b/);
+    expect(src).not.toMatch(/\btimeAgo\b/);
+    // …while the live siblings from the same import lines stay.
+    expect(src).toMatch(/\bCONTACTS_LAYOUT\b/);
+    expect(src).toMatch(/\bPAGE_KPI_GRIDS\b/);
+    expect(src).toMatch(/\bTABLE_CARD\b/);
+    expect(src).toMatch(/\bENGAGEMENT_BARS\b/);
+    expect(src).toMatch(/\bMoreVertical\b/);
+    expect(src).toMatch(/\bDropdownContent\b/);
+  });
+
+  it("accounts-page + activities-page carry none of their three orphans (N-56a)", () => {
+    expect(accounts()).not.toMatch(/\bDropdownSeparator\b/);
+    const acts = activities();
+    expect(acts).not.toMatch(/\bCell\b/);
+    expect(acts).not.toMatch(/\bAvatar\b/);
+    // …while the live siblings from the same import lines stay.
+    expect(accounts()).toMatch(/\bDropdownContent\b/);
+    expect(accounts()).toMatch(/\bDropdownTrigger\b/);
+    expect(acts).toMatch(/\bResponsiveContainer\b/);
+    expect(acts).toMatch(/\btimeUntil\b/);
+  });
+
+  it("the dashboard + the reports route + charts.tsx carry none of their three orphans (N-56a)", () => {
+    expect(dashboard()).not.toMatch(/\bEMPTY_STATE\b/);
+    expect(reportsRoute()).not.toMatch(/\baddMonths\b/);
+    expect(charts()).not.toMatch(/import \* as React/);
+    // …while the live siblings from the same import lines stay.
+    expect(dashboard()).toMatch(/\bPAGE_KPI_GRIDS\b/);
+    expect(dashboard()).toMatch(/\bKPI_STATICS\b/);
+    expect(reportsRoute()).toMatch(/\bstartOfWeek\b/);
+    expect(reportsRoute()).toMatch(/\bstartOfQuarter\b/);
+    expect(charts()).toMatch(/\bResponsiveContainer\b/);
+  });
+
+  it("page-parts no longer exports CardCaption (N-56b — fully dead since the initial commit)", () => {
+    const src = pageParts();
+    expect(src).not.toMatch(/\bCardCaption\b/);
+    // …while the seven living page-parts exports stay.
+    expect(src).toMatch(/export function PageHeader/);
+    expect(src).toMatch(/export function KpiCard/);
+    expect(src).toMatch(/export function IconStatCard/);
+    expect(src).toMatch(/export function BarStatCard/);
+    expect(src).toMatch(/export function TrendStatCard/);
+    expect(src).toMatch(/export function CircleStatCard/);
+    expect(src).toMatch(/export function TableEmptyRow/);
+  });
+
+  it("the misc.tsx module is retired — EmptyState's whole module (N-56c, s25-stranded)", () => {
+    // The app-authored grab-bag module's sole export had zero src
+    // consumers since s25 stranded it. The module is GONE (the
+    // loading-layer suite re-anchors its own Skeleton pin to the same
+    // fact).
+    expect(miscModule()).toBeNull();
+    // …and nothing in src/ references the module path anymore.
+    const consumers = [contacts(), activities(), dashboard(), leads(), reports(), accounts(), calendar()]
+      .every((s) => !s.includes("ui/misc"));
+    expect(consumers).toBe(true);
+  });
+
+  it("format: addMonths is retired — the seam went test-only when the reports route narrowed (N-56f, the s55 N-55b class)", () => {
+    const src = format();
+    expect(src).not.toMatch(/\baddMonths\b/);
+    // …while the live date-arithmetic siblings stay.
+    expect(src).toMatch(/export function startOfWeek/);
+    expect(src).toMatch(/export function startOfMonth/);
+    expect(src).toMatch(/export function startOfQuarter/);
+    expect(src).toMatch(/export function timeAgo/);
+    expect(src).toMatch(/export function timeUntil/);
+  });
+
+  it("the living underlying surfaces stay exported (the narrowing is not a retirement)", () => {
+    // timeAgo (activities :381), ENGAGEMENT_LEVELS (contacts API),
+    // FILTER_RAIL/EMPTY_STATE (page-layout), the stock Avatar/Cell/
+    // DropdownSeparator — all still exported by their owners.
+    expect(format()).toMatch(/export function timeAgo/);
+    expect(constants()).toMatch(/\bENGAGEMENT_LEVELS\b/);
+    const pageLayout = stripComments(read("src/lib/page-layout.ts") ?? "");
+    expect(pageLayout).toMatch(/\bFILTER_RAIL\b/);
+    expect(pageLayout).toMatch(/\bEMPTY_STATE\b/);
+    const avatar = stripComments(read("src/components/ui/avatar.tsx") ?? "");
+    expect(avatar).toMatch(/export \{ Avatar,/);
+    const dropdown = stripComments(read("src/components/ui/dropdown.tsx") ?? "");
+    expect(dropdown).toMatch(/DropdownSeparator/);
+  });
+
+  it("the vendored ui stock-surface mirror stays whole (the N-56e operator KEEP)", () => {
+    // The source-vocabulary retirement policy does NOT extend to the
+    // vendored stock primitives (the s10 mirror of the reference's own
+    // component library). Unused stock exports stay exported — the
+    // mirror's completeness is part of the parity contract, and
+    // tree-shaking keeps the bundle byte-identical.
+    expect(stockCard()).toMatch(/CardDescription/);
+    expect(stockCard()).toMatch(/CardFooter/);
+    expect(stockDialog()).toMatch(/DialogClose/);
+    expect(stockDialog()).toMatch(/DialogTrigger/);
+    expect(stockDropdown()).toMatch(/DropdownLabel/);
+    expect(stockSelect()).toMatch(/SelectGroup/);
+    expect(stockSelect()).toMatch(/SelectLabel/);
+    expect(stockSelect()).toMatch(/SelectSeparator/);
   });
 });

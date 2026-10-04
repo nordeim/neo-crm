@@ -15,12 +15,15 @@ import {
   Calendar,
   MessageSquare,
 } from "lucide-react";
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+// Session-56 (S56-P1, N-56a): Cell narrowed out of the recharts import
+// and Avatar's whole import line deleted — each had exactly one in-file
+// reference: the import itself (the N-53c/N-55a class). Both exports
+// stay alive (charts.tsx consumes Cell; profile + the ui kit own Avatar).
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";

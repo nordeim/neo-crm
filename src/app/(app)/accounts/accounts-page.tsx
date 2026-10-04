@@ -12,7 +12,11 @@ import { Avatar } from "@/components/ui/avatar";
 import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
+// Session-56 (S56-P1, N-56a): DropdownSeparator narrowed out of the
+// dropdown import below — its only in-file reference was the import
+// itself (the N-53c/N-55a class). The export stays alive (leads-page
+// consumes it live).
+import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD, TABLE_TOOLBAR, VIEW_SWITCHER } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";

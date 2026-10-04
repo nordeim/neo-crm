@@ -8,7 +8,6 @@ import {
   timeUntil,
   isSameDay,
   calendarGrid,
-  addMonths,
   startOfMonth,
   toLocalInputValue,
 } from "@/lib/format";
@@ -126,13 +125,6 @@ describe("date formatting", () => {
   it("recognizes same-calendar-day timestamps", () => {
     expect(isSameDay(mar4, new Date(2026, 2, 4, 23, 59))).toBe(true);
     expect(isSameDay(mar4, new Date(2026, 2, 5))).toBe(false);
-  });
-
-  it("adds months with end-of-month clamping", () => {
-    const jan31 = new Date(2026, 0, 31);
-    const feb = addMonths(jan31, 1);
-    expect(feb.getMonth()).toBe(1);
-    expect(feb.getDate()).toBe(28); // 2026 is not a leap year
   });
 
   it("startOfMonth pins to day 1", () => {

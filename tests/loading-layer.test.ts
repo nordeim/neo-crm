@@ -80,12 +80,15 @@ describe("session-25: zero loading UI — the reference's instant-render model (
     expect(offenders).toEqual([]);
   });
 
-  it("the ui kit no longer exports a Skeleton component", () => {
+  it("the misc.tsx module itself is retired (session-56)", () => {
+    // The module's sole export (EmptyState) was src-dead since session-25
+    // stranded it — zero src consumers. The strongest form of the
+    // no-Skeleton contract: the whole app-authored grab-bag module is
+    // GONE (a module that does not exist can export neither Skeleton
+    // nor anything else). The vendored stock primitives in ui/ are NOT
+    // affected — misc.tsx was app-authored, not stock.
     const misc = read("src/components/ui/misc.tsx");
-    expect(misc).not.toBeNull();
-    const code = stripComments(misc!);
-    expect(code).not.toMatch(/function Skeleton/);
-    expect(code).not.toMatch(/animate-pulse/);
+    expect(misc).toBeNull();
   });
 
   it("the dashboard renders KPI cards when k is null (no !k skeleton branch)", () => {

@@ -17,7 +17,12 @@ import {
   revenueByMonth,
   wonLostByMonth,
 } from "@/lib/reports-data";
-import { addMonths, startOfDay, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
+// Session-56 (S56-P1/P2, N-56a/N-56f): addMonths narrowed out of the
+// format import below — orphaned here since s31 took the reports
+// windowing to startOf* helpers. With this import gone the export had
+// zero src consumers (tests only) and is retired from format.ts per
+// the extended source-vocabulary decision (the s55 N-55b class).
+import { startOfDay, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
 import type { ReportsData } from "@/types";
 
 export const dynamic = "force-dynamic";

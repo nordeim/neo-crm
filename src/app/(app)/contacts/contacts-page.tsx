@@ -14,7 +14,6 @@ import {
   Mail,
   MessageCircle,
   MoreVertical,
-  Pencil,
   Phone,
   Plus,
   // Session-17 (S17-P2c): the reference's Scan Card ships `scan` (4
@@ -34,7 +33,6 @@ import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -46,9 +44,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
+// Session-56 (S56-P1, N-56a): SIX orphaned tokens narrowed out of this
+// file's imports — Pencil (the lucide block above), Avatar (its whole
+// import line, deleted), DropdownSeparator (dropdown), FILTER_RAIL
+// (page-layout), ENGAGEMENT_LEVELS (constants), and timeAgo (its whole
+// import line, deleted) — each had exactly one in-file reference: the
+// import itself (the N-53c/N-55a class; the s53/s55 sweeps never read
+// this file's full import surface). The exports stay alive on their real
+// consumers (timeAgo is LIVE in activities-page; ENGAGEMENT_LEVELS in
+// the contacts API routes; FILTER_RAIL in calendar/reports; Avatar in
+// profile + the ui kit; DropdownSeparator in leads).
+import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
-import { CONTACTS_LAYOUT, FILTER_RAIL, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
+import { CONTACTS_LAYOUT, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import { ContactDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
@@ -60,11 +68,9 @@ import {
   CONTACT_ROLES,
   CONTACT_SOURCE_OPTIONS,
   ENGAGEMENT_BARS,
-  ENGAGEMENT_LEVELS,
   engagementBarCount,
   lastActivityCe,
 } from "@/lib/constants";
-import { timeAgo } from "@/lib/format";
 import { csvFilename, parseCsv } from "@/lib/csv";
 import { toQuotedCsv } from "@/lib/entity-export";
 import type { Contact } from "@/types";

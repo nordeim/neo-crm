@@ -166,14 +166,10 @@ export function addDays(d: Date | string | number, days: number): Date {
   return x;
 }
 
-export function addMonths(d: Date | string | number, months: number): Date {
-  const x = new Date(asDate(d));
-  const day = x.getDate();
-  x.setMonth(x.getMonth() + months);
-  if (x.getDate() < day) x.setDate(0); // clamp to end of month
-  return x;
-}
-
+// Session-56 (S56-P2, N-56f): addMonths retired — it went TEST-ONLY when
+// the reports route's orphaned import (dead there since s31) narrowed
+// away; zero src consumers remained (the s55 N-55b precedent). The live
+// month-arithmetic surface is calendarFetchBounds + the startOf* family.
 export function startOfWeek(d: Date | string | number, firstDay: "monday" | "sunday" = "monday"): Date {
   const x = startOfDay(d);
   const day = x.getDay(); // 0 = Sunday

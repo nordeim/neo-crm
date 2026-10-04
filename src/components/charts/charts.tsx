@@ -41,7 +41,10 @@
 // grid is dashed "3 3" EXPLICITLY on every gridded chart (recharts'
 // default grid is SOLID).
 
-import * as React from "react";
+// Session-56 (S56-P1, N-56a): the `import * as React` line that was
+// here is deleted — dead since the initial commit (zero React.* refs;
+// Next.js runs the automatic JSX runtime, so no namespace import is
+// needed). The N-53c/N-55a orphaned-import class.
 import {
   Area,
   Bar,
