@@ -97,3 +97,71 @@ describe("session-53: the orphaned-import retirement + the never-caching memo (S
     expect(src).toMatch(/const wonVsLost = buildWonVsLost\(won, lost\)/);
   });
 });
+
+describe("session-54: the calendar memo family + the dead-vocabulary retirement (S54-P1/P2/P4)", () => {
+  it("the calendar visible/eventsOn wrappers are retired — plain forms (N-54a)", () => {
+    const src = calendar();
+    // The visible useMemo NEVER cached: deps [events, activeTypes,
+    // activeDates, query] included the fresh .filter().map() identities
+    // at activeTypes/activeDates — the N-53d class in calendar. The
+    // eventsOn useCallback (deps [visible]) recreated every render too
+    // and is called only during render. Both go plain (the s53-P4
+    // buildWonVsLost idiom).
+    expect(src).not.toMatch(/const visible = React\.useMemo/);
+    expect(src).not.toMatch(/const eventsOn = React\.useCallback/);
+    // …the extraction: a module-scope pure function called plainly.
+    expect(src).toMatch(/function buildVisibleEvents\(/);
+    expect(src).toMatch(
+      /const visible = buildVisibleEvents\(events, activeTypes, activeDates, query\)/,
+    );
+  });
+
+  it("constants: the seven FULLY-DEAD vocabulary exports are retired (N-54b)", () => {
+    const src = constants();
+    // Each had exactly one repo-wide reference — the definition itself
+    // (zero src, zero test consumers; the 54-b fresh-eyes census). The
+    // s48/s49/s53 retirement precedent; record comments may remain
+    // (comment-stripped source is asserted).
+    expect(src).not.toMatch(/\bOPEN_STAGES\b/);
+    expect(src).not.toMatch(/\bisClosedOppStage\b/);
+    expect(src).not.toMatch(/\bCONTACT_SOURCE_LABEL\b/);
+    expect(src).not.toMatch(/\bLEAD_EDIT_STATUSES\b/);
+    expect(src).not.toMatch(/\bLEAD_EDIT_SOURCES\b/);
+    expect(src).not.toMatch(/\bTIER_META\b/);
+    expect(src).not.toMatch(/\bPRIORITY_META\b/);
+  });
+
+  it("constants: the TEST-ONLY vocabulary family is retired too (N-54b)", () => {
+    const src = constants();
+    // Src-dead but pinned by stale tests: DROPPED_STAGES + isDroppedStage
+    // (the s5 "dropped = lost + unqualified" reading the live KPI
+    // contradicts), REPORTS_PIPELINE_SLUGS + FUNNEL_STAGES (the living
+    // surfaces — pipelineStageCounts / LEADS_FUNNEL — carry the truth and
+    // their own pins), ACCOUNT_EDIT_STATUSES (the stale wce decode — the
+    // live select maps ACCOUNT_STATUSES).
+    expect(src).not.toMatch(/\bDROPPED_STAGES\b/);
+    expect(src).not.toMatch(/\bisDroppedStage\b/);
+    expect(src).not.toMatch(/\bREPORTS_PIPELINE_SLUGS\b/);
+    expect(src).not.toMatch(/\bFUNNEL_STAGES\b/);
+    expect(src).not.toMatch(/\bACCOUNT_EDIT_STATUSES\b/);
+  });
+
+  it("the live Dropped truth: leads-page counts lost STRICTLY (the re-anchor)", () => {
+    // S29-P5 is the live contract — "Dropped Deals" = lost strictly
+    // (unqualified is NOT dropped). The retired isDroppedStage helper
+    // misdocumented this; the pin now asserts the live filter directly.
+    expect(leads()).toMatch(/const lost = filtered\.filter\(\(l\) => l\.stage === "lost"\)/);
+  });
+
+  it("the ghost-action families carry the dead-affordance annotations (N-54f)", () => {
+    // RAW source (not comment-stripped): the annotations ARE comments.
+    // The contacts Call/Email/WhatsApp trio + the calendar Phone/Message
+    // pair are the reference's own inert affordances (bundle-verified
+    // session-54: no onClick in the reference's constructions) — the
+    // leads Convert-item annotation precedent.
+    const contactsRaw = read("src/app/(app)/contacts/contacts-page.tsx") ?? "";
+    const calendarRaw = read("src/app/(app)/calendar/calendar-page.tsx") ?? "";
+    expect(contactsRaw).toMatch(/S54-P4: the reference's own inert affordances/);
+    expect(calendarRaw).toMatch(/S54-P4: the reference's own inert affordances/);
+  });
+});

@@ -2176,6 +2176,85 @@ test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async (
   expect(imageResponse.headers()["content-type"]).toMatch(/^image\//);
 });
 
+test("the month-flip trailing-cell round-trip: a next-month event created on a trailing cell PERSISTS the flip (S54-P6, the N-51a window e2e)", async ({ page }) => {
+  // The s51 calendarFetchBounds seam made the fetch window cover the
+  // UNTRIMMED grid's last cell, so trailing next-month cells keep their
+  // events after a month flip. Unit-pinned since s51 (calendar-fetch-
+  // bounds.test.ts); this is the full-stack proof — the s51 LIVE probe's
+  // own path, deterministic at any run date: the target month view is
+  // picked so it HAS trailing cells (a month whose last day is not a
+  // Saturday), hopping "Next month" at most twice (the only back-to-back
+  // no-trailing pair is a Saturday-ending month followed by a non-leap
+  // February — three hops covers even that).
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const now = new Date();
+  const label = (d: Date) => `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  const monthTitle = (d: Date) => `${MONTHS_LONG[d.getMonth()]} ${d.getFullYear()}`;
+
+  await page.goto("/calendar");
+  await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
+
+  // Pick the view month: the current month if it has trailing cells,
+  // else hop forward (≤ 2 hops) — verified against the same last-day
+  // rule the grid trim uses.
+  let hops = 0;
+  for (; hops < 3; hops++) {
+    const view = new Date(now.getFullYear(), now.getMonth() + hops, 1);
+    const lastDay = new Date(view.getFullYear(), view.getMonth() + 1, 0);
+    if (lastDay.getDay() !== 6) break; // not Saturday → trailing cells exist
+  }
+  for (let i = 0; i < hops; i++) await page.getByRole("button", { name: "Next month" }).click();
+  const view = new Date(now.getFullYear(), now.getMonth() + hops, 1);
+  const target = new Date(view.getFullYear(), view.getMonth() + 1, 1); // the FIRST trailing cell
+
+  // The trailing cell (aria-label carries the full date — unambiguous
+  // vs the same-numbered current-month day).
+  const cell = page.getByRole("button", { name: `${label(target)} — 0 events`, exact: true });
+  await expect(cell).toBeVisible();
+
+  // Create the event ON the trailing cell (dblclick = the new-event
+  // shortcut with defaultStart = that day at 09:00).
+  await cell.dblclick();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await dialog.locator("#ev-title").fill("S54 Trailing Cell Probe");
+  // Type = Demo: the seed has ZERO demo events, so the Demos filter
+  // later isolates this event in the agenda for a deterministic delete.
+  await dialog.getByRole("combobox").first().click();
+  await page.getByRole("option", { name: "Demo" }).click();
+  await dialog.getByRole("button", { name: "Create Event" }).click();
+  await expect(dialog).not.toBeVisible();
+
+  // The chip renders on the trailing cell (the cell now carries 1 event).
+  await expect(page.getByRole("button", { name: `${label(target)} — 1 event`, exact: true })).toBeVisible();
+  await expect(page.getByTitle("S54 Trailing Cell Probe")).toBeVisible();
+
+  // THE PROOF: flip away and back — the trailing cell KEEPS its event
+  // (the fetch window covers the untrimmed grid; the pre-s51 month-end
+  // bound lost it). The month-title h2 pins each view change (the
+  // refetch completed) before flipping back.
+  await page.getByRole("button", { name: "Previous month" }).click();
+  await expect(page.getByRole("heading", { name: monthTitle(new Date(view.getFullYear(), view.getMonth() - 1, 1)) })).toBeVisible();
+  await page.getByRole("button", { name: "Next month" }).click();
+  await expect(page.getByRole("heading", { name: monthTitle(view) })).toBeVisible();
+  await expect(page.getByRole("button", { name: `${label(target)} — 1 event`, exact: true })).toBeVisible();
+  await expect(page.getByTitle("S54 Trailing Cell Probe")).toBeVisible();
+
+  // Zero residue: isolate the event via the Demos type filter (the seed
+  // has none — both agenda rails now list exactly this event). The chip
+  // (title attr) is the unique grid anchor; either rail's ⋮ deletes the
+  // same id, so .first() is deterministic.
+  await page.getByRole("checkbox", { name: "Demos" }).check();
+  await expect(page.getByTitle("S54 Trailing Cell Probe")).toBeVisible();
+  await page.getByRole("button", { name: "Event actions" }).first().click();
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(page.getByTitle("S54 Trailing Cell Probe")).toHaveCount(0);
+  // The trailing cell is back to zero events — the pristine grid.
+  await expect(page.getByRole("button", { name: `${label(target)} — 0 events`, exact: true })).toBeVisible();
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();

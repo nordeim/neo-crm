@@ -8,12 +8,9 @@ import {
   CONTACT_SOURCE_OPTIONS,
   EVENT_TYPES,
   EVENT_TYPE_META,
-  FUNNEL_STAGES,
   LEAD_SOURCE_OPTIONS,
   LEAD_STAGES,
-  REPORTS_PIPELINE_SLUGS,
   STAGE_META,
-  isDroppedStage,
 } from "@/lib/constants";
 
 // Session-4 parity pins: every color below was extracted from the LIVE
@@ -130,48 +127,19 @@ describe("dialog/filter vocabularies (session-5 DOM-verified)", () => {
       "Appointment",
     ]);
   });
-
-  it("unqualified counts as dropped alongside lost", () => {
-    expect(isDroppedStage("lost")).toBe(true);
-    expect(isDroppedStage("unqualified")).toBe(true);
-    expect(isDroppedStage("new")).toBe(false);
-    expect(isDroppedStage("won")).toBe(false);
-  });
+  // Session-54 (S54-P2): the isDroppedStage pin RETIRED with its dead
+  // subject — the live "Dropped Deals" KPI counts `lost` STRICTLY
+  // (leads-page S29-P5), which this pin misdocumented since s5. The
+  // live truth is pinned in dead-code-hygiene's session-54 describe.
 });
 
 describe("session-10 vocabulary pins (reports/chart internals)", () => {
-  it("reports pipeline chart ships the reference's 8 RAW slugs in order", () => {
-    // S10-6: the reference's reports tab-1 "Pipeline by Stage" X ticks are
-    // the raw merged stage list (extracted at 1512, 2026-09-30):
-    // new, contacted, qualified, prospecting, qualification, proposal,
-    // negotiation, closed_won — snake_case, no title-casing. The reference's
-    // own merged-list bug: new≡prospecting and qualified≡qualification
-    // (its dashboard aliases) plus won≡closed_won all leak into one list.
-    expect(REPORTS_PIPELINE_SLUGS).toEqual([
-      "new",
-      "contacted",
-      "qualified",
-      "prospecting",
-      "qualification",
-      "proposal",
-      "negotiation",
-      "closed_won",
-    ]);
-  });
-
-  it("the conversion funnel is a 4-stage list (new/qualified/won/lost)", () => {
-    // S10-7: the reference's funnel renders 4 trapezoid groups (leads page
-    // AND reports tab 1) — the same 4-stage vocabulary as the leads page's
-    // "Pipeline Value by Stage" chart (New/Qualified/Won/Lost).
-    expect(FUNNEL_STAGES).toEqual(["new", "qualified", "won", "lost"]);
-    expect(FUNNEL_STAGES.map((s) => STAGE_META[s].label)).toEqual([
-      "New",
-      "Qualified",
-      "Won",
-      "Lost",
-    ]);
-  });
-
+  // Session-54 (S54-P2): the REPORTS_PIPELINE_SLUGS pair + the
+  // FUNNEL_STAGES pin retired with their dead subjects — the 8-slug
+  // order is pinned FUNCTIONALLY by reports-data.test.ts's complete
+  // ordered arrays, and the live funnel vocabulary is LEADS_FUNNEL
+  // (pinned in leads-charts.test.ts). The constants themselves retired
+  // from constants.ts (zero src consumers).
   it("aging pipeline ships the reference's 4 fixed buckets", () => {
     // S10-8: the reference's tab-2 "Aging Pipeline" bar chart renders 4 bar
     // rects at zero with ticks <30 days / 30-60 days / >90 days (the 60-90
@@ -181,24 +149,6 @@ describe("session-10 vocabulary pins (reports/chart internals)", () => {
       "30-60 days",
       "60-90 days",
       ">90 days",
-    ]);
-  });
-
-  it("the 8-slug list is the leads+opps CONCATENATION order (session-31 correction)", () => {
-    // The s10 "merged-list double-report" reading is RETIRED: the
-    // bundle-decoded funnel is the leads' new/contacted/qualified counts
-    // followed by the OPPORTUNITY five-stage counts
-    // (reports-data.ts pipelineStageCounts). The slug ORDER is pinned; the
-    // split itself is pinned by tests/reports-data.test.ts.
-    expect(REPORTS_PIPELINE_SLUGS).toEqual([
-      "new",
-      "contacted",
-      "qualified",
-      "prospecting",
-      "qualification",
-      "proposal",
-      "negotiation",
-      "closed_won",
     ]);
   });
 });

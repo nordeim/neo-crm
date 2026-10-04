@@ -49,8 +49,20 @@ describe("session-53: the census seam (S53-P2, N-53b)", () => {
     const src = census();
     expect(src).toMatch(/runtimeDatabaseUrl/);
     // The URL is surfaced to the operator (console.log), not just used
-    // internally.
-    expect(src).toMatch(/console\.(log|info)/);
+    // internally. Session-54 strengthening (N-54e): pin the ACTUAL print
+    // form — the s53 pin only asserted any console call, so deleting the
+    // `database: ${url}` line while keeping the counts log would have
+    // passed (the count-without-path regression the seam exists to close).
+    expect(src).toMatch(/`database: \$\{url\}`/);
+  });
+
+  it("the MATCH banner derives from EXPECTED — no hardcoded count literal (N-54d)", () => {
+    // Session-54 (S54-P3): the banner duplicated EXPECTED as a literal
+    // ("15/24/10/23/12 + 4 users") — a future EXPECTED re-sync would
+    // leave the printed contract silently stale. The banner now derives
+    // from the EXPECTED table; comment-stripped source carries no
+    // hardcoded count run.
+    expect(census()).not.toMatch(/15\/24\/10\/23\/12/);
   });
 
   it("carries the seed-contract expectations and fails on drift (the N-53a guard)", () => {

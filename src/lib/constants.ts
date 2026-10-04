@@ -13,15 +13,13 @@ export const LEAD_STAGES = [
 ] as const;
 export type LeadStage = (typeof LEAD_STAGES)[number];
 
-export const OPEN_STAGES: readonly string[] = ["new", "contacted", "qualified", "proposal", "negotiation"];
-
-/** Stages that end a deal — "Dropped Deals" counts both (session-5). */
-export const DROPPED_STAGES: readonly string[] = ["lost", "unqualified"];
-
-/** True when a lead stage ends the deal (lost or unqualified). */
-export function isDroppedStage(stage: string): boolean {
-  return DROPPED_STAGES.includes(stage);
-}
+// Session-54 (S54-P2, N-54b): OPEN_STAGES + DROPPED_STAGES/isDroppedStage
+// RETIRED here — each had zero src consumers (the OPEN_STAGES set was a
+// pre-s29 scaffold whose "Open = not-won" reading the live KPI
+// contradicts; isDroppedStage's "dropped = lost + unqualified" reading
+// was the s5 vocabulary the live S29-P5 KPI ["Dropped Deals" = lost
+// STRICTLY, leads-page] supersedes). The s48/s49/s53 retirement
+// precedent.
 
 // Session-31 (S31-P1): the OPPORTUNITY stage vocabulary — the reference's
 // SECOND deal model (bundle-decoded from index-DZ-xbrIm.js). The reference
@@ -39,10 +37,9 @@ export const OPPORTUNITY_STAGES = [
 ] as const;
 export type OpportunityStage = (typeof OPPORTUNITY_STAGES)[number];
 
-/** True when an opportunity stage ends the deal (either closed branch). */
-export function isClosedOppStage(stage: string): boolean {
-  return stage === "closed_won" || stage === "closed_lost";
-}
+// Session-54 (S54-P2, N-54b): isClosedOppStage RETIRED here — zero src
+// consumers since the s31 opportunity layer landed (the closed-branch
+// checks inline `stage === "closed_won"` where needed).
 
 /**
  * The OPP badge tints — the reference's P map (its table/insight badges):
@@ -163,23 +160,13 @@ export const LEAD_INLINE_STATUS_OPTIONS: Array<{ value: string; label: string }>
  * zero-data inference and is RETIRED — reports-data.ts's
  * pipelineStageCounts(leads, opps) builds the real split.
  */
-export const REPORTS_PIPELINE_SLUGS = [
-  "new",
-  "contacted",
-  "qualified",
-  "prospecting",
-  "qualification",
-  "proposal",
-  "negotiation",
-  "closed_won",
-] as const;
+// Session-54 (S54-P2, N-54b): REPORTS_PIPELINE_SLUGS RETIRED here — zero
+// src consumers since the s31 split moved into pipelineStageCounts
+// (whose tests/reports-data.test.ts pins the complete ordered arrays).
 
-/**
- * S10-7: the reference's Conversion Funnel is a recharts FunnelChart with
- * FOUR trapezoid groups (leads page AND reports tab 1) — the same 4-stage
- * vocabulary as the leads page's "Pipeline Value by Stage" chart.
- */
-export const FUNNEL_STAGES = ["new", "qualified", "won", "lost"] as const;
+// Session-54 (S54-P2, N-54b): FUNNEL_STAGES RETIRED here — the s10
+// zero-data scaffold vocabulary, superseded by LEADS_FUNNEL below (the
+// s27 bundle extraction; pinned in leads-charts.test.ts).
 
 /**
  * Session-27 (S27-P9, bundle-extracted from the reference's leads `Xke`
@@ -263,9 +250,9 @@ export const CONTACT_SOURCE_OPTIONS = [
   { value: "referral", label: "👥 Personal Referral" },
 ] as const;
 
-export const CONTACT_SOURCE_LABEL: Record<string, string> = Object.fromEntries(
-  CONTACT_SOURCE_OPTIONS.map((o) => [o.value, o.label]),
-);
+// Session-54 (S54-P2, N-54b): CONTACT_SOURCE_LABEL RETIRED here — a
+// pre-s28 lookup scaffold with zero consumers (the surfaces read
+// CONTACT_SOURCE_OPTIONS directly; the raw values store verbatim).
 
 // The contact PRIORITY vocabulary: Key / Standard / At Risk (NOT the lead
 // hot/warm/cold temperature — bundle `ne` map + the Pke slide-over's `i`).
@@ -321,13 +308,19 @@ export const CONTACT_STATUSES = ["active", "inactive"] as const;
 
 // The account EDIT status vocabulary — the wce select ships THREE options
 // (its own superset of the create dialog's pair).
-export const ACCOUNT_EDIT_STATUSES = ["active", "inactive", "prospect"] as const;
+// Session-54 (S54-P2, N-54b): ACCOUNT_EDIT_STATUSES RETIRED here — a
+// stale s28 decode (["active","inactive","prospect"]) with zero src
+// consumers; the LIVE select maps ACCOUNT_STATUSES
+// (active/inactive/churned) through ACCOUNT_STATUS_META labels
+// (entity-dialogs.tsx; pinned in contact-model.test.ts).
 
 // The lead EDIT vocabularies — the Mke dialog's own inconsistencies: the
 // status set is New/Contacted/Qualified/Unqualified (NOT the table's
 // 5-status set) and the source has FOUR options (no Referral).
-export const LEAD_EDIT_STATUSES = ["New", "Contacted", "Qualified", "Unqualified"] as const;
-export const LEAD_EDIT_SOURCES = ["Call", "Email", "Website", "Partner"] as const;
+// Session-54 (S54-P2, N-54b): the LEAD_EDIT_STATUSES/LEAD_EDIT_SOURCES
+// pair RETIRED here — a pre-s50 scaffold with zero consumers since the
+// s50 create-only retirement (the live EntityEditDialog fields carry
+// their own option sets — the F-47c documented parity).
 
 // The accounts-page badge maps (bundle B/H functions): the tier badge and
 // the HEALTH badge rendered under the "Status" header (the reference's own
@@ -371,11 +364,9 @@ export function lastActivityCe(
 
 export const ACCOUNT_TIERS = ["A", "B", "C"] as const;
 
-export const TIER_META: Record<string, { label: string; badge: string }> = {
-  A: { label: "A", badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  B: { label: "B", badge: "bg-blue-50 text-blue-700 border-blue-200" },
-  C: { label: "C", badge: "bg-gray-100 text-gray-600 border-gray-200" },
-};
+// Session-54 (S54-P2, N-54b): TIER_META RETIRED here — a pre-s28 badge
+// scaffold with zero consumers (the live tier badge is ACCOUNT_TIER_BADGE,
+// the s28 bundle B map; pinned in contact-model.test.ts).
 
 export const ACCOUNT_STATUSES = ["active", "inactive", "churned"] as const;
 
@@ -426,11 +417,10 @@ export const EVENT_TYPE_META: Record<string, { label: string; color: string }> =
 
 export const CONTACT_PRIORITIES = ["hot", "warm", "cold"] as const;
 
-export const PRIORITY_META: Record<string, { label: string; badge: string; color: string }> = {
-  hot: { label: "Hot", badge: "bg-rose-50 text-rose-700 border-rose-200", color: "#ef4444" },
-  warm: { label: "Warm", badge: "bg-amber-50 text-amber-700 border-amber-200", color: "#f59e0b" },
-  cold: { label: "Cold", badge: "bg-sky-50 text-sky-700 border-sky-200", color: "#0ea5e9" },
-};
+// Session-54 (S54-P2, N-54b): PRIORITY_META RETIRED here — the pre-s28
+// hot/warm/cold badge map with zero consumers (the live contact-priority
+// vocabulary is CONTACT_PRIORITIES_REF + CONTACT_PRIORITY_META — the s28
+// Key/Standard/At Risk bundle `ne` map; the API validates both sets).
 
 export const REPORT_TABS = [
   { id: "sales", label: "Sales Overview" },

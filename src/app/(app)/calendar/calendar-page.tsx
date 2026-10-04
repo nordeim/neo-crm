@@ -91,6 +91,31 @@ function inRange(day: Date, filter: DateFilter): boolean {
   }
 }
 
+/**
+ * Session-54 (S54-P1, N-54a): the visible-events filter, extracted to a
+ * module-scope pure function and called plainly — the old `useMemo`
+ * NEVER cached (deps [events, activeTypes, activeDates, query] included
+ * the fresh `.filter().map()` identities at activeTypes/activeDates), the
+ * same N-53d class the leads wonVsLost memo had. The body is verbatim.
+ */
+function buildVisibleEvents(
+  events: CrmEvent[],
+  activeTypes: string[],
+  activeDates: DateFilter[],
+  query: string,
+): CrmEvent[] {
+  return events.filter((e) => {
+    if (activeTypes.length > 0 && !activeTypes.includes(e.type)) return false;
+    if (activeDates.length > 0 && !activeDates.some((d) => inRange(new Date(e.startAt), d))) return false;
+    // Session-7: the reference re-added a header search ("Search
+    // events...") — ours filters by event title (functional superset;
+    // the live control is inert at zero data).
+    const q = query.trim().toLowerCase();
+    if (q && !e.title.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
 export default function CalendarPage() {
   const { events, hydrated, fetchEvents, deleteEvent } = useCrmStore();
   const [cursor, setCursor] = React.useState(() => new Date()); // any date inside the visible month
@@ -116,20 +141,9 @@ export default function CalendarPage() {
 
   const activeTypes = TYPE_FILTERS.filter((t) => filters[t.id]).map((t) => t.id);
   const activeDates = DATE_FILTERS.filter((d) => filters[d.id]).map((d) => d.id);
-  const visible = React.useMemo(
-    () =>
-      events.filter((e) => {
-        if (activeTypes.length > 0 && !activeTypes.includes(e.type)) return false;
-        if (activeDates.length > 0 && !activeDates.some((d) => inRange(new Date(e.startAt), d))) return false;
-        // Session-7: the reference re-added a header search ("Search
-        // events...") — ours filters by event title (functional superset;
-        // the live control is inert at zero data).
-        const q = query.trim().toLowerCase();
-        if (q && !e.title.toLowerCase().includes(q)) return false;
-        return true;
-      }),
-    [events, activeTypes, activeDates, query],
-  );
+  // Session-54 (S54-P1): the plain call — the memo wrapper never cached
+  // (see buildVisibleEvents above).
+  const visible = buildVisibleEvents(events, activeTypes, activeDates, query);
 
   // Sunday-anchored grid with leading days, trimmed to whole weeks actually
   // needed (the reference shows previous-month days like Aug 30/31).
@@ -142,10 +156,11 @@ export default function CalendarPage() {
   }, [year, month]);
   const today = new Date();
 
-  const eventsOn = React.useCallback(
-    (day: Date) => visible.filter((e) => isSameDay(new Date(e.startAt), day)).sort((a, b) => +new Date(a.startAt) - +new Date(b.startAt)),
-    [visible],
-  );
+  // Session-54 (S54-P1): the plain form — the useCallback wrapper (deps
+  // [visible]) recreated every render anyway (visible never cached), and
+  // eventsOn is called only during render (the KPI rows + the days map).
+  const eventsOn = (day: Date) =>
+    visible.filter((e) => isSameDay(new Date(e.startAt), day)).sort((a, b) => +new Date(a.startAt) - +new Date(b.startAt));
 
   const weekStart = startOfWeek(today, "sunday");
   const weekEnd = addDays(weekStart, 7);
@@ -431,6 +446,11 @@ export default function CalendarPage() {
                         >
                           <Pen className="h-4 w-4" />
                         </Button>
+                        {/* S54-P4: the reference's own inert affordances —
+                            the agenda Phone/Message pair carries NO
+                            onClick in the reference's bundle (the
+                            Pen/Edit before them does; bundle-verified
+                            session-54); mirrored. */}
                         {e.type === "call" && (
                           <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Call contact">
                             <Phone className="h-4 w-4" />

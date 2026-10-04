@@ -68,9 +68,15 @@ async function main(): Promise<void> {
     await db.$disconnect();
     process.exit(1);
   }
-  console.log(
-    `pristine: MATCH (15/24/10/23/12 + 4 users — the seed contract)`,
-  );
+  // Session-54 (S54-P3, N-54d): the banner DERIVES from EXPECTED — the
+  // s53 form hardcoded "15/24/10/23/12 + 4 users", so a future EXPECTED
+  // re-sync would have left the printed contract silently stale.
+  const contract =
+    (Object.keys(EXPECTED) as Array<keyof typeof EXPECTED>)
+      .filter((k) => k !== "users")
+      .map((k) => EXPECTED[k])
+      .join("/") + ` + ${EXPECTED.users} users`;
+  console.log(`pristine: MATCH (${contract} — the seed contract)`);
   await db.$disconnect();
 }
 

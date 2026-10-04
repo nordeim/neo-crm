@@ -552,6 +552,12 @@ export default function ContactsPage() {
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
+                        {/* S54-P4: the reference's own inert affordances —
+                            Call/Email/WhatsApp carry NO onClick in the
+                            reference's bundle (ghost Buttons with children
+                            only, bundle-verified session-54); mirrored,
+                            with the aria-labels as our accessible
+                            superset. */}
                         <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-green-100 hover:text-green-700 transition-colors" aria-label={`Call ${c.name}`}>
                           <Phone className="w-4 h-4" />
                         </Button>

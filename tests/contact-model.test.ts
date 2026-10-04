@@ -138,14 +138,17 @@ describe("session-28: the ce() last-activity formatter", () => {
 });
 
 describe("session-28: the account edit vocabulary + the health/tier badge maps", () => {
-  it("ACCOUNT_EDIT_STATUSES is active/inactive/prospect (the wce select)", () => {
-    const src = constants();
-    const i = src.indexOf("ACCOUNT_EDIT_STATUSES");
-    expect(i).toBeGreaterThan(-1);
-    const block = src.slice(i, src.indexOf("]", i));
-    expect(block).toContain('"active"');
-    expect(block).toContain('"inactive"');
-    expect(block).toContain('"prospect"');
+  it("the account Status select maps over ACCOUNT_STATUSES (the live wce wiring)", () => {
+    // Session-54 (S54-P2) re-anchor: the ACCOUNT_EDIT_STATUSES constant
+    // (["active","inactive","prospect"]) was a stale s28 decode with zero
+    // src consumers — the LIVE Edit Account select maps over
+    // ACCOUNT_STATUSES (active/inactive/churned) through
+    // ACCOUNT_STATUS_META labels. The constant retired with this pin's
+    // old subject; this is the honest s49-style re-anchor.
+    const src = stripComments(read("src/components/shared/entity-dialogs.tsx") ?? "");
+    expect(src).toMatch(/\{ACCOUNT_STATUSES\.map\(\(s\) =>/);
+    expect(src).toMatch(/\{ACCOUNT_STATUS_META\[s\]\.label\}/);
+    expect(src).not.toMatch(/\bACCOUNT_EDIT_STATUSES\b/);
   });
 
   it("ACCOUNT_HEALTH_BADGE pins the H map (green/yellow/red with the gray fallback)", () => {

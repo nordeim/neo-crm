@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1180 checks)        | `bun run test`                         |
-| Browser E2E (111 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1182 checks)        | `bun run test`                         |
+| Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1180) → `bun run build` → `bun run test:e2e` (111) — or the
+`bun run test` (1182) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -207,17 +207,20 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   stretched buttons, Avatar-primitive avatar with a stroke-2 user icon, and
   the raw lowercase role value.
 - **Status vocabularies are distinct** — never mix them. Lead stages
-  (incl. session-5's `unqualified` — dropped = `lost` + `unqualified` via
-  `isDroppedStage()`), account statuses, activity types/statuses, event
-  types (six — meeting/call/demo/task/reminder/appointment), contact
-  priorities each have canonical label/color metadata in
-  `src/lib/constants.ts` (`STAGE_META`, `ACCOUNT_STATUS_META`,
-  `ACTIVITY_TYPE_META`, `EVENT_TYPE_META`, `PRIORITY_META`), plus the
-  DOM-pinned source vocabularies the dialogs consume:
-  `LEAD_SOURCE_OPTIONS` (Call/Email/Website/Partner — the raw values
-  with capitalized labels) and `CONTACT_SOURCE_OPTIONS` (the five emoji
-  "How did you meet?" options). Extend the meta
-  maps when you extend a vocabulary.
+  (incl. session-5's `unqualified` — the leads KPI's "Dropped Deals"
+  counts `lost` STRICTLY, `unqualified` is NOT dropped; the s5
+  `isDroppedStage` helper that said otherwise retired session-54),
+  account statuses, activity types/statuses, event types (six —
+  meeting/call/demo/task/reminder/appointment), contact priorities each
+  have canonical label/color metadata in `src/lib/constants.ts`
+  (`STAGE_META`, `ACCOUNT_STATUS_META`, `ACTIVITY_TYPE_META`,
+  `EVENT_TYPE_META`, `CONTACT_PRIORITY_META` — the Key/Standard/At Risk
+  set + badge map; the pre-s28 `PRIORITY_META` hot/warm/cold badge map
+  retired session-54), plus the DOM-pinned source vocabularies the
+  dialogs consume: `LEAD_SOURCE_OPTIONS` (Call/Email/Website/Partner —
+  the raw values with capitalized labels) and `CONTACT_SOURCE_OPTIONS`
+  (the five emoji "How did you meet?" options). Extend the meta maps
+  when you extend a vocabulary.
 - **Charts ship recharts DEFAULTS, no empty-state boxes (session-10
   reversal)** — the reference passes NO `content` to `<Tooltip>` (the stock
   `recharts-default-tooltip` white box), NO tick style (12px #666) and NO
@@ -2047,6 +2050,47 @@ re-confirmed (10th consecutive session; the drift map EMPTY); both
 operator decisions re-verified UNCHANGED (the CSV posture (b) + the
 source-vocabulary parity — the bundle byte-identical for the 24th
 consecutive session).
+
+**Session-54** (the dead-vocabulary retirement + calendar-memo layer):
+(1) The N-54b closure — eleven src-dead vocabulary exports retired from
+constants.ts with record comments (the fully-dead seven: OPEN_STAGES,
+isClosedOppStage, CONTACT_SOURCE_LABEL, LEAD_EDIT_STATUSES,
+LEAD_EDIT_SOURCES, TIER_META, PRIORITY_META; the test-only four:
+DROPPED_STAGES + isDroppedStage [the s5 "dropped = lost +
+unqualified" reading the live S29-P5 KPI contradicts — "Dropped Deals"
+counts `lost` STRICTLY], REPORTS_PIPELINE_SLUGS + FUNNEL_STAGES
+[redundant with reports-data.test.ts's ordered arrays + LEADS_FUNNEL],
+ACCOUNT_EDIT_STATUSES [the stale wce decode — the live select maps
+ACCOUNT_STATUSES]) — the s48/s49 retirement policy EXTENDED per the
+standing source-vocabulary operator decision; the five stale pins
+removed or re-anchored to the living surfaces (the
+Dropped-equals-lost-STRICTLY filter; the ACCOUNT_STATUSES select
+wiring). (2) The N-54a calendar memo family — the `visible` useMemo
+(deps included the fresh activeTypes/activeDates identities) + the
+transitively never-caching `eventsOn` useCallback extracted/retired to
+the plain forms (`buildVisibleEvents` module-scope, the s53-P4 idiom).
+(3) The census MATCH banner now DERIVES from EXPECTED (N-54d — the
+hardcoded "15/24/10/23/12" literal could drift stale) + the db-census
+pin strengthened to pin the `database: ${url}` print form (N-54e).
+(4) The ghost-action dead-affordance annotations (N-54f — the contacts
+Call/Email/WhatsApp trio + the calendar Phone/Message pair carry no
+onClick in the reference's own bundle, verified this session; the leads
+Convert-item precedent). (5) The month-flip trailing-cell e2e (the s51
+suggested-next): a next-month event created on a trailing cell through
+the dialog PERSISTS the month flip (the N-51a fetch-window proof
+end-to-end), deleted via the Demos-filtered agenda with zero residue.
+Docs carriers: the AGENTS vocabulary row corrected to the live truth +
+PRIORITY_META dropped (N-54g), the SKILL §4.4 inventory fixed (N-54c:
+STAGE_META is 8 stages). All pinned RED-first (5 RED + 3 guards, 7 new
+its + 5 stale its retired), proven non-vacuous in a pre-fix `d928a30`
+worktree (5 failed | 11 passed there, 16/16 at the fix). Audits: the
+s53 re-audit verified all eight checklist items GENUINE (the worktree
+arithmetic reproduced); the graduation audit: ZERO graduations — 13/13
+re-confirmed (11th consecutive session; the drift map EMPTY); both
+operator decisions re-verified UNCHANGED — the CSV posture (b) STANDS,
+the source-vocabulary documented parity STANDS AND EXTENDS to the
+N-54b family (the bundle byte-identical for the 25th consecutive
+session).
 
 ## Conventions that differ from defaults
 
