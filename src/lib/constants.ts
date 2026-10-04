@@ -11,7 +11,11 @@ export const LEAD_STAGES = [
   "won",
   "lost",
 ] as const;
-export type LeadStage = (typeof LEAD_STAGES)[number];
+// Session-58 (S58-P2, N-58b): `export type LeadStage =
+// (typeof LEAD_STAGES)[number]` RETIRED here — definition-only since
+// birth (zero non-definition references repo-wide; the `defaultLeadStage`
+// settings FIELD is a different identifier). The s48/s49/s54 retirement
+// policy, TYPE variant. The array + its consumers stay.
 
 // Session-54 (S54-P2, N-54b): OPEN_STAGES + DROPPED_STAGES/isDroppedStage
 // RETIRED here — each had zero src consumers (the OPEN_STAGES set was a
@@ -377,7 +381,9 @@ export const ACCOUNT_STATUS_META: Record<string, { label: string; badge: string;
 };
 
 export const ACTIVITY_TYPES = ["call", "email", "meeting", "whatsapp", "task", "note"] as const;
-export type ActivityType = (typeof ACTIVITY_TYPES)[number];
+// Session-58 (S58-P2, N-58b): `export type ActivityType` RETIRED here —
+// definition-only (the LeadStage class, same retirement). The array +
+// ACTIVITY_TYPE_META stay on their live consumers.
 
 export const ACTIVITY_TYPE_META: Record<string, { label: string; color: string; badge: string }> = {
   call: { label: "Call", color: "#3b82f6", badge: "bg-blue-50 text-blue-700 border-blue-200" },
@@ -397,7 +403,9 @@ export const ACTIVITY_STATUS_META: Record<string, { label: string; badge: string
 // types in this order (live listbox: Meeting/Call/Demo/Task/Reminder/
 // Appointment).
 export const EVENT_TYPES = ["meeting", "call", "demo", "task", "reminder", "appointment"] as const;
-export type EventType = (typeof EVENT_TYPES)[number];
+// Session-58 (S58-P2, N-58b): `export type EventType` RETIRED here —
+// definition-only (the LeadStage class, same retirement). The array +
+// EVENT_TYPE_META stay on their live consumers.
 
 export const EVENT_TYPE_META: Record<string, { label: string; color: string }> = {
   meeting: { label: "Meeting", color: "#f59e0b" },

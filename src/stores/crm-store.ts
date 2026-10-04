@@ -336,4 +336,8 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
 }));
 
-export { call as apiCall };
+// Session-58 (S58-P2, N-58a): the `export { call as apiCall };` alias
+// RETIRED here — the only repo-wide `apiCall` reference was the export
+// line itself (zero consumers, dead since the initial commit; the
+// N-57b EXPORT-variant class). The aliased `call` stays alive
+// internally — every store action feeds through it.

@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1194 checks)        | `bun run test`                         |
+| Unit tests (1198 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1194) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1198) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2191,6 +2191,40 @@ decisions re-verified UNCHANGED — the CSV posture (b) STANDS (15th
 re-affirmation), the source-vocabulary documented parity STANDS AND
 EXTENDS to the N-57 family (the bundle byte-identical for the 28th
 consecutive session).
+
+**Session-58** (the dead-surface narrowing + the type-contract
+boundary layer): (1) The N-58a closure — the zero-consumer ALIAS
+export retired: crm-store's `export { call as apiCall };` was the
+only repo-wide `apiCall` reference (dead since the initial commit,
+the N-57b EXPORT-variant class); the aliased `call` stays the
+internal engine of every store action. (2) The N-58b definition-only
+TYPE retirements (the s54 fully-dead class, TYPE variant): the types
+barrel's `SearchResult` interface (zero references repo-wide AND
+shape-inaccurate — it claimed full entities while the topbar consumes
+its own slimmer inline row shape; the SKILL §20 carrier followed) plus
+constants.ts's `LeadStage`/`ActivityType`/`EventType` derived types
+(zero non-definition references; the `defaultLeadStage` settings FIELD
+is a different identifier). (3) The N-58c module type-contract
+boundary PINNED by the new guard: ~20 internally-consumed export
+keywords (ApiError/ApiResult, SESSION_TTL_MS/SessionPayload, CrmState,
+formatDateShort, DeltaText/DeltaBadgeText, RateLimitResult, the
+reports-data row types, …) stay exported as each module's declared
+contract surface — the N-56e KEEP mechanism applied to app-owned
+modules, so future fresh-eyes sweeps don't re-litigate the boundary.
+Plus the s58 line-citation self-shift refresh (the s57 comment growth
+itself shifted the activities timeAgo token :384→:385 — the chronic
+class, second generation). All pinned RED-first in the dead-code-hygiene
+session-58 describe (3 RED + 1 guard, +4 its =
+1198 total), proven non-vacuous in a pre-fix d33a90d worktree (3
+failed | 28 passed there, 31/31 at the fix). Audits: the s57 re-audit
+verified all eight checklist items GENUINE (the worktree arithmetic
+replayed: 2 failed | 25 passed pre-fix); the graduation audit: ZERO
+graduations — 13/13 re-confirmed (15th consecutive session; the drift
+map line-only, substance identical); both operator decisions
+re-verified UNCHANGED — the CSV posture (b) STANDS (16th
+re-affirmation), the source-vocabulary documented parity STANDS AND
+EXTENDS to the N-58 family WITH the module type-contract boundary
+(the bundle byte-identical for the 29th consecutive session).
 
 ## Conventions that differ from defaults
 

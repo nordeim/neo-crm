@@ -268,8 +268,9 @@ export interface ReportsData {
   leadsListBySource: Array<Lead>;
 }
 
-export interface SearchResult {
-  accounts: Account[];
-  contacts: Contact[];
-  leads: Lead[];
-}
+// Session-58 (S58-P2, N-58b): the `SearchResult` interface RETIRED here —
+// definition-only since birth (zero references repo-wide INCLUDING this
+// file) AND shape-inaccurate: it claimed full Account[]/Contact[]/Lead[]
+// entities while the live topbar consumes its own slimmer inline row
+// shape ({ id, name } + the leads' stage/value). The s54 fully-dead
+// class, TYPE variant. The SKILL §20 carrier followed the code.

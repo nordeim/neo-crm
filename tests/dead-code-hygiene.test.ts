@@ -264,7 +264,9 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     const src = contacts();
     // Each had exactly one in-file reference — the import itself. The
     // exports all stay alive on their real consumers (timeAgo is LIVE in
-    // activities-page:384; ENGAGEMENT_LEVELS in the contacts API routes;
+    // activities-page:385 [s58 refresh — the s57 comment growth
+    // self-shifted the token one line, the chronic self-shift class];
+    // ENGAGEMENT_LEVELS in the contacts API routes;
     // FILTER_RAIL/EMPTY_STATE in calendar + reports; Avatar in
     // accounts-page + the ui kit [s57 correction]; DropdownSeparator in
     // leads) — import narrowing only.
@@ -403,5 +405,62 @@ describe("session-57: the dead-surface narrowing + the comment-accuracy carriers
     const src = profilePage();
     expect(src).toMatch(/onSaved=\{fetchUsers\}/);
     expect(src).toMatch(/key=\{`\$\{user\.id\}-\$\{user\.name\}`\}/);
+  });
+});
+
+describe("session-58: the dead-surface narrowing + the type-contract boundary (S58-P1/P2)", () => {
+  it("crm-store no longer carries the dead apiCall alias export (N-58a)", () => {
+    // 58-b fresh-eyes: `export { call as apiCall };` had exactly ONE
+    // repo-wide reference — the export line itself. Zero consumers
+    // anywhere (not even tests), dead since the initial commit. The
+    // aliased `call` stays alive internally (every store action feeds
+    // through it) — the N-57b EXPORT-variant class.
+    const src = stripComments(read("src/stores/crm-store.ts") ?? "");
+    expect(src).not.toMatch(/apiCall/);
+  });
+
+  it("types/index.ts no longer carries the dead SearchResult interface (N-58b)", () => {
+    // Definition-only since birth: zero references repo-wide INCLUDING
+    // its own file — and shape-inaccurate (it claimed full
+    // Account[]/Contact[]/Lead[] entities while the live topbar
+    // consumes its own slimmer inline row shape). The s54 fully-dead
+    // class, TYPE variant. The SKILL §20 carrier followed the code.
+    const src = stripComments(read("src/types/index.ts") ?? "");
+    expect(src).not.toMatch(/SearchResult/);
+  });
+
+  it("constants.ts no longer carries the three definition-only derived types (N-58b)", () => {
+    // `export type LeadStage/ActivityType/EventType = (typeof …)[number]`
+    // — each had zero non-definition references repo-wide (the
+    // `defaultLeadStage` settings FIELD is a different identifier).
+    // The arrays and their _META maps stay; only the derived types
+    // were dead vocabulary.
+    const src = constants();
+    expect(src).not.toMatch(/\bLeadStage\b/);
+    expect(src).not.toMatch(/\bActivityType\b/);
+    expect(src).not.toMatch(/\bEventType\b/);
+  });
+
+  it("the living surfaces + the module type-contract boundary stay (guard)", () => {
+    // The store's `call` engine stays (module-scope, every action's
+    // seam); the three arrays stay exported (their META maps + API
+    // consumers are live); AND the N-58c boundary holds — the
+    // internally-consumed export keywords are each module's declared
+    // contract surface (the s58 operator KEEP, the N-56e mechanism
+    // applied to app-owned modules): a representative set stays
+    // exported so future sweeps don't re-litigate the boundary.
+    const store = stripComments(read("src/stores/crm-store.ts") ?? "");
+    expect(store).toMatch(/async function call/);
+    const src = constants();
+    expect(src).toMatch(/export const LEAD_STAGES/);
+    expect(src).toMatch(/export const ACTIVITY_TYPES/);
+    expect(src).toMatch(/export const EVENT_TYPES/);
+    // The type-contract KEEP set (N-58c, guard-pinned):
+    expect(stripComments(read("src/lib/api.ts") ?? "")).toMatch(/export (type|interface) ApiError/);
+    expect(stripComments(read("src/lib/api.ts") ?? "")).toMatch(/export (type|interface) ApiResult/);
+    expect(pageParts()).toMatch(/export function DeltaText/);
+    expect(pageParts()).toMatch(/export function DeltaBadgeText/);
+    expect(stripComments(read("src/lib/rate-limit.ts") ?? "")).toMatch(/export (type|interface) RateLimitResult/);
+    expect(store).toMatch(/export interface CrmState/);
   });
 });
