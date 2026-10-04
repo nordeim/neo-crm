@@ -91,4 +91,21 @@ describe("session-45: the localStorage reads are guarded (S45-P2)", () => {
     expect(handler).toMatch(/\}\s*catch\s*\{/);
     expect(handler).toMatch(/saveReport\(/);
   });
+
+  it("session-52: the leads-page saveView updater is PURE — the storage write hoisted to the handler body (N-52c)", () => {
+    const src = leads();
+    const at = src.indexOf("function saveView");
+    expect(at).toBeGreaterThanOrEqual(0);
+    const end = src.indexOf("function applyView", at);
+    const fn = src.slice(at, end > at ? end : at + 700);
+    // The write + its guard live in the handler body (the S44-P4
+    // saveReport convention)…
+    expect(fn).toMatch(/const next = \[\.\.\.savedViews, \{ name, filters \}\]/);
+    expect(fn).toMatch(/localStorage\.setItem/);
+    // …and the setSavedViews call passes the precomputed list — the
+    // updater region carries NO storage access (updaters must be pure).
+    const setAt = fn.indexOf("setSavedViews(");
+    expect(setAt).toBeGreaterThanOrEqual(0);
+    expect(fn.slice(setAt)).not.toMatch(/localStorage/);
+  });
 });

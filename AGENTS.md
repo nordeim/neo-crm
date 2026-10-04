@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1171 checks)        | `bun run test`                         |
+| Unit tests (1172 checks)        | `bun run test`                         |
 | Browser E2E (111 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1171) → `bun run build` → `bun run test:e2e` (111) — or the
+`bun run test` (1172) → `bun run build` → `bun run test:e2e` (111) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1983,6 +1983,35 @@ green-through-RED guard, proven non-vacuous in a pre-fix worktree).
 entity-dialogs.tsx file-header's "keyed by entity id" pattern comment
 re-worded for the create-only reality, AGENTS' stale chart-placeholder
 bullet → the session-10 real-chart-at-zero contract).
+
+**Session-52** (the saveView purity + docs-carriers layer): (1) The
+N-52c closure — the leads-page `saveView`'s `localStorage.setItem`
+hoisted OUT of the `setSavedViews` updater into the handler body
+(`const next = [...savedViews, { name, filters }]` → the guarded write →
+`setSavedViews(next)`): updaters stay pure (React may re-invoke them;
+the storage side effect now runs once per call — the reports-page
+`saveReport` convention, S44-P4). Behavior-identical: the view still
+joins the in-memory list when storage is blocked (the toast reports the
+persistence failure), the prompt flow + the reload-decode path
+unchanged — LIVE-verified with a save → list → reload → persist →
+remove round-trip, zero residue. Pinned RED-first in
+`tests/storage-read-guards.test.ts` (the updater-purity source pin:
+the `const next` form present + no storage access after the
+`setSavedViews(` call), proven non-vacuous in a pre-fix `6ce8572`
+worktree (1 failed | 3 passed there, 4/4 at the fix). (2) The four
+docs-accuracy carriers (N-52a: PAD's per-file inventory row + SKILL
+§5.5 + SKILL Bug #1's fix line — the three sibling "5 checks"
+mobile-nav rows → 7; N-52b: README's Tested row — the frozen
+session-45 leading pair "1095 + 108" retired for the current counts).
+Audits: the s51 re-audit verified all ten checklist items GENUINE
+(the seam + the rewire + the baselines + the pin file + the four
+carriers, the worktree arithmetic reproduced); the graduation audit:
+ZERO graduations — 13/13 re-confirmed (9th consecutive session; the
+only drift a +2 comment-driven line translation in entity-dialogs);
+the INFO family unchanged; both standing operator decisions re-verified
+UNCHANGED (the CSV formula-injection posture (b) + the source-vocabulary
+documented parity — the bundle byte-identical for the 23rd consecutive
+session).
 
 ## Conventions that differ from defaults
 

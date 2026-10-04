@@ -148,15 +148,19 @@ export default function LeadsPage() {
   function saveView() {
     const name = window.prompt("Enter view name:");
     if (!name) return;
-    setSavedViews((prev) => {
-      const next = [...prev, { name, filters }];
-      try {
-        window.localStorage.setItem(LEAD_VIEWS_STORAGE_KEY, encodeSavedLeadViews(next));
-      } catch {
-        toast.error("Could not save view", "Browser storage is unavailable.");
-      }
-      return next;
-    });
+    // Session-52 (S52-P1, N-52c): the localStorage write hoisted OUT of
+    // the setSavedViews updater — updaters must stay pure (React may
+    // re-invoke them; the storage side effect runs once, in the handler
+    // body — the reports-page saveReport convention, S44-P4). The view
+    // still joins the in-memory list when storage is blocked (the toast
+    // reports the persistence failure — behavior-identical).
+    const next = [...savedViews, { name, filters }];
+    try {
+      window.localStorage.setItem(LEAD_VIEWS_STORAGE_KEY, encodeSavedLeadViews(next));
+    } catch {
+      toast.error("Could not save view", "Browser storage is unavailable.");
+    }
+    setSavedViews(next);
   }
 
   function applyView(name: string) {

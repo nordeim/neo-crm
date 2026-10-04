@@ -1794,3 +1794,17 @@ Work Log:
 Stage Summary:
 - Session 51 SHIPPED: the calendar window + KPI-baseline session — the N-51a closure (the fetch window now the pinned pure seam covering everything the grid renders; the trailing-cell events no longer vanish after a month flip, LIVE-proven with the zombie-server A/B), the N-51b symmetric-population fix, and the four docs/comment carriers. Gate at ship: lint 0/0 · tsc 0 · 1171/1171 unit (74 suites) · build clean · 111/111 e2e · 47th drift-sweep clean (22nd consecutive stable bundle) · LIVE-verified · zero probe residue · 4 screenshots (60 NEW VLM-verified) · docs at SKILL v1.48.0 + docs/session_95.md.
 - The §16aq census-method lessons: a fetch window is a RENDERING contract (derive from the rendered grid); when a LIVE probe contradicts a verified fix, audit the ENVIRONMENT first (who owns :3000, which file the engine holds); trend sides must be population-symmetric; checkVisibility() needs {visibilityProperty:true} to test visibility:hidden.
+
+---
+
+## Session 52 (2026-10-04) — the saveView purity + docs-carriers session
+
+- Workspace refreshed (git pull fast-forward 988f69a..6ce8572 — the operator's docs/session_96.md transcript only; zero app-code drift). Baseline gate GREEN: lint 0/0 · tsc 0 · 1171/1171 unit (74 suites) — the documented state exact. DB pristine (15/24/10/23/12 + 4 users); .env/.env.example parity; skills/ exclusion verified in all three configs.
+- Drift sweep #48 CLEAN (the reference bundle byte-identical — size 1,631,071 + md5 a70a637fcf1d4291da8e0d965676dc11 — the 23rd consecutive stable session); reference census #48: demo data zero + the mobile-nav defect standing at a TRUE 390px.
+- The dual audits (52-a/52-b) + manual validation: 52-a — all ten s51 checklist items GENUINE (the non-vacuousness mechanically REPRODUCED in a pre-fix b7c928c worktree: 4 failed | 1 passed there, 5/5 at HEAD); 52-b — ZERO graduations 13/13 (9th consecutive session), the INFO family unchanged, both operator decisions standing, counts exact by run, fresh-eyes on leads/reports/activities clean.
+- New findings: N-52a (three sibling "5 checks" mobile-nav docs carriers vs the actual 7), N-52b (README's Tested row frozen leading pair), N-52c (the leads-page saveView's impure setState updater — the session's headline fix).
+- RED: the purity pin in storage-read-guards — exactly 1 failure; full suite 1 failed / 1171 passed. GREEN: the saveView hoist (const next → the guarded write in the handler body → setSavedViews(next)), behavior-identical; the pin re-proven non-vacuous in a pre-fix 6ce8572 worktree (1 failed | 3 passed there, 4/4 at the fix). S52-P2: the four docs carriers fixed.
+- FULL GATE GREEN: lint 0/0 · tsc 0 · 1172/1172 unit (74 suites, +1) · build clean · 111/111 e2e fresh CI=1 boot (all 7 mobile-nav checks green).
+- LIVE: the saveView round-trip probe (save → list → reload → PERSISTS → remove → zero residue); the drawer both directions; zero 390px overflow ×10; NO Tailwind v4 bug (blur(4px) + the pinned shadow probe-verified).
+- Screenshots: 02/11/12 re-captured + 61-leads-saved-view-persisted NEW (VLM-verified). Docs: SKILL v1.49.0 (§16ar), README/AGENTS/CLAUDE/PAD at 1172+111 (badge 1283), session_97.md, the plan execution record, both worklogs.
+- Shipped: commit on main + the SSH-wrapper push to git@github.com:nordeim/neo-crm.git.
