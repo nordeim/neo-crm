@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { Checkbox, Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { useCrmStore } from "@/stores/crm-store";
@@ -39,10 +39,8 @@ import {
 import {
   ACCOUNT_STATUSES,
   ACCOUNT_STATUS_META,
-  ACCOUNT_TIERS,
   ACTIVITY_TYPES,
   ACTIVITY_TYPE_META,
-  CONTACT_PRIORITIES,
   CONTACT_SOURCE_OPTIONS,
   EVENT_TYPES,
   EVENT_TYPE_META,
@@ -50,7 +48,6 @@ import {
   // (value "call", label "Call") — the s28 contact-source precedent;
   // the Tke default is source:"email" (bundle-extracted).
   LEAD_SOURCE_OPTIONS,
-  LEAD_STAGES,
   STAGE_META,
 } from "@/lib/constants";
 import type { Account, Activity, Contact, CrmEvent, Lead } from "@/types";
@@ -91,12 +88,10 @@ const ACTIVITY_RELATED_OPTIONS = [
 export function AccountDialog({
   open,
   onOpenChange,
-  account,
   onSaved,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  account?: Account | null;
   onSaved?: (account: Account) => void;
 }) {
   return (
@@ -104,41 +99,41 @@ export function AccountDialog({
       {/* Session-30 (S30-P6): the reference's Create New Account ships
           the BARE max-w-2xl — no scroll cap (its own inconsistency vs
           the edit dialogs; mirrored). */}
+      {/* Session-50 (S50-P1): create-only — the N-47d dead edit mode
+          retired. The live edit surface is the EntityEditDialog family
+          (wce — the reference itself never reuses its create dialogs
+          for editing). */}
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{account ? "Edit Account" : "Create New Account"}</DialogTitle>
+          <DialogTitle>Create New Account</DialogTitle>
         </DialogHeader>
-        {open && (
-          <AccountForm key={account?.id ?? "new"} account={account ?? null} onOpenChange={onOpenChange} onSaved={onSaved} />
-        )}
+        {open && <AccountForm onOpenChange={onOpenChange} onSaved={onSaved} />}
       </DialogContent>
     </Dialog>
   );
 }
 
 function AccountForm({
-  account,
   onOpenChange,
   onSaved,
 }: {
-  account: Account | null;
   onOpenChange: (open: boolean) => void;
   onSaved?: (account: Account) => void;
 }) {
-  const { createAccount, updateAccount, settings, users } = useCrmStore();
+  const { createAccount, settings } = useCrmStore();
   const [pending, setPending] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
-    name: account?.name ?? "",
-    industry: account?.industry ?? "",
-    email: account?.email ?? "",
-    phone: account?.phone ?? "",
-    website: account?.website ?? "",
-    annualRevenue: account?.annualRevenue != null ? String(account.annualRevenue) : "",
-    employees: account?.employees != null ? String(account.employees) : "",
-    tier: account?.tier ?? settings?.defaultTier ?? "B",
-    status: account?.status ?? "active",
-    isKey: account?.isKey ?? false,
-    ownerId: account?.ownerId ?? "",
+    name: "",
+    industry: "",
+    email: "",
+    phone: "",
+    website: "",
+    annualRevenue: "",
+    employees: "",
+    tier: settings?.defaultTier ?? "B",
+    status: "active",
+    isKey: false,
+    ownerId: "",
   }));
 
   async function submit(e: React.FormEvent) {
@@ -161,10 +156,10 @@ function AccountForm({
       isKey: form.isKey,
       ownerId: form.ownerId || null,
     };
-    const res = account ? await updateAccount(account.id, payload) : await createAccount(payload);
+    const res = await createAccount(payload);
     setPending(false);
     if (res.ok) {
-      toast.success(account ? "Account updated" : "Account created", form.name);
+      toast.success("Account created", form.name);
       onSaved?.(res.data);
       onOpenChange(false);
     } else {
@@ -179,12 +174,15 @@ function AccountForm({
   // Session-5: the reference's CREATE dialog ships exactly eight fields
   // (Account Name*/Industry/Email/Phone/Website/Annual Revenue/Employees/
   // Status — no Tier/Owner/Key account; those fall back to workspace
-  // defaults). EDIT keeps our full superset.
+  // defaults through the payload's form state). Session-50 (S50-P1): the
+  // dead edit-mode superset branch (Tier/Owner/Key — unreachable since
+  // the s28 EntityEditDialog family took over editing) is retired; the
+  // reference's own create dialog is create-only the same way.
+  //
   // Session-15 (S15-P10): the body is the reference's 2-COLUMN grid
   // (`grid grid-cols-2 gap-4 py-4` — pairs Name/Industry, Email/Phone,
   // Website/Revenue, Employees/Status), groups are space-y-2 with the
   // v4 controlMt fix, and the CREATE inputs carry NO placeholders.
-  const createMode = !account;
   return (
     <form onSubmit={submit}>
       <div className={ACCOUNT_DIALOG.body}>
@@ -211,177 +209,74 @@ function AccountForm({
             onChange={(e) => setForm({ ...form, industry: e.target.value })}
           />
         </div>
-        {createMode ? (
-          <>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-email">Email</Label>
-              <Input
-                id="acc-email"
-                className={DIALOG_GROUP.controlMt}
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-phone">Phone</Label>
-              <Input
-                id="acc-phone"
-                className={DIALOG_GROUP.controlMt}
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-website">Website</Label>
-              <Input
-                id="acc-website"
-                className={DIALOG_GROUP.controlMt}
-                value={form.website}
-                onChange={(e) => setForm({ ...form, website: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-revenue">Annual Revenue</Label>
-              <Input
-                id="acc-revenue"
-                className={DIALOG_GROUP.controlMt}
-                type="number"
-                min={0}
-                value={form.annualRevenue}
-                onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-employees">Employees</Label>
-              <Input
-                id="acc-employees"
-                className={DIALOG_GROUP.controlMt}
-                type="number"
-                min={0}
-                value={form.employees}
-                onChange={(e) => setForm({ ...form, employees: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label>Status</Label>
-              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ACCOUNT_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-email">Email</Label>
-              <Input
-                id="acc-email"
-                className={DIALOG_GROUP.controlMt}
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-phone">Phone</Label>
-              <Input
-                id="acc-phone"
-                className={DIALOG_GROUP.controlMt}
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-website">Website</Label>
-              <Input
-                id="acc-website"
-                className={DIALOG_GROUP.controlMt}
-                value={form.website}
-                onChange={(e) => setForm({ ...form, website: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-revenue">Annual Revenue</Label>
-              <Input
-                id="acc-revenue"
-                className={DIALOG_GROUP.controlMt}
-                type="number"
-                min={0}
-                value={form.annualRevenue}
-                onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="acc-employees">Employees</Label>
-              <Input
-                id="acc-employees"
-                className={DIALOG_GROUP.controlMt}
-                type="number"
-                min={0}
-                value={form.employees}
-                onChange={(e) => setForm({ ...form, employees: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label>Tier</Label>
-              <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
-                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ACCOUNT_TIERS.map((t) => (
-                    <SelectItem key={t} value={t}>Tier {t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label>Status</Label>
-              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ACCOUNT_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label>Owner</Label>
-              <Select value={form.ownerId || "unassigned"} onValueChange={(v) => setForm({ ...form, ownerId: v === "unassigned" ? "" : v })}>
-                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {/* S17-P3: the Key-account toggle rides the stock Checkbox
-                primitive (superset surface — the reference's edit dialog
-                is unverifiable at zero data, but the anatomy stays
-                consistent with every filter rail: the sibling
-                button+label row, no nested button-in-label). */}
-            <div className="mt-6">
-              <Checkbox
-                checked={form.isKey}
-                onCheckedChange={(v) => setForm({ ...form, isKey: v })}
-                label="Key account"
-              />
-            </div>
-          </>
-        )}
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="acc-email">Email</Label>
+          <Input
+            id="acc-email"
+            className={DIALOG_GROUP.controlMt}
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="acc-phone">Phone</Label>
+          <Input
+            id="acc-phone"
+            className={DIALOG_GROUP.controlMt}
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="acc-website">Website</Label>
+          <Input
+            id="acc-website"
+            className={DIALOG_GROUP.controlMt}
+            value={form.website}
+            onChange={(e) => setForm({ ...form, website: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="acc-revenue">Annual Revenue</Label>
+          <Input
+            id="acc-revenue"
+            className={DIALOG_GROUP.controlMt}
+            type="number"
+            min={0}
+            value={form.annualRevenue}
+            onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="acc-employees">Employees</Label>
+          <Input
+            id="acc-employees"
+            className={DIALOG_GROUP.controlMt}
+            type="number"
+            min={0}
+            value={form.employees}
+            onChange={(e) => setForm({ ...form, employees: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label>Status</Label>
+          <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+            <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {ACCOUNT_STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving…" : account ? "Save Changes" : "Create Account"}
+          {pending ? "Saving…" : "Create Account"}
         </Button>
       </DialogFooter>
     </form>
@@ -395,12 +290,10 @@ function AccountForm({
 export function ContactDialog({
   open,
   onOpenChange,
-  contact,
   onSaved,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  contact?: Contact | null;
   onSaved?: (contact: Contact) => void;
 }) {
   return (
@@ -409,45 +302,44 @@ export function ContactDialog({
           base) + the scroll-cap pair max-h-[90vh] overflow-y-auto
           (bundle-extracted; the tallest create dialog NEEDS it — the
           footer submit rides below the fold without it). */}
+      {/* Session-50 (S50-P1): create-only — the N-47d dead edit mode
+          retired (the live edit surface is the W7 EntityEditDialog;
+          the reference's own create dialog is create-only). */}
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{contact ? "Edit Contact" : "Create New Contact"}</DialogTitle>
+          <DialogTitle>Create New Contact</DialogTitle>
         </DialogHeader>
-        {open && (
-          <ContactForm key={contact?.id ?? "new"} contact={contact ?? null} onOpenChange={onOpenChange} onSaved={onSaved} />
-        )}
+        {open && <ContactForm onOpenChange={onOpenChange} onSaved={onSaved} />}
       </DialogContent>
     </Dialog>
   );
 }
 
 function ContactForm({
-  contact,
   onOpenChange,
   onSaved,
 }: {
-  contact: Contact | null;
   onOpenChange: (open: boolean) => void;
   onSaved?: (contact: Contact) => void;
 }) {
-  const { createContact, updateContact, settings } = useCrmStore();
+  const { createContact, settings } = useCrmStore();
   const [pending, setPending] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
-    name: contact?.name ?? "",
-    email: contact?.email ?? "",
-    phone: contact?.phone ?? "",
-    company: contact?.company ?? "",
-    position: contact?.position ?? "",
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    position: "",
     // Session-28 (S28-P1): the RAW source value (the emoji strings are
     // create-dialog labels only).
-    source: contact?.source ?? "email",
-    priority: contact?.priority ?? "warm",
-    accountId: contact?.accountId ?? "",
+    source: "email",
+    priority: "warm",
+    accountId: "",
     // Session-30 (S30-P2): the photo round-trip — the reference's AAe
     // seeds photo_url from initialData (the Scan Card prefill) and
     // stores the uploaded file_url here until submit.
-    photoUrl: contact?.photoUrl ?? "",
+    photoUrl: "",
   }));
 
   async function submit(e: React.FormEvent) {
@@ -457,12 +349,10 @@ function ContactForm({
       return;
     }
     setPending(true);
-    const res = contact
-      ? await updateContact(contact.id, { ...form, accountId: form.accountId || null })
-      : await createContact({ ...form, accountId: form.accountId || null });
+    const res = await createContact({ ...form, accountId: form.accountId || null });
     setPending(false);
     if (res.ok) {
-      toast.success(contact ? "Contact updated" : "Contact created", form.name);
+      toast.success("Contact created", form.name);
       onSaved?.(res.data);
       onOpenChange(false);
     } else {
@@ -472,7 +362,9 @@ function ContactForm({
 
   // Session-5: the reference's CREATE dialog = Name*/Email* (required)/
   // Phone/Company/Position/"How did you meet?" (the five emoji sources) —
-  // no Priority. EDIT keeps our full superset (Priority).
+  // no Priority. Session-50 (S50-P1): the dead !createMode Priority
+  // select (the N-47d edit-mode leftover) is retired — the W7
+  // EntityEditDialog owns the edit surface.
   // Session-15 (S15-P11) → session-30 (S30-P2): the body is the reference's
   // `grid gap-6 py-4` with the AVATAR SECTION first — now the REAL upload
   // round-trip (bundle + live-verified): the photo/initials/User render,
@@ -481,7 +373,6 @@ function ContactForm({
   // the section with the reference's placeholder + centered medium
   // weight. Then space-y-4 pair groups (Email+Phone, Company+Position),
   // then the How-did-you-meet group.
-  const createMode = !contact;
   const initials = form.name
     .trim()
     .split(/\s+/)
@@ -587,22 +478,18 @@ function ContactForm({
             TWO h3 section headers (live-verified 2026-10-02) —
             "Contact Details" over the Email/Phone pair and "Professional
             Details" over the Company/Position pair
-            (text-sm font-semibold text-gray-700 uppercase tracking-wide).
-            Create mode only — the separate W7 edit dialog has its own
-            anatomy. */}
-        {createMode && (
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contact Details</h3>
-        )}
+            (text-sm font-semibold text-gray-700 uppercase tracking-wide). */}
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contact Details</h3>
         <div className={CONTACT_DIALOG.pairGroup}>
           <div className={DIALOG_GROUP.group}>
-            <Label htmlFor="ct-email">{createMode ? "Email *" : "Email"}</Label>
+            <Label htmlFor="ct-email">Email *</Label>
             <Input
               id="ct-email"
               className={DIALOG_GROUP.controlMt}
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required={createMode}
+              required
             />
           </div>
           <div className={DIALOG_GROUP.group}>
@@ -620,9 +507,7 @@ function ContactForm({
             />
           </div>
         </div>
-        {createMode && (
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Professional Details</h3>
-        )}
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Professional Details</h3>
         <div className={CONTACT_DIALOG.pairGroup}>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-company">Company</Label>
@@ -658,26 +543,13 @@ function ContactForm({
             </SelectContent>
           </Select>
         </div>
-        {!createMode && (
-          <div className={DIALOG_GROUP.group}>
-            <Label>Priority</Label>
-            <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v })}>
-              <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {CONTACT_PRIORITIES.map((p) => (
-                  <SelectItem key={p} value={p}>{p[0].toUpperCase() + p.slice(1)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
       </div>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving…" : contact ? "Save Changes" : "Create Contact"}
+          {pending ? "Saving…" : "Create Contact"}
         </Button>
       </DialogFooter>
     </form>
@@ -691,49 +563,48 @@ function ContactForm({
 export function LeadDialog({
   open,
   onOpenChange,
-  lead,
   onSaved,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  lead?: Lead | null;
   onSaved?: (lead: Lead) => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* Session-50 (S50-P1): create-only — the N-47d dead edit mode
+          retired (the live edit surface is the Mke EntityEditDialog;
+          the reference's own create dialog is create-only). */}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{lead ? "Edit Lead" : "Create New Lead"}</DialogTitle>
+          <DialogTitle>Create New Lead</DialogTitle>
         </DialogHeader>
-        {open && <LeadForm key={lead?.id ?? "new"} lead={lead ?? null} onOpenChange={onOpenChange} onSaved={onSaved} />}
+        {open && <LeadForm onOpenChange={onOpenChange} onSaved={onSaved} />}
       </DialogContent>
     </Dialog>
   );
 }
 
 function LeadForm({
-  lead,
   onOpenChange,
   onSaved,
 }: {
-  lead: Lead | null;
   onOpenChange: (open: boolean) => void;
   onSaved?: (lead: Lead) => void;
 }) {
-  const { createLead, updateLead, settings } = useCrmStore();
+  const { createLead, settings } = useCrmStore();
   const [pending, setPending] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
-    name: lead?.name ?? "",
-    email: lead?.email ?? "",
-    phone: lead?.phone ?? "",
-    company: lead?.company ?? "",
-    value: lead?.value != null && lead.value > 0 ? String(lead.value) : "",
-    stage: lead?.stage ?? settings?.defaultLeadStage ?? "new",
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    value: "",
+    stage: settings?.defaultLeadStage ?? "new",
     // Session-29 (S29-P4): the RAW source default (the Tke initial state
     // is source:"email" — bundle-extracted).
-    source: lead?.source ?? "email",
-    expectedCloseDate: toLocalInputValue(lead?.expectedCloseDate).slice(0, 10),
-    nextFollowUp: toLocalInputValue(lead?.nextFollowUp).slice(0, 10),
+    source: "email",
+    expectedCloseDate: "",
+    nextFollowUp: "",
   }));
 
   async function submit(e: React.FormEvent) {
@@ -754,10 +625,10 @@ function LeadForm({
       expectedCloseDate: form.expectedCloseDate ? new Date(form.expectedCloseDate).toISOString() : null,
       nextFollowUp: form.nextFollowUp ? new Date(form.nextFollowUp).toISOString() : null,
     };
-    const res = lead ? await updateLead(lead.id, payload) : await createLead(payload);
+    const res = await createLead(payload);
     setPending(false);
     if (res.ok) {
-      toast.success(lead ? "Lead updated" : "Lead created", form.name);
+      toast.success("Lead created", form.name);
       onSaved?.(res.data);
       onOpenChange(false);
     } else {
@@ -768,15 +639,16 @@ function LeadForm({
   // Session-5: the reference's CREATE dialog ships exactly seven fields
   // (Name*/Email/Phone/Company/Estimated Value/Status/Source — no dates),
   // Status offers New/Contacted/Qualified/Unqualified, Source offers the
-  // four hardcoded lead sources. EDIT keeps our full pipeline superset
-  // (dates + all stages) — the reference's edit surface is unverifiable at
-  // zero data, and its create dialog cannot even produce the stages its own
-  // charts display.
+  // four hardcoded lead sources. Session-50 (S50-P1): the dead edit-mode
+  // grid (the LEAD_STAGES superset + the date pair — unreachable since
+  // the s28 Mke EntityEditDialog took over editing) is retired; the
+  // reference's own create dialog cannot even produce the stages its
+  // own charts display — its create dialog is create-only the same way.
+  //
   // Session-15 (S15-P7/P8/P9): the body is the reference's `grid gap-4
   // py-4` wrapper with space-y-2 groups (controlMt v4 fix) and the
   // Status+Source pair side-by-side in a 2-col grid (162px cells even at
   // 390). No placeholders, no description.
-  const createMode = !lead;
   return (
     <form onSubmit={submit}>
       <div className={DIALOG_FIELDS_WRAPPER.lead}>
@@ -790,168 +662,78 @@ function LeadForm({
             required
           />
         </div>
-        {createMode ? (
-          <>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-email">Email</Label>
-              <Input
-                id="ld-email"
-                className={DIALOG_GROUP.controlMt}
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-phone">Phone</Label>
-              <Input
-                id="ld-phone"
-                className={DIALOG_GROUP.controlMt}
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-company">Company</Label>
-              <Input
-                id="ld-company"
-                className={DIALOG_GROUP.controlMt}
-                value={form.company}
-                onChange={(e) => setForm({ ...form, company: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-value">Estimated Value</Label>
-              <Input
-                id="ld-value"
-                className={DIALOG_GROUP.controlMt}
-                type="number"
-                min={0}
-                value={form.value}
-                onChange={(e) => setForm({ ...form, value: e.target.value })}
-              />
-            </div>
-            <div className={LEAD_DIALOG.statusSourceGrid}>
-              <div className={DIALOG_GROUP.group}>
-                <Label>Status</Label>
-                <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
-                  <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {CREATE_LEAD_STAGES.map((s) => (
-                      <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className={DIALOG_GROUP.group}>
-                <Label>Source</Label>
-                <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-                  <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {/* Session-29 (S29-P4): value/label pairs — the RAW
-                        values are stored; the labels are display-only. */}
-                    {LEAD_SOURCE_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-email">Email</Label>
-              <Input
-                id="ld-email"
-                className={DIALOG_GROUP.controlMt}
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-phone">Phone</Label>
-              <Input
-                id="ld-phone"
-                className={DIALOG_GROUP.controlMt}
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-company">Company</Label>
-              <Input
-                id="ld-company"
-                className={DIALOG_GROUP.controlMt}
-                value={form.company}
-                onChange={(e) => setForm({ ...form, company: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-value">Estimated Value</Label>
-              <Input
-                id="ld-value"
-                className={DIALOG_GROUP.controlMt}
-                type="number"
-                min={0}
-                value={form.value}
-                onChange={(e) => setForm({ ...form, value: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label>Stage</Label>
-              <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
-                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {LEAD_STAGES.map((s) => (
-                    <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label>Source</Label>
-              <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-                <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {/* Session-29 (S29-P4): the RAW values with capitalized
-                      labels (the edit superset keeps the same pair list). */}
-                  {LEAD_SOURCE_OPTIONS.map((o) => (
-                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-close">Expected Close</Label>
-              <Input
-                id="ld-close"
-                className={DIALOG_GROUP.controlMt}
-                type="date"
-                value={form.expectedCloseDate}
-                onChange={(e) => setForm({ ...form, expectedCloseDate: e.target.value })}
-              />
-            </div>
-            <div className={DIALOG_GROUP.group}>
-              <Label htmlFor="ld-follow">Next Follow-up</Label>
-              <Input
-                id="ld-follow"
-                className={DIALOG_GROUP.controlMt}
-                type="date"
-                value={form.nextFollowUp}
-                onChange={(e) => setForm({ ...form, nextFollowUp: e.target.value })}
-              />
-            </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="ld-email">Email</Label>
+          <Input
+            id="ld-email"
+            className={DIALOG_GROUP.controlMt}
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="ld-phone">Phone</Label>
+          <Input
+            id="ld-phone"
+            className={DIALOG_GROUP.controlMt}
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="ld-company">Company</Label>
+          <Input
+            id="ld-company"
+            className={DIALOG_GROUP.controlMt}
+            value={form.company}
+            onChange={(e) => setForm({ ...form, company: e.target.value })}
+          />
+        </div>
+        <div className={DIALOG_GROUP.group}>
+          <Label htmlFor="ld-value">Estimated Value</Label>
+          <Input
+            id="ld-value"
+            className={DIALOG_GROUP.controlMt}
+            type="number"
+            min={0}
+            value={form.value}
+            onChange={(e) => setForm({ ...form, value: e.target.value })}
+          />
+        </div>
+        <div className={LEAD_DIALOG.statusSourceGrid}>
+          <div className={DIALOG_GROUP.group}>
+            <Label>Status</Label>
+            <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
+              <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {CREATE_LEAD_STAGES.map((s) => (
+                  <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
+          <div className={DIALOG_GROUP.group}>
+            <Label>Source</Label>
+            <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
+              <SelectTrigger className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {/* Session-29 (S29-P4): value/label pairs — the RAW
+                    values are stored; the labels are display-only. */}
+                {LEAD_SOURCE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
       <DialogFooter>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving…" : lead ? "Save Changes" : "Create Lead"}
+          {pending ? "Saving…" : "Create Lead"}
         </Button>
       </DialogFooter>
     </form>

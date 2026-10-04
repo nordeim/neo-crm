@@ -246,7 +246,10 @@ describe("session-29: the RAW source vocabulary migration", () => {
   it("the create dialog defaults to the raw email source", () => {
     const src = stripComments(dialogs());
     const leadForm = src.slice(src.indexOf("LeadDialog"), src.indexOf("LeadDialog") + 4000);
-    expect(leadForm).toMatch(/source: lead\?\.source \?\? "email"/);
+    // Session-50 (S50-P1): re-anchored to the create-only initializer —
+    // the lead?.source edit-mode seeding retired with the N-47d dead
+    // branches (the create default is unchanged: the raw "email").
+    expect(leadForm).toMatch(/source: "email"/);
   });
 
   it("the seed maps the legacy vocabulary onto the RAW values", () => {

@@ -99,7 +99,6 @@ export default function ContactsPage() {
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
   const [showFilters, setShowFilters] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [editing, setEditing] = React.useState<Contact | null>(null);
   // Session-28 (S28-P2/P4): the reference's SEPARATE surfaces — the W7
   // edit dialog (the ⋮ Edit item) and the Pke slide-over (the row click).
   const [editOpen, setEditOpen] = React.useState(false);
@@ -343,7 +342,6 @@ export default function ContactsPage() {
             </Button>
             <Button
               onClick={() => {
-                setEditing(null);
                 setDialogOpen(true);
               }}
             >
@@ -700,7 +698,6 @@ export default function ContactsPage() {
                   window.setTimeout(() => {
                     setScanBusy(false);
                     setScanOpen(false);
-                    setEditing(null);
                     setDialogOpen(true);
                   }, 600);
                 }}
@@ -966,7 +963,7 @@ export default function ContactsPage() {
         onClose={() => setDetailContact(null)}
       />
 
-      <ContactDialog open={dialogOpen} onOpenChange={setDialogOpen} contact={editing} />
+      <ContactDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }

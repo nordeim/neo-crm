@@ -83,7 +83,6 @@ export default function LeadsPage() {
   const [sortKey, setSortKey] = React.useState<SortKey>("createdAt");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [editing, setEditing] = React.useState<Lead | null>(null);
   // Session-28 (S28-P2): the Mke Edit Lead dialog — a SEPARATE max-w-2xl
   // dialog (NOT the create form), wired to the ⋮ Edit item.
   const [editOpen, setEditOpen] = React.useState(false);
@@ -343,7 +342,6 @@ export default function LeadsPage() {
             <Button
               className={PAGE_HEADER.leads.buttonStretch}
               onClick={() => {
-                setEditing(null);
                 setDialogOpen(true);
               }}
             >
@@ -732,7 +730,7 @@ export default function LeadsPage() {
         }}
       />
 
-      <LeadDialog open={dialogOpen} onOpenChange={setDialogOpen} lead={editing} />
+      <LeadDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }

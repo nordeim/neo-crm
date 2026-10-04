@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1160 checks)        | `bun run test`                         |
+| Unit tests (1166 checks)        | `bun run test`                         |
 | Browser E2E (111 checks)        | `bun run test:e2e` (needs build first) |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -25,7 +25,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1160) → `bun run build` → `bun run test:e2e` (111) — or the
+`bun run test` (1166) → `bun run build` → `bun run test:e2e` (111) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -212,9 +212,11 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   priorities each have canonical label/color metadata in
   `src/lib/constants.ts` (`STAGE_META`, `ACCOUNT_STATUS_META`,
   `ACTIVITY_TYPE_META`, `EVENT_TYPE_META`, `PRIORITY_META`), plus the
-  DOM-pinned source vocabularies (`LEAD_SOURCES` = Call/Email/Website/
-  Partner; `CONTACT_SOURCES` = the five emoji "How did you meet?"
-  options). Extend the meta maps when you extend a vocabulary.
+  DOM-pinned source vocabularies the dialogs consume:
+  `LEAD_SOURCE_OPTIONS` (Call/Email/Website/Partner — the raw values
+  with capitalized labels) and `CONTACT_SOURCE_OPTIONS` (the five emoji
+  "How did you meet?" options). Extend the meta
+  maps when you extend a vocabulary.
 - **Charts ship recharts DEFAULTS, no empty-state boxes (session-10
   reversal)** — the reference passes NO `content` to `<Tooltip>` (the stock
   `recharts-default-tooltip` white box), NO tick style (12px #666) and NO
@@ -1932,6 +1934,27 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   (CLAUDE/AGENTS/SKILL ×2 — the anti-pattern now routes the blob
   family) and the s48 pin-file header's res.text() narration corrected
   (N-49b).
+
+**Session-50** (the dead-mode retirement + INFO-triage layer): (1) The
+N-47d closure — the three CREATE dialogs
+(ContactDialog/AccountDialog/LeadDialog) are now create-only: their
+dual-mode machinery (the contact/account/lead entity props, the
+createMode locals, the ~170-line `!createMode` edit branches, the
+update-verb submit ternaries, the "Edit X"/"Save Changes" ternaries)
+was UNREACHABLE since the s28 EntityEditDialog family took over
+editing — every caller passed `setEditing(null)` only, and the
+reference itself never reuses its create dialogs for editing. The
+three pages' dead `editing` states are gone; EventDialog and
+ActivityDialog KEEP their dual-mode (their edit modes are live —
+activities + calendar). Pinned by tests/create-dialog-single-mode.test.ts
+(RED-first: 4 failing pins + 2 green-through-RED guards, proven
+non-vacuous in a pre-fix worktree). (2) The INFO family triaged:
+F-47c, N-48c, N-48f, N-48j all KEEP with rationale (documented
+parity / as-planned / maintainability); N-47d closed. (3) The four
+docs-accuracy carriers fixed (CLAUDE's e2e table count 110→111, PAD's
+golden-path row 93→94, SKILL §4.4's stale LEAD_SOURCES inventory
+entry, AGENTS' removed source-vocabulary constants → the living
+OPTIONS pair).
 
 ## Conventions that differ from defaults
 

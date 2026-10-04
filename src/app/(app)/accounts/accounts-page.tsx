@@ -84,7 +84,6 @@ export default function AccountsPage() {
   const [tierB, setTierB] = React.useState(false);
   const [tierC, setTierC] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [editing, setEditing] = React.useState<Account | null>(null);
   // Session-28 (S28-P2/P6): the reference's SEPARATE surfaces — the wce
   // edit dialog (the ⋮ Edit item) + the Ece insights dialog (the row click
   // / the View Insights item).
@@ -200,7 +199,6 @@ export default function AccountsPage() {
             <Button
               size="sm"
               onClick={() => {
-                setEditing(null);
                 setDialogOpen(true);
               }}
             >
@@ -659,7 +657,7 @@ export default function AccountsPage() {
         opportunities={opportunities}
       />
 
-      <AccountDialog open={dialogOpen} onOpenChange={setDialogOpen} account={editing} />
+      <AccountDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }
