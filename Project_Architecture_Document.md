@@ -155,8 +155,9 @@ regression suite.
 - **Decision:** `src/stores/crm-store.ts` — a single store with a `call()`
   fetch client that understands the envelope, `hydrate()` bootstrapping every
   slice after `/api/auth/me`, and per-entity CRUD actions that refresh the
-  affected slices. All 22 API handlers respond with `ok()`/`fail()` from
-  `src/lib/api.ts`.
+  affected slices. All 39 API handlers respond with `ok()`/`fail()` from
+  `src/lib/api.ts` (session-68 F-68b1: the stale "22" carrier refreshed —
+  27 route files / 39 verb handlers, the count the audit censuses carry).
 - **Rationale:** One place to reason about client cache; mutations always
   leave the store internally consistent (action → API → refetch slice);
   envelope gives uniform error UX via toasts.
@@ -252,7 +253,7 @@ flowchart TB
   subgraph App["Application Layer — one Next.js process (:3000)"]
     RSC["(app) RSC pages<br/>server-side session guard"]
     Public["/login · /signup"]
-    API["/api/* route handlers ×22<br/>force-dynamic · requireSession"]
+    API["/api/* route handlers ×27<br/>force-dynamic · requireSession"]
     Shell["AppShell client island<br/>Zustand hydrate()"]
   end
 
@@ -289,7 +290,7 @@ Layer 1: RSC pages + (app) layout — resolve the session server-side,
          redirect unauthenticated visits, render client islands with props.
          Rule: no data fetching happens here beyond the session; pages own
          their data through the store.
-Layer 2: API route handlers — 22 files / 34 handlers (incl. `PATCH
+Layer 2: API route handlers — 27 files / 39 handlers (incl. `PATCH
          /api/users` for the profile Full-Name edit), all `force-dynamic`,
          all guarded by `requireSession()` (except auth/login, auth/signup,
          health, search's public shell). Rule: hand-rolled validation at the
@@ -611,7 +612,7 @@ all animations to 0.01ms via a global media rule.
 
 | # | Rule | Enforcement |
 | - | ---- | ----------- |
-| 1 | Every API handler (except `auth/login`, `auth/signup`, `health`) requires a valid session | `requireSession()` first statement; grep-verified across all 22 files |
+| 1 | Every API handler (except `auth/login`, `auth/signup`, `health`) requires a valid session | `requireSession()` first statement; grep-verified across all 27 files |
 | 2 | Authenticated page group unreachable without a session | `(app)/layout.tsx` server redirect |
 | 3 | Passwords stored as `scrypt:salt:hash` (64-byte derived key) | `hashPassword()` only; no plaintext paths exist |
 | 4 | Session tokens HMAC-SHA256 signed, `timingSafeEqual` compared, 7-day TTL | `signSession` / `verifySessionToken` (unit-tested) |
@@ -743,14 +744,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the e2e-honesty + page-render dead-surface layer (the N-65d pins [accounts-page carries no `a.tier === "Key"` disjunct — tier is membership-validated to A/B/C at both write seams; a.isKey is the live arm] + the N-65e pins [reports-page's stage select reads `OPP_STAGE_META[s].label` — no `?.`/`?? s` dead arm over the six-key internal constant] + the N-65c pins [contacts-page's store destructure carries no leads/users/settings lines; settings-page's SettingsPage destructure carries no updateSettings — the editors destructure their own] + the N-65g pins [AGENTS + PAD document `src/app/(app)/Profile/page.jsx` — the s24 render alias — and NOT the retired top-level redirect path outside the group] — session-65) + the N-65b e2e re-anchor [the global-search test asserts the dropdown's OWN DOM — the SearchResultRow button + the section header as its preceding sibling; the pre-s65 getByText().first() assertions resolved to the sidebar link + the Recent Deals cell] + the N-65h assertion [the mobile-nav Escape test asserts the focus RESTORE]; +5 its = 1227) | 1 | 5 new (+ tests/e2e/crm.spec.ts + tests/e2e/mobile-navigation.spec.ts re-anchored/strengthened) | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the badge-primitive honesty + parity-gap wiring layer (the N-66i pins [the Badge primitive is the reference's STOCK badge mirror — a DIV with rounded-md px-2.5 py-0.5 text-xs font-semibold + the stock default/secondary/destructive/outline variant set; the scaffold-era rounded-full SPAN + invented variants retired; the computed-equal variant expressions where our tokens are deliberately inverted; the accounts N-Overdue rides destructive; the slide-over priority badge carries no row overrides] + the call-site wirings [the ROW badge keeps `border font-medium px-3 py-1` byte-identical] — session-66) + the N-66d pins [the Tabs count span renders the reference's literal `ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full`; the activities Overdue tab passes the guarded count; ONLY that tab carries one] + the F-66a1 pin [the calendar agenda row aligns items-START — the bundle contract] + the N-66b/c pins [tabs carries no GRID_COLS_LG; KpiCard carries no deltaSuffix/invertDelta; BarStatCard carries no barColorFor + the ternary arm gone; the Sparkline guards before Math.max] + the N-66e scan [the route-case URL-state census sees .jsx aliases too]; +18 its = 1245) | 5 | 18 new (+ the badge-contract suite) + the e2e re-anchors/strengthenings [the search Escape round-trip; the overdue-count badge; the mobile-nav inert + Tab-wrap test +8] | `tests/badge-contract.test.ts`, `tests/dead-code-hygiene.test.ts`, `tests/tabs-aria.test.ts`, `tests/calendar-cells.test.ts` | Vitest |
 | Unit — the auth-seam honesty + small-hole closures layer (the S67-P1 pins [verify/route.ts increments ATOMICALLY — `verificationAttempts: { increment: 1 }`, the returned record feeds the lockout/remaining ladder; the read-modify-write form retired] + the S67-P2 pins [api.ts exports MAX_AUTH_BODY_BYTES = 16 * 1024 + isBodyTooLarge; all four public auth routes gate BEFORE `req.json()`] + the S67-P3 pins [the upload route rate-limits at 20/15min AFTER the session guard — the documented placement rationale] + the S67-P4 pins [/signup carries no getSessionUser/redirect — the s23-P2 pure-render shape] + the S67-P5 pins [ERR.RATE_LIMITED carries the optional retryAfterSec + Retry-After; all four routes pass limit.retryAfterSec + zero NextResponse.json hand-builds; clearSessionCookie mirrors the set-side httpOnly/sameSite/secure/path family; the resend in-flight guard (resending state + disabled link + the early return); the honest `body?.data?.message` read] + the keep-set records [the per-process limiter/clientKey shapes; the upload pre-gate ceiling]; +12 its = 1257 — session-67) | 1 | 12 new (+ the e2e wrong-code ladder test — rungs 2-5 + the lockout repeat + the post-lockout resend — the 114th check) | `tests/auth-contract.test.ts` | Vitest |
-| **Total** | **77** | **1257 unit + 114 e2e** | | |
+| Unit — the stat-value honesty + small-wiring layer (the N-68a pins [page-parts' BarStatCard value renders the bare `text-2xl sm:text-3xl font-bold`, IconStatCard the bare `text-3xl font-bold`, CircleStatCard the bare `text-2xl font-bold` — the s13 decoration trio (leading-none/tracking-tight/leading-tight/text-foreground) retired from the three families the s13 sweep missed; the bundle census x15/x4/x10 all bare] + the N-68b pins [the reports Won/Lost call-sites pass `scale: "k"` — the reference's literal /1e3 formula; the sub-1000 options window closed ($950 renders "$0.9K"/"$1K", pinned, not "$950.0K")] + the N-68d pins [entity-edit-dialog consumes DIALOG_CONTENT.wide + DIALOG_FOOTER_WIDE; save-report-dialog consumes DIALOG_CONTENT.wide; settings-page consumes SETTINGS_PICKLIST.industriesPlaceholder; contacts-page consumes CONTACTS_LAYOUT.mobileCards — the inline byte-copies gone, the source pins re-anchored to the constant-consumption form] + the F-68a2 pins [all 12 sessioned routes import isBodyTooLarge, gate BEFORE req.json() (ordering-pinned), and answer the auth family's exact 400 form] + the N-68i absence pin [CARD_TITLE_OVERRIDE carries no `filters` member] + the N-68e coverage [timeAgo upcoming/>=7d, timeUntil in-1m/in-Nd, the startOf* boundaries + addDays rollover] + the N-68h dedupe pin [format.ts declares the month array exactly once]; +18 its = 1275 — session-68) | 8 | 18 new + 5 re-anchored | `tests/stat-value-contract.test.ts`, `tests/body-pregate.test.ts`, `tests/format.test.ts`, `tests/dead-code-hygiene.test.ts`, `tests/page-layout.test.ts`, `tests/entity-edit-dialog.test.ts`, `tests/saved-reports.test.ts`, `tests/contact-photo.test.ts` | Vitest |
+| **Total** | **79** | **1275 unit + 114 e2e** | | |
 
 > **Counting convention (session-54, N-54h)**: the per-session rows
 > count the FILES TOUCHED by that session's pin additions and the checks
 > those rows added or re-anchored — NOT the file's total checks, and NOT
 > a summable column (shared files like `constants.test.ts` appear in
 > several session rows). The **Total** row counts files and checks at
-> HEAD: 77 Vitest suites with 1257 checks + 114 e2e checks in 4 spec
+> HEAD: 79 Vitest suites with 1275 checks + 114 e2e checks in 4 spec
 > files. Verify counts by run (`bun run test`, `bun run test:e2e`),
 > never by summing the table.
 

@@ -758,10 +758,11 @@ describe("session-11 stat-card shadow + chart geometry pins (DOM-verified 2026-0
     expect(STAT_SHADOWS.circleStat).not.toContain("shadow-sm");
   });
 
-  it("the dashboard/reports KPI cards hover (S11-P3)", () => {
+  it("the reports KPI cards hover (S11-P3; session-68 N-68c comment re-scope)", () => {
     // DOM: `rounded-xl bg-card text-card-foreground shadow border
-    // border-gray-200 hover:shadow-md transition-shadow` on BOTH the
-    // dashboard and the reports KPI rows.
+    // border-gray-200 hover:shadow-md transition-shadow` on the REPORTS
+    // KPI rows ONLY — the dashboard half retired at s12 (S12-P5;
+    // KPI_CARD.card is pinned WITHOUT the hover below).
     expect(STAT_SHADOWS.kpiHover).toBe("hover:shadow-md transition-shadow");
   });
 
@@ -1018,12 +1019,15 @@ describe("session-13: CardTitle per-page map (S13-P6)", () => {
 
   it("the per-page overrides carry the bigger reference variants", () => {
     // dashboard (6) + leads (3): `text-base sm:text-lg` (18px at sm+);
-    // the filter-rail titles + the activities by-type title: `text-base`
-    // (16px at all widths); settings (5): `text-lg` (18px at ALL widths —
-    // ours shipped text-base sm:text-lg = 16px below sm).
+    // settings (5): `text-lg` (18px at ALL widths — ours shipped
+    // text-base sm:text-lg = 16px below sm). Session-68 (N-68i): the
+    // `filters` member retired — the rails consume FILTER_RAIL.title
+    // ("text-base", pinned in its own it below), so the member was a
+    // zero-consumer byte-duplicate.
     expect(CARD_TITLE_OVERRIDE.dashboard).toBe("text-base sm:text-lg");
-    expect(CARD_TITLE_OVERRIDE.filters).toBe("text-base");
     expect(CARD_TITLE_OVERRIDE.settings).toBe("text-lg");
+    // N-68i absence pin: the retired member stays retired
+    expect(CARD_TITLE_OVERRIDE).not.toHaveProperty("filters");
   });
 
   it("the filter-rail titles drop the redundant sm:text-base", () => {

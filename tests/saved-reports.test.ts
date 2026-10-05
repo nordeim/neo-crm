@@ -107,6 +107,14 @@ describe("session-25: the Save Custom Report View dialog (S25-P4)", () => {
     expect(read("src/components/shared/save-report-dialog.tsx")).not.toBeNull();
   });
 
+  it("the wide shell consumes DIALOG_CONTENT.wide (session-68 N-68d wiring)", () => {
+    const src = read("src/components/shared/save-report-dialog.tsx");
+    const code = stripComments(src!);
+    expect(code).toMatch(/DialogContent className=\{DIALOG_CONTENT\.wide\}/);
+    // the hand-inlined byte-copy is gone
+    expect(code).not.toMatch(/className="max-w-2xl max-h-\[90vh\] overflow-y-auto"/);
+  });
+
   it("the dialog's title, input, and placeholder match the reference", () => {
     const src = read("src/components/shared/save-report-dialog.tsx");
     const code = stripComments(src!);

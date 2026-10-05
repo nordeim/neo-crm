@@ -395,7 +395,7 @@ function ConfigEditor({ settings }: { settings: Settings }) {
         <ListEditor
           title="Industries"
           items={lists.industries}
-          placeholder="Add new industrie"
+          placeholder={SETTINGS_PICKLIST.industriesPlaceholder}
           onAdd={(v) => mutate("industries", (a) => [...a, v])}
           onRemove={(i) => mutate("industries", (a) => a.filter((_, x) => x !== i))}
         />

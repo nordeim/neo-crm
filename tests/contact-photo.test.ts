@@ -174,11 +174,15 @@ describe("session-30: the dialog scroll-cap layer (S30-P6, bundle-extracted)", (
 
   it("the Save Custom Report dialog carries the wide family's cap pair", () => {
     const src = stripComments(read("src/components/shared/save-report-dialog.tsx") ?? "");
-    expect(src).toMatch(/max-w-2xl max-h-\[90vh\] overflow-y-auto/);
+    // Session-68 (N-68d): the shell now consumes DIALOG_CONTENT.wide (the
+    // constant whose value IS the cap-pair string) — the pin follows the
+    // consumption, so a future constant re-pin cannot diverge the family.
+    expect(src).toMatch(/DialogContent className=\{DIALOG_CONTENT\.wide\}/);
   });
 
   it("the W7/Mke edit family + Account Insights already carry their caps (s28, unchanged)", () => {
-    expect(editDialog()).toMatch(/max-w-2xl max-h-\[90vh\] overflow-y-auto/);
+    // Session-68 (N-68d): the edit family's cap pair rides DIALOG_CONTENT.wide
+    expect(editDialog()).toMatch(/DialogContent className=\{DIALOG_CONTENT\.wide\}/);
     expect(stripComments(read("src/components/accounts/account-insights-dialog.tsx") ?? "")).toMatch(
       /max-w-3xl max-h-\[80vh\] overflow-y-auto/,
     );

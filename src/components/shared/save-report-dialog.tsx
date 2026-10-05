@@ -44,6 +44,7 @@ import {
   type SavedReportColumns,
   type SavedReportFilters,
 } from "@/lib/saved-reports";
+import { DIALOG_CONTENT } from "@/lib/page-layout";
 
 interface SaveReportDialogProps {
   open: boolean;
@@ -90,9 +91,10 @@ export function SaveReportDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* Session-30 (S30-P6): the reference's Save Custom Report ships
-          max-w-2xl max-h-[90vh] overflow-y-auto (the wide family's
-          scroll-cap pair — bundle-extracted). */}
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          the wide family's scroll-cap pair (bundle-extracted).
+          Session-68 (N-68d): wired to DIALOG_CONTENT.wide (was a
+          hand-inlined byte-copy of the same string). */}
+      <DialogContent className={DIALOG_CONTENT.wide}>
         <DialogHeader>
           <DialogTitle>Save Custom Report View</DialogTitle>
         </DialogHeader>

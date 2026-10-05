@@ -922,3 +922,30 @@ describe("session-66: the components dead-surface retirement (N-66b/c/j)", () =>
     expect(guard).toBeLessThan(max);
   });
 });
+
+// Session-68 (N-68d/N-68h): the wiring + dedupe set from the 68-c
+// rotation — the hand-inlined byte-copies of pinned constants retired
+// (the settings typo, the contacts mobile-cards grid, the edit-family
+// dialog chrome [pinned in entity-edit-dialog.test.ts]) + the format
+// month-array dedupe.
+describe("session-68: the unwired-duplicate wiring + the format dedupe", () => {
+  it("the settings page consumes SETTINGS_PICKLIST.industriesPlaceholder (the mirrored typo cannot silently un-mirror)", () => {
+    const src = stripComments(read("src/app/(app)/settings/settings-page.tsx") ?? "");
+    expect(src).toMatch(/placeholder=\{SETTINGS_PICKLIST\.industriesPlaceholder\}/);
+    // the hand-inlined byte-copy is gone
+    expect(src).not.toMatch(/placeholder="Add new industrie"/);
+  });
+
+  it("the contacts mobile-card grid consumes CONTACTS_LAYOUT.mobileCards", () => {
+    const src = stripComments(read("src/app/(app)/contacts/contacts-page.tsx") ?? "");
+    expect(src).toMatch(/className=\{CONTACTS_LAYOUT\.mobileCards\}/);
+    // the reordered hand-inline is gone
+    expect(src).not.toMatch(/className="mt-6 space-y-4 lg:hidden"/);
+  });
+
+  it("format.ts declares the month array exactly once (formatMonthDayTime rides MONTHS_SHORT)", () => {
+    const src = stripComments(read("src/lib/format.ts") ?? "");
+    const hits = src.match(/"Jan", "Feb"/g) ?? [];
+    expect(hits.length).toBe(1);
+  });
+});

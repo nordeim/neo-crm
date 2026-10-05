@@ -41,14 +41,20 @@ const leads = () => stripComments(read("src/app/(app)/leads/leads-page.tsx") ?? 
 describe("session-28: the shared EntityEditDialog anatomy", () => {
   it("the max-w-2xl max-h-[90vh] scrollable shell + the space-y-4 form", () => {
     const src = dialog();
-    expect(src).toMatch(/max-w-2xl max-h-\[90vh\] overflow-y-auto/);
+    // Session-68 (N-68d): the edit family CONSUMES the shared constant
+    // (DIALOG_CONTENT.wide) instead of a hand-inlined byte-copy — a
+    // future constant re-pin can no longer silently diverge the
+    // create/edit dialog families.
+    expect(src).toMatch(/DialogContent className=\{DIALOG_CONTENT\.wide\}/);
     expect(src).toMatch(/space-y-4/);
     expect(src).toMatch(/grid grid-cols-2 gap-4/);
   });
 
-  it("the footer: justify-end gap-3 pt-4 with Cancel + Save Changes / Saving...", () => {
+  it("the footer: the shared DIALOG_FOOTER_WIDE with Cancel + Save Changes / Saving...", () => {
     const src = dialog();
-    expect(src).toMatch(/flex justify-end gap-3 pt-4/);
+    // Session-68 (N-68d): same wiring — the footer consumes the shared
+    // DIALOG_FOOTER_WIDE constant, not an inline copy.
+    expect(src).toMatch(/className=\{DIALOG_FOOTER_WIDE\}/);
     expect(src).toContain("Save Changes");
     expect(src).toContain("Saving...");
     expect(src).toContain("Cancel");

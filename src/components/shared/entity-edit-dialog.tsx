@@ -27,6 +27,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+// Session-68 (N-68d): the edit family consumes the shared chrome
+// constants instead of hand-inlined byte-copies — a future constant
+// re-pin can no longer silently diverge the create/edit families.
+import { DIALOG_CONTENT, DIALOG_FOOTER_WIDE } from "@/lib/page-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -188,7 +192,7 @@ export function EntityEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className={DIALOG_CONTENT.wide}>
         <DialogHeader>
           <DialogTitle>{readOnly ? detailsTitle : title}</DialogTitle>
         </DialogHeader>
@@ -229,7 +233,7 @@ export function EntityEditDialog({
               ))}
             </div>
           ))}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className={DIALOG_FOOTER_WIDE}>
             <Button
               type="button"
               variant="outline"

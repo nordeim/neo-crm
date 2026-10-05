@@ -659,10 +659,13 @@ export const CARD = {
 export const CARD_TITLE_OVERRIDE = {
   /** dashboard (6 cards) + leads (3 cards) — 16px below sm, 18px above. */
   dashboard: "text-base sm:text-lg",
-  /** accounts/activities/calendar filter rails + activities by-type — 16px. */
-  filters: "text-base",
   /** settings (5 cards) — 18px at ALL widths (not sm-gated). */
   settings: "text-lg",
+  // Session-68 (N-68i): the `filters` member retired — the accounts/
+  // activities/calendar filter rails + the activities by-type title
+  // consume FILTER_RAIL.title ("text-base", the same value), so the
+  // member was a zero-consumer byte-duplicate (absence-pinned in
+  // tests/page-layout.test.ts).
 } as const;
 
 /** Session-13 (S13-P9): the reference's KPI value — SPAN `text-2xl
@@ -1131,9 +1134,10 @@ export function allLayoutClasses(): string[] {
  *  reference at 1512 — every stat-card family computes the bare `shadow`
  *  (0 1px 3px 0.1 + 0 1px 2px -1px 0.1). Our IconStatCard (both variants)
  *  and CircleStatCard shipped the s9-re-pinned tiny `shadow-sm` — one step
- *  too light. The dashboard + reports KPI cards additionally carry
+ *  too light. The REPORTS KPI cards alone additionally carry
  *  `hover:shadow-md transition-shadow` (the reference's only hover-shadow
- *  surfaces).
+ *  surface — the dashboard half retired at s12/S12-P5; session-68 N-68c
+ *  re-scoped this comment to match the live KPI_CARD pin).
  *  Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
  *  live stat cards hand-inline; see the module header). */
 export const STAT_SHADOWS = {

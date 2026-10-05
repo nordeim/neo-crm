@@ -91,11 +91,12 @@ export function formatMonthDayTime(d: Date | string | number | null | undefined)
   if (!d) return "—";
   const date = asDate(d);
   if (Number.isNaN(date.getTime())) return "—";
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  // Session-68 (N-68h): rides MONTHS_SHORT — this used to re-declare a
+  // byte-identical local month array.
   let h = date.getHours();
   const ampm = h >= 12 ? "PM" : "AM";
   h = h % 12 || 12;
-  return `${months[date.getMonth()]} ${date.getDate()}, ${h}:${date.getMinutes().toString().padStart(2, "0")} ${ampm}`;
+  return `${MONTHS_SHORT[date.getMonth()]} ${date.getDate()}, ${h}:${date.getMinutes().toString().padStart(2, "0")} ${ampm}`;
 }
 
 export function formatTime(d: Date | string | number | null | undefined): string {
@@ -127,7 +128,12 @@ export function timeAgo(d: Date | string | number | null | undefined, now = Date
   return formatDateShort(t);
 }
 
-/** "in 2d" / "in 3h" / "Today" style relative future label. */
+/** "in 2d" / "in 3h" / "in 45m" relative future label (a past or
+ *  current instant reads "overdue"; null/invalid reads "—"). The
+ *  Never/Today/N-days-ago last-activity vocabulary is NOT here — it
+ *  lives in constants.ts (lastActivityCe) + account-health.ts.
+ *  (Session-68 N-68g: the doc used to promise a "Today" output this
+ *  function never returned.) */
 export function timeUntil(d: Date | string | number | null | undefined, now = Date.now()): string {
   if (!d) return "—";
   const t = asDate(d).getTime();

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asDate, asFKId, isBadFK, isBadString, isBadDate, isBadNumber, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asNumber, asDate, asFKId, isBadFK, isBadString, isBadDate, isBadNumber, isBodyTooLarge, isGuarded, requireSession  } from "@/lib/api";
 import { LEAD_STAGES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,12 @@ export async function PUT(req: Request, { params }: Params) {
   try {
     const existing = await db.lead.findUnique({ where: { id } });
     if (!existing) return ERR.NOT_FOUND("Lead");
+
+  // Session-68 (F-68a2): the declared-size pre-gate BEFORE the parse —
+  // the N-67d auth-family gate extended to the sessioned CRUD family
+  // (req.json() buffers with no default cap in App Router handlers;
+  // the honest CRUD bodies are far smaller than the 16KB ceiling).
+  if (isBodyTooLarge(req)) return ERR.BAD_REQUEST("Request body too large");
 
     const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
     if (!body) return ERR.BAD_REQUEST("Invalid request body");

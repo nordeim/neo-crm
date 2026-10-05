@@ -299,7 +299,7 @@ export default function ReportsPage() {
             </CircleStatCard>
             <CircleStatCard
               label="Won Deals"
-              value={<>{" "}{k?.wonDeals ?? 0} {formatCompactCurrency(k?.wonValue ?? 0, { upper: true })}</>}
+              value={<>{" "}{k?.wonDeals ?? 0} {formatCompactCurrency(k?.wonValue ?? 0, { scale: "k", upper: true })}</>}
               icon={<TrendingUp className="h-5 w-5" />}
               color="#10b981"
             >
@@ -311,7 +311,7 @@ export default function ReportsPage() {
             <CircleStatCard
               label="Lost Deals"
               value={k?.lostDeals ?? 0}
-              subValue={formatCompactCurrency(k?.lostValue ?? 0, { upper: true, decimals: 0 })}
+              subValue={formatCompactCurrency(k?.lostValue ?? 0, { scale: "k", upper: true, decimals: 0 })}
               icon={<TrendingDown className="h-5 w-5" />}
               color="#ef4444"
             />

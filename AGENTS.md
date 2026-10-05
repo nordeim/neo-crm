@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1257 checks)       | `bun run test`                         |
+| Unit tests (1275 checks)       | `bun run test`                         |
 | Browser E2E (114 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1257) → `bun run build` → `bun run test:e2e` (114) — or the
+`bun run test` (1275) → `bun run build` → `bun run test:e2e` (114) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2696,6 +2696,72 @@ repo root; the intake: the sandbox SURVIVED s66 — the pull
 fast-forwarded 2c748c3 -> 9628bf4, session_126.md only, zero code
 drift; the stale platform DATABASE_URL override still points at the
 non-existent mirror, all operations under env -u DATABASE_URL).
+
+**Session-68 (SKILL v1.65.0)** — the stat-value honesty + the
+small-wiring session (a fresh-clone intake: bun install + db:push +
+db:seed, the census MATCH; the 64th drift sweep CLEAN — the bundle
+byte-identical for the 39th consecutive session; the reference census
+#64: demo data zero + the mobile-nav defect standing at TRUE 390px;
+the triple audits: 68-a the s67 re-audit 12/12 GENUINE, 68-b the
+graduation audit ZERO graduations 13/13 [25th consecutive session] +
+the 8 censuses clean, 68-c the fresh-eyes rotation on the
+page-layout.ts + format.ts seam [never a dedicated target] finding the
+N-68 family; both operator decisions standing: the CSV
+formula-injection posture (b) [26th re-affirmation] + the
+source-vocabulary documented parity): the N-68a KPI-VALUE TYPOGRAPHY
+SWEEP COMPLETED [the s13 decoration trio — leading-none/tracking-tight/
+leading-tight/text-foreground — retired from BarStatCard/IconStatCard/
+CircleStatCard; the bundle census: text-2xl sm:text-3xl font-bold x15,
+text-3xl font-bold x4, text-2xl font-bold x10, ALL bare — LIVE-probed
+at 36px/32px line-heights + normal letter-spacing on all three
+surfaces]; the N-68b REPORTS FIXED-SCALE [scale:"k" at the Won/Lost
+call-sites — the reference's literal /1e3 formula; the sub-1000
+options window misread amounts 1000x ($950 -> "$950.0K"); LIVE: "4
+$337.0K" + "$92K" at the ytd period]; the N-68c stale hover-comment
+re-scope [the dashboard half retired at s12]; the N-68d
+UNWIRED-DUPLICATE WIRING [DIALOG_CONTENT.wide + DIALOG_FOOTER_WIDE at
+the edit family + the save-report dialog; SETTINGS_PICKLIST.
+industriesPlaceholder at the settings page; CONTACTS_LAYOUT.mobileCards
+at the contacts page — the source pins re-anchored to the
+constant-consumption form, contact-photo's s30 twins included]; the
+N-68e FORMAT COVERAGE [timeAgo upcoming/>=7d, timeUntil in-1m/in-Nd,
+the startOf* boundaries, addDays rollover — the 7-day boundary flips AT
+7 days, pinned]; the N-68g/h nano pair [the timeUntil doc re-derived;
+formatMonthDayTime rides MONTHS_SHORT]; the F-68a2 SESSIONED BODY
+PRE-GATE [isBodyTooLarge after requireSession + before req.json() in
+all 12 sessioned routes — the N-67d family extended; LIVE: a 20KB PUT
+/api/settings answers 400 "Request body too large", the honest body
+parses]; the F-68a1/a3/b1 carriers [the SKILL H1 re-versioned; the
+rate-limit header gains the upload line; the five 22-era API-count
+numerics refreshed to 27/39]; the N-68i CARD_TITLE_OVERRIDE.filters
+member retired [the rails consume FILTER_RAIL.title — absence-pinned].
+All pinned RED-first [18 RED: the new stat-value-contract + body-pregate
+suites + the format/dch/page-layout/saved-reports/entity-edit-dialog/
+contact-photo extensions; +18 its = 1275] and proven non-vacuous in a
+pre-fix 3d60a20 worktree [18 failed | 1257 passed there; 1275/1275 at
+the fix]. GATE: lint 0/0 · tsc 0 · 1275/1275 unit (79 suites) · build
+clean · 114/114 e2e on a fresh CI=1 boot (2.6m, all 8 mobile-nav checks
+green) · LIVE-verified (the pre-gate round-trip; the reports KPIs at
+nonzero; the three stat-value computed-style probes; the drawer both
+directions at a TRUE 390px [closed inert; open 8/8 + the body lock +
+focus in the drawer; Escape -> inert + unlocked + focus RESTORED];
+zero 390px overflow on all ten routes [both Dashboard casings]; NO
+Tailwind v4 bug [--blur-sm 4px + --shadow-sm 0 1px 2px 0 #0000000d +
+a live surface computing rgba(0,0,0,0.05) 0px 1px 2px 0px]; the
+closing census MATCH — zero probe residue) · 7 screenshots (01/02/03/
+04/08 re-captured + 77-reports-kpi-scale NEW [the fix surface at ytd]
++ 78-mobile-nav-drawer NEW [the s68 mobile-regression evidence] at
+1440x900/390x844; VLM-verified 3/3 + 4/4) · docs at SKILL v1.65.0 (the
+new §16bh + project_state, applied atomically via the assert-first
+scripts/skill_edits_s68.py at the sandbox root, 6309 -> 6352 lines by
+wc -l) + session_129.md [the odd-number record convention] + the
+plan's execution record + both worklogs + README/AGENTS/CLAUDE/PAD at
+1275+114 (badge 1389); .env/.env.example verified (no env surface
+change; DATABASE_URL file:../db/custom.db with db/ at the repo root;
+the intake: the FRESH CLONE — .env re-created from .env.example with a
+generated AUTH_SECRET; the stale platform DATABASE_URL override still
+points at the non-existent mirror, all operations under env -u
+DATABASE_URL).
 
 ## Conventions that differ from defaults
 

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isBadString, isGuarded, requireSession } from "@/lib/api";
+import { ok, ERR, asString, asDate, asFKId, isBadFK, isBadDate, isBadString, isBodyTooLarge, isGuarded, requireSession  } from "@/lib/api";
 import { ACTIVITY_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +26,12 @@ export async function GET() {
 export async function POST(req: Request) {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
+
+  // Session-68 (F-68a2): the declared-size pre-gate BEFORE the parse —
+  // the N-67d auth-family gate extended to the sessioned CRUD family
+  // (req.json() buffers with no default cap in App Router handlers;
+  // the honest CRUD bodies are far smaller than the 16KB ceiling).
+  if (isBodyTooLarge(req)) return ERR.BAD_REQUEST("Request body too large");
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");

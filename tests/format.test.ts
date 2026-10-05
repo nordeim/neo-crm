@@ -9,6 +9,12 @@ import {
   isSameDay,
   calendarGrid,
   startOfMonth,
+  startOfDay,
+  endOfDay,
+  addDays,
+  startOfWeek,
+  startOfQuarter,
+  startOfYear,
   toLocalInputValue,
 } from "@/lib/format";
 
@@ -194,6 +200,62 @@ describe("local datetime input values", () => {
     const v = toLocalInputValue(new Date(2026, 8, 29, 14, 5));
     expect(v).toBe("2026-09-29T14:05");
     expect(toLocalInputValue(null)).toBe("");
+  });
+});
+
+// Session-68 (N-68b/N-68e): the reports fixed-scale window pinned at
+// the UPPERCASE-K forms + the previously-unpinned production-reachable
+// arms of the relative-time and startOf* families (the 68-c rotation's
+// coverage closures). The formatter itself is unchanged — these pins
+// guard the working behavior the new reports call-sites rely on.
+describe("session-68: the reports K-scale window + the relative-time/startOf coverage", () => {
+  it("the reports Won form: upper K at ANY magnitude (the reference's literal /1e3 + toFixed(1))", () => {
+    expect(formatCompactCurrency(0, { scale: "k", upper: true })).toBe("$0.0K");
+    expect(formatCompactCurrency(950, { scale: "k", upper: true })).toBe("$0.9K");
+    expect(formatCompactCurrency(2_400, { scale: "k", upper: true })).toBe("$2.4K");
+    // negatives stay signed
+    expect(formatCompactCurrency(-950, { scale: "k", upper: true })).toBe("-$0.9K");
+  });
+
+  it("the reports Lost form: upper K, zero decimals (the literal /1e3 + toFixed(0))", () => {
+    expect(formatCompactCurrency(0, { scale: "k", upper: true, decimals: 0 })).toBe("$0K");
+    expect(formatCompactCurrency(950, { scale: "k", upper: true, decimals: 0 })).toBe("$1K");
+    // 0.4 rounds down (the literal formula's own toFixed behavior —
+    // 0.5 rounds UP to "1", the float-rounding family)
+    expect(formatCompactCurrency(400, { scale: "k", upper: true, decimals: 0 })).toBe("$0K");
+  });
+
+  it("timeAgo's outer arms: the future 'upcoming' + the >=7d MMM-d fallback", () => {
+    const now = new Date(2026, 9, 6, 12, 0).getTime();
+    expect(timeAgo(new Date(now + 3_600_000), now)).toBe("upcoming");
+    // the arm flips AT 7 days (day < 7): 6 days stays "6d ago"…
+    expect(timeAgo(new Date(2026, 9, 6, 12, 0).getTime() - 6 * 86_400_000, now)).toBe("6d ago");
+    // …and exactly 7 days back falls through to formatDateShort ("Sep 29",
+    // no year) — the boundary the >7d read had wrong before this pin
+    expect(timeAgo(new Date(2026, 8, 29, 12, 0), now)).toBe("Sep 29");
+    expect(timeAgo(new Date(2026, 8, 28, 12, 0), now)).toBe("Sep 28");
+  });
+
+  it("timeUntil's outer arms: the sub-minute 'in 1m' edge + the >=24h 'in Nd' form", () => {
+    const now = new Date(2026, 9, 6, 12, 0).getTime();
+    expect(timeUntil(new Date(now + 30_000), now)).toBe("in 1m");
+    expect(timeUntil(new Date(now + 36 * 3_600_000), now)).toBe("in 1d");
+    expect(timeUntil(new Date(now + 2 * 86_400_000), now)).toBe("in 2d");
+  });
+
+  it("the startOf* period windows: day/week/month/quarter/year boundaries + addDays rollover", () => {
+    // Wednesday Oct 7 2026, 15:42:10 (Oct 5 2026 is a Monday)
+    const d = new Date(2026, 9, 7, 15, 42, 10);
+    expect(startOfDay(d)).toEqual(new Date(2026, 9, 7, 0, 0, 0, 0));
+    expect(endOfDay(d)).toEqual(new Date(2026, 9, 7, 23, 59, 59, 999));
+    expect(startOfWeek(d)).toEqual(new Date(2026, 9, 5)); // Monday Oct 5
+    expect(startOfWeek(d, "sunday")).toEqual(new Date(2026, 9, 4)); // Sunday Oct 4
+    expect(startOfMonth(d)).toEqual(new Date(2026, 9, 1));
+    expect(startOfQuarter(d)).toEqual(new Date(2026, 9, 1)); // Q4 opens Oct 1
+    expect(startOfQuarter(new Date(2026, 4, 15))).toEqual(new Date(2026, 3, 1)); // May sits in Q2 (Apr 1)
+    expect(startOfYear(d)).toEqual(new Date(2026, 0, 1));
+    expect(addDays(d, 3)).toEqual(new Date(2026, 9, 10, 15, 42, 10));
+    expect(addDays(new Date(2026, 9, 31), 1)).toEqual(new Date(2026, 10, 1)); // month rollover
   });
 });
 

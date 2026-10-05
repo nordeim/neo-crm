@@ -624,7 +624,9 @@ export default function ContactsPage() {
           avatar with photo/initial, name + POSITION (not email), the
           priority badge, the company/email/last-activity lines, the
           Call/Email outline row, and the card click → the slide-over). */}
-      <div className="mt-6 space-y-4 lg:hidden">
+      {/* Session-68 (N-68d): wired to CONTACTS_LAYOUT.mobileCards (was a
+          reordered hand-inline of the same computed classes). */}
+      <div className={CONTACTS_LAYOUT.mobileCards}>
         {filtered.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted">No contacts found</p>
         ) : (

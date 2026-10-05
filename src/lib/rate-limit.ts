@@ -2,7 +2,8 @@
 // as the scaffold family). Used by the auth routes with PER-ROUTE limits
 // (all per 15 min / IP — Session-63 (N-63e) corrected this header, which
 // used to claim a flat "10 attempts"): login 10, signup 10, resend 5,
-// verify 20.
+// verify 20. Session-67 (N-67e) added the sessioned upload route at 20
+// (post-guard); session-68 (F-68a3) recorded it here.
 
 interface Bucket {
   count: number;

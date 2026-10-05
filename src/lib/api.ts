@@ -64,7 +64,12 @@ export function isGuarded(x: { user: SessionUser } | { response: NextResponse })
  * are tiny (email capped at 160 chars + password + a 6-digit code), so
  * 16KB is beyond generous. Documented limitation (inherited from the
  * upload gate): a chunked body without a Content-Length header bypasses
- * this check; the JSON parse's own failure mode stays the backstop. */
+ * this check; the JSON parse's own failure mode stays the backstop.
+ * Session-68 (F-68a2): the SAME ceiling + helper now gate the sessioned
+ * CRUD family too (accounts/activities/contacts/events/leads x[root+
+ * [id]] + settings + reset — placed after requireSession, before the
+ * parse; the honest CRUD bodies are asString-capped fields, far below
+ * the ceiling). */
 export const MAX_AUTH_BODY_BYTES = 16 * 1024;
 
 /** True when the request DECLARES a body larger than the auth ceiling —
