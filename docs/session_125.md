@@ -187,3 +187,15 @@ DATABASE_URL `file:../db/custom.db` with db/ at the repo root).
 **Ship**: the commit on main + the SSH-wrapper v3 push (with
 `--remote git@github.com:nordeim/neo-crm.git` — the s64 wrapper-trap
 note honored) + the remote verification + the operator key shredded.
+
+---
+
+**Errata (session-67, F-67a1)**: the screenshot record above says
+"75-activities-overdue-count NEW (1440×900, the S66-P3 fix surface)" —
+the file WAS new, but it was byte-identical to the re-captured
+07-activities.png (md5 7e12b5b2aa4006998d55cbefdb87207b both: both
+shots capture the default view, which IS the Overdue tab). The wiring
+itself stood (unit pin + live e2e + code); the artifact simply carried
+no incremental evidence. Session-67 re-captured 75 in the
+Due-Today-ACTIVE state — the red count pill on the INACTIVE Overdue
+tab — the conditional contrast the default-view shot never showed.

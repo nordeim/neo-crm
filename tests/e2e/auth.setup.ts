@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 
 // Sign the demo user in ONCE through the real login UI and persist the
 // browser storage state for the whole chromium project (the auth endpoints
-// are rate-limited 10/15min — per-test logins would trip the limiter).
+// are rate-limited per IP/15 min — login 10 — so per-test logins would
+// trip the limiter mid-suite).
 
 const STORAGE = "tests/e2e/.auth/user.json";
 

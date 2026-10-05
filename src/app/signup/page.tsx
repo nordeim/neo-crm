@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { getSessionUser } from "@/lib/auth";
 import { LoginCard } from "@/components/layout/login-card";
 import { LOGIN_LAYOUT } from "@/lib/page-layout";
 import { pageMetadata } from "@/lib/site";
@@ -16,9 +14,14 @@ export const metadata = pageMetadata({ page: null, route: "/signup", title: "Sig
 
 export const dynamic = "force-dynamic";
 
-export default async function SignupPage() {
-  const user = await getSessionUser();
-  if (user) redirect("/");
+// Session-67 (N-67f): NO authenticated redirect here either — /login
+// dropped its session-read redirect at s23-P2 as an invented scaffold
+// pattern (the reference serves the login card to authed visitors too);
+// /signup is our documented superset (the reference 404s it), so the
+// same pure-render shape applies. The page makes no session read — no
+// DB round-trip per visit — and the s43 deferred-ledger "signup-page
+// session read" entry closes with it.
+export default function SignupPage() {
   return (
     <main className={LOGIN_LAYOUT.page}>
       <LoginCard mode="signup" />

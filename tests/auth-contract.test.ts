@@ -1,0 +1,154 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { describe, expect, it } from "vitest";
+
+// Session-67 pins (the N-67 family, S67-P1..P8): the auth-seam contract —
+// the 67-c fresh-eyes rotation on the AUTH/SESSION/UPLOAD seam found the
+// family, the orchestrator validated every claim at file:line, and these
+// pins freeze the closed surfaces. The house convention (the s46 dch +
+// the s66 badge-contract precedent): source-contract pins read
+// COMMENT-STRIPPED sources — a literal pinned by a record comment alone
+// is a vacuous pin, and an absence pin must not fail on the retired
+// form quoted inside its own documentation (the s64/s65/s66
+// needle-in-own-docs lesson, thrice reborn).
+//
+// The pinned surfaces:
+// - S67-P1 (N-67c): the verify attempt counter increments ATOMICALLY
+//   server-side — the read-modify-write form could let concurrent
+//   submissions overshoot the 5-wrong lockout against one code.
+// - S67-P2 (N-67d): all four public auth routes pre-gate the declared
+//   body size BEFORE req.json() buffers it (the S36-P3 upload precedent
+//   extended to the auth family).
+// - S67-P3 (N-67e): the one route that writes user bytes to disk joins
+//   the rate-limit family, deliberately AFTER the session guard.
+// - S67-P4 (N-67f): the /signup page carries no authenticated redirect
+//   (the s23-P2 retirement /login already carries; the superset page is
+//   a pure render).
+// - S67-P5 (N-67h/j/k/l): the Retry-After family consistency; the
+//   clear-cookie twin symmetry; the resend in-flight guard; the honest
+//   envelope-data read on the resend confirmation.
+
+function read(rel: string): string | null {
+  const p = path.resolve(import.meta.dirname, "..", rel);
+  return existsSync(p) ? readFileSync(p, "utf-8") : null;
+}
+
+function stripComments(src: string) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/[^\n]*/g, "");
+}
+
+const authLib = () => stripComments(read("src/lib/auth.ts") ?? "");
+const apiLib = () => stripComments(read("src/lib/api.ts") ?? "");
+const loginRoute = () => stripComments(read("src/app/api/auth/login/route.ts") ?? "");
+const signupRoute = () => stripComments(read("src/app/api/auth/signup/route.ts") ?? "");
+const verifyRoute = () => stripComments(read("src/app/api/auth/verify/route.ts") ?? "");
+const resendRoute = () => stripComments(read("src/app/api/auth/resend/route.ts") ?? "");
+const uploadRoute = () => stripComments(read("src/app/api/upload/route.ts") ?? "");
+const signupPage = () => stripComments(read("src/app/signup/page.tsx") ?? "");
+const loginCard = () => stripComments(read("src/components/layout/login-card.tsx") ?? "");
+
+describe("session-67: the auth-seam contract (the N-67 family)", () => {
+  it("S67-P1: the verify attempt counter increments atomically server-side", () => {
+    const src = verifyRoute();
+    // The atomic form: the DB increments; the returned record carries the
+    // post-increment value the lockout/remaining logic reads.
+    expect(src).toContain("verificationAttempts: { increment: 1 }");
+    // The retired form must stay retired (the read-modify-write race).
+    expect(src).not.toContain("verificationAttempts + 1");
+  });
+
+  it("S67-P2: api.ts exports the auth body ceiling and its helper", () => {
+    const src = apiLib();
+    expect(src).toContain("MAX_AUTH_BODY_BYTES = 16 * 1024");
+    expect(src).toContain("export function isBodyTooLarge");
+  });
+
+  it("S67-P2: all four public auth routes pre-gate the body size BEFORE the parse", () => {
+    const routes: Array<[string, string]> = [
+      ["login", loginRoute()],
+      ["signup", signupRoute()],
+      ["verify", verifyRoute()],
+      ["resend", resendRoute()],
+    ];
+    for (const [name, src] of routes) {
+      const gate = src.indexOf("isBodyTooLarge");
+      const parse = src.indexOf("req.json()");
+      expect(gate, `${name}: the gate is present`).toBeGreaterThanOrEqual(0);
+      expect(parse, `${name}: the parse is present`).toBeGreaterThan(0);
+      expect(gate, `${name}: the gate precedes the parse`).toBeLessThan(parse);
+    }
+  });
+
+  it("S67-P3: the upload route is rate-limited after the session guard", () => {
+    const src = uploadRoute();
+    expect(src).toContain("rateLimit(`upload:${clientKey(request)}`, 20, 15 * 60 * 1000)");
+    const guard = src.indexOf("isGuarded(guard)");
+    const limit = src.indexOf("rateLimit(");
+    expect(guard).toBeGreaterThanOrEqual(0);
+    // The deliberate placement: the unauth 401 never burns an IP's bucket.
+    expect(limit).toBeGreaterThan(guard);
+  });
+
+  it("S67-P4: the /signup page carries no authenticated redirect", () => {
+    const src = signupPage();
+    expect(src).not.toContain("getSessionUser");
+    expect(src).not.toContain("redirect(");
+    // The page stays the superset's signup-view render of the login card.
+    expect(src).toContain('mode="signup"');
+  });
+
+  it("S67-P5: ERR.RATE_LIMITED carries the optional Retry-After", () => {
+    const src = apiLib();
+    expect(src).toMatch(/RATE_LIMITED:\s*\(retryAfterSec\?: number\)/);
+    expect(src).toContain('"Retry-After"');
+  });
+
+  it("S67-P5: all four auth routes pass the limiter's retryAfterSec on denial", () => {
+    for (const src of [loginRoute(), signupRoute(), verifyRoute(), resendRoute()]) {
+      expect(src).toContain("ERR.RATE_LIMITED(limit.retryAfterSec)");
+      // The hand-built 429 block is retired everywhere in the family.
+      expect(src).not.toMatch(/NextResponse\.json/);
+    }
+  });
+
+  it("S67-P5: clearSessionCookie mirrors the set-side flag family", () => {
+    const src = authLib();
+    const start = src.indexOf("async function clearSessionCookie");
+    expect(start).toBeGreaterThanOrEqual(0);
+    const block = src.slice(start, start + 500);
+    expect(block).toContain("httpOnly: true");
+    expect(block).toContain('sameSite: "lax"');
+    expect(block).toContain('secure: process.env.NODE_ENV === "production"');
+    expect(block).toContain('path: "/"');
+    expect(block).toContain("maxAge: 0");
+  });
+
+  it("S67-P5: the resend link guards in-flight double-clicks", () => {
+    const src = loginCard();
+    expect(src).toContain("setResending");
+    expect(src).toContain("disabled={resending}");
+    expect(src).toMatch(/if \(resending\) return;/);
+  });
+
+  it("S67-P5: the resend confirmation reads the envelope data field", () => {
+    const src = loginCard();
+    expect(src).toContain("body?.data?.message");
+    // The root-level read is retired (the envelope nests at .data).
+    expect(src).not.toContain("body?.message");
+  });
+});
+
+describe("session-67: the standing auth-seam records (the N-67 keep set)", () => {
+  it("N-67b: the per-process limiter + clientKey shapes stay pinned (the deferred trusted-proxy ledger)", () => {
+    const src = stripComments(read("src/lib/rate-limit.ts") ?? "");
+    expect(src).toContain("export function rateLimit(key: string, limit: number, windowMs: number)");
+    expect(src).toContain("export function clientKey(req: Request): string");
+  });
+
+  it("N-67e: the upload pre-gate ceiling stays (the S36-P3 precedent the auth family now shares)", () => {
+    const src = uploadRoute();
+    expect(src).toContain("MAX_UPLOAD_BYTES + 64 * 1024");
+  });
+});

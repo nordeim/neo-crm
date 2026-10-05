@@ -59,6 +59,9 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
   // S21-P5: the resend confirmation rides its own green Callout — the
   // reference auto-dismisses it (~3s) while the error banners persist.
   const [info, setInfo] = React.useState<string | null>(null);
+  // Session-67 (N-67k): the resend's own in-flight flag — the link's
+  // budget is 5/15 min, so a double-click must not burn two sends.
+  const [resending, setResending] = React.useState(false);
   // Session-11 (S11-P1) + session-21: the card's five in-place views.
   const [view, setView] = React.useState<LoginView>(mode === "signup" ? "signup" : "signin");
   // S21-P5: the six single-digit code inputs.
@@ -172,9 +175,14 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
   }
 
   /** S21-P5: "Didn't receive the code? Resend" — the reference answers with
-   *  the auto-dismissing green Callout. */
+   *  the auto-dismissing green Callout. Session-67 (N-67k/N-67l): the
+   *  in-flight guard (the 5/15-min budget must survive a double-click)
+   *  and the honest envelope read — the route's message field nests at
+   *  body.data, not the envelope root. */
   async function onResend() {
+    if (resending) return;
     setError(null);
+    setResending(true);
     try {
       const res = await fetch("/api/auth/resend", {
         method: "POST",
@@ -186,9 +194,11 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
         setError(body?.error?.message ?? "Could not resend the code. Try again.");
         return;
       }
-      setInfo(body?.message ?? verificationResentMessage());
+      setInfo(body?.data?.message ?? verificationResentMessage());
     } catch {
       setError("Network error — check your connection and try again.");
+    } finally {
+      setResending(false);
     }
   }
 
@@ -434,6 +444,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                                   type="button"
                                   className={LOGIN_VERIFY_LAYOUT.resendButton}
                                   onClick={onResend}
+                                  disabled={resending}
                                 >
                                   Resend
                                 </button>

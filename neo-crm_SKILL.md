@@ -8,9 +8,9 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.63.0
+version: 1.64.0
 last_updated: 2026-10-05
-project_state: 1245 unit checks + 113 e2e checks green; the session-66 layer (the badge-primitive honesty + the parity-gap wiring layer: the N-66i Badge primitive RE-DERIVED as the reference's stock badge mirror [a DIV with rounded-md px-2.5 py-0.5 text-xs font-semibold + the stock variant set default/secondary/destructive/outline — the scaffold-era primitive was a rounded-full px-2 font-medium SPAN with an invented variant set, never re-derived because the reference renders NO badges at its persistent zero data and the s27-s31 decodes pinned the CALL-SITE class maps, not the chrome; every call-site className was already byte-identical to the bundle's, so only the primitive diverged — the computed-equal expressions for the deliberately-inverted tokens: default -> bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800 (the s13 PROFILE_LAYOUT.badge live-probed form), secondary -> bg-neutral-100 text-neutral-900 (neutral-100 = the reference's --secondary exactly), destructive -> bg-danger text-neutral-50 (our --danger #ef4444 IS its --destructive), outline -> text-foreground (NOT text-muted); the unused success/warning/info/muted variants retired; danger renamed destructive; the slide-over priority badge's wrongly-copied ROW overrides dropped] + the N-66d OVERDUE COUNT BADGE wired [the reference renders a red count span on exactly the activities Overdue tab, only while > 0 — the s23 tabs layer built the machinery but never passed a count; the span re-pinned to the reference's literal classes and the activities page passes the guarded count] + the N-66a search ESCAPE close [the dropdown closed only via outside-mousedown/row-click/query-collapse — a keyboard user Tabbing away stranded it open; the S12-P1 mobile-nav precedent applied] + the F-66a1 calendar agenda-row alignment REVERT [the s65 mid-flight edit-repair residue shipped items-center undeclared where the bundle renders items-start — the s65 zero-behavior claim was FALSE for one hunk] + the N-66b/c dead-surface retirement [GRID_COLS_LG + KpiCard.deltaSuffix/invertDelta + BarStatCard.barColorFor + the Sparkline guard reorder] + the N-66e/f coverage gaps closed [the route-case URL-state scan now sees the nine .jsx aliases; the mobile-nav inert + Tab-wrap e2e landed — the N-65p notes both closed]) landed RED-first (17 failing pins across the new badge-contract suite + the dch session-66 describe + the calendar/tabs re-anchors) and proven non-vacuous in a pre-fix 603184e worktree (17 failed | 1228 passed there; 1245/1245 at the fix); 
+project_state: 1257 unit checks + 114 e2e checks green; the session-67 layer (the auth-seam honesty + the small-hole closures: the N-67c verify attempt counter ATOMIC [the DB-side increment: Prisma's update returns the post-increment record whose value the lockout/remaining ladder reads — the read-modify-write form could let concurrent submissions overshoot the 5-wrong lockout against one code] + the N-67d AUTH BODY PRE-GATE [MAX_AUTH_BODY_BYTES = 16 * 1024 + isBodyTooLarge(req) in api.ts, applied before req.json() in all four public auth routes — the S36-P3 upload precedent extended to the family that buffers with no default cap; the chunked-body limitation inherited and documented] + the N-67e UPLOAD RATE LIMIT [the one route that writes user bytes to disk joins the family at 20/15min/IP, DELIBERATELY after the session guard — the unauth 401 is cheap and pre-auth bucketing would let an attacker exhaust a legitimate IP's upload budget without a session] + the N-67f /signup authed-redirect RETIREMENT [the s23-P2 /login shape applied to the superset page: a pure render, no session read, no DB round-trip — the s43 deferred 'signup-page session read' ledger entry closed] + the N-67h RETRY-AFTER FAMILY [ERR.RATE_LIMITED gains the optional retryAfterSec param; all four auth routes pass limit.retryAfterSec; login's hand-built NextResponse 429 block + its import retired] + the N-67j clear-cookie TWIN SYMMETRY [clearSessionCookie mirrors the set-side httpOnly/sameSite/secure/path family] + the N-67k RESEND IN-FLIGHT GUARD [the resending state + disabled link — the 5/15-min budget survives a double-click] + the N-67l HONEST ENVELOPE READ [body.data.message, not the envelope root] + the N-67a/o DOC CARRIERS [DEPLOYMENT.md's X-Forwarded-Proto claim re-derived to the NODE_ENV reality — no code ever read that header; the AUTH_SECRET >=16-char minimum documented in .env.example + DEPLOYMENT.md §3] + the N-67g STALE CARRIERS [AGENTS/playwright.config/auth.setup at the per-route limit numbers] + the F-67a1 screenshot re-capture [75 re-captured in the Due-Today-active state — the count pill on the INACTIVE Overdue tab, the conditional evidence the byte-identical default-view shot never carried]) landed RED-first (10 failing pins in the new tests/auth-contract.test.ts) and proven non-vacuous in a pre-fix 9628bf4 worktree (10 failed | 1247 passed there; 1257/1257 at the fix); the NEW e2e wrong-code ladder (the 114th check) drives rungs 2-5 + the lockout repeat + the post-lockout resend; the session-66 layer (the badge-primitive honesty + the parity-gap wiring layer: the N-66i Badge primitive RE-DERIVED as the reference's stock badge mirror [a DIV with rounded-md px-2.5 py-0.5 text-xs font-semibold + the stock variant set default/secondary/destructive/outline — the scaffold-era primitive was a rounded-full px-2 font-medium SPAN with an invented variant set, never re-derived because the reference renders NO badges at its persistent zero data and the s27-s31 decodes pinned the CALL-SITE class maps, not the chrome; every call-site className was already byte-identical to the bundle's, so only the primitive diverged — the computed-equal expressions for the deliberately-inverted tokens: default -> bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800 (the s13 PROFILE_LAYOUT.badge live-probed form), secondary -> bg-neutral-100 text-neutral-900 (neutral-100 = the reference's --secondary exactly), destructive -> bg-danger text-neutral-50 (our --danger #ef4444 IS its --destructive), outline -> text-foreground (NOT text-muted); the unused success/warning/info/muted variants retired; danger renamed destructive; the slide-over priority badge's wrongly-copied ROW overrides dropped] + the N-66d OVERDUE COUNT BADGE wired [the reference renders a red count span on exactly the activities Overdue tab, only while > 0 — the s23 tabs layer built the machinery but never passed a count; the span re-pinned to the reference's literal classes and the activities page passes the guarded count] + the N-66a search ESCAPE close [the dropdown closed only via outside-mousedown/row-click/query-collapse — a keyboard user Tabbing away stranded it open; the S12-P1 mobile-nav precedent applied] + the F-66a1 calendar agenda-row alignment REVERT [the s65 mid-flight edit-repair residue shipped items-center undeclared where the bundle renders items-start — the s65 zero-behavior claim was FALSE for one hunk] + the N-66b/c dead-surface retirement [GRID_COLS_LG + KpiCard.deltaSuffix/invertDelta + BarStatCard.barColorFor + the Sparkline guard reorder] + the N-66e/f coverage gaps closed [the route-case URL-state scan now sees the nine .jsx aliases; the mobile-nav inert + Tab-wrap e2e landed — the N-65p notes both closed]) landed RED-first (17 failing pins across the new badge-contract suite + the dch session-66 describe + the calendar/tabs re-anchors) and proven non-vacuous in a pre-fix 603184e worktree (17 failed | 1228 passed there; 1245/1245 at the fix); 
 ---
 
 # NEO CRM — Engineering Skill (SKILL.md v1.59.0)
@@ -4608,6 +4608,64 @@ stock geometry on the dashboard/contacts/accounts surfaces; the search
 Escape round-trip; the overdue count badge; the drawer both directions
 at a TRUE 390px with focus restore; zero 390px overflow on all ten
 routes; NO Tailwind v4 bug; census MATCH, zero residue).
+
+## 16bg. Session-67 Layer (the auth-seam honesty + the small-hole closures)
+
+The session-67 lesson triple:
+
+**(1) A documented mechanism that no code implements is worse than no
+documentation — the DEPLOYMENT.md X-Forwarded-Proto claim.** The deploy doc
+told operators to forward `X-Forwarded-Proto` "so cookie attributes derive
+the right scheme" for 60+ sessions while `setSessionCookie` read nothing
+but `NODE_ENV` — an operator following the doc on a plain-HTTP production
+boot still shipped Secure cookies browsers silently drop (a login loop),
+with the doc actively pointing AWAY from the real lever (`NODE_ENV`).
+The 67-c rotation caught it because it audited the DOC and the CODE as one
+seam. The rule: every deploy-facing claim about a mechanism (headers read,
+env vars consumed, flags derived) must be grep-verifiable in src the day it
+is written — and the fix for a false mechanism claim is to correct the DOC,
+not to wire the header (reading a spoofable request header to drive the
+Secure flag would be its own vulnerability; the trusted-proxy question is
+the standing N-67b ledger).
+
+**(2) The small holes compound: rate the FAMILY, then close the family in
+one pass.** Each N-67 finding alone was Nano-to-Low (a non-atomic counter,
+an ungated JSON parse, an unlimited upload route, a missing Retry-After).
+As a family they describe the same failure mode — the auth seam grew
+route-by-route across 60+ sessions and the cross-cutting invariants
+(nobody buffers unbounded, nobody writes unlimited, every 429 carries
+Retry-After) never had an owner. The closures landed as one
+family pass with one shared helper (MAX_AUTH_BODY_BYTES/isBodyTooLarge in
+api.ts) and one contract suite (tests/auth-contract.test.ts) pinning the
+whole family's shape — per-route constants, gate-before-parse ordering,
+the Retry-After presence, the twin cookie flags. When a rotation finds
+three or more same-mode findings, fix the MODE, not the instances.
+
+**(3) The artifact-evidence rule extends to screenshot IDENTITY: a new
+screenshot must carry evidence the existing set does not.** The s66
+"75-activities-overdue-count.png" was byte-identical to the re-captured
+07-activities.png (both captured the default view — which IS the Overdue
+tab), so the file documented nothing the set did not already show. The
+s67 re-capture uses the Due-Today-ACTIVE state: the red count pill on the
+INACTIVE Overdue tab is exactly the conditional the badge's guard
+(`> 0 &&`) promises, and no other shot in the set shows it. The rule: when
+a screenshot exists to prove a conditional, capture the state where the
+condition's CONTRAST is visible — the off-branch, the inactive tab, the
+neighboring surface without the feature.
+
+The standing layers held: 13/13 ledger zero graduations (24th consecutive),
+both operator decisions standing (the CSV posture (b) 25th re-affirmation;
+the source-vocabulary parity extended to the N-67 family — the auth seam
+touches NO vocabulary surface), the reference bundle byte-identical for the
+38th consecutive session. Gate: lint 0/0 - tsc 0 - 1257/1257 unit (77
+suites, +12) - build clean - 114/114 e2e (fresh CI=1 boot, all 8
+mobile-nav checks green — the wrong-code ladder test new) - LIVE-verified
+(the body pre-gate 400 on a 20KB body; the 11th-login 429 with
+Retry-After: 900; the authed /signup rendering the card with no redirect;
+the logout round-trip; the resend banner through body.data.message; the
+ladder rung live; the drawer both directions at a TRUE 390px with focus
+restore; zero 390px overflow on all ten routes; NO Tailwind v4 bug; census
+MATCH — the 2 throwaway LIVE-probe users reseeded in place).
 
 ## 17. Responsive Breakpoint Reference
 

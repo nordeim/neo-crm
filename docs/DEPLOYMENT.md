@@ -25,15 +25,21 @@ bun run start          # NODE_ENV=production bun .next/standalone/server.js
 The server listens on port 3000 by default (`PORT` overrides). Always start
 it from the repo root via the npm/bun script — the scripts guarantee the
 working directory that the SQLite path resolution and the standalone trace
-rely on. Behind a reverse proxy, forward `X-Forwarded-Proto` so cookie
-attributes derive the right scheme.
+rely on. **Cookie scheme note (session-67):** the session cookie's `Secure`
+flag derives from `NODE_ENV` (set in production boots) — the app NEVER reads
+`X-Forwarded-Proto` or any other request header to decide it. Behind an
+HTTPS-terminating reverse proxy that speaks plain HTTP to the app,
+`NODE_ENV=production` is what marks the cookie `Secure`; a plain-HTTP
+production boot still sets `Secure`, and browsers will silently drop the
+cookie (a login loop) — serve the app over HTTPS end-to-end or terminate
+TLS at the app process if you must run without the flag.
 
 ## 3. Environment variables
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
 | `DATABASE_URL` | Yes | SQLite connection string. See §4. |
-| `AUTH_SECRET` | **Yes in production** | HMAC secret for session cookies. Generate with `openssl rand -hex 32`. An insecure dev constant is used when unset — never ship that. |
+| `AUTH_SECRET` | **Yes in production** | HMAC secret for session cookies. Generate with `openssl rand -hex 32`. Must be at least 16 characters — shorter values fall back to the insecure dev constant (with a server warning) instead of the run-time error an absent value raises. Never ship the dev constant. |
 | `NEXT_PUBLIC_SITE_URL` | Recommended | Canonical public origin, used for metadata URLs and `sitemap.xml` (e.g. `https://orbital.example.com`). |
 
 ## 4. Database location (§4 — the `.env.example` reference)

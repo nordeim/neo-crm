@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 import { ERR, isGuarded, ok, requireSession } from "@/lib/api";
+import { clientKey, rateLimit, sweepRateLimits } from "@/lib/rate-limit";
 import { EXT_BY_MIME, MAX_UPLOAD_BYTES, uploadsDir } from "@/lib/uploads";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,17 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
+
+  // Session-67 (N-67e): the one route that writes user bytes to disk
+  // joins the rate-limit family — 20 uploads / 15 min / IP, the verify
+  // route's budget. DELIBERATELY after the session guard (the auth
+  // family limits first because it is public; here the unauth 401 is
+  // already cheap — a cookie parse, no DB read without a valid
+  // signature — and bucketing pre-auth would let an attacker exhaust a
+  // legitimate IP's upload budget without ever holding a session).
+  const limit = rateLimit(`upload:${clientKey(request)}`, 20, 15 * 60 * 1000);
+  sweepRateLimits();
+  if (!limit.allowed) return ERR.RATE_LIMITED(limit.retryAfterSec);
 
   // Session-36 (S36-P3): pre-gate on the declared Content-Length BEFORE
   // formData() buffers the body — a multi-GB body must be rejected without

@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1245 checks)       | `bun run test`                         |
-| Browser E2E (113 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1257 checks)       | `bun run test`                         |
+| Browser E2E (114 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1245) → `bun run build` → `bun run test:e2e` (113) — or the
+`bun run test` (1257) → `bun run build` → `bun run test:e2e` (114) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -48,8 +48,10 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   (`scrypt:salt:hash`) + HMAC-SHA256 signed stateless cookie `neo_session`
   (7-day TTL). `requireSession()` + the `isGuarded()` narrowing helper guard
   every route handler; the `(app)` route-group layout redirects unauthenticated
-  page visits. No NextAuth, no JWTs, no middleware/proxy. Login/signup are
-  rate-limited 10 attempts/IP/15 min (`src/lib/rate-limit.ts`, per-process).
+  page visits. No NextAuth, no JWTs, no middleware/proxy. The public auth
+  routes are rate-limited per IP/15 min — login 10, signup 10, resend 5,
+  verify 20 (session-67 adds the sessioned upload route at 20;
+  `src/lib/rate-limit.ts`, per-process).
 - **API envelope is `{ ok, data } | { ok, error: { code, message } }`** — build
   responses with `ok()` / `fail()` / `ERR.*` from `src/lib/api.ts`. The store's
   `call()` helper (`src/stores/crm-store.ts`) is the only sanctioned client.
@@ -2612,6 +2614,88 @@ intake: the sandbox was RESET — a FRESH CLONE + bun install + db:push
 + db:seed, the census MATCH at the repo path; the stale platform
 DATABASE_URL override still points at the non-existent mirror, all
 operations under env -u DATABASE_URL).
+
+**Session-67 (SKILL v1.64.0)** — the auth-seam honesty + the small-hole
+closures: the 67-c fresh-eyes rotation on the AUTH/SESSION/UPLOAD seam
+(the 6 auth routes + the auth/verification/rate-limit/login-reset/uploads
+libs + the upload routes + the login/signup pages + next.config headers
+— never a dedicated rotation target) finding the N-67 family, every
+finding manually validated at file:line. **N-67c** — the verify attempt
+counter is now ATOMIC (the DB-side `{ increment: 1 }` whose returned
+record feeds the lockout/remaining ladder — the read-modify-write form
+could let concurrent submissions overshoot the 5-wrong lockout against
+one code). **N-67d** — the auth body pre-gate (MAX_AUTH_BODY_BYTES
+16KB + isBodyTooLarge in api.ts, applied before `req.json()` in all four
+public auth routes — the S36-P3 upload precedent extended to the family
+that buffers with no default cap). **N-67e** — the upload route joins
+the rate-limit family (20/15min/IP, DELIBERATELY after the session
+guard — the unauth 401 is cheap, and pre-auth bucketing would let an
+attacker exhaust a legitimate IP's upload budget without a session).
+**N-67f** — the /signup authed redirect RETIRED (the s23-P2 /login
+pure-render shape; the s43 deferred "signup-page session read" ledger
+entry closed). **N-67h** — the Retry-After family (ERR.RATE_LIMITED
+gains the optional retryAfterSec param; all four routes pass it; login's
+hand-built NextResponse 429 block retired). **N-67j/k/l** — the
+clear-cookie twin symmetry; the resend in-flight guard (the 5/15-min
+budget survives a double-click); the honest `body.data.message` read
+(the envelope nests at .data — the root read always fell to the
+fallback). **N-67a/o** — the doc carriers (DEPLOYMENT.md's
+X-Forwarded-Proto claim re-derived to the NODE_ENV reality — NO code
+ever read that header, and wiring it would be its own spoofing hazard;
+the AUTH_SECRET >=16-char minimum documented in .env.example +
+DEPLOYMENT.md §3). **N-67g** — the three stale flat-"10" rate-limit
+carriers refreshed (AGENTS + playwright.config + auth.setup at the
+per-route numbers: login 10 / signup 10 / resend 5 / verify 20).
+**F-67a1** — the s66 screenshot 75 re-captured in the Due-Today-ACTIVE
+state (the red count pill on the INACTIVE Overdue tab — the conditional
+evidence the byte-identical default-view shot never carried; errata in
+session_125.md). KEEP: N-67b (the trusted-proxy limiter — the standing
+s36/s37 deferred ledger), N-67i (the auth ok() payloads are the API's
+public self-hosted shape), N-67m/N-67n (the timing oracle + scrypt
+defaults — documented). All pinned RED-first (10 RED: the new
+tests/auth-contract.test.ts; +12 its = 1257) and proven non-vacuous in
+a pre-fix 9628bf4 worktree (10 failed | 1247 passed there). Plus the
+NEW e2e wrong-code ladder (the 114th check: rungs 2-5 + the lockout
+repeat + the post-lockout resend). THE AUDITS: the s66 re-audit 12/12
+GENUINE (the non-vacuousness arithmetic replayed exactly: 17 failed |
+1228 passed pre-fix) + F-67a1 (the 75/07 byte-identity); the graduation
+audit: ZERO graduations — 13/13 re-confirmed (24th consecutive
+session), the 8 mechanical censuses ALL CLEAN; both operator decisions
+standing — the CSV formula-injection posture (b) STANDS (25th
+re-affirmation), the source-vocabulary documented parity STANDS AND
+EXTENDS to the N-67 family (the auth seam touches NO vocabulary
+surface) [the bundle byte-identical for the 38th consecutive session]
+— GATE: lint 0/0 · tsc 0 · 1257/1257 unit (77 suites, +12) · build
+clean · 114/114 e2e on a fresh CI=1 boot (2.6m, all 8 mobile-nav
+checks green) · 63rd drift-sweep clean (38th consecutive stable
+reference bundle: size 1,631,071 + md5 a70a637fcf1d4291da8e0d965676dc11)
+· LIVE-verified (the body pre-gate: a 20KB login body answers 400
+"Request body too large" unparsed; the 429 family: the 11th login from
+one IP answers Retry-After: 900; the authed /signup RENDERS the card
+with no redirect; the logout round-trip [me -> null]; the resend banner
+through body.data.message; the wrong-code ladder rung live; the drawer
+both directions at a TRUE 390px [closed inert, open 8/8 + the body
+lock + focus in the dialog; Escape -> inert + unlocked + focus
+RESTORED]; zero 390px overflow on all ten routes; NO Tailwind v4 bug
+[--blur-sm 4px + --shadow-sm 0 1px 2px 0 #0000000d + a live surface
+computing rgba(0,0,0,0.05) 0px 1px 2px 0px]; the closing census MATCH
+after an in-place reseed of the 2 throwaway LIVE-probe users) · 5
+screenshots (01/02/07 re-captured + 75 re-captured in the contrast
+state + 76-verify-ladder NEW — the fix surfaces at 1440x900;
+VLM-verified: the salesTarget $0k question is the reference's own
+HARDCODED value [API + docs verified] and the login accent-strip
+question a 4px DOM-probe-verified sub-pixel artifact) · docs at SKILL
+v1.64.0 (the new §16bg + project_state, applied atomically via the
+assert-first scripts/skill_edits_s67.py at the sandbox root, 6251 ->
+6309 lines by wc -l) + session_127.md [the odd-number record
+convention] + the plan's execution record + both worklogs + the
+F-67a1 errata in session_125.md + README/AGENTS/CLAUDE/PAD at
+1257+114 (badge 1371); .env/.env.example verified (the AUTH_SECRET
+minimum note added; DATABASE_URL file:../db/custom.db with db/ at the
+repo root; the intake: the sandbox SURVIVED s66 — the pull
+fast-forwarded 2c748c3 -> 9628bf4, session_126.md only, zero code
+drift; the stale platform DATABASE_URL override still points at the
+non-existent mirror, all operations under env -u DATABASE_URL).
 
 ## Conventions that differ from defaults
 

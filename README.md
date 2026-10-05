@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-1358%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-1371%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -52,7 +52,7 @@ first boot.
 | 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 1245 Vitest unit checks + 113 Playwright E2E checks, including an 8-check mobile-nav regression suite (resize lock-release + drawer focus-entry + the closed-state inert/Tab-wrap trap included) |
+| 🧪 Tested | 1257 Vitest unit checks + 114 Playwright E2E checks, including an 8-check mobile-nav regression suite (resize lock-release + drawer focus-entry + the closed-state inert/Tab-wrap trap included) and the wrong-code verification ladder (5 attempts → lockout → resend) |
 
 ## Architecture
 
@@ -122,8 +122,8 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 9 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 76 Vitest suites (1245 checks)
-│   └── 📂 e2e/                       # Playwright (112 checks)
+│   ├── 📄 *.test.ts                  # 77 Vitest suites (1257 checks)
+│   └── 📂 e2e/                       # Playwright (114 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
@@ -175,9 +175,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 1245 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, calendar-fetch-bounds, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback, reports-filter-validation, create-dialog-single-mode, db-census, badge-contract)
+bun run test          # 1257 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, calendar-fetch-bounds, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback, reports-filter-validation, create-dialog-single-mode, db-census, badge-contract, auth-contract)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 113 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 114 Playwright checks on :3100 with its own db/e2e.db
 bun run gate          # the full gate in one command: lint → typecheck → test → build → CI=1 e2e (the CI=1 prefix forces a fresh e2e server — a leftover :3100 listener is never reused)
 ```
 
@@ -843,6 +843,28 @@ inert + Tab-wrap e2e) — all pinned RED-first [17 RED across the new
 badge-contract suite + the dch session-66 describe + the calendar/tabs
 re-anchors; +18 its = 1245], proven non-vacuous in a pre-fix 603184e
 worktree [17 failed | 1228 passed there]),
+and the session-67 auth-seam honesty + small-hole closures layer
+(the N-67c verify attempt counter ATOMIC — the DB-side increment whose
+returned record feeds the lockout/remaining ladder, closing the
+concurrent-overshoot race; the N-67d auth body pre-gate —
+MAX_AUTH_BODY_BYTES 16KB + isBodyTooLarge in api.ts applied before
+req.json() in all four public auth routes, the upload precedent extended;
+the N-67e upload route rate limit — 20/15min/IP after the session guard,
+the disk-writing route joins the family; the N-67f /signup authed-redirect
+retirement — the s23-P2 /login pure-render shape, closing the s43
+deferred session-read ledger entry; the N-67h Retry-After family —
+ERR.RATE_LIMITED gains the optional param, all four routes pass
+limit.retryAfterSec, login's hand-built 429 retired; the N-67j
+clear-cookie twin symmetry; the N-67k resend in-flight guard; the N-67l
+honest body.data.message read; the N-67a DEPLOYMENT.md X-Forwarded-Proto
+claim re-derived to the NODE_ENV reality — the header was never read; the
+N-67o AUTH_SECRET 16-char minimum documented; the N-67g stale carriers
+refreshed; the F-67a1 screenshot re-captured in the Due-Today-active
+contrast state) — all pinned RED-first [10 RED in the new
+tests/auth-contract.test.ts; +12 its = 1257], proven non-vacuous in a
+pre-fix 9628bf4 worktree [10 failed | 1247 passed there], plus the NEW
+e2e wrong-code ladder (rungs 2-5 + the lockout repeat + the post-lockout
+resend — the 114th check),
 and the 8-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,

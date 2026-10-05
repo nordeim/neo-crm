@@ -22,7 +22,17 @@ export const ERR = {
   FORBIDDEN: () => fail("FORBIDDEN", "Not allowed", 403),
   NOT_FOUND: (what = "Record") => fail("NOT_FOUND", `${what} not found`, 404),
   BAD_REQUEST: (msg: string) => fail("BAD_REQUEST", msg, 400),
-  RATE_LIMITED: () => fail("RATE_LIMITED", "Too many attempts. Try again later.", 429),
+  // Session-67 (N-67h): the 429 family carries Retry-After consistently —
+  // login used to hand-build its own (bypassing fail()) while the
+  // siblings shipped no header at all. The optional param keeps the
+  // zero-arg calls valid; the envelope shape is identical either way.
+  RATE_LIMITED: (retryAfterSec?: number): NextResponse =>
+    retryAfterSec === undefined
+      ? fail("RATE_LIMITED", "Too many attempts. Try again later.", 429)
+      : NextResponse.json(
+          { ok: false, error: { code: "RATE_LIMITED", message: "Too many attempts. Try again later." } } satisfies ApiResult<never>,
+          { status: 429, headers: { "Retry-After": String(Math.max(1, retryAfterSec)) } },
+        ),
   INTERNAL: () => fail("INTERNAL", "Something went wrong. Please try again.", 500),
 };
 
@@ -44,6 +54,24 @@ export async function requireSession(): Promise<{ user: SessionUser } | { respon
 
 export function isGuarded(x: { user: SessionUser } | { response: NextResponse }): x is { response: NextResponse } {
   return "response" in x;
+}
+
+// ---- the auth-family body pre-gate (session-67, N-67d) ---------------------
+
+/** Session-67 (N-67d): the declared-size ceiling for the public auth
+ * routes' JSON bodies — the S36-P3 upload precedent extended to the
+ * family that buffers req.json() with no default cap. The honest bodies
+ * are tiny (email capped at 160 chars + password + a 6-digit code), so
+ * 16KB is beyond generous. Documented limitation (inherited from the
+ * upload gate): a chunked body without a Content-Length header bypasses
+ * this check; the JSON parse's own failure mode stays the backstop. */
+export const MAX_AUTH_BODY_BYTES = 16 * 1024;
+
+/** True when the request DECLARES a body larger than the auth ceiling —
+ * call before `req.json()` so an oversized body is rejected without ever
+ * being read into memory. */
+export function isBodyTooLarge(req: Request): boolean {
+  return Number(req.headers.get("content-length") ?? 0) > MAX_AUTH_BODY_BYTES;
 }
 
 // ---- hand-rolled validation helpers (no schema lib — scaffold style) -------

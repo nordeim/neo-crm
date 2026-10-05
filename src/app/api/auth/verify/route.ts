@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, fail, ERR, asString } from "@/lib/api";
+import { ok, fail, ERR, asString, isBodyTooLarge } from "@/lib/api";
 import { setSessionCookie } from "@/lib/auth";
 import { clientKey, rateLimit, sweepRateLimits } from "@/lib/rate-limit";
 import {
@@ -31,7 +31,13 @@ export async function POST(req: Request) {
   // placement — see the signup note; S39-P7 moved it before the denied
   // return so denied requests sweep too).
   sweepRateLimits();
-  if (!limit.allowed) return ERR.RATE_LIMITED();
+  // Session-67 (N-67h): the denied 429 carries the Retry-After header
+  // like the rest of the family.
+  if (!limit.allowed) return ERR.RATE_LIMITED(limit.retryAfterSec);
+
+  // Session-67 (N-67d): the declared-size pre-gate BEFORE the parse —
+  // req.json() buffers with no default cap in App Router handlers.
+  if (isBodyTooLarge(req)) return ERR.BAD_REQUEST("Request body too large");
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
@@ -63,10 +69,14 @@ export async function POST(req: Request) {
     }
 
     if (!verifyVerificationCode(code, user.verificationCodeHash)) {
-      const attempts = user.verificationAttempts + 1;
-      await db.user.update({
+      // Session-67 (N-67c): the counter increments ATOMICALLY server-side
+      // (the DB's own increment) — the read-modify-write form could let
+      // concurrent submissions overshoot the 5-wrong lockout against one
+      // code. Prisma's update returns the post-increment record, which
+      // carries the value the lockout/remaining ladder reads.
+      const { verificationAttempts: attempts } = await db.user.update({
         where: { id: user.id },
-        data: { verificationAttempts: attempts },
+        data: { verificationAttempts: { increment: 1 } },
       });
       if (isVerificationLockedOut(attempts)) {
         return fail("VERIFICATION_LOCKED", verificationLockoutMessage(), 429);

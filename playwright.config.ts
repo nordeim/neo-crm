@@ -10,9 +10,10 @@ import { defineConfig, devices } from "@playwright/test";
 // Auth strategy: the "setup" project signs the demo user in ONCE and saves
 // the session cookie to tests/e2e/.auth/user.json; every spec in the main
 // project starts with that storageState. This is not just speed — the auth
-// endpoints are rate-limited (10 attempts/IP/15 min), so per-test logins
-// would trip the limiter mid-suite. tests/e2e/auth.spec.ts opts back out
-// with an empty storageState because it tests the logged-out surface.
+// endpoints are rate-limited per IP/15 min (login 10, signup 10, resend 5,
+// verify 20), so per-test logins would trip the limiter mid-suite.
+// tests/e2e/auth.spec.ts opts back out with an empty storageState because
+// it tests the logged-out surface.
 //
 // The unit layer stays in Vitest (see vitest.config.ts — it matches
 // *.test.ts only, so these *.spec.ts / *.setup.ts files are never picked

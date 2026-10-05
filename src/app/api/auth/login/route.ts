@@ -1,21 +1,22 @@
 import { db } from "@/lib/db";
-import { ok, fail, ERR, asString } from "@/lib/api";
+import { ok, fail, ERR, asString, isBodyTooLarge } from "@/lib/api";
 import { verifyPassword, setSessionCookie } from "@/lib/auth";
 import { clientKey, rateLimit, sweepRateLimits } from "@/lib/rate-limit";
 import { isVerificationPending, verificationRequiredMessage } from "@/lib/verification";
-import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const limit = rateLimit(`login:${clientKey(req)}`, 10, 15 * 60 * 1000);
   sweepRateLimits();
-  if (!limit.allowed) {
-    return NextResponse.json(
-      { ok: false, error: { code: "RATE_LIMITED", message: "Too many attempts. Try again later." } },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfterSec) } },
-    );
-  }
+  // Session-67 (N-67h): the 429 joins the ERR family — the hand-built
+  // NextResponse block is retired; the Retry-After header it carried
+  // moves into ERR.RATE_LIMITED so every auth route ships it.
+  if (!limit.allowed) return ERR.RATE_LIMITED(limit.retryAfterSec);
+
+  // Session-67 (N-67d): the declared-size pre-gate BEFORE the parse —
+  // req.json() buffers with no default cap in App Router handlers.
+  if (isBodyTooLarge(req)) return ERR.BAD_REQUEST("Request body too large");
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");

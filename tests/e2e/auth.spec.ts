@@ -173,6 +173,66 @@ test("a fresh signup swaps to the verify-email view with its ladder", async ({ p
   ).toBeVisible();
 });
 
+// Session-67 (N-67 family coverage closure): the ladder beyond rung 1 —
+// the 67-c rotation found the attempts 2→5 climb, the lockout repeat,
+// and the post-lockout resend never driven anywhere. Six wrong
+// submissions against a throwaway signup (the verify budget is 20/IP —
+// the sibling test above spends 2, this one 6, both under the ceiling).
+test("the wrong-code ladder climbs to lockout and repeats its message", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Need an account? Sign up" }).click();
+
+  const signupEmail = `e2e-lockout-${Date.now()}@example.com`;
+  await page.getByLabel("Email").fill(signupEmail);
+  await page.getByLabel("Password", { exact: true }).fill("TestPass123");
+  await page.getByLabel("Confirm Password").fill("TestPass123");
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  await expect(page.getByRole("heading", { name: "Verify your email" })).toBeVisible();
+
+  const submitWrongCode = async () => {
+    for (let i = 1; i <= 6; i += 1) {
+      await page.getByLabel(`Digit ${i}`).fill(String((i + 4) % 10));
+    }
+    await page.getByRole("button", { name: "Verify email" }).click();
+  };
+
+  // Rungs 1-4: the attempts-remaining countdown (4 down to 1).
+  for (let remaining = 4; remaining >= 1; remaining -= 1) {
+    await submitWrongCode();
+    await expect(
+      page
+        .getByRole("alert")
+        .filter({ hasText: `Invalid verification code. ${remaining} attempts remaining.` }),
+    ).toBeVisible();
+  }
+
+  // Rung 5: the lockout banner.
+  await submitWrongCode();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Too many failed attempts. Please request a new verification code." }),
+  ).toBeVisible();
+
+  // Rung 6: the lockout message REPEATS (the ladder does not reset on
+  // its own — the resend is the only recovery path).
+  await submitWrongCode();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Too many failed attempts. Please request a new verification code." }),
+  ).toBeVisible();
+
+  // The post-lockout resend: the non-leaking info banner (the route
+  // answers identically for a locked-out account and resets the ladder
+  // server-side).
+  await page.getByRole("button", { name: "Resend" }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "New verification code sent to your email" }),
+  ).toBeVisible();
+});
+
 test("the /signup page renders the same minimal signup view", async ({ page }) => {
   await page.goto("/signup");
   await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString } from "@/lib/api";
+import { ok, ERR, asString, isBodyTooLarge } from "@/lib/api";
 import { clientKey, rateLimit, sweepRateLimits } from "@/lib/rate-limit";
 import { VERIFICATION_TTL_MS, isVerificationPending, verificationResentMessage } from "@/lib/verification";
 import { generateVerificationCode, hashVerificationCode } from "@/lib/verification-server";
@@ -21,7 +21,13 @@ export async function POST(req: Request) {
   // placement — see the signup note; S39-P7 moved it before the denied
   // return so denied requests sweep too).
   sweepRateLimits();
-  if (!limit.allowed) return ERR.RATE_LIMITED();
+  // Session-67 (N-67h): the denied 429 carries the Retry-After header
+  // like the rest of the family.
+  if (!limit.allowed) return ERR.RATE_LIMITED(limit.retryAfterSec);
+
+  // Session-67 (N-67d): the declared-size pre-gate BEFORE the parse —
+  // req.json() buffers with no default cap in App Router handlers.
+  if (isBodyTooLarge(req)) return ERR.BAD_REQUEST("Request body too large");
 
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
