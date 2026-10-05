@@ -948,4 +948,18 @@ describe("session-68: the unwired-duplicate wiring + the format dedupe", () => {
     const hits = src.match(/"Jan", "Feb"/g) ?? [];
     expect(hits.length).toBe(1);
   });
+
+  it("contact-detail-panel's mmmDyyyy rides the exported MONTHS_SHORT (F-69a5)", () => {
+    // The N-68h class survived OUTSIDE format.ts: mmmDyyyy re-declared
+    // the byte-identical month array because MONTHS_SHORT was
+    // module-private. Session-69 exports it and the panel consumes it —
+    // the repo declares the array exactly once.
+    const src = stripComments(read("src/components/contacts/contact-detail-panel.tsx") ?? "");
+    expect(src).not.toMatch(/"Jan", "Feb"/);
+    expect(src).toMatch(/MONTHS_SHORT/);
+    expect(src).toMatch(/from "@\/lib\/format"/);
+    const fmt = stripComments(read("src/lib/format.ts") ?? "");
+    expect((fmt.match(/"Jan", "Feb"/g) ?? []).length).toBe(1);
+    expect(fmt).toMatch(/export const MONTHS_SHORT/);
+  });
 });

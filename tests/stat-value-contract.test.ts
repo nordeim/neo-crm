@@ -58,6 +58,27 @@ describe("session-68: the stat-card value typography (N-68a — the s13 sweep co
   });
 });
 
+describe("session-69: the leads-variant stat value (F-69a1 — the s68 sweep's survivor)", () => {
+  it("IconStatCard (leads) renders the bare responsive form — no text-foreground", () => {
+    // The 69-a re-audit's find: the leads variant (leads-page x5) kept
+    // `text-xl font-bold text-foreground sm:text-2xl` — the 4th class
+    // the N-68a sweep named (text-foreground) plus the pre-normalization
+    // order, uncovered because the absence it pins only the COMBINED
+    // decoration strings. The reference's leads values are `text-xl
+    // sm:text-2xl font-bold text-gray-900` (x2 in the byte-stable
+    // bundle) — the size/weight classes in the family order, the color
+    // carried by the palette token, never the scaffold-era semantic
+    // class the sweep retired from every other stat VALUE.
+    expect(parts()).toContain(
+      '<span className="text-xl sm:text-2xl font-bold">{value}</span>',
+    );
+    // the pre-fix form is gone (both the exact string and the broader
+    // class-order shape)
+    expect(parts()).not.toContain("text-xl font-bold text-foreground sm:text-2xl");
+    expect(parts()).not.toContain("text-foreground sm:text-2xl");
+  });
+});
+
 describe("session-68: the reports Won/Lost fixed-scale (N-68b — the reference's literal /1e3)", () => {
   it("the Won KPI passes scale k (upper K, one decimal)", () => {
     expect(reports()).toContain('formatCompactCurrency(k?.wonValue ?? 0, { scale: "k", upper: true })');

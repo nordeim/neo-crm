@@ -72,3 +72,28 @@ describe("session-68: the sessioned body pre-gate family (F-68a2)", () => {
     }
   });
 });
+
+describe("session-69: the gate precedes all DB work in its own handler (F-69a3)", () => {
+  it("no sessioned route reads the DB before the pre-gate rejects an oversized body", () => {
+    // The 69-a re-audit's find: leads/[id] placed the gate INSIDE the
+    // try AFTER the findUnique — the only one of the 12 where an
+    // oversized body still paid a DB round-trip before rejection (the
+    // gate-before-parse ordering held, the cheap-rejection contract
+    // did not). The pin scopes to the gate's OWN handler so the root
+    // routes' GET findMany (a different handler, no body parse) stays
+    // legitimately out of scope.
+    for (const rel of ROUTES) {
+      const src = stripComments(read(rel) ?? "");
+      const gate = src.indexOf("isBodyTooLarge(req)");
+      expect(gate, `${rel}: no gate`).toBeGreaterThanOrEqual(0);
+      const handlerStarts = [...src.matchAll(/export async function (?:GET|POST|PUT|PATCH|DELETE)/g)]
+        .map((m) => m.index ?? 0)
+        .filter((i) => i < gate);
+      const handlerStart = handlerStarts.length
+        ? handlerStarts[handlerStarts.length - 1]
+        : 0;
+      const between = src.slice(handlerStart, gate);
+      expect(between.match(/\bdb\.\w+/g) ?? [], `${rel}: DB work before the gate`).toEqual([]);
+    }
+  });
+});

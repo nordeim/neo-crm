@@ -43,13 +43,21 @@ export function formatCompactCurrency(
   if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(decimals)}M`;
   if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(decimals)}${suffixK}`;
   // Sub-1000: the legacy default keeps the bare rounded number (pinned by
-  // tests); the variant form (options passed — the reports cards) always
-  // carries the suffix, matching the reference's "$0.0K"/"$0K" zero KPIs.
+  // tests). The variant arm below (options passed, no scale) has had NO
+  // src consumer since session-68's S68-P2 landed scale:"k" at the
+  // reports call-sites — it survives as the test-pinned zero-state guard
+  // ("$0.0K"/"$0K" for options-without-scale, matching the reference's
+  // persistent zero KPIs byte-for-byte; the only options-without-scale
+  // caller left is the topbar hint, which passes NO options at all and
+  // so rides the default arm).
   if (options) return `${sign}$${abs.toFixed(decimals)}${suffixK}`;
   return `${sign}$${Math.round(abs)}`;
 }
 
-const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// Session-69 (F-69a5): exported — contact-detail-panel's mmmDyyyy rides
+// it (the N-68h dedupe class closed repo-wide: the array is declared
+// exactly once, consumed by every MMM-short surface).
+export const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",

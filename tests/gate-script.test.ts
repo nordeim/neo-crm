@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -72,5 +72,36 @@ describe("session-39: the lint warning enforcement (S39-P6)", () => {
     // gate standard, but nothing enforced it. The flag makes the
     // convention a contract.
     expect(pkg.scripts!.lint).toMatch(/--max-warnings\s+0/);
+  });
+});
+
+describe("session-69: the E2E_PORT single source (N-69g)", () => {
+  // The 69-c rotation's find: the "3100" default was hardcoded TWICE —
+  // playwright.config.ts (Number(process.env.E2E_PORT ?? 3100)) and the
+  // crm.spec 401 probe (process.env.E2E_PORT ?? "3100") — so a default
+  // change in one place silently sends the probe at a dead port. The
+  // fix: tests/e2e/e2e-port.ts owns the default + the env resolution;
+  // both consumers import it (the S68-P4 constant-wiring class).
+  function stripComments(src: string): string {
+    return src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/[^\n]*/g, "");
+  }
+  function read(rel: string): string {
+    const p = path.resolve(import.meta.dirname, "..", rel);
+    return existsSync(p) ? readFileSync(p, "utf-8") : "";
+  }
+
+  it("the 3100 default lives exactly once (in e2e-port.ts) and both consumers import it", () => {
+    const port = stripComments(read("tests/e2e/e2e-port.ts"));
+    expect(port).toContain('"3100"');
+    const config = stripComments(read("playwright.config.ts"));
+    const spec = stripComments(read("tests/e2e/crm.spec.ts"));
+    // neither consumer carries the literal anymore
+    expect(config).not.toContain("?? 3100");
+    expect(spec).not.toContain('?? "3100"');
+    // both consume the shared module
+    expect(config).toMatch(/e2e-port/);
+    expect(spec).toMatch(/e2e-port/);
   });
 });

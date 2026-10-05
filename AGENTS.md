@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1275 checks)       | `bun run test`                         |
-| Browser E2E (114 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1279 checks)       | `bun run test`                         |
+| Browser E2E (116 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1275) → `bun run build` → `bun run test:e2e` (114) — or the
+`bun run test` (1279) → `bun run build` → `bun run test:e2e` (116) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -162,8 +162,9 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   hidden` element SILENTLY NO-OPS (keyboard users Tabbed through the
   background behind the aria-modal dialog). The panel also uses
   `h-dvh` (not `h-full`) so it tracks the dynamic viewport on mobile
-  browsers. `tests/e2e/mobile-navigation.spec.ts` (7 checks, 390/700px
-  viewports — the focus-entry test included) is the
+  browsers. `tests/e2e/mobile-navigation.spec.ts` (9 checks, 390/700px
+  viewports — the focus-entry test + the ten-route zero-overflow sweep
+  included) is the
   regression suite — do not weaken it.
 - **File downloads are blob-based** (`src/lib/download.ts`'s
   `downloadBlob` — session-48 retired the `downloadFile`
@@ -2762,6 +2763,66 @@ the intake: the FRESH CLONE — .env re-created from .env.example with a
 generated AUTH_SECRET; the stale platform DATABASE_URL override still
 points at the non-existent mirror, all operations under env -u
 DATABASE_URL).
+
+**Session-69 (SKILL v1.66.0)** — the e2e-honesty + the s68-straggler
+session (the 69-c fresh-eyes rotation on the NEVER-AUDITED e2e
+infrastructure seam — 2,933 lines of specs + config — finding the
+N-69 family with every claim manually validated; the 69-a s68
+re-audit 12/12 GENUINE [9 clean + 3 nano-noted: F-69a1 the
+leads-variant text-foreground survivor, F-69a2/a4 the record
+precision pair, F-69a3 the leads/[id] gate inside-the-try, F-69a5 the
+contact-detail-panel month re-declaration, F-69a6 the format sub-1000
+stale comment]; the 69-b graduation audit ZERO graduations 13/13 [26th
+consecutive], the 8 censuses clean; both operator decisions standing:
+the CSV formula-injection posture (b) [28th re-affirmation] + the
+source-vocabulary documented parity): the F-69a1 LEADS-VARIANT STAT
+VALUE [the IconStatCard leads render arm's surviving text-foreground +
+pre-normalization order retired — the reference's leads values are
+text-xl sm:text-2xl font-bold text-gray-900; now the bare family-order
+form, LIVE-verified at 24px/700/inherited]; the F-69a3 GATE HOIST
+[the leads/[id] pre-gate above the try — the only one of the 12
+sessioned routes paying a DB round-trip before rejection; the
+handler-scoped no-DB-before-the-gate pin added, scoped to the gate's
+OWN handler so root GET findMany stays legitimately green]; the
+F-69a5 MONTHS_SHORT EXPORT [the N-68h dedupe closed repo-wide —
+contact-detail-panel's mmmDyyyy rides the single declaration]; the
+F-69a6 format comment re-scope [the sub-1000 options branch = the
+test-pinned zero-state guard, no src consumer since S68-P2]; the
+N-69a LOCAL REUSE LIMITER HAZARD documented [reuseExistingServer:!CI
+keeps in-memory buckets across runs while the DB reseeds — third-run
+429s; the gate's CI=1 fresh boot immune, self-heals in 15 min]; the
+N-69c REDUNDANT ASSERTION RETIRED [not.toHaveCount(0) after
+first().toBeVisible() can never fail]; the N-69g E2E_PORT SINGLE
+SOURCE [tests/e2e/e2e-port.ts owns the 3100 default; playwright.config
++ the crm.spec 401 probe import it]; the N-69h/i/b comment carriers
+[the deliberate E2E_DATABASE_URL pin; auth.setup's four budgets; the
+sibling verify spend corrected to 1 — the incomplete guard is
+client-side]; PLUS the TWO NEW E2E CHECKS [the sessioned pre-gate 400
+probe (PUT /api/settings, 20KB → 400 "Request body too large", zero
+residue) + the ten-route zero-390px-overflow sweep (both Dashboard
+casings) — the LIVE-only surfaces the rotation catalogued, now
+pinned; 114 → 116] — all pinned RED-first [4 RED: the
+stat-value-contract leads-variant it + the body-pregate handler-scoped
+it + the dch MONTHS_SHORT it + the gate-script E2E_PORT it; +4 its =
+1279] and proven non-vacuous in a pre-fix 57e692b worktree [4 failed |
+74 passed there]; GATE: lint 0/0 · tsc 0 · 1279/1279 unit (79 suites)
+· build clean · 116/116 e2e on a fresh CI=1 boot (2.7m, all 9
+mobile-nav checks green) · 65th drift-sweep clean (40th consecutive
+stable reference bundle) · LIVE-verified (the leads computed styles;
+the pre-gate 400 + honest 200 round-trip; the drawer both directions
+at TRUE 390px; zero overflow ×10; NO Tailwind v4 bug; the closing
+census MATCH) · 2 screenshots (05 re-captured + 79-mobile-overflow-
+sweep NEW; VLM-verified 3/3 + 3/3) · docs at SKILL v1.66.0 (§16bi +
+project_state via the assert-first scripts/skill_edits_s69.py at the
+sandbox root, 6352 -> 6399 lines by wc -l) + session_131.md + the
+plan's execution record + both worklogs + README/AGENTS/CLAUDE/PAD at
+1279+116 (badge 1395; the AGENTS mobile-nav sub-count refreshed 7 →
+9, closing the stale s66 carrier in passing); .env/.env.example
+verified (no env surface change; DATABASE_URL file:../db/custom.db
+with db/ at the repo root; the intake: the FRESH CLONE — .env
+re-created from .env.example with a generated AUTH_SECRET; the stale
+platform DATABASE_URL override still points at the non-existent
+mirror, all operations under env -u DATABASE_URL).
 
 ## Conventions that differ from defaults
 

@@ -194,4 +194,35 @@ test.describe("mobile navigation drawer", () => {
     await page.keyboard.press("Shift+Tab");
     await expect(settingsLink).toBeFocused();
   });
+
+  test("no route overflows the 390px viewport (the LIVE-battery sweep, pinned)", async ({ page }) => {
+    // Session-69 (the 69-c rotation's coverage catalog): the ten-route
+    // zero-overflow sweep ran LIVE-only every session — never e2e-
+    // pinned. Both Dashboard casings covered (the root "/" and the
+    // "/Dashboard" alias — the S24-P1 capital-route pair). The drawer
+    // stays CLOSED here: the closed state's scrollW contract is the
+    // regression surface (a re-broken sidebar would push scrollWidth
+    // past the viewport exactly like the reference's defect).
+    await page.setViewportSize({ width: 390, height: 844 });
+    const routes = [
+      "/",
+      "/Dashboard",
+      "/accounts",
+      "/contacts",
+      "/leads",
+      "/calendar",
+      "/activities",
+      "/reports",
+      "/settings",
+      "/profile",
+    ];
+    for (const route of routes) {
+      await page.goto(route);
+      await page.waitForLoadState("domcontentloaded");
+      const scrollW = await page.evaluate(
+        () => document.documentElement.scrollWidth,
+      );
+      expect(scrollW, `${route}: horizontal overflow at 390px`).toBeLessThanOrEqual(390);
+    }
+  });
 });

@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { e2ePort } from "./tests/e2e/e2e-port";
 
 // E2E layer (v2.3): boots the PRODUCTION standalone server on an isolated
 // port with its own scratch database (db/e2e.db, schema-pushed + seeded by
@@ -19,8 +20,13 @@ import { defineConfig, devices } from "@playwright/test";
 // *.test.ts only, so these *.spec.ts / *.setup.ts files are never picked
 // up twice).
 
-const PORT = Number(process.env.E2E_PORT ?? 3100);
+const PORT = Number(e2ePort());
 const BASE_URL = `http://localhost:${PORT}`;
+// Deliberately NOT env-driven (unlike the port above): the e2e database
+// is PINNED so a stray DATABASE_URL in the environment can never point
+// the suite at the dev db — the isolation is the contract (db-path
+// resolves the relative URL against the repo root for the CLI and the
+// runtime alike).
 const E2E_DATABASE_URL = "file:../db/e2e.db";
 const AUTH_STATE = "tests/e2e/.auth/user.json";
 
@@ -58,6 +64,13 @@ export default defineConfig({
     url: `${BASE_URL}/api/health`,
     timeout: 60_000,
     reuseExistingServer: !process.env.CI,
+    // Session-69 (N-69a): the LOCAL-ONLY limiter hazard — a reused
+    // server keeps its IN-MEMORY rate buckets alive across runs while
+    // global-setup reseeds the DB, so a third run inside 15 minutes can
+    // trip resend (6>5) or verify (21>20) and fail the ladder tests
+    // with spurious 429s. The gate is immune (its CI=1 prefix forces
+    // the fresh boot); for repeated local runs export CI=1 or wait out
+    // the window (self-heals in 15 min).
     env: {
       ...process.env,
       PORT: String(PORT),

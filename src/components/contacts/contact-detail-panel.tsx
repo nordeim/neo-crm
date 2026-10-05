@@ -41,12 +41,14 @@ import {
   ENGAGEMENT_BARS_SOLID,
   engagementBarCount,
 } from "@/lib/constants";
+import { MONTHS_SHORT } from "@/lib/format";
 
+// Session-69 (F-69a5): rides the exported MONTHS_SHORT — the local
+// byte-identical month re-declaration (the N-68h class) retired.
 function mmmDyyyy(d: string): string {
   const t = new Date(d);
   if (Number.isNaN(t.getTime())) return "";
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${months[t.getMonth()]} ${t.getDate()}, ${t.getFullYear()}`;
+  return `${MONTHS_SHORT[t.getMonth()]} ${t.getDate()}, ${t.getFullYear()}`;
 }
 
 export function ContactDetailPanel({

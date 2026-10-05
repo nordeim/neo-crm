@@ -335,7 +335,7 @@ export function IconStatCard({
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xl font-bold text-foreground sm:text-2xl">{value}</span>
+          <span className="text-xl sm:text-2xl font-bold">{value}</span>
           {subValue !== undefined && <span className="text-sm font-medium text-muted">{subValue}</span>}
         </div>
       </div>

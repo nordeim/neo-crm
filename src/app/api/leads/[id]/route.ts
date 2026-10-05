@@ -11,6 +11,15 @@ export async function PUT(req: Request, { params }: Params) {
   if (isGuarded(guard)) return guard.response;
   const { id } = await params;
 
+  // Session-68 (F-68a2): the declared-size pre-gate BEFORE the parse —
+  // the N-67d auth-family gate extended to the sessioned CRUD family
+  // (req.json() buffers with no default cap in App Router handlers;
+  // the honest CRUD bodies are far smaller than the 16KB ceiling).
+  // Session-69 (F-69a3): hoisted ABOVE the try — the gate is the first
+  // post-guard statement like its 11 siblings, so an oversized body is
+  // rejected before any DB round-trip too.
+  if (isBodyTooLarge(req)) return ERR.BAD_REQUEST("Request body too large");
+
   // Session-35 (S35-P5): FK existence guards on PUT — the POST-side
   // vocabulary — plus the envelope-held failure path (P2003 and every
   // other DB failure stay inside the { ok, error } envelope).
@@ -20,12 +29,6 @@ export async function PUT(req: Request, { params }: Params) {
   try {
     const existing = await db.lead.findUnique({ where: { id } });
     if (!existing) return ERR.NOT_FOUND("Lead");
-
-  // Session-68 (F-68a2): the declared-size pre-gate BEFORE the parse —
-  // the N-67d auth-family gate extended to the sessioned CRUD family
-  // (req.json() buffers with no default cap in App Router handlers;
-  // the honest CRUD bodies are far smaller than the 16KB ceiling).
-  if (isBodyTooLarge(req)) return ERR.BAD_REQUEST("Request body too large");
 
     const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
     if (!body) return ERR.BAD_REQUEST("Invalid request body");

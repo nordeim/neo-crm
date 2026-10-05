@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-1389%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-1395%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -52,7 +52,7 @@ first boot.
 | 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 1275 Vitest unit checks + 114 Playwright E2E checks, including an 8-check mobile-nav regression suite (resize lock-release + drawer focus-entry + the closed-state inert/Tab-wrap trap included), the wrong-code verification ladder (5 attempts → lockout → resend), the stat-value typography contract (the bare KPI-value forms on all four stat-card families), the sessioned body pre-gate family pin (12 routes, gate-before-parse ordering), and the reports fixed-scale call-site pins (the reference's literal /1e3 formula) |
+| 🧪 Tested | 1279 Vitest unit checks + 116 Playwright E2E checks, including a 9-check mobile-nav regression suite (resize lock-release + drawer focus-entry + the closed-state inert/Tab-wrap trap + the ten-route zero-390px-overflow sweep included), the wrong-code verification ladder (5 attempts → lockout → resend), the stat-value typography contract (the bare KPI-value forms on all four stat-card families — leads variant included), the sessioned body pre-gate family pins (12 routes, gate-before-parse AND gate-before-DB ordering, plus the e2e 400 probe), and the reports fixed-scale call-site pins (the reference's literal /1e3 formula) |
 
 ## Architecture
 
@@ -122,8 +122,8 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 9 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 79 Vitest suites (1275 checks)
-│   └── 📂 e2e/                       # Playwright (114 checks)
+│   ├── 📄 *.test.ts                  # 79 Vitest suites (1279 checks)
+│   └── 📂 e2e/                       # Playwright (116 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
 └── 📄 next.config.ts · postcss.config.mjs · playwright.config.ts
@@ -175,9 +175,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 1275 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, calendar-fetch-bounds, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback, reports-filter-validation, create-dialog-single-mode, db-census, badge-contract, auth-contract, stat-value-contract, body-pregate)
+bun run test          # 1279 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, calendar-fetch-bounds, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback, reports-filter-validation, create-dialog-single-mode, db-census, badge-contract, auth-contract, stat-value-contract, body-pregate)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 114 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 116 Playwright checks on :3100 with its own db/e2e.db
 bun run gate          # the full gate in one command: lint → typecheck → test → build → CI=1 e2e (the CI=1 prefix forces a fresh e2e server — a leftover :3100 listener is never reused)
 ```
 
@@ -880,7 +880,25 @@ pinned RED-first [18 RED across the new stat-value-contract + body-pregate
 suites + the format/dch/page-layout/saved-reports/entity-edit-dialog/
 contact-photo extensions; +18 its = 1275], proven non-vacuous in a
 pre-fix 3d60a20 worktree [18 failed | 1257 passed there],
-and the 8-check
+and the session-69 e2e-honesty + s68-straggler layer (the F-69a1
+leads-variant stat value — the IconStatCard leads render arm's
+surviving text-foreground retired, the bare family-order form per the
+reference's own leads classes; the F-69a3 gate hoist — the leads/[id]
+pre-gate moved above the try so an oversized body is rejected before
+any DB round-trip, the handler-scoped no-DB-before-the-gate pin added;
+the F-69a5 MONTHS_SHORT export — the N-68h dedupe class closed
+repo-wide, contact-detail-panel rides the single declaration; the
+N-69a local reused-server limiter hazard documented in the playwright
+config; the N-69c redundant assertion retired; the N-69g E2E_PORT
+single source — tests/e2e/e2e-port.ts owns the default, config + 401
+probe import it; the N-69h/i/b comment carriers) — all pinned RED-first
+[4 RED: the stat-value-contract leads-variant it + the body-pregate
+handler-scoped it + the dch MONTHS_SHORT it + the gate-script E2E_PORT
+it; +4 its = 1279], proven non-vacuous in a pre-fix 57e692b worktree
+[4 failed | 74 passed there], plus the TWO NEW e2e checks (the sessioned
+pre-gate 400 probe + the ten-route zero-390px-overflow sweep — the
+LIVE-only surfaces the 69-c rotation catalogued, now pinned; 114 → 116),
+and the 9-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,
 body scroll-lock, the resize-past-md lock release, desktop sidebar swap).

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { e2ePort } from "./e2e-port";
 
 // Authenticated golden path across the CRM (uses the seeded e2e database).
 
@@ -504,7 +505,7 @@ test("global search finds a seeded account", async ({ page }) => {
 
 test("unauthenticated API access is rejected", async () => {
   // Plain fetch — deliberately carries no session cookie.
-  const port = process.env.E2E_PORT ?? "3100";
+  const port = e2ePort();
   const res = await fetch(`http://localhost:${port}/api/accounts`);
   expect(res.status).toBe(401);
   const patch = await fetch(`http://localhost:${port}/api/users`, {
@@ -513,6 +514,31 @@ test("unauthenticated API access is rejected", async () => {
     body: JSON.stringify({ name: "intruder" }),
   });
   expect(patch.status).toBe(401);
+});
+
+test("an oversized sessioned body is rejected before the parse (S68-P7, session-69 pin)", async ({ page }) => {
+  // The F-68a2 pre-gate — a DECLARED Content-Length over the 16KB
+  // ceiling answers 400 "Request body too large" BEFORE req.json()
+  // buffers anything. The s68 ship verified this LIVE (a 20KB PUT);
+  // session-69 pins it e2e (the 69-c rotation's coverage catalog: the
+  // pre-gate families were unit+LIVE only). A 400 here leaves ZERO
+  // residue — the gate rejects before any parse or DB work.
+  const big = await page.request.put("/api/settings", {
+    data: { note: "x".repeat(20 * 1024) },
+  });
+  expect(big.status()).toBe(400);
+  const body = (await big.json().catch(() => null)) as
+    | { ok?: boolean; error?: { message?: string } }
+    | null;
+  expect(body?.ok).toBe(false);
+  expect(body?.error?.message).toContain("Request body too large");
+  // The honest small body still parses (keep-if-absent semantics — a
+  // present note under the cap is written, then reverted by the reset
+  // that closes this suite; the value is throwaway either way).
+  const honest = await page.request.put("/api/settings", {
+    data: { note: "e2e-pregate-probe" },
+  });
+  expect(honest.status()).toBe(200);
 });
 
 test("unknown routes render the reference's custom 404 page (S12-P2)", async ({ page }) => {
@@ -1730,7 +1756,9 @@ test("the Account Health tab renders the PIE + horizontal top-10 + red-tinted at
   // accounts produce at least one slice per computed state.
   const sectors = page.locator(".recharts-pie .recharts-sector, .recharts-pie-sector");
   await expect(sectors.first()).toBeVisible();
-  await expect(sectors).not.toHaveCount(0);
+  // (Session-69, N-69c: the old `await expect(sectors).not.toHaveCount(0)`
+  // sibling retired — it could never fail once the .first() visibility
+  // assertion above passed; zero added coverage.)
   // The pie slice labels render the `${name}: ${value}` shape.
   await expect(page.getByText(/Healthy: \d+/).first()).toBeVisible();
   // The top-10 chart is a HORIZONTAL bar chart (numeric X + category Y with

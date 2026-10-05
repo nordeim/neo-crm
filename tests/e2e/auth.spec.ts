@@ -177,7 +177,9 @@ test("a fresh signup swaps to the verify-email view with its ladder", async ({ p
 // the 67-c rotation found the attempts 2→5 climb, the lockout repeat,
 // and the post-lockout resend never driven anywhere. Six wrong
 // submissions against a throwaway signup (the verify budget is 20/IP —
-// the sibling test above spends 2, this one 6, both under the ceiling).
+// the sibling test above spends 1 POST: its incomplete-guard click is
+// blocked CLIENT-SIDE before the fetch; this one spends 6 — 7 total
+// per run, comfortably under the ceiling).
 test("the wrong-code ladder climbs to lockout and repeats its message", async ({ page }) => {
   await page.goto("/login");
   await page.getByRole("button", { name: "Need an account? Sign up" }).click();
