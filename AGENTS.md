@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1222 checks)       | `bun run test`                         |
+| Unit tests (1227 checks)       | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1222) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1227) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -545,15 +545,23 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   text-red-700, body `space-y-4` with the `max-w-xs` confirm input then
   the destructive button below — #fafafa foreground, no warning
   paragraph) (`SETTINGS_DATA` / `SETTINGS_DANGER`).
-- **`/Profile` is a thin alias route (session-14)** — the reference serves
-  BOTH casings (its account menu links to `/Profile`); ours keeps the
-  canonical lowercase `(app)/profile` and aliases the capital casing via
-  `src/app/Profile/page.tsx` (a `redirect("/profile")` server component
-  outside the (app) group). Do NOT convert it to a next.config.ts
-  redirect: Next matches config redirects CASE-INSENSITIVELY, so the rule
-  matches its own destination and loops (ERR_TOO_MANY_REDIRECTS), and
+- **`/Profile` is a thin RENDER alias inside the (app) group (session-24;
+  re-derived at session-65 from the retired session-14 redirect)** — the
+  reference serves BOTH casings (its account menu links to `/Profile`);
+  ours keeps the canonical lowercase `(app)/profile` and aliases the
+  capital casing via `src/app/(app)/Profile/page.jsx` — a `.jsx`
+  re-export of the lowercase page + `pageMetadata({ page: "Profile",
+  route: "/Profile" })` that renders IN PLACE (no redirect; the URL bar
+  keeps `/Profile`; the alias is a `.jsx` file ON PURPOSE — TypeScript's
+  TS1149 fires when one program includes two real files differing only
+  in casing, and the extension dodge keeps the alias out of that
+  collision). The session-14 top-level redirect alias outside the group
+  is RETIRED. Do NOT convert it to a next.config.ts redirect: Next
+  matches config redirects CASE-INSENSITIVELY, so the rule matches its
+  own destination and loops (ERR_TOO_MANY_REDIRECTS), and
   `caseSensitive` is not a valid per-redirect property in Next 16
-  ("Invalid redirect found"). Pinned by `tests/profile-route.test.ts`.
+  ("Invalid redirect found"). Pinned by `tests/profile-route.test.ts`
+  (which asserts the redirect's ABSENCE).
 - **`--color-line-soft` is #f5f5f5 (session-14)** — the reference's
   muted/accent family (computed live on the segmented tab tracks + a
   bg-accent probe, both rgb(245,245,245)); the scaffold-era #f3f4f6
@@ -2481,6 +2489,42 @@ The mid-flight pin repair: the s45 no-collateral guard's window
 narrowed 500 → 400 chars (the guarded neighborhood grew — the fetch
 functions now carry the session capture; the chronic self-shift
 class in window form).
+
+### Session-65 — the e2e honesty + the page-render dead surfaces
+
+The fresh-eyes rotation landed on the PAGE-RENDER + E2E-SPEC seam
+(src/app 23 .tsx files + tests/e2e 3 specs, never a dedicated rotation
+target) and found the N-65 family: N-65b (Medium — the global-search
+e2e test VACUOUS: getByText("Accounts").first() resolved to the
+always-visible SIDEBAR nav link and getByText("Northwind Energy")
+.first() to the RECENT DEALS accountName cell, so a completely broken
+search stayed green — the s43-P4/s45 stale-results family was exactly
+what it never caught; re-anchored to the dropdown's OWN DOM, the
+SearchResultRow button + the section header as its preceding sibling);
+N-65c (4 dead store-destructures: contacts-page's leads/users/settings
+— the s41-P5 sweep's missed siblings — + settings-page's
+updateSettings); N-65d/N-65e (the construction-dead arms: the
+`a.tier === "Key"` disjuncts [tier is membership-validated to A/B/C at
+both write seams] + the OPP_STAGE_META `?? s` arm — the s63 N-63b
+class's missed siblings); N-65g (AGENTS + PAD still documented the
+RETIRED s14 /Profile redirect — both re-derived to the s24 render
+alias + the SKILL §16f supersession bracket); N-65h (the mobile-nav
+Escape test's "restores focus" half, now ASSERTED); N-65a/N-65f (the
+settings anchors drifted at birth + the only e2e line-citation —
+token-form refreshes); N-65i/N-65j/N-65l/N-65m/N-65n/N-65o (the
+below-lg comments → md, the no-op conditionals, the defensive DB-read
+annotations at the calendar/activities chip lookups, the owner-select
+comment, the main re-indent, the import merge); N-65k/N-65p
+record-only. All pinned RED-first (5 RED: the 4 dead-surface its + the
+AGENTS/PAD mechanism it; +5 its = 1227) and proven non-vacuous in a
+pre-fix 9952a23 worktree (5 failed | 47 passed there; 1227/1227 at the
+fix). Audits: the s64 re-audit verified all 8 checklist items GENUINE
+(the worktree arithmetic replayed exactly: 5 failed | 49 passed); the
+graduation audit: ZERO graduations — 13/13 re-confirmed (22nd
+consecutive session); both operator decisions re-verified UNCHANGED —
+the CSV posture (b) STANDS (23rd re-affirmation), the source-vocabulary
+documented parity STANDS AND EXTENDS to the N-65 family (the bundle
+byte-identical for the 36th consecutive session).
 
 ## Conventions that differ from defaults
 

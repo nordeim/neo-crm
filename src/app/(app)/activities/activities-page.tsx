@@ -374,6 +374,11 @@ export default function ActivitiesPage() {
                     <p className="mb-2 text-xs font-semibold tracking-wide text-subtle">{date}</p>
                     <div className="relative flex flex-col gap-3 border-l border-line pl-5">
                       {rows.map((a) => {
+                        // Defensive DB-read posture (s65 N-65l, the s63
+                        // family): Activity.type is PERSISTED data — an
+                        // unexpected key degrades to the call meta instead
+                        // of crashing the render (same arm at the
+                        // dashboard-timeline site below).
                         const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call;
                         return (
                           <div key={a.id} className="relative rounded-lg border border-line bg-white p-3">
@@ -611,7 +616,7 @@ function PriorityRows({
   return (
     <ul className="flex flex-col divide-y divide-line">
       {rows.slice(0, 8).map((a) => {
-        const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call;
+        const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call; // defensive DB-read (see the timeline note above)
         return (
           <li key={a.id} className="flex items-center gap-3 py-3">
             <button

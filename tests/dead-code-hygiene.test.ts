@@ -810,3 +810,71 @@ describe("session-64: the stripComments dead-cargo retirement (N-64g)", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe("session-65: the page-render dead-surface retirement (N-65c/d/e + the /Profile doc re-derive)", () => {
+  it("accounts-page carries no construction-dead Key disjunct (tier is membership-validated to A/B/C at both write seams)", () => {
+    // N-65d (the 65-c rotation): `(a.isKey || a.tier === "Key")` rode the
+    // accounts table + card rows, but tier can never hold "Key" — the
+    // create + update routes membership-validate it against ACCOUNT_TIERS
+    // (["A","B","C"]) and the seed plants only A/B/C; a.isKey is the
+    // live arm (the display mapping `a.isKey ? "Key" : a.tier` is the
+    // honest form). The adjudicated s63 N-63b class over persisted data
+    // — retired, with the record comment in the source.
+    const src = accounts();
+    expect(src).not.toContain('a.tier === "Key"');
+    expect(read("src/app/(app)/accounts/accounts-page.tsx") ?? "").toMatch(/N-65d/);
+  });
+
+  it("reports-page's stage select reads OPP_STAGE_META[s].label directly (the s63 N-63b missed sibling)", () => {
+    // N-65e: the select mapped OPPORTUNITY_STAGES through
+    // `OPP_STAGE_META[s]?.label ?? s` — but s ranges over the six-key
+    // constant and OPP_STAGE_META covers all six (constants.ts), so both
+    // the optional chain and the fallback arm are construction-dead over
+    // internal constants. The dashboard twin (PIPELINE_LABELS[s] ?? s)
+    // was retired at s63; this is the missed sibling.
+    const src = reports();
+    expect(src).toContain("OPP_STAGE_META[s].label");
+    expect(src).not.toContain("OPP_STAGE_META[s]?.label ?? s");
+  });
+
+  it("contacts-page's store destructure carries only live bindings (the s41-P5 sources-sibling sweep completed)", () => {
+    // N-65c: the destructure carried leads/users/settings with zero body
+    // reads (comment mentions only — the s41-P5 sweep deleted the dead
+    // `sources` sibling from this very destructure and missed these
+    // three). Narrowed to the live set.
+    const src = contacts();
+    const at = src.indexOf("} = useCrmStore()");
+    const region = src.slice(Math.max(0, src.lastIndexOf("const {", at)), at);
+    expect(region).not.toMatch(/^\s*leads,$/m);
+    expect(region).not.toMatch(/^\s*users,$/m);
+    expect(region).not.toMatch(/^\s*settings,$/m);
+  });
+
+  it("settings-page's SettingsPage destructure carries no updateSettings (the editors destructure their own)", () => {
+    // N-65c sibling: SettingsPage destructured updateSettings but never
+    // read it in its own scope — ConfigEditor and DefaultsEditor each
+    // destructure their own from the store.
+    const src = stripComments(read("src/app/(app)/settings/settings-page.tsx") ?? "");
+    const at = src.indexOf("export default function SettingsPage");
+    const region = src.slice(at, at + 400);
+    expect(region).not.toContain("updateSettings");
+  });
+
+  it("AGENTS + PAD document the /Profile RENDER-alias mechanism (the s24 form — the s14 redirect retired)", () => {
+    // N-65g (the 65-c rotation + the orchestrator's pre-validation
+    // extension): the AGENTS architecture-facts block and the PAD
+    // design-system row still documented the RETIRED s14 mechanism — a
+    // top-level src/app/Profile/page.tsx server component that
+    // redirect("/profile")s outside the (app) group. At HEAD /Profile
+    // is the s24 RENDER alias inside the group (src/app/(app)/Profile/
+    // page.jsx — renders in place, pinned by tests/profile-route.test.ts
+    // asserting the redirect's ABSENCE). The docs now carry the live
+    // mechanism; the do-NOT-use-config-redirect rationale survives.
+    const agents = read("AGENTS.md") ?? "";
+    const pad = read("Project_Architecture_Document.md") ?? "";
+    for (const doc of [agents, pad]) {
+      expect(doc).toContain("src/app/(app)/Profile/page.jsx");
+      expect(doc).not.toContain("src/app/Profile/page.tsx");
+    }
+  });
+});

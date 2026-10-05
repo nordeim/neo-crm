@@ -101,7 +101,10 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
 }
 
 export default function SettingsPage() {
-  const { settings, hydrated, fetchSettings, updateSettings, resetData, accounts, contacts, leads, activities } = useCrmStore();
+  // Session-65 (N-65c): updateSettings RETIRED from this destructure —
+  // dead in SettingsPage's own scope (ConfigEditor + DefaultsEditor
+  // each destructure their own from the store).
+  const { settings, hydrated, fetchSettings, resetData, accounts, contacts, leads, activities } = useCrmStore();
   const [tab, setTab] = React.useState("config");
   const [resetText, setResetText] = React.useState("");
 

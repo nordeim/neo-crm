@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 // REGRESSION: the reference (base44) app ships NO mobile navigation — the
-// sidebar simply disappears below `lg` and phone users cannot reach any page.
+// sidebar simply disappears below `md` and phone users cannot reach any page.
 // This suite pins the clone's working mobile drawer.
 
 test.describe("mobile navigation drawer", () => {
@@ -63,6 +63,10 @@ test.describe("mobile navigation drawer", () => {
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
+    // Session-65 (N-65h): the RESTORE half of the title, now asserted —
+    // the drawer's close effect returns focus to the element that opened
+    // it (mobile-nav.tsx previouslyFocused), the WCAG 2.4.3 contract.
+    await expect(trigger).toBeFocused();
   });
 
   test("opening the drawer moves focus INTO the drawer (S12-P1)", async ({ page }) => {

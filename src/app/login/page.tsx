@@ -26,9 +26,7 @@ export const dynamic = "force-dynamic";
 // runtime-stable either way).
 export default function LoginPage() {
   return (
-    <main
-    className={LOGIN_LAYOUT.page}
-  >
+    <main className={LOGIN_LAYOUT.page}>
       <LoginCard />
     </main>
   );

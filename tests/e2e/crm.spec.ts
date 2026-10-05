@@ -459,8 +459,21 @@ test("the dashboard More... button is the reference's dead affordance (S24-P3)",
 test("global search finds a seeded account", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Search accounts, contacts and leads").fill("Northwind");
-  await expect(page.getByText("Accounts").first()).toBeVisible();
-  await expect(page.getByText("Northwind Energy").first()).toBeVisible();
+  // Session-65 (N-65b re-anchor): the pre-s65 assertions were VACUOUS —
+  // getByText("Accounts").first() resolved to the ALWAYS-VISIBLE SIDEBAR
+  // nav link (nav-config.ts; the sidebar precedes the topbar dropdown
+  // in DOM order) and getByText("Northwind Energy").first() to the
+  // RECENT DEALS accountName cell (the seeded "Turbine telemetry POC"
+  // opp, updated −3d, is rank-4 of the updatedAt-desc top-5) — both
+  // green with a completely broken search (the s43-P4/s45 stale-results
+  // family was exactly what this test never caught). The dropdown's own
+  // DOM is the only honest target: SearchResultRow renders a BUTTON
+  // (topbar.tsx) — unique page-wide, the Recent Deals cells are td/p —
+  // and the section header is asserted as the button's preceding
+  // sibling INSIDE the dropdown.
+  const result = page.getByRole("button", { name: "Northwind Energy" });
+  await expect(result).toBeVisible();
+  await expect(result.locator("xpath=preceding-sibling::p")).toHaveText("Accounts");
 });
 
 test("unauthenticated API access is rejected", async () => {
@@ -950,7 +963,7 @@ test("sitemap.xml serves the nine real routes (S18-P4)", async ({ page }) => {
     "/settings",
     "/profile",
   ]) {
-    expect(xml).toContain(`<loc>http://localhost:3000${route === "/" ? "/" : route}</loc>`);
+    expect(xml).toContain(`<loc>http://localhost:3000${route}</loc>`);
   }
   expect(xml).toContain("<changefreq>weekly</changefreq>");
   expect(xml).toContain("<priority>1.0</priority>");
@@ -1103,7 +1116,7 @@ test("the New Contact dialog types Phone as tel with no datalists (S19-P6, S19-P
 test("every HTML route ships the reference's security-header set (S20-P1, S20-P2, S20-P3)", async ({ page }) => {
   for (const route of ["/", "/login", "/accounts"]) {
     const res = await page.request.get(route);
-    expect(res.status()).toBe(route === "/login" ? 200 : 200);
+    expect(res.status()).toBe(200);
     const headers = res.headers();
     expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
     expect(headers["x-content-type-options"]).toBe("nosniff");
@@ -1521,7 +1534,9 @@ test("the dashboard export trio downloads the client-side CSVs (S47-P1)", async 
   );
   expect(menuBody.split("\n")[1]).toMatch(/^"/);
   // The primary (filled) Export is the one-click leads export — the
-  // documented job (dashboard-contracts.test.ts:284-291).
+  // documented job (the dashboard-contracts session-33 S33-P1/P2
+  // describe: the DASHBOARD_HEADER pins + the dead-affordance pair —
+  // s65 token-form refresh of the drifted line citation).
   const directDownloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export" }).last().click();
   const directDownload = await directDownloadPromise;

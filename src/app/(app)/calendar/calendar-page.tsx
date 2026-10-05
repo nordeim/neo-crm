@@ -360,6 +360,11 @@ export default function CalendarPage() {
                     </span>
                     <span className="mt-auto flex flex-col gap-0.5">
                       {dayEvents.slice(0, 2).map((e) => {
+                        // Defensive DB-read posture (s65 N-65l, the s63
+                        // family): Event.type is PERSISTED data — an
+                        // unexpected key degrades to the meeting chip
+                        // instead of crashing the render (same arm at the
+                        // upcoming-bar + agenda-row sites below).
                         const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting;
                         return (
                           <span
@@ -419,7 +424,7 @@ export default function CalendarPage() {
                       bar + title + "MMM d, h:mm a" + the related line +
                       three ghost icon actions (Pen / Phone-on-call /
                       MessageCircle). */
-                  const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting;
+                  const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting; // defensive DB-read (see the day-cell note)
                   return (
                     <div key={e.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
                       <div className={cn("w-2 h-12 rounded-full", chip.dot)} />
@@ -480,9 +485,9 @@ export default function CalendarPage() {
                 <p className="text-center text-gray-500 py-8">No events found</p>
               ) : (
                 visible.slice(0, 10).map((e) => {
-                  const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting;
+                  const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting; // defensive DB-read (see the day-cell note)
                   return (
-                    <div key={e.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <div key={e.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
                       <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", chip.bg)}>
                         <div className={cn("w-2 h-2 rounded-full", chip.dot)} />
                       </div>

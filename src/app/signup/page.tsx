@@ -20,9 +20,7 @@ export default async function SignupPage() {
   const user = await getSessionUser();
   if (user) redirect("/");
   return (
-    <main
-    className={LOGIN_LAYOUT.page}
-  >
+    <main className={LOGIN_LAYOUT.page}>
       <LoginCard mode="signup" />
     </main>
   );

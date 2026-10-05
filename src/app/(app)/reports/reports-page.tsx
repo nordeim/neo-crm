@@ -21,6 +21,7 @@ import { CircleStatCard, PageHeader, Sparkline } from "@/components/shared/page-
 import { SaveReportDialog } from "@/components/shared/save-report-dialog";
 import {
   EMPTY_STATE,
+  KPI_STATICS,
   PAGE_KPI_GRIDS,
   PAGE_ROOT,
   REPORTS_FILTER_BAR,
@@ -38,7 +39,6 @@ import {
 import { useCrmStore } from "@/stores/crm-store";
 import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, REPORT_PERIODS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
 import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
-import { KPI_STATICS } from "@/lib/page-layout";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
 import { toCsv, csvFilename } from "@/lib/csv";
 import { exportReportsPdf, exportTablePdf, isoDateSuffix } from "@/lib/pdf-export";
@@ -162,8 +162,13 @@ export default function ReportsPage() {
               <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Stages</SelectItem>
+                {/* Session-65 (N-65e): the `?.label ?? s` arms RETIRED —
+                    s ranges over OPPORTUNITY_STAGES and OPP_STAGE_META
+                    covers all six keys (the s63 N-63b class's missed
+                    sibling; the dashboard PIPELINE_LABELS twin retired
+                    there). */}
                 {OPPORTUNITY_STAGES.map((s) => (
-                  <SelectItem key={s} value={s}>{OPP_STAGE_META[s]?.label ?? s}</SelectItem>
+                  <SelectItem key={s} value={s}>{OPP_STAGE_META[s].label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

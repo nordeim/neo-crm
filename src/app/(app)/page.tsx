@@ -68,8 +68,10 @@ export default function DashboardPage() {
 
   // Client-side filtered deal rows (Recent Deals respects the filter bar) —
   // session-31: the rows are OPPORTUNITIES now (the reference's `_` memo
-  // filters its opp list by owner/stage/source); the owner filter rides the
-  // lead-owner select our bar has shipped since s6 (kept for parity).
+  // filters its opp list by owner/stage/source); the reference's bar
+  // carries NO owner select (the S8-2 re-read: what looked like one is
+  // the empty Table/Cards switcher) — stage + source are our filter
+  // axes, matching its computed behavior.
   const filteredDeals = React.useMemo(() => {
     let rows = dashboard?.recentDeals ?? [];
     if (stage !== "all") rows = rows.filter((o) => o.stage === stage);

@@ -1,7 +1,7 @@
 "use client";
 
 // Mobile navigation drawer — THE fix for the reference app's mobile bug
-// (the original hides the sidebar below `lg` and ships no replacement, so
+// (the original hides the sidebar below `md` and ships no replacement, so
 // phone users cannot reach Accounts/Contacts/Leads/Calendar/Reports at all).
 //
 // Tailwind v4 pitfalls deliberately avoided (docs/Tailwind-V4-Validation-Report.md):

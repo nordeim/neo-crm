@@ -80,13 +80,13 @@ type SortKey = "name" | "lastActivity";
 type SortDir = "asc" | "desc";
 
 export default function ContactsPage() {
+  // Session-65 (N-65c): leads/users/settings RETIRED from this
+  // destructure — zero body reads (comment mentions only; the s41-P5
+  // sweep deleted the dead `sources` sibling and missed these three).
   const {
     contacts,
     activities,
-    leads,
     opportunities,
-    users,
-    settings,
     hydrated,
     deleteContact,
     updateContact,

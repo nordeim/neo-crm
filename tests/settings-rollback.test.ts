@@ -5,8 +5,10 @@ import { describe, expect, it } from "vitest";
 // Session-46 pins (S46-P3): the settings editors' failure rollback +
 // the remount-key collision — the F-46c audit. mutate() left a failed
 // picklist PUT's phantom item in the editor (label > 60 chars / 41st
-// entry → 400 at settings/route.ts:98/:111, the defaultLeadStage /
-// defaultTier membership guards — s64 refresh; no client-side cap), and
+// entry → 400 at the defaultLeadStage / defaultTier membership guards
+// [the LEAD_STAGES / ACCOUNT_TIERS includes — settings/route.ts:107 /
+// :116, s65 refresh of the s64 anchor that drifted at birth; no
+// client-side cap]), and
 // the remount keys cfg-${JSON.stringify(settings).length} /
 // def-${…length} keyed on JSON LENGTH — same-length snapshots collide
 // (an add+remove of equal-length items → no remount → stale local

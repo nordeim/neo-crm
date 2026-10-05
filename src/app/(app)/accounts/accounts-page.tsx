@@ -411,9 +411,14 @@ export default function AccountsPage() {
                       return (
                     <TableRow
                       key={a.id}
+                      // Session-65 (N-65d): the `a.tier === "Key"` disjunct
+                      // RETIRED — tier is membership-validated to A/B/C at
+                      // both write seams (create + [id] routes) and the seed
+                      // plants only A/B/C; a.isKey is the live arm (the s63
+                      // N-63b adjudicated class over persisted data).
                       className={cn(
                         "cursor-pointer hover:bg-gray-50",
-                        (a.isKey || a.tier === "Key") && "bg-yellow-50/30",
+                        a.isKey && "bg-yellow-50/30",
                         overdue > 0 && "border-l-4 border-l-red-500",
                       )}
                       onClick={() => {
@@ -429,7 +434,7 @@ export default function AccountsPage() {
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-medium">{a.name}</p>
-                              {(a.isKey || a.tier === "Key") && (
+                              {a.isKey && (
                                 <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                               )}
                               {overdue > 0 && (
