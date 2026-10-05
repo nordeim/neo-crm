@@ -2,10 +2,19 @@
  * Layout-system contracts — session-6 parity pins.
  *
  * Every string here was extracted from the LIVE reference app's DOM
- * (class-list extraction at 1512×945 + 390×844 on 2026-09-29). Pages
- * consume these records instead of hand-writing grid/header/rail classes so
- * the whole layout system has a single, test-pinned source of truth
+ * (class-list extraction at 1512×945 + 390×844 on 2026-09-29). The
+ * CONSUMED families (the s6/s7 layout records — KPI grids, headers,
+ * rails, shells, toolbars, dialogs, settings, …) are read by the pages
+ * as their single, test-pinned source of truth
  * (`tests/page-layout.test.ts`).
+ *
+ * Session-63 (N-63a): a documented 8-record family is NOT consumed by
+ * the pages — PAGE_TITLES, DIALOG_BARE_GROUP, RECENT_DEALS,
+ * STAT_SHADOWS, CHART_GEOMETRY, TABLE_SHADOWS, CALENDAR_CELL,
+ * DELTA_TEXT. Each is a test-pinned reference SNAPSHOT (the pages
+ * hand-inline their live classes; the annotations at each record name
+ * its consumers). They keep their documentary value and stay
+ * guard-pinned — the wire-or-remove posture family (N-46e/N-62d).
  *
  * Reference token mapping: gray-50 → `background`, white → `surface`,
  * gray-200 → `line`, gray-500 → `muted`, gray-900 → `foreground`.
@@ -607,7 +616,9 @@ export const SEARCH_INPUT = {
 
 /** S10-10: per-page document titles. The reference titles every
  *  non-dashboard page "X | NEO CRM" (document.title probes, all 10
- *  routes); the dashboard and login stay "NEO CRM". */
+ *  routes); the dashboard and login stay "NEO CRM".
+ *  Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
+ *  live titles ride the pageMetadata() factory; see the module header). */
 export const PAGE_TITLES = {
   dashboard: "NEO CRM",
   accounts: "Accounts | NEO CRM",
@@ -733,7 +744,9 @@ export const DIALOG_GROUP = {
  *  grid cells are BARE unclassed divs — label + control as direct
  *  children (computed 4px gap from the inline label's font metrics —
  *  no space-y, no mt; DOM-verified on the reference's Event/Activity
- *  dialogs). */
+ *  dialogs).
+ *  Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
+ *  live dialogs hand-inline; see the module header). */
 export const DIALOG_BARE_GROUP = "" as const;
 
 /** Session-15 (S15-P8): the reference wraps all fields in a py-4 grid
@@ -842,7 +855,9 @@ export const MENU_ITEM =
  *  per the strict-mirror precedent: the "Add new industrie" typo, dead
  *  controls, empty-label selects) — and at zero rows it renders the
  *  headers with an EMPTY tbody (no empty-state paragraph). Row cells
- *  render the same stage badge in both Status columns. */
+ *  render the same stage badge in both Status columns.
+ *  Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
+ *  dashboard hand-inlines its 8-header list; see the module header). */
 export const RECENT_DEALS = {
   headers: [
     "Lead",
@@ -959,10 +974,16 @@ export const BY_TYPE_CARD = {
  *  renders DIVs (not clickable); ours are BUTTONS (the clickable
  *  superset — semantics + focus ring stay, the REST-state classes mirror
  *  the reference). Out-of-month cells KEEP the default border (ours hid
- *  it with border-transparent); today is the blue-600 pill. */
+ *  it with border-transparent); today is the blue-600 pill.
+ *  Session-63 (N-63a): RE-DERIVED from the live calendar-page cell —
+ *  base now carries the s27 tall-bar flex column the page ships, plus
+ *  the focus-ring pair as its own key; outOfMonth no longer duplicates
+ *  `transition-all` (base carries it). The pre-s63 record was a stale
+ *  copy the page had drifted from (the s24 click-contract lesson). */
 export const CALENDAR_CELL = {
-  base: "min-h-20 sm:min-h-24 p-1 sm:p-2 rounded-lg border transition-all text-left",
-  outOfMonth: "border-line bg-gray-50 text-gray-400 transition-all",
+  base: "flex min-h-20 flex-col items-stretch rounded-lg border p-1 text-left transition-all sm:min-h-24 sm:p-2",
+  focusRing: "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+  outOfMonth: "border-line bg-gray-50 text-gray-400",
   current: "border-line bg-white hover:bg-gray-50",
   today: "border-sidebar bg-sidebar text-white",
 } as const;
@@ -992,7 +1013,16 @@ export const CALENDAR_CARD = {
  *  probes). */
 export const SETTINGS_GRID = "grid grid-cols-1 md:grid-cols-2 gap-4" as const;
 
-/** Every exported class string, for regression guards. */
+/** Every exported class-string group, for regression guards.
+ *  Session-63 (N-63c): the sweep EXTENDED to every exported group whose
+ *  values are class strings — the pre-s63 list covered 41 groups while
+ *  the claim promised "every exported class string" (the 62-a#4
+ *  coverage class). The vocabulary/data groups stay OUT by design:
+ *  PAGE_TITLES (document titles), RECENT_DEALS (the header vocabulary),
+ *  KPI_STATICS (delta labels + spark arrays), CHART_GEOMETRY (numeric
+ *  heights). Mixed records (KPI_SPARK, EMPTY_STATE, PIPELINE_LEGEND)
+ *  ride along — the string filter below keeps only their class-string
+ *  members (nested objects and non-string values are skipped). */
 export function allLayoutClasses(): string[] {
   const out: string[] = [];
   for (const group of [
@@ -1040,7 +1070,48 @@ export function allLayoutClasses(): string[] {
     CONTACT_DIALOG,
     EVENT_DIALOG,
     ACTIVITY_DIALOG,
+    // Session-63 (N-63c): the coverage extension — every exported
+    // class-string group that was missing from the pre-s63 list (the
+    // stock primitives, the dialog chrome, the per-page roots, the
+    // shadow/geometry snapshots, the remaining layout families).
+    BUTTON_BASE,
+    CHECKBOX,
+    INPUT_BASE,
+    SELECT_TRIGGER,
+    SEARCH_INPUT,
+    MENU_CONTENT,
+    MENU_ITEM,
+    DIALOG_BARE_GROUP,
+    DIALOG_CLOSE,
+    DIALOG_FOOTER,
+    DIALOG_FOOTER_WIDE,
+    DIALOG_HEADER,
+    DIALOG_OVERLAY,
+    DIALOG_SUBMIT,
+    DIALOG_TEXTAREA,
+    DIALOG_TITLE,
+    PAGE_ROOT,
+    PROFILE_LAYOUT,
+    CONTACTS_LAYOUT,
+    CALENDAR_CARD,
+    CARD,
+    REPORTS_TABLE_CARD,
+    SETTINGS_GRID,
+    KPI_VALUE,
+    KPI_SPARK,
+    PIPELINE_LEGEND,
+    TOP_REPS,
+    EMPTY_STATE,
+    STAT_SHADOWS,
+    TABLE_SHADOWS,
   ]) {
+    // Session-63 (N-63c): bare-string groups (MENU_CONTENT, DIALOG_TITLE,
+    // SETTINGS_GRID, …) ride directly — Object.values on a string would
+    // split it into characters.
+    if (typeof group === "string") {
+      out.push(group);
+      continue;
+    }
     for (const value of Object.values(group as Record<string, string | readonly string[]>)) {
       // Some session-8 records carry option ARRAYS (vocabularies), not class
       // strings — only string values belong in the class-string guard.
@@ -1056,7 +1127,9 @@ export function allLayoutClasses(): string[] {
  *  and CircleStatCard shipped the s9-re-pinned tiny `shadow-sm` — one step
  *  too light. The dashboard + reports KPI cards additionally carry
  *  `hover:shadow-md transition-shadow` (the reference's only hover-shadow
- *  surfaces). */
+ *  surfaces).
+ *  Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
+ *  live stat cards hand-inline; see the module header). */
 export const STAT_SHADOWS = {
   kpiCard: "shadow",
   kpiHover: "hover:shadow-md transition-shadow",
@@ -1072,7 +1145,9 @@ export const STAT_SHADOWS = {
  *  pipeline + revenue 300; reports tab-1 4×300, tab-2 Forecasting 300 +
  *  three 300, tabs 3/4 3×300; the leads rail 250 (381px cards); the
  *  activities by-type 150 (270px rail). Ours shipped 260/240/250 across
- *  those surfaces — every one short. */
+ *  those surfaces — every one short.
+ *  Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
+ *  live charts hand-inline their heights; see the module header). */
 export const CHART_GEOMETRY = {
   dashboardHeight: 300,
   reportsHeight: 300,
@@ -1099,7 +1174,9 @@ export const CONTACTS_LAYOUT = {
  *  leads ship `bg-white rounded-lg shadow` (standard, no border), while the
  *  contacts table card is the bordered `rounded-xl shadow-sm
  *  border-gray-200 overflow-hidden` variant (the TINY shadow — the only
- *  place the reference uses it on a table card). */
+ *  place the reference uses it on a table card).
+ *  Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
+ *  live table cards hand-inline; see the module header). */
 export const TABLE_SHADOWS = {
   accounts: "shadow",
   leads: "shadow",
@@ -1167,6 +1244,9 @@ export const KPI_CARD = {
 } as const;
 
 export const DELTA_TEXT = {
+  // Session-63 (N-63a): test-pinned snapshot — zero page consumers (the
+  // live delta spans hand-inline; lives in-file only through the
+  // allLayoutClasses sweep; see the module header).
   base: "text-xs",
   good: "text-green-600",
   bad: "text-red-600",

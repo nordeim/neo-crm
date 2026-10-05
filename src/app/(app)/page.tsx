@@ -275,7 +275,10 @@ export default function DashboardPage() {
           <SelectContent>
             <SelectItem value="all">All Stages</SelectItem>
             {PIPELINE_STAGES.map((s) => (
-              <SelectItem key={s} value={s}>{PIPELINE_LABELS[s] ?? s}</SelectItem>
+              // Session-63 (N-63b): the `?? s` arm retired — every
+              // PIPELINE_STAGES key is present in PIPELINE_LABELS (the
+              // server sibling's record comment carries the evidence).
+              <SelectItem key={s} value={s}>{PIPELINE_LABELS[s]}</SelectItem>
             ))}
           </SelectContent>
         </Select>

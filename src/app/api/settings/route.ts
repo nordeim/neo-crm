@@ -127,8 +127,12 @@ export async function PUT(req: Request) {
     // Session-43 (S43-P3): membership vs the settings UI's own Select
     // vocabulary (month/week/agenda — the settings-page dropdown is the
     // only writer).
+    // Session-63 (N-63b): the `!view` fragment retired — asString's
+    // optional+trim contract returns undefined-or-a-non-empty-string,
+    // so after `?? "month"` the value can never be falsy (unreachable
+    // by construction, the N-62c class).
     const view = asString(body.calendarView, { max: 20, optional: true }) ?? "month";
-    if (!view || !["month", "week", "agenda"].includes(view)) return ERR.BAD_REQUEST("Calendar view must be month, week or agenda");
+    if (!["month", "week", "agenda"].includes(view)) return ERR.BAD_REQUEST("Calendar view must be month, week or agenda");
     data.calendarView = view;
   }
   if ("firstDayOfWeek" in body) {

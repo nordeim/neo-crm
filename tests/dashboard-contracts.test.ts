@@ -43,7 +43,11 @@ const layout = () => stripComments(read("src/lib/page-layout.ts") ?? "");
 describe("session-27: the dashboard pipeline legend chips (the O-map)", () => {
   it("PIPELINE_LEGEND pins the chip row classes (flex flex-wrap gap-4 mt-4 text-xs)", () => {
     const src = layout();
-    const block = src.slice(src.indexOf("PIPELINE_LEGEND"), src.indexOf("PIPELINE_LEGEND") + 1000);
+    // Session-63 re-anchor (the s62 self-shift lesson): the sweep list
+    // now carries the PIPELINE_LEGEND token too — anchor on the
+    // DEFINITION form so the two can never collide.
+    const at = src.indexOf("export const PIPELINE_LEGEND");
+    const block = src.slice(at, at + 1000);
     expect(block).toMatch(/row: "flex flex-wrap gap-4 mt-4 text-xs"/);
     expect(block).toMatch(/chip: "flex items-center gap-2"/);
     expect(block).toMatch(/swatch: "w-3 h-3 rounded"/);
@@ -51,7 +55,9 @@ describe("session-27: the dashboard pipeline legend chips (the O-map)", () => {
 
   it("the O-map carries the six stage classes with the Won fallback (bg-gray-400 — the lookup-miss quirk)", () => {
     const src = layout();
-    const block = src.slice(src.indexOf("PIPELINE_LEGEND"), src.indexOf("PIPELINE_LEGEND") + 1400);
+    // Session-63 re-anchor: the definition form (see the chip-row it).
+    const at = src.indexOf("export const PIPELINE_LEGEND");
+    const block = src.slice(at, at + 1400);
     for (const entry of [
       'prospecting: "bg-blue-500"',
       'qualification: "bg-cyan-500"',

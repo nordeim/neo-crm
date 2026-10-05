@@ -354,8 +354,8 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 75 Vitest suites — 1207 checks
-│   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 111 checks
+│   ├── *.test.ts                # 75 Vitest suites — 1210 checks
+│   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 112 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
 └── postcss.config.mjs           # @tailwindcss/postcss — REQUIRED (ADR-005)
@@ -738,14 +738,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the dead-surface narrowing, palette-key + test-local layer (the N-60a pins [constants.ts carries none of the six never-read CHART_COLORS keys — blue/cyan/teal/amber/orange/green; zero key-reads + zero computed access repo-wide] + the N-60b pins [crm.spec.ts carries no formAvatar token — the dead test-local locator retired] + the guard [the ten live palette keys stay — red/gray/violet/emerald + the -400 family — with their live consumers: the dashboard sparklines, the accounts/activities stat-card mini bars] — session-60; the session_111.md line-count bracket correction + the SKILL §15.4/§19 carriers ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-surface narrowing, manifest + public-asset layer (the N-61a pins [public/ carries no neo-crm-dashboard.png — the byte-identical duplicate of the referenced docs/ original retired; it shipped in every standalone build via the `cp -r public` step] + the N-61b/d pins [package.json carries none of the three never-referenced dependency tokens — @radix-ui/react-alert-dialog + @radix-ui/react-radio-group runtime (zero imports repo-wide AND in all git history), bun-types dev (zero references, never auto-included)] + the guard [the 7 live radix packages + their real import sites stay — dialog/dropdown-menu/label/popover/select/slot/toast; tw-animate-css (the ADR-005 vendoring source) + jspdf + html2canvas-pro (the s25 PDF seam) stay; the docs/neo-crm-dashboard.png original stays] — session-61; the SKILL deps-table + runtime-deps-paragraph + §19 chart-row carriers + the README/PAD tree-block numerics + the PAD §11 Lines-column re-census + the package-lock.json regeneration to s25-parity ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the manifest-honesty + dead-arm + profile-save layer (the N-62a pins [package.json carries no @radix-ui/react-toast — the never-imported from-scratch mirror dep retired; @types/node devDep EXPLICIT (the npm-world closure); the install script at the 30-token set: 19 runtime + 11 dev] + the 62-a#4 honest census [EVERY surviving radix package pinned to its REAL import site — label joins] + the N-62c re-anchor [activities-page reads `new Date(a.createdAt)` directly at both count filters — the unreachable `?? a.dueAt` arms retired; the s46 two-arm pin re-anchored] — session-62) + the N-62b profile pin [`save()` mirrors the reference's unconditional PATCH — no dirty gate, both fields sent; tests/profile-photo.test.ts +1] | 2 | 4 | `tests/dead-code-hygiene.test.ts` `tests/profile-photo.test.ts` | Vitest |
-| **Total** | **75** | **1210 unit + 112 e2e** | | |
+| Unit — the server-seam honesty layer (the 63-b#1 pins [the repo root carries NEITHER foreign manual — scandihaven_SKILL.md + project-management_SKILL.md retired, the s54 DOC-FILE variant] + the N-63b split [dashboard route + the client page read `PIPELINE_LABELS[stage]` / `PIPELINE_LABELS[s]` DIRECT — the construction-dead `??` arms retired; settings reads the includes form with no `!view`; the defensive DB-read family ANNOTATED: the reports triple + `o.stage || "unknown"` + the statically-required `: 0` arm] + the N-63g pins [auth.ts carries the production warn-once branch] + the N-63i pins [login reads the email at `{ max: 160 }` — the family truncation parity] — session-63) + the N-63c sweep pin [`allLayoutClasses()` covers every exported class-string group — 71 groups; page-layout.test.ts +1] + the N-63a re-anchors [CALENDAR_CELL re-derived from the live cell: the flex column + the focusRing key + the de-duplicated transition-all] + the sweep-collision re-anchors [the three O-map its re-anchored to the `export const PIPELINE_LEGEND` definition form — the sweep list now carries the token too, the chronic self-shift class] — session-63; +6 its = 1216) | 4 | 6 new + 4 re-anchored | `tests/dead-code-hygiene.test.ts` `tests/page-layout.test.ts` `tests/dashboard-contracts.test.ts` `tests/charts-internals.test.ts` | Vitest |
+| **Total** | **75** | **1216 unit + 112 e2e** | | |
 
 > **Counting convention (session-54, N-54h)**: the per-session rows
 > count the FILES TOUCHED by that session's pin additions and the checks
 > those rows added or re-anchored — NOT the file's total checks, and NOT
 > a summable column (shared files like `constants.test.ts` appear in
 > several session rows). The **Total** row counts files and checks at
-> HEAD: 75 Vitest suites with 1210 checks + 111+1 e2e checks in 4 spec
+> HEAD: 75 Vitest suites with 1216 checks + 112 e2e checks in 4 spec
 > files. Verify counts by run (`bun run test`, `bun run test:e2e`),
 > never by summing the table.
 

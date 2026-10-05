@@ -109,7 +109,9 @@ total)**. **GREEN**: S62-P1 the manifest honesty (react-toast out of
 package.json; @types/node in at ^26.6.2 — the version the bun tree
 already resolves; bun.lock regenerated [1 insertion / 3 deletions];
 package-lock.json regenerated [18 insertions / 35 deletions —
-react-toast + its 13 transitives out, @types/node 26.6.4 +
+react-toast out [the s63 correction, G-1: only the ONE entry left;
+the 12 transitives it shared with the surviving radix packages
+remain, correctly], @types/node 26.6.4 +
 undici-types resolved in]; the root at 19 runtime + 11 dev;
 scripts/install_packages.sh at the 30-token set; the SKILL §2
 deps-table + runtime/dev-deps paragraphs; the toast.tsx header

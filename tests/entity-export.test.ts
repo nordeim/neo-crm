@@ -162,6 +162,10 @@ describe("session-26: the accounts page export (S26-P5)", () => {
     const code = stripComments(read("src/app/(app)/accounts/accounts-page.tsx")!);
     // The reference: the header Export CSV disabled at zero data, the
     // toolbar Export CSV enabled with the runtime guard.
+    // Session-63 (G-4, the N-62e precision note): the binding reads
+    // `filtered.length` while the export ships the FULL list — kept as
+    // shipped (the reference's zero-data state makes the two readings
+    // indistinguishable LIVE; see the accounts-page record comment).
     const header = code.indexOf("Export CSV");
     const headerRegion = code.slice(Math.max(0, header - 400), header + 200);
     expect(headerRegion).toMatch(/disabled=\{filtered\.length === 0\}/);

@@ -191,7 +191,10 @@ describe("session-27: the per-surface chart wirings (the pages)", () => {
     const page = stripComments(read("src/app/(app)/page.tsx") ?? "");
     expect(page).toMatch(/PIPELINE_LEGEND/);
     const layout = stripComments(read("src/lib/page-layout.ts") ?? "");
-    const block = layout.slice(layout.indexOf("PIPELINE_LEGEND"), layout.indexOf("PIPELINE_LEGEND") + 900);
+    // Session-63 re-anchor: the definition form (the sweep list carries
+    // the token too now).
+    const at = layout.indexOf("export const PIPELINE_LEGEND");
+    const block = layout.slice(at, at + 900);
     expect(block).toMatch(/w-3 h-3 rounded/);
     expect(block).toMatch(/text-gray-600/);
     expect(block).toMatch(/bg-gray-400/);

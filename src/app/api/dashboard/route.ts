@@ -105,7 +105,11 @@ export async function GET() {
     const rows = opportunities.filter((o) => o.stage === stage);
     return {
       stage,
-      label: PIPELINE_LABELS[stage] ?? stage,
+      // Session-63 (N-63b): the `?? stage` arm retired — the loop keys
+      // come from PIPELINE_STAGES, every one of which is keyed in
+      // PIPELINE_LABELS (unreachable by construction over internal
+      // constants, the N-62c class).
+      label: PIPELINE_LABELS[stage],
       count: rows.length,
       value: rows.reduce((s, o) => s + (o.amount || 0), 0),
     };
@@ -152,6 +156,11 @@ export async function GET() {
     .slice(0, 6)
     .map((a) => ({
       ...a,
+      // Session-63 (N-63b): the `: 0` arm is statically required —
+      // Activity.dueAt is DateTime? and the codebase carries zero
+      // type-predicate / non-null-assertion patterns, so the filter
+      // guarantee cannot be expressed to the type system here. The arm
+      // is unreachable at runtime (the defensive DB-read posture).
       daysUntil: a.dueAt ? Math.ceil((a.dueAt.getTime() - now.getTime()) / 86_400_000) : 0,
     }));
 

@@ -1,5 +1,8 @@
 // Fixed-window rate limiter (per-process, single-node deploy — same contract
-// as the scaffold family). Used by the auth routes: 10 attempts / 15 min / IP.
+// as the scaffold family). Used by the auth routes with PER-ROUTE limits
+// (all per 15 min / IP — Session-63 (N-63e) corrected this header, which
+// used to claim a flat "10 attempts"): login 10, signup 10, resend 5,
+// verify 20.
 
 interface Bucket {
   count: number;

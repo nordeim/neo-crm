@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1210 checks)        | `bun run test`                         |
+| Unit tests (1216 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1210) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1216) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2380,6 +2380,65 @@ findings; the graduation audit: ZERO graduations — 13/13 re-confirmed
 UNCHANGED — the CSV posture (b) STANDS (20th re-affirmation), the
 source-vocabulary documented parity STANDS AND EXTENDS to the N-62
 family (the bundle byte-identical for the 33rd consecutive session).
+
+### Session 63 (2026-10-05) — the server-seam honesty
+
+The session-63 layer: (1) The 63-b#1 closure — the two FOREIGN project
+manuals retired from the repo root: `scandihaven_SKILL.md` (the Scandi
+Haven project's own 128 KB master skill) + `project-management_SKILL.md`
+(ORBITAL's manual — a third project entirely), tracked since the
+initial scaffold `b48fc3d`, never modified once, zero functional
+references (the operator's prompt templates cite the GITHUB repo URL,
+never the local copies) — the s54 fully-dead class, DOC-FILE variant
+(~160 KB per clone). (2) The N-63b dead-arm SPLIT by risk class —
+RETIRED as construction-dead over internal constants: the
+`PIPELINE_LABELS[stage] ?? stage` pair (dashboard route + the client
+page's stage select — the PIPELINE_STAGES loops carry only keys the
+record verifies present) and settings' `!view` fragment (asString's
+optional+trim contract + `?? "month"` guarantee non-empty); KEPT +
+ANNOTATED as the defensive DB-read posture: the reports
+`ACTIVITY_TYPE_META[t]?.… ?? …` triple, `o.stage || "unknown"`, and
+the dashboard `: 0` ternary arm (Activity.dueAt is `DateTime?` and
+the codebase carries zero type-predicate / non-null-assertion
+patterns — the arm is the honest static form). (3) The N-63a/N-63c
+page-layout honesty package — CALENDAR_CELL RE-DERIVED from the live
+calendar cell (the pre-s63 record had drifted: no `flex flex-col
+items-stretch`, no focus-ring key, a duplicated `transition-all`; the
+pins re-anchored so the change is RED-proven), the allLayoutClasses
+sweep extended from 41 to 71 groups with the bare-string branch
+(`Object.values` on a string splits into characters — the trap that
+kept every single-string export out), the module header's false
+"pages consume these records" claim corrected, and the 8
+zero-page-consumer records annotated as test-pinned reference
+snapshots (the N-46e/N-62d wire-or-remove posture family). (4) The
+micro-honesty — N-63g the DEV_SECRET fallback now warns ONCE in
+production (the short-secret case used to be as silent as unset);
+N-63i login's email cap joins the 160 family (signup/resend/verify —
+truncation parity: a >160-char email stored truncated by signup can
+now log in); N-63e the rate-limit header at the real per-route
+numbers (login 10 / signup 10 / resend 5 / verify 20, all per 15
+min); N-63d the server-TZ annotation at the startOf* period-window
+seam; G-1..G-4 the record-precision corrections (the session_117
+"13 transitives" overstatement, the PAD tree-block 1207/111
+leftovers, the stale crm.spec "must be dirty" comment, the N-62e
+precision notes completed on contacts-page + the export pin). All
+pinned RED-first (7 RED: the foreign-docs it + the dead-arms it +
+the auth-warn it + the login-cap it + the sweep it + the two
+CALENDAR_CELL re-anchors; +6 its = 1216) and proven non-vacuous in a
+pre-fix d0129de worktree (7 failed | 272 passed there; 1216/1216 at
+the fix). Audits: the s62 re-audit verified all 23 checklist items
+GENUINE (the worktree arithmetic replayed: 3 failed | 52 passed
+pre-fix) with nine record-precision findings; the graduation audit:
+ZERO graduations — 13/13 re-confirmed (20th consecutive session);
+both operator decisions re-verified UNCHANGED — the CSV posture (b)
+STANDS (21st re-affirmation), the source-vocabulary documented
+parity STANDS AND EXTENDS to the N-63 family (the bundle
+byte-identical for the 34th consecutive session). The mid-flight
+pin repairs: the three O-map its re-anchored to the
+`export const PIPELINE_LEGEND` definition form (the sweep extension
+made the bare token ambiguous — the chronic self-shift class) + the
+sweep it's INPUT_BASE representative switched to `.size` (the record
+is an object, not a bare string).
 
 ## Conventions that differ from defaults
 

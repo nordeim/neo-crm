@@ -718,3 +718,74 @@ describe("session-62: the manifest honesty + the dead-arm retirement", () => {
     );
   });
 });
+
+describe("session-63: the foreign-doc retirement + the dead-arm split + the micro-honesty", () => {
+  it("the two foreign project manuals are gone from the repo root (63-b #1, the s54 DOC-FILE class)", () => {
+    // scandihaven_SKILL.md (the Scandi Haven project's own 128 KB
+    // manual) and project-management_SKILL.md (ORBITAL's manual — a
+    // THIRD project entirely) shipped in every clone since the initial
+    // scaffold b48fc3d, never modified once, with zero functional
+    // references: the operator's prompt templates cite the GITHUB repo
+    // URL for scandihaven's docs, never the local copies. Recovery if
+    // ever needed: git show b48fc3d:scandihaven_SKILL.md.
+    expect(
+      existsSync(path.resolve(import.meta.dirname, "..", "scandihaven_SKILL.md")),
+    ).toBe(false);
+    expect(
+      existsSync(
+        path.resolve(import.meta.dirname, "..", "project-management_SKILL.md"),
+      ),
+    ).toBe(false);
+  });
+
+  it("the construction-dead arms retire; the defensive DB-read arms stay annotated (N-63b)", () => {
+    // SPLIT by risk class. RETIRED — unreachable by construction over
+    // INTERNAL constants (the N-62c class): the PIPELINE_STAGES.map
+    // loops index PIPELINE_LABELS with keys that are all verified
+    // present (the dashboard route + the client page's stage select),
+    // and settings' `!view` guarded a value that asString's
+    // optional+trim contract already guarantees non-empty after
+    // `?? "month"`. KEPT + ANNOTATED — defensive over PERSISTED data
+    // (a different risk class: a Record<string,…> lookup over DB
+    // values degrades gracefully on an unexpected key): the reports
+    // ACTIVITY_TYPE_META[...]?.label triple, `o.stage || "unknown"`,
+    // and the dashboard `: 0` ternary arm (Activity.dueAt is
+    // DateTime?; the filter guarantees it at runtime but the type
+    // requires the arm — the codebase has zero type-predicate /
+    // non-null-assertion patterns, so the arm is the honest static
+    // form).
+    const dashboardRoute = stripComments(read("src/app/api/dashboard/route.ts") ?? "");
+    expect(dashboardRoute).toContain("label: PIPELINE_LABELS[stage],");
+    expect(dashboardRoute).not.toMatch(/PIPELINE_LABELS\[stage\] \?\?/);
+    expect(dashboard()).toContain("{PIPELINE_LABELS[s]}");
+    expect(dashboard()).not.toMatch(/PIPELINE_LABELS\[s\] \?\?/);
+    const settingsRoute = stripComments(read("src/app/api/settings/route.ts") ?? "");
+    expect(settingsRoute).not.toMatch(/!view/);
+    expect(settingsRoute).toMatch(/\["month", "week", "agenda"\]\.includes\(view\)/);
+    // The keep-annotations ride the RAW sources (comments above are
+    // stripped for the form pins).
+    expect(read("src/app/api/reports/route.ts") ?? "").toContain("defensive DB-read");
+    expect(read("src/app/api/dashboard/route.ts") ?? "").toContain("statically required");
+  });
+
+  it("the DEV_SECRET fallback warns once in production (N-63g)", () => {
+    // The short-(<16-char)-AUTH_SECRET case used to fall back as
+    // silently as the unset case — production would ship forgeable
+    // sessions with no signal. The warn fires ONCE (secret() rides
+    // every session op); the unset case keeps its documented posture.
+    const authRaw = read("src/lib/auth.ts") ?? "";
+    expect(authRaw).toContain('process.env.NODE_ENV === "production"');
+    expect(authRaw).toContain("console.warn");
+  });
+
+  it("login's email cap joins the 160 family (N-63i)", () => {
+    // signup (:57-58), resend (:29) and verify (:39) all read the email
+    // at { max: 160 }; login rode the asString default (500). Beyond
+    // the inconsistency, a >160-char email stored TRUNCATED by signup
+    // could never log in (login's untruncated read mismatches the
+    // stored prefix). 160 everywhere = the truncation-parity contract.
+    const loginRoute = stripComments(read("src/app/api/auth/login/route.ts") ?? "");
+    expect(loginRoute).toMatch(/asString\(body\.email, \{ max: 160 \}\)/);
+    expect(loginRoute).not.toMatch(/asString\(body\.email\) \?\?/);
+  });
+});

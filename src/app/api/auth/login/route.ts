@@ -20,7 +20,10 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid request body");
 
-  const email = (asString(body.email) ?? "").toLowerCase();
+  // Session-63 (N-63i): the email cap joins the 160 family (signup/
+  // resend/verify) — asString TRUNCATES, so a >160-char email stored
+  // truncated by signup could never log in under the old default (500).
+  const email = (asString(body.email, { max: 160 }) ?? "").toLowerCase();
   const password = typeof body.password === "string" ? body.password : "";
   if (!email || !password) return ERR.BAD_REQUEST("Email and password are required");
 

@@ -327,7 +327,15 @@ export default function ContactsPage() {
         <div className={CONTACTS_LAYOUT.content}>
       {/* Session-6: contacts is the flat header variant (text-3xl title,
           plain row, gap-3 actions); buttons are h-9 outline with hidden-sm
-          labels on Scan Card/Import; Export CSV is disabled at zero data. */}
+          labels on Scan Card/Import.
+          Session-63 (G-4, the N-62e precision note completing the set):
+          the header Export CSV's disabled binding reads
+          `filtered.length === 0` while the export itself ships the FULL
+          list (the runtime guard is contacts.length === 0) — a
+          filter-to-empty state therefore disables an export whose
+          artifact would be non-empty. Kept as shipped: the reference's
+          own zero-data state makes the filtered-vs-full distinction
+          unresolvable LIVE (indistinguishable mirrors). */}
       <PageHeader
         title="Contacts"
         subtitle="Manage your contacts"

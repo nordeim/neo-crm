@@ -2144,8 +2144,10 @@ test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async (
   await expect(page.locator("form img")).toHaveCount(1);
   await expect(page.getByAltText("Profile")).toHaveCount(2);
 
-  // The name must be dirty to save; change it, save, and wait out the
-  // 500ms reload (the reference's own mechanism).
+  // Session-63 (G-3): the comment corrected — the save is UNCONDITIONAL
+  // since N-62b (the reference's own contract); the name change here
+  // just exercises the flow. Wait out the 500ms reload (the reference's
+  // own mechanism).
   await page.getByLabel("Full Name").fill("sepnetflix2023 P");
   await page.getByRole("button", { name: "Save Changes" }).click();
   await expect(page.getByText("Profile updated successfully")).toBeVisible();

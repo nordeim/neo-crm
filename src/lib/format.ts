@@ -148,6 +148,13 @@ export function isSameDay(a: Date | string | number, b: Date | string | number):
   );
 }
 
+// Session-63 (N-63d): the startOf* family is the period-window seam for
+// the export + reports routes (today/thisWeek/quarter/ytd). Every
+// setHours/setDate call computes in the SERVER's local timezone — the
+// reference app computes its periods CLIENT-side (in the visitor's TZ).
+// Same result whenever server and users share a TZ (the self-hosted
+// single-team posture); a server/user TZ split shifts the window edges
+// by the offset difference. Documented divergence, not a defect.
 export function startOfDay(d: Date | string | number): Date {
   const x = new Date(asDate(d));
   x.setHours(0, 0, 0, 0);

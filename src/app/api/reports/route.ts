@@ -197,6 +197,11 @@ export async function GET(req: Request) {
   // slugs, first-seen order — the reference's plain-object grouping) ----
   const byStage = new Map<string, { stage: string; count: number; value: number }>();
   for (const o of openOpps) {
+    // Session-63 (N-63b): the defensive DB-read posture — `o.stage` is a
+    // persisted string, not an internal constant, so the `|| "unknown"`
+    // fallback STAYS (a Record lookup over DB values degrades gracefully
+    // on an unexpected key; the retire set was the internal-constant
+    // family only).
     const key = o.stage || "unknown";
     const entry = byStage.get(key) ?? { stage: key, count: 0, value: 0 };
     entry.count += 1;
@@ -207,6 +212,12 @@ export async function GET(req: Request) {
 
   // ---- tab 3: activities ----
   const presentTypes = [...new Set(filteredActivities.map((a) => a.type))];
+  // Session-63 (N-63b): the defensive DB-read posture — the
+  // `ACTIVITY_TYPE_META[t]?.… ?? …` triple STAYS for the same reason as
+  // the `o.stage` fallback above: `t` rides persisted data, and the
+  // graceful degradation (raw slug / the neutral gray) is the honest
+  // form for an unexpected key. The write path validates type membership
+  // (activities/route.ts:42), so the arms are unreachable in practice.
   const activitiesByType: ReportsData["activitiesByType"] = presentTypes
     .map((t) => ({
       type: t,
@@ -387,6 +398,8 @@ export async function GET(req: Request) {
     .map((a) => ({
       id: a.id,
       subject: a.subject,
+      // Session-63 (N-63b): the defensive DB-read posture (the tab-3
+      // triple's sibling — see the annotation above).
       type: ACTIVITY_TYPE_META[a.type]?.label ?? a.type,
       dueAt: a.dueAt?.toISOString() ?? null,
     }));

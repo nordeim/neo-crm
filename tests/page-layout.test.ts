@@ -657,6 +657,26 @@ describe("layout regression guards", () => {
     }
   });
 
+  it("the sweep covers every exported class-string group (N-63c, s63)", () => {
+    // The s63 extension: STAT_SHADOWS, TABLE_SHADOWS, MENU_CONTENT/
+    // MENU_ITEM, BUTTON_BASE, CHECKBOX, INPUT_BASE, SELECT_TRIGGER,
+    // SEARCH_INPUT, the DIALOG chrome family (HEADER/OVERLAY/CLOSE/
+    // FOOTER/FOOTER_WIDE/TITLE/TEXTAREA/SUBMIT/BARE_GROUP), PAGE_ROOT,
+    // CALENDAR_CARD, CARD, CONTACTS_LAYOUT, PROFILE_LAYOUT,
+    // REPORTS_TABLE_CARD, SETTINGS_GRID, KPI_VALUE, KPI_SPARK,
+    // PIPELINE_LEGEND, TOP_REPS, EMPTY_STATE joined the sweep — the
+    // ~30 groups the "Every exported class string" claim promised but
+    // the list never carried (the 62-a#4 coverage class). The
+    // vocabulary/data groups (PAGE_TITLES, RECENT_DEALS, KPI_STATICS)
+    // and the numeric CHART_GEOMETRY stay out, documented in the
+    // sweep's own comment. Representatives unique to the additions:
+    expect(allLayoutClasses()).toContain("shadow");
+    expect(allLayoutClasses()).toContain(DIALOG_OVERLAY);
+    expect(allLayoutClasses()).toContain(MENU_CONTENT);
+    expect(allLayoutClasses()).toContain(INPUT_BASE.size);
+    expect(allLayoutClasses()).toContain(STAT_SHADOWS.kpiHover);
+  });
+
   it("rail classes hide below lg (reference behavior)", () => {
     expect(RAIL_LAYOUT.rail).toMatch(/hidden lg:block/);
   });
@@ -1194,11 +1214,16 @@ describe("session-13: calendar day cells (S13-P7)", () => {
     // Reference: `bg-gray-50 text-gray-400` with the DEFAULT border
     // (#e5e5e5) + transition-all. Ours hid the border
     // (border-transparent) and used token aliases.
+    // Session-63 re-anchor (N-63a): the record is RE-DERIVED from the
+    // live calendar-page cell — out-of-month no longer duplicates
+    // `transition-all` (base carries it; the pre-s63 record was a stale
+    // copy the page had drifted from — the s24 click-contract lesson).
     expect(CALENDAR_CELL.outOfMonth).toContain("border-line");
     expect(CALENDAR_CELL.outOfMonth).toContain("bg-gray-50");
     expect(CALENDAR_CELL.outOfMonth).toContain("text-gray-400");
-    expect(CALENDAR_CELL.outOfMonth).toContain("transition-all");
+    expect(CALENDAR_CELL.outOfMonth).not.toContain("transition-all");
     expect(CALENDAR_CELL.outOfMonth).not.toContain("border-transparent");
+    expect(CALENDAR_CELL.base).toContain("transition-all");
   });
 
   it("current-month cells hover to the reference's gray-50 wash", () => {
@@ -1216,6 +1241,22 @@ describe("session-13: calendar day cells (S13-P7)", () => {
     expect(CALENDAR_CELL.today).toContain("bg-sidebar");
     expect(CALENDAR_CELL.today).toContain("text-white");
     expect(CALENDAR_CELL.today).toContain("border-sidebar");
+  });
+
+  it("base mirrors the live cell: the s27 flex column + the focus ring (the s63 re-derive)", () => {
+    // The live calendar-page cell (calendar-page.tsx) ships
+    // `flex min-h-20 flex-col items-stretch …` — the tall-bar/agenda
+    // layout the s27 calendar-cells work added — plus the
+    // focus-visible ring pair of the clickable-superset BUTTON. The
+    // pre-s63 record carried neither (a stale copy of the s13
+    // extraction).
+    expect(CALENDAR_CELL.base).toContain("flex");
+    expect(CALENDAR_CELL.base).toContain("flex-col");
+    expect(CALENDAR_CELL.base).toContain("items-stretch");
+    expect(CALENDAR_CELL.base).toContain("min-h-20");
+    expect(CALENDAR_CELL.base).toContain("sm:min-h-24");
+    expect(CALENDAR_CELL.base).toContain("rounded-lg");
+    expect(CALENDAR_CELL.focusRing).toContain("focus-visible:ring-2");
   });
 });
 
