@@ -5,8 +5,10 @@ import { describe, expect, it } from "vitest";
 // Session-46 pins (S46-P2): the DefaultsEditor debounced persist — the
 // F-46b audit. Every keystroke on the free-text inputs (defaultCurrency,
 // defaultLeadStage, defaultTier, followUpDays) fired an immediate
-// full-defaults PUT; the s43-P3 membership guards (settings/route.ts:94
-// stage / :103 tier) collided with the reference-mirrored
+// full-defaults PUT; the s43-P3 membership guards (settings/route.ts:98
+// stage / :111 tier — the if ("defaultLeadStage" in body) /
+// if ("defaultTier" in body) blocks, s64 refresh) collided with the
+// reference-mirrored
 // immediate-persist idiom — typing "Negotiation" produced a
 // guaranteed-failing PUT per keystroke ("N" → 400) and a red toast per
 // keystroke, plus a last-RESOLVED-wins write race and no rollback. The
@@ -26,7 +28,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 

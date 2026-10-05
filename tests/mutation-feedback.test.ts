@@ -6,13 +6,15 @@ import { describe, expect, it } from "vitest";
 // F-46a audit. The store's call() is total and toasts NOTHING (the
 // accounts-page comment "toast handled globally by store refresh" was
 // false — grep-verified zero toast calls in crm-store.ts), while the
-// codebase's own convention (entity-dialogs :167/:456/:742, profile,
+// codebase's own convention (entity-dialogs :168/:361/:1015 — the
+// account/contact/activity toast.error("Could not save …", res.error)
+// sites, s64 refresh; profile,
 // settings editors) toasts every failure. Ten page-level mutation sites
 // discarded the failure silently: 3 EntityEditDialog submits (a failed
 // PUT strands the dialog open with a dead-feeling Save), 5 inline
 // deletes, 2 inline mutations (toggleComplete, updateRole). The raw
 // census finds 11 mutation call sites in the five pages; the 11th —
-// importContacts at contacts-page:262 — is already handled by the
+// importContacts at contacts-page:279 (s64 refresh) — is already handled by the
 // s39-P2 three-way banner. The fix: the entity-dialogs convention
 // verbatim — toast.error(<title>, res.error) on the failed branch, the
 // happy path untouched.
@@ -25,7 +27,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 
@@ -126,7 +127,8 @@ describe("session-46: the mutation-failure feedback sweep (S46-P1)", () => {
   });
 
   it("the toast-import census: all four newly-toasting pages import the helper", () => {
-    // leads-page already imported it (its own :132 storage guard).
+    // leads-page already imported it (its own localStorage storage-guard
+    // try/catch at :142, s64 refresh — the decodeSavedLeadViews read).
     for (const src of [accounts(), contacts(), activities(), calendar()]) {
       expect(src).toMatch(/import \{ toast \} from "@\/components\/ui\/toast";/);
     }

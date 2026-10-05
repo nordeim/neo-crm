@@ -13,7 +13,9 @@ import { describe, expect, it } from "vitest";
 // reports tab-1 "Conversion Funnel" is a HORIZONTAL BAR CHART (534x300,
 // dashed grid, numeric XAxis 0-4, category YAxis with the EIGHT raw
 // slugs new/contacted/qualified/prospecting/qualification/proposal/
-// negotiation/closed_won — our REPORTS_PIPELINE_SLUGS list), not the
+// negotiation/closed_won — built inline by pipelineStageCounts in
+// src/lib/reports-data.ts; the s54 sweep retired the old
+// REPORTS_PIPELINE_SLUGS export this header used to cite), not the
 // recharts FunnelChart we shipped.
 
 const src = readFileSync(

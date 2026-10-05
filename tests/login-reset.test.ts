@@ -147,6 +147,11 @@ describe("login reset flow — reference class vocabulary", () => {
   });
 
   it("the view strings used by the state machine are the three DOM views", () => {
+    // Session-64 (N-64f): the length assert on a locally-declared literal
+    // is tautological AT RUNTIME (the literal's own length — it cannot
+    // fail). The it's residual value is the TYPE annotation: the array
+    // must satisfy LoginView[], so a view string drifting out of the
+    // union fails HERE at the tsc gate, not at runtime.
     const views: LoginView[] = ["signin", "reset", "sent"];
     expect(views).toHaveLength(3);
   });

@@ -145,7 +145,11 @@ the defensive triple + `o.stage` + `: 0` annotated with the
 the page-layout honesty package (CALENDAR_CELL re-derived: base
 carries the live `flex min-h-20 flex-col items-stretch …` form + the
 focusRing key; outOfMonth de-duplicated; the 3 test its re-anchored
-+ the new base it; the sweep extended 41 → 71 groups with the
++ the new base it [s64 correction: only the OUT-OF-MONTH it carries
+the s63 re-anchor note — the current/today its stayed byte-identical
+to pre-s63 and simply went green through the record change; the
+"re-anchored" plural overstated the touched set]; the sweep extended
+41 → 71 groups with the
 bare-string branch + the excluded vocabulary groups documented; the
 module header corrected; the 8 records annotated). S63-P4 the
 micro-hygiene (the auth warn-once production branch; login `{ max:
@@ -197,10 +201,14 @@ cells the record now mirrors) — all four VLM-verified 4/4 PASS.
 
 **Docs realigned**: README (badge 1328 = 1216 + 112, the Tested row,
 the tree/command rows at 1216, the session-63 segment), AGENTS (the
-commands table at 1216 + the session-63 block), CLAUDE (1216 ×3 +
+commands table at 1216 + the session-63 block), CLAUDE (1216 ×3
+[s64 correction: ×4 — CLAUDE.md carries the count at :38, :114, :125
+and :371] +
 the coverage note), PAD (the s63 inventory row [4 files, 6 new + 4
 re-anchored] + the Total 1216 + 112 + the counting note + the G-2
-tree-block refresh), SKILL **v1.60.0** (frontmatter + project_state
+tree-block refresh [s64 correction: the :357 tree-block landed at
+"1210" — the plan's own pre-session number, stale by the session's
++6 its; refreshed to the live count at s64]), SKILL **v1.60.0** (frontmatter + project_state
 + the new §16bc, applied atomically via the assert-first
 scripts/skill_edits_s63.py at the sandbox root, 5988 → 6053 lines by
 wc -l; the doubled-word scan clean — the two hits are the legitimate

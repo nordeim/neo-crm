@@ -10,8 +10,10 @@ import { describe, expect, it } from "vitest";
 // raw type, which is Capitalized ("Call") in ITS storage. The same
 // display the reference renders, from OUR storage, is the house
 // display-case idiom: ACTIVITY_TYPE_META[a.type]?.label ?? a.type
-// (activities-page:185 + the reports route:355 — call→"Call",
-// email→"Email", constants.ts:377-384). The icon/tint comparisons stay
+// (the byType chart labels at activities-page:192 + the reports
+// route's ?.label ?? t form at :224 — call→"Call", email→"Email";
+// the META definition at constants.ts:388, s64 refresh). The icon/tint
+// comparisons stay
 // exactly as s47 shipped them (pinned in insights-vocabulary.test.ts).
 
 function read(rel: string): string | null {
@@ -22,7 +24,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 

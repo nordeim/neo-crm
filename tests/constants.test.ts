@@ -26,7 +26,6 @@ function readConstants(): string {
   return existsSync(p)
     ? readFileSync(p, "utf-8")
         .replace(/\/\*[\s\S]*?\*\//g, "")
-        .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
         .replace(/\/\/[^\n]*/g, "")
     : "";
 }
@@ -78,8 +77,9 @@ describe("dialog/filter vocabularies (session-5 DOM-verified)", () => {
     // contact-source precedent. Referral exists in the filters popover's
     // five-option list only.
     // Session-49 (S49-P5, N-49c): the pin re-anchored to the LIVING
-    // LEAD_SOURCE_OPTIONS (the dialogs' own list — entity-dialogs:853/:920
-    // + the dashboard's Lead Sources rows, page.tsx:298) after the
+    // LEAD_SOURCE_OPTIONS (the dialogs' own list — the create dialog's
+    // LEAD_SOURCE_OPTIONS.map at entity-dialogs:725 + the dashboard's
+    // Lead Sources rows at page.tsx:305, s64 refresh) after the
     // src-dead LEAD_SOURCES twin was removed with the s48-P2 CONTACT_SOURCES
     // precedent (zero src consumers; only this pin read it).
     expect(LEAD_SOURCE_OPTIONS.map((o) => o.value)).toEqual(["call", "email", "website", "partner"]);

@@ -8,7 +8,8 @@ import { describe, expect, it } from "vitest";
 // the s29 re-scope (export/route.ts answers type=report only; every entity
 // click NAVIGATED the browser to the raw 400 JSON body). The reference's
 // own header trio is dead (no onClick — bundle-verified); ours is the
-// DOCUMENTED functional superset (dashboard-contracts.test.ts:284-291),
+// DOCUMENTED functional superset (dashboard-contracts.test.ts:284-297,
+// the session-33 filter-bar/trio comment block — s64 refresh),
 // now wired to the CLIENT-SIDE entity-export family — the pages' own
 // s26/s29 conventions verbatim: the builders, the filenames, the
 // zero-guards. Zero e2e coverage is how 18 green sessions missed it (one
@@ -22,7 +23,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 

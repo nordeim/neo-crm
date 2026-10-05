@@ -46,7 +46,6 @@ function read(rel: string): string | null {
 function stripComments(src: string): string {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 
@@ -61,10 +60,15 @@ describe("session-25: the saved-reports localStorage seam (S25-P4)", () => {
 
   it("the SavedReport type carries the reference's exact field set", () => {
     const code = stripComments(read("src/lib/saved-reports.ts")!);
-    // filters: dateRange/stage/source/status/owner — all five keys.
+    // Session-64 (N-64h): the sampling is deliberately partial — 2 of 5
+    // filter keys + 2 of 6 column keys via ambiguity-tolerant regexes
+    // (the regexes can't enumerate keys without over-matching the
+    // surrounding type); the TYPE carries all 11 + createdAt + name,
+    // enforced by tsc against every consumer.
+    // filters: dateRange/stage/source/status/owner — the five keys (2 sampled).
     expect(code).toMatch(/dateRange/);
     expect(code).toMatch(/\bsource\b/);
-    // columns: name/account/owner/value/stage/wonDate — all six keys.
+    // columns: name/account/owner/value/stage/wonDate — the six keys (2 sampled).
     expect(code).toMatch(/wonDate/);
     expect(code).toMatch(/\baccount\b/);
     expect(code).toMatch(/createdAt/);
@@ -96,17 +100,15 @@ describe("session-25: the saved-reports localStorage seam (S25-P4)", () => {
 
 describe("session-25: the Save Custom Report View dialog (S25-P4)", () => {
   it("the dialog component exists under components/shared/", () => {
-    const candidates = [
-      "src/components/shared/save-report-dialog.tsx",
-    ];
-    const found = candidates.find((c) => read(c) !== null);
-    expect(found, "the save-report-dialog component must exist").toBeTruthy();
+    // Session-64 (N-64i): the vestigial scaffolding retired — the
+    // pre-s64 form carried a ONE-element candidates array plus a dead
+    // `.ts` fallback read (a .ts variant of a live .tsx component can
+    // never exist); the direct existence check is the honest form.
+    expect(read("src/components/shared/save-report-dialog.tsx")).not.toBeNull();
   });
 
   it("the dialog's title, input, and placeholder match the reference", () => {
-    const src =
-      read("src/components/shared/save-report-dialog.tsx") ??
-      read("src/components/shared/save-report-dialog.ts");
+    const src = read("src/components/shared/save-report-dialog.tsx");
     const code = stripComments(src!);
     expect(code).toMatch(/Save Custom Report View/);
     expect(code).toMatch(/Report Name/);

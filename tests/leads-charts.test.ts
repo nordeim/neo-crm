@@ -25,7 +25,6 @@ function read(rel: string): string | null {
 function stripComments(src: string): string {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 
@@ -77,10 +76,17 @@ describe("session-27: the leads funnel vocabulary + colors (the bundle contract)
 
   it("the funnel counts are STATUS-CUMULATIVE (contacted = contacted+qualified+won; qualified = qualified+won)", () => {
     const src = page();
-    const region = src.slice(src.indexOf("LEADS_FUNNEL") - 100, src.indexOf("LEADS_FUNNEL") + 100);
-    expect(src).toMatch(/LEADS_FUNNEL/);
+    // Session-64 (N-64b): the pin is the EXACT cumulative filter forms.
+    // The pre-s64 form matched /cumulative|LEADS_FUNNEL/ against this
+    // region — and LEADS_FUNNEL.map sits inside it, so the disjunct
+    // could NEVER fail: a bundle-parity contract with zero effective
+    // coverage while the real forms went unpinned anywhere repo-wide.
     const counts = src.slice(src.indexOf("const funnel"), src.indexOf("const funnel") + 900);
-    expect(counts).toMatch(/cumulative|LEADS_FUNNEL/);
+    expect(counts).toContain('f.id === "new-leads"');
+    expect(counts).toContain('n(["new"])');
+    expect(counts).toContain('n(["contacted", "qualified", "won"])');
+    expect(counts).toContain('n(["qualified", "won"])');
+    expect(counts).toContain('n(["won"]),');
   });
 
   it("the old FUNNEL_STAGES new/qualified/won/lost list is retired from this chart (the funnel no longer feeds it)", () => {

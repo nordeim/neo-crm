@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1216 checks)        | `bun run test`                         |
+| Unit tests (1222 checks)       | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1216) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1222) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2439,6 +2439,48 @@ pin repairs: the three O-map its re-anchored to the
 made the bare token ambiguous — the chronic self-shift class) + the
 sweep it's INPUT_BASE representative switched to `.size` (the record
 is an object, not a bare string).
+
+### Session-64 — the logout write-guard + the test-suite honesty
+
+The fresh-eyes rotation landed on the TEST-CONTRACT + CLIENT-STATE
+seam (tests/ 75 files + src/stores/crm-store.ts + src/types/ — never
+a dedicated rotation target before) and found the N-64 family:
+N-64j the logout write-guard (src/stores/crm-store.ts — logout()
+clears every slice but hydrate()'s nine parallel fetches carried no
+generation token, so a logout landing mid-fetch let stale
+resolutions re-populate the cleared slices, the s35 leakage class's
+last open window; FIXED with a module-level sessionWriteToken every
+slice fetch captures at entry — logout bumps it + the events token
+before the clearing set, hydrate dies entirely on a mid-auth logout,
+and the s45 fetchEvents body stays byte-identical, its in-flight
+writes invalidated through its own token); N-64b the vacuous funnel
+pin (the leads status-cumulative contract asserted
+/cumulative|LEADS_FUNNEL/ over a region that always contains
+LEADS_FUNNEL.map — zero effective coverage; re-anchored to the exact
+filter forms and perturbation-proven); N-64g the stripComments
+dead cargo (the unreachable second replace — the braced-pattern pass
+after the plain-pattern sweep — retired from all 54 test-helper
+copies, absence-pinned with an escaped needle); N-64a the stale
+line-anchor family (13 citation drifts across 10 test files, token
+anchors preferred); N-64c/d/e/f/h/i the precision carriers (the
+dead region local, the E>=4 title, the retired-constant comment,
+the tautology/sampling annotations, the vestigial scaffolding). All
+pinned RED-first (5 RED: the 4 store its + the stripComments absence
+it; +6 its = 1222) and proven non-vacuous in a pre-fix f7760f7
+worktree (5 failed | 49 passed there; 1222/1222 at the fix; the
+funnel pin additionally perturbation-proven). Audits: the s63
+re-audit verified 13/15 checklist items fully GENUINE (the
+non-vacuousness arithmetic replayed exactly: 7 failed | 272 passed)
+with the P-1..P-3 record-precision corrections landed at s64; the
+graduation audit: ZERO graduations — 13/13 re-confirmed (21st
+consecutive session); both operator decisions re-verified UNCHANGED
+— the CSV posture (b) STANDS (22nd re-affirmation), the
+source-vocabulary documented parity STANDS AND EXTENDS to the N-64
+family (the bundle byte-identical for the 35th consecutive session).
+The mid-flight pin repair: the s45 no-collateral guard's window
+narrowed 500 → 400 chars (the guarded neighborhood grew — the fetch
+functions now carry the session capture; the chronic self-shift
+class in window form).
 
 ## Conventions that differ from defaults
 

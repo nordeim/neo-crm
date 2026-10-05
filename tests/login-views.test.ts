@@ -128,6 +128,11 @@ describe("session-21: the Callout error banner (S21-P3)", () => {
 
 describe("session-21: the extended view state machine (S21-P4 / S21-P5)", () => {
   it("LoginView gains signup + verify", () => {
+    // Session-64 (N-64f): the length assert on a locally-declared literal
+    // is tautological AT RUNTIME (the literal's own length — it cannot
+    // fail). The it's residual value is the TYPE annotation: the array
+    // must satisfy LoginView[], so a view string drifting out of the
+    // union fails HERE at the tsc gate, not at runtime.
     const views: LoginView[] = ["signin", "reset", "sent", "signup", "verify"];
     expect(views.length).toBe(5);
   });

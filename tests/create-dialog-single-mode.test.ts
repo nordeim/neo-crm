@@ -20,7 +20,9 @@ import { describe, expect, it } from "vitest";
 // shipping a divergent-from-reference edit surface.
 //
 // EventDialog/ActivityDialog keep their dual-mode BY DESIGN — their
-// edit modes are LIVE (activities-page:206, calendar:352/:424/:484);
+// edit modes are LIVE (the setEditing(a) row-menu Edit at
+// activities-page:213 + the calendar's three setEditing(e) sites at
+// :370/:442/:507 — s64 refresh);
 // the pin at the bottom guards exactly that boundary.
 
 function read(rel: string): string | null {
@@ -31,7 +33,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 

@@ -53,6 +53,19 @@ async function call<T>(path: string, init?: RequestInit): Promise<Result<T, stri
 // handoff resolves in the calendar's favor, the correct owner).
 let eventsFetchToken = 0;
 
+// Session-64 (N-64j): the logout write-guard — the s45 token family's
+// third seam (after the s45-P3 topbar AbortController and the s45-P4
+// events token). logout() clears every slice, but hydrate()'s nine
+// parallel fetches and the page effects' refetches carried no generation
+// token: a logout landing mid-fetch let the stale resolutions
+// re-populate the cleared slices (the s35 leakage class via a narrow
+// race window — self-healing on the next hydrate, but a cross-user
+// flash on a fast logout → login). Every fetch captures this token at
+// entry and may only write while it still matches; logout bumps it
+// (and the events token, invalidating in-flight fetchEvents through
+// its own s45 mechanism) immediately before the clearing set.
+let sessionWriteToken = 0;
+
 export interface CrmState {
   // session
   user: User | null;
@@ -125,7 +138,13 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   dashboard: null,
 
   hydrate: async () => {
+    // Session-64 (N-64j): a logout that landed while /api/auth/me was
+    // in flight kills this hydrate entirely — no user set, no slice
+    // fetches (the stale resolutions could otherwise re-populate the
+    // logged-out store, the s35 leakage class).
+    const session = sessionWriteToken;
     const res = await call<User | null>("/api/auth/me");
+    if (session !== sessionWriteToken) return;
     if (res.ok && res.data) {
       set({ user: res.data, hydrated: true });
       await Promise.all([
@@ -149,37 +168,51 @@ export const useCrmStore = create<CrmState>((set, get) => ({
     // Session-35: settings joins the reset — the previous user's picklists
     // otherwise linger in memory into the next session until hydrate()'s
     // fetchSettings overwrites them.
+    // Session-64 (N-64j): bump BOTH tokens before the clear so every
+    // in-flight fetch resolution (hydrate's nine + the page effects'
+    // refetches) is skipped instead of re-populating the cleared
+    // slices. The events token is bumped through its own s45 mechanism
+    // — an in-flight fetchEvents fails its `token === eventsFetchToken`
+    // check the same way a superseding call would.
+    eventsFetchToken += 1;
+    sessionWriteToken += 1;
     set({ user: null, users: [], accounts: [], contacts: [], leads: [], opportunities: [], activities: [], events: [], dashboard: null, settings: null });
   },
 
   fetchUsers: async () => {
+    const session = sessionWriteToken;
     const res = await call<User[]>("/api/users");
-    if (res.ok) set({ users: res.data });
+    if (res.ok && session === sessionWriteToken) set({ users: res.data });
   },
 
   fetchAccounts: async () => {
+    const session = sessionWriteToken;
     const res = await call<Account[]>("/api/accounts");
-    if (res.ok) set({ accounts: res.data });
+    if (res.ok && session === sessionWriteToken) set({ accounts: res.data });
   },
 
   fetchContacts: async () => {
+    const session = sessionWriteToken;
     const res = await call<Contact[]>("/api/contacts");
-    if (res.ok) set({ contacts: res.data });
+    if (res.ok && session === sessionWriteToken) set({ contacts: res.data });
   },
 
   fetchLeads: async () => {
+    const session = sessionWriteToken;
     const res = await call<Lead[]>("/api/leads");
-    if (res.ok) set({ leads: res.data });
+    if (res.ok && session === sessionWriteToken) set({ leads: res.data });
   },
 
   fetchOpportunities: async () => {
+    const session = sessionWriteToken;
     const res = await call<Opportunity[]>("/api/opportunities");
-    if (res.ok) set({ opportunities: res.data });
+    if (res.ok && session === sessionWriteToken) set({ opportunities: res.data });
   },
 
   fetchActivities: async () => {
+    const session = sessionWriteToken;
     const res = await call<Activity[]>("/api/activities");
-    if (res.ok) set({ activities: res.data });
+    if (res.ok && session === sessionWriteToken) set({ activities: res.data });
   },
 
   fetchEvents: async (from, to) => {
@@ -190,13 +223,15 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
 
   fetchSettings: async () => {
+    const session = sessionWriteToken;
     const res = await call<Settings>("/api/settings");
-    if (res.ok) set({ settings: res.data });
+    if (res.ok && session === sessionWriteToken) set({ settings: res.data });
   },
 
   fetchDashboard: async () => {
+    const session = sessionWriteToken;
     const res = await call<DashboardData>("/api/dashboard");
-    if (res.ok) set({ dashboard: res.data });
+    if (res.ok && session === sessionWriteToken) set({ dashboard: res.data });
   },
 
   fetchReports: async (params) => call<ReportsData>(`/api/reports?${new URLSearchParams(params)}`),

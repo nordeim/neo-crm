@@ -31,7 +31,9 @@ import { describe, expect, it } from "vitest";
 //     canonical list exists; the page never sends source at all).
 //
 // N-49m companion: the saved-view Load applies RAW stage/status
-// (reports-page:373-375) — without normalization the new validation
+// (reports-page:384-387, the setPeriod(normalizeSavedPeriod(...)) /
+// setStage / setStatus trio in onLoad — s64 refresh) — without
+// normalization the new validation
 // would turn a stale saved view from silently-EMPTY into
 // silently-STALE data. normalizeSavedStage/normalizeSavedStatus follow
 // the s32 normalizeSavedPeriod precedent (unknown values fall back to
@@ -54,7 +56,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 

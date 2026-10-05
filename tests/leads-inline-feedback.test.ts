@@ -3,8 +3,9 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Session-47 pins (S47-P3): the leads inline-edit failure feedback — the
-// F-47f audit. The three s29-P2 onChange arrows (value :534 / stage :546 /
-// nextFollowUp :568) called updateLead fire-and-forget with no feedback —
+// F-47f audit. The three s29-P2 onChange arrows (value :580 / stage :594 /
+// nextFollowUp :618 — the void updateLead(...).then(onLeadEditResult)
+// sites, s64 refresh) called updateLead fire-and-forget with no feedback —
 // a failed PUT silently reverted via the unconditional refetch (the user's
 // edit vanished). Missed by the s46 census because they are onChange
 // arrows, not async/await sites. The fix: the s46-P1 convention adapted —
@@ -21,7 +22,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 

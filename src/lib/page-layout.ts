@@ -1020,9 +1020,15 @@ export const SETTINGS_GRID = "grid grid-cols-1 md:grid-cols-2 gap-4" as const;
  *  coverage class). The vocabulary/data groups stay OUT by design:
  *  PAGE_TITLES (document titles), RECENT_DEALS (the header vocabulary),
  *  KPI_STATICS (delta labels + spark arrays), CHART_GEOMETRY (numeric
- *  heights). Mixed records (KPI_SPARK, EMPTY_STATE, PIPELINE_LEGEND)
- *  ride along — the string filter below keeps only their class-string
- *  members (nested objects and non-string values are skipped). */
+ *  heights), KPI_CHIP_BG (the hex-color chip map — s64 naming). Mixed
+ *  records (KPI_SPARK, EMPTY_STATE, PIPELINE_LEGEND) ride along — the
+ *  string filter below keeps every STRING member (nested objects and
+ *  non-string values are skipped), which means their non-class string
+ *  members ride too (KPI_SPARK.line's recharts option string,
+ *  PIPELINE_LEGEND.valueFormat) — harmless to the de-bracket guard
+ *  (a non-class token can never contain the bracket vocabulary the
+ *  guard hunts), and the honest description of what the sweep carries
+ *  (the s64 I-3 precision). */
 export function allLayoutClasses(): string[] {
   const out: string[] = [];
   for (const group of [

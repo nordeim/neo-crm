@@ -300,5 +300,13 @@ Executed as planned, with the discoveries noted:
   the doubled-word scan clean), README/AGENTS/CLAUDE/PAD at 1216 + 112
   (badge 1328) + the G-1..G-4 precision corrections; session_119.md;
   this record; both worklogs.
+  [s64 correction, the 64-a P-3 finding: the auth-warn + login-cap its
+  landed in the dead-code-hygiene session-63 describe (dch 42 → 46),
+  NOT in tests/auth.test.ts / tests/api-robustness.test.ts as the
+  S63-P4 spec above says — and the plan body's 1215/badge-1327
+  arithmetic was superseded by the executed 1216/1328 (only the RED
+  8→7 estimate got an explicit note). The G-2 tree-block refresh
+  landed the plan's own pre-session "1210" instead of the session's
+  1216 — corrected at s64.]
 - **Ship**: commit on main + the SSH-wrapper v3 push + the remote
   verification + the operator key shredded.

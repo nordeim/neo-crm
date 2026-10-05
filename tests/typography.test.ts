@@ -45,7 +45,6 @@ function themeToken(name: string): string | undefined {
 const cssRules = css.replace(/\/\*[\s\S]*?\*\//g, "");
 const layoutRules = layout
   .replace(/\/\*[\s\S]*?\*\//g, "")
-  .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
   .replace(/\/\/[^\n]*/g, "");
 
 describe("typography: the Inter webfont retirement (S22-P1)", () => {

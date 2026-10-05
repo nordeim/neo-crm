@@ -33,7 +33,6 @@ function read(rel: string): string | null {
 function stripComments(src: string): string {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 
@@ -71,9 +70,12 @@ describe("session-27: the dashboard pipeline legend chips (the O-map)", () => {
     }
   });
 
-  it("the legend text format is the reference's $X.Xk (toFixed(1)k, text-gray-600)", () => {
+  it("the legend text format is the reference's $X.Xk (toFixed(1)k — the gray-600 half lives in the PIPELINE_LEGEND pin, charts-internals)", () => {
+    // Session-64 (N-64c): the dead `region` local retired (never read —
+    // the s60 formAvatar precedent, TEST-LOCAL variant) and the title
+    // narrowed to what this it actually asserts (the text-gray-600 half
+    // is pinned at charts-internals' PIPELINE_LEGEND exact-form).
     const src = page();
-    const region = src.slice(src.indexOf("PIPELINE_LEGEND") - 200, src.indexOf("PIPELINE_LEGEND") + 600);
     expect(src).toMatch(/toFixed\(1\)\}k/);
   });
 });
@@ -118,7 +120,10 @@ describe("session-27: the KPI static deltas + sparklines (the hardcoded family)"
     expect(region).toMatch(/KPI_STATICS/);
   });
 
-  it("the Sales Target bar colors follow the reference's E<4 amber / E>=3 blue split (#fbbf24 then #3b82f6)", () => {
+  it("the Sales Target bar colors follow the reference's E<4 amber / E>=4 blue split (#fbbf24 then #3b82f6)", () => {
+    // Session-64 (N-64d): title corrected — the pre-s64 "E>=3 blue" arm
+    // was self-contradictory (3 satisfies both arms); the source is
+    // `i < 4 ? "#fbbf24" : "#3b82f6"` (page.tsx:243).
     const src = page();
     const region = src.slice(src.indexOf('label="Sales Target"'), src.indexOf('label="Sales Target"') + 700);
     expect(region).toMatch(/#fbbf24/);

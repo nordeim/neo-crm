@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -30,7 +30,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 
@@ -272,8 +271,9 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     const src = contacts();
     // Each had exactly one in-file reference — the import itself. The
     // exports all stay alive on their real consumers (timeAgo is LIVE in
-    // activities-page:385 [s58 refresh — the s57 comment growth
-    // self-shifted the token one line, the chronic self-shift class];
+    // activities-page:388, the timeline's {meta.label} · timeAgo(a.createdAt)
+    // consumer [s64 refresh — the s57/s58 refreshes both self-shifted;
+    // the durable anchor is the TOKEN, not the line];
     // ENGAGEMENT_LEVELS in the contacts API routes;
     // FILTER_RAIL/EMPTY_STATE in calendar + reports; Avatar in
     // accounts-page + the ui kit [s57 correction]; DropdownSeparator in
@@ -356,9 +356,9 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
   });
 
   it("the living underlying surfaces stay exported (the narrowing is not a retirement)", () => {
-    // timeAgo (activities :384), ENGAGEMENT_LEVELS (contacts API),
-    // FILTER_RAIL/EMPTY_STATE (page-layout), the stock Avatar/Cell/
-    // DropdownSeparator — all still exported by their owners.
+    // timeAgo (the activities timeline consumer, :388), ENGAGEMENT_LEVELS
+    // (contacts API), FILTER_RAIL/EMPTY_STATE (page-layout), the stock
+    // Avatar/Cell/DropdownSeparator — all still exported by their owners.
     expect(format()).toMatch(/export function timeAgo/);
     expect(constants()).toMatch(/\bENGAGEMENT_LEVELS\b/);
     const pageLayout = stripComments(read("src/lib/page-layout.ts") ?? "");
@@ -787,5 +787,26 @@ describe("session-63: the foreign-doc retirement + the dead-arm split + the micr
     const loginRoute = stripComments(read("src/app/api/auth/login/route.ts") ?? "");
     expect(loginRoute).toMatch(/asString\(body\.email, \{ max: 160 \}\)/);
     expect(loginRoute).not.toMatch(/asString\(body\.email\) \?\?/);
+  });
+});
+
+describe("session-64: the stripComments dead-cargo retirement (N-64g)", () => {
+  it("no test helper carries the unreachable second replace (the braced-comment pattern after the plain-comment sweep)", () => {
+    // The shared stripComments helper's SECOND replace — the one whose
+    // regex targeted BRACED JSX comment spans after the first pass had
+    // already swept the plain ones — was unreachable: the first replace
+    // removes every plain /*…*/ span, and the second pattern requires
+    // an `/*` with a following `*/`, exactly what the first pass
+    // consumed. Dead cargo duplicated across all 54 helper copies at
+    // s63 HEAD (the s54 dead-cargo class, HELPER variant), retired in
+    // one sweep at s64. The needle below is written ESCAPED so this
+    // pin's own bytes can never satisfy it (the docs above deliberately
+    // avoid the literal).
+    const needle = ".replace(/\\{\\/\\*[\\s\\S]*?\\*\\/\\}/g, \"\")";
+    const dir = path.resolve(import.meta.dirname);
+    const offenders = readdirSync(dir)
+      .filter((f) => f.endsWith(".test.ts"))
+      .filter((f) => (readFileSync(path.join(dir, f), "utf-8")).includes(needle));
+    expect(offenders).toEqual([]);
   });
 });

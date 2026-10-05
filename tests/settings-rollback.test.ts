@@ -5,7 +5,8 @@ import { describe, expect, it } from "vitest";
 // Session-46 pins (S46-P3): the settings editors' failure rollback +
 // the remount-key collision — the F-46c audit. mutate() left a failed
 // picklist PUT's phantom item in the editor (label > 60 chars / 41st
-// entry → 400 at settings/route.ts:65/:68; no client-side cap), and
+// entry → 400 at settings/route.ts:98/:111, the defaultLeadStage /
+// defaultTier membership guards — s64 refresh; no client-side cap), and
 // the remount keys cfg-${JSON.stringify(settings).length} /
 // def-${…length} keyed on JSON LENGTH — same-length snapshots collide
 // (an add+remove of equal-length items → no remount → stale local
@@ -21,7 +22,6 @@ function read(rel: string): string | null {
 function stripComments(src: string) {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\/[^\n]*/g, "");
 }
 
