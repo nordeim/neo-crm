@@ -510,3 +510,61 @@ describe("session-59: the dead-surface narrowing (S59-P2)", () => {
     expect(contacts()).toMatch(/fields=\{CONTACT_EDIT_FIELDS\}/);
   });
 });
+
+describe("session-60: the dead-surface narrowing (S60-P2)", () => {
+  it("constants.ts no longer carries the six never-read CHART_COLORS keys (N-60a)", () => {
+    // 60-b fresh-eyes (the map-key census rotation): six of the
+    // palette's sixteen keys — blue/cyan/teal/amber/orange/green — had
+    // zero key-reads AND zero computed access repo-wide (the live read
+    // set: red/gray/violet/emerald + the -400 family — the raw-hex
+    // literals in the contacts/reports pages are independent string
+    // props, not key reads). The s54 fully-dead class, KEY variant —
+    // the third face after the TYPE (s58) and INTERFACE (s59)
+    // variants. The CSS --color-chart-1…6 token family is a different
+    // surface and stays whole; `emerald` shares the retired `green`'s
+    // #10b981 hex but is key-distinct (the pins anchor on key names).
+    const src = stripComments(read("src/lib/constants.ts") ?? "");
+    expect(src).not.toMatch(/blue: "#3b82f6"/);
+    expect(src).not.toMatch(/cyan: "#06b6d4"/);
+    expect(src).not.toMatch(/teal: "#14b8a6"/);
+    expect(src).not.toMatch(/amber: "#f59e0b"/);
+    expect(src).not.toMatch(/orange: "#f97316"/);
+    expect(src).not.toMatch(/green: "#10b981"/);
+  });
+
+  it("crm.spec.ts no longer carries the dead formAvatar locator (N-60b)", () => {
+    // The N-56a lint-invisible class's TEST-LOCAL variant — a locator
+    // declared inside the profile-photo-upload test and never used
+    // (the empty state is asserted through the `form img` count 0
+    // instead). Both no-unused-vars rules are off; the unit-side
+    // hygiene suite reads src/ only — found only by rotating the
+    // fresh-eyes sweep INTO the test tree. The class's fourth home:
+    // IMPORT (s56) / PROP-TYPE (s57c) / DESTRUCTURED (s59) /
+    // TEST-LOCAL (s60).
+    const src = stripComments(read("tests/e2e/crm.spec.ts") ?? "");
+    expect(src).not.toMatch(/\bformAvatar\b/);
+  });
+
+  it("the living palette stays (guard)", () => {
+    // The ten live keys + their live consumers — the palette's real
+    // contract surface: the dashboard KPI sparklines (emerald/violet/
+    // red + the cyan400/green400 default-variant bars), the accounts
+    // and activities stat-card mini bars (the -400 family + gray).
+    const src = stripComments(read("src/lib/constants.ts") ?? "");
+    expect(src).toMatch(/red: "#ef4444"/);
+    expect(src).toMatch(/gray: "#9ca3af"/);
+    expect(src).toMatch(/violet: "#8b5cf6"/);
+    expect(src).toMatch(/emerald: "#10b981"/);
+    expect(src).toMatch(/blue400: "#60a5fa"/);
+    expect(src).toMatch(/green400: "#4ade80"/);
+    expect(src).toMatch(/cyan400: "#22d3ee"/);
+    expect(src).toMatch(/purple400: "#c084fc"/);
+    expect(src).toMatch(/red400: "#f87171"/);
+    expect(src).toMatch(/amber400: "#fbbf24"/);
+    expect(dashboard()).toMatch(/CHART_COLORS\.emerald/);
+    expect(dashboard()).toMatch(/CHART_COLORS\.violet/);
+    expect(dashboard()).toMatch(/CHART_COLORS\.red\b/);
+    expect(accounts()).toMatch(/CHART_COLORS\.blue400/);
+    expect(activities()).toMatch(/CHART_COLORS\.gray\b/);
+  });
+});

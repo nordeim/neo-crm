@@ -126,8 +126,13 @@ row / the Total / the counting-convention note / the tree row), SKILL
 **v1.56.0** (frontmatter + project_state + the H1 + the new §16ay —
 applied atomically through the persisted assert-first script,
 scripts/skill_edits_s59.py at the sandbox root, 5697 → 5764 by the
-script's count [5763 by wc — the file's last line lacks a trailing
-newline]; zero anchor repairs; the §20 carriers landed pre-script),
+script's count [s60 correction of this bracket: the file IS
+newline-terminated — `wc -l`'s 5763 is the TRUE count, and the
+script's `count("\n") + 1` formula over-counts by exactly one on a
+newline-terminated file (the pre-script true count was 5696, not
+5697); the 60-a audit's catch, fixed with the s60 SKILL-edit script's
+wc-semantics count]; zero anchor repairs; the §20 carriers landed
+pre-script),
 this record, the plan's execution record, both worklogs.
 `.env`/`.env.example` re-verified (no env surface change; the example
 matches the three-var code surface exactly: DATABASE_URL /

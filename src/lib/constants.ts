@@ -472,12 +472,12 @@ export const REPORT_STATUSES = [
 ] as const;
 
 export const CHART_COLORS = {
-  blue: "#3b82f6",
-  cyan: "#06b6d4",
-  teal: "#14b8a6",
-  amber: "#f59e0b",
-  orange: "#f97316",
-  green: "#10b981",
+  // Session-60 (N-60a): six never-read keys retired — blue/cyan/teal/
+  // amber/orange/green had zero key-reads AND zero computed access
+  // repo-wide (the s54 fully-dead class, KEY variant — the live read
+  // set: red/gray/violet/emerald + the -400 family below). The CSS
+  // --color-chart-1…6 token family in globals.css is a different
+  // surface and stays whole.
   red: "#ef4444",
   gray: "#9ca3af",
   violet: "#8b5cf6",

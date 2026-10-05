@@ -2121,8 +2121,9 @@ test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async (
   await page.goto("/profile");
   await expect(page.getByText("Personal Information")).toBeVisible();
 
-  // The empty state: the blue-100 User fallback (no img).
-  const formAvatar = page.locator("form .rounded-full.bg-blue-100").first();
+  // The empty state: the blue-100 User fallback (no img). [s60/N-60b:
+  // the dead formAvatar locator retired — declared here since s30 and
+  // never used; the empty state is asserted through the img count.]
   await expect(page.locator("form img")).toHaveCount(0);
 
   // Upload a real PNG — the toast fires (NOT an alert).

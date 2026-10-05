@@ -352,7 +352,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 75 Vitest suites — 1201 checks
+│   ├── *.test.ts                # 75 Vitest suites — 1204 checks
 │   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 111 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -733,14 +733,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the dead-surface narrowing + comment-accuracy layer (the N-57c pins [profile-page carries no usersTotal token — neither passed nor typed, no users.length feed] + the N-57b pins [uploads.ts no longer EXPORTS UPLOADS_DIR_NAME] + the guards [the constant stays defined internally for the repo-root resolution; the profile form keeps its live wiring — onSaved={fetchUsers} + the keyed remount] — session-57; the N-57a/nav-config + Avatar-attribution + seven→ten comment corrections ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-surface narrowing + type-contract boundary layer (the N-58a pins [crm-store carries no apiCall alias token] + the N-58b pins [types/index.ts carries no SearchResult token; constants.ts carries none of the three definition-only derived types — LeadStage/ActivityType/EventType] + the guard [the store's `async function call` engine + the three arrays stay; the N-58c module type-contract boundary holds — ApiError/ApiResult, DeltaText/DeltaBadgeText, RateLimitResult, CrmState stay exported] — session-58; the s58 line-citation self-shift refresh rides GREEN in the touched sources) | 1 | 4 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-surface narrowing, missed-sibling layer (the N-59a pins [types/index.ts carries no SavedReport token — the DB-wire-shape interface retired; the LIVE SavedReport is the localStorage shape in saved-reports.ts] + the N-59b pins [entity-edit-dialog carries no entityId token — the dead prop retired with its three call-site bindings] + the guard [the live saved-reports type stays exported with dateRange/wonDate; the dialog keeps initial/fields/onSubmit; the three pages keep their fields/initial bindings] — session-59) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
-| **Total** | **75** | **1201 unit + 112 e2e** | | |
+| Unit — the dead-surface narrowing, palette-key + test-local layer (the N-60a pins [constants.ts carries none of the six never-read CHART_COLORS keys — blue/cyan/teal/amber/orange/green; zero key-reads + zero computed access repo-wide] + the N-60b pins [crm.spec.ts carries no formAvatar token — the dead test-local locator retired] + the guard [the ten live palette keys stay — red/gray/violet/emerald + the -400 family — with their live consumers: the dashboard sparklines, the accounts/activities stat-card mini bars] — session-60; the session_111.md line-count bracket correction + the SKILL §15.4/§19 carriers ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
+| **Total** | **75** | **1204 unit + 112 e2e** | | |
 
 > **Counting convention (session-54, N-54h)**: the per-session rows
 > count the FILES TOUCHED by that session's pin additions and the checks
 > those rows added or re-anchored — NOT the file's total checks, and NOT
 > a summable column (shared files like `constants.test.ts` appear in
 > several session rows). The **Total** row counts files and checks at
-> HEAD: 75 Vitest suites with 1201 checks + 111+1 e2e checks in 4 spec
+> HEAD: 75 Vitest suites with 1204 checks + 111+1 e2e checks in 4 spec
 > files. Verify counts by run (`bun run test`, `bun run test:e2e`),
 > never by summing the table.
 

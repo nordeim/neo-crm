@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1201 checks)        | `bun run test`                         |
+| Unit tests (1204 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1201) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1204) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2259,6 +2259,43 @@ recorded); the graduation audit: ZERO graduations — 13/13 re-confirmed
 UNCHANGED — the CSV posture (b) STANDS (17th re-affirmation), the
 source-vocabulary documented parity STANDS AND EXTENDS to the N-59
 family (the bundle byte-identical for the 30th consecutive session).
+
+### Session 60 (2026-10-05) — the dead-surface narrowing: the palette
+key + the test-local locator
+
+The session-60 layer (the palette-key + test-local layer): (1) The
+N-60a closure — six of `CHART_COLORS`' sixteen keys RETIRED
+(blue/cyan/teal/amber/orange/green): zero key-reads AND zero computed
+access repo-wide (the live read set: red/gray/violet/emerald + the
+-400 family — verified by exhaustive grep and LIVE-rendered on the
+dashboard sparklines + the accounts/activities stat-card mini bars).
+The s54 fully-dead class, KEY variant — the third face after the TYPE
+(s58) and INTERFACE (s59) variants. The SKILL carriers followed (the
+§15.4 Sparkline example's dead `cyan` → the live `cyan400`; the §19
+palette-duplication note rewritten — the TS list is now the consumed
+subset, the CSS `--color-chart-1…6` family a different surface that
+stays whole). (2) The N-60b closure — crm.spec.ts's dead
+`formAvatar` locator RETIRED: declared inside the profile-photo
+upload test since s30 and never used (the empty state is asserted
+through the `form img` count) — the N-56a lint-invisible class,
+TEST-LOCAL variant (its fourth home: IMPORT s56 / PROP-TYPE s57c /
+DESTRUCTURED s59 / TEST-LOCAL s60; found only by rotating the
+fresh-eyes sweep INTO the test tree). (3) The session_111.md
+line-count bracket corrected (the s59 record's "no trailing newline"
+claim was FALSE — the SKILL file IS newline-terminated, `wc -l`'s
+5763 the true count; the s59 script's `count("\n") + 1` formula
+over-counts by one — the off-by-one class bit the tooling itself;
+the s60 SKILL-edit script counts by wc semantics). All pinned
+RED-first in the dead-code-hygiene session-60 describe (2 RED + 1
+guard, +3 its = 1204 total), proven non-vacuous in a pre-fix b077443
+worktree (2 failed | 35 passed there, 37/37 at the fix). Audits: the
+s59 re-audit verified all eight checklist items GENUINE (the worktree
+arithmetic replayed: 2 failed | 32 passed pre-fix); the graduation
+audit: ZERO graduations — 13/13 re-confirmed (17th consecutive
+session); both operator decisions re-verified UNCHANGED — the CSV
+posture (b) STANDS (18th re-affirmation), the source-vocabulary
+documented parity STANDS AND EXTENDS to the N-60 family (the bundle
+byte-identical for the 31st consecutive session).
 
 ## Conventions that differ from defaults
 
