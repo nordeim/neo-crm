@@ -310,7 +310,7 @@ envelope is the sole wire format.
 ```
 neo-crm/
 ├── prisma/
-│   ├── schema.prisma            # 8 models; SQLite datasource
+│   ├── schema.prisma            # 9 models; SQLite datasource
 │   └── seed.ts                  # idempotent demo workspace (in-place wipe + insert)
 ├── src/
 │   ├── app/
@@ -352,7 +352,7 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 75 Vitest suites — 1204 checks
+│   ├── *.test.ts                # 75 Vitest suites — 1207 checks
 │   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 111 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
@@ -734,14 +734,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the dead-surface narrowing + type-contract boundary layer (the N-58a pins [crm-store carries no apiCall alias token] + the N-58b pins [types/index.ts carries no SearchResult token; constants.ts carries none of the three definition-only derived types — LeadStage/ActivityType/EventType] + the guard [the store's `async function call` engine + the three arrays stay; the N-58c module type-contract boundary holds — ApiError/ApiResult, DeltaText/DeltaBadgeText, RateLimitResult, CrmState stay exported] — session-58; the s58 line-citation self-shift refresh rides GREEN in the touched sources) | 1 | 4 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-surface narrowing, missed-sibling layer (the N-59a pins [types/index.ts carries no SavedReport token — the DB-wire-shape interface retired; the LIVE SavedReport is the localStorage shape in saved-reports.ts] + the N-59b pins [entity-edit-dialog carries no entityId token — the dead prop retired with its three call-site bindings] + the guard [the live saved-reports type stays exported with dateRange/wonDate; the dialog keeps initial/fields/onSubmit; the three pages keep their fields/initial bindings] — session-59) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-surface narrowing, palette-key + test-local layer (the N-60a pins [constants.ts carries none of the six never-read CHART_COLORS keys — blue/cyan/teal/amber/orange/green; zero key-reads + zero computed access repo-wide] + the N-60b pins [crm.spec.ts carries no formAvatar token — the dead test-local locator retired] + the guard [the ten live palette keys stay — red/gray/violet/emerald + the -400 family — with their live consumers: the dashboard sparklines, the accounts/activities stat-card mini bars] — session-60; the session_111.md line-count bracket correction + the SKILL §15.4/§19 carriers ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
-| **Total** | **75** | **1204 unit + 112 e2e** | | |
+| Unit — the dead-surface narrowing, manifest + public-asset layer (the N-61a pins [public/ carries no neo-crm-dashboard.png — the byte-identical duplicate of the referenced docs/ original retired; it shipped in every standalone build via the `cp -r public` step] + the N-61b/d pins [package.json carries none of the three never-referenced dependency tokens — @radix-ui/react-alert-dialog + @radix-ui/react-radio-group runtime (zero imports repo-wide AND in all git history), bun-types dev (zero references, never auto-included)] + the guard [the 7 live radix packages + their real import sites stay — dialog/dropdown-menu/label/popover/select/slot/toast; tw-animate-css (the ADR-005 vendoring source) + jspdf + html2canvas-pro (the s25 PDF seam) stay; the docs/neo-crm-dashboard.png original stays] — session-61; the SKILL deps-table + runtime-deps-paragraph + §19 chart-row carriers + the README/PAD tree-block numerics + the PAD §11 Lines-column re-census + the package-lock.json regeneration to s25-parity ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
+| **Total** | **75** | **1207 unit + 112 e2e** | | |
 
 > **Counting convention (session-54, N-54h)**: the per-session rows
 > count the FILES TOUCHED by that session's pin additions and the checks
 > those rows added or re-anchored — NOT the file's total checks, and NOT
 > a summable column (shared files like `constants.test.ts` appear in
 > several session rows). The **Total** row counts files and checks at
-> HEAD: 75 Vitest suites with 1204 checks + 111+1 e2e checks in 4 spec
+> HEAD: 75 Vitest suites with 1207 checks + 111+1 e2e checks in 4 spec
 > files. Verify counts by run (`bun run test`, `bun run test:e2e`),
 > never by summing the table.
 
@@ -1273,30 +1274,30 @@ files. Push via the SSH wrapper (§8.4).
 
 | File | Lines | Purpose |
 | ---- | ----- | ------- |
-| `src/stores/crm-store.ts` | 296 | Single Zustand store: hydrate, slices, CRUD actions, `call()` envelope client |
-| `src/lib/auth.ts` | 129 | scrypt hashing, HMAC session tokens, cookie lifecycle, `getSessionUser` |
-| `src/lib/api.ts` | 75 | `ok`/`fail`/`ERR` envelope, `requireSession` guard, validation coercers |
-| `src/lib/db-path.ts` | 175 | SQLite URL normalization (CLI-rule mirroring, bun-absolutization re-anchoring, .env parsing, standalone-safe) |
+| `src/stores/crm-store.ts` | 343 | Single Zustand store: hydrate, slices, CRUD actions, `call()` envelope client |
+| `src/lib/auth.ts` | 133 | scrypt hashing, HMAC session tokens, cookie lifecycle, `getSessionUser` |
+| `src/lib/api.ts` | 137 | `ok`/`fail`/`ERR` envelope, `requireSession` guard, validation coercers |
+| `src/lib/db-path.ts` | 227 | SQLite URL normalization (CLI-rule mirroring, bun-absolutization re-anchoring, .env parsing, standalone-safe) |
 | `src/lib/db.ts` | 22 | `globalThis` Prisma singleton (the only sanctioned constructor) |
-| `src/lib/format.ts` | 221 | Currency/date/relative-time/calendar-grid pure helpers |
-| `src/lib/constants.ts` | 172 | Status vocabularies + label/color metadata + chart palette |
-| `src/lib/lead-filters.ts` | 90 | Leads Filters popover persist/restore seam — the saved-views list pair `encodeSavedLeadViews`/`decodeSavedLeadViews` (localStorage key `neo-crm.leads.views`), vocabulary-guarded decoding through the internal `asFilters` (legacy capitalized vocabularies decode to null), pinned by `tests/lead-filters.test.ts` (sessions 8/29/55) |
-| `src/lib/login-reset.ts` | 100 | Session-11 login reset-password seam — `LOGIN_RESET_LAYOUT` (the two view contracts: classes for the reset/sent views, the lighter slate-400 placeholder, the `mb-4` v4-correct back-gap), `nextLoginView()` swap table, `canSubmitReset()` gating — pinned by `tests/login-reset.test.ts` |
-| `src/lib/reports-data.ts` | ~200 | Session-31 reports derivations — `pipelineStageCounts` (the 8-slug leads+opps funnel SPLIT), `monthKey`/`countByMonth`/`revenueByMonth`/`wonLostByMonth` (the insertion-order "MMM yyyy" close-month series), `forecastAccuracySeries` (the actual/forecasted formula), `agingCounts` (created-date age), `dealsAtRiskRows` (the last-activity join) — pinned by `tests/reports-data.test.ts` |
-| `src/lib/page-layout.ts` | 627 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint, stock-primitive pins, CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT) consumed by every page — sessions 6–11 |
-| `src/lib/csv.ts` | 74 | RFC-4180 serializer/parser (export + import) |
+| `src/lib/format.ts` | 257 | Currency/date/relative-time/calendar-grid pure helpers |
+| `src/lib/constants.ts` | 498 | Status vocabularies + label/color metadata + chart palette |
+| `src/lib/lead-filters.ts` | 174 | Leads Filters popover persist/restore seam — the saved-views list pair `encodeSavedLeadViews`/`decodeSavedLeadViews` (localStorage key `neo-crm.leads.views`), vocabulary-guarded decoding through the internal `asFilters` (legacy capitalized vocabularies decode to null), pinned by `tests/lead-filters.test.ts` (sessions 8/29/55) |
+| `src/lib/login-reset.ts` | 245 | Session-11 login reset-password seam — `LOGIN_RESET_LAYOUT` (the two view contracts: classes for the reset/sent views, the lighter slate-400 placeholder, the `mb-4` v4-correct back-gap), `nextLoginView()` swap table, `canSubmitReset()` gating — pinned by `tests/login-reset.test.ts` |
+| `src/lib/reports-data.ts` | ~210 | Session-31 reports derivations — `pipelineStageCounts` (the 8-slug leads+opps funnel SPLIT), `monthKey`/`countByMonth`/`revenueByMonth`/`wonLostByMonth` (the insertion-order "MMM yyyy" close-month series), `forecastAccuracySeries` (the actual/forecasted formula), `agingCounts` (created-date age), `dealsAtRiskRows` (the last-activity join) — pinned by `tests/reports-data.test.ts` |
+| `src/lib/page-layout.ts` | 1258 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint, stock-primitive pins, CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT) consumed by every page — sessions 6–11 |
+| `src/lib/csv.ts` | 104 | RFC-4180 serializer/parser (export + import) |
 | `src/app/(app)/*/page.tsx` + `*-page.tsx` | — | Session-10 pattern: thin SERVER `page.tsx` wrappers (per-page metadata titles) rendering the renamed client parts — client pages cannot export metadata; per-route `layout.tsx` hit a Next 16 typed-routes bug |
 | `src/lib/rate-limit.ts` | 47 | Fixed-window limiter with sweeper |
-| `src/components/layout/mobile-nav.tsx` | 170 | THE mobile drawer fix (focus trap, dual scroll lock, inert) |
-| `src/components/layout/app-shell.tsx` | 55 | Chrome composition + store bootstrap; session-7 reference model: in-flow `hidden md:flex` sidebar, `flex h-screen` root, `main` the only scroller |
-| `src/components/shared/entity-dialogs.tsx` | ~810 | Five entity forms, remount-via-key pattern |
-| `src/app/globals.css` | 171 | Tailwind v4 `@theme` tokens + `@utility` definitions |
-| `src/app/(app)/layout.tsx` | 12 | Session guard for every authenticated page |
-| `prisma/schema.prisma` | 196 | 8 models, SQLite datasource, indexes, the session-21 verification columns |
-| `prisma/seed.ts` | 349 | Idempotent in-place demo workspace |
-| `tests/e2e/mobile-navigation.spec.ts` | ~100 | 7-check mobile drawer regression suite |
-| `postcss.config.mjs` | 9 | `@tailwindcss/postcss` — required for any styling at all |
-| `next.config.ts` | 24 | standalone output + tracing root |
+| `src/components/layout/mobile-nav.tsx` | 206 | THE mobile drawer fix (focus trap, dual scroll lock, inert) |
+| `src/components/layout/app-shell.tsx` | 70 | Chrome composition + store bootstrap; session-7 reference model: in-flow `hidden md:flex` sidebar, `flex h-screen` root, `main` the only scroller |
+| `src/components/shared/entity-dialogs.tsx` | ~1080 | Five entity forms, remount-via-key pattern |
+| `src/app/globals.css` | 269 | Tailwind v4 `@theme` tokens + `@utility` definitions |
+| `src/app/(app)/layout.tsx` | 11 | Session guard for every authenticated page |
+| `prisma/schema.prisma` | 242 | 9 models, SQLite datasource, indexes, the session-21 verification columns |
+| `prisma/seed.ts` | 468 | Idempotent in-place demo workspace |
+| `tests/e2e/mobile-navigation.spec.ts` | ~150 | 7-check mobile drawer regression suite |
+| `postcss.config.mjs` | 8 | `@tailwindcss/postcss` — required for any styling at all |
+| `next.config.ts` | 47 | standalone output + tracing root |
 | `docs/ssh_git_wrapper_v3.py` | 336 | Verified SSH push wrapper (key never in repo) |
 
 ---

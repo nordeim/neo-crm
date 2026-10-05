@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1204 checks)        | `bun run test`                         |
+| Unit tests (1207 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1204) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1207) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2296,6 +2296,43 @@ session); both operator decisions re-verified UNCHANGED — the CSV
 posture (b) STANDS (18th re-affirmation), the source-vocabulary
 documented parity STANDS AND EXTENDS to the N-60 family (the bundle
 byte-identical for the 31st consecutive session).
+
+### Session 61 (2026-10-05) — the dead-surface narrowing: the
+manifest + the public asset
+
+The session-61 layer (the manifest + public-asset + doc-numerics
+layer): (1) The N-61a closure — `public/neo-crm-dashboard.png`
+RETIRED: a byte-identical duplicate of `docs/neo-crm-dashboard.png`
+(the referenced copy — the prompt docs point at the GitHub docs/ path)
+with zero tracked references, shipping in every standalone build via
+the `cp -r public` step. The s54 fully-dead class, PUBLIC-ASSET
+variant. (2) The N-61b + N-61d closures — three dead dependencies
+RETIRED: `@radix-ui/react-alert-dialog` + `@radix-ui/react-radio-group`
+(zero imports repo-wide AND in all git history; no ui components —
+the session-2 R-4 unused-scaffold class, RUNTIME-DEP variant) +
+`bun-types` (zero references — no Bun.* usage, no tsconfig "types"
+field, never auto-included — the DEV-DEP variant). Both lockfiles
+regenerated; `package-lock.json` returns to `package.json` parity for
+the first time since session 25 (the s13/s25 staleness closed — the
+regeneration is pure additions, zero version churn). (3) The N-61c +
+61-a #1 doc-numerics refresh — the README/PAD tree-block counts (27
+route files / 39 verb handlers, 9 models, 75 suites / 1207 checks,
+112 e2e), the PAD §11 Lines column (~20 rows re-censused by `wc -l`),
+and the SKILL §19 chart-row hex sync to globals.css (chart-3
+`#eab308`, chart-5 `#9ca3af` — stale since session 4). All pinned
+RED-first in the dead-code-hygiene session-61 describe (2 RED + 1
+guard, +3 its = 1207 total), proven non-vacuous in a pre-fix b01bd01
+worktree (2 failed | 38 passed there, 40/40 at the fix). Audits: the
+s60 re-audit verified all eight checklist items GENUINE (the worktree
+arithmetic replayed: 2 failed | 35 passed pre-fix); the graduation
+audit: ZERO graduations — 13/13 re-confirmed (18th consecutive
+session); both operator decisions re-verified UNCHANGED — the CSV
+posture (b) STANDS (19th re-affirmation), the source-vocabulary
+documented parity STANDS AND EXTENDS to the N-61 family (the bundle
+byte-identical for the 32nd consecutive session; the manifest +
+public-asset dead surfaces retire; the tw-animate-css re-vendor
+source, the CSS chart token family, the N-58c boundary, and the stock
+mirror stay guard-pinned).
 
 ## Conventions that differ from defaults
 

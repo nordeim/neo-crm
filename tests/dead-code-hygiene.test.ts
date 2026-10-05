@@ -568,3 +568,84 @@ describe("session-60: the dead-surface narrowing (S60-P2)", () => {
     expect(activities()).toMatch(/CHART_COLORS\.gray\b/);
   });
 });
+
+describe("session-61: the dead-surface narrowing (S61-P1)", () => {
+  it("public/ no longer carries the duplicate dashboard png (N-61a)", () => {
+    // 61-b fresh-eyes (the public-asset rotation): the file was a
+    // byte-identical duplicate of docs/neo-crm-dashboard.png (both md5
+    // a7b963b0…) with ZERO tracked references (the prompt docs point at
+    // the GitHub docs/ path) — and it shipped in every standalone build
+    // via the `cp -r public` step. The s54 fully-dead class,
+    // PUBLIC-ASSET variant — a new face after the IMPORT (s56) /
+    // PROP-TYPE (s57c) / DESTRUCTURED (s59) / TEST-LOCAL (s60) / KEY
+    // (s60) / TYPE-INTERFACE (s58/s59) / ALIAS (s58) variants. The
+    // docs/ original stays — it is the referenced one (guard below).
+    expect(read("public/neo-crm-dashboard.png")).toBeNull();
+  });
+
+  it("package.json no longer carries the three never-referenced deps (N-61b + N-61d)", () => {
+    // 61-b fresh-eyes (the dependency-manifest rotation): two radix
+    // runtime deps (react-alert-dialog, react-radio-group) with ZERO
+    // imports repo-wide, zero git history beyond the initial scaffold,
+    // and no ui components — plus bun-types (devDep) with zero
+    // references (no Bun.* usage, no tsconfig "types" field, not
+    // @types-scoped so never auto-included by tsc). The session-2 R-4
+    // unused-scaffold precedent, RUNTIME-DEP + DEV-DEP variants. The
+    // 7 live radix packages + tw-animate-css (the ADR-005 vendoring
+    // source) stay (guard below).
+    const raw = read("package.json") ?? "";
+    const pkg = JSON.parse(raw) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    expect(pkg.dependencies?.["@radix-ui/react-alert-dialog"]).toBeUndefined();
+    expect(pkg.dependencies?.["@radix-ui/react-radio-group"]).toBeUndefined();
+    expect(pkg.devDependencies?.["bun-types"]).toBeUndefined();
+    expect(raw).not.toMatch(/react-alert-dialog/);
+    expect(raw).not.toMatch(/react-radio-group/);
+    expect(raw).not.toMatch(/"bun-types"/);
+  });
+
+  it("the living dependency surface stays (guard)", () => {
+    // The 7 live radix packages with their real import sites — the
+    // stock-primitive seam the app actually renders through — plus the
+    // ADR-005 vendoring source (tw-animate-css), the s25 PDF seam
+    // (jspdf + html2canvas-pro), and the REFERENCED dashboard image
+    // (the docs/ original the prompt docs point at).
+    const raw = read("package.json") ?? "";
+    const pkg = JSON.parse(raw) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    for (const dep of [
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-label",
+      "@radix-ui/react-popover",
+      "@radix-ui/react-select",
+      "@radix-ui/react-slot",
+      "@radix-ui/react-toast",
+    ]) {
+      expect(pkg.dependencies?.[dep]).toBeTruthy();
+    }
+    expect(pkg.devDependencies?.["tw-animate-css"]).toBeTruthy();
+    expect(pkg.dependencies?.["jspdf"]).toBeTruthy();
+    expect(pkg.dependencies?.["html2canvas-pro"]).toBeTruthy();
+    expect(stripComments(read("src/components/ui/dialog.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-dialog/,
+    );
+    expect(stripComments(read("src/components/ui/button.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-slot/,
+    );
+    expect(stripComments(read("src/components/ui/select.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-select/,
+    );
+    expect(stripComments(read("src/components/ui/dropdown.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-dropdown-menu/,
+    );
+    expect(stripComments(read("src/components/ui/dropdown.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-popover/,
+    );
+    expect(read("docs/neo-crm-dashboard.png")).not.toBeNull();
+  });
+});
