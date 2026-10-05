@@ -171,7 +171,10 @@ mutations landed).
 **Screenshots**: 02/11/12 re-captured + **74-search-dropdown NEW**
 (1440×900, the N-65b fix surface — the topbar search dropdown with
 the Northwind result rows + section headers) — all four VLM-verified
-4/4 PASS.
+4/4 PASS. *[Session-66 errata, F-66a2: the commit shows byte deltas
+for 02/12/74 only — 11-mobile-dashboard.png was byte-identical to
+HEAD at ship time (last touched at s63); the "re-captured" claim was
+unverifiable from the artifact for that one file.]*
 
 **Docs realigned**: README (badge 1339 = 1227 + 112, the Tested row,
 the tree/command rows at 1227, the session-65 segment), AGENTS (the

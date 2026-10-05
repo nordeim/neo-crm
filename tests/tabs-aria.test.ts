@@ -151,3 +151,44 @@ describe("login: the authenticated-redirect retirement (S23-P2)", () => {
     expect(login).toMatch(/force-dynamic/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-66 (N-66d re-adjudicated): the count badge is a LIVE reference
+// feature, not dead cargo. The bundle's activities priority strip renders
+//   ["Overdue", P.overdue.length>0 && <span className="ml-2 px-2 py-0.5
+//    text-xs bg-red-100 text-red-800 rounded-full">{P.overdue.length}</span>]
+// — ONLY the Overdue tab, ONLY while > 0. The s23 tabs layer built the
+// machinery but never wired it (and shipped invented state-dependent
+// classes). The count span re-pins to the reference's literal; the guard
+// lives at the call site exactly like the reference's `>0 &&`.
+// ---------------------------------------------------------------------------
+
+describe("session-66: the Overdue count badge (the unwired parity feature)", () => {
+  it("the count span renders the reference's literal classes (red tint, rounded-full, ml-2 px-2 text-xs)", () => {
+    const region = tabsSrc.slice(
+      tabsSrc.indexOf("typeof tab.count"),
+      tabsSrc.indexOf("typeof tab.count") + 700,
+    );
+    expect(region).toMatch(/ml-2 px-2 py-0\.5 text-xs bg-red-100 text-red-800 rounded-full/);
+    // The invented state-dependent color ternary is gone — the reference's
+    // badge is ALWAYS the red tint, active or not.
+    expect(region).not.toMatch(/isActive \? "bg-primary\/10/);
+    expect(region).not.toMatch(/text-\[11px\]/);
+  });
+
+  it("the activities Overdue tab passes the guarded count (the reference's P.overdue.length>0 && shape)", () => {
+    const region = activitiesSrc.slice(
+      activitiesSrc.indexOf("{ id: \"overdue\""),
+      activitiesSrc.indexOf("{ id: \"overdue\"") + 200,
+    );
+    expect(region).toMatch(/count: overdue\.length > 0 \? overdue\.length : undefined/);
+  });
+
+  it("ONLY the Overdue tab carries a count (the reference's other three tabs are plain labels)", () => {
+    const region = activitiesSrc.slice(
+      activitiesSrc.indexOf("tabs={["),
+      activitiesSrc.indexOf("tabs={[") + 400,
+    );
+    expect((region.match(/count:/g) ?? []).length).toBe(1);
+  });
+});

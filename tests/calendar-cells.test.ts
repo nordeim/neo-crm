@@ -163,6 +163,17 @@ describe("session-27: the Agenda View rows (the filtered-events list)", () => {
     expect(src).not.toMatch(/dayAgenda/);
   });
 
+  // Session-66 (F-66a1): the agenda row's align-items contract, pinned after
+  // the s65 mid-flight-repair residue shipped items-center here (undeclared,
+  // and divergent from the bundle: the reference renders BOTH row families —
+  // upcoming: items-center, agenda: items-start).
+  it("the agenda row aligns items-START (the bundle contract — NOT the upcoming-bar's items-center)", () => {
+    const src = page();
+    const region = src.slice(src.indexOf("Agenda View"), src.indexOf("Agenda View") + 3000);
+    expect(region).toMatch(/flex items-start gap-3 p-3 border rounded-lg/);
+    expect(region).not.toMatch(/flex items-center gap-3 p-3 border rounded-lg/);
+  });
+
   it("the agenda Edit/Delete live in the ••• dropdown (not inline buttons)", () => {
     const src = page();
     const region = src.slice(src.indexOf("Agenda View"), src.indexOf("Agenda View") + 3200);

@@ -8,9 +8,9 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.62.0
+version: 1.63.0
 last_updated: 2026-10-05
-project_state: 1227 unit checks + 112 e2e checks green; the session-65 layer (the e2e-honesty + page-render dead-surface layer: the N-65b vacuous search pin RE-ANCHORED [the e2e twin of the s64 N-64b lesson — the global-search test asserted getByText("Accounts").first() which resolved to the ALWAYS-VISIBLE SIDEBAR nav link and getByText("Northwind Energy").first() to the RECENT DEALS accountName cell, so a completely broken search stayed green (the s43-P4/s45 stale-results family was exactly what it never caught); now pinned to the dropdown's OWN DOM — the SearchResultRow BUTTON + the section header as its preceding sibling, both dropdown-unique by construction] + the N-65c dead-destructure retirement [contacts-page's leads/users/settings + settings-page's updateSettings — the s41-P5 sweep's missed siblings, the N-56a DESTRUCTURED variant] + the N-65d/N-65e dead-arm retirements [the a.tier === "Key" disjuncts (tier is membership-validated to A/B/C at both write seams) + the OPP_STAGE_META[s]?.label ?? s arm — the s63 N-63b class's missed siblings] + the N-65g /Profile doc re-derive [AGENTS + PAD still documented the RETIRED s14 redirect mechanism; both re-derived to the s24 render alias + the SKILL 16f supersession bracket] + the N-65h focus-restore assertion [the mobile-nav Escape test's title half, now asserted] + the precision carriers [N-65a the settings anchors drifted at birth, N-65f the only e2e line-citation, N-65i the below-lg comments -> md, N-65j the no-op conditionals, N-65l the defensive DB-read annotations, N-65m the owner-select comment, N-65n the main re-indent, N-65o the import merge]) landed RED-first 5 (the 4 dead-surface its + the AGENTS/PAD mechanism it) and proven non-vacuous in a pre-fix 9952a23 worktree (5 failed | 47 passed there; 1227/1227 at the fix); 
+project_state: 1245 unit checks + 113 e2e checks green; the session-66 layer (the badge-primitive honesty + the parity-gap wiring layer: the N-66i Badge primitive RE-DERIVED as the reference's stock badge mirror [a DIV with rounded-md px-2.5 py-0.5 text-xs font-semibold + the stock variant set default/secondary/destructive/outline — the scaffold-era primitive was a rounded-full px-2 font-medium SPAN with an invented variant set, never re-derived because the reference renders NO badges at its persistent zero data and the s27-s31 decodes pinned the CALL-SITE class maps, not the chrome; every call-site className was already byte-identical to the bundle's, so only the primitive diverged — the computed-equal expressions for the deliberately-inverted tokens: default -> bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800 (the s13 PROFILE_LAYOUT.badge live-probed form), secondary -> bg-neutral-100 text-neutral-900 (neutral-100 = the reference's --secondary exactly), destructive -> bg-danger text-neutral-50 (our --danger #ef4444 IS its --destructive), outline -> text-foreground (NOT text-muted); the unused success/warning/info/muted variants retired; danger renamed destructive; the slide-over priority badge's wrongly-copied ROW overrides dropped] + the N-66d OVERDUE COUNT BADGE wired [the reference renders a red count span on exactly the activities Overdue tab, only while > 0 — the s23 tabs layer built the machinery but never passed a count; the span re-pinned to the reference's literal classes and the activities page passes the guarded count] + the N-66a search ESCAPE close [the dropdown closed only via outside-mousedown/row-click/query-collapse — a keyboard user Tabbing away stranded it open; the S12-P1 mobile-nav precedent applied] + the F-66a1 calendar agenda-row alignment REVERT [the s65 mid-flight edit-repair residue shipped items-center undeclared where the bundle renders items-start — the s65 zero-behavior claim was FALSE for one hunk] + the N-66b/c dead-surface retirement [GRID_COLS_LG + KpiCard.deltaSuffix/invertDelta + BarStatCard.barColorFor + the Sparkline guard reorder] + the N-66e/f coverage gaps closed [the route-case URL-state scan now sees the nine .jsx aliases; the mobile-nav inert + Tab-wrap e2e landed — the N-65p notes both closed]) landed RED-first (17 failing pins across the new badge-contract suite + the dch session-66 describe + the calendar/tabs re-anchors) and proven non-vacuous in a pre-fix 603184e worktree (17 failed | 1228 passed there; 1245/1245 at the fix); 
 ---
 
 # NEO CRM — Engineering Skill (SKILL.md v1.59.0)
@@ -4544,6 +4544,70 @@ N-48j, N-51c — all triaged KEEP); the drift re-sweep next live visit
 census at 2 (both annotated); the quarantined outer leftovers left
 inert (the reset recreated the outer `.env`, quarantined again as
 `.env.quarantined-s55`).
+
+## 16bf. Session-66 Layer (the badge-primitive honesty + the parity-gap wiring)
+
+The session-66 lesson triple:
+
+**(1) The stock-primitive re-derivation must eventually reach EVERY stock
+surface — the class maps at the call sites are NOT the chrome.** The Badge
+primitive had been a rounded-full px-2 font-medium SPAN with an invented
+variant set since the initial scaffold commit, surviving 65 parity
+sessions because (a) the reference renders NO badges at its persistent
+zero data — the live probes could never see them, and (b) the s27-s31
+bundle decodes pinned the P map / the priority i-map / the health H-map /
+the source classes — all CALL-SITE vocabulary, never the primitive. The
+rotation that finally caught it read the primitive against the bundle's
+`zn`/`fie` decode directly. The rule: when a decode pins a family of
+class STRINGS, also decode the COMPONENT that renders them — the radius,
+the padding, the weight, the element, and the variant set are chrome the
+strings never carry. The computed-equal rule applies at this layer too:
+where the reference's token is deliberately inverted (its --primary is
+the stock dark #171717; ours is the app blue), express the variant
+through the literal that computes equal (bg-neutral-900 text-neutral-50
+— the s13 PROFILE_LAYOUT.badge live-probed precedent), and pin BOTH the
+base string and the variant set so the chrome can never silently
+re-diverge.
+
+**(2) Dead machinery on a shared component may be an UNWIRED PARITY
+FEATURE, not cargo.** The Tabs count badge looked like dead code (zero of
+six consumers pass `count`) — but the bundle shows the reference's
+activities Overdue tab rendering `["Overdue", P.overdue.length>0 && <span
+className="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800
+rounded-full">{N}</span>]`: a live feature our s23 tabs layer built the
+machinery for and never wired, with invented state-dependent classes on
+top. Before retiring a dead surface on a SHARED component, grep the
+reference bundle for the same affordance — the machinery exists because
+a decode saw it once. The fix wires the feature (the guarded count at
+the call site, exactly the reference's `>0 &&` shape) and re-pins the
+span to the literal classes; the retirement would have permanently
+diverged a live surface.
+
+**(3) The mid-flight edit-repair residue class has a test answer: pin
+the CONTRACT the repair touched, not just the line it fixed.** The s65
+session's calendar upcoming-bar MultiEdit repair accidentally landed
+`items-center` on the AGENDA row (a different row family with a
+different contract — upcoming is items-center, agenda is items-start);
+the s65 gates all stayed green because no pin covered the agenda row's
+alignment (the contract lived only in a test-file COMMENT). The rule: a
+contract documented in a comment but never asserted is a contract the
+next edit can silently break — after any mid-flight repair on a surface
+with a documented contract, land the executable pin in the same session.
+(And the record rule: the F-66a1 hunk also falsified the s65 plan's
+"zero behavior" blast-radius claim — blast-radius claims are per-HUNK,
+not per-file; the s66 re-audit's src-diff read is the model.)
+
+The standing layers held: 13/13 ledger zero graduations (23rd
+consecutive), both operator decisions standing (the CSV posture (b)
+24th re-affirmation; the source-vocabulary parity extended to the N-66
+family), the reference bundle byte-identical for the 37th consecutive
+session. Gate: lint 0/0 - tsc 0 - 1245/1245 unit (76 suites, +18) -
+build clean - 113/113 e2e (fresh CI=1 boot, all 8 mobile-nav checks
+green — the inert/Tab-wrap test included) - LIVE-verified (the badge
+stock geometry on the dashboard/contacts/accounts surfaces; the search
+Escape round-trip; the overdue count badge; the drawer both directions
+at a TRUE 390px with focus restore; zero 390px overflow on all ten
+routes; NO Tailwind v4 bug; census MATCH, zero residue).
 
 ## 17. Responsive Breakpoint Reference
 

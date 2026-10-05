@@ -68,13 +68,9 @@ const GRID_COLS: Record<number, string> = {
   5: "grid grid-cols-5",
   6: "grid grid-cols-6",
 };
-const GRID_COLS_LG: Record<number, string> = {
-  2: "lg:grid-cols-2",
-  3: "lg:grid-cols-3",
-  4: "lg:grid-cols-4",
-  5: "lg:grid-cols-5",
-  6: "lg:grid-cols-6",
-};
+// Session-66 (N-66b): GRID_COLS_LG retired — zero references repo-wide (the
+// pill variant's responsive lg:grid-cols-5 lives in page-layout.ts's
+// TABS_PILL contract, not here). The s54 fully-dead class, CONST variant.
 
 // The reference's stock Radix TabsContent classes (byte-extracted from the
 // live reference on 2026-10-01): the focus-visible ring family rides every
@@ -162,12 +158,13 @@ function Tabs({ tabs, value, onValueChange, className, variant = "underline", co
               >
                 {tab.label}
                 {typeof tab.count === "number" && (
-                  <span
-                    className={cn(
-                      "ml-1.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
-                      isActive ? "bg-primary/10 text-primary" : underline ? "bg-line-soft text-muted" : "bg-white text-muted",
-                    )}
-                  >
+                  // Session-66 (N-66d): the reference's literal count span —
+                  // the activities Overdue tab's red badge
+                  // (P.overdue.length>0 && <span className="ml-2 px-2 py-0.5
+                  // text-xs bg-red-100 text-red-800 rounded-full">). Always the
+                  // red tint, active or not; the >0 guard lives at the call
+                  // site exactly like the reference's `>0 &&`.
+                  <span className="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full">
                     {tab.count}
                   </span>
                 )}

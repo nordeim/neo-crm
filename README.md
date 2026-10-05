@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-1339%20checks-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-1358%20checks-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 A complete, self-hostable CRM workspace cloned from the reference app —
@@ -52,7 +52,7 @@ first boot.
 | 🧾 Settings import/export | The reference's Settings Data-tab family — static CSV templates (`contacts_template.csv` with the byte-exact example rows), raw-dump entity exports (`contact_/account_/lead_/activity_` + ISO date — the header is the first row's own keys, every value double-quoted, an EMPTY file at zero data), and the three CardDescriptions (Import Templates / Export Data / the red Danger Zone warning) |
 | 📑 PDF + CSV exports | The reference's REAL client-side artifact family — the Reports **PDF** button captures the content area (no sidebar) through `html2canvas-pro` + assembles A4 portrait pages via jsPDF (`crm_reports_YYYY-MM-DD.pdf`); the per-table **Export PDF** buttons generate text PDFs (`open_deals_by_stage_…` — the slug truncates the card title at the parenthetical); CSVs download as `prefix_YYYY-MM-DD.csv` with the reference's exact column sets (leads 8-col, the singular `crm_report` 7-col deal CSV, the per-table 3-col client-side blobs) |
 | 💾 Saved reports | The reference's "Saved Reports (N)" button opens the full Save Custom Report View dialog — Report Name input + the 6 column checkboxes (Name/Account/Owner/Value/Stage/Won Date) + the Current Filters summary + the loadable list — persisted to `localStorage.crm_saved_reports` with the reference's byte-exact schema; **Load** re-applies the saved filters |
-| 🧪 Tested | 1227 Vitest unit checks + 112 Playwright E2E checks, including a 7-check mobile-nav regression suite (resize lock-release + drawer focus-entry included) |
+| 🧪 Tested | 1245 Vitest unit checks + 113 Playwright E2E checks, including an 8-check mobile-nav regression suite (resize lock-release + drawer focus-entry + the closed-state inert/Tab-wrap trap included) |
 
 ## Architecture
 
@@ -122,7 +122,7 @@ flowchart TB
 │   ├── 📄 schema.prisma              # 9 models (User…Setting)
 │   └── 📄 seed.ts                    # idempotent demo workspace
 ├── 📂 tests/
-│   ├── 📄 *.test.ts                  # 75 Vitest suites (1227 checks)
+│   ├── 📄 *.test.ts                  # 76 Vitest suites (1245 checks)
 │   └── 📂 e2e/                       # Playwright (112 checks)
 ├── 📂 docs/                          # validation report, SSH runbook, screenshots
 ├── 📄 AGENTS.md · CLAUDE.md · Project_Architecture_Document.md
@@ -175,9 +175,9 @@ bun run dev            # → http://localhost:3000
 ## Testing
 
 ```bash
-bun run test          # 1227 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, calendar-fetch-bounds, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback, reports-filter-validation, create-dialog-single-mode, db-census)
+bun run test          # 1245 Vitest unit checks (auth, avatar, constants, db-path, metadata, pwa-metadata, http-headers, login-views, typography, tabs-aria, page-layout, page-titles, profile-route, format, csv, rate-limit, lead-filters, design-tokens, reports-data, login-reset, charts-contracts, route-case, pdf-export, saved-reports, loading-layer, csv-contract, report-periods, settings-data-tab, reset-flow, csv-templates, entity-export, account-health, import-dialog, charts-internals, account-health-tab, dashboard-contracts, leads-charts, calendar-cells, calendar-fetch-bounds, contact-model, entity-edit-dialog, contact-surfaces, account-surfaces, leads-inline, upload-api, contact-photo, profile-photo, opportunity-model, api-robustness, gate-script, coercion-guards, topbar-search, dialog-clear-parity, report-save-guard, report-pdf-guard, storage-read-guards, store-fetch-guards, format-hygiene, mutation-feedback, settings-debounce, settings-rollback, dead-code-hygiene, edit-dialog-remount, dropdown-containment, dashboard-export, insights-vocabulary, leads-inline-feedback, topbar-import-hygiene, csv-formula-guard, source-vocabulary, insights-badge-case, reports-export-feedback, reports-filter-validation, create-dialog-single-mode, db-census, badge-contract)
 bun run build         # E2E runs against the standalone production build
-bun run test:e2e      # 112 Playwright checks on :3100 with its own db/e2e.db
+bun run test:e2e      # 113 Playwright checks on :3100 with its own db/e2e.db
 bun run gate          # the full gate in one command: lint → typecheck → test → build → CI=1 e2e (the CI=1 prefix forces a fresh e2e server — a leftover :3100 listener is never reused)
 ```
 
@@ -817,7 +817,33 @@ annotations, the owner-select comment, the re-indent, the import
 merge; all pinned RED-first [5 RED: the 4 dead-surface its + the
 AGENTS/PAD mechanism it; +5 its = 1227], proven non-vacuous in a
 pre-fix 9952a23 worktree [5 failed | 47 passed there]),
-and the 7-check
+and the session-66 badge-primitive honesty + parity-gap wiring layer
+(the N-66i Badge primitive RE-DERIVED as the reference's stock badge
+mirror — a DIV with rounded-md px-2.5 py-0.5 text-xs font-semibold and
+the stock default/secondary/destructive/outline variant set, replacing
+the scaffold-era rounded-full SPAN with invented variants; every
+call-site className was already byte-identical to the bundle's, so only
+the chrome diverged — computed-equal variant expressions where our
+tokens are deliberately inverted [default -> neutral-900/50 + shadow,
+destructive -> the solid #ef4444, outline -> text-foreground]; the
+slide-over priority badge's wrongly-copied row overrides dropped; the
+accounts "N Overdue" badge rides the reference's destructive form),
+the N-66d OVERDUE COUNT BADGE wired (the reference renders a red count
+span on exactly the activities Overdue tab while > 0 — our tabs had the
+machinery but never passed a count; the span re-pinned to the literal
+classes and the activities page passes the guarded count), the N-66a
+search ESCAPE close (the dropdown previously stranded open for keyboard
+users — the mobile-nav S12-P1 precedent), the F-66a1 calendar
+agenda-row alignment revert (the s65 mid-flight-repair residue that
+shipped items-center where the bundle renders items-start), the N-66b/c
+dead-surface retirement (GRID_COLS_LG + the page-parts dead props +
+the Sparkline guard reorder), and the N-66e/f coverage closures (the
+route-case scan now sees the nine .jsx aliases; the new mobile-nav
+inert + Tab-wrap e2e) — all pinned RED-first [17 RED across the new
+badge-contract suite + the dch session-66 describe + the calendar/tabs
+re-anchors; +18 its = 1245], proven non-vacuous in a pre-fix 603184e
+worktree [17 failed | 1228 passed there]),
+and the 8-check
 mobile-navigation regression suite (drawer opens with every destination, link
 navigation closes it, Escape + focus restore + focus entry into the drawer,
 body scroll-lock, the resize-past-md lock release, desktop sidebar swap).

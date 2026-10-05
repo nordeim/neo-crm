@@ -92,7 +92,11 @@ export function ContactDetailPanel({
           <h3 className="text-2xl font-bold mb-1">{contact.name}</h3>
           <p className="text-gray-600 mb-3">{contact.position || "No position"}</p>
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Badge className={`${CONTACT_PRIORITY_META[contact.priority] ?? CONTACT_PRIORITY_META.Standard} border font-medium px-3 py-1`}>
+            {/* Session-66 (N-66i): the slide-over priority badge is the STOCK
+                form (the bundle's slide-over: zn,{className:i[e.priority]} — no
+                overrides). The ROW badge's `border font-medium px-3 py-1`
+                overrides are the table surface's own, and must not leak here. */}
+            <Badge className={`${CONTACT_PRIORITY_META[contact.priority] ?? CONTACT_PRIORITY_META.Standard}`}>
               {contact.priority || "Standard"}
             </Badge>
             {contact.role && <Badge variant="outline">{contact.role}</Badge>}

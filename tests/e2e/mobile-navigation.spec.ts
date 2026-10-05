@@ -151,4 +151,47 @@ test.describe("mobile navigation drawer", () => {
       page.getByRole("button", { name: "Open navigation menu" }),
     ).toBeHidden();
   });
+
+  test("the closed drawer is inert; open, Tab wraps inside the panel (N-66f)", async ({ page }) => {
+    // Session-66 (N-66f — the N-65p note (a) closed): the closed-state
+    // `inert` attribute and the Tab focus-trap WRAP arms (mobile-nav.tsx)
+    // were pinned at NO layer before this — the unit pins cover only the
+    // 768px auto-close query, and no e2e in the suite presses Tab. Two
+    // contracts: (1) closed, the panel carries inert so background-page
+    // focus NEVER lands inside it even though it stays in the DOM (the
+    // accessibility-inert browser contract); (2) open, Tab from the LAST
+    // focusable wraps to the panel's own Close button (the wrap arm), and
+    // Shift+Tab returns to the last focusable — focus never escapes the
+    // aria-modal panel while it is open.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+
+    const panel = page.locator('[role=dialog][aria-label="Navigation menu"]');
+    // (1) CLOSED: the panel is inert (the attribute, not just invisible).
+    expect(await panel.evaluate((el) => (el as HTMLElement).inert === true)).toBe(true);
+
+    // Open and settle focus entry.
+    await page.getByRole("button", { name: "Open navigation menu" }).click();
+    await expect(panel).toBeVisible();
+    expect(await panel.evaluate((el) => (el as HTMLElement).inert === false)).toBe(true);
+
+    // (2) The wrap arms: the trap queries panelRef (the PANEL div — the
+    // overlay Close is a sibling OUTSIDE the trap set), so the focusable
+    // order is [panelClose, 8 links] — the LAST focusable is the Settings
+    // link, the FIRST is the panel's X Close.
+    const settingsLink = panel.getByRole("link", { name: "Settings", exact: true });
+    await settingsLink.focus();
+    await expect(settingsLink).toBeFocused();
+
+    // Tab from the last focusable WRAPS to the panel's FIRST focusable
+    // (the X Close inside the panel — the dialog-scoped locator's second
+    // match; the overlay's Close is DOM-first), never past the panel edge.
+    await page.keyboard.press("Tab");
+    const panelClose = panel.getByRole("button", { name: "Close navigation menu" }).nth(1);
+    await expect(panelClose).toBeFocused();
+
+    // Shift+Tab from the first wraps BACK to the last.
+    await page.keyboard.press("Shift+Tab");
+    await expect(settingsLink).toBeFocused();
+  });
 });

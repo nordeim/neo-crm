@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1227 checks)       | `bun run test`                         |
-| Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1245 checks)       | `bun run test`                         |
+| Browser E2E (113 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1227) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1245) → `bun run build` → `bun run test:e2e` (113) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -190,7 +190,19 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   `text-base md:text-sm` (16px below md, matching the reference's phones).
   **CardTitle renders a `<div>`** (the reference has no card-heading
   semantics; the activities h2s and the calendar rail h3s are literal
-  elements, and e2e card-title assertions use text locators). **Entity
+  elements, and e2e card-title assertions use text locators). **The
+  shared Badge primitive is the reference's STOCK badge mirror
+  (session-66, N-66i)** — a `<div>` with `rounded-md border px-2.5
+  py-0.5 text-xs font-semibold` + the stock variant set
+  {default: `border-transparent bg-neutral-900 text-neutral-50 shadow
+  hover:bg-neutral-800` (the computed-equal of the reference's
+  --primary #171717 — ours is the app blue), secondary: neutral-100/900,
+  destructive: `bg-danger text-neutral-50 shadow hover:bg-danger/80`
+  (the solid #ef4444 — the accounts "N Overdue" family), outline:
+  `text-foreground` (NOT muted)}; the call-site class MAPS (P map,
+  priority i-map, health H-map, source classes) stay byte-identical to
+  the bundle — only the chrome re-derived. Pinned by
+  `tests/badge-contract.test.ts`. **Entity
   dialog submit buttons are DARK neutral-900** (`DIALOG_SUBMIT` - the
   reference's in-dialog `--primary` is stock shadcn dark rgb(23,23,23);
   header primary buttons stay blue-600). The settings page uses the PLAIN
@@ -2525,6 +2537,81 @@ consecutive session); both operator decisions re-verified UNCHANGED —
 the CSV posture (b) STANDS (23rd re-affirmation), the source-vocabulary
 documented parity STANDS AND EXTENDS to the N-65 family (the bundle
 byte-identical for the 36th consecutive session).
+
+### Session-66 — the badge-primitive honesty + the parity-gap wiring
+
+The fresh-eyes rotation landed on the COMPONENTS seam (src/components/
+27 files, 5,332 lines — never a dedicated rotation target) and found the
+N-66 family, with the orchestrator's bundle re-decode PROMOTING two
+findings to their root causes: **N-66i** — the shared Badge PRIMITIVE
+itself diverged from the reference's stock badge on every surface (the
+scaffold-era rounded-full px-2 font-medium SPAN with invented variants
+vs the bundle's `zn`/`fie` DIV: rounded-md px-2.5 py-0.5 font-semibold +
+default/secondary/destructive/outline; invisible for 65 sessions
+because the reference renders NO badges at its persistent zero data
+and the s27-s31 decodes pinned the CALL-SITE class maps, not the
+chrome — every call-site className was already byte-identical);
+re-derived with the computed-equal variant expressions (default ->
+neutral-900/50 + shadow [the s13 PROFILE_LAYOUT.badge form], destructive
+-> the solid bg-danger, outline -> text-foreground), the unused
+success/warning/info/muted variants retired, danger renamed destructive,
+and the slide-over priority badge's wrongly-copied row overrides
+dropped. **N-66d** — the Tabs count badge was an UNWIRED PARITY
+FEATURE, not dead cargo (the reference's activities Overdue tab renders
+`P.overdue.length>0 && <span className="ml-2 px-2 py-0.5 text-xs
+bg-red-100 text-red-800 rounded-full">`); wired with the guarded count
+at the call site + the literal span classes. **N-66a** — the
+global-search dropdown gained its Escape close (the S12-P1 mobile-nav
+precedent: our functional-superset surfaces get the keyboard contract).
+**F-66a1** (the 66-a re-audit's find) — the s65 mid-flight-repair
+residue on the calendar AGENDA row (`items-center` where the bundle
+renders `items-start`) reverted + pinned. **N-66b/c** — GRID_COLS_LG +
+the page-parts dead props (KpiCard.deltaSuffix/invertDelta,
+BarStatCard.barColorFor) + the Sparkline guard reorder retired.
+**N-66e/f** — the N-65p coverage notes closed (the route-case URL-state
+scan sees the nine .jsx aliases; the mobile-nav inert + Tab-wrap e2e
+landed). All pinned RED-first (17 RED: the badge-contract suite + the
+dch session-66 describe + the calendar/tabs re-anchors; +18 its =
+1245) and proven non-vacuous in a pre-fix 603184e worktree (17 failed
+| 1228 passed there). THE AUDITS: the s65 re-audit 11/12 GENUINE with
+item 12 PARTIAL (the F-66a1 hunk — every other src hunk verified
+dead-code/comments only; the non-vacuousness arithmetic replayed
+exactly: 5 failed | 47 passed pre-fix); the graduation audit: ZERO
+graduations — 13/13 re-confirmed (23rd consecutive session), the 8
+mechanical censuses ALL CLEAN; both operator decisions standing — the
+CSV formula-injection posture (b) STANDS (24th re-affirmation), the
+source-vocabulary documented parity STANDS AND EXTENDS to the N-66
+family (the class maps stay byte-identical; the primitive re-derives)
+[the bundle byte-identical for the 37th consecutive session] — GATE:
+lint 0/0 · tsc 0 · 1245/1245 unit (76 suites, +18) · build clean ·
+113/113 e2e on a fresh CI=1 boot (2.6m, all 8 mobile-nav checks green
+— the inert/Tab-wrap test included) · 62nd drift-sweep clean (37th
+consecutive stable reference bundle: size 1,631,071 + md5
+a70a637fcf1d4291da8e0d965676dc11) · LIVE-verified (the badge stock
+geometry on the dashboard Recent Deals [6px radius, 2px 10px padding,
+weight 600, transparent border, shadow, DIV] + the contacts priority/
+source [the row's px-3 py-1 font-medium overrides] + the accounts
+destructive [#ef4444 solid + shadow] + health badges; the search Escape
+round-trip; the overdue count badge [the red "4" pill, the other tabs
+plain]; the drawer both directions at a TRUE 390px [closed inert, open
+8/8 truly visible + the dual lock + focus in panel; Escape -> inert +
+hidden + unlocked + focus RESTORED]; zero 390px overflow on all ten
+routes; NO Tailwind v4 bug [--blur-sm 4px + --shadow-sm 0 1px 2px 0
+#0000000d + a live surface computing rgba(0,0,0,0.05) 0px 1px 2px
+0px]; zero probe residue [the closing census MATCH]) · 5 screenshots
+(02/03/04/07 re-captured + 75-activities-overdue-count NEW — the fix
+surfaces at 1440x900; VLM-verified with the accounts Status column
+DOM-probe-verified [a viewport-crop artifact]) · docs at SKILL v1.63.0
+(the new §16bf + project_state, applied atomically via the assert-first
+scripts/skill_edits_s66.py at the sandbox root, 6187 -> 6251 lines by
+wc -l) + session_125.md [the odd-number record convention] + the plan's
+execution record + both worklogs + README/AGENTS/CLAUDE/PAD at 1245+113
+(badge 1358); .env/.env.example verified (no env surface change;
+DATABASE_URL file:../db/custom.db with db/ at the repo root; the
+intake: the sandbox was RESET — a FRESH CLONE + bun install + db:push
++ db:seed, the census MATCH at the repo path; the stale platform
+DATABASE_URL override still points at the non-existent mirror, all
+operations under env -u DATABASE_URL).
 
 ## Conventions that differ from defaults
 

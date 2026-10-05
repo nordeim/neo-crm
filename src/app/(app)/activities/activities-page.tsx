@@ -333,7 +333,11 @@ export default function ActivitiesPage() {
                 value={tab}
                 onValueChange={setTab}
                 tabs={[
-                  { id: "overdue", label: "Overdue" },
+                  // Session-66 (N-66d): the Overdue count badge — the reference
+                  // renders ["Overdue", P.overdue.length>0 && <span …>] on
+                  // exactly this tab (the other three are plain labels); the
+                  // >0 guard lives here, the reference's own shape.
+                  { id: "overdue", label: "Overdue", count: overdue.length > 0 ? overdue.length : undefined },
                   { id: "dueToday", label: "Due Today" },
                   { id: "upcoming", label: "Upcoming" },
                   { id: "completed", label: "Completed" },

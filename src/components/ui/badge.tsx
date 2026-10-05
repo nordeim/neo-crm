@@ -1,24 +1,42 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-interface BadgeProps extends React.ComponentProps<"span"> {
-  variant?: "default" | "outline" | "success" | "warning" | "danger" | "info" | "muted";
+// Session-66 (N-66i): the STOCK shadcn Badge mirror, re-derived from the
+// reference's bundle (the `zn` component over the `fie` cva — a DIV with
+// rounded-md px-2.5 py-0.5 text-xs font-semibold + the stock variant set
+// default/secondary/destructive/outline). The scaffold-era primitive was a
+// rounded-full px-2 font-medium SPAN with an invented variant set — never
+// re-derived because the reference renders no badges at its persistent
+// zero data (the live probes could not see them) and the s27–s31 decodes
+// pinned the CALL-SITE class maps, not the chrome.
+//
+// The reference's --primary is the STOCK DARK #171717 (not its app blue —
+// the s5 DIALOG_SUBMIT finding) while OUR --primary token is deliberately
+// the app blue #2563eb (the inverted token mapping), so the computed-equal
+// expressions for the token-riding variants are the neutral literals —
+// the s13 PROFILE_LAYOUT.badge live-probed form:
+//   reference default     -> bg-neutral-900 text-neutral-50 (+shadow)
+//   reference secondary   -> bg-neutral-100 text-neutral-900
+//                            (neutral-100 = hsl(0 0% 96.1%) = its --secondary)
+//   reference destructive -> bg-danger text-neutral-50
+//                            (our --danger #ef4444 IS its --destructive)
+//   reference outline     -> text-foreground (the bare `border` color rides
+//                            the base-layer * { border-color: --color-line })
+interface BadgeProps extends React.ComponentProps<"div"> {
+  variant?: "default" | "secondary" | "destructive" | "outline";
 }
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
   const variants: Record<string, string> = {
-    default: "bg-primary/10 text-primary border-primary/20",
-    outline: "bg-transparent text-muted border-line",
-    success: "bg-success-soft text-success border-emerald-200",
-    warning: "bg-warning-soft text-amber-600 border-amber-200",
-    danger: "bg-danger-soft text-danger border-rose-200",
-    info: "bg-info-soft text-cyan-700 border-cyan-200",
-    muted: "bg-line-soft text-muted border-line",
+    default: "border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800",
+    secondary: "border-transparent bg-neutral-100 text-neutral-900 hover:bg-neutral-100/80",
+    destructive: "border-transparent bg-danger text-neutral-50 shadow hover:bg-danger/80",
+    outline: "text-foreground",
   };
   return (
-    <span
+    <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap",
+        "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
         variants[variant],
         className,
       )}

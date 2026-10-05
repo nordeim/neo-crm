@@ -196,7 +196,11 @@ describe("session-24: URL-state parity holds (the s39 pointer, CLOSED)", () => {
       ...globFiles("src/components"),
     ];
     const offenders = searchResults.filter(
-      (f) => f.endsWith(".tsx") && /useSearchParams|history\.pushState|history\.replaceState/.test(readFileSync(f, "utf8")),
+      // Session-66 (N-66e — the N-65p note (b) closed): the scan now sees
+      // the NINE capital-route .jsx RENDER aliases too (the loading-layer
+      // tsx?|jsx? precedent) — a .tsx-only filter left them invisible to
+      // the zero-URL-state claim.
+      (f) => /\.(tsx|jsx)$/.test(f) && /useSearchParams|history\.pushState|history\.replaceState/.test(readFileSync(f, "utf8")),
     );
     expect(offenders).toEqual([]);
   });

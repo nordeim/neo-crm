@@ -438,7 +438,7 @@ export default function AccountsPage() {
                                 <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                               )}
                               {overdue > 0 && (
-                                <Badge variant="danger" className="text-xs">
+                                <Badge variant="destructive" className="text-xs">
                                   {overdue} Overdue
                                 </Badge>
                               )}

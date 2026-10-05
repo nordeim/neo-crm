@@ -138,8 +138,6 @@ export function KpiCard({
   value,
   suffix,
   delta,
-  deltaSuffix = "%",
-  invertDelta = false,
   valueNote,
   children,
 }: {
@@ -148,8 +146,9 @@ export function KpiCard({
   /** Small gray unit suffix next to the value ("days"). */
   suffix?: string;
   delta?: number | string | null;
-  deltaSuffix?: string;
-  invertDelta?: boolean;
+  /** Session-66 (N-66c): deltaSuffix/invertDelta retired — zero callers ever
+   * passed them; DeltaText keeps its own suffix/invert defaults (the N-58c
+   * module type-contract boundary). */
   /** Session-27 (S27-P7): a NEUTRAL text-xs text-gray-600 note in the value row (the Sales Target progress). */
   valueNote?: string;
   children?: React.ReactNode;
@@ -174,7 +173,7 @@ export function KpiCard({
              green/red delta. */
           <span className="mb-1 text-xs text-gray-600">{valueNote}</span>
         )}
-        <DeltaText delta={delta} suffix={deltaSuffix} invert={invertDelta} className="mb-1" />
+        <DeltaText delta={delta} className="mb-1" />
       </div>
       {children && <div className={KPI_SPARK.dashboardContainer}>{children}</div>}
     </div>
@@ -230,7 +229,6 @@ export function BarStatCard({
   deltaTone,
   bars,
   barColor,
-  barColorFor,
   barWidth = "w-20",
   className,
 }: {
@@ -243,7 +241,9 @@ export function BarStatCard({
   deltaTone?: "success" | "danger" | "muted";
   bars: number[];
   barColor: string;
-  barColorFor?: (value: number, index: number) => string;
+  /** Session-66 (N-66c): barColorFor retired — zero callers ever passed
+   * it, so the per-bar ternary arm was construction-dead (Sparkline's
+   * colorFor IS the live twin, on the dashboard). */
   /** `w-20` (activities) or `w-24` (accounts) — no responsive growth. */
   barWidth?: "w-20" | "w-24";
   className?: string;
@@ -272,7 +272,7 @@ export function BarStatCard({
               className="flex-1 rounded-sm"
               style={{
                 height: `${pct(v)}%`,
-                backgroundColor: barColorFor ? barColorFor(v, i) : barColor,
+                backgroundColor: barColor,
                 opacity: v > 0 ? 1 : 0.4,
               }}
             />
@@ -526,8 +526,10 @@ export function Sparkline({
   variant?: "bars" | "line" | "area";
   className?: string;
 }) {
-  const max = Math.max(...values, 1);
+  // Session-66 (N-66j): the empty guard runs BEFORE the max computation —
+  // Math.max(...[]) would have been dead arithmetic on the empty path.
   if (values.length === 0) return null;
+  const max = Math.max(...values, 1);
 
   if (variant === "line" || variant === "area") {
     const data = values.map((v, i) => ({ i, v }));

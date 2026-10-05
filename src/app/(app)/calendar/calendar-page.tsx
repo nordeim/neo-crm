@@ -486,8 +486,12 @@ export default function CalendarPage() {
               ) : (
                 visible.slice(0, 10).map((e) => {
                   const chip = EVENT_TYPE_CHIP[e.type] ?? EVENT_TYPE_CHIP.meeting; // defensive DB-read (see the day-cell note)
+                  // Session-66 (F-66a1): items-START is the bundle contract (the
+                  // reference's agenda rows align start; its UPCOMING rows are the
+                  // items-center family) — the s65 mid-flight edit-repair residue
+                  // had landed items-center here undeclared.
                   return (
-                    <div key={e.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <div key={e.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50">
                       <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", chip.bg)}>
                         <div className={cn("w-2 h-2 rounded-full", chip.dot)} />
                       </div>

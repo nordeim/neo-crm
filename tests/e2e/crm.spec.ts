@@ -77,6 +77,20 @@ test("activities page renders priority tabs and timeline", async ({ page }) => {
   await expect(page.getByRole("tab", { name: "Overdue" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Due Today" })).toBeVisible();
   await expect(page.getByText("Activity Timeline")).toBeVisible();
+
+  // Session-66 (N-66d): the Overdue tab carries the reference's count
+  // badge — the bundle's `["Overdue", P.overdue.length>0 && <span
+  // className="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800
+  // rounded-full">{N}</span>]`. The seeded set ships 3 scheduled
+  // past-due rows (due −2/−1/−4 days), but the exact count is
+  // wall-clock-adjacent (a same-day dueAt goes overdue after its hour)
+  // — pin the SHAPE, not the number: a digits-only red badge inside the
+  // Overdue tab, and NO badge on the plain-label tabs.
+  const overdueTab = page.getByRole("tab", { name: "Overdue" });
+  const badge = overdueTab.locator("span.bg-red-100.text-red-800.rounded-full");
+  await expect(badge).toBeVisible();
+  await expect(badge).toHaveText(/^\d+$/);
+  await expect(page.getByRole("tab", { name: "Due Today" }).locator("span.bg-red-100")).toHaveCount(0);
 });
 
 test("reports page loads analytics tabs with seeded data", async ({ page }) => {
@@ -474,6 +488,18 @@ test("global search finds a seeded account", async ({ page }) => {
   const result = page.getByRole("button", { name: "Northwind Energy" });
   await expect(result).toBeVisible();
   await expect(result.locator("xpath=preceding-sibling::p")).toHaveText("Accounts");
+  // Session-66 (N-66a): Escape closes the dropdown — the keyboard contract.
+  // Before this landed, only an outside mousedown / a row click / a query
+  // collapse closed it, stranding keyboard users with the dropdown open.
+  await page.keyboard.press("Escape");
+  await expect(result).toBeHidden();
+  // Blur then re-focus reopens (the onFocus handler) — the input never lost
+  // focus to Escape, so a bare focus() would be a no-op; the round-trip
+  // proves the dropdown survives the cycle instead of being destroyed.
+  const searchInput = page.getByLabel("Search accounts, contacts and leads");
+  await searchInput.blur();
+  await searchInput.focus();
+  await expect(result).toBeVisible();
 });
 
 test("unauthenticated API access is rejected", async () => {
@@ -1718,10 +1744,11 @@ test("the Account Health tab renders the PIE + horizontal top-10 + red-tinted at
   await expect(redRow).toBeVisible();
   // The "Nd ago" / "Never" last-activity vocabulary.
   await expect(page.getByText(/\d+d ago|Never/).first()).toBeVisible();
-  // The Account Summary statuses render as outline badges (the stock
-  // inline-flex rounded-full border span) — the summary's first status
-  // cell carries one where the old plain-text cell had none.
-  const summaryBadge = page.locator("table span.inline-flex.rounded-full.border").first();
+  // The Account Summary statuses render as outline badges — session-66
+  // (N-66i): the Badge primitive is the reference's STOCK mirror now (a
+  // DIV: inline-flex items-center rounded-md border …), replacing the
+  // scaffold-era rounded-full SPAN this locator originally pinned.
+  const summaryBadge = page.locator("table div.inline-flex.rounded-md.border").first();
   await expect(summaryBadge).toBeVisible();
 });
 

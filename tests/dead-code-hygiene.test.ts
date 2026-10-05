@@ -878,3 +878,47 @@ describe("session-65: the page-render dead-surface retirement (N-65c/d/e + the /
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-66 (the 66-c components rotation): the dead-surface retirement —
+// N-66b the tabs GRID_COLS_LG const (zero references repo-wide — the pill's
+// lg:grid-cols-5 lives in page-layout.ts), N-66c the page-parts dead props
+// (KpiCard.deltaSuffix/invertDelta + BarStatCard.barColorFor — never passed
+// anywhere; the barColorFor ternary arm construction-dead), N-66j the
+// Sparkline's Math.max computed before its own empty guard.
+// ---------------------------------------------------------------------------
+
+describe("session-66: the components dead-surface retirement (N-66b/c/j)", () => {
+  it("tabs carries NO GRID_COLS_LG (zero references — the pill's lg: columns live in page-layout.ts)", () => {
+    // N-66b: the s54 fully-dead class, CONST variant — the record comment
+    // documents the retirement. The absence check reads the
+    // COMMENT-STRIPPED source so the pin can never trip on its own
+    // documentation (the s64/s65 needle-in-own-docs lesson).
+    const stripped = read("src/components/ui/tabs.tsx") ?? "";
+    expect(stripComments(stripped)).not.toMatch(/GRID_COLS_LG/);
+    expect(stripped).toContain("N-66b");
+  });
+
+  it("KpiCard carries NO deltaSuffix/invertDelta props (DeltaText keeps its own — the N-58c boundary)", () => {
+    const src = pageParts();
+    expect(src).not.toMatch(/deltaSuffix/);
+    expect(src).not.toMatch(/invertDelta/);
+  });
+
+  it("BarStatCard carries NO barColorFor prop and the construction-dead ternary arm is gone", () => {
+    const src = pageParts();
+    expect(src).not.toMatch(/barColorFor/);
+    // The old arm: backgroundColor: barColorFor ? barColorFor(v, i) : barColor
+    expect(src).not.toMatch(/barColorFor \? barColorFor\(v, i\) : barColor/);
+    expect(src).toMatch(/backgroundColor: barColor/);
+  });
+
+  it("the Sparkline guards the empty series BEFORE computing Math.max (N-66j)", () => {
+    const src = read("src/components/shared/page-parts.tsx") ?? "";
+    const guard = src.indexOf("if (values.length === 0) return null;");
+    const max = src.indexOf("Math.max(...values, 1)");
+    expect(guard).toBeGreaterThan(-1);
+    expect(max).toBeGreaterThan(-1);
+    expect(guard).toBeLessThan(max);
+  });
+});

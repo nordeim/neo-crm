@@ -56,8 +56,11 @@ describe("session-28: the shared EntityEditDialog anatomy", () => {
 
   it("readOnly mode: the disabled inputs + the single Close footer", () => {
     const src = dialog();
-    expect(src).toMatch(/disabled=\{readOnly\}|disabled=\{a\}/);
-    expect(src).toMatch(/readOnly \? "Close" : "Cancel"|readOnly \? "Close"/);
+    // Session-66 (N-66h): the alternatives collapsed — `disabled={a}` and
+    // the bare `readOnly ? "Close"` branch matched nothing at HEAD (the
+    // honest forms subsume them).
+    expect(src).toMatch(/disabled=\{readOnly\}/);
+    expect(src).toMatch(/readOnly \? "Close" : "Cancel"/);
   });
 });
 

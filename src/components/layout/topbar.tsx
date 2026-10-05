@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Mail, Search } from "lucide-react";
 import {
   // Session-47 (S47-P4, N-47g): the Popover-based Dropdown family left
-  // this import block when the account menu migrated to the stock Menu*
-  // primitives — dead weight, lint-invisible (no-unused-vars off).
+  // when the account menu migrated to the stock Menu* primitives. The
+  // block now carries ONLY the four live Menu* members (the N-66g
+  // reword — "dead weight" described the pre-P4 state).
   Menu,
   MenuContent,
   MenuItem,
@@ -136,6 +137,16 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => hasResults && setOpen(true)}
+              onKeyDown={(e) => {
+                // Session-66 (N-66a): Escape closes the dropdown — the S12-P1
+                // mobile-nav precedent (fix the keyboard access on our
+                // functional-superset surfaces). Before this, only an outside
+                // mousedown / a row click / a query collapse closed it, so a
+                // keyboard user Tabbing away stranded the dropdown open.
+                if (e.key === "Escape" && open) {
+                  setOpen(false);
+                }
+              }}
               placeholder="Search Anything..."
               aria-label="Search accounts, contacts and leads"
               className={SEARCH_INPUT.extras}
