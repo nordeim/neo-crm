@@ -156,6 +156,12 @@ export function EntityEditDialog({
   // (the N-56a lint-invisible class, DESTRUCTURED variant; both
   // no-unused-vars rules off). The call-site bindings retired with
   // it; `editTarget` stays live through `initial` at every site.
+  // Session-62 (N-62d): `readOnly` (and the detailsTitle render that
+  // lives only under it) is PRODUCTION-DEAD — no call site passes
+  // readOnly=true, so the three "… Details" bindings never render.
+  // Kept deliberately: the reference's own capability, test-pinned
+  // (entity-edit-dialog.test.ts) — the third member of the N-46e
+  // isLoading wire-or-remove posture family.
   onSubmit: (form: Record<string, string>) => void | Promise<void>;
   isLoading?: boolean;
   readOnly?: boolean;

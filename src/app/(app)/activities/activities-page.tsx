@@ -127,9 +127,12 @@ export default function ActivitiesPage() {
   const upcoming = baseFiltered.filter((a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) > endOfDay(today));
   const completed = baseFiltered.filter((a) => a.status === "completed");
 
-  const todayCount = activities.filter((a) => new Date(a.createdAt ?? a.dueAt) >= startOfDay(today)).length;
+  const todayCount = activities.filter((a) => new Date(a.createdAt) >= startOfDay(today)).length;
   const yesterdayCount = activities.filter((a) => {
-    const d = new Date(a.createdAt ?? a.dueAt);
+    // Session-62 (N-62c): createdAt reads DIRECTLY — Activity.createdAt is
+    // a non-nullable string, so the old `?? a.dueAt` arm was unreachable
+    // by the type contract (the s42/s46 dead-?? class, surviving half).
+    const d = new Date(a.createdAt);
     return d >= startOfDay(new Date(today.getTime() - 86400000)) && d < startOfDay(today);
   }).length;
   const todayDelta =

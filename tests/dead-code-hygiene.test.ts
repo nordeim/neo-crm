@@ -63,14 +63,22 @@ describe("session-46: the dead-code hygiene pair (S46-P5)", () => {
     expect(accounts()).not.toMatch(/\bleads\b/);
   });
 
-  it("activities-page drops the dead ?? a.createdAt tail at BOTH count filters", () => {
+  it("activities-page reads createdAt DIRECTLY at BOTH count filters (re-anchored s62)", () => {
     const src = activities();
-    // The dead triple-chain is gone…
-    expect(src).not.toMatch(/a\.createdAt\s*\?\?\s*a\.dueAt\s*\?\?\s*a\.createdAt/);
-    // …and the live two-arm form appears exactly twice (todayCount +
-    // yesterdayCount).
-    const live = src.match(/a\.createdAt\s*\?\?\s*a\.dueAt/g) ?? [];
-    expect(live.length).toBe(2);
+    // Session-62 (N-62c): the s46 retirement removed only the trailing
+    // `?? a.createdAt` tail; the surviving `?? a.dueAt` arm was
+    // unreachable by the type contract (Activity.createdAt is a
+    // non-nullable string — src/types/index.ts), so the whole ?? chain
+    // retires: both filters read `new Date(a.createdAt)` directly. This
+    // pin re-anchors the s46 two-arm expectation (the s54 re-anchor
+    // precedent — a retired surface's pin follows the retirement).
+    expect(src).not.toMatch(/a\.createdAt\s*\?\?/);
+    expect(src).not.toMatch(/\?\?\s*a\.dueAt/);
+    // The two count-filter sites, pinned by their exact forms (a bare
+    // count of `new Date(a.createdAt)` would be fragile — the timeline
+    // and meeting filters carry five more of them).
+    expect(src).toMatch(/new Date\(a\.createdAt\) >= startOfDay\(today\)/);
+    expect(src).toMatch(/const d = new Date\(a\.createdAt\);/);
   });
 });
 
@@ -607,11 +615,16 @@ describe("session-61: the dead-surface narrowing (S61-P1)", () => {
   });
 
   it("the living dependency surface stays (guard)", () => {
-    // The 7 live radix packages with their real import sites — the
+    // The live radix packages with their real import sites — the
     // stock-primitive seam the app actually renders through — plus the
     // ADR-005 vendoring source (tw-animate-css), the s25 PDF seam
     // (jspdf + html2canvas-pro), and the REFERENCED dashboard image
     // (the docs/ original the prompt docs point at).
+    // Session-62 correction: @radix-ui/react-toast is NOT among the
+    // live set — the s61 census wrongly counted it (toast.tsx is a
+    // from-scratch mirror that never imports the package); it retired
+    // at s62 (N-62a). react-label's import site joins the pinned set
+    // (unpinned at s61 — 62-a#4).
     const raw = read("package.json") ?? "";
     const pkg = JSON.parse(raw) as {
       dependencies?: Record<string, string>;
@@ -624,7 +637,6 @@ describe("session-61: the dead-surface narrowing (S61-P1)", () => {
       "@radix-ui/react-popover",
       "@radix-ui/react-select",
       "@radix-ui/react-slot",
-      "@radix-ui/react-toast",
     ]) {
       expect(pkg.dependencies?.[dep]).toBeTruthy();
     }
@@ -647,5 +659,62 @@ describe("session-61: the dead-surface narrowing (S61-P1)", () => {
       /@radix-ui\/react-popover/,
     );
     expect(read("docs/neo-crm-dashboard.png")).not.toBeNull();
+  });
+});
+
+describe("session-62: the manifest honesty + the dead-arm retirement", () => {
+  it("the never-imported react-toast retires; @types/node becomes explicit (N-62a + 62-a#3)", () => {
+    // Convergent find (62-a#1 + 62-b's N-62a): @radix-ui/react-toast
+    // was NEVER imported — toast.tsx is a from-scratch implementation
+    // whose header says it "Mirrors the @radix-ui/react-toast API
+    // shape"; git log -S finds no import in ANY commit. The s61 census
+    // wrongly claimed a "verified import site" and the s61 guard pinned
+    // it live — the entrenchment this it reverses.
+    // @types/node joins as an EXPLICIT devDep (62-a#3): the s61
+    // package-lock regen dropped the resolved @types/node (an optional
+    // peer npm never auto-installs), so an npm-install consumer (the
+    // install_packages.sh path) would lack the types tsc needs for the
+    // node: imports (db-path/verification-server/next.config/scripts).
+    // The version pins what the bun tree already resolves: zero change.
+    const raw = read("package.json") ?? "";
+    const pkg = JSON.parse(raw) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    expect(pkg.dependencies?.["@radix-ui/react-toast"]).toBeUndefined();
+    expect(raw).not.toMatch(/react-toast/);
+    expect(pkg.devDependencies?.["@types/node"]).toBeTruthy();
+    const script = read("scripts/install_packages.sh") ?? "";
+    expect(script).not.toContain("@radix-ui/react-toast");
+    expect(script).toContain("@types/node");
+    // 19 runtime + 11 dev = the 30-token set.
+    expect(Object.keys(pkg.dependencies ?? {}).length).toBe(19);
+    expect(Object.keys(pkg.devDependencies ?? {}).length).toBe(11);
+  });
+
+  it("every surviving radix package has a REAL import site (the honest census — 62-a#4)", () => {
+    // The 6 survivors, EACH pinned to its actual consumer file — label
+    // joins the pinned set at s62 (the s61 guard asserted sites for
+    // only 5 of 7). toast is gone (never had one). The ui/ mirror files
+    // are the ground truth: stripComments so a header mention can never
+    // masquerade as an import (the exact trap the s61 census fell into).
+    expect(stripComments(read("src/components/ui/dialog.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-dialog/,
+    );
+    expect(stripComments(read("src/components/ui/button.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-slot/,
+    );
+    expect(stripComments(read("src/components/ui/select.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-select/,
+    );
+    expect(stripComments(read("src/components/ui/dropdown.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-dropdown-menu/,
+    );
+    expect(stripComments(read("src/components/ui/dropdown.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-popover/,
+    );
+    expect(stripComments(read("src/components/ui/label.tsx") ?? "")).toMatch(
+      /@radix-ui\/react-label/,
+    );
   });
 });

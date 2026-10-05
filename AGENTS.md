@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1207 checks)        | `bun run test`                         |
+| Unit tests (1210 checks)        | `bun run test`                         |
 | Browser E2E (112 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1207) → `bun run build` → `bun run test:e2e` (112) — or the
+`bun run test` (1210) → `bun run build` → `bun run test:e2e` (112) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2313,8 +2313,10 @@ the session-2 R-4 unused-scaffold class, RUNTIME-DEP variant) +
 `bun-types` (zero references — no Bun.* usage, no tsconfig "types"
 field, never auto-included — the DEV-DEP variant). Both lockfiles
 regenerated; `package-lock.json` returns to `package.json` parity for
-the first time since session 25 (the s13/s25 staleness closed — the
-regeneration is pure additions, zero version churn). (3) The N-61c +
+the first time since session 4 (the s13/s25 staleness closed — the
+regeneration carried 308 insertions / 86 deletions with zero version
+churn on surviving entries; session-62 corrected this paragraph's
+"session 25" anchor and the "pure additions" framing). (3) The N-61c +
 61-a #1 doc-numerics refresh — the README/PAD tree-block counts (27
 route files / 39 verb handlers, 9 models, 75 suites / 1207 checks,
 112 e2e), the PAD §11 Lines column (~20 rows re-censused by `wc -l`),
@@ -2333,6 +2335,51 @@ byte-identical for the 32nd consecutive session; the manifest +
 public-asset dead surfaces retire; the tw-animate-css re-vendor
 source, the CSS chart token family, the N-58c boundary, and the stock
 mirror stay guard-pinned).
+
+### Session 62 (2026-10-05) — the manifest honesty + the profile-save
+divergence
+
+The session-62 layer: (1) The N-62a closure —
+`@radix-ui/react-toast` RETIRED: a never-imported runtime dep
+(`src/components/ui/toast.tsx` is a from-scratch mirror — its header
+says it "Mirrors the @radix-ui/react-toast API shape" without
+importing it; `git log -S` finds no import in ANY commit). The
+convergent 62-a#1 + 62-b find; the s61 census had wrongly claimed a
+"verified import site" and the s61 guard had PINNED the dead dep live
+— the entrenchment is reversed and the guard now asserts a REAL
+import site for EVERY surviving radix package (react-label joins the
+pinned set — 62-a#4). (2) The 62-a#3 closure — `@types/node` joins
+the devDependencies EXPLICITLY (`^26.6.2`, pinning what the bun tree
+already resolves): the s61 package-lock regen had dropped the
+resolved entry (an optional peer npm never auto-installs), leaving
+the npm-world install path (install_packages.sh) without the types
+tsc needs for the `node:` imports. Both lockfiles regenerated per the
+§16ba rule. (3) The N-62b closure — the profile save's name-only
+`dirty` gate RETIRED as a reference-divergence fix: the reference
+bundle disables Save only while SAVING and PATCHes {display_name,
+profile_picture} unconditionally; our gate silently swallowed
+photo-only uploads (button enabled, handler no-op). LIVE-verified:
+upload → toast → Save → reload with all three avatars rendering. (4)
+The N-62c closure — the unreachable `?? a.dueAt` arms retired at both
+activities count filters (Activity.createdAt is a non-nullable
+string; the s42/s46 dead-?? class). (5) The doc-numerics sweep
+(62-a#2/#5/#6): the 22→27 route-file counts (PAD + SKILL §5, auth(6)
++ opportunities/upload/uploads/[name] named), the SKILL §7 model
+table to 9 rows with Opportunity, the component/line-count refresh,
+the "session 25"→"session 4" lockfile anchor + the "pure
+additions"→308/86 framing, the §16ba(2) dry-run-number correction;
+the N-62d readOnly posture + the N-62e filtered-vs-full
+disabled-binding divergence annotated in place. All pinned RED-first
+(3 RED: the manifest it + the re-anchored s46 it + the profile
+photo it) and proven non-vacuous in a pre-fix k6125f6b worktree (3
+failed | 52 passed there; 55/55 at the fix). Audits: the s61
+re-audit verified all eight checklist items GENUINE (the worktree
+arithmetic replayed: 2 failed | 38 passed pre-fix) with six new
+findings; the graduation audit: ZERO graduations — 13/13 re-confirmed
+(19th consecutive session); both operator decisions re-verified
+UNCHANGED — the CSV posture (b) STANDS (20th re-affirmation), the
+source-vocabulary documented parity STANDS AND EXTENDS to the N-62
+family (the bundle byte-identical for the 33rd consecutive session).
 
 ## Conventions that differ from defaults
 

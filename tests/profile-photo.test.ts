@@ -119,7 +119,11 @@ describe("session-39: the profile save envelope (S39-P3)", () => {
     const src = pageRaw();
     const start = src.indexOf("async function save()");
     expect(start).toBeGreaterThan(-1);
-    const body = src.slice(start, start + 1400);
+    // Session-62: the window widened 1400 → 2200 — the s62 record
+    // comment above setSaving pushed the finally clause past the old
+    // slice edge (the chronic self-shift class; the assertions
+    // themselves are unchanged).
+    const body = src.slice(start, start + 2200);
     // The sibling uploadPhoto has had this shape since s30; save() was
     // a bare await chain — a network throw mid-save propagated from
     // `void save()` as an unhandled rejection and setSaving(false)
@@ -130,5 +134,29 @@ describe("session-39: the profile save envelope (S39-P3)", () => {
     expect(body).toMatch(/setSaving\(false\);\s*\}/);
     // The catch surfaces the existing failure vocabulary, not silence.
     expect(body).toMatch(/Failed to update profile/);
+  });
+});
+
+describe("session-62: the unconditional profile save (N-62b)", () => {
+  it("save() mirrors the reference's unconditional PATCH — no dirty gate", () => {
+    // Bundle evidence (index-DZ-xbrIm.js, the profile component): the
+    // reference's Save button is disabled ONLY while saving
+    // (`disabled:i` where i = the saving useState) and its submit
+    // handler unconditionally PATCHes {display_name,
+    // profile_picture} — NO dirty concept exists there. Our name-only
+    // `dirty` gate was a self-inflicted divergence: the button rendered
+    // enabled (matching the reference) but `if (!dirty) return;`
+    // silently swallowed photo-only uploads (the uploaded file_url
+    // landed in form state, Save clicked, nothing happened, navigation
+    // lost the upload). The gate retires at s62 — the button's
+    // `disabled={saving}` already mirrors the reference exactly.
+    const code = page();
+    expect(code).not.toMatch(/\bdirty\b/);
+    expect(code).not.toMatch(/if\s*\(!dirty\)\s*return;/);
+    // The unconditional body still sends BOTH fields, exactly as the
+    // reference's updateMe call does.
+    expect(code).toMatch(
+      /JSON\.stringify\(\{\s*name:\s*name\.trim\(\),\s*photoUrl:\s*photoUrl\s*\|\|\s*null\s*\}\)/,
+    );
   });
 });

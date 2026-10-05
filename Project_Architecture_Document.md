@@ -124,7 +124,7 @@ regression suite.
 
 **ADR-003: Hand-rolled scrypt + HMAC cookie sessions (no auth library)**
 
-- **Context:** Two authenticated surfaces exist (login page + 22 route
+- **Context:** Two authenticated surfaces exist (login page + 27 route
   handler files). NextAuth/Better-Auth pull provider abstractions, adapters
   and their own DB schema for what is, here, a single email/password flow.
   The scaffold family already standardizes a minimal hand-rolled pattern.
@@ -325,9 +325,11 @@ neo-crm/
 │   │   │   ├── reports/         # 5 analytics tabs, period/owner/stage/status filters
 │   │   │   ├── settings/        # picklist editors, defaults, data/danger zone
 │   │   │   └── profile/         # account card + workspace footprint
-│   │   ├── api/                 # auth(4) users accounts contacts leads
-│   │   │                       # activities events dashboard reports settings
-│   │   │                       # search export reset health — 22 route files
+│   │   ├── api/                 # auth(6: login signup logout me verify
+│   │   │                       # resend) users accounts contacts leads
+│   │   │                       # activities events opportunities dashboard
+│   │   │                       # reports settings search export upload
+│   │   │                       # uploads/[name] reset health — 27 route files
 │   │   ├── login/ signup/       # public auth pages (redirect away when signed in)
 │   │   ├── not-found.tsx        # server 404 wrapper (absolute title) — session-12
 │   │   ├── not-found-body.tsx   # client 404 body (usePathname, quoted-path msg)
@@ -735,14 +737,15 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the dead-surface narrowing, missed-sibling layer (the N-59a pins [types/index.ts carries no SavedReport token — the DB-wire-shape interface retired; the LIVE SavedReport is the localStorage shape in saved-reports.ts] + the N-59b pins [entity-edit-dialog carries no entityId token — the dead prop retired with its three call-site bindings] + the guard [the live saved-reports type stays exported with dateRange/wonDate; the dialog keeps initial/fields/onSubmit; the three pages keep their fields/initial bindings] — session-59) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-surface narrowing, palette-key + test-local layer (the N-60a pins [constants.ts carries none of the six never-read CHART_COLORS keys — blue/cyan/teal/amber/orange/green; zero key-reads + zero computed access repo-wide] + the N-60b pins [crm.spec.ts carries no formAvatar token — the dead test-local locator retired] + the guard [the ten live palette keys stay — red/gray/violet/emerald + the -400 family — with their live consumers: the dashboard sparklines, the accounts/activities stat-card mini bars] — session-60; the session_111.md line-count bracket correction + the SKILL §15.4/§19 carriers ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
 | Unit — the dead-surface narrowing, manifest + public-asset layer (the N-61a pins [public/ carries no neo-crm-dashboard.png — the byte-identical duplicate of the referenced docs/ original retired; it shipped in every standalone build via the `cp -r public` step] + the N-61b/d pins [package.json carries none of the three never-referenced dependency tokens — @radix-ui/react-alert-dialog + @radix-ui/react-radio-group runtime (zero imports repo-wide AND in all git history), bun-types dev (zero references, never auto-included)] + the guard [the 7 live radix packages + their real import sites stay — dialog/dropdown-menu/label/popover/select/slot/toast; tw-animate-css (the ADR-005 vendoring source) + jspdf + html2canvas-pro (the s25 PDF seam) stay; the docs/neo-crm-dashboard.png original stays] — session-61; the SKILL deps-table + runtime-deps-paragraph + §19 chart-row carriers + the README/PAD tree-block numerics + the PAD §11 Lines-column re-census + the package-lock.json regeneration to s25-parity ride GREEN in the touched sources) | 1 | 3 | `tests/dead-code-hygiene.test.ts` | Vitest |
-| **Total** | **75** | **1207 unit + 112 e2e** | | |
+| Unit — the manifest-honesty + dead-arm + profile-save layer (the N-62a pins [package.json carries no @radix-ui/react-toast — the never-imported from-scratch mirror dep retired; @types/node devDep EXPLICIT (the npm-world closure); the install script at the 30-token set: 19 runtime + 11 dev] + the 62-a#4 honest census [EVERY surviving radix package pinned to its REAL import site — label joins] + the N-62c re-anchor [activities-page reads `new Date(a.createdAt)` directly at both count filters — the unreachable `?? a.dueAt` arms retired; the s46 two-arm pin re-anchored] — session-62) + the N-62b profile pin [`save()` mirrors the reference's unconditional PATCH — no dirty gate, both fields sent; tests/profile-photo.test.ts +1] | 2 | 4 | `tests/dead-code-hygiene.test.ts` `tests/profile-photo.test.ts` | Vitest |
+| **Total** | **75** | **1210 unit + 112 e2e** | | |
 
 > **Counting convention (session-54, N-54h)**: the per-session rows
 > count the FILES TOUCHED by that session's pin additions and the checks
 > those rows added or re-anchored — NOT the file's total checks, and NOT
 > a summable column (shared files like `constants.test.ts` appear in
 > several session rows). The **Total** row counts files and checks at
-> HEAD: 75 Vitest suites with 1207 checks + 111+1 e2e checks in 4 spec
+> HEAD: 75 Vitest suites with 1210 checks + 111+1 e2e checks in 4 spec
 > files. Verify counts by run (`bun run test`, `bun run test:e2e`),
 > never by summing the table.
 

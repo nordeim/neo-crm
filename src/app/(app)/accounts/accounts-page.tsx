@@ -61,6 +61,12 @@ export default function AccountsPage() {
   // disabled at zero data; its toolbar one stays ENABLED with the runtime
   // guard (its own pair inconsistency, mirrored verbatim). The export
   // covers the FULL list, not the filtered view.
+  // Session-62 (N-62e) precision note: the header binding below reads
+  // `filtered.length === 0` — zero-FILTERED, not zero-data. The
+  // reference's own zero-data state makes the two indistinguishable
+  // LIVE (its demo workspace ships empty), so the mirror claim cannot
+  // be resolved beyond what the bundle shows; the binding + its pin
+  // stay as shipped, annotated here.
   function exportAccounts() {
     if (accounts.length === 0) return;
     const header = ["Name", "Industry", "Phone", "Email", "Website", "Annual Revenue", "Employees", "Status", "Tier", "Health"];

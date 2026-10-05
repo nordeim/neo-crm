@@ -81,7 +81,6 @@ function ProfileForm({
   const [photoUrl, setPhotoUrl] = React.useState(user.photoUrl ?? "");
   const [uploading, setUploading] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
-  const dirty = name.trim() !== user.name && name.trim().length >= 2;
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Session-30 (S30-P3): the reference's aCe upload handler — NO client
@@ -114,7 +113,13 @@ function ProfileForm({
   }
 
   async function save() {
-    if (!dirty) return;
+    // Session-62 (N-62b): the reference's save is UNCONDITIONAL — its
+    // bundle (index-DZ-xbrIm.js) disables the button only while saving
+    // (`disabled:i`) and its submit always PATCHes both fields. The
+    // name-only `dirty` gate that used to live here was a self-inflicted
+    // divergence: a photo-only upload left Save a silent no-op (the
+    // button looked clickable; the handler returned early; navigation
+    // lost the upload).
     setSaving(true);
     // Session-39 (S39-P3): the envelope — the sibling uploadPhoto has
     // had this shape since s30; a bare await chain let a network throw

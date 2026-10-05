@@ -3,6 +3,9 @@
 // Toast system — a lightweight subscribe/store hook + viewport. Mirrors the
 // @radix-ui/react-toast API shape but with far less ceremony (and no portal
 // key pitfalls). Auto-dismiss with hover-pause.
+// Session-62 (N-62a): the @radix-ui/react-toast PACKAGE was retired — this
+// file never imported it (a from-scratch design since the scaffold); the
+// reference above documents the API contract it mirrors, not a dependency.
 
 import * as React from "react";
 import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
