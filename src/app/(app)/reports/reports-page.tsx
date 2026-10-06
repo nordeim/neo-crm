@@ -37,7 +37,7 @@ import {
   percentFormatter,
 } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
-import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, REPORT_PERIODS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
+import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, REPORT_PERIODS, REPORTS_PIE_FILLS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
 import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
 import { toCsv, csvFilename } from "@/lib/csv";
@@ -593,7 +593,7 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
             data={data?.forecastByProbability ?? []}
             outerRadius={90}
             labelFor={(e) => `${e.band}%: $${(Number(e.value ?? 0) / 1e3).toFixed(0)}K`}
-            fills={["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899"]}
+            fills={[...REPORTS_PIE_FILLS.four]}
             formatter={dollarFormatter}
             height={300}
           />
@@ -741,7 +741,7 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
             data={(data?.activitiesByType ?? []).map((a) => ({ type: a.label, value: a.count }))}
             outerRadius={90}
             labelFor={(e) => `${e.type}: ${e.value}`}
-            fills={["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899", "#f97316"]}
+            fills={[...REPORTS_PIE_FILLS.five]}
             height={300}
           />
         </ChartCard>
@@ -853,7 +853,7 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
             data={rows.map((r) => ({ source: r.source, value: r.leads }))}
             outerRadius={90}
             labelFor={(e) => `${e.source}: ${e.value}`}
-            fills={["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899", "#f97316"]}
+            fills={[...REPORTS_PIE_FILLS.five]}
             height={300}
           />
         </ChartCard>

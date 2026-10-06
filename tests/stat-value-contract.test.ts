@@ -32,6 +32,33 @@ function stripComments(src: string): string {
 
 const parts = () => stripComments(read("src/components/shared/page-parts.tsx") ?? "");
 const reports = () => stripComments(read("src/app/(app)/reports/reports-page.tsx") ?? "");
+const layout = () => read("src/lib/page-layout.ts") ?? "";
+
+describe("session-70: the TrendStatCard value (F-70a1 — the 5th family, the s68/s69 sweeps' unenumerated survivor)", () => {
+  it("STAT_CARD.value renders the bare text-2xl form — no text-foreground", () => {
+    // The 70-a re-audit's find: the calendar KPI family (TrendStatCard,
+    // calendar-page x4) kept `text-2xl font-bold text-foreground` AND a
+    // page-layout.test pin asserting that form AS-CORRECT — the F-69a1
+    // class reborn with an affirmative stale pin. The reference's
+    // calendar KPI values are `text-2xl font-bold text-gray-900`
+    // (bundle-decoded + computed rgb(17,24,39)/24px/700/32px LIVE) —
+    // the same gray-900-carrying reference surface the s69 leads
+    // precedent normalized to the bare family form, the color carried
+    // by the inherited card foreground, never the scaffold-era
+    // semantic-foreground class.
+    expect(layout()).toContain('value: "text-2xl font-bold",');
+    // the retired form is gone from the constant
+    expect(layout()).not.toContain("text-2xl font-bold text-foreground");
+  });
+
+  it("the TrendStatCard consumer rides the constant (page-parts.tsx)", () => {
+    // The constant-consumption form (the S68-P4 class): the value
+    // renders through STAT_CARD.value, never a re-typed class string.
+    const src = parts();
+    expect(src).toContain('<div className={STAT_CARD.value}>{value}</div>');
+    expect(src).not.toContain("text-2xl font-bold text-foreground");
+  });
+});
 
 describe("session-68: the stat-card value typography (N-68a — the s13 sweep completed)", () => {
   it("BarStatCard renders the bare responsive KPI-value form", () => {

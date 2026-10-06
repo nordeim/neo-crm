@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1279 checks)       | `bun run test`                         |
-| Browser E2E (116 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1287 checks)       | `bun run test`                         |
+| Browser E2E (117 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1279) → `bun run build` → `bun run test:e2e` (116) — or the
+`bun run test` (1287) → `bun run build` → `bun run test:e2e` (117) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2823,6 +2823,66 @@ with db/ at the repo root; the intake: the FRESH CLONE — .env
 re-created from .env.example with a generated AUTH_SECRET; the stale
 platform DATABASE_URL override still points at the non-existent
 mirror, all operations under env -u DATABASE_URL).
+
+**Session-70 (SKILL v1.67.0)** — the chart-family honesty + the store
+write-guard session (the 70-c fresh-eyes rotation on the NEVER-AUDITED
+Zustand store + charts family seam — 739 lines + consumers — finding
+the N-70 family with every claim manually validated + the
+parity-bearing fixes bundle-decoded; the 70-a s69 re-audit 12/12
+GENUINE [F-70a1 the STAT_CARD.value text-foreground survivor — the
+5th stat-card family, pinned AS-CORRECT at page-layout.test:393;
+F-70a2 the record-precision pair -> session_133 errata]; the 70-b
+graduation audit ZERO graduations 13/13 [27th consecutive], the 8
+censuses clean; both operator decisions standing: the CSV
+formula-injection posture (b) [29th re-affirmation] + the
+source-vocabulary documented parity): the F-70a1 STAT_CARD.VALUE
+RETIREMENT [TrendStatCard — the calendar KPI x4 — now the bare
+`text-2xl font-bold` family form; the reference's calendar values are
+text-2xl font-bold text-gray-900 (bundle-decoded, computed
+rgb(17,24,39)/24px/700/32px LIVE); the pin re-anchored in lockstep +
+the stat-value-contract gaining the 5th family]; the N-70c4
+REPORTS_PIE_FILLS CONSTANTS [four/five in constants.ts, the three
+reports pies consuming them — #ec4899 was in ZERO test assertions; +
+the new e2e sector-fills check]; the N-70c5 BY-TYPE FAMILY REWIRE
+[SingleBarChart grid={false} tickFontSize={10} height={150}; the
+invented name="Logged" retired — the tooltip reads "count : N" like
+the reference; the whole recharts import retired from the page]; the
+N-70c6 ANIMATION RETIREMENT x3 [the funnel + the Sparkline Area/Line
+arms drop isAnimationActive={false} — ALL 38 bundle occurrences are
+recharts library internals, zero reference call-sites]; the N-70c2
+UPDATESETTINGS WRITE-GUARD [the post-await set captures the s64
+session token — a logout between the PUT resolution and the set
+re-populated the cleared settings slice; updateLead's optimistic set
+documented as task-synchronous, no guard needed]; the N-70c10
+UPDATELEAD REFETCH SHAPE [fetchLeads unconditional as the rollback,
+fetchDashboard gated on res.ok]; the N-70c3/c1 comment carriers [the
+store header's only-sanctioned-client claim re-scoped; the first-load
+duplicate-GET documented as the page-effect's one-shot retry]; the
+TWO E2E ADDITIONS [the reports pie sector-fills check + the post-wipe
+fixed-list-flat-bars assertion in the reset test — the s10
+real-chart-renders-empty parity, LIVE-only until now; 116 -> 117] —
+all pinned RED-first [8 RED + the page-layout lockstep pin + the dch
+s56 re-anchor; +8 its = 1287] and proven non-vacuous in a pre-fix
+047f3be worktree [10 failed | 286 passed there]; GATE: lint 0/0 · tsc
+0 · 1287/1287 unit (79 suites) · build clean · 117/117 e2e on a fresh
+CI=1 boot (2.7m, all 9 mobile-nav checks green) · 66th drift-sweep
+clean (41st consecutive stable reference bundle) · LIVE-verified (the
+calendar KPI bare form at 24px/700/32px; the pie fills; the by-type
+tooltip "Email count : 3"; the funnel labels x4; the drawer both
+directions at TRUE 390px with focus restored; zero overflow x10; NO
+Tailwind v4 bug; the closing census MATCH) · 2 screenshots (06
+re-captured + 80-activities-bytype-family NEW; VLM-verified 4/4 +
+4/4) · docs at SKILL v1.67.0 (the new §16bj + project_state, applied
+atomically via the assert-first scripts/skill_edits_s70.py at the
+sandbox root, 6399 -> 6446 lines by wc -l) + session_133.md [the
+odd-number record convention] + the plan's execution record + both
+worklogs + README/AGENTS/CLAUDE/PAD at 1287+117 (badge 1404);
+.env/.env.example verified (no env surface change; DATABASE_URL
+file:../db/custom.db with db/ at the repo root; the intake: the
+sandbox SURVIVED s69 — the pull fast-forwarded 94aab54 -> 047f3be,
+docs/session_132.md only, zero code drift; the stale platform
+DATABASE_URL override still points at the non-existent mirror, all
+operations under env -u DATABASE_URL).
 
 ## Conventions that differ from defaults
 

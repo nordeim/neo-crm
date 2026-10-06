@@ -301,7 +301,13 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     // …while the live siblings from the same import lines stay.
     expect(accounts()).toMatch(/\bDropdownContent\b/);
     expect(accounts()).toMatch(/\bDropdownTrigger\b/);
-    expect(acts).toMatch(/\bResponsiveContainer\b/);
+    // Session-70 (S70-P3) re-anchor: ResponsiveContainer's acts
+    // assertion superseded — the whole recharts import retired when the
+    // by-type chart moved to the SingleBarChart family (the live import
+    // is the family now; the charts-internals session-70 describe pins
+    // its consumption).
+    expect(acts).not.toMatch(/\bResponsiveContainer\b/);
+    expect(acts).toMatch(/\bSingleBarChart\b/);
     expect(acts).toMatch(/\btimeUntil\b/);
   });
 

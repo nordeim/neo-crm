@@ -20,7 +20,10 @@ import {
 // reference: the import itself (the N-53c/N-55a class). Both exports
 // stay alive (charts.tsx consumes Cell; accounts-page + the ui kit own
 // Avatar [s57 correction — profile hand-rolls its avatar spans]).
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+// Session-70 (S70-P3, N-70c5): the whole recharts import retired — the
+// by-type chart now rides the SingleBarChart family (grid={false},
+// tickFontSize 10, height 150), dropping the invented name="Logged"
+// (the reference's Bar ships NO name — its tooltip reads "count : N").
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +32,7 @@ import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
 import { BarStatCard, PageHeader } from "@/components/shared/page-parts";
+import { SingleBarChart } from "@/components/charts/charts";
 import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
@@ -544,17 +548,19 @@ export default function ActivitiesPage() {
                   are a SINGLE #3b82f6 fill with radius [4,4,0,0] and NO
                   grid (no CartesianGrid), stock axes, tick fontSize 10 —
                   the per-type colors live ONLY in the chips row below
-                  (S13-P5). No maxBarSize, no interval override. */}
-              <div className="chart-no-outline" style={{ height: 150 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={byType}>
-                    <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip />
-                    <Bar dataKey="count" name="Logged" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+                  (S13-P5). No maxBarSize, no interval override.
+                  Session-70 (S70-P3): expressed through the family —
+                  the hand-rolled BarChart duplicate retired (N-70c5). */}
+              <SingleBarChart
+                data={byType}
+                xKey="label"
+                dataKey="count"
+                fill="#3b82f6"
+                radius={[4, 4, 0, 0]}
+                tickFontSize={10}
+                height={150}
+                grid={false}
+              />
 
               {/* The five per-type count chips (swatch + "Call N"). */}
               <div className={BY_TYPE_CARD.chipsRow}>

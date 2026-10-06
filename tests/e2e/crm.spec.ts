@@ -140,6 +140,33 @@ test("reports page loads analytics tabs with seeded data", async ({ page }) => {
   await expect(page.getByText("Win Rate by Source (%)")).toBeVisible();
 });
 
+test("the reports by-type pie renders the pinned fill palette (S70-P2, N-70c4)", async ({ page }) => {
+  // The 70-c rotation catalogued the pie fill arrays as LIVE-only
+  // surfaces (unit-source pins existed nowhere until S70-P2 — #ec4899
+  // appeared in zero test assertions). This check pins the palette at
+  // the LIVE layer too: every rendered sector's fill belongs to the
+  // reference's literal five-color array, the first sector (the
+  // most-counted type — the API sorts count-desc and LabelPie maps
+  // fills[i]) rides #3b82f6, and the seeded data yields at least three
+  // distinct types (call/email/meeting at minimum).
+  await page.goto("/reports");
+  await page.getByRole("tab", { name: "Activity & Productivity" }).click();
+  const card = page.locator("main .rounded-xl", { hasText: "Activities by Type" }).first();
+  await expect(card).toBeVisible();
+  const sectors = card.locator(".recharts-pie-sector path");
+  await expect(sectors.first()).toBeVisible();
+  const fills = await sectors.evaluateAll((els) =>
+    els.map((el) => el.getAttribute("fill")),
+  );
+  const palette = ["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899", "#f97316"];
+  expect(fills.length).toBeGreaterThanOrEqual(3);
+  for (const f of fills) {
+    expect(palette, `sector fill ${f}`).toContain(f);
+  }
+  expect(fills[0]).toBe("#3b82f6");
+  expect(new Set(fills).size).toBeGreaterThanOrEqual(3);
+});
+
 test("reports tabs render bare with gap-6 grids and 300px charts (session-11)", async ({ page }) => {
   await page.goto("/reports");
   await expect(page.getByRole("tab", { name: "Sales Overview" })).toBeVisible();
@@ -2388,6 +2415,26 @@ test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must no
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   const kpiText = await page.evaluate(() => document.body.innerText);
   expect(kpiText).toMatch(/\$0\b/);
+  // Session-70 (S70-P9b): the s10 "real chart renders empty" parity at
+  // the LIVE layer, both halves. FIXED LIST at zero: the pipeline card
+  // still renders its FIVE stage bars — FLAT (zero-height rectangles,
+  // the ticks and axes alive — never a blank panel or a placeholder
+  // box; the first e2e draft wrongly expected count 0 here and was
+  // corrected by the run itself: the 5 stages are the fixed list, and
+  // their zero state is the pinned s10 contract). The wrapper-visible
+  // assertion runs FIRST so the flat-bars read below is non-vacuous
+  // (a chart that never mounted would read zero heights too).
+  const pipelineCard = page.locator("main .rounded-xl", { hasText: "Sales Pipeline by Stage" }).first();
+  await expect(pipelineCard).toBeVisible();
+  await expect(pipelineCard.locator(".recharts-wrapper")).toBeVisible();
+  const bars = pipelineCard.locator(".recharts-bar-rectangle");
+  await expect(bars).toHaveCount(5);
+  const heights = await bars.evaluateAll((els) =>
+    els.map((el) => Math.round(el.getBoundingClientRect().height)),
+  );
+  for (const h of heights) {
+    expect(h).toBeLessThanOrEqual(1);
+  }
   // And the contacts page shows its empty state.
   // Session-49 (S49-P3): the 600ms sleep retired — the /api/contacts
   // response is awaited with the empty list proven on the body (the

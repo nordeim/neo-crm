@@ -329,7 +329,15 @@ export const LOGIN_LAYOUT = {
  *  Session-12: reportsCard pins the REPORTS KPI family (CircleStatCard)
  *  — the one stat family that still carries the explicit gray-200 border
  *  (--color-line-strong) + hover after the reference's dashboard KPI
- *  cards dropped theirs. */
+ *  cards dropped theirs.
+ *  Session-70 (F-70a1): the value is the BARE family form — the 5th
+ *  stat-card family the s68/s69 sweeps never enumerated kept the
+ *  scaffold-era semantic-foreground class (and a page-layout pin
+ *  asserting it AS-CORRECT). The reference's calendar KPI values are
+ *  `text-2xl font-bold text-gray-900` (bundle-decoded; computed
+ *  rgb(17,24,39)/24px/700/32px LIVE) — the same gray-900-carrying
+ *  surface the s69 leads precedent normalized to the bare family form,
+ *  the color carried by the inherited card foreground. */
 export const STAT_CARD = {
   card: "rounded-xl border border-line bg-surface shadow",
   reportsCard: "rounded-xl border border-line-strong bg-surface p-5 shadow transition-shadow hover:shadow-md",
@@ -339,7 +347,7 @@ export const STAT_CARD = {
   chipIcon: "h-5 w-5",
   trend: "flex items-center gap-1 text-xs text-green-600",
   trendIcon: "h-3 w-3",
-  value: "text-2xl font-bold text-foreground",
+  value: "text-2xl font-bold",
   label: "text-xs text-muted mt-1",
 } as const;
 

@@ -390,7 +390,10 @@ describe("stat/card header parity (session-7 DOM-verified)", () => {
     expect(STAT_CARD.chipIcon).toBe("h-5 w-5");
     expect(STAT_CARD.trend).toBe("flex items-center gap-1 text-xs text-green-600");
     expect(STAT_CARD.trendIcon).toBe("h-3 w-3");
-    expect(STAT_CARD.value).toBe("text-2xl font-bold text-foreground");
+    // Session-70 (F-70a1): the bare family form — the text-foreground
+    // retired (the s69 F-69a1 precedent; the stat-value-contract
+    // session-70 describe pins the retirement).
+    expect(STAT_CARD.value).toBe("text-2xl font-bold");
     expect(STAT_CARD.label).toBe("text-xs text-muted mt-1");
   });
 

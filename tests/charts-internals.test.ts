@@ -253,7 +253,44 @@ describe("session-27: the per-surface chart wirings (the pages)", () => {
     const region = page.slice(page.indexOf("Activities by Type") - 200, page.indexOf("Activities by Type") + 1600);
     expect(region).toMatch(/#3b82f6/);
     expect(region).toMatch(/radius=\{\[4, 4, 0, 0\]\}/);
-    expect(region).toMatch(/fontSize: 10/);
+    expect(region).toMatch(/tickFontSize=\{10\}/);
     expect(region).not.toMatch(/maxBarSize/);
+  });
+});
+
+describe("session-70: the by-type family rewire + the animation retirement (N-70c5/c6)", () => {
+  it("the activities by-type chart rides the SingleBarChart family (grid=false, height 150) — no hand-rolled BarChart", () => {
+    // The 70-c rotation's find: the call-site was a hand-rolled BarChart
+    // duplicate of the family (drift hazard) carrying an INVENTED
+    // name="Logged" (the bundle's Bar ships NO name — the reference's
+    // tooltip reads "count : N", ours read "Logged : N"). The family
+    // already supported the whole shape: grid={false} tickFontSize={10}
+    // height={150} fill radius.
+    const page = stripComments(read("src/app/(app)/activities/activities-page.tsx") ?? "");
+    const region = page.slice(page.indexOf("Activities by Type") - 200, page.indexOf("Activities by Type") + 1600);
+    expect(region).toMatch(/<SingleBarChart/);
+    expect(region).toMatch(/grid=\{false\}/);
+    expect(region).toMatch(/height=\{150\}/);
+    expect(region).not.toMatch(/<BarChart/);
+    expect(region).not.toMatch(/name="Logged"/);
+  });
+
+  it("ZERO isAnimationActive props in src/ (the reference never disables chart animation at a call-site)", () => {
+    // The 70-c rotation + the orchestrator's bundle decode: ALL 38
+    // occurrences of isAnimationActive in the reference bundle are
+    // recharts LIBRARY INTERNALS (defaultProps + class machinery) —
+    // the reference's app code passes the prop NOWHERE. Its funnel
+    // (Kd + LabelList + per-datum Cells) and its KPI sparkline (Fc
+    // Area fillOpacity .3) both ANIMATE on mount. Ours disabled the
+    // animation at three sites (the funnel + the Sparkline Area/Line
+    // arms) — a scaffold-era artifact, now retired.
+    const surfaces = [
+      "src/components/charts/charts.tsx",
+      "src/components/shared/page-parts.tsx",
+    ];
+    for (const rel of surfaces) {
+      const src = stripComments(read(rel) ?? "");
+      expect(src, rel).not.toContain("isAnimationActive");
+    }
   });
 });

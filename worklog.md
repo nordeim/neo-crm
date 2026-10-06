@@ -2258,3 +2258,82 @@ Stage Summary:
 - Screenshots: 05-leads re-captured + 79-mobile-overflow-sweep NEW (VLM-verified 3/3 + 3/3).
 - Docs: SKILL v1.66.0 (§16bi + project_state via scripts/skill_edits_s69.py at the sandbox root, 6352 → 6399), README/AGENTS/CLAUDE/PAD at 1279+116 (badge 1395; the AGENTS mobile-nav sub-count 7→9 + the CLAUDE stale "112" carrier closed in passing), session_131.md (with the F-69a2/F-69a4 errata), the plan execution record, this worklog.
 - Shipped: the commit on main + the SSH-wrapper v3 push (--remote git@github.com:nordeim/neo-crm.git) + the remote verification + the operator key shredded.
+
+---
+
+## Session 70 — 2026-10-06 — the chart-family honesty + the store write-guard session
+
+**Intake**: the sandbox SURVIVED s69 (pull fast-forwarded 94aab54 →
+047f3be, docs/session_132.md only, zero drift; tree clean). Census
+MATCH (15/24/10/23/12 + 4 users, db/ at the repo root). Baseline gate
+GREEN: lint 0/0 · tsc 0 · 1279/1279 unit (79 suites). The skills/
+exclusion verified in all three configs. All operations under `env -u
+DATABASE_URL` (the stale platform override hazard stands).
+
+**Standing layers**: drift sweep #66 CLEAN (bundle byte-identical:
+1,631,071 + md5 a70a637fcf1d4291da8e0d965676dc11 — the 41st
+consecutive stable session). Reference census #66 (agent-browser):
+demo data zero; the mobile-nav defect STANDS at TRUE 390px (nav w=0,
+8 links, 0 visible, NO hamburger); desktop nav normal (256px/8); the
+reference's calendar KPI values compute gray-900 at 24px/700/32px.
+
+**Triple audits**: 70-a the s69 re-audit **12/12 GENUINE** (NEW:
+F-70a1 the STAT_CARD.value text-foreground survivor — the 5th
+stat-card family, pinned AS-CORRECT at page-layout.test:393; F-70a2
+the record-precision pair); 70-b the graduation audit **ZERO
+graduations 13/13** (27th consecutive; the 8 censuses clean; the
+extra probes negative); 70-c the fresh-eyes rotation on the **Zustand
+store + charts family seam** (never a dedicated target): **zero
+Medium/High — SOLID**, the N-70 family (N-70c4 Low the unpinned pie
+fills; N-70c5 the by-type hand-rolled duplicate + the invented
+name="Logged"; N-70c6 the animation retirement; N-70c2 the
+mutation-path write-guard [orchestrator-scoped: updateSettings REAL,
+updateLead task-synchronous NO-OP]; N-70c10 the refetch shape; the
+comment carriers; the Info trio) + the coverage catalog (the LIVE-only
+gaps).
+
+**Operator decisions**: the CSV formula-injection posture (b) STANDS
+(29th re-affirmation); the source-vocabulary documented parity STANDS
+AND EXTENDS to the N-70 family.
+
+**Plan**: docs/plans/2026-10-06-session70-parity-remediation.md
+(S70-P1..P9, the blast radius pre-checked).
+
+**RED**: 8 failed exactly (the fix-surface set; the ninth new it a
+green consumption-guard). **GREEN**: P1 the STAT_CARD.value bare form
+(+ the lockstep pin + the contract extension); P2 REPORTS_PIE_FILLS
++ the three consumers; P3 the by-type family rewire (name="Logged"
+retired, the recharts import retired); P4 the animation retirement
+×3; P5 the updateSettings token guard; P6 the updateLead refetch
+shape; P7/P8 the comment carriers; P9 the pie-fills e2e + the
+fixed-list-flat-bars reset extension. THREE mid-flight repairs (the
+tsc import typo; the readonly-spread convention; the e2e zero-count →
+count-5-flat-bars correction — all caught by the gate).
+
+**Non-vacuousness**: 10 failed | 286 passed in the pre-fix 047f3be
+worktree; clean teardown.
+
+**Full gate**: lint 0/0 · tsc 0 · 1287/1287 unit (79 suites, +8) ·
+build clean · 117/117 e2e on a fresh CI=1 boot (2.7m, all 9
+mobile-nav checks green).
+
+**LIVE battery**: the calendar KPI bare form (24px/700/32px
+inherited); the pie fills; the by-type tooltip "Email count : 3"; the
+funnel labels ×4; the drawer both directions at TRUE 390px with focus
+RESTORED (the JS-click focus artifact run down); zero overflow ×10;
+NO Tailwind v4 bug (--blur-sm 4px + --shadow-sm exact + the live
+surface); the closing census MATCH.
+
+**Screenshots**: 06-calendar re-captured + 80-activities-bytype-family
+NEW — VLM-verified 4/4 + 4/4.
+
+**Docs**: SKILL v1.67.0 (§16bj + project_state, 6399 → 6446 lines,
+applied atomically via scripts/skill_edits_s70.py at the sandbox
+root) + README (badge 1404) + AGENTS/CLAUDE/PAD at 1287+117 +
+session_133.md (the odd-number record + the F-70a2 errata +
+N-70b1/b2) + the plan's execution record + this worklog;
+.env/.env.example verified (no env surface change).
+
+**Ship**: the commit on main + the SSH-wrapper v3 push
+(--remote git@github.com:nordeim/neo-crm.git) + the remote
+verification + the operator key shredded.

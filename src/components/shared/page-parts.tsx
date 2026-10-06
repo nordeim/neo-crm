@@ -545,7 +545,6 @@ export function Sparkline({
                 strokeWidth={1}
                 fill={color}
                 fillOpacity={0.3}
-                isAnimationActive={false}
               />
             </AreaChart>
           ) : (
@@ -556,7 +555,6 @@ export function Sparkline({
                 stroke={color}
                 strokeWidth={2}
                 dot={false}
-                isAnimationActive={false}
               />
             </LineChart>
           )}

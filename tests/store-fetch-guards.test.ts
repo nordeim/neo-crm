@@ -119,3 +119,40 @@ describe("session-64: the logout write-guard (N-64j — stale fetch resolutions 
     expect(fn).not.toMatch(/session === sessionWriteToken/);
   });
 });
+
+describe("session-70: the mutation-path write-guard + the updateLead refetch shape (N-70c2/c10)", () => {
+  it("updateSettings guards its POST-AWAIT set with the session token (the fetcher pattern)", () => {
+    // The 70-c rotation's find: the s64 write-guard covered hydrate's
+    // nine fetches + the page-effect refetches, but updateSettings'
+    // `if (res.ok) set({ settings: res.data })` is a POST-AWAIT direct
+    // write — a logout landing between the PUT resolution and the set
+    // re-populates the cleared settings slice (the s35 leakage class
+    // through a narrow window; self-healing on the next hydrate). The
+    // fix mirrors the fetcher pattern: capture at entry, guard the set.
+    const src = store();
+    const at = src.indexOf("updateSettings: async");
+    expect(at).toBeGreaterThanOrEqual(0);
+    const fn = src.slice(at, at + 400);
+    expect(fn).toMatch(/const session = sessionWriteToken/);
+    expect(fn).toMatch(/if\s*\(res\.ok\s*&&\s*session === sessionWriteToken\)\s*set\(/);
+  });
+
+  it("updateLead: fetchLeads unconditional (the rollback), fetchDashboard gated on res.ok", () => {
+    // N-70c10: the failure path refetched the dashboard needlessly (a
+    // failed PUT leaves the server truth unchanged) while fetchLeads
+    // MUST stay unconditional — it is the optimistic patch's rollback
+    // on server-side failures (and the reconcile on success).
+    const src = store();
+    const at = src.indexOf("updateLead: async");
+    expect(at).toBeGreaterThanOrEqual(0);
+    const fn = src.slice(at, at + 700);
+    const leadsRefetch = fn.indexOf("get().fetchLeads()");
+    const dashboardRefetch = fn.indexOf("get().fetchDashboard()");
+    expect(leadsRefetch).toBeGreaterThan(fn.indexOf("await call"));
+    expect(dashboardRefetch).toBeGreaterThan(leadsRefetch);
+    // the dashboard refetch rides the success gate
+    const gate = fn.lastIndexOf("res.ok", dashboardRefetch);
+    expect(gate).toBeGreaterThan(-1);
+    expect(gate).toBeGreaterThan(fn.indexOf("await call"));
+  });
+});

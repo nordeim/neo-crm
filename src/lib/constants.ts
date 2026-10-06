@@ -492,6 +492,19 @@ export const CHART_COLORS = {
   emerald: "#10b981",
 };
 
+/** Session-70 (N-70c4): the reports LabelPie fill palettes — the
+ *  reference's literal arrays, bundle-verified byte-identical
+ *  (`["#3b82f6","#06b6d4","#8b5cf6","#ec4899"]` on the forecast-by-
+ *  probability pie; the 5-color `[…,"#f97316"]` on the
+ *  activities-by-type + leads-by-source pies). Unpinned until now —
+ *  #ec4899 appeared in zero test assertions, so a fill drift would
+ *  have passed every unit. HEALTH_PIE_FILLS + LEADS_FUNNEL fills are
+ *  different seams with their own pins. */
+export const REPORTS_PIE_FILLS = {
+  four: ["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899"],
+  five: ["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899", "#f97316"],
+} as const;
+
 // Session-41 (S41-P5): the dead DEFAULT_SETTINGS export deleted — zero
 // consumers repo-wide (grep-verified), and it still carried the pre-s28
 // EMOJI contact-source vocabulary (a stale session-5 leftover; the s40-P6

@@ -2,7 +2,13 @@
 
 // Single Zustand store for all server state (scaffold convention — no React
 // Query, no SWR). Actions call the API envelope, then refresh the affected
-// slice. `call()` is the only sanctioned fetch client.
+// slice (fetchReports is the one exception — reports data is page-local,
+// never stored; the API call rides call() for the envelope contract).
+// call() is the only sanctioned JSON-ENVELOPE client (N-70c3 re-scope:
+// the eight raw-fetch exceptions — the topbar AbortController search, the
+// pre-store login-card flows, the multipart photo uploads, the
+// BOM-preserving blob export, the profile PATCH — each documents its own
+// reason at its site).
 
 import { create } from "zustand";
 import type {
@@ -142,6 +148,15 @@ export const useCrmStore = create<CrmState>((set, get) => ({
     // in flight kills this hydrate entirely — no user set, no slice
     // fetches (the stale resolutions could otherwise re-populate the
     // logged-out store, the s35 leakage class).
+    // Session-70 (N-70c1): the nine fetches below run in the same
+    // continuation as the hydrated:true flip, so each page's
+    // hydrated-gate effect (`if (hydrated) fetchX()`) fires a CONCURRENT
+    // DUPLICATE GET of its own slice on first load (2x /api/dashboard
+    // on /, 2x /api/leads on /leads, ...). Deliberate: the one-store
+    // architecture has no React-Query same-key dedupe, and the page
+    // effect's copy doubles as the one-shot RETRY when hydrate's own
+    // copy failed (slice-fetch failures are silent by reference
+    // parity). Cost: one extra GET per page load — accepted.
     const session = sessionWriteToken;
     const res = await call<User | null>("/api/auth/me");
     if (session !== sessionWriteToken) return;
@@ -298,11 +313,22 @@ export const useCrmStore = create<CrmState>((set, get) => ({
     // slice BEFORE the network call — the reference's React-Query cache
     // updates instantly on the inline row edits (Value/Status/Date), and
     // the per-keystroke controlled inputs need the local apply to avoid
-    // the stale-race clobber. The refetch reconciles; on failure it
-    // rolls back to server truth.
+    // the stale-race clobber. The set is TASK-SYNCHRONOUS with the onChange
+    // (no await precedes it), so a logout continuation can never land
+    // between the keystroke and the apply (the N-70c2 scoping note — the
+    // s64 write-guard is unnecessary here, unlike updateSettings' POST-
+    // AWAIT set). The refetches reconcile on success and roll the patch
+    // back to server truth on a server-side failure; on a NETWORK-level
+    // failure the refetch fails too and the patch stays until the next
+    // refetch (the s47 toast surfaces the failure — N-70c10 re-scope).
     set({ leads: get().leads.map((l) => (l.id === id ? ({ ...l, ...input } as Lead) : l)) });
     const res = await call<Lead>(`/api/leads/${id}`, { method: "PUT", body: JSON.stringify(input) });
-    await Promise.all([get().fetchLeads(), get().fetchDashboard()]);
+    // fetchLeads is UNCONDITIONAL — it is the optimistic patch's rollback
+    // on failure and its reconcile on success; the dashboard KPIs only
+    // change on a successful PUT (a failed one leaves server truth
+    // unchanged — the N-70c10 needless-refetch retirement).
+    await get().fetchLeads();
+    if (res.ok) await get().fetchDashboard();
     return res;
   },
   deleteLead: async (id) => {
@@ -346,8 +372,14 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
 
   updateSettings: async (patch) => {
+    // Session-70 (N-70c2): the POST-AWAIT set carries the s64 write-guard
+    // (the fetcher pattern) — a logout landing between the PUT resolution
+    // and this set would otherwise re-populate the cleared settings slice
+    // (the s35 leakage class through a narrow window; self-healing on the
+    // next hydrate, but a cross-user flash on a fast logout → login).
+    const session = sessionWriteToken;
     const res = await call<Settings>("/api/settings", { method: "PUT", body: JSON.stringify(patch) });
-    if (res.ok) set({ settings: res.data });
+    if (res.ok && session === sessionWriteToken) set({ settings: res.data });
     return res;
   },
 

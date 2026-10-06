@@ -333,6 +333,11 @@ export function RevenueLineChart({
  * The reference's funnel labels/fills are pinned by LEADS_FUNNEL in
  * constants.ts (New Leads/Contacted/Qualified/Won on
  * #3b82f6/#8b5cf6/#10b981/#22c55e) — see tests/leads-charts.test.ts.
+ * Session-70 (N-70c6): isAnimationActive={false} retired — the
+ * reference's funnel (bundle: the Funnel + LabelList + per-datum
+ * Cells) passes NO animation prop; it animates on mount (every one of
+ * the 38 isAnimationActive occurrences in the reference bundle is a
+ * recharts library internal, zero application call-sites).
  */
 export function ConversionFunnel({
   data,
@@ -351,7 +356,7 @@ export function ConversionFunnel({
       <ResponsiveContainer width="100%" height="100%">
         <FunnelChart>
           <Tooltip />
-          <FunnelBar dataKey="value" data={funnelData} isAnimationActive={false}>
+          <FunnelBar dataKey="value" data={funnelData}>
             <LabelList position="right" fill="#000" stroke="none" dataKey="label" />
           </FunnelBar>
         </FunnelChart>

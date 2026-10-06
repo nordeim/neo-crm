@@ -10,6 +10,7 @@ import {
   EVENT_TYPE_META,
   LEAD_SOURCE_OPTIONS,
   LEAD_STAGES,
+  REPORTS_PIE_FILLS,
   STAGE_META,
 } from "@/lib/constants";
 
@@ -56,6 +57,42 @@ describe("chart palette parity (session-4 DOM-verified)", () => {
     expect(CHART_COLORS.red400).toBe("#f87171");
     expect(CHART_COLORS.amber400).toBe("#fbbf24");
     expect(CHART_COLORS.emerald).toBe("#10b981");
+  });
+});
+
+describe("session-70: the reports LabelPie fill palettes (N-70c4 — pinned, no longer luck)", () => {
+  it("REPORTS_PIE_FILLS carries the reference's literal four- and five-color arrays", () => {
+    // The 70-c rotation's find: the three reports pies carried the
+    // reference's palettes INLINE (forecast-by-probability the 4-color,
+    // activities-by-type + leads-by-source the 5-color) with #ec4899 in
+    // ZERO test assertions — a fill drift would pass every unit. The
+    // bundle (byte-stable, re-fetched fresh for this pin):
+    // ["#3b82f6","#06b6d4","#8b5cf6","#ec4899"] and
+    // ["#3b82f6","#06b6d4","#8b5cf6","#ec4899","#f97316"] x2.
+    // HEALTH_PIE_FILLS + LEADS_FUNNEL fills stay where they are (their
+    // own pins; a different seam).
+    expect(REPORTS_PIE_FILLS.four).toEqual(["#3b82f6", "#06b6d4", "#8b5cf6", "#ec4899"]);
+    expect(REPORTS_PIE_FILLS.five).toEqual([
+      "#3b82f6",
+      "#06b6d4",
+      "#8b5cf6",
+      "#ec4899",
+      "#f97316",
+    ]);
+  });
+
+  it("the three reports pie call-sites consume the constants (no inline arrays)", () => {
+    // The constant-consumption form (the S68-P4 class): a future
+    // palette re-pin can no longer diverge the three pie families.
+    const p = path.resolve(import.meta.dirname, "..", "src/app/(app)/reports/reports-page.tsx");
+    const src = existsSync(p)
+      ? readFileSync(p, "utf-8")
+          .replace(/\/\*[\s\S]*?\*\//g, "")
+          .replace(/\/\/[^\n]*/g, "")
+      : "";
+    const consumption = (src.match(/REPORTS_PIE_FILLS\.(four|five)/g) ?? []).length;
+    expect(consumption).toBe(3);
+    expect(src).not.toContain('fills={["#3b82f6"');
   });
 });
 
