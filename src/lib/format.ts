@@ -191,6 +191,10 @@ export function addDays(d: Date | string | number, days: number): Date {
 // the reports route's orphaned import (dead there since s31) narrowed
 // away; zero src consumers remained (the s55 N-55b precedent). The live
 // month-arithmetic surface is calendarFetchBounds + the startOf* family.
+// Session-74 (M-74c3): startOfQuarter RETIRED the same way — the
+// reference's "quarter" period is subMonths(now, 3) (the rolling
+// window, bundle-decoded), so both periodStart call sites moved to
+// subMonthsClamped and zero src consumers remained.
 export function startOfWeek(d: Date | string | number, firstDay: "monday" | "sunday" = "monday"): Date {
   const x = startOfDay(d);
   const day = x.getDay(); // 0 = Sunday
@@ -209,10 +213,26 @@ export function startOfMonth(d: Date | string | number): Date {
   return x;
 }
 
-export function startOfQuarter(d: Date | string | number): Date {
-  const x = startOfMonth(d);
-  x.setMonth(Math.floor(x.getMonth() / 3) * 3);
-  return x;
+/**
+ * Session-74 (M-74c3): the reference's date-fns subMonths mirror — the
+ * "quarter" report period resolves to subMonthsClamped(now, 3), a
+ * ROLLING 3-month window (NOT the calendar quarter). Mirrors the cK
+ * algorithm exactly: the time-of-day + day-of-month are PRESERVED and
+ * the target day CLAMPS to the target month's last day (May 31 →
+ * Feb 28; Jul 31 → Apr 30). Zero months returns the same instant; the
+ * input is never mutated.
+ */
+export function subMonthsClamped(d: Date | string | number, months: number): Date {
+  const r = new Date(d);
+  if (!months) return r;
+  const day = r.getDate();
+  // Day 0 of (month - months + 1) = the LAST day of (month - months).
+  const lastOfTarget = new Date(r.getFullYear(), r.getMonth() - months + 1, 0);
+  if (day >= lastOfTarget.getDate()) {
+    return new Date(r.getFullYear(), lastOfTarget.getMonth(), lastOfTarget.getDate(), r.getHours(), r.getMinutes(), r.getSeconds(), r.getMilliseconds());
+  }
+  r.setFullYear(lastOfTarget.getFullYear(), lastOfTarget.getMonth(), day);
+  return r;
 }
 
 export function startOfYear(d: Date | string | number): Date {

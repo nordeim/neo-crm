@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { ERR, asString, isGuarded, requireSession } from "@/lib/api";
 import { toCsv, csvWithBom, csvFilename, type CsvColumn } from "@/lib/csv";
-import { formatDate, startOfDay, startOfMonth, startOfQuarter, startOfWeek, startOfYear } from "@/lib/format";
+import { startOfDay, startOfMonth, startOfWeek, startOfYear, subMonthsClamped } from "@/lib/format";
 import { OPPORTUNITY_STAGES, REPORT_PERIODS, REPORT_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -9,17 +9,19 @@ export const dynamic = "force-dynamic";
 /** The /api/reports period vocabulary (session-25 S25-P6 + session-32
  *  S32-P4) — the reference's WIRE ids: today/thisWeek/thisMonth/quarter/
  *  ytd/all (the s25 week/month inferences corrected by the bundle
- *  decode). */
+ *  decode). Session-74 (M-74c2/c3): the semantics re-decoded — thisWeek
+ *  is the SUNDAY-default startOfWeek and quarter the ROLLING
+ *  subMonths(now, 3) window (both routes mirror each other exactly). */
 function reportPeriodStart(period: string, now: Date): Date {
   switch (period) {
     case "today":
       return startOfDay(now);
     case "thisWeek":
-      return startOfWeek(now, "monday");
+      return startOfWeek(now, "sunday");
     case "thisMonth":
       return startOfMonth(now);
     case "quarter":
-      return startOfQuarter(now);
+      return subMonthsClamped(now, 3);
     case "ytd":
       return startOfYear(now);
     default:
@@ -87,7 +89,9 @@ export async function GET(req: Request) {
       ...(status === "won" || status === "lost"
         ? { AND: [{ stage: status === "won" ? "closed_won" : "closed_lost" }] }
         : {}),
-      ...(period === "all" ? {} : { createdAt: { gte: from } }),
+      // Session-74 (N-74c6): BOTH bounds — the reference's inclusive
+      // ld(start, end) excludes future-dated rows from finite periods.
+      ...(period === "all" ? {} : { createdAt: { gte: from, lte: now } }),
     };
     // Session-42 (S42-P1): the read joined the envelope — the CSV build
     // below is pure; on failure the catch answers the { ok, error }
@@ -108,7 +112,7 @@ export async function GET(req: Request) {
       { header: "Stage", value: (r) => r.stage },
       { header: "Source", value: (r) => r.source },
       { header: "Owner", value: (r) => r.owner },
-      { header: "Close Date", value: (r) => formatDate(r.closeDate) },
+      { header: "Close Date", value: (r) => (r.closeDate ? r.closeDate.toISOString() : "") },
     ];
     csv = toCsv(rows, columns);
     filename = csvFilename("crm_report");

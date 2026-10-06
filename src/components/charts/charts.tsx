@@ -71,6 +71,13 @@ export function dollarFormatter(v: number): string {
   return `$${v.toLocaleString()}`;
 }
 
+/** Session-74 (L-74c13): the PLAIN grouping-comma mirror — the reference's
+ *  tab-1 Pipeline by Stage decodes `formatter: p => p.toLocaleString()`
+ *  (no $ prefix; the "$" lives in the series NAME "Value ($)"). */
+export function numberFormatter(v: number): string {
+  return v.toLocaleString();
+}
+
 export function percentFormatter(v: number): string {
   return `${v}%`;
 }
@@ -172,7 +179,11 @@ export function TrendLineChart({
 }: {
   data: Array<Record<string, string | number>>;
   xKey: string;
-  series: Array<{ key: string; name: string; stroke: string }>;
+  // Session-74 (L-74c12): name is OPTIONAL — the reference's Revenue Over
+  // Time + Activities Over Time lines ship NO name (the tooltip renders
+  // the raw dataKey); the named consumers (the Forecasting Accuracy pair)
+  // keep passing theirs.
+  series: Array<{ key: string; name?: string; stroke: string }>;
   formatter?: (v: number) => string;
   height?: number;
 }) {

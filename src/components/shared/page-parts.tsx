@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   KPI_CARD,
   KPI_CHIP_BG,
+  KPI_ICON_TEXT,
   KPI_SPARK,
   KPI_VALUE,
   PAGE_HEADER,
@@ -401,27 +402,33 @@ export function CircleStatCard({
     // cards dropped theirs; the icon chips are SOLID color-50s
     // (KPI_CHIP_BG), not alpha tints; the spark row renders the
     // reference's flex-end split with the h-12 slot.
+    // Session-74 (L-74c10/c15): the icon GLYPH carries the -600 text
+    // class (the reference's ay map — one step darker than the -500
+    // sparkline strokes) and the value renders on a PLAIN div (the
+    // reference's `text-2xl font-bold text-gray-900` — the flex-wrap
+    // gap family + the leading-space fragment retired).
     <div className={STAT_CARD.reportsCard}>
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-3">
           <span
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: KPI_CHIP_BG[color] ?? `${color}1a`, color }}
+            className={cn(
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+              KPI_ICON_TEXT[color] ?? "",
+            )}
+            style={{ backgroundColor: KPI_CHIP_BG[color] ?? `${color}1a` }}
             aria-hidden="true"
           >
             {icon}
           </span>
           <div className="min-w-0">
             <p className="mb-1 text-xs text-muted">{label}</p>
-            <p className="flex flex-wrap items-baseline gap-1.5 text-2xl font-bold">
-              {value}
-            </p>
+            <div className="text-2xl font-bold">{value}</div>
           </div>
         </div>
       </div>
       {(children || subValue !== undefined) && (
         <div className={KPI_SPARK.reportsWrapper}>
-          <div className={cn(KPI_SPARK.reportsSlot, KPI_SPARK.reportsMaxWidth)}>{children}</div>
+          <div className={KPI_SPARK.reportsSlot}>{children}</div>
           {/* Session-27 (S27-P5): the reference's `ay` card renders the
               subtitle (Lost Deals' $XK) in the bottom-right delta column —
               text-xs text-gray-500 mt-1 — NOT inline with the value. */}

@@ -324,7 +324,11 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     expect(dashboard()).toMatch(/\bPAGE_KPI_GRIDS\b/);
     expect(dashboard()).toMatch(/\bKPI_STATICS\b/);
     expect(reportsRoute()).toMatch(/\bstartOfWeek\b/);
-    expect(reportsRoute()).toMatch(/\bstartOfQuarter\b/);
+    // Session-74 (M-74c3): startOfQuarter retired the N-55b way — the
+    // reference's "quarter" is the ROLLING subMonths window, so both
+    // periodStart call sites moved to subMonthsClamped.
+    expect(reportsRoute()).toMatch(/\bsubMonthsClamped\b/);
+    expect(reportsRoute()).not.toMatch(/\bstartOfQuarter\b/);
     expect(charts()).toMatch(/\bResponsiveContainer\b/);
   });
 
@@ -358,10 +362,13 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
   it("format: addMonths is retired — the seam went test-only when the reports route narrowed (N-56f, the s55 N-55b class)", () => {
     const src = format();
     expect(src).not.toMatch(/\baddMonths\b/);
-    // …while the live date-arithmetic siblings stay.
+    // …while the live date-arithmetic siblings stay. Session-74
+    // (M-74c3): startOfQuarter joined addMonths in retirement — the
+    // rolling-quarter subMonthsClamped mirror replaced it.
     expect(src).toMatch(/export function startOfWeek/);
     expect(src).toMatch(/export function startOfMonth/);
-    expect(src).toMatch(/export function startOfQuarter/);
+    expect(src).toMatch(/export function subMonthsClamped/);
+    expect(src).not.toMatch(/export function startOfQuarter/);
     expect(src).toMatch(/export function timeAgo/);
     expect(src).toMatch(/export function timeUntil/);
   });

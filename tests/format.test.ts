@@ -13,7 +13,6 @@ import {
   endOfDay,
   addDays,
   startOfWeek,
-  startOfQuarter,
   startOfYear,
   toLocalInputValue,
 } from "@/lib/format";
@@ -243,7 +242,7 @@ describe("session-68: the reports K-scale window + the relative-time/startOf cov
     expect(timeUntil(new Date(now + 2 * 86_400_000), now)).toBe("in 2d");
   });
 
-  it("the startOf* period windows: day/week/month/quarter/year boundaries + addDays rollover", () => {
+  it("the startOf* period windows: day/week/month/year boundaries + addDays rollover", () => {
     // Wednesday Oct 7 2026, 15:42:10 (Oct 5 2026 is a Monday)
     const d = new Date(2026, 9, 7, 15, 42, 10);
     expect(startOfDay(d)).toEqual(new Date(2026, 9, 7, 0, 0, 0, 0));
@@ -251,8 +250,10 @@ describe("session-68: the reports K-scale window + the relative-time/startOf cov
     expect(startOfWeek(d)).toEqual(new Date(2026, 9, 5)); // Monday Oct 5
     expect(startOfWeek(d, "sunday")).toEqual(new Date(2026, 9, 4)); // Sunday Oct 4
     expect(startOfMonth(d)).toEqual(new Date(2026, 9, 1));
-    expect(startOfQuarter(d)).toEqual(new Date(2026, 9, 1)); // Q4 opens Oct 1
-    expect(startOfQuarter(new Date(2026, 4, 15))).toEqual(new Date(2026, 3, 1)); // May sits in Q2 (Apr 1)
+    // Session-74 (M-74c3): startOfQuarter RETIRED — the reference's
+    // "quarter" period is the ROLLING subMonths window (both routes now
+    // subMonthsClamped; the behavioral pins live in the session-74
+    // parity suite).
     expect(startOfYear(d)).toEqual(new Date(2026, 0, 1));
     expect(addDays(d, 3)).toEqual(new Date(2026, 9, 10, 15, 42, 10));
     expect(addDays(new Date(2026, 9, 31), 1)).toEqual(new Date(2026, 10, 1)); // month rollover

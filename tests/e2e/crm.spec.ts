@@ -2572,6 +2572,82 @@ test("the dashboard quick-create dropdown smoke: the five items + the Lead click
   await expect(createDialog.getByText("Create New Lead")).toBeVisible();
 });
 
+test("the save-report dialog round-trip: save → count → list → Load applies (S74-P11a)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  // Self-cleaning: the crm_saved_reports key must not leak into later
+  // tests (the s72 picklist round-trip convention).
+  await page.evaluate(() => localStorage.removeItem("crm_saved_reports"));
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Saved Reports (0)" })).toBeVisible();
+
+  // Open the dialog — the reference's n3e anatomy: the name field, the
+  // 2-column checkbox grid, the blue Current-Filters box.
+  await page.getByRole("button", { name: "Saved Reports (0)" }).click();
+  const dlg = page.getByRole("dialog");
+  await expect(dlg).toBeVisible();
+  await expect(dlg.getByText("Save Custom Report View")).toBeVisible();
+  await expect(dlg.getByText("Current Filters:")).toBeVisible();
+  await dlg.getByLabel("Report Name").fill("E2E Won View");
+  await dlg.getByRole("button", { name: "Save Report" }).click();
+  await expect(dlg).not.toBeVisible();
+
+  // The count updates on the header button.
+  await expect(page.getByRole("button", { name: "Saved Reports (1)" })).toBeVisible();
+
+  // Reopen: the saved list shows the entry with its Load button.
+  await page.getByRole("button", { name: "Saved Reports (1)" }).click();
+  await expect(dlg.getByText("E2E Won View")).toBeVisible();
+  // Load applies the saved filters + closes.
+  await dlg.getByRole("button", { name: "Load" }).click();
+  await expect(dlg).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Saved Reports (1)" })).toBeVisible();
+
+  // Cleanup: restore the pristine zero-count state.
+  await page.evaluate(() => localStorage.removeItem("crm_saved_reports"));
+});
+
+test("the reports stage select ships Closed Won/Closed Lost + the Reset returns the defaults (S74-P11b)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  // The four comboboxes: period / owner / stage / status. The stage
+  // select is the third.
+  const combos = page.getByRole("combobox");
+  await combos.nth(2).click();
+  // Session-74 (M-74c1): the closed pair's FULL labels — the reference's
+  // lCe list, bundle-decoded.
+  await expect(page.getByRole("option", { name: "Closed Won", exact: true })).toBeVisible();
+  await expect(page.getByRole("option", { name: "Closed Lost", exact: true })).toBeVisible();
+  await page.getByRole("option", { name: "Closed Won", exact: true }).click();
+  await expect(combos.nth(2)).toContainText("Closed Won");
+
+  // Reset returns ALL FOUR selects to their defaults (the reference's
+  // b("reset") shape: dateRange quarter, everything all).
+  await page.getByRole("button", { name: "Reset" }).click();
+  await expect(combos.nth(0)).toContainText("This Quarter");
+  await expect(combos.nth(1)).toContainText("All Owners");
+  await expect(combos.nth(2)).toContainText("All Stages");
+  await expect(combos.nth(3)).toContainText("All Status");
+});
+
+test("the per-table CSV export downloads with the open_deals_ prefix (S74-P11c)", async ({ page }) => {
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Reports & Analytics" })).toBeVisible();
+  await page.getByRole("tab", { name: "Pipeline & Forecast" }).click();
+  await expect(page.getByText("Open Deals by Stage")).toBeVisible();
+  // The per-table Export CSV (the client-side blob — the reference's
+  // open_deals_ prefix, the documented shorter-than-PDF-slug quirk).
+  // Scope to the CARD: the sticky filter bar's own "Export CSV" rides
+  // the /api/export route (crm_report_...) and precedes every table
+  // button in DOM order.
+  const openDealsCard = page.locator("div.rounded-xl").filter({ hasText: "Open Deals by Stage" }).first();
+  const downloadPromise = page.waitForEvent("download");
+  await openDealsCard.getByRole("button", { name: "Export CSV" }).click();
+  const download = await downloadPromise;
+  const today = new Date().toISOString().split("T")[0];
+  expect(download.suggestedFilename()).toBe(`open_deals_${today}.csv`);
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();

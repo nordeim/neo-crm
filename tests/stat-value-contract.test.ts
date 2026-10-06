@@ -70,9 +70,11 @@ describe("session-68: the stat-card value typography (N-68a — the s13 sweep co
   });
 
   it("CircleStatCard (reports) renders the bare text-2xl form", () => {
-    expect(parts()).toContain(
-      '<p className="flex flex-wrap items-baseline gap-1.5 text-2xl font-bold">',
-    );
+    // Session-74 (L-74c15): the reference's ay renders the value on a
+    // PLAIN div (single template string) — the flex-wrap gap family +
+    // the leading-space fragment retired.
+    expect(parts()).toContain('<div className="text-2xl font-bold">{value}</div>');
+    expect(parts()).not.toContain("flex flex-wrap items-baseline gap-1.5");
   });
 
   it("no stat VALUE carries the retired decoration trio anywhere in page-parts", () => {

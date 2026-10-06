@@ -34,10 +34,11 @@ import {
   SingleBarChart,
   TrendLineChart,
   dollarFormatter,
+  numberFormatter,
   percentFormatter,
 } from "@/components/charts/charts";
 import { useCrmStore } from "@/stores/crm-store";
-import { OPP_STAGE_META, OPPORTUNITY_STAGES, STAGE_META, REPORT_PERIODS, REPORTS_PIE_FILLS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
+import { OPP_STAGE_META, OPPORTUNITY_STAGES, REPORT_PERIODS, REPORTS_PIE_FILLS, REPORT_STATUSES, REPORT_TABS } from "@/lib/constants";
 import { HEALTH_PIE_FILLS, lastActivityText } from "@/lib/account-health";
 import { formatCompactCurrency, formatDate } from "@/lib/format";
 import { toCsv, csvFilename } from "@/lib/csv";
@@ -184,8 +185,10 @@ export default function ReportsPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div className={REPORTS_FILTER_BAR.actions}>
+            {/* Session-74 (L-74c9): the Reset button is the selects
+                cluster's LAST CHILD in the reference's lCe (the sibling
+                of the four selects inside the flex-wrap container — NOT
+                a member of the export actions cluster). */}
             <Button
               variant="outline"
               size="sm"
@@ -198,6 +201,8 @@ export default function ReportsPage() {
             >
               <RotateCcw className={REPORTS_FILTER_BAR.barBtnIcon} /> Reset
             </Button>
+          </div>
+          <div className={REPORTS_FILTER_BAR.actions}>
             {/* Session-25 (S25-P5): the reports CSV — the reference's
                 crm_report_YYYY-MM-DD.csv (Deal Name, Account, Amount,
                 Stage, Source, Owner, Close Date), filter-aware through the
@@ -299,7 +304,7 @@ export default function ReportsPage() {
             </CircleStatCard>
             <CircleStatCard
               label="Won Deals"
-              value={<>{" "}{k?.wonDeals ?? 0} {formatCompactCurrency(k?.wonValue ?? 0, { scale: "k", upper: true })}</>}
+              value={`${k?.wonDeals ?? 0} ${formatCompactCurrency(k?.wonValue ?? 0, { scale: "k", upper: true })}`}
               icon={<TrendingUp className="h-5 w-5" />}
               color="#10b981"
             >
@@ -414,7 +419,7 @@ function SalesTab({ data }: { data: ReportsData | null }) {
           <TrendLineChart
             data={(data?.revenueOverTime ?? []).map((r) => ({ month: r.month, revenue: r.revenue }))}
             xKey="month"
-            series={[{ key: "revenue", name: "Revenue", stroke: "#3b82f6" }]}
+            series={[{ key: "revenue", stroke: "#3b82f6" }]}
             formatter={dollarFormatter}
           />
         </ChartCard>
@@ -435,13 +440,16 @@ function SalesTab({ data }: { data: ReportsData | null }) {
               at zero, like the reference) with the violet VALUE bars and
               the "Value ($)" series name on a plain-number tooltip.
               Session-31: the rows are OPEN OPPORTUNITIES grouped by their
-              RAW stage slugs (the reference's plain-object grouping). */}
+              RAW stage slugs (the reference's plain-object grouping).
+              Session-74 (L-74c13): the plain toLocaleString formatter —
+              the reference's `formatter:p=>p.toLocaleString()` (no $). */}
           <SingleBarChart
             data={(data?.pipelineByStageRows ?? []).map((p) => ({ stage: p.stage, value: p.value }))}
             xKey="stage"
             dataKey="value"
             fill="#8b5cf6"
             name="Value ($)"
+            formatter={numberFormatter}
           />
         </ChartCard>
         <ChartCard title="Conversion Funnel">
@@ -490,9 +498,9 @@ function DealTables({ data }: { data: ReportsData | null }) {
               ) : (
               data!.recentWonDeals.map((d) => (
                 <TableRow key={d.id}>
-                  <TableCell className="font-medium text-foreground">{d.name}</TableCell>
-                  <TableCell className="text-muted">{d.account ?? "—"}</TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
+                  <TableCell className="font-medium">{d.name}</TableCell>
+                  <TableCell>{d.account ?? "—"}</TableCell>
+                  <TableCell className="text-right">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -523,11 +531,11 @@ function DealTables({ data }: { data: ReportsData | null }) {
               ) : (
               data!.topDeals.map((d) => (
                 <TableRow key={d.id}>
-                  <TableCell className="font-medium text-foreground">{d.name}</TableCell>
+                  <TableCell className="font-medium">{d.name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{d.stage}</Badge>
                   </TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -631,8 +639,14 @@ function DealsTables({ data }: { data: ReportsData | null }) {
   // Activity 14+ Days), each with Export CSV / Export PDF buttons in the
   // card header row. The in-table empty rows carry the exact copy. Both
   // buttons generate from the table's OWN rows (session-25).
+  // Session-74 (M-74c6): the reference's own SPLIT — the CSV rows stay
+  // RAW (its f/d functions pass `_.amount||0`) while the dB PDF data
+  // carries the FORMATTED `$${(amount||0).toLocaleString()}` cells; the
+  // at-risk PDF title is the SHORT "Deals at Risk" (its own prop).
   const openRows = (data?.openDealsByStage ?? []).map((l) => [l.deal, l.stage, String(l.amount ?? "")]);
   const riskRows = (data?.dealsAtRisk ?? []).map((l) => [l.deal, l.account ?? "", String(l.amount ?? "")]);
+  const openPdfRows = (data?.openDealsByStage ?? []).map((d) => [d.deal, d.stage, `$${(d.amount || 0).toLocaleString()}`]);
+  const riskPdfRows = (data?.dealsAtRisk ?? []).map((d) => [d.deal, d.account ?? "", `$${(d.amount || 0).toLocaleString()}`]);
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
@@ -640,10 +654,10 @@ function DealsTables({ data }: { data: ReportsData | null }) {
           <CardTitle>Open Deals by Stage</CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => exportTableCsv("open_deals", ["Deal", "Stage", "Amount"], openRows)}>
-              <Download className="h-3.5 w-3.5" /> Export CSV
+              <Download className="h-4 w-4" /> Export CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={() => exportTablePdf("Open Deals by Stage", ["Deal", "Stage", "Amount"], openRows)}>
-              <FileText className="h-3.5 w-3.5" /> Export PDF
+            <Button variant="outline" size="sm" onClick={() => exportTablePdf("Open Deals by Stage", ["Deal", "Stage", "Amount"], openPdfRows)}>
+              <FileText className="h-4 w-4" /> Export PDF
             </Button>
           </div>
         </CardHeader>
@@ -667,9 +681,9 @@ function DealsTables({ data }: { data: ReportsData | null }) {
               ) : (
               data!.openDealsByStage.map((d) => (
                 <TableRow key={d.id}>
-                  <TableCell className="font-medium text-foreground">{d.deal}</TableCell>
+                  <TableCell className="font-medium">{d.deal}</TableCell>
                   <TableCell><Badge variant="outline">{d.stage}</Badge></TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -682,10 +696,10 @@ function DealsTables({ data }: { data: ReportsData | null }) {
           <CardTitle>Deals at Risk (No Activity 14+ Days)</CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => exportTableCsv("deals_at_risk", ["Deal", "Account", "Amount"], riskRows)}>
-              <Download className="h-3.5 w-3.5" /> Export CSV
+              <Download className="h-4 w-4" /> Export CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={() => exportTablePdf("Deals at Risk (No Activity 14+ Days)", ["Deal", "Account", "Amount"], riskRows)}>
-              <FileText className="h-3.5 w-3.5" /> Export PDF
+            <Button variant="outline" size="sm" onClick={() => exportTablePdf("Deals at Risk", ["Deal", "Account", "Amount"], riskPdfRows)}>
+              <FileText className="h-4 w-4" /> Export PDF
             </Button>
           </div>
         </CardHeader>
@@ -708,9 +722,9 @@ function DealsTables({ data }: { data: ReportsData | null }) {
               ) : (
               data!.dealsAtRisk.map((d) => (
                 <TableRow key={d.id} className="bg-red-50">
-                  <TableCell className="font-medium text-foreground">{d.deal}</TableCell>
-                  <TableCell className="text-muted">{d.account ?? "—"}</TableCell>
-                  <TableCell className="text-right font-semibold text-foreground">${(d.amount || 0).toLocaleString()}</TableCell>
+                  <TableCell className="font-medium">{d.deal}</TableCell>
+                  <TableCell>{d.account ?? "—"}</TableCell>
+                  <TableCell className="text-right">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
               )}
@@ -749,7 +763,7 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
           <TrendLineChart
             data={data?.activitiesOverTime ?? []}
             xKey="month"
-            series={[{ key: "count", name: "Activities", stroke: "#3b82f6" }]}
+            series={[{ key: "count", stroke: "#3b82f6" }]}
             height={300}
           />
         </ChartCard>
@@ -787,11 +801,11 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
                 ) : (
                 data!.overdueActivities.map((a) => (
                   <TableRow key={a.id} className="bg-red-50">
-                    <TableCell className="font-medium text-foreground">{a.subject}</TableCell>
+                    <TableCell className="font-medium">{a.subject}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{a.type}</Badge>
                     </TableCell>
-                    <TableCell className="text-muted">{a.dueAt ? formatDate(a.dueAt) : "—"}</TableCell>
+                    <TableCell>{a.dueAt ? formatDate(a.dueAt) : "—"}</TableCell>
                   </TableRow>
                 ))
                 )}
@@ -819,8 +833,8 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
                 ) : (
                 data!.activitiesByOwner.map((o) => (
                   <TableRow key={o.name}>
-                    <TableCell className="font-medium text-foreground">{o.name}</TableCell>
-                    <TableCell className="text-right text-muted">{o.total}</TableCell>
+                    <TableCell className="font-medium">{o.name}</TableCell>
+                    <TableCell className="text-right">{o.total}</TableCell>
                   </TableRow>
                 ))
                 )}
@@ -900,17 +914,24 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {/* Session-31: ALL opportunities amount-desc slice(0,10);
+                    Session-74 (M-74c4): the reference's t3e caps at
+                    slice(0,10) — the s31-era 8 dropped rows 9-10. */}
                 {(data?.leadsListBySource ?? []).length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className={EMPTY_STATE.reportsRow}>No leads</TableCell>
                   </TableRow>
                 ) : (
-                data!.leadsListBySource.slice(0, 8).map((l) => (
+                data!.leadsListBySource.slice(0, 10).map((l) => (
                   <TableRow key={l.id}>
-                    <TableCell className="font-medium text-foreground">{l.name}</TableCell>
-                    <TableCell className="text-muted">{l.source || "Unknown"}</TableCell>
+                    <TableCell className="font-medium">{l.name}</TableCell>
+                    <TableCell>{l.source || "Unknown"}</TableCell>
                     <TableCell>
-                      <span className={STAGE_META[l.stage]?.badge ?? ""}>{STAGE_META[l.stage]?.label ?? l.stage}</span>
+                      {/* Session-74 (M-74c5): the reference's t3e renders
+                          zn variant="outline" with the RAW status — the
+                          source-vocabulary form (our STAGE_META pill was
+                          the tinted-badge family bleeding in). */}
+                      <Badge variant="outline">{l.stage}</Badge>
                     </TableCell>
                   </TableRow>
                 ))
@@ -941,12 +962,12 @@ function SourcesTab({ data }: { data: ReportsData | null }) {
                 ) : (
                 rows.map((r) => (
                   <TableRow key={r.source}>
-                    <TableCell className="font-medium text-foreground">{r.source}</TableCell>
-                    <TableCell className="text-right text-muted">{r.leads}</TableCell>
-                    <TableCell className="text-right text-muted">{r.won}</TableCell>
+                    <TableCell className="font-medium">{r.source}</TableCell>
+                    <TableCell className="text-right">{r.leads}</TableCell>
+                    <TableCell className="text-right">{r.won}</TableCell>
                     {/* Session-31: the reference's revenue cell —
                         `$${(revenue/1e3).toFixed(0)}K`. */}
-                    <TableCell className="text-right font-semibold text-foreground">${(r.revenue / 1e3).toFixed(0)}K</TableCell>
+                    <TableCell className="text-right">${(r.revenue / 1e3).toFixed(0)}K</TableCell>
                   </TableRow>
                 ))
                 )}
@@ -1012,8 +1033,8 @@ function HealthTab({ data }: { data: ReportsData | null }) {
                 ) : (
                 data!.atRiskAccounts.map((a) => (
                   <TableRow key={a.id} className="bg-red-50">
-                    <TableCell className="font-medium text-foreground">{a.name}</TableCell>
-                    <TableCell className="text-muted">{lastActivityText(a.daysSinceActivity)}</TableCell>
+                    <TableCell className="font-medium">{a.name}</TableCell>
+                    <TableCell>{lastActivityText(a.daysSinceActivity)}</TableCell>
                     <TableCell>
                       <Badge className="bg-red-100 text-red-800">At Risk</Badge>
                     </TableCell>
@@ -1045,8 +1066,8 @@ function HealthTab({ data }: { data: ReportsData | null }) {
                 ) : (
                 data!.accountSummary.map((a) => (
                   <TableRow key={a.id}>
-                    <TableCell className="font-medium text-foreground">{a.name}</TableCell>
-                    <TableCell className="text-muted">{a.industry || "-"}</TableCell>
+                    <TableCell className="font-medium">{a.name}</TableCell>
+                    <TableCell>{a.industry || "-"}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{a.status}</Badge>
                     </TableCell>

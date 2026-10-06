@@ -63,6 +63,29 @@ describe("session-25: the reports period vocabulary (S25-P6, ids corrected S32-P
     expect(code).not.toMatch(/case "month":/);
   });
 
+  it("session-74 (M-74c2): thisWeek resolves SUNDAY-first on BOTH routes (the date-fns default)", () => {
+    // The reference's single resolution site decodes
+    // `thisWeek ? A = Zu(O)` — plain startOfWeek, no weekStartsOn option,
+    // so the ??0 chain lands on SUNDAY (0). Our monday form was the
+    // s72 calendar-surface convention bleeding into the reports seam.
+    for (const rel of ["src/app/api/reports/route.ts", "src/app/api/export/route.ts"]) {
+      const code = stripComments(read(rel)!);
+      expect(code).toMatch(/case "thisWeek":\s*\n\s*return startOfWeek\(now, "sunday"\);/);
+    }
+  });
+
+  it("session-74 (M-74c3): quarter is the ROLLING subMonths(now, 3) window on BOTH routes", () => {
+    // The reference: `quarter ? A = bK(O,3)` where bK(e,t) = cK(e,-t) =
+    // date-fns subMonths — NOT startOfQuarter (which appears nowhere in
+    // the bundle). The rolling window preserves the day-of-month + the
+    // time-of-day, clamping month-ends (May 31 -> Feb 28).
+    for (const rel of ["src/app/api/reports/route.ts", "src/app/api/export/route.ts"]) {
+      const code = stripComments(read(rel)!);
+      expect(code).toMatch(/case "quarter":\s*\n\s*return subMonthsClamped\(now, 3\);/);
+      expect(code).not.toMatch(/startOfQuarter/);
+    }
+  });
+
   it("the reports page defaults to the quarter period", () => {
     const code = stripComments(read("src/app/(app)/reports/reports-page.tsx")!);
     expect(code).toMatch(/useState\("quarter"\)/);

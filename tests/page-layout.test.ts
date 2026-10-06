@@ -961,10 +961,13 @@ describe("session-12: sparkline geometry + chip palette (S12-P6)", () => {
   it("the reports spark row is the flex-end split with an h-12 slot", () => {
     // DOM: `<div class="flex items-end justify-between mt-2">` →
     // `<div class="flex-1 h-12 mr-2">` (48px) wrapping a recharts
-    // ResponsiveContainer whose wrapper caps at max-width 176px.
+    // ResponsiveContainer. Session-74 (L-74c11): the reference's slot
+    // carries NO max-width — our max-w-[176px] cap was a scaffold-era
+    // invention (the 176px the DOM probe measured was the flex-b
+    // shrink, not a class); the record + the cap retired together.
     expect(KPI_SPARK.reportsWrapper).toBe("flex items-end justify-between mt-2");
     expect(KPI_SPARK.reportsSlot).toBe("flex-1 h-12 mr-2");
-    expect(KPI_SPARK.reportsMaxWidth).toBe("max-w-[176px]");
+    expect("reportsMaxWidth" in KPI_SPARK).toBe(false);
   });
 
   it("the sparkline variants carry the recharts geometry contract", () => {

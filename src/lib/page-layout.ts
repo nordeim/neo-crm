@@ -1309,7 +1309,9 @@ export const KPI_SPARK = {
   dashboardContainer: "mt-2 h-8",
   reportsWrapper: "flex items-end justify-between mt-2",
   reportsSlot: "flex-1 h-12 mr-2",
-  reportsMaxWidth: "max-w-[176px]",
+  // Session-74 (L-74c11): reportsMaxWidth RETIRED — the reference's ay
+  // slot is the bare `flex-1 h-12 mr-2` (the 176px the old DOM probe
+  // measured was the flex-b shrink, not a class).
   line: "monotone, strokeWidth: 2, dot: false",
   area: "monotone, strokeWidth: 1, fillOpacity: 0.3",
   lostDealsSpark: false,
@@ -1377,4 +1379,16 @@ export const KPI_CHIP_BG: Record<string, string> = {
   "#10b981": "#f0fdf4",
   "#ef4444": "#fef2f2",
   "#8b5cf6": "#faf5ff",
+};
+
+/** Session-74 (L-74c10): the ICON GLYPH colors — the reference's ay map
+ *  carries the -600 TEXT classes (text-blue-600 #2563eb etc.), one step
+ *  darker than the -500 series hexes the sparkline STROKES use. Keyed
+ *  by the same series hex so the call sites stay single-prop. */
+export const KPI_ICON_TEXT: Record<string, string> = {
+  "#3b82f6": "text-blue-600",
+  "#10b981": "text-green-600",
+  "#ef4444": "text-red-600",
+  "#8b5cf6": "text-purple-600",
+  "#f97316": "text-orange-600",
 };

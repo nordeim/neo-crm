@@ -55,8 +55,13 @@ export const OPP_STAGE_META: Record<string, { label: string; badge: string; colo
   qualification: { label: "Qualification", badge: "bg-purple-100 text-purple-800", color: "#06b6d4" },
   proposal: { label: "Proposal", badge: "bg-yellow-100 text-yellow-800", color: "#eab308" },
   negotiation: { label: "Negotiation", badge: "bg-orange-100 text-orange-800", color: "#f97316" },
-  closed_won: { label: "Won", badge: "bg-green-100 text-green-800", color: "#10b981" },
-  closed_lost: { label: "Lost", badge: "bg-red-100 text-red-800", color: "#ef4444" },
+  // Session-74 (M-74c1): the closed pair's labels are the FULL forms —
+  // the reference's lCe stage select decodes `closed_won → "Closed
+  // Won"` / `closed_lost → "Closed Lost"` (the six-item list). The
+  // s31-era "Won"/"Lost" shorts matched the STATUS vocabulary, not the
+  // stage select's.
+  closed_won: { label: "Closed Won", badge: "bg-green-100 text-green-800", color: "#10b981" },
+  closed_lost: { label: "Closed Lost", badge: "bg-red-100 text-red-800", color: "#ef4444" },
 };
 
 /**

@@ -55,13 +55,17 @@ describe("session-31: the Opportunity stage vocabulary (the bundle's P + O maps)
     expect(OPP_STAGE_META.closed_lost?.badge).toBe("bg-red-100 text-red-800");
   });
 
-  it("OPP_STAGE_META labels title-case except Won/Lost (the reference's trigger labels)", () => {
+  it("OPP_STAGE_META labels title-case with the closed pair's full labels (the reference's lCe select list)", () => {
     expect(OPP_STAGE_META.prospecting?.label).toBe("Prospecting");
     expect(OPP_STAGE_META.qualification?.label).toBe("Qualification");
     expect(OPP_STAGE_META.proposal?.label).toBe("Proposal");
     expect(OPP_STAGE_META.negotiation?.label).toBe("Negotiation");
-    expect(OPP_STAGE_META.closed_won?.label).toBe("Won");
-    expect(OPP_STAGE_META.closed_lost?.label).toBe("Lost");
+    // Session-74 (M-74c1): the reference's reports stage select ships
+    // "Closed Won"/"Closed Lost" (the lCe list, bundle-decoded) — the
+    // s31-era "Won"/"Lost" shorts were the leads-status vocabulary
+    // bleeding into the OPP map.
+    expect(OPP_STAGE_META.closed_won?.label).toBe("Closed Won");
+    expect(OPP_STAGE_META.closed_lost?.label).toBe("Closed Lost");
   });
 
   it("PIPELINE_STAGES is the OPPORTUNITY open+won vocabulary (the dashboard's 5 stages)", () => {

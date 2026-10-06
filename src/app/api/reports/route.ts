@@ -22,7 +22,7 @@ import {
 // windowing to startOf* helpers. With this import gone the export had
 // zero src consumers (tests only) and is retired from format.ts per
 // the extended source-vocabulary decision (the s55 N-55b class).
-import { startOfDay, startOfMonth, startOfWeek, startOfQuarter, startOfYear } from "@/lib/format";
+import { startOfDay, startOfMonth, startOfWeek, startOfYear, subMonthsClamped } from "@/lib/format";
 import type { ReportsData } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -32,15 +32,21 @@ function periodStart(period: string, now: Date): Date {
   // vocabulary with its WIRE ids — today/thisWeek/thisMonth/quarter/
   // ytd/all (REPORT_PERIODS ids; the s25 week/month inferences corrected
   // by the bundle decode of the i3e reports filter).
+  // Session-74 (M-74c2/c3): the semantics re-decoded from the reference's
+  // SINGLE resolution site — thisWeek is plain startOfWeek (the date-fns
+  // default lands on SUNDAY, not our monday form) and quarter is
+  // subMonths(now, 3), the ROLLING window (day + time preserved,
+  // month-ends clamped — the cK algorithm; startOfQuarter appears
+  // nowhere in the bundle).
   switch (period) {
     case "today":
       return startOfDay(now);
     case "thisWeek":
-      return startOfWeek(now, "monday");
+      return startOfWeek(now, "sunday");
     case "thisMonth":
       return startOfMonth(now);
     case "quarter":
-      return startOfQuarter(now);
+      return subMonthsClamped(now, 3);
     case "ytd":
       return startOfYear(now);
     default:
@@ -98,7 +104,10 @@ export async function GET(req: Request) {
   // (their date). The owner value is the OPP's owner NAME STRING (the
   // reference's owner dropdown lists the distinct opp owners).
   const oppWhere = {
-    ...(period !== "all" ? { createdAt: { gte: from } } : {}),
+    // Session-74 (N-74c6): the reference's ld() bounds the finite periods
+    // at BOTH ends (r >= start && r <= now) — future-dated rows are
+    // excluded, exactly like the activities family already was here.
+    ...(period !== "all" ? { createdAt: { gte: from, lte: now } } : {}),
     ...(stage ? { stage } : {}),
     ...(source ? { source } : {}),
     ...(owner ? { owner } : {}),
@@ -115,7 +124,7 @@ export async function GET(req: Request) {
       : {}),
   };
   const leadWhere = {
-    ...(period !== "all" ? { createdAt: { gte: from } } : {}),
+    ...(period !== "all" ? { createdAt: { gte: from, lte: now } } : {}),
     ...(source ? { source } : {}),
   };
 
@@ -343,14 +352,15 @@ export async function GET(req: Request) {
     ["0-25", "26-50", "51-75", "76-100"] as const
   ).map((band) => ({
     band,
-    value: Math.round(
-      openOpps
-        .filter((o) => {
-          const p = o.probability || 0;
-          return p <= 25 ? band === "0-25" : p <= 50 ? band === "26-50" : p <= 75 ? band === "51-75" : band === "76-100";
-        })
-        .reduce((s, o) => s + (o.amount || 0), 0),
-    ),
+    // Session-74 (N-74c2): the RAW accumulation — the reference's ZEe
+    // adds `g.amount||0` with NO rounding (the Math.round was a no-op on
+    // integer amounts; retired for the exact mirror).
+    value: openOpps
+      .filter((o) => {
+        const p = o.probability || 0;
+        return p <= 25 ? band === "0-25" : p <= 50 ? band === "26-50" : p <= 75 ? band === "51-75" : band === "76-100";
+      })
+      .reduce((s, o) => s + (o.amount || 0), 0),
   }));
 
   // Open Deals by Stage: list order (createdAt desc), slice(0,10) — the
