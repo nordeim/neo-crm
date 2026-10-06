@@ -969,3 +969,35 @@ describe("session-68: the unwired-duplicate wiring + the format dedupe", () => {
     expect(fmt).toMatch(/export const MONTHS_SHORT/);
   });
 });
+
+describe("session-71: the entity-dialogs hygiene quartet (L-71d4/d5 + N-71d1 + the hideClose retirement)", () => {
+  it("dialog.tsx ships NO invented hideClose prop (L-71d4 — zero consumers, not stock shadcn)", () => {
+    const src = stripComments(read("src/components/ui/dialog.tsx") ?? "");
+    expect(src).not.toMatch(/hideClose/);
+    // The stock close button renders unconditionally.
+    expect(src).toMatch(/DialogPrimitive\.Close/);
+  });
+
+  it("ContactForm destructures only what it consumes (L-71d5 — the dead settings dropped)", () => {
+    const src = stripComments(read("src/components/shared/entity-dialogs.tsx") ?? "");
+    const i = src.indexOf("function ContactForm");
+    expect(i).toBeGreaterThan(-1);
+    const j = src.indexOf("export function LeadDialog");
+    const body = src.slice(i, j);
+    expect(body).toMatch(/const \{ createContact \} = useCrmStore\(\)/);
+    expect(body).not.toMatch(/settings/);
+  });
+
+  it("the slide-over avatar initial drops the dead ?? (N-71d1 — charAt never returns nullish)", () => {
+    const src = stripComments(read("src/components/contacts/contact-detail-panel.tsx") ?? "");
+    expect(src).not.toMatch(/charAt\(0\) \?\?/);
+    expect(src).toMatch(/charAt\(0\)\.toUpperCase\(\)/);
+  });
+
+  it("DIALOG_FIELDS_WRAPPER consumes exactly ONE key repo-wide (the .lead record)", () => {
+    const dialogs = stripComments(read("src/components/shared/entity-dialogs.tsx") ?? "");
+    const hits = dialogs.match(/DIALOG_FIELDS_WRAPPER\./g) ?? [];
+    expect(hits.length).toBe(1);
+    expect(dialogs).toMatch(/DIALOG_FIELDS_WRAPPER\.lead/);
+  });
+});

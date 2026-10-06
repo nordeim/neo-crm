@@ -766,8 +766,6 @@ export const DIALOG_BARE_GROUP = "" as const;
  *  2-col gap-4. */
 export const DIALOG_FIELDS_WRAPPER = {
   lead: "grid gap-4 py-4",
-  contact: "grid gap-6 py-4",
-  account: "grid grid-cols-2 gap-4 py-4",
 } as const;
 
 /** Session-15 (S15-P9): the Lead dialog's Status + Source pair sits

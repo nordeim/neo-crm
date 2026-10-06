@@ -98,6 +98,9 @@ export default function AccountsPage() {
   // edit dialog (the ⋮ Edit item) + the Ece insights dialog (the row click
   // / the View Insights item).
   const [editOpen, setEditOpen] = React.useState(false);
+  // Session-71 (S71-P2): the saving state feeding the edit dialog's
+  // isLoading (the reference's disabled/"Saving..." capability).
+  const [savingEdit, setSavingEdit] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<Account | null>(null);
   const [insightsOpen, setInsightsOpen] = React.useState(false);
   const [insightsAccount, setInsightsAccount] = React.useState<Account | null>(null);
@@ -614,7 +617,6 @@ export default function AccountsPage() {
           Revenue / Employees numbers, the 3-option Status), wired to the ⋮
           Edit item. */}
       <EntityEditDialog
-        key={editTarget?.id ?? "none"}
         open={editOpen}
         onOpenChange={(o) => {
           setEditOpen(o);
@@ -633,8 +635,14 @@ export default function AccountsPage() {
           employees: editTarget?.employees ?? "",
           status: editTarget?.status ?? "active",
         }}
+        isLoading={savingEdit}
         onSubmit={async (form) => {
           if (!editTarget) return;
+          // Session-71 (S71-P2, L-71b1): the savingEdit bracket — the
+          // reference's own disabled/"Saving..." capability
+          // (bundle-decoded: disabled:isPending), closing the N-46e
+          // wire-or-remove posture + the double-submit guard.
+          setSavingEdit(true);
           const res = await updateAccount(editTarget.id, {
             name: form.name,
             industry: form.industry || null,
@@ -645,6 +653,7 @@ export default function AccountsPage() {
             employees: form.employees ? Number(form.employees) : null,
             status: form.status,
           });
+          setSavingEdit(false);
           if (res.ok) {
             setEditOpen(false);
             setEditTarget(null);

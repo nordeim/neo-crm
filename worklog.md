@@ -2337,3 +2337,23 @@ N-70b1/b2) + the plan's execution record + this worklog;
 **Ship**: the commit on main + the SSH-wrapper v3 push
 (--remote git@github.com:nordeim/neo-crm.git) + the remote
 verification + the operator key shredded.
+
+---
+Task ID: 71 (repo)
+Agent: main (Super Z, session-71)
+Task: The session-71 remediation — the permanently-mounted dialog family (the M-71a1 render-time-key wipe + the M-71a2/I-71a4 exit-animation restoration + the S71-P1 open-epoch pattern) + the savingEdit wiring + the hygiene quartet, RED-first, gated, LIVE-verified, shipped
+
+Work Log:
+- Fresh clone (sandbox reset); environment rebuilt (bun install + .env with DATABASE_URL="file:../db/custom.db" + db:push/db:seed); baseline gate green (lint 0/0 · tsc · 1287/1287); census MATCH through the seam
+- Drift sweep 67th clean (42nd consecutive stable bundle, md5 exact); reference census: demo data zero, mobile-nav defect stands at TRUE 390px
+- Triple audits (71-a: the s70 re-audit 10/10 GENUINE + the N-71x precision note; 71-b: zero graduations 13/13 [28th consecutive], 8 censuses clean; 71-c: the fresh-eyes rotation on the NEVER-AUDITED entity-dialogs family finding the N-71 family) + manual validation of every claim at file:line (the parity-bearing claims BUNDLE-DECODED — 5 of 10 findings DISMISSED at validation: the L-2 false-positive + the I-2/I-3/L-3/N-4 confirmed parities)
+- The operator decisions: CSV posture (b) STANDS (30th re-affirmation); source-vocabulary parity EXTENDS to the N-71 family
+- RED: 16 failing pins exactly (the NEW dialog-mount-contract suite's 8 + the rewritten edit-dialog-remount 4 + the dch hygiene trio + the re-anchored page-layout wrapper pin); the 17th new it a green-by-design guard
+- GREEN: the useOpenEpoch adjust-during-render helper + all five Dialog wrappers + the EntityEditDialog shell mounting their forms UNCONDITIONALLY keyed by the epoch (the Date.now() wipe key, the defaultStart key, and the three outer keys retired; the EntityEditForm child extracted); the savingEdit bracket at the three edit call sites; the Event status literal form; the hygiene quartet (hideClose + settings + the dead ?? + the wrapper records); the store comment precision; the two e2e additions (the Log Activity round-trip with the 700ms persistence window + the exit-phase/reopen-fresh pair)
+- Non-vacuousness: pre-fix 098ce51 worktree → 16 failed | 239 passed (exactly the RED set); worktree cleaned
+- Gate: lint 0/0 · tsc 0 · 1300/1300 unit (80 suites, +13) · build clean · 119/119 e2e fresh CI=1 (all 9 mobile-nav green). TWO mid-flight repairs (the ))}} JSX typo via tsc; the e2e strict-mode anchor via the run)
+- LIVE: the typed value surviving the settle window; the exit phases on BOTH families with the edited values in the animating bodies; the reopen-fresh epoch contract; the F-46f populated-fields contract; the edit round-trip; the drawer both directions at TRUE 390px with focus restored (the probe's wrong-element comparison run down); zero 390px overflow x10 routes; NO Tailwind v4 bug; zero probe residue (db:census MATCH)
+- Screenshots 81-log-activity-dialog + 82-edit-contact-dialog NEW (VLM-verified 4/4 + 4/4); docs realigned (README badge 1419, AGENTS, CLAUDE, PAD, SKILL v1.68.0 §16bk via the assert-first script, session_135.md, the plan's execution record, both worklogs); .env/.env.example re-verified (no surface change)
+
+Stage Summary:
+- Session 71 SHIPPED: the dialog family plays its exit animations for the first time since the scaffold (the reference's own geometry, bundle-decoded), the Log Activity input-wipe fixed via the open-epoch pattern (the adjust-during-render bridge over the reference's lint-forbidden setState-in-effect), the edit dialogs gain the reference's Saving.../double-submit guard, 13/13 ledger zero graduations for the 28th consecutive session, both operator decisions standing, the reference bundle stable for the 42nd consecutive session

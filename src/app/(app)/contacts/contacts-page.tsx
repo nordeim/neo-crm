@@ -109,6 +109,9 @@ export default function ContactsPage() {
   // Session-28 (S28-P2/P4): the reference's SEPARATE surfaces — the W7
   // edit dialog (the ⋮ Edit item) and the Pke slide-over (the row click).
   const [editOpen, setEditOpen] = React.useState(false);
+  // Session-71 (S71-P2): the saving state feeding the edit dialog's
+  // isLoading (the reference's disabled/"Saving..." capability).
+  const [savingEdit, setSavingEdit] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<Contact | null>(null);
   const [detailContact, setDetailContact] = React.useState<Contact | null>(null);
   const [scanOpen, setScanOpen] = React.useState(false);
@@ -936,7 +939,6 @@ export default function ContactsPage() {
       {/* Session-28 (S28-P2): the W7 Edit Contact dialog — a SEPARATE
           max-w-2xl dialog (NOT the create form), wired to the ⋮ Edit item. */}
       <EntityEditDialog
-        key={editTarget?.id ?? "none"}
         open={editOpen}
         onOpenChange={(o) => {
           setEditOpen(o);
@@ -954,8 +956,14 @@ export default function ContactsPage() {
           status: editTarget?.status ?? "active",
           source: editTarget?.source ?? "email",
         }}
+        isLoading={savingEdit}
         onSubmit={async (form) => {
           if (!editTarget) return;
+          // Session-71 (S71-P2, L-71b1): the savingEdit bracket — the
+          // reference's own disabled/"Saving..." capability
+          // (bundle-decoded: disabled:isPending), closing the N-46e
+          // wire-or-remove posture + the double-submit guard.
+          setSavingEdit(true);
           const res = await updateContact(editTarget.id, {
             name: form.name,
             email: form.email || null,
@@ -965,6 +973,7 @@ export default function ContactsPage() {
             status: form.status,
             source: (form.source || "email").toLowerCase(),
           });
+          setSavingEdit(false);
           if (res.ok) {
             setEditOpen(false);
             setEditTarget(null);

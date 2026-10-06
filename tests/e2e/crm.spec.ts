@@ -2355,6 +2355,57 @@ test("the month-flip trailing-cell round-trip: a next-month event created on a t
   await expect(page.getByRole("button", { name: `${label(target)} — 0 events`, exact: true })).toBeVisible();
 });
 
+test("the Log Activity quick-create round-trip (S71-P6: the ActivityDialog's first e2e — the M-71a1 surface)", async ({ page }) => {
+  await page.goto("/activities");
+  // The quick-log row opens the shared ActivityDialog (defaultType wired).
+  await page.getByRole("button", { name: "Log Email" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "Log Activity" })).toBeVisible();
+  await page.getByLabel("Description *").fill("E2E probe activity");
+
+  // The M-71a1 contract: the typed value SURVIVES the first-load store
+  // settles — the s71 open-epoch key is inert to parent re-renders
+  // (the s46 Date.now() key remounted + WIPED the form on every one;
+  // all five consumer pages destructure the whole store). 700ms
+  // bounded: the documented settle window for the page-effect's
+  // duplicate GET (N-70c1) — the deterministic zero-Date.now() pin
+  // lives in tests/dialog-mount-contract.test.ts.
+  await page.waitForTimeout(700);
+  await expect(page.getByLabel("Description *")).toHaveValue("E2E probe activity");
+
+  await page.getByRole("button", { name: "Log Activity", exact: true }).click();
+  await expect(page.getByText("Activity logged")).toBeVisible();
+  await expect(page.getByText("E2E probe activity").first()).toBeVisible();
+});
+
+test("the dialog exit animation plays over the full body + reopen resets (S71-P1: the permanently-mounted family)", async ({ page }) => {
+  await page.goto("/leads");
+  await page.getByRole("button", { name: "New Lead" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await page.getByLabel("Name *").fill("E2E — exit probe");
+
+  // Cancel: the content enters the Radix EXIT phase (data-state=closed)
+  // while STILL MOUNTED — the s46 {open && ...} conditional unmounted
+  // the form instantly and the pinned slide-out chrome never ran
+  // (M-71a2/I-71a4; the reference's dialogs animate out with their
+  // full bodies — bundle-decoded).
+  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect(dialog).toHaveAttribute("data-state", "closed");
+  // The typed name is still in the animating-out body.
+  await expect(dialog.getByLabel("Name *")).toHaveValue("E2E — exit probe");
+  // ...and the exit completes (the unmount lands after the 200ms
+  // animation, not before it).
+  await expect(dialog).toBeHidden();
+
+  // Reopen: the epoch re-keys the form — FRESH state (the F-46f
+  // contract; a naive always-mounted form would keep the typed value).
+  await page.getByRole("button", { name: "New Lead" }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByLabel("Name *")).toHaveValue("");
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();

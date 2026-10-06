@@ -36,14 +36,16 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
 function DialogContent({
   className,
   children,
-  hideClose = false,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & { hideClose?: boolean }) {
+}: React.ComponentProps<typeof DialogPrimitive.Content>) {
   // Session-15 (S15-P1): the STOCK shadcn geometry — `w-full` (FULL-BLEED
   // at phone widths, not calc(100vw-2rem)), `sm:rounded-lg` (0 radius
   // below 640), shadow-lg, and the slide-in/out animations the scaffold
   // never shipped. The Event/Activity dialogs override the width cap via
   // `className={DIALOG_CONTENT.wide}` (max-w-2xl, 672px).
+  // Session-71 (L-71d4): the invented `hideClose` prop retired — zero
+  // consumers since its scaffold birth, not stock shadcn (the N-57
+  // dead-prop class); the close button renders unconditionally.
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -55,12 +57,10 @@ function DialogContent({
         {...props}
       >
         {children}
-        {!hideClose && (
-          <DialogPrimitive.Close className={DIALOG_CLOSE}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
-        )}
+        <DialogPrimitive.Close className={DIALOG_CLOSE}>
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPortal>
   );

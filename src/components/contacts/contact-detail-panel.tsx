@@ -88,7 +88,7 @@ export function ContactDetailPanel({
               always shows the first initial. */}
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl font-bold text-white">
-              {(contact.name.charAt(0) ?? "").toUpperCase()}
+              {contact.name.charAt(0).toUpperCase()}
             </span>
           </div>
           <h3 className="text-2xl font-bold mb-1">{contact.name}</h3>

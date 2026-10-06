@@ -5,7 +5,7 @@
 // slice (fetchReports is the one exception — reports data is page-local,
 // never stored; the API call rides call() for the envelope contract).
 // call() is the only sanctioned JSON-ENVELOPE client (N-70c3 re-scope:
-// the eight raw-fetch exceptions — the topbar AbortController search, the
+// the nine raw-fetch call-sites across eight endpoints — the topbar AbortController search, the
 // pre-store login-card flows, the multipart photo uploads, the
 // BOM-preserving blob export, the profile PATCH — each documents its own
 // reason at its site).

@@ -17,8 +17,19 @@
 //   Unqualified (not the table's 5-status set) and its source has FOUR
 //   options (no Referral).
 //
-// React 19 lint-clean: the form mounts only while open, keyed by entity
-// id, so all state initializes via useState at mount (the repo pattern).
+// React 19 lint-clean, session-71 re-timing: the shell mounts its
+// form UNCONDITIONALLY, keyed by an open-epoch counter (the
+// adjust-during-render `useOpenEpoch` in entity-dialogs.tsx — the
+// AppShell close-on-route-change idiom) that bumps ONLY on false→true
+// transitions of `open`. At open the epoch re-keys the form → the
+// useState initializer re-reads the LIVE `initial` (the s46 F-46f
+// contract — fresh state per open, whichever row's Edit you click);
+// while open the epoch is stable → store re-renders never re-key the
+// form; at close the form stays mounted → the Radix root plays its
+// pinned exit chrome over the FULL body (the s46 outer-key fix
+// unmounted the tree at close and the animation never played — the
+// 71-c M-71a2 finding; the reference mounts its W7/wce/Mke with NO
+// key, permanently — bundle-decoded).
 
 import * as React from "react";
 import {
@@ -37,6 +48,22 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export type EditSelectOption = { value: string; label: string };
+
+/** Session-71 (S71-P1): the open-epoch counter — see the module header
+ *  and the entity-dialogs.tsx twin for the full contract (the
+ *  adjust-during-render form; setState-in-effect is an ERROR under our
+ *  lint — the reference's own prop→state sync pattern). */
+function useOpenEpoch(open: boolean): number {
+  const [epoch, setEpoch] = React.useState(0);
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (open && !wasOpen) {
+    setWasOpen(true);
+    setEpoch((e) => e + 1);
+  } else if (!open && wasOpen) {
+    setWasOpen(false);
+  }
+  return epoch;
+}
 
 export type EditFieldSpec = {
   label: string;
@@ -170,6 +197,55 @@ export function EntityEditDialog({
   isLoading?: boolean;
   readOnly?: boolean;
 }) {
+  // Session-71 (S71-P1, M-71a2): the shell stays UNKEYED and
+  // permanently mounted — the three call-site pages retired their
+  // outer `key={editTarget?.id ?? "none"}` (it flipped to "none" in
+  // the same batched close render `open` went false, unmounting the
+  // Radix Root instantly — the exit animation NEVER played). The
+  // epoch-keyed child below carries the fresh-state-per-open
+  // contract instead; the parents keep nulling editTarget on close
+  // (harmless — the keyed child's state is isolated from the
+  // `initial` prop, so the populated body persists through the exit).
+  const epoch = useOpenEpoch(open);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={DIALOG_CONTENT.wide}>
+        <DialogHeader>
+          <DialogTitle>{readOnly ? detailsTitle : title}</DialogTitle>
+        </DialogHeader>
+        <EntityEditForm
+          key={epoch}
+          fields={fields}
+          initial={initial}
+          isLoading={isLoading}
+          readOnly={readOnly}
+          onSubmit={onSubmit}
+          onCancel={() => onOpenChange(false)}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** The form body — mounted inside the shell, keyed by the open-epoch
+ * (all state initializes via useState at (re)mount — the repo
+ * pattern; the key change at each open re-runs the initializer
+ * against the live `initial`). */
+function EntityEditForm({
+  fields,
+  initial,
+  isLoading,
+  readOnly,
+  onSubmit,
+  onCancel,
+}: {
+  fields: EditFieldSpec[][];
+  initial: Record<string, string | number | null | undefined>;
+  isLoading?: boolean;
+  readOnly?: boolean;
+  onSubmit: (form: Record<string, string>) => void | Promise<void>;
+  onCancel: () => void;
+}) {
   const [form, setForm] = React.useState<Record<string, string>>(() => {
     const out: Record<string, string> = {};
     for (const row of fields) {
@@ -191,64 +267,57 @@ export function EntityEditDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={DIALOG_CONTENT.wide}>
-        <DialogHeader>
-          <DialogTitle>{readOnly ? detailsTitle : title}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={submit} className="space-y-4">
-          {fields.map((row, ri) => (
-            <div key={ri} className={row.length === 2 ? "grid grid-cols-2 gap-4" : undefined}>
-              {row.map((f) => (
-                <div key={f.key} className="space-y-2">
-                  <Label>{f.label}</Label>
-                  {f.options ? (
-                    <Select
-                      value={form[f.key] ?? ""}
-                      onValueChange={(v) => set(f.key, v)}
-                      disabled={readOnly}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {f.options.map((o) => (
-                          <SelectItem key={optValue(o)} value={optValue(o)}>
-                            {optLabel(o)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Input
-                      type={f.type ?? "text"}
-                      value={form[f.key] ?? ""}
-                      onChange={(e) => set(f.key, e.target.value)}
-                      placeholder={f.placeholder}
-                      required={f.required}
-                      disabled={readOnly}
-                    />
-                  )}
-                </div>
-              ))}
+    <form onSubmit={submit} className="space-y-4">
+      {fields.map((row, ri) => (
+        <div key={ri} className={row.length === 2 ? "grid grid-cols-2 gap-4" : undefined}>
+          {row.map((f) => (
+            <div key={f.key} className="space-y-2">
+              <Label>{f.label}</Label>
+              {f.options ? (
+                <Select
+                  value={form[f.key] ?? ""}
+                  onValueChange={(v) => set(f.key, v)}
+                  disabled={readOnly}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {f.options.map((o) => (
+                      <SelectItem key={optValue(o)} value={optValue(o)}>
+                        {optLabel(o)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  type={f.type ?? "text"}
+                  value={form[f.key] ?? ""}
+                  onChange={(e) => set(f.key, e.target.value)}
+                  placeholder={f.placeholder}
+                  required={f.required}
+                  disabled={readOnly}
+                />
+              )}
             </div>
           ))}
-          <div className={DIALOG_FOOTER_WIDE}>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              {readOnly ? "Close" : "Cancel"}
-            </Button>
-            {!readOnly && (
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : "Save Changes"}
-              </Button>
-            )}
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      ))}
+      <div className={DIALOG_FOOTER_WIDE}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+        >
+          {readOnly ? "Close" : "Cancel"}
+        </Button>
+        {!readOnly && (
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Changes"}
+          </Button>
+        )}
+      </div>
+    </form>
   );
 }

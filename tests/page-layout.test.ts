@@ -1547,12 +1547,16 @@ describe("session-15: dialog body anatomy — groups and wrappers (S15-P7/P8)", 
     expect(DIALOG_BARE_GROUP).toBe("");
   });
 
-  it("the fields wrapper is a py-4 grid inside the form (S15-P8)", () => {
+  it("the fields wrapper is a py-4 grid inside the form (S15-P8 -> S71-P4: only the CONSUMED .lead key survives)", () => {
     // Reference Lead: form > `div.grid.gap-4.py-4` > groups; Contact:
     // `div.grid.gap-6.py-4`; Account: `div.grid.grid-cols-2.gap-4.py-4`.
+    // Session-71 (N-71d3): the .contact/.account records retired —
+    // ZERO consumers since their s15 birth (the dialogs carry their
+    // own body constants; only the lead form rides the wrapper
+    // record — entity-dialogs.tsx:656). The N-57 zero-consumer class.
     expect(DIALOG_FIELDS_WRAPPER.lead).toBe("grid gap-4 py-4");
-    expect(DIALOG_FIELDS_WRAPPER.contact).toBe("grid gap-6 py-4");
-    expect(DIALOG_FIELDS_WRAPPER.account).toBe("grid grid-cols-2 gap-4 py-4");
+    expect(DIALOG_FIELDS_WRAPPER).not.toHaveProperty("contact");
+    expect(DIALOG_FIELDS_WRAPPER).not.toHaveProperty("account");
   });
 
   it("the Lead Status + Source pair is a 2-col grid (S15-P9)", () => {

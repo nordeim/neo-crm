@@ -3,11 +3,20 @@
 // Entity create/edit dialogs shared by the Dashboard quick-add and the
 // Accounts/Contacts/Leads/Calendar/Activities pages.
 //
-// Pattern (React 19 lint-clean): each dialog shell mounts its form only
-// while open — the Event/Activity edit forms keyed by entity id, the
-// create forms unmounted on close (session-50: the create dialogs are
-// create-only) — so every form initializes ALL state via useState
-// initializers at mount. No setState-inside-effects, ever.
+// Pattern (React 19 lint-clean), session-71 re-timing: every shell
+// mounts its form UNCONDITIONALLY, keyed by an open-epoch counter that
+// bumps ONLY on false→true transitions (the adjust-during-render
+// `useOpenEpoch` below — the AppShell close-on-route-change idiom). At
+// open the epoch re-keys the form → fresh state per open (the s46 F-46f
+// contract; the initializer re-reads the live props, including the
+// resolved settings slice). While open the epoch is stable → store
+// re-renders are inert (the s71 M-71a1 Date.now() wipe retired). At
+// close the form stays mounted → the Radix root plays its pinned
+// `data-[state=closed]` exit chrome over the FULL form body — the
+// reference's own geometry (its W7/wce/Mke and create dialogs render
+// unconditionally, no key — bundle-decoded; its own prop→state sync
+// rides setState-in-effect, an ERROR under our lint). No
+// setState-inside-effects, ever.
 
 import * as React from "react";
 import { Camera, User, X } from "lucide-react";
@@ -66,6 +75,33 @@ import type { Account, Activity, Contact, CrmEvent, Lead } from "@/types";
 /** The Create Lead dialog's Status options (live listbox). */
 const CREATE_LEAD_STAGES = ["new", "contacted", "qualified", "unqualified"] as const;
 
+/** Session-71 (S71-P1): the open-epoch counter — the adjust-during-render
+ *  pattern for this component's OWN state (the AppShell
+ *  close-on-route-change idiom; the reference's own prop→state sync
+ *  rides setState-in-effect, an ERROR under our lint). The returned
+ *  epoch increments ONLY on false→true transitions of `open`:
+ *  - at open: the bump re-keys the form → the useState initializers
+ *    re-run against the LIVE props (fresh state per open — the s46
+ *    F-46f contract, including the settings-slice defaults);
+ *  - while open: the epoch is stable → parent re-renders (store slice
+ *    resolutions) never re-key the form (the M-71a1 Date.now() wipe
+ *    class retired);
+ *  - at close: the epoch stays put → the form remains mounted
+ *    through the Radix exit animation (the full body slides out —
+ *    the reference's bundle-decoded geometry; the s46 outer-key fix
+ *    unmounted the tree instantly and the exit chrome never played). */
+function useOpenEpoch(open: boolean): number {
+  const [epoch, setEpoch] = React.useState(0);
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (open && !wasOpen) {
+    setWasOpen(true);
+    setEpoch((e) => e + 1);
+  } else if (!open && wasOpen) {
+    setWasOpen(false);
+  }
+  return epoch;
+}
+
 /** The New Event dialog's Related To options (live listbox). */
 const EVENT_RELATED_OPTIONS = [
   { value: "none", label: "None" },
@@ -96,6 +132,10 @@ export function AccountDialog({
   onOpenChange: (open: boolean) => void;
   onSaved?: (account: Account) => void;
 }) {
+  // Session-71 (S71-P1): the permanently-mounted form keyed by the
+  // open-epoch (see useOpenEpoch) — fresh state per open, inert to
+  // store re-renders while open, full body through the exit animation.
+  const epoch = useOpenEpoch(open);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* Session-30 (S30-P6): the reference's Create New Account ships
@@ -109,7 +149,7 @@ export function AccountDialog({
         <DialogHeader>
           <DialogTitle>Create New Account</DialogTitle>
         </DialogHeader>
-        {open && <AccountForm onOpenChange={onOpenChange} onSaved={onSaved} />}
+        <AccountForm key={epoch} onOpenChange={onOpenChange} onSaved={onSaved} />
       </DialogContent>
     </Dialog>
   );
@@ -298,6 +338,9 @@ export function ContactDialog({
   onOpenChange: (open: boolean) => void;
   onSaved?: (contact: Contact) => void;
 }) {
+  // Session-71 (S71-P1): the permanently-mounted form keyed by the
+  // open-epoch (see useOpenEpoch).
+  const epoch = useOpenEpoch(open);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* Session-30 (S30-P2): the AAe's exact shell — max-w-lg (the
@@ -311,7 +354,7 @@ export function ContactDialog({
         <DialogHeader>
           <DialogTitle>Create New Contact</DialogTitle>
         </DialogHeader>
-        {open && <ContactForm onOpenChange={onOpenChange} onSaved={onSaved} />}
+        <ContactForm key={epoch} onOpenChange={onOpenChange} onSaved={onSaved} />
       </DialogContent>
     </Dialog>
   );
@@ -324,7 +367,7 @@ function ContactForm({
   onOpenChange: (open: boolean) => void;
   onSaved?: (contact: Contact) => void;
 }) {
-  const { createContact, settings } = useCrmStore();
+  const { createContact } = useCrmStore();
   const [pending, setPending] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
@@ -571,6 +614,9 @@ export function LeadDialog({
   onOpenChange: (open: boolean) => void;
   onSaved?: (lead: Lead) => void;
 }) {
+  // Session-71 (S71-P1): the permanently-mounted form keyed by the
+  // open-epoch (see useOpenEpoch).
+  const epoch = useOpenEpoch(open);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* Session-50 (S50-P1): create-only — the N-47d dead edit mode
@@ -580,7 +626,7 @@ export function LeadDialog({
         <DialogHeader>
           <DialogTitle>Create New Lead</DialogTitle>
         </DialogHeader>
-        {open && <LeadForm onOpenChange={onOpenChange} onSaved={onSaved} />}
+        <LeadForm key={epoch} onOpenChange={onOpenChange} onSaved={onSaved} />
       </DialogContent>
     </Dialog>
   );
@@ -759,21 +805,26 @@ export function EventDialog({
   defaultStart?: Date | null;
   onSaved?: (event: CrmEvent) => void;
 }) {
+  // Session-71 (S71-P1): the permanently-mounted form keyed by the
+  // open-epoch (see useOpenEpoch) — the s46 render-time
+  // defaultStart?.getTime() key retired with it: the epoch re-keys at
+  // open against the THEN-current event/defaultStart props (the
+  // calendar sets both before opening), and no render-time value can
+  // re-key mid-session (the M-71a1 class).
+  const epoch = useOpenEpoch(open);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={DIALOG_CONTENT.wide}>
         <DialogHeader>
           <DialogTitle>{event ? "Edit Event" : "New Event"}</DialogTitle>
         </DialogHeader>
-        {open && (
-          <EventForm
-            key={event?.id ?? String(defaultStart?.getTime() ?? "new")}
-            event={event ?? null}
-            defaultStart={defaultStart ?? null}
-            onOpenChange={onOpenChange}
-            onSaved={onSaved}
-          />
-        )}
+        <EventForm
+          key={epoch}
+          event={event ?? null}
+          defaultStart={defaultStart ?? null}
+          onOpenChange={onOpenChange}
+          onSaved={onSaved}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -874,7 +925,7 @@ function EventForm({
             <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               {["scheduled", "completed", "cancelled"].map((s) => (
-                <SelectItem key={s} value={s} className="capitalize">{s[0].toUpperCase() + s.slice(1)}</SelectItem>
+                <SelectItem key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -940,21 +991,28 @@ export function ActivityDialog({
   activity?: Activity | null;
   onSaved?: (activity: Activity) => void;
 }) {
+  // Session-71 (S71-P1, M-71a1): the permanently-mounted form keyed by
+  // the open-epoch — the s46 create key rode a RENDER-TIME Date.now()
+  // (every parent re-render while the dialog was open re-keyed the
+  // form and WIPED the user's typed subject/notes; all five consumer
+  // pages destructure the whole store, so the first-load slice
+  // resolutions were a guaranteed re-render source). The epoch bumps
+  // only on false→true — fresh state per open against the
+  // THEN-current defaultType/activity props, inert while open.
+  const epoch = useOpenEpoch(open);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={DIALOG_CONTENT.wide}>
         <DialogHeader>
           <DialogTitle>{activity ? "Edit Activity" : "Log Activity"}</DialogTitle>
         </DialogHeader>
-        {open && (
-          <ActivityForm
-            key={activity?.id ?? `${defaultType}-${Date.now()}`}
-            activity={activity ?? null}
-            defaultType={defaultType}
-            onOpenChange={onOpenChange}
-            onSaved={onSaved}
-          />
-        )}
+        <ActivityForm
+          key={epoch}
+          activity={activity ?? null}
+          defaultType={defaultType}
+          onOpenChange={onOpenChange}
+          onSaved={onSaved}
+        />
       </DialogContent>
     </Dialog>
   );

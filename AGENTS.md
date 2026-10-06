@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1287 checks)       | `bun run test`                         |
-| Browser E2E (117 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1300 checks)       | `bun run test`                         |
+| Browser E2E (119 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1287) → `bun run build` → `bun run test:e2e` (117) — or the
+`bun run test` (1300) → `bun run build` → `bun run test:e2e` (119) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2823,6 +2823,66 @@ with db/ at the repo root; the intake: the FRESH CLONE — .env
 re-created from .env.example with a generated AUTH_SECRET; the stale
 platform DATABASE_URL override still points at the non-existent
 mirror, all operations under env -u DATABASE_URL).
+
+**Session-71 (SKILL v1.68.0)** — the permanently-mounted dialog-family
+session (the 71-c fresh-eyes rotation on the NEVER-AUDITED
+entity-dialogs family — entity-dialogs.tsx 1081 + entity-edit-dialog.tsx
+254 + dialog.tsx + the siblings + the consumers — finding the N-71
+family with every claim manually validated + the parity-bearing fixes
+bundle-decoded [5 of 10 findings DISMISSED at validation: L-2 a
+false-positive (the DialogFooter constant already exact), I-2/I-3/L-3/
+N-4 confirmed parities from the bundle]; the 71-a s70 re-audit 10/10
+GENUINE [the N-71x "eight raw-fetch exceptions" precision note ->
+the nine-call-sites-across-eight-endpoints carrier]; the 70-b-style
+graduation audit ZERO graduations 13/13 [28th consecutive], the 8
+censuses clean; both operator decisions standing: the CSV
+formula-injection posture (b) [30th re-affirmation] + the
+source-vocabulary documented parity): the M-71a1 ACTIVITYFORM
+RENDER-TIME KEY RETIREMENT [the create key rode
+`${defaultType}-${Date.now()}` — every parent re-render while the
+dialog was open re-keyed the form and WIPED the typed input; all
+five consumer pages destructure the whole store, so the first-load
+slice resolutions were a guaranteed re-render source]; the
+M-71a2/I-71a4 EXIT-ANIMATION RESTORATION [the three EntityEditDialog
+outer keys unmounted the Radix Root in the same batched close render
+— the pinned data-[state=closed] chrome NEVER played; the five
+create dialogs' `{open && ...}` conditionals emptied the body
+mid-exit — the reference renders W7/wce/Mke + its create forms
+UNCONDITIONALLY, no keys, full bodies animating out (bundle-decoded;
+its own prop-sync rides setState-in-effect, an ERROR under our
+lint)]; the S71-P1 OPEN-EPOCH KEY PATTERN [the adjust-during-render
+useOpenEpoch counter bumping ONLY on false→true transitions: fresh
+state per open against the live props (the s46 F-46f contract
+preserved — the epoch remount re-reads the resolved settings slice),
+inert to store re-renders while open, full body through the exit];
+the S71-P2 SAVINGEDIT WIRING [the three edit call sites feed
+isLoading with the setSavingEdit bracket — the reference's own
+disabled/"Saving..." capability, the N-46e posture closed with the
+double-submit guard]; the S71-P3 EVENT STATUS LITERAL FORM; the
+S71-P4 HYGIENE QUARTET [the invented hideClose prop retired from
+dialog.tsx; ContactForm's dead settings destructure; the slide-over's
+dead `??`; the zero-consumer DIALOG_FIELDS_WRAPPER.contact/.account
+records]; the TWO E2E ADDITIONS [the Log Activity quick-create
+round-trip — the ActivityDialog's first e2e with the 700ms
+typed-value persistence window + the exit-phase/reopen-fresh pair;
+117 -> 119] — all pinned RED-first [16 RED: the dialog-mount-contract
+suite's 8 + the rewritten edit-dialog-remount 4 + the dch hygiene
+trio + the re-anchored page-layout wrapper pin; +13 its = 1300] and
+proven non-vacuous in a pre-fix 098ce51 worktree [16 failed | 239
+passed there]; GATE: lint 0/0 · tsc 0 · 1300/1300 unit (80 suites) ·
+build clean · 119/119 e2e on a fresh CI=1 boot (3.0m, all 9
+mobile-nav checks green) · 67th drift-sweep clean (42nd consecutive
+stable reference bundle) · LIVE-verified (the typed value surviving
+the settle window; the exit phases on BOTH families with the edited
+values in the animating bodies; the reopen-fresh epoch contract; the
+edit round-trip; the drawer both directions at TRUE 390px with focus
+restored; zero overflow x10; NO Tailwind v4 bug; the closing census
+MATCH) · 2 screenshots (81-log-activity-dialog + 82-edit-contact-dialog
+NEW; VLM-verified 4/4 + 4/4) · docs at SKILL v1.68.0 (the new §16bk +
+project_state, applied atomically via the assert-first
+scripts/skill_edits_s71.py at the sandbox root) + session_135.md +
+the plan + its execution record + both worklogs + README/AGENTS/
+CLAUDE/PAD at 1300+119 (badge 1419).
 
 **Session-70 (SKILL v1.67.0)** — the chart-family honesty + the store
 write-guard session (the 70-c fresh-eyes rotation on the NEVER-AUDITED
