@@ -34,7 +34,6 @@ export interface Account {
   lastActivityAt: string | null;
   createdAt: string;
   updatedAt: string;
-  _count?: { contacts: number; leads: number; activities: number };
 }
 
 export interface Contact {

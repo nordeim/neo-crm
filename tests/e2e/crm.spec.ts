@@ -2648,6 +2648,62 @@ test("the per-table CSV export downloads with the open_deals_ prefix (S74-P11c)"
   expect(download.suggestedFilename()).toBe(`open_deals_${today}.csv`);
 });
 
+test("the settings/users surface smoke: the settings tab strip + the Data exports + the Owner select lists the seeded users (S75-P13a — the users surface's first e2e)", async ({ page }) => {
+  // The settings surface: the three-tab strip renders + the Data tab's
+  // template/export family + the danger zone.
+  await page.goto("/settings");
+  await expect(page.getByRole("tab", { name: "CRM Configuration" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Defaults" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Data" })).toBeVisible();
+  await page.getByRole("tab", { name: "Data" }).click();
+  await expect(page.getByRole("button", { name: /Download Contacts Template/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Export Contacts/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Export Accounts/ })).toBeVisible();
+
+  // The users surface: the /api/users round-trip hydrates the store's
+  // users slice — asserted through the accounts rail's Owner select
+  // (the seeded workspace ships 4 users; the rail's FIRST combobox,
+  // scoped to the w-80 rail wrapper — the trigger carries no
+  // accessible name).
+  await page.goto("/accounts");
+  const rail = page.locator(".w-80").filter({ hasText: "Filters" });
+  await rail.getByRole("combobox").first().click();
+  const ownerOptions = page.getByRole("option");
+  await expect(ownerOptions.filter({ hasText: "All Owners" })).toBeVisible();
+  await expect(ownerOptions.filter({ hasText: "Sara Chen" })).toBeVisible();
+  await expect(ownerOptions.filter({ hasText: "Omar Haddad" })).toBeVisible();
+  await expect(ownerOptions.filter({ hasText: "Lena Fischer" })).toBeVisible();
+});
+
+test("the calendar month-boundary math: the December-January rollover increments the title year (S75-P13b)", async ({ page }) => {
+  // The monthTitle cursor math — formatMonthYear — across the year
+  // boundary: hop Next from the current view until the rollover lands,
+  // asserting the MONTH YYYY title at each hop (the s54 trailing-cell
+  // round-trip covers the fetch window; this pins the boundary math
+  // itself).
+  const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const next = new Date();
+  next.setMonth(next.getMonth() + 1);
+  // Hop until the NEXT hop crosses December -> January (at most 12 hops).
+  let cursor = new Date(next);
+  let hops = 0;
+  while (cursor.getMonth() !== 11 && hops < 12) {
+    cursor.setMonth(cursor.getMonth() + 1);
+    hops++;
+  }
+  await page.goto("/calendar");
+  const title = page.locator("h2").filter({ hasText: /20\d\d/ });
+  const nextBtn = page.getByRole("button", { name: "Next month" });
+  // Hop to December (hops + 1 clicks from the current month).
+  for (let i = 0; i < hops + 1; i++) {
+    await nextBtn.click();
+  }
+  await expect(title).toHaveText(`December ${cursor.getFullYear()}`);
+  // The rollover: December -> January increments the YEAR.
+  await nextBtn.click();
+  await expect(title).toHaveText(`January ${cursor.getFullYear() + 1}`);
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();

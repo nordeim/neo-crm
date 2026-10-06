@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1397 checks)       | `bun run test`                         |
-| Browser E2E (129 checks)        | `bun run test:e2e` (needs build first) |
+|  Unit tests (1417 checks)       | `bun run test`                         |
+|  Browser E2E (131 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1397) → `bun run build` → `bun run test:e2e` (129) — or the
+`bun run test` (1417) → `bun run build` → `bun run test:e2e` (131) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the

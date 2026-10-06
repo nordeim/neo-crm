@@ -66,7 +66,11 @@ describe("session-68: the stat-card value typography (N-68a — the s13 sweep co
   });
 
   it("IconStatCard (contacts) renders the bare text-3xl form", () => {
-    expect(parts()).toContain('<p className="mb-2 mt-2 text-3xl font-bold">{value}</p>');
+    // Session-75 (L-75c2-7, bundle-decoded — the reference's Rx
+    // component): the contacts value carries the explicit gray-900 +
+    // mb-2 (the s68 bare-form census predated the Rx decode; the
+    // decoration trio stays retired — no leading-none/tracking-tight).
+    expect(parts()).toContain('<p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>');
   });
 
   it("CircleStatCard (reports) renders the bare text-2xl form", () => {

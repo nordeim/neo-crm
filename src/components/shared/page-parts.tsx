@@ -185,30 +185,10 @@ export function KpiCard({
 // initial commit (zero src consumers, zero test refs; the cards carry
 // their own caption spans). The ten living exports above stay (s57 count
 // correction — seven was the pre-retirement count).
-/** Icon chip used by the stat-card variants. */
-function IconChip({
-  icon,
-  bg,
-  color,
-  rounded = "rounded-lg",
-  className,
-}: {
-  icon: React.ReactNode;
-  bg: string;
-  color: string;
-  rounded?: string;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn("flex h-10 w-10 shrink-0 items-center justify-center", rounded, className)}
-      style={{ backgroundColor: bg, color }}
-      aria-hidden="true"
-    >
-      {icon}
-    </span>
-  );
-}
+// Session-75 (L-75c2-7): the IconChip helper RETIRED — the contacts
+// stat-card arm re-derived to the reference's Rx construction (the
+// inline p-3 rounded-lg chip with the w-6 h-6 icon), leaving this
+// helper with zero consumers (the dch living-surfaces policy).
 
 /**
  * Accounts / activities stat card — the side-by-side reference anatomy:
@@ -347,13 +327,19 @@ export function IconStatCard({
       className={cn(
         // Session-11 (S11-P2): bare `shadow` here too — the reference's
         // contacts gradient cards compute the standard shadow.
-        "flex items-center justify-between gap-3 rounded-xl border border-line p-6 shadow",
+        // Session-75 (L-75c2-7, bundle-decoded — the reference's Rx
+        // component): the row is items-start (the chip TOP-aligns with
+        // the label), NO gap class; the left column is flex-1; the
+        // gray-600 label + the gray-900 value both carry mb-2; the chip
+        // is the p-3 rounded-lg box (48px) with the w-6 h-6 white icon
+        // (24px) — the 40px/20px IconChip retired from this arm.
+        "flex items-start justify-between rounded-xl border border-line p-6 shadow",
         gradient ? "bg-gradient-to-br from-white to-gray-50" : "bg-surface",
       )}
     >
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-muted">{label}</p>
-        <p className="mb-2 mt-2 text-3xl font-bold">{value}</p>
+      <div className="flex-1">
+        <p className="text-sm font-medium text-gray-600 mb-2">{label}</p>
+        <p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>
         {trend !== undefined && (
           <span className="flex items-center gap-1 text-sm font-medium text-green-600">
             <TrendingUp className="h-4 w-4" aria-hidden="true" />
@@ -362,11 +348,13 @@ export function IconStatCard({
         )}
         {subValue !== undefined && <p className="mt-1.5 text-sm font-medium text-muted">{subValue}</p>}
       </div>
-      <IconChip
-        icon={icon}
-        bg={tone === "solid" ? color : `${color}1a`}
-        color={tone === "solid" ? "#ffffff" : color}
-      />
+      <div
+        className="p-3 rounded-lg shrink-0"
+        style={{ backgroundColor: tone === "solid" ? color : `${color}1a`, color: tone === "solid" ? "#ffffff" : color }}
+        aria-hidden="true"
+      >
+        {icon}
+      </div>
     </div>
   );
 }

@@ -9,11 +9,13 @@ export async function GET() {
   if (isGuarded(guard)) return guard.response;
   // Session-42 (S42-P1): the list read joined the envelope.
   try {
+    // Session-75 (N-75c1-5): the _count include RETIRED — zero consumers
+    // (the page + the insights dialog count from the store's arrays
+    // client-side; only the reports route's own _count join is consumed).
     const accounts = await db.account.findMany({
       orderBy: [{ name: "asc" }],
       include: {
         owner: { select: { id: true, name: true, avatarColor: true } },
-        _count: { select: { contacts: true, leads: true, activities: true } },
       },
     });
     return ok(accounts);
@@ -99,7 +101,10 @@ export async function POST(req: Request) {
         status,
         health,
         ownerId,
-        lastActivityAt: new Date(),
+        // Session-75 (N-75c1-6, bundle-decoded): NO lastActivityAt stamp —
+        // the reference's bce create form ships no last-activity field;
+        // a fresh account renders "No activity" in the table (the schema
+        // default null), exactly like the reference.
       },
       include: { owner: { select: { id: true, name: true, avatarColor: true } } },
     });

@@ -358,7 +358,7 @@ describe("session-74: the trend lines without names + the pipeline formatter (L-
 });
 
 describe("session-74: the export-button icons + the forecast bands (N-74c1/c2)", () => {
-  it("the eight per-table export button icons are h-4 w-4 (the reference's literal)", () => {
+  it("the four per-table export button icons are h-4 w-4 (the reference's literal)", () => {
     const src = page();
     expect(src).not.toMatch(/h-3\.5 w-3\.5/);
     // The two table CSV buttons + the two table PDF buttons (the bar's

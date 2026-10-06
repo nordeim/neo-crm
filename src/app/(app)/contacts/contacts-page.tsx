@@ -3,11 +3,11 @@
 import { downloadBlob } from "@/lib/download";
 import * as React from "react";
 import {
-  ArrowUpDown,
   ChevronDown,
   ChevronUp,
   CircleAlert,
   CircleCheckBig,
+  CircleUser,
   Crown,
   Download,
   EllipsisVertical,
@@ -33,7 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Checkbox, Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
@@ -57,7 +57,7 @@ import {
 // Session-73 (S73-P1, M-73c6): the row-action menu migrated to the REAL
 // Menu* primitives (the reference's own construction — bundle-decoded).
 import { Menu, MenuContent, MenuItem, MenuTrigger } from "@/components/ui/dropdown";
-import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
+import { IconStatCard, PageHeader } from "@/components/shared/page-parts";
 import { CONTACTS_LAYOUT, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import { ContactDialog } from "@/components/shared/entity-dialogs";
@@ -102,6 +102,11 @@ export default function ContactsPage() {
   const [priorities, setPriorities] = React.useState<string[]>([]);
   const [companySizes, setCompanySizes] = React.useState<string[]>([]);
   const [sourcesF, setSourcesF] = React.useState<string[]>([]);
+  // Session-75 (M-75c2-3, bundle-decoded): the kke panel's SIXTH group —
+  // Engagement Level (High/Medium/Low) + its filter clause
+  // (`E.engagementLevels.length>0 &&
+  //   !E.engagementLevels.includes(le.engagement_level)`).
+  const [engagementLevels, setEngagementLevels] = React.useState<string[]>([]);
   const [noRecentActivity, setNoRecentActivity] = React.useState(false);
   const [sortKey, setSortKey] = React.useState<SortKey>("lastActivity");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
@@ -145,7 +150,11 @@ export default function ContactsPage() {
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
     const rows = contacts.filter((c) => {
-      if (q && !`${c.name} ${c.email ?? ""} ${c.company ?? ""} ${c.position ?? ""}`.toLowerCase().includes(q)) return false;
+      // Session-75 (N-75c2-11, bundle-decoded): the search matches
+      // name/email/company ONLY — the reference's `le.name||le.email||
+      // le.company` comparator (our position arm was a superset that
+      // returned rows the reference would not).
+      if (q && !`${c.name} ${c.email ?? ""} ${c.company ?? ""}`.toLowerCase().includes(q)) return false;
       // Session-28 (S28-P5): the kke checkbox model — a contact passes a
       // group when it carries ANY of the checked values (an empty group
       // passes everything); noRecentActivity keeps the 30-day rule.
@@ -153,6 +162,9 @@ export default function ContactsPage() {
       if (priorities.length > 0 && !priorities.includes(c.priority)) return false;
       if (companySizes.length > 0 && !companySizes.includes(c.companySize ?? "")) return false;
       if (sourcesF.length > 0 && !sourcesF.includes(c.source ?? "")) return false;
+      // Session-75 (M-75c2-3): the engagement clause — the any-of checkbox
+      // model, same as the sibling groups.
+      if (engagementLevels.length > 0 && !engagementLevels.includes(c.engagementLevel ?? "")) return false;
       if (noRecentActivity) {
         const last = c.lastActivityAt ? new Date(c.lastActivityAt).getTime() : null;
         const stale = last == null || Date.now() - last >= 30 * 86400000;
@@ -164,19 +176,23 @@ export default function ContactsPage() {
       let cmp = 0;
       if (sortKey === "name") cmp = a.name.localeCompare(b.name);
       else {
-        const av = new Date(a.lastActivityAt ?? a.createdAt).getTime();
-        const bv = new Date(b.lastActivityAt ?? b.createdAt).getTime();
+        // Session-75 (N-75c2-12, bundle-decoded): a null last-activity
+        // sorts at the EPOCH terminal (the reference's comparator) — not
+        // createdAt (a stale-but-recently-created row sorted NEW on ours,
+        // OLD on the reference).
+        const av = a.lastActivityAt ? new Date(a.lastActivityAt).getTime() : 0;
+        const bv = b.lastActivityAt ? new Date(b.lastActivityAt).getTime() : 0;
         cmp = av - bv;
       }
       return sortDir === "asc" ? cmp : -cmp;
     });
     return rows;
-  }, [contacts, search, roles, priorities, companySizes, sourcesF, noRecentActivity, sortKey, sortDir]);
+  }, [contacts, search, roles, priorities, companySizes, sourcesF, engagementLevels, noRecentActivity, sortKey, sortDir]);
 
   // Session-28 (S28-P5): the reference's kke toggle/reset handlers.
-  const toggleFilter = (group: "roles" | "priorities" | "companySizes" | "sources", value: string) => {
-    const setters = { roles: setRoles, priorities: setPriorities, companySizes: setCompanySizes, sources: setSourcesF };
-    const current = { roles, priorities, companySizes, sources: sourcesF }[group];
+  const toggleFilter = (group: "roles" | "priorities" | "companySizes" | "sources" | "engagementLevels", value: string) => {
+    const setters = { roles: setRoles, priorities: setPriorities, companySizes: setCompanySizes, sources: setSourcesF, engagementLevels: setEngagementLevels };
+    const current = { roles, priorities, companySizes, sources: sourcesF, engagementLevels }[group];
     setters[group](current.includes(value) ? current.filter((v) => v !== value) : [...current, value]);
   };
   const clearFilters = () => {
@@ -184,12 +200,18 @@ export default function ContactsPage() {
     setPriorities([]);
     setCompanySizes([]);
     setSourcesF([]);
+    setEngagementLevels([]);
     setNoRecentActivity(false);
   };
 
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
+
+  // Session-75 (M-75c2-4 + N-75c2-15): the stat cards read the FILTERED
+  // memo (the reference's G memo) — the thisMonth predicate hoisted (it
+  // ran twice: the value + the trend).
+  const newThisMonth = filtered.filter((c) => new Date(c.createdAt) >= monthStart).length;
 
   // Session-41 (S41-P5): the dead `sources` var deleted — zero reads (the
   // kke filter panel uses `sourcesF` + the static CONTACT_SOURCE_OPTIONS;
@@ -371,37 +393,40 @@ export default function ContactsPage() {
       />
 
       {/* Reference stat cards: gradient card, solid -500 icon chips, trend
-          row on "New This Month" (DOM-verified). */}
+          row on "New This Month" (DOM-verified). Session-75 (M-75c2-4,
+          bundle-decoded): ALL FOUR derive from the FILTERED memo (the
+          reference's G memo reads F) + "Top Decision Makers" counts BOTH
+          roles (Decision Maker OR Key Contact). */}
       <div className={PAGE_KPI_GRIDS.contacts}>
         <IconStatCard
           label="Total Contacts"
-          value={contacts.length}
-          icon={<Users className="h-5 w-5" />}
+          value={filtered.length}
+          icon={<Users className="w-6 h-6 text-white" />}
           tone="solid"
           gradient
           color="#3b82f6"
         />
         <IconStatCard
           label="New This Month"
-          value={contacts.filter((c) => new Date(c.createdAt) >= monthStart).length}
-          trend={`+${contacts.filter((c) => new Date(c.createdAt) >= monthStart).length}`}
-          icon={<TrendingUp className="h-5 w-5" />}
+          value={newThisMonth}
+          trend={`+${newThisMonth}`}
+          icon={<TrendingUp className="w-6 h-6 text-white" />}
           tone="solid"
           gradient
           color="#22c55e"
         />
         <IconStatCard
           label="Top Decision Makers"
-          value={contacts.filter((c) => c.role === "Key Contact").length}
-          icon={<Crown className="h-5 w-5" />}
+          value={filtered.filter((c) => c.role === "Decision Maker" || c.role === "Key Contact").length}
+          icon={<Crown className="w-6 h-6 text-white" />}
           tone="solid"
           gradient
           color="#f59e0b"
         />
         <IconStatCard
           label="No Recent Activity"
-          value={contacts.filter((c) => !c.lastActivityAt || new Date(c.lastActivityAt) < new Date(Date.now() - 30 * 86400000)).length}
-          icon={<CircleAlert className="h-5 w-5" />}
+          value={filtered.filter((c) => !c.lastActivityAt || new Date(c.lastActivityAt) < new Date(Date.now() - 30 * 86400000)).length}
+          icon={<CircleAlert className="w-6 h-6 text-white" />}
           tone="solid"
           gradient
           color="#ef4444"
@@ -422,7 +447,7 @@ export default function ContactsPage() {
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contacts..." className="pl-10" aria-label="Search contacts" />
           </div>
           <Button
-            variant="outline"
+            variant={showFilters ? "default" : "outline"}
             aria-expanded={showFilters}
             onClick={() => setShowFilters((v) => !v)}
           >
@@ -448,31 +473,60 @@ export default function ContactsPage() {
             <TableHeader>
               <TableRow>
                 {/* Reference: contacts headers are font-semibold text-gray-700
-                    (bolder than other tables); Name is w-64 cursor-pointer with
-                    NO sort icon (dead affordance mirrored); only Last Activity
-                    is sortable (chevron-down default desc). */}
-                <TableHead className="w-64 cursor-pointer font-semibold text-gray-700">Name</TableHead>
+                    (bolder than other tables). Session-75 (M-75c2-1,
+                    bundle-decoded): the Name th is a LIVE sort affordance —
+                    `onClick:()=>te("name")` + the inner flex items-center
+                    gap-1 hover:text-blue-600 transition-colors div + the
+                    directional chevron ONLY while active (the s6-era
+                    "dead affordance" decode was wrong); only Last Activity
+                    is sortable by default (chevron-down desc). */}
+                <TableHead
+                  className="w-64 cursor-pointer font-semibold text-gray-700"
+                  onClick={() => toggleSort("name")}
+                >
+                  <div className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                    Name
+                    {sortKey === "name" &&
+                      (sortDir === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />)}
+                  </div>
+                </TableHead>
                 <TableHead className="font-semibold text-gray-700">Role</TableHead>
                 <TableHead className="font-semibold text-gray-700">Priority</TableHead>
-                <TableHead className="font-semibold text-gray-700">
-                  <button type="button" className="inline-flex items-center gap-1" onClick={() => toggleSort("lastActivity")}>
+                {/* Session-75 (L-75c2-8, bundle-decoded): the sort rides the
+                    TH itself (`cursor-pointer` + the onClick directly) — the
+                    inner button + the ArrowUpDown fallback retire; the
+                    chevron renders ONLY while the column is active. */}
+                <TableHead
+                  className="cursor-pointer font-semibold text-gray-700"
+                  onClick={() => toggleSort("lastActivity")}
+                >
+                  <div className="flex items-center gap-1 hover:text-blue-600 transition-colors">
                     Last Activity
-                    {sortKey === "lastActivity" ? (
-                      sortDir === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ArrowUpDown className="h-4 w-4 text-subtle" />
-                    )}
-                  </button>
+                    {sortKey === "lastActivity" &&
+                      (sortDir === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />)}
+                  </div>
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700">Engagement</TableHead>
                 <TableHead className="font-semibold text-gray-700">Company</TableHead>
                 <TableHead className="font-semibold text-gray-700">Source</TableHead>
-                <TableHead className="w-10 font-semibold text-gray-700">Actions</TableHead>
+                <TableHead className="font-semibold text-gray-700">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableEmptyRow colSpan={8} message="No contacts found" padding="py-12" />
+                /* Session-75 (M-75c2-5, bundle-decoded): the rich stack —
+                   the CircleUser icon (the bundle's RB = tr("CircleUser"))
+                   w-12 h-12 text-gray-300 + the font-medium line + the
+                   text-sm hint, inside the py-12 centered cell. */
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-12 text-gray-500">
+                    <div className="flex flex-col items-center gap-2">
+                      <CircleUser className="w-12 h-12 text-gray-300" />
+                      <span className="font-medium">No contacts found</span>
+                      <span className="text-sm">Try adjusting your search or filters</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
               ) : (
                 <>
                 {filtered.map((c) => {
@@ -641,11 +695,11 @@ export default function ContactsPage() {
           reordered hand-inline of the same computed classes). */}
       <div className={CONTACTS_LAYOUT.mobileCards}>
         {filtered.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted">No contacts found</p>
+          /* Session-75 (L-75c2-9, bundle-decoded): the bare p — no
+             text-sm (the reference's `text-center text-gray-500 py-8`). */
+          <p className="text-center text-gray-500 py-8">No contacts found</p>
         ) : (
-          filtered.map((c) => {
-            const ve = c.priority === "Key";
-            return (
+          filtered.map((c) => (
             <Card key={c.id} className="cursor-pointer" onClick={() => setDetailContact(c)}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">
@@ -683,8 +737,7 @@ export default function ContactsPage() {
                 </div>
               </CardContent>
             </Card>
-            );
-          })
+          ))
         )}
       </div>
 
@@ -701,7 +754,16 @@ export default function ContactsPage() {
           the documented local divergence: a chosen image opens the create
           dialog (the reference prefills from the extraction; ours starts
           the manual form — same treatment as the s26 import). */}
-      <Dialog open={scanOpen} onOpenChange={setScanOpen}>
+      <Dialog
+        open={scanOpen}
+        onOpenChange={(o) => {
+          setScanOpen(o);
+          // Session-75 (N-75c2-14): the file resets when the dialog closes
+          // (cancel or the post-scan path) — a reopen no longer shows the
+          // stale "Selected: …" line for a file already consumed.
+          if (!o) setScanFile(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Scan Business Card</DialogTitle>
@@ -861,18 +923,21 @@ export default function ContactsPage() {
               </Button>
             </div>
             <div className="p-4 space-y-6">
+              {/* Session-75 (M-75c2-6, bundle-decoded): every panel checkbox
+                  is the kit's button-role Checkbox primitive (the
+                  reference's `us` — checked + onCheckedChange, the styled
+                  square) paired with the Label — NEVER a native input. */}
               <Card>
                 <CardHeader><CardTitle className="text-sm">Role</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   {CONTACT_ROLES.map((r) => (
                     <div key={r} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         id={`role-${r}`}
                         checked={roles.includes(r)}
-                        onChange={() => toggleFilter("roles", r)}
+                        onCheckedChange={() => toggleFilter("roles", r)}
                       />
-                      <label htmlFor={`role-${r}`} className="text-sm font-normal cursor-pointer">{r}</label>
+                      <Label htmlFor={`role-${r}`} className="text-sm font-normal cursor-pointer">{r}</Label>
                     </div>
                   ))}
                 </CardContent>
@@ -882,13 +947,12 @@ export default function ContactsPage() {
                 <CardContent className="space-y-2">
                   {["Key", "Standard", "At Risk"].map((p) => (
                     <div key={p} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         id={`priority-${p}`}
                         checked={priorities.includes(p)}
-                        onChange={() => toggleFilter("priorities", p)}
+                        onCheckedChange={() => toggleFilter("priorities", p)}
                       />
-                      <label htmlFor={`priority-${p}`} className="text-sm font-normal cursor-pointer">{p}</label>
+                      <Label htmlFor={`priority-${p}`} className="text-sm font-normal cursor-pointer">{p}</Label>
                     </div>
                   ))}
                 </CardContent>
@@ -897,15 +961,14 @@ export default function ContactsPage() {
                 <CardHeader><CardTitle className="text-sm">Activity Status</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       id="no-activity"
                       checked={noRecentActivity}
-                      onChange={() => setNoRecentActivity(!noRecentActivity)}
+                      onCheckedChange={() => setNoRecentActivity(!noRecentActivity)}
                     />
-                    <label htmlFor="no-activity" className="text-sm font-normal cursor-pointer">
+                    <Label htmlFor="no-activity" className="text-sm font-normal cursor-pointer">
                       No Recent Activity (30+ days)
-                    </label>
+                    </Label>
                   </div>
                 </CardContent>
               </Card>
@@ -914,13 +977,12 @@ export default function ContactsPage() {
                 <CardContent className="space-y-2">
                   {COMPANY_SIZES.map((s) => (
                     <div key={s} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         id={`size-${s}`}
                         checked={companySizes.includes(s)}
-                        onChange={() => toggleFilter("companySizes", s)}
+                        onCheckedChange={() => toggleFilter("companySizes", s)}
                       />
-                      <label htmlFor={`size-${s}`} className="text-sm font-normal cursor-pointer">{s}</label>
+                      <Label htmlFor={`size-${s}`} className="text-sm font-normal cursor-pointer">{s}</Label>
                     </div>
                   ))}
                 </CardContent>
@@ -930,13 +992,30 @@ export default function ContactsPage() {
                 <CardContent className="space-y-2">
                   {CONTACT_SOURCE_OPTIONS.map((o) => (
                     <div key={o.value} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         id={`source-${o.value}`}
                         checked={sourcesF.includes(o.value)}
-                        onChange={() => toggleFilter("sources", o.value)}
+                        onCheckedChange={() => toggleFilter("sources", o.value)}
                       />
-                      <label htmlFor={`source-${o.value}`} className="text-sm font-normal cursor-pointer">{o.value}</label>
+                      <Label htmlFor={`source-${o.value}`} className="text-sm font-normal cursor-pointer">{o.value}</Label>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+              {/* Session-75 (M-75c2-3, bundle-decoded): the SIXTH group —
+                  Engagement Level, the LAST card (the reference's panel
+                  order): High/Medium/Low with the engagement-${i} ids. */}
+              <Card>
+                <CardHeader><CardTitle className="text-sm">Engagement Level</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  {["High", "Medium", "Low"].map((e) => (
+                    <div key={e} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`engagement-${e}`}
+                        checked={engagementLevels.includes(e)}
+                        onCheckedChange={() => toggleFilter("engagementLevels", e)}
+                      />
+                      <Label htmlFor={`engagement-${e}`} className="text-sm font-normal cursor-pointer">{e}</Label>
                     </div>
                   ))}
                 </CardContent>

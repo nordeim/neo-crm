@@ -123,45 +123,29 @@ export default function AccountsPage() {
     return [...set].sort();
   }, [accounts, settings]);
 
-  const overdueCount = React.useMemo(
+  // Session-75 (M-75c1-1, bundle-decoded): the reference's Overdue
+  // Activities KPI counts ACCOUNTS with >=1 overdue scheduled activity
+  // (its memo: N.filter(te => te.overdueActivities > 0).length —
+  // overdueAccounts), NOT the raw overdue-activity count.
+  const overdueAccounts = React.useMemo(
     () =>
-      activities.filter((a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) < new Date()).length,
+      new Set(
+        activities
+          .filter(
+            (a) =>
+              a.status === "scheduled" &&
+              a.dueAt &&
+              new Date(a.dueAt) < new Date() &&
+              a.accountId != null,
+          )
+          .map((a) => a.accountId),
+      ).size,
     [activities],
   );
 
-  // Per-industry series feed the KPI sparklines (the reference shows a
-  // 6-bar blue strip in every accounts KPI card; industries are the natural
-  // six buckets for this workspace).
-  const industrySpark = React.useMemo(() => {
-    const buckets = new Map<string, number>();
-    for (const i of industries) buckets.set(i, 0);
-    for (const a of accounts) {
-      const key = a.industry && buckets.has(a.industry) ? a.industry : [...buckets.keys()][0] ?? "";
-      buckets.set(key, (buckets.get(key) ?? 0) + 1);
-    }
-    return [...buckets.values()];
-  }, [accounts, industries]);
-
-  const activeSpark = React.useMemo(() => {
-    const buckets = new Map<string, number>();
-    for (const i of industries) buckets.set(i, 0);
-    for (const a of accounts) {
-      if (a.status !== "active") continue;
-      const key = a.industry && buckets.has(a.industry) ? a.industry : [...buckets.keys()][0] ?? "";
-      buckets.set(key, (buckets.get(key) ?? 0) + 1);
-    }
-    return [...buckets.values()];
-  }, [accounts, industries]);
-
-  const revenueSpark = React.useMemo(() => {
-    const buckets = new Map<string, number>();
-    for (const i of industries) buckets.set(i, 0);
-    for (const a of accounts) {
-      const key = a.industry && buckets.has(a.industry) ? a.industry : [...buckets.keys()][0] ?? "";
-      buckets.set(key, (buckets.get(key) ?? 0) + (a.annualRevenue ?? 0));
-    }
-    return [...buckets.values()];
-  }, [accounts, industries]);
+  // Session-75 (L-75c1-2, bundle-decoded): the five KPI sparkbars are the
+  // reference's STATIC 6-value chartData literals — never computed
+  // per-industry buckets (the t3e-era industrySpark memos retired).
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -232,7 +216,7 @@ export default function AccountsPage() {
           label="Total Accounts"
           value={accounts.length}
           delta="+2%"
-          bars={industrySpark}
+          bars={[50, 60, 55, 70, 65, 75]}
           barColor={CHART_COLORS.blue400}
           barWidth="w-24"
         />
@@ -240,7 +224,7 @@ export default function AccountsPage() {
           label="Active Accounts"
           value={accounts.filter((a) => a.status === "active").length}
           delta="+2%"
-          bars={activeSpark}
+          bars={[55, 60, 58, 68, 65, 72]}
           barColor={CHART_COLORS.green400}
           barWidth="w-24"
         />
@@ -248,7 +232,7 @@ export default function AccountsPage() {
           label="Key Accounts"
           value={accounts.filter((a) => a.isKey).length}
           delta="+5%"
-          bars={industrySpark.map((v) => Math.round(v / 3))}
+          bars={[40, 45, 50, 55, 58, 62]}
           barColor={CHART_COLORS.cyan400}
           barWidth="w-24"
         />
@@ -256,14 +240,14 @@ export default function AccountsPage() {
           label="Total Revenue"
           value={formatCompactCurrency(totalRevenue, { scale: "M" })}
           delta="+3.6%"
-          bars={revenueSpark}
+          bars={[60, 65, 70, 75, 78, 82]}
           barColor={CHART_COLORS.purple400}
           barWidth="w-24"
         />
         <BarStatCard
           label="Overdue Activities"
-          value={overdueCount}
-          bars={industrySpark.map((v) => Math.round(v / 4))}
+          value={overdueAccounts}
+          bars={[30, 35, 40, 38, 42, 45]}
           barColor={CHART_COLORS.red400}
           barWidth="w-24"
         />
@@ -392,7 +376,7 @@ export default function AccountsPage() {
                   <TableHead>Owner</TableHead>
                   <TableHead>Last Activity</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-10" />
+                  <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -479,8 +463,12 @@ export default function AccountsPage() {
                       <TableCell>
                         {/* Session-28 (S28-P6): the reference renders the
                             HEALTH badge under the "Status" header — its own
-                            header/cell mismatch, mirrored verbatim. */}
-                        <Badge className={ACCOUNT_HEALTH_BADGE[a.health] ?? ACCOUNT_HEALTH_BADGE.Healthy}>
+                            header/cell mismatch, mirrored verbatim.
+                            Session-75 (N-75c1-4, bundle-decoded): the
+                            out-of-vocabulary terminal is the GRAY map
+                            (`||"bg-gray-100 text-gray-800"`), not the
+                            Healthy green. */}
+                        <Badge className={ACCOUNT_HEALTH_BADGE[a.health] ?? "bg-gray-100 text-gray-800"}>
                           {a.health}
                         </Badge>
                       </TableCell>

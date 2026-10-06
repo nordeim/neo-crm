@@ -150,16 +150,19 @@ describe("session-28: the kke filter panel", () => {
     expect(src).toMatch(/lg:static lg:shadow-none/);
   });
 
-  it("the checkbox-card groups: Role / Priority / Activity Status / Company Size / Source", () => {
+  it("the checkbox-card groups: Role / Priority / Activity Status / Company Size / Source / Engagement Level", () => {
     // The vocabulary lists ride the constants (CONTACT_ROLES / COMPANY_SIZES /
     // CONTACT_SOURCE_OPTIONS — pinned in contact-model.test.ts); the page
     // pins are the group STRUCTURE + the literals the reference renders
-    // inline (the 30-day line + Clear All).
+    // inline (the 30-day line + Clear All). Session-75 (M-75c2-3): the
+    // SIXTH group — Engagement Level (High/Medium/Low) — the reference's
+    // panel order, the last card after Source.
     const src = page();
     expect(src).toContain("No Recent Activity (30+ days)");
     expect(src).toMatch(/CONTACT_ROLES\.map/);
     expect(src).toMatch(/COMPANY_SIZES\.map/);
     expect(src).toMatch(/CONTACT_SOURCE_OPTIONS\.map/);
+    expect(src).toContain("Engagement Level");
     expect(src).toContain("Clear All");
   });
 });
@@ -172,12 +175,15 @@ describe("session-28: the create dialog h3 headers + the stats fix + Scan Card",
     expect(src).toMatch(/text-sm font-semibold text-gray-700 uppercase tracking-wide/);
   });
 
-  it("Top Decision Makers counts role === Key Contact", () => {
+  it("Top Decision Makers counts BOTH roles (Decision Maker OR Key Contact)", () => {
     const src = page();
     const i = src.indexOf("Top Decision Makers");
     // The value prop follows the label in the JSX — anchor AFTER it.
-    const block = src.slice(i, i + 260);
-    expect(block).toMatch(/role === "Key Contact"|role==="Key Contact"/);
+    // Session-75 (M-75c2-4): the reference's G memo counts
+    // role === "Decision Maker" || role === "Key Contact".
+    const block = src.slice(i + "Top Decision Makers".length, i + 400);
+    expect(block).toMatch(/"Decision Maker"/);
+    expect(block).toMatch(/"Key Contact"/);
   });
 
   it("the Scan Card dialog is the real upload structure (not the camera stub)", () => {
