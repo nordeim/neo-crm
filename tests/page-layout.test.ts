@@ -280,7 +280,11 @@ describe("sidebar nav parity (session-7 DOM-verified)", () => {
 
 describe("topbar parity (session-7 DOM-verified)", () => {
   it("header is static py-4 with a justify-between inner row", () => {
-    expect(TOPBAR_LAYOUT.header).toBe("bg-surface border-b border-line px-4 sm:px-8 py-4");
+    // Session-73 (L-73c3): the reference's header carries the EXPLICIT
+    // border-gray-200 family (#e5e7eb — our --color-line-strong token;
+    // border-line #e5e5e5 was one family off, the S12-P3 inventory's
+    // own omission).
+    expect(TOPBAR_LAYOUT.header).toBe("bg-surface border-b border-line-strong px-4 sm:px-8 py-4");
     expect(TOPBAR_LAYOUT.inner).toBe("flex items-center justify-between gap-4");
   });
 
@@ -295,13 +299,16 @@ describe("topbar parity (session-7 DOM-verified)", () => {
     expect(TOPBAR_LAYOUT.searchInput).toBe("use shared Input + SEARCH_INPUT.extras");
   });
 
-  it("mail/bell are rounded-md h-9 w-9 icon buttons hidden below sm", () => {
-    // Session-11 (S11-P10): the reference ships `sm:flex` here (computed
-    // display: flex); the s7 pin recorded our sm:inline-flex variant —
-    // aligned to the reference's exact class this session.
-    expect(TOPBAR_LAYOUT.iconButton).toBe(
-      "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:flex",
-    );
+  it("mail/bell are the STOCK ghost icon Buttons (S73-P2) — the record's class era retired", () => {
+    // Session-73 (S73-P2, L-73c1/c2/c9): the reference renders
+    // `<Button variant="ghost" size="icon" className="text-gray-600
+    // hidden sm:flex">` — the stock base supplies the h-9 w-9, the
+    // rounded-md, the hover pair AND the [&_svg]:size-4 cascade (the
+    // icons COMPUTE 16px under their w-5 h-5 class noise — LIVE-
+    // measured on the reference). The hand-rolled iconButton record
+    // (text-muted, 20px icons, no focus ring) is RETIRED — the parity
+    // pins live in tests/topbar-rowmenu-parity.test.ts.
+    expect((TOPBAR_LAYOUT as Record<string, unknown>).iconButton).toBeUndefined();
     expect(TOPBAR_LAYOUT.iconClass).toBe("h-5 w-5");
   });
 
@@ -333,8 +340,11 @@ describe("topbar parity (session-7 DOM-verified)", () => {
     expect(TOPBAR_LAYOUT.userChevron).toBe("h-4 w-4 text-muted");
   });
 
-  it("user menu is min-w-[8rem] with plain items (no separator, no destructive)", () => {
-    expect(TOPBAR_LAYOUT.userMenu).toBe("min-w-[8rem]");
+  it("the dead userMenu record retired (S73-P2) — MenuContent owns min-w-[8rem]", () => {
+    // Session-73 (N-73c4): zero consumers ever read TOPBAR_LAYOUT.
+    // userMenu — the stock MenuContent carries MENU_CONTENT's own
+    // min-w-[8rem]. The record + this pin retire together.
+    expect((TOPBAR_LAYOUT as Record<string, unknown>).userMenu).toBeUndefined();
   });
 });
 
@@ -569,6 +579,12 @@ describe("session-9 component-anatomy pins", () => {
     // S9-16: ring-1 ring-ring focus (reference --ring = 0 0% 3.9%).
     expect(BUTTON_BASE.iconGap).toBe("[&_svg]:mr-2 [&_svg:only-child]:mr-0");
     expect(BUTTON_BASE.focusRing).toBe("focus-visible:ring-1 focus-visible:ring-ring");
+    // Session-73 (N-73c5 — the L-73c9 carrier): the reference's stock
+    // Button base carries [&_svg]:size-4 between pointer-events-none
+    // and shrink-0 — the cascade that makes the reference's w-5-h-5-
+    // classed Mail/Bell icons COMPUTE 16px (LIVE-measured; specificity
+    // (0,1,1) beats the icon's own (0,1,0) size classes).
+    expect(BUTTON_BASE.svgSize).toBe("[&_svg]:size-4");
   });
 
   it("input base: 16px below md + 1px near-black focus ring", () => {
@@ -580,6 +596,13 @@ describe("session-9 component-anatomy pins", () => {
     expect(INPUT_BASE.size).toBe("text-base md:text-sm");
     expect(INPUT_BASE.focusRing).toBe(
       "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+    );
+    // Session-73 (N-73c6): the reference's stock Input base carries the
+    // file:* family (live-dumped on the reference's search input) —
+    // latent for us (no type=file input uses the component) but part
+    // of the exact stock mirror.
+    expect(INPUT_BASE.file).toBe(
+      "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
     );
   });
 
@@ -816,13 +839,17 @@ describe("session-11 stat-card shadow + chart geometry pins (DOM-verified 2026-0
     expect(TABLE_SHADOWS.leads).toBe("shadow");
   });
 
-  it("the topbar icon buttons use the reference's sm:flex (S11-P10)", () => {
+  it("the topbar icon buttons use the reference's sm:flex (S11-P10) — via the stock Button construction (S73-P2)", () => {
     // DOM: `hidden … sm:flex` (computed display: flex). Ours shipped
     // sm:inline-flex — visually identical on fixed-size buttons, but the
     // computed value differs; aligned for exact parity.
-    expect(TOPBAR_LAYOUT.iconButton).toContain("hidden");
-    expect(TOPBAR_LAYOUT.iconButton).toContain("sm:flex");
-    expect(TOPBAR_LAYOUT.iconButton).not.toContain("sm:inline-flex");
+    // Session-73 (S73-P2): the record RETIRED — the reference's exact
+    // `text-gray-600 hidden sm:flex` now rides the stock ghost icon
+    // Button in topbar.tsx (pinned in tests/topbar-rowmenu-parity.test.ts).
+    expect((TOPBAR_LAYOUT as Record<string, unknown>).iconButton).toBeUndefined();
+    expect(
+      readFileSync(path.resolve(import.meta.dirname, "../src/components/layout/topbar.tsx"), "utf-8"),
+    ).toContain('className="text-gray-600 hidden sm:flex"');
   });
 });
 

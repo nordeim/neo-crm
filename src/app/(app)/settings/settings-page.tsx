@@ -541,7 +541,10 @@ function DefaultsEditor({ settings }: { settings: Settings | null }) {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    // Session-73 (N-73a3): the single-child flex wrapper retired — the
+    // Data-panel M-72c5 retirement's last sibling (a flex-col gap-4
+    // around an only child computes nothing).
+    <>
       {/* Session-14 (S14-P1): the reference's Default Values card is a
           SINGLE-COLUMN space-y-4 stack (16px between groups, every width)
           with space-y-2 groups (12px computed label→control gap), the
@@ -626,6 +629,6 @@ function DefaultsEditor({ settings }: { settings: Settings | null }) {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Bell, ChevronDown, Mail, Search } from "lucide-react";
 import {
   // Session-47 (S47-P4, N-47g): the Popover-based Dropdown family left
@@ -75,7 +76,11 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
           signal: controller.signal,
         });
         const body = await res.json().catch(() => null);
-        if (body?.ok) {
+        // Session-73 (N-73c2): the SUCCESS path is abort-gated too — the
+        // s46-P4 symmetry (the catch + envelope paths already carried
+        // it). A superseded run whose body buffered pre-abort could
+        // transiently flash stale results before the newer run wrote.
+        if (body?.ok && !controller.signal.aborted) {
           setResults(body.data);
           setOpen(true);
         } else if (!controller.signal.aborted) {
@@ -188,12 +193,20 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
         </div>
 
         <div className={TOPBAR_LAYOUT.rightGroup}>
-          <button type="button" aria-label="Messages" className={TOPBAR_LAYOUT.iconButton}>
+          {/* Session-73 (S73-P2, L-73c1/c2/c9): the reference's exact
+              construction — the STOCK ghost icon Button + the literal
+              `text-gray-600 hidden sm:flex`. The stock base supplies the
+              1px near-black focus ring AND the [&_svg]:size-4 cascade
+              under which the reference's w-5-h-5-classed icons COMPUTE
+              16px (LIVE-measured on the reference — ours rendered 20px
+              on the old raw buttons); the w-5 h-5 class noise below is
+              the reference's own. */}
+          <Button type="button" variant="ghost" size="icon" className="text-gray-600 hidden sm:flex" aria-label="Messages">
             <Mail className={TOPBAR_LAYOUT.iconClass} />
-          </button>
-          <button type="button" aria-label="Notifications" className={TOPBAR_LAYOUT.iconButton}>
+          </Button>
+          <Button type="button" variant="ghost" size="icon" className="text-gray-600 hidden sm:flex" aria-label="Notifications">
             <Bell className={TOPBAR_LAYOUT.iconClass} />
-          </button>
+          </Button>
 
           {user && (
             <Menu>
@@ -206,8 +219,14 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                     adds the composition and neutralizes the iconGap's
                     trailing-chevron margin. */}
                 <Button type="button" variant="ghost" className={TOPBAR_LAYOUT.userButton} aria-label="Account menu">
+                  {/* Session-73 (L-73c4/N-73c1): the reference's fallback
+                      chain — display_name || full_name || email ||
+                      "Guest". Our name is non-nullable + email-derived
+                      at signup (S21-P4), so the tail is dead-in-practice
+                      — the FORMULA is the parity (no @-split; the raw
+                      email when nameless). */}
                   <span className={TOPBAR_LAYOUT.userLabel}>
-                    Hi, {user.name || user.email.split("@")[0]}
+                    Hi, {user.name || user.email || "Guest"}
                   </span>
                   <span className={TOPBAR_LAYOUT.userAvatarRoot} aria-hidden="true">
                     {/* Session-30 (S30-P3): the reference's topbar avatar
@@ -221,7 +240,7 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                       />
                     ) : (
                       <div className={TOPBAR_LAYOUT.userAvatarFallback}>
-                        {(user.name || user.email).charAt(0).toUpperCase()}
+                        {(user.name || user.email || "G").charAt(0).toUpperCase()}
                       </div>
                     )}
                   </span>
@@ -229,7 +248,14 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                 </Button>
               </MenuTrigger>
               <MenuContent>
-                <MenuItem onSelect={() => router.push("/Profile")}>Profile</MenuItem>
+                {/* Session-73 (S73-P3, L-73c5): the reference's Profile
+                    item is `$s asChild` wrapping a REAL anchor (its ox
+                    Link → <a href="/Profile">) — the middle-click /
+                    open-in-new-tab semantics the router.push form lost.
+                    Our next/link twin keeps the client-side nav. */}
+                <MenuItem asChild>
+                  <Link href="/Profile">Profile</Link>
+                </MenuItem>
                 <MenuItem
                   onSelect={async () => {
                     await logout();

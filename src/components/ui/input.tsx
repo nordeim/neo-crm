@@ -18,7 +18,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       // --foreground #0a0a0a (text-ink) and placeholders use #737373
       // (--color-muted-ink). Ours shipped bg-white + #111827 + #9ca3af.
       className={cn(
-        `flex h-9 w-full rounded-md border border-line ${INPUT_BASE.bg} px-3 py-1 ${INPUT_BASE.size} ${INPUT_BASE.ink} shadow-sm ${INPUT_BASE.transition} ${INPUT_BASE.placeholder} ${INPUT_BASE.focusRing} disabled:cursor-not-allowed disabled:opacity-50`,
+        `flex h-9 w-full rounded-md border border-line ${INPUT_BASE.bg} px-3 py-1 ${INPUT_BASE.size} ${INPUT_BASE.ink} shadow-sm ${INPUT_BASE.transition} ${INPUT_BASE.file} ${INPUT_BASE.placeholder} ${INPUT_BASE.focusRing} disabled:cursor-not-allowed disabled:opacity-50`,
         className,
       )}
       {...props}

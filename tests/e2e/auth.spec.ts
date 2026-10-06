@@ -247,3 +247,45 @@ test("the /signup page renders the same minimal signup view", async ({ page }) =
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Welcome to NEO CRM" })).toHaveCount(0);
 });
+
+test("the signup 4xx negatives: the duplicate surfaces in the card + the API trio (S73-P7b)", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Need an account? Sign up" }).click();
+  await expect(page.getByLabel("Confirm Password")).toBeVisible();
+
+  // The UI-reachable negative: the DUPLICATE email (the seeded demo
+  // user) — the server's exact message surfaces in the card's
+  // ErrorCallout (the native type=email + minLength=8 guards block the
+  // other two at the form level, mirroring the reference's own form).
+  await page.getByLabel("Email").fill("sepnetflix2023@outlook.com");
+  await page.getByLabel("Password", { exact: true }).fill("TestPass123");
+  await page.getByLabel("Confirm Password").fill("TestPass123");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page.getByText("A user with this email already exists")).toBeVisible();
+
+  // The API-level trio (the s69 sessioned-pre-gate probe pattern): the
+  // invalid email, the short password, and the oversized body — the
+  // route's own 4xx vocabulary, pinned at the envelope level.
+  const invalidEmail = await page.request.post("/api/auth/signup", {
+    data: { email: "not-an-email", password: "TestPass123" },
+  });
+  expect(invalidEmail.status()).toBe(400);
+  const invalidBody = await invalidEmail.json();
+  expect(invalidBody.error.message).toBe("Enter a valid email address");
+
+  const shortPassword = await page.request.post("/api/auth/signup", {
+    data: { email: "valid@example.com", password: "short" },
+  });
+  expect(shortPassword.status()).toBe(400);
+  const shortBody = await shortPassword.json();
+  expect(shortBody.error.message).toBe("Password must be at least 8 characters");
+
+  // The oversized body (the N-67d declared-length pre-gate, 16KB cap):
+  // an oversized name rides to the family's shared guard.
+  const oversized = await page.request.post("/api/auth/signup", {
+    data: { email: "valid2@example.com", password: "TestPass123", name: "x".repeat(20 * 1024) },
+  });
+  expect(oversized.status()).toBe(400);
+  const oversizedBody = await oversized.json();
+  expect(oversizedBody.error.message).toBe("Request body too large");
+});

@@ -174,10 +174,14 @@ describe("session-27: the Agenda View rows (the filtered-events list)", () => {
     expect(region).not.toMatch(/flex items-center gap-3 p-3 border rounded-lg/);
   });
 
-  it("the agenda Edit/Delete live in the ••• dropdown (not inline buttons)", () => {
+  it("the agenda Edit/Delete live in the ••• menu (not inline buttons) — a REAL DropdownMenu (S73-P1)", () => {
     const src = page();
     const region = src.slice(src.indexOf("Agenda View"), src.indexOf("Agenda View") + 3200);
-    expect(region).toMatch(/DropdownContent/);
-    expect(region).toMatch(/DropdownItem/);
+    // Session-73 (M-73c6): the row menus migrated from the Popover
+    // Dropdown to the real Menu* primitives (role=menu).
+    expect(region).toMatch(/MenuContent/);
+    expect(region).toMatch(/MenuItem/);
+    expect(region).not.toMatch(/DropdownContent/);
+    expect(region).not.toMatch(/DropdownItem/);
   });
 });

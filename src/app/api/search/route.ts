@@ -28,7 +28,6 @@ export async function GET(req: Request) {
           },
           take: 5,
           orderBy: { name: "asc" },
-          include: { owner: { select: { id: true, name: true, avatarColor: true } } },
         }),
         db.contact.findMany({
           where: {
@@ -41,10 +40,6 @@ export async function GET(req: Request) {
           },
           take: 5,
           orderBy: { name: "asc" },
-          include: {
-            account: { select: { id: true, name: true } },
-            owner: { select: { id: true, name: true, avatarColor: true } },
-          },
         }),
         db.lead.findMany({
           where: {
@@ -56,10 +51,6 @@ export async function GET(req: Request) {
           },
           take: 5,
           orderBy: { updatedAt: "desc" },
-          include: {
-            account: { select: { id: true, name: true } },
-            owner: { select: { id: true, name: true, avatarColor: true } },
-          },
         }),
       ]);
     } catch {

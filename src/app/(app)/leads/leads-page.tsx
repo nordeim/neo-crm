@@ -13,17 +13,16 @@ import {
   ChevronDown,
   ChevronUp,
   Download,
-  // Session-29 (S29-P2, the C2 extract): the ⋮ trigger is the VERTICAL
-  // dots (the contacts/accounts family), not the horizontal More.
+  // Session-29 (S29-P2, the C2 extract) + session-73 (N-73c10): the ⋮
+  // trigger is the VERTICAL dots — the reference's single icon (Bw),
+  // now the family-wide form (accounts/contacts normalized to it).
   EllipsisVertical,
   Percent,
-  Pencil,
   Plus,
   Save,
   Search,
   Target,
   TrendingUp,
-  Trash2,
   X,
   XCircle,
 } from "lucide-react";
@@ -34,7 +33,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dropdown, DropdownContent, DropdownItem, DropdownSeparator, DropdownTrigger } from "@/components/ui/dropdown";
+// Session-73 (S73-P1, M-73c6): the row-action menu migrated to the REAL
+// Menu* primitives (the reference's own construction — bundle-decoded);
+// the separator RETIRED with it (the reference's row menus ship none).
+// The Popover Dropdown family STAYS for the Filters panel below — our
+// superset surface with no reference menu counterpart.
+import { Dropdown, DropdownContent, DropdownTrigger } from "@/components/ui/dropdown";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@/components/ui/dropdown";
 import { toast } from "@/components/ui/toast";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import {
@@ -627,33 +632,42 @@ export default function LeadsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Dropdown>
-                        <DropdownTrigger asChild>
-                          <Button variant="ghost" size="iconSm" aria-label={`Actions for ${l.name}`}>
+                      <Menu>
+                        <MenuTrigger asChild>
+                          {/* S73-P1 (M-73c8): the STOCK icon size — the
+                              reference's trigger is variant="ghost"
+                              size="icon" (h-9 w-9, 36px); ours shipped
+                              iconSm (h-7 w-7 = 28px). */}
+                          <Button variant="ghost" size="icon" aria-label={`Actions for ${l.name}`}>
                             <EllipsisVertical className="h-4 w-4" />
                           </Button>
-                        </DropdownTrigger>
-                        <DropdownContent>
+                        </MenuTrigger>
+                        <MenuContent>
                           {/* Session-28 (S28-P2): the ⋮ Edit opens the
                               reference's SEPARATE Mke edit dialog. */}
-                          <DropdownItem
+                          <MenuItem
                             onClick={() => {
                               setEditTarget(l);
                               setEditOpen(true);
                             }}
                           >
-                            <Pencil className="h-4 w-4 text-muted" /> Edit
-                          </DropdownItem>
+                            Edit
+                          </MenuItem>
                           {/* S29-P2: the reference's own quirk — Convert
                               to Opportunity has NO onClick
                               (bundle-verified dead item). */}
-                          <DropdownItem>Convert to Opportunity</DropdownItem>
-                          <DropdownSeparator />
-                          <DropdownItem destructive onClick={() => onDelete(l)}>
-                            <Trash2 className="h-4 w-4" /> Delete
-                          </DropdownItem>
-                        </DropdownContent>
-                      </Dropdown>
+                          <MenuItem>Convert to Opportunity</MenuItem>
+                          {/* S73-P1 (M-73c9): the reference's bare
+                              text-red-600 literal; the separator + the
+                              item icons retired with the migration. The
+                              window.confirm gate is our documented
+                              safety superset (the reference's deletes
+                              are direct). */}
+                          <MenuItem className="text-red-600" onClick={() => onDelete(l)}>
+                            Delete
+                          </MenuItem>
+                        </MenuContent>
+                      </Menu>
                     </TableCell>
                   </TableRow>
                 ))}

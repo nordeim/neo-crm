@@ -136,17 +136,27 @@ describe("session-29: the INLINE Next Follow-up date (the C2 core)", () => {
 });
 
 describe("session-29: the actions menu", () => {
-  it("the EllipsisVertical trigger (not MoreHorizontal)", () => {
+  it("the EllipsisVertical trigger (not MoreHorizontal) at the STOCK icon size (S73-P1, M-73c8)", () => {
     const src = page();
     expect(src).toMatch(/<EllipsisVertical/);
     expect(src).not.toMatch(/<MoreHorizontal/);
+    // Session-73 (M-73c8): the reference's row trigger is the STOCK
+    // ghost icon Button (h-9 w-9); ours shipped iconSm (h-7 w-7 = 28px
+    // vs the reference's 36px — bundle-decoded).
+    const at = src.indexOf('aria-label={`Actions for ${l.name}`}');
+    expect(at).toBeGreaterThanOrEqual(0);
+    const region = src.slice(Math.max(0, at - 300), at + 120);
+    expect(region).toMatch(/variant="ghost" size="icon"/);
+    expect(region).not.toMatch(/iconSm/);
   });
 
   it("Edit / Convert to Opportunity / Delete — Convert is DEAD (no onClick)", () => {
     const src = page();
     // The reference's own quirk: the item carries NO handler prop at all
-    // (bundle-verified) — pinned as the exact bare element.
-    expect(src).toMatch(/<DropdownItem>Convert to Opportunity<\/DropdownItem>/);
+    // (bundle-verified) — pinned as the exact bare element. Session-73
+    // (S73-P1): the row menus migrated to the real Menu* primitives —
+    // the bare MenuItem form.
+    expect(src).toMatch(/<MenuItem>Convert to Opportunity<\/MenuItem>/);
     expect(src).toMatch(/Delete/);
   });
 

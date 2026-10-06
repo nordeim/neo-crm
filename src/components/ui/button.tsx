@@ -15,7 +15,13 @@ const buttonVariants = cva(
     // Session-13 (S13-P3): rounded-md — the reference renders 6px radius
     // on EVERY button (computed sweep, all pages + dialogs + icon
     // buttons). Ours shipped rounded-lg on the base.
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none",
+    // Session-73 (N-73c5): the stock svg size — the reference's base
+    // carries [&_svg]:size-4 here (between pointer-events-none and
+    // shrink-0); the cascade that computes its 20px-classed icons at
+    // 16px.
+    BUTTON_BASE.svgSize,
+    "[&_svg]:shrink-0",
     BUTTON_BASE.iconGap,
     BUTTON_BASE.focusRing,
   ),

@@ -289,8 +289,11 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     expect(src).toMatch(/\bPAGE_KPI_GRIDS\b/);
     expect(src).toMatch(/\bTABLE_CARD\b/);
     expect(src).toMatch(/\bENGAGEMENT_BARS\b/);
-    expect(src).toMatch(/\bMoreVertical\b/);
-    expect(src).toMatch(/\bDropdownContent\b/);
+    // Session-73 (N-73c10): the ⋮ family normalized to EllipsisVertical
+    // (the reference's single vertical-dots icon — the same SVG lucide
+    // ships as MoreVertical; the S29-P2 comment's own claim, now true).
+    expect(src).toMatch(/\bEllipsisVertical\b/);
+    expect(src).toMatch(/\bMenuContent\b/);
   });
 
   it("accounts-page + activities-page carry none of their three orphans (N-56a)", () => {
@@ -299,8 +302,10 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     expect(acts).not.toMatch(/\bCell\b/);
     expect(acts).not.toMatch(/\bAvatar\b/);
     // …while the live siblings from the same import lines stay.
-    expect(accounts()).toMatch(/\bDropdownContent\b/);
-    expect(accounts()).toMatch(/\bDropdownTrigger\b/);
+    // Session-73 (S73-P1): the accounts row menu migrated to the Menu*
+    // primitives — the live siblings are the Menu family now.
+    expect(accounts()).toMatch(/\bMenuContent\b/);
+    expect(accounts()).toMatch(/\bMenuTrigger\b/);
     // Session-70 (S70-P3) re-anchor: ResponsiveContainer's acts
     // assertion superseded — the whole recharts import retired when the
     // by-type chart moved to the SingleBarChart family (the live import
@@ -364,7 +369,10 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
   it("the living underlying surfaces stay exported (the narrowing is not a retirement)", () => {
     // timeAgo (the activities timeline consumer, :388), ENGAGEMENT_LEVELS
     // (contacts API), FILTER_RAIL/EMPTY_STATE (page-layout), the stock
-    // Avatar/Cell/DropdownSeparator — all still exported by their owners.
+    // Avatar/Cell — all still exported by their owners. Session-73
+    // (S73-P1): DropdownSeparator RETIRED with its last consumer (the
+    // leads row menu's separator — the reference's row menus ship no
+    // separators, bundle-decoded).
     expect(format()).toMatch(/export function timeAgo/);
     expect(constants()).toMatch(/\bENGAGEMENT_LEVELS\b/);
     const pageLayout = stripComments(read("src/lib/page-layout.ts") ?? "");
@@ -373,7 +381,7 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     const avatar = stripComments(read("src/components/ui/avatar.tsx") ?? "");
     expect(avatar).toMatch(/export \{ Avatar,/);
     const dropdown = stripComments(read("src/components/ui/dropdown.tsx") ?? "");
-    expect(dropdown).toMatch(/DropdownSeparator/);
+    expect(dropdown).not.toMatch(/DropdownSeparator/);
   });
 
   it("the vendored ui stock-surface mirror stays whole (the N-56e operator KEEP)", () => {

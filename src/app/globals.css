@@ -42,8 +42,11 @@
      form input. Its EXPLICIT `border-gray-200` family (#e5e7eb) covers
      only: the reports KPI stat cards, the reports sticky filter card, the
      contacts table card and the topbar search input (that one already
-     ships literal border-gray-200). --color-line carries the default;
-     --color-line-strong carries the explicit family. */
+     ships literal border-gray-200), and since session-73 the TOPBAR
+     HEADER border too (L-73c3 — the reference's header carries the
+     explicit family; ours shipped the default one family off).
+     --color-line carries the default; --color-line-strong carries the
+     explicit family. */
   --color-line: #e5e5e5;
   --color-line-strong: #e5e7eb;
   /* Session-14 (S14-P5): re-pinned from the scaffold-era #f3f4f6 (gray-100)

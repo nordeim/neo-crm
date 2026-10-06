@@ -66,10 +66,12 @@ export function isGuarded(x: { user: SessionUser } | { response: NextResponse })
  * upload gate): a chunked body without a Content-Length header bypasses
  * this check; the JSON parse's own failure mode stays the backstop.
  * Session-68 (F-68a2): the SAME ceiling + helper now gate the sessioned
- * CRUD family too (accounts/activities/contacts/events/leads x[root+
- * [id]] + settings + reset — placed after requireSession, before the
- * parse; the honest CRUD bodies are asString-capped fields, far below
- * the ceiling). */
+ * CRUD family too — placed after requireSession, before the parse; the
+ * honest CRUD bodies are asString-capped fields, far below the ceiling.
+ * Session-72 (M-72c2) + session-73 (N-73a1): the family is THIRTEEN
+ * routes (accounts/activities/contacts/events/leads x[root+[id]] +
+ * settings + users + reset — the users PATCH joined at s72; this
+ * comment's "12" enumeration was the s72 record's unlanded half). */
 export const MAX_AUTH_BODY_BYTES = 16 * 1024;
 
 /** True when the request DECLARES a body larger than the auth ceiling —

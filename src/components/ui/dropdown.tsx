@@ -70,26 +70,33 @@ function DropdownItem({
   );
 }
 
-function DropdownSeparator({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("-mx-1 my-1 h-px bg-line", className)} {...props} />;
-}
+// Session-73 (S73-P1): DropdownSeparator RETIRED — its last consumer was
+// the leads row menu's separator, and the reference's row menus ship no
+// separators (bundle-decoded: all five Yg contents are flat $s lists).
+// DropdownLabel STAYS (the N-56e operator KEEP — the vendored stock
+// mirror's completeness is part of the parity contract).
 
 function DropdownLabel({ className, ...props }: React.ComponentProps<"div">) {
   return <div className={cn("px-2 py-1.5 text-xs font-medium text-muted", className)} {...props} />;
 }
 
-export { Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator, DropdownLabel };
+export { Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownLabel };
 
 // ---------------------------------------------------------------------------
-// Session-13 (S13-P4): the STOCK account-menu primitives. The reference's
-// topbar account menu is a real Radix DropdownMenu (role=menu with
-// menuitems, z-50/rounded-md/shadow-md surface, rounded-sm items with
-// focus:bg-accent + cursor-default) — class-dumped on the live reference
-// (2026-09-30). The Popover-based Dropdown above stays for our superset
-// menus (row actions, quick-create — unverifiable on the zero-data
-// reference). Token VALUES are preserved via our own variables where the
-// reference uses popover tokens (bg-popover = our --color-surface white,
-// border = --color-line #e5e5e5, text = --color-foreground).
+// Session-13 (S13-P4): the STOCK DropdownMenu primitives. The reference's
+// account menu AND its four row-action menus are real Radix DropdownMenus
+// (role=menu with menuitems, z-50/rounded-md/shadow-md surface, rounded-sm
+// items with focus:bg-accent + cursor-default) — class-dumped on the live
+// reference (2026-09-30) + bundle-decoded (session 73: five Yg align:"end"
+// contents — the account menu + the accounts/contacts/leads/calendar row
+// menus, 13 stock $s items, ALL text-only). Session-73 (S73-P1): the four
+// row menus migrated here from the Popover family. The Popover-based
+// Dropdown above stays for our SUPerset menus only (the dashboard
+// quick-create + export dropdowns and the leads Filters panel — surfaces
+// with no reference menu counterpart). Token VALUES are preserved via our
+// own variables where the reference uses popover tokens (bg-popover = our
+// --color-surface white, border = --color-line #e5e5e5, text =
+// --color-foreground).
 // ---------------------------------------------------------------------------
 
 const Menu = DropdownMenuPrimitive.Root;
@@ -108,6 +115,16 @@ function MenuContent({
         sideOffset={sideOffset}
         className={cn(MENU_CONTENT, className)}
         {...props}
+        // Session-73 (S73-P1): the S46-P7 click containment, extended to
+        // the Menu family with the migration — React synthetic clicks on
+        // DropdownMenu portals bubble through the REACT tree to clickable
+        // ancestors (a TableRow's onClick) exactly the way the Popover
+        // portals do; the composed handler preserves a caller's onClick
+        // then stops the bubbling.
+        onClick={(e) => {
+          props.onClick?.(e);
+          e.stopPropagation();
+        }}
       />
     </DropdownMenuPrimitive.Portal>
   );

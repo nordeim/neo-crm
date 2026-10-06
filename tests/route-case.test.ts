@@ -164,10 +164,16 @@ describe("session-24: the nav href byte-contract + case-insensitive active state
     expect(sidebar).not.toMatch(/href === "\/" \? pathname === "\/"/);
   });
 
-  it("the topbar account menu pushes the reference's /Profile target", () => {
+  it("the topbar account menu anchors the reference's /Profile target (S73-P3)", () => {
     const topbar = stripComments(read("src/components/layout/topbar.tsx")!);
-    expect(topbar).toMatch(/router\.push\("\/Profile"\)/);
+    // Session-73 (L-73c5): the reference renders the Profile menuitem
+    // asChild wrapping a REAL anchor (its ox Link → <a href="/Profile">)
+    // — the middle-click/open-in-new-tab semantics the router.push
+    // form lost. Our next/link twin keeps the client-side nav.
+    expect(topbar).toMatch(/<MenuItem asChild>/);
+    expect(topbar).toMatch(/<Link href="\/Profile">Profile<\/Link>/);
     expect(topbar).not.toMatch(/router\.push\("\/profile"\)/);
+    expect(topbar).not.toMatch(/router\.push\("\/Profile"\)/);
   });
 });
 

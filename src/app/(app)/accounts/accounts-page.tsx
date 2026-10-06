@@ -2,7 +2,7 @@
 
 import { downloadBlob } from "@/lib/download";
 import * as React from "react";
-import { Building2, Download, MoreVertical, Plus, Search, Star, Trash2 } from "lucide-react";
+import { Building2, Download, EllipsisVertical, Plus, Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,11 @@ import { Input } from "@/components/ui/input";
 // dropdown import below — its only in-file reference was the import
 // itself (the N-53c/N-55a class). The export stays alive (leads-page
 // consumes it live).
-import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
+// Session-73 (S73-P1, M-73c6): the row-action menu migrated to the REAL
+// Menu* primitives (the reference's own construction — its five Yg
+// align:"end" DropdownMenus bundle-decoded: the account menu + the four
+// row menus, all with stock text-only $s items).
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@/components/ui/dropdown";
 import { BarStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD, TABLE_TOOLBAR, VIEW_SWITCHER } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
@@ -481,39 +485,45 @@ export default function AccountsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Dropdown>
-                          <DropdownTrigger asChild>
+                        <Menu>
+                          <MenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
                               aria-label={`Actions for ${a.name}`}
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <MoreVertical className="h-4 w-4" />
+                              <EllipsisVertical className="h-4 w-4" />
                             </Button>
-                          </DropdownTrigger>
-                          <DropdownContent>
-                            <DropdownItem
+                          </MenuTrigger>
+                          <MenuContent>
+                            <MenuItem
                               onClick={() => {
                                 setEditTarget(a);
                                 setEditOpen(true);
                               }}
                             >
                               Edit
-                            </DropdownItem>
-                            <DropdownItem
+                            </MenuItem>
+                            <MenuItem
                               onClick={() => {
                                 setInsightsAccount(a);
                                 setInsightsOpen(true);
                               }}
                             >
                               View Insights
-                            </DropdownItem>
-                            <DropdownItem destructive onClick={() => onDelete(a)}>
-                              <Trash2 className="h-4 w-4" /> Delete
-                            </DropdownItem>
-                          </DropdownContent>
-                        </Dropdown>
+                            </MenuItem>
+                            {/* S73-P1 (M-73c9): the reference's bare
+                                text-red-600 literal on the stock item —
+                                the destructive prop's danger-soft hover
+                                was our invention. The window.confirm gate
+                                below is our documented safety superset
+                                (the reference's deletes are direct). */}
+                            <MenuItem className="text-red-600" onClick={() => onDelete(a)}>
+                              Delete
+                            </MenuItem>
+                          </MenuContent>
+                        </Menu>
                       </TableCell>
                     </TableRow>
                       );

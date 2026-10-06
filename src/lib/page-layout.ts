@@ -241,7 +241,10 @@ export const NAV_LAYOUT = {
  *  scrolling). The global search is hidden below `sm` on the reference;
   ours keeps the functional results dropdown + aria-label (e2e-pinned). */
 export const TOPBAR_LAYOUT = {
-  header: "bg-surface border-b border-line px-4 sm:px-8 py-4",
+  // Session-73 (L-73c3): the reference's header carries the EXPLICIT
+  // border-gray-200 family (#e5e7eb) — our --color-line-strong token
+  // (border-line #e5e5e5 was one family off).
+  header: "bg-surface border-b border-line-strong px-4 sm:px-8 py-4",
   inner: "flex items-center justify-between gap-4",
   searchBlock: "hidden sm:flex flex-1 max-w-xl",
   searchWrap: "relative w-full",
@@ -255,12 +258,11 @@ export const TOPBAR_LAYOUT = {
   // focus-visible ring. The old custom string (pr-4 16px, focus: on click,
   // text-foreground) is retired.
   searchInput: "use shared Input + SEARCH_INPUT.extras",
-  // Session-11 (S11-P10): the reference's mail/bell buttons are
-  // `hidden … sm:flex` (computed display: flex) — ours shipped
-  // sm:inline-flex, visually identical on fixed-size buttons but a
-  // computed diff; aligned.
-  iconButton:
-    "hidden h-9 w-9 rounded-md text-muted transition-colors hover:bg-line-soft hover:text-foreground sm:flex",
+  // Session-73 (S73-P2): the iconButton record RETIRED — the reference
+  // renders the STOCK ghost icon Button + `text-gray-600 hidden
+  // sm:flex` (the construction lives in topbar.tsx; the stock base
+  // supplies h-9 w-9/rounded-md/the hover pair/the focus ring/the
+  // [&_svg]:size-4 cascade under which the icons compute 16px).
   iconClass: "h-5 w-5",
   rightGroup: "flex items-center gap-2 sm:gap-4",
   // Session-17 (S17-P1): the reference's trigger is the STOCK ghost Button
@@ -282,7 +284,8 @@ export const TOPBAR_LAYOUT = {
   userAvatarFallback:
     "w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm",
   userChevron: "h-4 w-4 text-muted",
-  userMenu: "min-w-[8rem]",
+  // Session-73 (N-73c4): the userMenu record RETIRED — zero consumers
+  // (the stock MenuContent carries MENU_CONTENT's own min-w-[8rem]).
 } as const;
 
 /** Login card — the reference's slate design: borderless glass card with a
@@ -593,6 +596,10 @@ export const ACTIVITY_QUICKLOG = {
 export const BUTTON_BASE = {
   iconGap: "[&_svg]:mr-2 [&_svg:only-child]:mr-0",
   focusRing: "focus-visible:ring-1 focus-visible:ring-ring",
+  // Session-73 (N-73c5 — the L-73c9 carrier): the reference's stock
+  // Button base carries [&_svg]:size-4 — the cascade that makes its
+  // w-5-h-5-classed Mail/Bell icons COMPUTE 16px (LIVE-measured).
+  svgSize: "[&_svg]:size-4",
   // Session-13 (S13-P3): the reference is rounded-md (6px) on EVERY
   // button — page headers, dialogs, topbar icon buttons (computed sweep
   // across all 8 pages + profile). Ours shipped rounded-lg on the base
@@ -617,6 +624,10 @@ export const INPUT_BASE = {
   placeholder: "placeholder:text-muted-ink",
   transition: "transition-colors",
   focusRing: "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+  // Session-73 (N-73c6): the reference's stock Input base carries the
+  // file:* family (live-dumped on its search input) — latent for us (no
+  // type=file input uses the component) but part of the exact mirror.
+  file: "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
 } as const;
 
 /** S10-2: the stock shadcn Select trigger (DOM-extracted from the live

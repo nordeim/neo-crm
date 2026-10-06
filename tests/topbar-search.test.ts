@@ -61,13 +61,15 @@ describe("session-44: the topbar search resets on a non-ok envelope too (S44-P5)
   it("the !body?.ok path resets BOTH the results and the dropdown (the catch's own reset)", () => {
     const src = topbar();
     expect(src).toMatch(
-      /if\s*\(body\?\.ok\)\s*\{[\s\S]*?\}\s*else(?:\s+if\s*\(!controller\.signal\.aborted\))?\s*\{[\s\S]*?setResults\(null\);[\s\S]*?setOpen\(false\);[\s\S]*?\}/,
+      /if\s*\(body\?\.ok(?:\s*&&\s*!controller\.signal\.aborted)?\)\s*\{[\s\S]*?\}\s*else(?:\s+if\s*\(!controller\.signal\.aborted\))?\s*\{[\s\S]*?setResults\(null\);[\s\S]*?setOpen\(false\);[\s\S]*?\}/,
     );
     // Session-46 (S46-P4) evolution: the envelope reset gained the
     // abort-awareness gate (} else { → } else if (!controller.signal.
     // aborted) {) — the pinned INTENT (the envelope path resets BOTH
     // results and dropdown) is unchanged; the s46 pin below pins the
-    // gate itself.
+    // gate itself. Session-73 (N-73c2): the SUCCESS path gained the
+    // same gate (body?.ok && !controller.signal.aborted — the s46-P4
+    // symmetry; the optional group above absorbs it).
   });
 });
 

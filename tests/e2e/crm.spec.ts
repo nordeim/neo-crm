@@ -1937,7 +1937,9 @@ test("the contacts ⋮ Edit opens the SEPARATE W7 edit dialog (S28-P2)", async (
   const firstRow = page.locator("tbody tr").first();
   await expect(firstRow).toBeVisible();
   await firstRow.getByLabel(/^Actions for /).click();
-  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  // S73-P1: the row menus are REAL role=menu surfaces now — the items
+  // are menuitems, not buttons.
+  await page.getByRole("menuitem", { name: "Edit", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText("Edit Contact")).toBeVisible();
@@ -2000,9 +2002,13 @@ test("the accounts ⋮ menu ships Edit / View Insights / Delete + the health bad
   const firstRow = page.locator("tbody tr").first();
   await expect(firstRow).toBeVisible();
   await firstRow.getByLabel(/^Actions for /).click();
-  await expect(page.getByRole("button", { name: "Edit", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "View Insights" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Delete", exact: true })).toBeVisible();
+  // S73-P1 (M-73c6): the row menu is a REAL DropdownMenu — role=menu
+  // with menuitem children (the reference's own construction).
+  const menu = page.getByRole("menu");
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Edit", exact: true })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "View Insights" })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Delete", exact: true })).toBeVisible();
   // The health badge vocabulary in the Status column (the reference's own
   // header/cell mismatch).
   const cell = firstRow.locator("td").nth(6);
@@ -2015,7 +2021,7 @@ test("the leads ⋮ Edit opens the Mke edit dialog with the 4-option statuses (S
   const firstRow = page.locator("tbody tr").first();
   await expect(firstRow).toBeVisible();
   await firstRow.getByLabel(/^Actions for /).click();
-  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Edit", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText("Edit Lead")).toBeVisible();
@@ -2091,9 +2097,9 @@ test("the ⋮ menu ships Edit / the DEAD Convert to Opportunity / Delete (S29-P2
   await expect(page.getByText("No leads found")).toHaveCount(0);
   const row = page.locator("tbody tr", { hasText: "E2E — Playwright deal" });
   await row.getByLabel(/^Actions for /).click();
-  await expect(page.getByRole("button", { name: "Convert to Opportunity" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Convert to Opportunity" })).toBeVisible();
   // The reference's own quirk: the item is DEAD — no dialog, no navigation.
-  await page.getByRole("button", { name: "Convert to Opportunity" }).click();
+  await page.getByRole("menuitem", { name: "Convert to Opportunity" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(page.url()).toContain("/leads");
 });
@@ -2372,7 +2378,7 @@ test("the month-flip trailing-cell round-trip: a next-month event created on a t
   await expect(page.getByTitle("S54 Trailing Cell Probe")).toBeVisible();
   await page.getByRole("button", { name: "Event actions" }).first().click();
   page.once("dialog", (d) => d.accept());
-  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
   await expect(page.getByTitle("S54 Trailing Cell Probe")).toHaveCount(0);
   // The trailing cell is back to zero events — the pristine grid.
   await expect(page.getByRole("button", { name: `${label(target)} — 0 events`, exact: true })).toBeVisible();
@@ -2485,6 +2491,85 @@ test("the settings defaults persist via the debounce WITHOUT losing focus (S72-P
   // test's wipe) meet the pristine settings contract.
   await page.getByLabel("Default Currency").fill("AED");
   await page.waitForTimeout(1200);
+});
+
+test("the logout round-trip: the menu Logout clears the session + protects the app (S73-P7a)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await page.getByRole("button", { name: "Account menu" }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu.getByRole("menuitem", { name: "Logout" })).toBeVisible();
+  await menu.getByRole("menuitem", { name: "Logout" }).click();
+  // The reference's own flow: the logout clears the session cookie and
+  // lands on /login.
+  await page.waitForURL("**/login");
+  await expect(page.getByRole("heading", { name: "Welcome to NEO CRM" })).toBeVisible();
+  // The session is CLEARED server-side: a protected route now redirects
+  // (the storageState's cookie no longer authorizes).
+  await page.goto("/settings");
+  await page.waitForURL("**/login");
+});
+
+test("the contact upload negative trio: the client alert + the two server rejections (S73-P7c)", async ({ page }) => {
+  await page.goto("/contacts");
+  await page.getByRole("button", { name: "New Contact" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  const fileInput = dialog.locator('input[type="file"]');
+  const alerts: string[] = [];
+  page.on("dialog", async (d) => {
+    alerts.push(d.message());
+    await d.accept();
+  });
+
+  // (1) A NON-IMAGE file: the reference's own CLIENT-side check with its
+  // exact native alert (the AAe onChange, bundle-verified) — no request
+  // ever leaves the page.
+  await fileInput.setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("not an image") });
+  await expect.poll(() => alerts).toContain("Please upload an image file (JPG or PNG)");
+
+  // (2) An OVERSIZED image: the declared-length pre-gate 400s (the 5MB
+  // ceiling the reference's profile hint advertises) -> the failure
+  // alert (the route's error surfaced through the AAe catch family).
+  await fileInput.setInputFiles({
+    name: "big.png",
+    mimeType: "image/png",
+    buffer: Buffer.alloc(5 * 1024 * 1024 + 2048, 1),
+  });
+  await expect.poll(() => alerts).toContain("Failed to upload photo. Please try again.");
+
+  // (3) An UNSUPPORTED image MIME: image/svg+xml passes the startsWith
+  // check but is not in EXT_BY_MIME (gif/webp ARE whitelisted — the
+  // run's own discovery) -> the same failure alert.
+  await fileInput.setInputFiles({
+    name: "x.svg",
+    mimeType: "image/svg+xml",
+    buffer: Buffer.from("<svg xmlns='http://www.w3.org/2000/svg'/>"),
+  });
+  await expect.poll(() => alerts.filter((m) => m === "Failed to upload photo. Please try again.")).toHaveLength(2);
+
+  // No avatar rendered anywhere in the dialog — the photoUrl never
+  // landed in the form state (the pristine fallback stays).
+  await expect(dialog.locator("img")).toHaveCount(0);
+});
+
+test("the dashboard quick-create dropdown smoke: the five items + the Lead click-through (S73-P7d)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  // The Add dropdown (our superset — the reference's Add is a plain
+  // button): opens the Popover menu with the five quick-create items.
+  // The page carries THREE "Add" buttons (the header trigger + the two
+  // quick-log text buttons) — the trigger is the only PopovER one
+  // (aria-haspopup).
+  await page.locator('button[aria-haspopup="dialog"]').filter({ hasText: "Add" }).click();
+  for (const item of ["Lead", "Contact", "Account", "Event", "Activity"]) {
+    await expect(page.getByRole("button", { name: item, exact: true })).toBeVisible();
+  }
+  // One click-through: the Lead item opens the create dialog.
+  await page.getByRole("button", { name: "Lead", exact: true }).click();
+  const createDialog = page.getByRole("dialog");
+  await expect(createDialog).toBeVisible();
+  await expect(createDialog.getByText("Create New Lead")).toBeVisible();
 });
 
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {

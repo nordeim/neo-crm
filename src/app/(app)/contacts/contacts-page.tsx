@@ -10,10 +10,10 @@ import {
   CircleCheckBig,
   Crown,
   Download,
+  EllipsisVertical,
   FileText,
   Mail,
   MessageCircle,
-  MoreVertical,
   Phone,
   Plus,
   // Session-17 (S17-P2c): the reference's Scan Card ships `scan` (4
@@ -21,7 +21,6 @@ import {
   // button ships a DOWNLOAD glyph (the reference's own quirk).
   Scan,
   Search,
-  Trash2,
   TrendingUp,
   Upload,
   Users,
@@ -55,7 +54,9 @@ import {
 // the contacts API routes; FILTER_RAIL in calendar/reports; Avatar in
 // accounts-page + the ui kit [s57 correction — profile hand-rolls its
 // avatar spans]; DropdownSeparator in leads).
-import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
+// Session-73 (S73-P1, M-73c6): the row-action menu migrated to the REAL
+// Menu* primitives (the reference's own construction — bundle-decoded).
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@/components/ui/dropdown";
 import { IconStatCard, PageHeader, TableEmptyRow } from "@/components/shared/page-parts";
 import { CONTACTS_LAYOUT, PAGE_KPI_GRIDS, TABLE_CARD } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
@@ -585,29 +586,38 @@ export default function ContactsPage() {
                         <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-blue-100 hover:text-blue-700 transition-colors" aria-label={`WhatsApp ${c.name}`}>
                           <MessageCircle className="w-4 h-4" />
                         </Button>
-                        <Dropdown>
-                          <DropdownTrigger asChild>
+                        <Menu>
+                          <MenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-gray-100" aria-label={`Actions for ${c.name}`}>
-                              <MoreVertical className="h-4 w-4" />
+                              <EllipsisVertical className="h-4 w-4" />
                             </Button>
-                          </DropdownTrigger>
-                          <DropdownContent>
-                            <DropdownItem
+                          </MenuTrigger>
+                          <MenuContent>
+                            <MenuItem
                               onClick={() => {
                                 setEditTarget(c);
                                 setEditOpen(true);
                               }}
                             >
                               Edit
-                            </DropdownItem>
-                            <DropdownItem onClick={() => setDetailContact(c)}>
+                            </MenuItem>
+                            {/* S73-P1: the reference's own item is DEAD
+                                (bundle-verified — c.jsx($s,{children:
+                                "Log Activity"}) carries no onClick, the
+                                S29-P2 Convert-to-Opportunity twin). Ours
+                                stays WIRED to the ContactDetailPanel —
+                                the documented superset's entry point. */}
+                            <MenuItem onClick={() => setDetailContact(c)}>
                               Log Activity
-                            </DropdownItem>
-                            <DropdownItem destructive onClick={() => onDelete(c)}>
-                              <Trash2 className="h-4 w-4" /> Delete
-                            </DropdownItem>
-                          </DropdownContent>
-                        </Dropdown>
+                            </MenuItem>
+                            {/* S73-P1 (M-73c9): the reference's bare
+                                text-red-600 literal. The window.confirm
+                                gate is our documented safety superset. */}
+                            <MenuItem className="text-red-600" onClick={() => onDelete(c)}>
+                              Delete
+                            </MenuItem>
+                          </MenuContent>
+                        </Menu>
                       </div>
                     </TableCell>
                   </TableRow>

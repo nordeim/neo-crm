@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1330 checks)       | `bun run test`                         |
-| Browser E2E (122 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1356 checks)       | `bun run test`                         |
+| Browser E2E (126 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1330) → `bun run build` → `bun run test:e2e` (122) — or the
+`bun run test` (1356) → `bun run build` → `bun run test:e2e` (126) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3067,3 +3067,59 @@ operations under env -u DATABASE_URL).
   — runbook: `docs/how-to-git-push-using-ssh-wrapper_SKILL.md` (the wrapper
   preflights for an `ssh` binary; sandboxes without one deploy the Appendix A
   paramiko shim on PATH first).
+
+**Session-73 (SKILL v1.70.0)** — the topbar/search + row-menu family
+session (the 73-c fresh-eyes rotation on the topbar/search family —
+topbar.tsx 262 + mobile-nav 206 + app-shell 70 + sidebar 79 +
+api/search 73 + the page-layout records + the ui kit — session_138's
+own suggested target, never a dedicated rotation, finding the N-73
+family with every claim manually validated + the parity-bearing fixes
+bundle-decoded AND live-measured [the computed-16px icon cascade
+measured on the reference itself]; the 73-a s72 re-audit 9/9 GENUINE
++ 5 Nano notes [the N-73a1 api.ts comment half-claim — fixed this
+session]; the 73-b graduation audit ZERO graduations 13/13 [30th
+consecutive], the 8 censuses clean; both operator decisions standing:
+the CSV formula-injection posture (b) [32nd re-affirmation] + the
+source-vocabulary documented parity EXTENDING to the family [the
+row-menu vocabularies now bundle-verified verbatim]): the M-73c6
+ROW-MENU MIGRATION [the four row-action menus — accounts/contacts/
+leads/calendar — moved from the Popover-based Dropdown (role=dialog)
+to the REAL Menu* primitives: the reference ships five Yg align:"end"
+DropdownMenus bundle-decoded with 13 stock text-only $s items; role=menu
++ arrow-key navigation + the S46-P7 click containment extended to
+MenuContent, LIVE-proven — the accounts Edit opens ONLY the edit
+dialog, zero row-click ghosts] — PLUS the M-73c7 ITEM-ICON +
+SEPARATOR RETIREMENT [the Pencil/Trash2 icons + the leads separator
+gone; the DropdownSeparator component retired with its last consumer
+while DropdownLabel stays per the N-56e operator KEEP] — PLUS the
+M-73c8 LEADS-TRIGGER SIZE [iconSm 28px → the stock 36px] — PLUS the
+M-73c9 RED-DELETE LITERAL [className="text-red-600" on the stock base;
+the destructive prop's danger-soft hover retired] — PLUS the topbar
+sextet [the L-73c1/c2/c9 mail/bell as the STOCK ghost icon Buttons
+with text-gray-600 hidden sm:flex — the icons COMPUTE 16px under
+their w-5 h-5 class noise via the [&_svg]:size-4 cascade, LIVE-
+measured; the L-73c3 header border-line-strong (the reference's
+explicit gray-200, the S12-P3 inventory corrected); the L-73c4 "Hi,"
+chain (user.name || user.email || "Guest", no @-split) + the avatar
+"G" terminal; the L-73c5 Profile item as MenuItem asChild + next/link
+— a REAL anchor with the middle-click semantics] — PLUS the
+N-73c5/c6 STOCK-MIRROR COMPLETION [BUTTON_BASE.svgSize +
+INPUT_BASE.file — both live-dumped from the reference's bases] — PLUS
+the N-73c2/c7 SEARCH HYGIENE PAIR [the debounce success-path abort
+gate; the /api/search include trim] — PLUS the N-73a1/a3 STRAGGLERS
+[the api.ts 13-route comment + the body-pregate header; the
+DefaultsEditor's dead single-child wrapper] — PLUS the FOUR E2E
+CLOSURES [the logout round-trip; the signup 4xx negatives (the
+duplicate in the card + the API trio); the contact upload negative
+trio (the non-image client alert + the oversized pre-gate 400 + the
+unsupported svg — the run's own gif-whitelist discovery); the
+quick-create dropdown smoke; 122 → 126] — all pinned RED-first [38
+RED: the topbar-rowmenu-parity suite's 26 (one green-through-RED by
+window accident) + the page-layout re-anchors 6 + the dch trio + the
+calendar-cells pin + the leads-inline pair + the route-case anchor;
++26 its = 1356] and proven non-vacuous in a pre-fix 06e50f7 worktree
+[38 failed | 311 passed there — exactly the modified-pin set]. The
+documented supersets kept + commented in-code: the contacts Log
+Activity wiring (the reference's item is DEAD — the S29-P2 twin; ours
+opens the ContactDetailPanel) + the row-delete window.confirm gates
+(the reference's deletes are direct) + the mail/bell aria-labels.

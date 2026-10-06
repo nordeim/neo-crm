@@ -17,7 +17,9 @@ import {
   Target,
   Users,
 } from "lucide-react";
-import { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "@/components/ui/dropdown";
+// Session-73 (S73-P1, M-73c6): the row-action menu migrated to the REAL
+// Menu* primitives (the reference's own construction — bundle-decoded).
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@/components/ui/dropdown";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -504,14 +506,14 @@ export default function CalendarPage() {
                           </p>
                         )}
                       </div>
-                      <Dropdown>
-                        <DropdownTrigger asChild>
+                      <Menu>
+                        <MenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Event actions">
                             <EllipsisVertical className="h-4 w-4" />
                           </Button>
-                        </DropdownTrigger>
-                        <DropdownContent align="end">
-                          <DropdownItem
+                        </MenuTrigger>
+                        <MenuContent>
+                          <MenuItem
                             onClick={() => {
                               setEditing(e);
                               setDefaultStart(null);
@@ -519,8 +521,13 @@ export default function CalendarPage() {
                             }}
                           >
                             Edit
-                          </DropdownItem>
-                          <DropdownItem
+                          </MenuItem>
+                          {/* S73-P1 (M-73c9): the reference's bare
+                              text-red-600 literal (already the form here).
+                              The window.confirm gate is our documented
+                              safety superset (the reference's deletes
+                              are direct). */}
+                          <MenuItem
                             className="text-red-600"
                             onClick={async () => {
                               if (window.confirm(`Delete "${e.title}"?`)) {
@@ -531,9 +538,9 @@ export default function CalendarPage() {
                             }}
                           >
                             Delete
-                          </DropdownItem>
-                        </DropdownContent>
-                      </Dropdown>
+                          </MenuItem>
+                        </MenuContent>
+                      </Menu>
                     </div>
                   );
                 })

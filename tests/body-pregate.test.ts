@@ -3,10 +3,12 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Session-68 pins (F-68a2 — the 68-a re-audit's find): the N-67d body
-// pre-gate family extended to the SESSIONED CRUD routes. All 12 routes
+// pre-gate family extended to the SESSIONED CRUD routes. All 13 routes
 // that parse req.json() behind requireSession() (accounts/activities/
-// contacts/events/leads x[root+[id]] + settings + reset) now gate the
-// declared Content-Length BEFORE the parse — the same isBodyTooLarge
+// contacts/events/leads x[root+[id]] + settings + users + reset — the
+// users PATCH joined at s72, M-72c2; this header said "12" until the
+// session-73 N-73a1 re-anchor) now gate the declared Content-Length
+// BEFORE the parse — the same isBodyTooLarge
 // ceiling the four public auth routes carry (MAX_AUTH_BODY_BYTES =
 // 16KB; the honest CRUD bodies are far smaller — asString defaults to
 // a 500-char cap, the settings PUT carries the picklists). The gate
