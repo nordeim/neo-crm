@@ -1,0 +1,52 @@
+I'll continue this task systematically. The workspace was RESET, so let me start with a fresh clone and check the state.
+The clone landed on main @ 098ce51 (the s70 ship 8643b1a + the session-log update). Now let me rebuild the environment and set up the task plan.
+Environment rebuilt: bun install, .env from .env.example (DATABASE_URL="file:../db/custom.db" + a generated AUTH_SECRET), db:push + db:seed. The census reads the repo-root db/custom.db at 15/24/10/23/12 + 4 users: MATCH. The documented intake hazard stands in this sandbox's shape — the platform DATABASE_URL override points at a non-existent mirror, all operations under env -u DATABASE_URL.
+Core docs reviewed (CLAUDE.md in full, AGENTS.md structure + key sections, README/PAD scoped), then the four session records: session_133.md (the s70 record), the session70 plan, worklog.md, session_134.md.
+Baseline gate GREEN: lint 0/0 · tsc 0 · 1287/1287 unit (79 suites) — the documented state exact. The skills/ exclusion verified in all three configs.
+Now the drift sweep #67 — fetching the reference bundle.
+**Drift sweep #67 CLEAN** — bundle byte-identical (1,631,071 bytes, md5 a70a637... — the 42nd consecutive stable session). Now the reference census via agent-browser (live login, then a TRUE 390px viewport).
+Logged in. Demo data still zero (0/$0.0k/$0.0k/$0k/0%/0); desktop nav normal (256px, 8 links).
+**Reference census #67: the mobile-nav defect STANDS at TRUE 390px** (nav w=0, 8 links in DOM, 0 visible, no hamburger). Now scoping the rotation target — session_134's suggestion: the entity-dialogs family or the settings/profile seam.
+The entity-dialogs family (entity-dialogs.tsx 1081 + entity-edit-dialog.tsx 254 + dialog.tsx + siblings) is the bigger never-audited surface. Launching the three parallel audit agents (71-a re-audit, 71-b graduation, 71-c fresh-eyes rotation).
+Three audits complete. Per the house protocol, every finding must be manually validated at file:line before planning — and the parity-bearing claims bundle-decoded. Starting with M-71a1 (the ActivityDialog key).
+**M-71a1 CONFIRMED**: the ActivityForm create key rides a render-time Date.now() — any parent re-render while open re-keys the form and wipes typed input. The EventDialog sibling's defaultStart?.getTime() is state-derived but shares the class.
+**M-71a2 CONFIRMED from code**: the three EntityEditDialog outer keys flip to "none" in the same batched close render — the Radix Root unmounts instantly, the exit animation never plays. Now the bundle decode: does the reference's W7 animate out?
+**BUNDLE-DECODED**: the reference mounts W7 with NO key (`c.jsx(W7,{open:i,onOpenChange:a,contact:g,onSubmit:...,isLoading:H.isPending})`) — permanently positioned, its exit animation plays. Note the isLoading wiring — our L-1 finding is real too (the reference passes it, our call sites never do).
+Decoding the reference's W7 body — it syncs the contact prop into form state via useEffect([r]). That's setState-in-effect — an ERROR under our lint. Our s46 remount-via-key was the house-compatible alternative, but its outer-key form broke the exit animation.
+The reference's create dialogs decode the same way — the form renders UNCONDITIONALLY inside DialogContent (no {open && ...} conditional; the form resets itself in the submit handler). Both M-71a2 and I-71a4 are parity-bearing.
+Now the remaining bundle-decodes: the save-report footer, the saved-view Load behavior, the account-create phone type, the event status options, the Pke slide-over.
+**Five findings DISMISSED at validation**: L-2 (our DialogFooter already renders the full stock string — the audit misread the component indirection); I-2 (the reference's Load applies ONLY filters — `_ = (A, O) => { if (O) t(A.filters) }`); I-3 (the account-create phone ships no type attribute); L-3 (the reference's Pke is a plain fixed div — no role/aria/focus trap); N-4 (Pke stays mounted, tabs persist across entities). All confirmed parities from the bundle.
+The fix design: the open-epoch key pattern — an adjust-during-render counter (the AppShell close-on-route-change idiom) bumping ONLY on false→true transitions; the forms mount unconditionally keyed by the epoch. Fresh state per open, inert to store re-renders while open, full body through the exit. No setState-in-effect.
+Blast radius pre-checked: zero test pins on the {open && patterns; the edit-dialog-remount outer-key pins identified for a rewrite; the page-layout wrapper pins for a re-anchor; the e2e absence assertions are all polling forms (the 200ms exit cannot flake them).
+Writing the session-71 plan, then the operator decisions: CSV posture (b) STANDS (30th re-affirmation); source-vocabulary parity STANDS AND EXTENDS to the N-71 family.
+Plan written and validated. Now the RED phase — the new dialog-mount-contract suite + the rewritten edit-dialog-remount + the dch/page-layout extensions.
+**RED checkpoint exact: 16 failed** (the mount-contract 8 + the remount 4 + the dch trio + the page-layout re-anchor). Now GREEN — the useOpenEpoch helper + the five wrappers first.
+The EntityEditDialog restructure: extracting the form into the epoch-keyed EntityEditForm child. One structural carry-over to fix (the old Dialog wrapper in the extracted body), then the three call sites drop their outer keys and wire savingEdit.
+tsc caught a `))}}` JSX typo in the Event status edit — fixed (mid-flight repair #1). Now the savingEdit brackets at the three pages.
+GREEN checkpoint on the fix-surface suites: green. Full unit run: **1300/1300 (80 suites, +13)**. Now the non-vacuousness replay in a pre-fix 098ce51 worktree.
+**Non-vacuousness PROVEN: 16 failed | 239 passed** in the pre-fix worktree — exactly the RED set. Clean teardown. Now the full gate: lint → tsc → build → e2e.
+The e2e run caught a strict-mode violation in my Log Activity test (getByText resolving to the title AND the submit button) — corrected to the role-scoped heading assertion (mid-flight repair #2).
+**FULL GATE GREEN: lint 0/0 · tsc 0 · 1300/1300 unit · build clean · 119/119 e2e** on a fresh CI=1 boot (3.0m, all 9 mobile-nav checks green). Now the LIVE battery on the dev server.
+Logged in. **Probe 1 — the M-71a1 fix surface**: typed into the Log Activity description, waited out the store settles — the value SURVIVES.
+**Probe 2 — the exit animation**: cancelled the dialog — state=closed, animate-out running, the TYPED VALUE still in the animating body. At +500ms: unmounted (the exit completed). Reopen: fresh state (the epoch re-key).
+My first exit probes read the WRONG element — the mobile-nav's role=dialog div (querySelector returns the first DOM match). Re-scoped to [role=dialog][data-state] — the Radix content — and everything reads green.
+**Probe 3 — the edit family**: the Edit Contact dialog opens POPULATED (the F-46f contract preserved on the new mechanism), the edited name animates out at cancel, and the save round-trip closes the dialog on success.
+**Probe 4 — the drawer at TRUE 390px**: open via the real click (8/8 links, body lock, Tab focus in the panel); Escape closes, unlocks, and restores focus. My focus-restore probe compared against the wrong button (the drawer's internal Close, not the topbar burger) — re-verified: the active element IS the trigger. The e2e real-click suite carries the same contract green.
+**Zero 390px overflow on all ten routes. NO Tailwind v4 bug** (--blur-sm 4px + --shadow-sm exact + a live surface). **Closing census MATCH** — zero probe residue.
+Two screenshots captured: 81-log-activity-dialog (the M-71a1 surface) + 82-edit-contact-dialog (the M-71a2/S71-P2 surface). VLM-verified 4/4 + 4/4.
+Now the docs realignment: SKILL v1.68.0 via the assert-first script (§16bk + project_state, 6446 → 6509 lines), README/AGENTS/CLAUDE/PAD at 1300+119 (badge 1419), session_135.md, the plan's execution record, the worklog. One record-precision fix of my own (the CLAUDE ×5/×4 claim — the F-70a2 class, caught before ship).
+No unit tests pin the doc counts — the final gate re-check is green (lint 0/0 · tsc 0 · 1300/1300).
+The ship sequence: the SSH wrapper runbook read, the paramiko shim deployed (no OpenSSH binary in this sandbox), the operator key verified (ed25519, SHA256:3ddaN... — matching the s69/s70 records).
+The commit 91629f3 landed on main, tree clean. The dry-run green, then the real push.
+**Push verified**: remote main @ 91629f3 == local HEAD, verified twice (the wrapper + an independent ls-remote). Operator keys shredded.
+# Session 71 Complete — Shipped to `main @ 91629f3` ✅
+
+**The cycle:** fresh clone (sandbox reset; environment rebuilt, census MATCH, baseline 1287/1287) → drift sweep #67 clean (bundle byte-stable, 42nd consecutive) → triple audits (**71-a** s70 re-audit 10/10 GENUINE; **71-b** zero graduations 13/13 — 28th consecutive; **71-c** fresh-eyes on the **entity-dialogs family** — session_134's own suggested target, never audited before).
+
+**Operator decisions:** CSV posture **(b) STANDS** (30th re-affirmation); source-vocabulary parity **STANDS + EXTENDS**. **5 of 10 audit findings DISMISSED at manual validation** (one false-positive + four confirmed parities from the bundle) — the validation gate is where false positives die.
+
+**The fixes (RED-first, 16 pins → 1300 unit + 2 e2e additions → 119):** the ActivityForm Date.now() input-wipe retired via the **open-epoch key pattern** (the adjust-during-render bridge over the reference's lint-forbidden setState-in-effect), the **exit animations restored on both dialog families** (the outer keys + the {open &&} conditionals retired — the reference's permanently-mounted geometry, bundle-decoded), the edit dialogs' **Saving.../double-submit guard** wired, the hygiene quartet swept.
+
+**Verification:** non-vacuous (16 | 239 pre-fix) · full gate green (**1300/1300 · 119/119 e2e**) · LIVE battery (the typed value surviving settles, the exit phases with edited values in the animating bodies, reopen-fresh, the drawer at TRUE 390px with focus restored, zero overflow ×10, **no Tailwind v4 bug**, census MATCH) · 2 VLM-verified screenshots · docs at SKILL v1.68.0 · remote verified twice, keys shredded.
+
+**Suggested next:** run session 72 from `session_135.md` — candidate rotation targets: the settings/profile seam (the other session_134 suggestion) or the topbar/search family; standing e2e gaps: logout round-trip, signup 4xx, upload negative paths, the dashboard quick-create dropdown smoke.
