@@ -2357,3 +2357,24 @@ Work Log:
 
 Stage Summary:
 - Session 71 SHIPPED: the dialog family plays its exit animations for the first time since the scaffold (the reference's own geometry, bundle-decoded), the Log Activity input-wipe fixed via the open-epoch pattern (the adjust-during-render bridge over the reference's lint-forbidden setState-in-effect), the edit dialogs gain the reference's Saving.../double-submit guard, 13/13 ledger zero graduations for the 28th consecutive session, both operator decisions standing, the reference bundle stable for the 42nd consecutive session
+
+---
+Task ID: 72 (repo)
+Agent: main (Super Z, session-72)
+Task: The session-72 remediation — the settings/profile seam (the H-72c1 picklist bordered-row anatomy + the M-72c1 editor remount-wipe retirement + the M-72c2/c3/c4/c5 parities + the S72-P7 profile sextet), RED-first, gated, LIVE-verified, shipped
+
+Work Log:
+- Intake: the sandbox SURVIVED s71 (the pull fast-forwarded f38f675 → 0e40a09, docs/session_137.md only); environment verified in place; baseline gate green (lint 0/0 · tsc · 1300/1300); census MATCH
+- Drift sweep 68th clean (43rd consecutive stable bundle, md5 exact); reference census: demo data zero, mobile-nav defect stands at TRUE 390px, the live picklist create silently no-ops on the shared demo workspace (the anatomy evidence rides the bundle)
+- Triple audits (72-a: the s71 re-audit 10/10 GENUINE + 3 Nano notes; 72-b: zero graduations 13/13 [29th consecutive], 8 censuses clean, 6 guard suites 48/48; 72-c: the fresh-eyes rotation on the settings/profile seam finding the N-72 family) + manual validation of every claim at file:line (the parity claims BUNDLE-DECODED — the H-72c1 ly component fully decoded: bordered rows + Pencil rename + red Trash2; the M-72c3 month/week; the M-72c4 fallbacks; the M-72c5 space-y-6; the L-72c1 icons; the L-72c2 t(await me()); the profile sextet labels/branches)
+- The operator decisions: CSV posture (b) STANDS (31st re-affirmation); source-vocabulary parity EXTENDS to the settings/profile seam
+- RED: 35 failing pins exactly (the settings-profile-parity 25 [one green-by-design] + the rewritten settings-rollback 4 + the body-pregate 13th + the dch agenda + the page-layout itemRow pair + the two mid-flight lockstep re-anchors)
+- GREEN: the ListEditor bordered-row rewrite (+ the itemRow/deleteBtn page-layout records); the props-driven ConfigEditor + the resolved-epoch DefaultsEditor + the fallback initializers + the pure set(); the users PATCH pre-gate; the agenda retirement (page + route); the Data panel space-y-6; the four export icons; the updateUser store action (call() + the s64 guard + the user-slice set) + the Account card's store-user read + the toast/label/loading sextet; the raw-keystroke defaults inputs + the placeholders; the three e2e additions (the picklist round-trip + the defaults focus contract + the upload negative)
+- 3 mid-flight repairs (all caught by the runs): the s57 dch guard re-anchor; the s43 api-robustness message re-anchor; the e2e hasText/value locator trap
+- Non-vacuousness: pre-fix 0e40a09 worktree → 35 failed | 473 passed (exactly the modified-pin set); worktree cleaned
+- Gate: lint 0/0 · tsc 0 · 1330/1330 unit (81 suites, +30) · build clean · 122/122 e2e fresh CI=1 (all 9 mobile-nav green)
+- LIVE: the bordered rows (8/8, zero chips, the red pair); the rename round-trip in place + restored; the focus surviving the debounce flush (the PUT landing confirmed + AED restored); the Data panel 24px; the four icons; the profile sequencing (form-only preview → the pre-reload card img → the post-reload topbar); the drawer at TRUE 390px with focus restored (the offsetParent probe artifact run down); zero overflow x10; NO Tailwind v4 bug; the closing census MATCH with the probe photo cleared
+- Screenshots 83-settings-picklist-rows + 84-settings-defaults NEW (VLM-verified 4/4 + 4/4); docs realigned (SKILL v1.69.0 §16bl via the assert-first script, 6509 → 6619; README badge 1452; AGENTS/CLAUDE/PAD at 1330+122; session_138.md; the plan's execution record; this worklog); .env/.env.example re-verified (no surface change)
+
+Stage Summary:
+- Session 72 SHIPPED: the picklist renders the reference's bordered-row anatomy for the first time since the scaffold (the 71-session S12-P8 misread corrected), the settings editors never remount on their own saves (the props-driven architecture — the reference's own React-Query shape), the profile save flows through the store with the pre-reload card update, 13/13 ledger zero graduations for the 29th consecutive session, both operator decisions standing, the reference bundle stable for the 43rd consecutive session

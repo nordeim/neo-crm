@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
  * each with a 48px tinted icon chip.
  */
 export default function ProfilePage() {
-  const { user, fetchUsers } = useCrmStore();
+  const { user, updateUser } = useCrmStore();
 
   return (
     // Session-16 (S16-P2): the page owns its padding — the reference's
@@ -28,19 +28,26 @@ export default function ProfilePage() {
     // Leads) with the `max-w-4xl mx-auto` column INSIDE. Session-13
     // (S13-P2): the header is a PLAIN `mb-6 sm:mb-8` div — not the
     // flex PageHeader row.
+    // Session-72 (L-72c9, bundle-decoded): the loading branch is
+    // HEADERLESS — the reference's else-arm is a plain
+    // `text-center py-12` "Loading..." inside the max-w-4xl column
+    // (the h1 renders only in the loaded branch).
     <div className={PAGE_ROOT.bare}>
     <div className={PROFILE_LAYOUT.root}>
-      <div className={PROFILE_LAYOUT.headerRow}>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile &amp; Settings</h1>
-        <p className="text-muted mt-1">Manage your account information</p>
-      </div>
-
       {!user ? (
-        <p className="py-10 text-center text-sm text-muted">Loading profile…</p>
+        <div className="text-center py-12">Loading...</div>
       ) : (
-        /* Keyed remount: the form initializes its local state from the
-           user snapshot at mount — no setState-in-effect needed. */
-        <ProfileForm key={`${user.id}-${user.name}`} user={user} onSaved={fetchUsers} />
+        <>
+          <div className={PROFILE_LAYOUT.headerRow}>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile &amp; Settings</h1>
+            <p className="text-muted mt-1">Manage your account information</p>
+          </div>
+          {/* Keyed remount: the form initializes its local state from the
+              user snapshot at mount — no setState-in-effect needed. The
+              value-based key also re-initializes the form when the store
+              user updates after a save (the pre-reload refresh). */}
+          <ProfileForm key={`${user.id}-${user.name}`} user={user} updateUser={updateUser} />
+        </>
       )}
     </div>
     </div>
@@ -72,10 +79,10 @@ function ProfileChip({
 
 function ProfileForm({
   user,
-  onSaved,
+  updateUser,
 }: {
   user: { id: string; name: string; email: string; role: string; photoUrl?: string | null };
-  onSaved: () => Promise<void>;
+  updateUser: (patch: { name: string; photoUrl?: string | null }) => Promise<{ ok: boolean }>;
 }) {
   const [name, setName] = React.useState(user.name);
   const [photoUrl, setPhotoUrl] = React.useState(user.photoUrl ?? "");
@@ -125,24 +132,24 @@ function ProfileForm({
     // had this shape since s30; a bare await chain let a network throw
     // propagate from `void save()` as an unhandled rejection with the
     // Save button stranded busy. The finally un-busies every path.
+    // Session-72 (S72-P7): the PATCH flows through the store's
+    // updateUser action (the call() envelope + the s64 write-guard +
+    // the user-slice set) — the reference's t(await me()) contract:
+    // the Account card's name + photo land in the pre-reload window.
+    // The toasts are single-arg — the reference's exact vocabulary
+    // (bundle-decoded: Ix.error("Failed to update profile")).
     try {
-      const res = await fetch("/api/users", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), photoUrl: photoUrl || null }),
-      });
-      const body = await res.json().catch(() => null);
-      if (body?.ok) {
-        toast.success("Profile updated successfully", "");
+      const res = await updateUser({ name, photoUrl: photoUrl || null });
+      if (res.ok) {
+        toast.success("Profile updated successfully");
         // Session-30 (S30-P3): the reference reloads after 500ms so the
         // topbar avatar (server-rendered session user) picks up the photo.
-        await onSaved();
         setTimeout(() => window.location.reload(), 500);
       } else {
-        toast.error("Failed to update profile", body?.error?.message ?? "Please try again.");
+        toast.error("Failed to update profile");
       }
     } catch {
-      toast.error("Failed to update profile", "Please try again.");
+      toast.error("Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -200,7 +207,10 @@ function ProfileForm({
                 />
                 {/* Session-30 (S30-P3): the reference's aCe — the outline
                     Upload Photo button fires the REAL round-trip (accept
-                    image/*, NO type alert on this surface, toasts). */}
+                    image/*, NO type alert on this surface, toasts).
+                    Session-72 (N-72c7, bundle-decoded): while uploading the
+                    label is the "Uploading..." TEXT ONLY — the Camera icon
+                    drops (the reference's own ternary form). */}
                 <Button
                   variant="outline"
                   className={PROFILE_LAYOUT.uploadBtn}
@@ -210,7 +220,11 @@ function ProfileForm({
                 >
                   {/* Session-13 (S13-P2): the reference carries the margin
                       ON THE SVG (w-4 h-4 mr-2), not on the wrapper. */}
-                  <Camera className={PROFILE_LAYOUT.uploadIcon} /> {uploading ? "Uploading..." : "Upload Photo"}
+                  {uploading ? "Uploading..." : (
+                    <>
+                      <Camera className={PROFILE_LAYOUT.uploadIcon} /> Upload Photo
+                    </>
+                  )}
                 </Button>
                 <p className="mt-2 text-xs text-muted">JPG, PNG or GIF. Max 5MB.</p>
               </div>
@@ -259,7 +273,9 @@ function ProfileForm({
                 bg-primary #171717 (its global --primary; its blue buttons
                 elsewhere are explicit bg-blue-600). Ours maps --primary
                 to blue, so the neutral literals carry the exact colors:
-                bg #171717, fg #fafafa, bare shadow, hover #262626. */}
+                bg #171717, fg #fafafa, bare shadow, hover #262626.
+                Session-72 (L-72c4): the three-dot "Saving..." form —
+                the reference's own label (bundle-decoded). */}
             <Button
               type="submit"
               className={cn(
@@ -268,7 +284,7 @@ function ProfileForm({
               )}
               disabled={saving}
             >
-              {saving ? "Saving…" : "Save Changes"}
+              {saving ? "Saving..." : "Save Changes"}
             </Button>
           </div>
           </div>
@@ -283,15 +299,18 @@ function ProfileForm({
         <Card>
           <CardContent className="p-6">
             <div className={PROFILE_LAYOUT.nameWrap}>
-            {/* Session-30 (S30-P3): the Account card avatar renders the
-                uploaded photo over the blue-100 fallback (the aCe right
-                column). */}
+            {/* Session-72 (L-72c2, bundle-decoded): the Account card reads
+                the STORE user's photo + name — the reference's card rides
+                the session user (e.profile_picture), so the card stays
+                stale through the upload (the form avatar alone previews)
+                and updates only after the save's me() round-trip — our
+                updateUser set lands the same pre-reload update. */}
             <span
               className="relative mb-4 flex h-20 w-20 shrink-0 overflow-hidden rounded-full"
               aria-hidden="true"
             >
-              {photoUrl ? (
-                <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+              {user.photoUrl ? (
+                <img src={user.photoUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <span className="flex h-full w-full items-center justify-center bg-blue-100 text-blue-600">
                   <User className="h-10 w-10" strokeWidth={PROFILE_LAYOUT.avatarIconStroke} />

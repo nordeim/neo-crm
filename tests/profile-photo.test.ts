@@ -149,13 +149,20 @@ describe("session-62: the unconditional profile save (N-62b)", () => {
     // landed in form state, Save clicked, nothing happened, navigation
     // lost the upload). The gate retires at s62 — the button's
     // `disabled={saving}` already mirrors the reference exactly.
+    // Session-72 (S72-P7): the PATCH itself moved into the store's
+    // updateUser action (the call() envelope client + the s64
+    // write-guard + the user-slice set — the reference's t(await me())
+    // contract); the payload pin re-anchors to the store seam.
     const code = page();
     expect(code).not.toMatch(/\bdirty\b/);
     expect(code).not.toMatch(/if\s*\(!dirty\)\s*return;/);
+    const storeSrc = stripComments(read("src/stores/crm-store.ts") ?? "");
     // The unconditional body still sends BOTH fields, exactly as the
     // reference's updateMe call does.
-    expect(code).toMatch(
-      /JSON\.stringify\(\{\s*name:\s*name\.trim\(\),\s*photoUrl:\s*photoUrl\s*\|\|\s*null\s*\}\)/,
+    expect(storeSrc).toMatch(
+      /JSON\.stringify\(\{\s*name:\s*patch\.name\.trim\(\),\s*photoUrl:\s*patch\.photoUrl\s*\}\)/,
     );
+    // The page feeds the action both fields unconditionally.
+    expect(code).toMatch(/updateUser\(\{\s*name,\s*photoUrl:\s*photoUrl\s*\|\|\s*null\s*\}\)/);
   });
 });

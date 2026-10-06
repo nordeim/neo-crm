@@ -131,14 +131,15 @@ export async function PUT(req: Request) {
   if ("calendarView" in body) {
     if (isBadString(body.calendarView)) return ERR.BAD_REQUEST("Invalid calendar view");
     // Session-43 (S43-P3): membership vs the settings UI's own Select
-    // vocabulary (month/week/agenda — the settings-page dropdown is the
-    // only writer).
+    // vocabulary (the settings-page dropdown is the only writer).
+    // Session-72 (M-72c3, bundle-decoded): the reference's Select
+    // ships exactly month/week — the invented third option retired.
     // Session-63 (N-63b): the `!view` fragment retired — asString's
     // optional+trim contract returns undefined-or-a-non-empty-string,
     // so after `?? "month"` the value can never be falsy (unreachable
     // by construction, the N-62c class).
     const view = asString(body.calendarView, { max: 20, optional: true }) ?? "month";
-    if (!["month", "week", "agenda"].includes(view)) return ERR.BAD_REQUEST("Calendar view must be month, week or agenda");
+    if (!["month", "week"].includes(view)) return ERR.BAD_REQUEST("Calendar view must be month or week");
     data.calendarView = view;
   }
   if ("firstDayOfWeek" in body) {

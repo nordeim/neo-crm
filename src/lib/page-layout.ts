@@ -383,6 +383,21 @@ export const DASHBOARD_CARD = {
  *  Funnel"). */
 export const SETTINGS_PICKLIST = {
   items: "space-y-2 mb-4",
+  /** Session-72 (H-72c1, bundle-decoded from the reference's ly
+   *  component): each picklist item renders as a BORDERED LIST ROW —
+   *  `flex items-center gap-2 p-2 border rounded-lg hover:bg-gray-50`
+   *  — carrying a `span.flex-1` name + a Pencil ghost icon button
+   *  (the inline RENAME: the row swaps to an Input flex-1 [Enter
+   *  saves] + a Save-icon + an X) + a Trash2 ghost icon button in
+   *  the red pair below. NOT a chip pill: zero `rounded-full` classes
+   *  exist in the reference's picklist (the 7 bundle hits are all
+   *  avatars/dots/pills elsewhere). The S12-P8 "chip rows — ALIGNED"
+   *  record is corrected here — the s12 probe pinned the container
+   *  and the add-row but never the item row. */
+  itemRow: "flex items-center gap-2 p-2 border rounded-lg hover:bg-gray-50",
+  /** The Trash2 button's red pair (the reference's text-red-600
+   *  hover:text-red-700 on the ghost icon button). */
+  deleteBtn: "text-red-600 hover:text-red-700",
   empty: "text-sm text-muted text-center py-4",
   addRow: "flex gap-2",
   addButton: "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",

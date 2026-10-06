@@ -44,6 +44,11 @@ const ROUTES = [
   "src/app/api/reset/route.ts",
 ] as const;
 
+// Session-72 (M-72c2): the users PATCH — the 13th sessioned req.json()
+// route — joins the family. Its handler names its param `request`
+// (not `req`), so its pins are param-aware below.
+const USERS_ROUTE = "src/app/api/users/route.ts" as const;
+
 describe("session-68: the sessioned body pre-gate family (F-68a2)", () => {
   it("all 12 sessioned routes import isBodyTooLarge from the api seam", () => {
     for (const rel of ROUTES) {
@@ -51,6 +56,19 @@ describe("session-68: the sessioned body pre-gate family (F-68a2)", () => {
       expect(src, rel).toMatch(/isBodyTooLarge/);
       expect(src, rel).toMatch(/from "@\/lib\/api"/);
     }
+  });
+
+  it("session-72: the users PATCH — the 13th sessioned body-parsing route — is gated too (M-72c2)", () => {
+    const src = stripComments(read(USERS_ROUTE) ?? "");
+    expect(src, USERS_ROUTE).toMatch(/isBodyTooLarge/);
+    expect(src, USERS_ROUTE).toMatch(/from "@\/lib\/api"/);
+    const gate = src.indexOf("isBodyTooLarge(request)");
+    const parse = src.indexOf("request.json()");
+    expect(gate, `${USERS_ROUTE}: no gate`).toBeGreaterThanOrEqual(0);
+    expect(parse, `${USERS_ROUTE}: no parse`).toBeGreaterThan(gate);
+    expect(src, USERS_ROUTE).toContain(
+      'if (isBodyTooLarge(request)) return ERR.BAD_REQUEST("Request body too large");',
+    );
   });
 
   it("the gate runs BEFORE req.json() in every sessioned route", () => {

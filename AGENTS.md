@@ -17,8 +17,8 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-| Unit tests (1300 checks)       | `bun run test`                         |
-| Browser E2E (119 checks)        | `bun run test:e2e` (needs build first) |
+| Unit tests (1330 checks)       | `bun run test`                         |
+| Browser E2E (122 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
 | Prisma client after schema edit | `bunx prisma generate`                 |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1300) → `bun run build` → `bun run test:e2e` (119) — or the
+`bun run test` (1330) → `bun run build` → `bun run test:e2e` (122) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -2823,6 +2823,97 @@ with db/ at the repo root; the intake: the FRESH CLONE — .env
 re-created from .env.example with a generated AUTH_SECRET; the stale
 platform DATABASE_URL override still points at the non-existent
 mirror, all operations under env -u DATABASE_URL).
+
+**Session-72 (SKILL v1.69.0)** — the settings/profile seam session (the
+72-c fresh-eyes rotation on the NEVER-AUDITED settings/profile seam
+— settings-page 549 + profile-page 349 + the settings/users/upload
+routes + the store slices — session_134's own suggested target,
+finding the N-72 family with every claim manually validated + the
+parity-bearing fixes bundle-decoded [the standing parities
+re-verified clean; the S48-P2 string-array data model stands]; the
+72-a s71 re-audit 10/10 GENUINE [the settings/profile value-keyed
+remount seam flagged — this session's own target]; the 72-b
+graduation audit ZERO graduations 13/13 [29th consecutive], the 8
+censuses clean, the 6 guard suites 48/48; both operator decisions
+standing: the CSV formula-injection posture (b) [31st re-affirmation]
++ the source-vocabulary documented parity EXTENDING to the seam): the
+H-72c1 PICKLIST ITEM-ROW ANATOMY [the reference's ly renders
+BORDERED LIST ROWS — flex items-center gap-2 p-2 border rounded-lg
+hover:bg-gray-50 — each with a span.flex-1 name + a Pencil ghost
+icon button (the inline RENAME: the row swaps to an Input flex-1
+[Enter saves] + a Save-icon + an X) + a Trash2 ghost icon button in
+text-red-600 hover:text-red-700; our chip pills were a scaffold-era
+invention the S12-P8 "chip rows — ALIGNED" misread protected for 71
+sessions — the probe pinned the container + the add-row but never
+the item row; zero rounded-full classes in the reference's picklist];
+the M-72c1 EDITOR REMOUNT-WIPE RETIREMENT [the
+`cfg-/def-${JSON.stringify(settings)}` keys remounted the editors
+~RTT after every own save — focus lost, in-flight typing wiped; the
+ConfigEditor is now PROPS-DRIVEN (the reference's React-Query
+shape: items render from store data, only the transient edit state
+local — a failed PUT can no longer leave a phantom item, the s46-P3
+revert now structural) and the DefaultsEditor keys on the RESOLVED
+EPOCH only (key={settings ? "resolved" : "pending"} — the s71
+open-epoch sibling: one remount when the fetch lands, none on
+saves)]; the M-72c2 USERS-PATCH BODY PRE-GATE [the 13th sessioned
+req.json() route joins the F-68a2 family — the api.ts +
+body-pregate "all 12" claims re-anchored]; the M-72c3 AGENDA
+RETIREMENT [the invented third calendar-view option — the
+reference's Select ships exactly month/week, bundle-decoded; the
+route enum + the dch/api-robustness pins re-anchored]; the M-72c4
+INSTANT-RENDER RESTORATION [both editor tabs render immediately —
+"No items yet" ×5 + the AED/new/B/3/month/monday fallbacks; the
+"Loading settings…" gates were an S25-P1 violation]; the M-72c5
+DATA-PANEL SPACE-Y-6 [24px directly on the panel, the inner 16px
+wrapper retired]; the L-72c1 EXPORT ICONS ×4; the S72-P7 PROFILE
+SEXTET [the updateUser STORE ACTION — call() envelope + the s64
+write-guard + set({ user: res.data }): the reference's t(await me())
+contract, the Account card reading the STORE user's photo/name (the
+pre-reload update), the single-arg toasts, the three-dot
+"Saving...", the HEADERLESS text-center py-12 "Loading..." branch,
+the icon-dropping "Uploading..." label; the raw-fetch census
+nine→eight call-sites across seven endpoints]; the S72-P8 DEFAULTS
+INPUT PARITY [raw keystrokes — the route's server-side uppercase +
+caps own the guard; the AED/new/B placeholders]; the hygiene pair
+[the dead size="sm" on the add button; the pure set() — next
+computed OUTSIDE the updater]; the THREE E2E ADDITIONS [the picklist
+add/rename/delete round-trip — the ListEditor's first e2e,
+self-cleaning; the defaults debounce + FOCUS-persistence contract;
+the upload negative — the documented standing gap closed; 119 →
+122] — all pinned RED-first [35 RED: the settings-profile-parity
+suite's 25 + the rewritten settings-rollback 4 + the body-pregate
+13th-route it + the re-anchored dch agenda enum + the page-layout
+itemRow/deleteBtn pair + the two mid-flight lockstep re-anchors the
+runs caught (the s57 dch living-surfaces guard + the s43
+api-robustness calendarView message); +30 its = 1330] and proven
+non-vacuous in a pre-fix 0e40a09 worktree [35 failed | 473 passed
+there — exactly the modified-pin set] — GATE: lint 0/0 · tsc 0 ·
+1330/1330 unit (81 suites) · build clean · 122/122 e2e on a fresh
+CI=1 boot (3.0m, all 9 mobile-nav checks green) · 68th drift-sweep
+clean (43rd consecutive stable reference bundle: size 1,631,071 +
+md5 a70a637fcf1d4291da8e0d965676dc11) · LIVE-verified (the bordered
+rows with the Pencil/Trash2 red pair + zero chips; the rename
+round-trip in place; the focus SURVIVING the debounce flush with the
+PUT landing; the Data panel's computed 24px; the four export icons;
+the profile upload → form-only preview → save → the pre-reload
+Account-card img → the post-reload topbar pickup; the drawer at TRUE
+390px with focus restored; zero 390px overflow on all ten routes; NO
+Tailwind v4 bug; the closing census MATCH with the probe photo
+cleared) · 2 mid-flight repairs (the e2e hasText/value locator trap
+via the run; the two lockstep pin re-anchors via the runs — all
+caught by the gate, none post-ship) · 2 screenshots
+(83-settings-picklist-rows + 84-settings-defaults NEW; VLM-verified
+4/4 + 4/4) · docs at SKILL v1.69.0 (§16bl + project_state, applied
+atomically via the assert-first scripts/skill_edits_s72.py at the
+sandbox root, 6509 → 6619 lines by wc -l) + session_138.md + the
+plan + its execution record + the worklog + README/AGENTS/CLAUDE/
+PAD at 1330+122 (badge 1452); .env/.env.example verified (no env
+surface change; DATABASE_URL file:../db/custom.db with db/ at the
+repo root; the intake: the sandbox SURVIVED s71 — the pull
+fast-forwarded f38f675 → 0e40a09, docs/session_137.md only, zero
+code drift; the stale platform DATABASE_URL override still points
+at the non-existent mirror, all operations under env -u
+DATABASE_URL).
 
 **Session-71 (SKILL v1.68.0)** — the permanently-mounted dialog-family
 session (the 71-c fresh-eyes rotation on the NEVER-AUDITED

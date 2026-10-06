@@ -413,11 +413,15 @@ describe("session-57: the dead-surface narrowing + the comment-accuracy carriers
 
   it("the living surfaces stay (guard)", () => {
     // The constant itself stays for its internal consumer, and the
-    // profile form keeps its LIVE wiring — the onSaved refresh through
-    // fetchUsers + the keyed remount (the s28 edit-dialog idiom).
+    // profile form keeps its LIVE wiring — the keyed remount (the s28
+    // edit-dialog idiom). Session-72 (S72-P7): the onSaved/fetchUsers
+    // refresh retired — the save flows through the store's updateUser
+    // action, whose response sets the user slice directly (the
+    // reference's t(await me()) contract — it never refreshes the
+    // users LIST on profile save).
     expect(uploadsLib()).toMatch(/const UPLOADS_DIR_NAME = "uploads"/);
     const src = profilePage();
-    expect(src).toMatch(/onSaved=\{fetchUsers\}/);
+    expect(src).toMatch(/updateUser=\{updateUser\}/);
     expect(src).toMatch(/key=\{`\$\{user\.id\}-\$\{user\.name\}`\}/);
   });
 });
@@ -767,7 +771,10 @@ describe("session-63: the foreign-doc retirement + the dead-arm split + the micr
     expect(dashboard()).not.toMatch(/PIPELINE_LABELS\[s\] \?\?/);
     const settingsRoute = stripComments(read("src/app/api/settings/route.ts") ?? "");
     expect(settingsRoute).not.toMatch(/!view/);
-    expect(settingsRoute).toMatch(/\["month", "week", "agenda"\]\.includes\(view\)/);
+    // Session-72 (M-72c3): the invented "agenda" option retired — the
+    // reference's Select ships exactly month/week (bundle-decoded
+    // `De value="month"` / `De value="week"`).
+    expect(settingsRoute).toMatch(/\["month", "week"\]\.includes\(view\)/);
     // The keep-annotations ride the RAW sources (comments above are
     // stripped for the form pins).
     expect(read("src/app/api/reports/route.ts") ?? "").toContain("defensive DB-read");

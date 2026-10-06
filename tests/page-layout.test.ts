@@ -420,6 +420,20 @@ describe("stat/card header parity (session-7 DOM-verified)", () => {
     // The reference's placeholder typo on the Industries card is mirrored.
     expect(SETTINGS_PICKLIST.industriesPlaceholder).toBe("Add new industrie");
   });
+
+  it("session-72: the picklist ITEM ROW is the reference's bordered-row geometry (H-72c1)", () => {
+    // The 72-c rotation's bundle decode (ly): each item renders as a
+    // bordered list row with a flex-1 name span + the Pencil/Trash2
+    // ghost icon pair — NOT a rounded-full chip pill (zero rounded-full
+    // classes in the reference's picklist; the 7 bundle hits are all
+    // avatars/dots/pills elsewhere). The S12-P8 "chip rows — ALIGNED"
+    // record is corrected at session-72.
+    expect(SETTINGS_PICKLIST.itemRow).toBe(
+      "flex items-center gap-2 p-2 border rounded-lg hover:bg-gray-50",
+    );
+    // The delete icon button carries the reference's red pair.
+    expect(SETTINGS_PICKLIST.deleteBtn).toBe("text-red-600 hover:text-red-700");
+  });
 });
 
 describe("session-8 parity pins (DOM-verified 2026-09-30)", () => {

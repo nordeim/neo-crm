@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { asString, ok, isBadFK, isGuarded, requireSession, ERR } from "@/lib/api";
+import { asString, ok, isBadFK, isBodyTooLarge, isGuarded, requireSession, ERR } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +22,15 @@ export async function GET() {
 /** Update the signed-in user's own profile (Full Name + photo — email/role
  * are fixed). Session-30 (S30-P3): the photoUrl mirrors the reference's
  * updateMe({display_name, profile_picture}) — an explicit null clears it,
- * an absent key leaves it untouched. */
+ * an absent key leaves it untouched.
+ * Session-72 (M-72c2): the body pre-gate — the 13th sessioned
+ * req.json() route joins the F-68a2 family (the 72-c rotation's
+ * find: the one sessioned writer outside it). */
 export async function PATCH(request: Request) {
   const guard = await requireSession();
   if (isGuarded(guard)) return guard.response;
+
+  if (isBodyTooLarge(request)) return ERR.BAD_REQUEST("Request body too large");
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return ERR.BAD_REQUEST("Invalid JSON body");

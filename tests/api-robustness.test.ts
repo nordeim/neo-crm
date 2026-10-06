@@ -1133,7 +1133,10 @@ describe("session-43: the settings defaults quartet completes (S43-P3)", () => {
   it("calendarView membership vs the settings UI's own Select vocabulary", () => {
     const put = handlerBlock(route("src/app/api/settings/route.ts"), "PUT");
     expect(put).toMatch(/month/);
-    expect(put).toMatch(/Calendar view must be month, week or agenda/);
+    // Session-72 (M-72c3): the invented agenda option retired — the
+    // reference's Select ships exactly month/week (bundle-decoded).
+    expect(put).toMatch(/Calendar view must be month or week/);
+    expect(put).not.toMatch(/agenda/);
   });
 
   it("firstDayOfWeek gains the isBadString guard its sibling quintet has", () => {

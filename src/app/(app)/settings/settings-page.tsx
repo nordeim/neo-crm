@@ -2,7 +2,7 @@
 
 import { downloadBlob } from "@/lib/download";
 import * as React from "react";
-import { AlertCircle, Download, Plus, Trash2, X } from "lucide-react";
+import { AlertCircle, Download, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,45 +23,103 @@ interface ListEditorProps {
   items: string[];
   placeholder: string;
   onAdd: (value: string) => void;
-  onRemove: (index: number) => void;
+  onUpdate: (index: number, name: string) => void;
+  onDelete: (index: number) => void;
 }
 
-function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorProps) {
+/**
+ * Session-72 (H-72c1, bundle-decoded from the reference's ly
+ * component): the picklist rows are BORDERED LIST ROWS — `flex
+ * items-center gap-2 p-2 border rounded-lg hover:bg-gray-50` — each
+ * carrying a `span.flex-1` name + a Pencil ghost icon button (the
+ * inline RENAME: the row swaps to an Input [Enter saves] + a
+ * Save-icon + an X) + a Trash2 ghost icon button in the reference's
+ * red pair. The s7-era chip pills are retired. The icon buttons
+ * carry aria-labels — the accessible superset over the reference's
+ * unlabeled icons (the roving-tabindex precedent).
+ */
+function ListEditor({ title, items, placeholder, onAdd, onUpdate, onDelete }: ListEditorProps) {
+  const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
+  const [editingName, setEditingName] = React.useState("");
   const [value, setValue] = React.useState("");
+
+  function saveEdit() {
+    if (editingIndex !== null && editingName.trim()) {
+      onUpdate(editingIndex, editingName.trim());
+      setEditingIndex(null);
+      setEditingName("");
+    }
+  }
+
+  function add() {
+    if (value.trim()) {
+      onAdd(value.trim());
+      setValue("");
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className={CARD_TITLE_OVERRIDE.settings}>{title}</CardTitle>
       </CardHeader>
       <CardContent className="p-6 pt-0">
-        {/* Session-7 (S7-19): live pins — items `space-y-2 mb-4`, empty state
-            a plain `text-sm text-center py-4` paragraph (no dashed box). */}
-        {items.length === 0 ? (
-          <div className={SETTINGS_PICKLIST.items}>
-            <p className={SETTINGS_PICKLIST.empty}>No items yet</p>
-          </div>
-        ) : (
-          <div className={SETTINGS_PICKLIST.items}>
-            <div className="flex flex-wrap gap-2">
-              {items.map((item, i) => (
-                <span
-                  key={`${item}-${i}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-line bg-line-soft py-1 pl-3 pr-1.5 text-xs font-medium text-foreground"
-                >
-                  {item}
-                  <button
-                    type="button"
-                    onClick={() => onRemove(i)}
-                    className="rounded-full p-0.5 text-subtle transition-colors hover:bg-danger-soft hover:text-danger"
-                    aria-label={`Remove ${item}`}
+        {/* The items container (space-y-2 mb-4) holds the mapped rows;
+            the empty state renders as their sibling (the reference's
+            `t.length===0 && p` children-array form). */}
+        <div className={SETTINGS_PICKLIST.items}>
+          {items.map((item, i) => (
+            <div key={`${item}-${i}`} className={SETTINGS_PICKLIST.itemRow}>
+              {editingIndex === i ? (
+                <>
+                  <Input
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    className="flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        saveEdit();
+                      }
+                    }}
+                    aria-label={`Rename ${item}`}
+                  />
+                  <Button size="icon" variant="ghost" onClick={saveEdit} aria-label="Save rename">
+                    <Save className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => setEditingIndex(null)} aria-label="Cancel rename">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="flex-1">{item}</span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => {
+                      setEditingIndex(i);
+                      setEditingName(item);
+                    }}
+                    aria-label={`Rename ${item}`}
                   >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => onDelete(i)}
+                    className={SETTINGS_PICKLIST.deleteBtn}
+                    aria-label={`Delete ${item}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
-          </div>
-        )}
+          ))}
+          {items.length === 0 && <p className={SETTINGS_PICKLIST.empty}>No items yet</p>}
+        </div>
         <div className={SETTINGS_PICKLIST.addRow}>
           <Input
             value={value}
@@ -69,8 +127,7 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
             onKeyDown={(e) => {
               if (e.key === "Enter" && value.trim()) {
                 e.preventDefault();
-                onAdd(value.trim());
-                setValue("");
+                add();
               }
             }}
             placeholder={placeholder}
@@ -79,18 +136,14 @@ function ListEditor({ title, items, placeholder, onAdd, onRemove }: ListEditorPr
           {/* Session-8 (S8-7, computed-color probe): the reference's add
               button uses bg-primary where --primary is the STOCK shadcn
               zinc-950 (rgb(23,23,23)) — a DARK button, not the app's blue
-              (same neutral family as the profile Save Changes button). */}
+              (same neutral family as the profile Save Changes button).
+              Session-72 (N-72c2): the dead `size="sm"` retired — the
+              reference ships the default size. */}
           <Button
-            size="sm"
             className={SETTINGS_PICKLIST.addButton}
             disabled={!value.trim()}
             aria-label="Add item"
-            onClick={() => {
-              if (value.trim()) {
-                onAdd(value.trim());
-                setValue("");
-              }
-            }}
+            onClick={add}
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -130,7 +183,12 @@ export default function SettingsPage() {
           (the mt-2 collapses against the wrapper's space-y margin —
           live-measured 24px tablist-to-content gap). The old py-4 content
           wrapper retired: the reference's panel content starts at the
-          panel's own edge. */}
+          panel's own edge.
+          Session-72 (M-72c4): BOTH editor tabs render INSTANTLY — the
+          Config tab shows "No items yet" x5 and the Defaults tab the
+          fallback values until the settings fetch resolves (the
+          reference's own data:n=[] / ||"AED" contract; the "Loading
+          settings…" gates retired). */}
       <Tabs
         variant="segmented"
         cols={3}
@@ -143,30 +201,28 @@ export default function SettingsPage() {
           { id: "data", label: "Data" },
         ]}
       >
-        {/* Config + Defaults editors remount (keyed) whenever a fresh
-            settings snapshot arrives, so local state initializes from
-            props at mount — never via setState-in-effect. */}
+        {/* Session-72 (M-72c1): the editors NEVER remount on their own
+            saves — the ConfigEditor is props-driven (no key at all) and
+            the DefaultsEditor keys on the RESOLVED EPOCH only (the
+            single pending→resolved remount when the fetch lands; a
+            store update from a save leaves the key — and the focus —
+            intact). The s7-era JSON.stringify keys remounted the
+            editors ~RTT after every PUT, wiping in-flight typing. */}
         <TabsPanel tab="config" className="mt-2 space-y-4">
-          {tab === "config" &&
-            (settings ? (
-              <ConfigEditor key={`cfg-${JSON.stringify(settings)}`} settings={settings} />
-            ) : (
-              <p className="py-10 text-center text-sm text-muted">Loading settings…</p>
-            ))}
+          {tab === "config" && <ConfigEditor settings={settings} />}
         </TabsPanel>
 
         <TabsPanel tab="defaults" className="mt-2 space-y-4">
-          {tab === "defaults" &&
-            (settings ? (
-              <DefaultsEditor key={`def-${JSON.stringify(settings)}`} settings={settings} />
-            ) : (
-              <p className="py-10 text-center text-sm text-muted">Loading settings…</p>
-            ))}
+          {tab === "defaults" && <DefaultsEditor key={settings ? "resolved" : "pending"} settings={settings} />}
         </TabsPanel>
 
-        <TabsPanel tab="data" className="mt-2 space-y-4">
+        {/* Session-72 (M-72c5, bundle-decoded): the reference's Data
+            panel carries space-y-6 DIRECTLY (24px between the three
+            cards — `ra value="data" className="space-y-6"`); the
+            s14-era inner flex-col gap-4 wrapper (16px) retired. */}
+        <TabsPanel tab="data" className="mt-2 space-y-6">
           {tab === "data" && (
-            <div className="flex flex-col gap-4">
+            <>
               {/* Session-14 (S14-P2): the reference's template card carries
                   the 'Import ' prefix, a STOCK CardTitle and a VERTICAL
                   space-y-2 stack of outline default-size buttons.
@@ -219,7 +275,10 @@ export default function SettingsPage() {
                   the FIRST ROW's own keys, every value double-quoted, the
                   filename the SINGULAR entity + ISO date. At zero rows the
                   artifact is an EMPTY file (no header when there is no first
-                  row) — live-verified on the reference. */}
+                  row) — live-verified on the reference.
+                  Session-72 (L-72c1, bundle-decoded): every export button
+                  carries the Download icon (the reference's `cs` at
+                  w-4 h-4 mr-2) — the template buttons' exact chrome. */}
               <Card>
                 <CardHeader>
                   <CardTitle>Export Data</CardTitle>
@@ -231,28 +290,28 @@ export default function SettingsPage() {
                     className={SETTINGS_DATA.buttonCls}
                     onClick={() => downloadBlob(entityDumpCsv(contacts), entityExportFilename("Contact"), "text/csv")}
                   >
-                    Export Contacts
+                    <Download className={SETTINGS_DATA.buttonIcon} /> Export Contacts
                   </Button>
                   <Button
                     variant="outline"
                     className={SETTINGS_DATA.buttonClsAlt}
                     onClick={() => downloadBlob(entityDumpCsv(accounts), entityExportFilename("Account"), "text/csv")}
                   >
-                    Export Accounts
+                    <Download className={SETTINGS_DATA.buttonIcon} /> Export Accounts
                   </Button>
                   <Button
                     variant="outline"
                     className={SETTINGS_DATA.buttonClsAlt}
                     onClick={() => downloadBlob(entityDumpCsv(leads), entityExportFilename("Lead"), "text/csv")}
                   >
-                    Export Leads
+                    <Download className={SETTINGS_DATA.buttonIcon} /> Export Leads
                   </Button>
                   <Button
                     variant="outline"
                     className={SETTINGS_DATA.buttonClsAlt}
                     onClick={() => downloadBlob(entityDumpCsv(activities), entityExportFilename("Activity"), "text/csv")}
                   >
-                    Export Activities
+                    <Download className={SETTINGS_DATA.buttonIcon} /> Export Activities
                   </Button>
                 </CardContent>
               </Card>
@@ -319,8 +378,8 @@ export default function SettingsPage() {
                   </Button>
                 </CardContent>
               </Card>
-            </div>
-        )}
+            </>
+          )}
         </TabsPanel>
       </Tabs>
     </div>
@@ -328,91 +387,102 @@ export default function SettingsPage() {
   );
 }
 
-function ConfigEditor({ settings }: { settings: Settings }) {
+/**
+ * Session-72 (M-72c1 + M-72c4 + L-72c6): the props-driven contract —
+ * the reference's own React-Query architecture. The five lists render
+ * directly from the settings snapshot (the [] fallback covers the
+ * not-yet-fetched state); only the TRANSIENT editing state (the
+ * rename target, the add-input value) is local to the ListEditor.
+ * A save PUTs the single-key patch computed from the CURRENT props;
+ * the store's response updates the settings slice and the rows
+ * re-render. A FAILED PUT can no longer leave a phantom item — the
+ * UI shows the store's truth, and the props never changed (the
+ * s46-P3 guarded-revert intent, now structural). The s7-era local
+ * lists copy + the JSON.stringify remount key are both retired.
+ */
+function ConfigEditor({ settings }: { settings: Settings | null }) {
   const { updateSettings } = useCrmStore();
-  const [lists, setLists] = React.useState(() => ({
-    contactSources: [...settings.contactSources],
-    leadStages: [...settings.leadStages],
-    activityTypes: [...settings.activityTypes],
-    accountTiers: [...settings.accountTiers],
-    industries: [...settings.industries],
-  }));
 
-  // The reference has no "Save All" button — every add/remove persists
-  // immediately, so the picklists always mirror the stored settings.
-  function mutate(key: keyof typeof lists, fn: (arr: string[]) => string[]) {
-    setLists((l) => {
-      const prev = l[key];
-      const next = { ...l, [key]: fn(l[key]) };
-      void updateSettings(next).then((res) => {
-        if (!res.ok) {
-          toast.error("Could not save", res.error);
-          // Session-46 (S46-P3): the guarded revert — a failed PUT (label
-          // > 60 chars / 41st entry → 400) used to leave the phantom item
-          // in the editor. The revert only fires when the list is still
-          // the failed snapshot (reference equality — a user who kept
-          // editing is not clobbered).
-          setLists((cur) => (cur[key] === next[key] ? { ...cur, [key]: prev } : cur));
-        }
-      });
-      return next;
+  function putList(key: ListKey, next: string[]) {
+    void updateSettings({ [key]: next }).then((res) => {
+      if (!res.ok) {
+        toast.error("Could not save", res.error);
+      }
     });
   }
 
+  const lists: Record<ListKey, string[]> = {
+    contactSources: settings?.contactSources ?? [],
+    leadStages: settings?.leadStages ?? [],
+    activityTypes: settings?.activityTypes ?? [],
+    accountTiers: settings?.accountTiers ?? [],
+    industries: settings?.industries ?? [],
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className={SETTINGS_GRID}>
-        <ListEditor
-          title="Contact Sources"
-          items={lists.contactSources}
-          placeholder="Add new contact source"
-          onAdd={(v) => mutate("contactSources", (a) => [...a, v])}
-          onRemove={(i) => mutate("contactSources", (a) => a.filter((_, x) => x !== i))}
-        />
-        <ListEditor
-          title="Lead Stages"
-          items={lists.leadStages}
-          placeholder="Add new lead stage"
-          onAdd={(v) => mutate("leadStages", (a) => [...a, v])}
-          onRemove={(i) => mutate("leadStages", (a) => a.filter((_, x) => x !== i))}
-        />
-        <ListEditor
-          title="Activity Types"
-          items={lists.activityTypes}
-          placeholder="Add new activity type"
-          onAdd={(v) => mutate("activityTypes", (a) => [...a, v])}
-          onRemove={(i) => mutate("activityTypes", (a) => a.filter((_, x) => x !== i))}
-        />
-        <ListEditor
-          title="Account Tiers"
-          items={lists.accountTiers}
-          placeholder="Add new account tier"
-          onAdd={(v) => mutate("accountTiers", (a) => [...a, v])}
-          onRemove={(i) => mutate("accountTiers", (a) => a.filter((_, x) => x !== i))}
-        />
-        {/* "Add new industrie" mirrors the reference's placeholder typo
-            (like "Conversion Funnel") — SETTINGS_PICKLIST pins it. */}
-        <ListEditor
-          title="Industries"
-          items={lists.industries}
-          placeholder={SETTINGS_PICKLIST.industriesPlaceholder}
-          onAdd={(v) => mutate("industries", (a) => [...a, v])}
-          onRemove={(i) => mutate("industries", (a) => a.filter((_, x) => x !== i))}
-        />
-      </div>
+    <div className={SETTINGS_GRID}>
+      <ListEditor
+        title="Contact Sources"
+        items={lists.contactSources}
+        placeholder="Add new contact source"
+        onAdd={(v) => putList("contactSources", [...lists.contactSources, v])}
+        onUpdate={(i, name) => putList("contactSources", lists.contactSources.map((x, xi) => (xi === i ? name : x)))}
+        onDelete={(i) => putList("contactSources", lists.contactSources.filter((_, xi) => xi !== i))}
+      />
+      <ListEditor
+        title="Lead Stages"
+        items={lists.leadStages}
+        placeholder="Add new lead stage"
+        onAdd={(v) => putList("leadStages", [...lists.leadStages, v])}
+        onUpdate={(i, name) => putList("leadStages", lists.leadStages.map((x, xi) => (xi === i ? name : x)))}
+        onDelete={(i) => putList("leadStages", lists.leadStages.filter((_, xi) => xi !== i))}
+      />
+      <ListEditor
+        title="Activity Types"
+        items={lists.activityTypes}
+        placeholder="Add new activity type"
+        onAdd={(v) => putList("activityTypes", [...lists.activityTypes, v])}
+        onUpdate={(i, name) => putList("activityTypes", lists.activityTypes.map((x, xi) => (xi === i ? name : x)))}
+        onDelete={(i) => putList("activityTypes", lists.activityTypes.filter((_, xi) => xi !== i))}
+      />
+      <ListEditor
+        title="Account Tiers"
+        items={lists.accountTiers}
+        placeholder="Add new account tier"
+        onAdd={(v) => putList("accountTiers", [...lists.accountTiers, v])}
+        onUpdate={(i, name) => putList("accountTiers", lists.accountTiers.map((x, xi) => (xi === i ? name : x)))}
+        onDelete={(i) => putList("accountTiers", lists.accountTiers.filter((_, xi) => xi !== i))}
+      />
+      {/* "Add new industrie" mirrors the reference's placeholder typo
+          (like "Conversion Funnel") — SETTINGS_PICKLIST pins it. */}
+      <ListEditor
+        title="Industries"
+        items={lists.industries}
+        placeholder={SETTINGS_PICKLIST.industriesPlaceholder}
+        onAdd={(v) => putList("industries", [...lists.industries, v])}
+        onUpdate={(i, name) => putList("industries", lists.industries.map((x, xi) => (xi === i ? name : x)))}
+        onDelete={(i) => putList("industries", lists.industries.filter((_, xi) => xi !== i))}
+      />
     </div>
   );
 }
 
-function DefaultsEditor({ settings }: { settings: Settings }) {
+type ListKey = "contactSources" | "leadStages" | "activityTypes" | "accountTiers" | "industries";
+
+function DefaultsEditor({ settings }: { settings: Settings | null }) {
   const { updateSettings } = useCrmStore();
+  // Session-72 (M-72c4, bundle-decoded): the reference's fallback
+  // values — the editor mounts instantly (even before the settings
+  // fetch resolves) showing AED/new/B/3/month/monday, exactly the
+  // reference's `(l?.default_currency) || "AED"` family. The epoch
+  // key remounts this initializer ONCE when the fetch lands.
   const [defaults, setDefaults] = React.useState(() => ({
-    defaultCurrency: settings.defaultCurrency,
-    defaultLeadStage: settings.defaultLeadStage,
-    defaultTier: settings.defaultTier,
-    followUpDays: settings.followUpDays,
-    calendarView: settings.calendarView,
-    firstDayOfWeek: settings.firstDayOfWeek,
+    defaultCurrency: settings?.defaultCurrency ?? "AED",
+    defaultLeadStage: settings?.defaultLeadStage ?? "new",
+    defaultTier: settings?.defaultTier ?? "B",
+    followUpDays: settings?.followUpDays ?? 3,
+    calendarView: settings?.calendarView ?? "month",
+    firstDayOfWeek: settings?.firstDayOfWeek ?? "monday",
   }));
 
   // Session-46 (S46-P2): the debounced persist. The reference mirrors an
@@ -449,14 +519,17 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
     }
   }
 
+  // Session-72 (L-72c6): the pure form — `next` is computed OUTSIDE the
+  // updater (the render's `defaults` is fresh at every event), so the
+  // setDefaults updater no longer writes refs or schedules the timer
+  // (React requires pure updaters; the s46 form embedded the
+  // side effects inside the setDefaults callback).
   function set<K extends keyof typeof defaults>(key: K, value: (typeof defaults)[K]) {
-    setDefaults((d) => {
-      const next = { ...d, [key]: value };
-      pendingRef.current = next;
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => void flush(), 500);
-      return next;
-    });
+    const next = { ...defaults, [key]: value };
+    pendingRef.current = next;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => void flush(), 500);
+    setDefaults(next);
   }
 
   React.useEffect(
@@ -475,7 +548,11 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
           STOCK CardTitle and the stock CardDescription subtitle
           (text-sm text-muted-foreground — 14px/#737373). Ours shipped a
           responsive 3-col grid with 6px gaps, the text-lg title and a
-          12px subtitle. */}
+          12px subtitle.
+          Session-72 (L-72c8 + N-72c1, bundle-decoded): the free-text
+          inputs persist RAW keystrokes (the reference's onChange wires
+          the value verbatim; our route's server-side uppercase + caps
+          own the guard) and carry the reference's placeholders. */}
       <Card>
         <CardHeader>
           <CardTitle>Default Values</CardTitle>
@@ -488,7 +565,8 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
               id="def-currency"
               className={SETTINGS_DEFAULTS.controlMt}
               value={defaults.defaultCurrency}
-              onChange={(e) => set("defaultCurrency", e.target.value.toUpperCase().slice(0, 6))}
+              onChange={(e) => set("defaultCurrency", e.target.value)}
+              placeholder="AED"
             />
           </div>
           <div className={SETTINGS_DEFAULTS.group}>
@@ -498,6 +576,7 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
               className={SETTINGS_DEFAULTS.controlMt}
               value={defaults.defaultLeadStage}
               onChange={(e) => set("defaultLeadStage", e.target.value)}
+              placeholder="new"
             />
           </div>
           <div className={SETTINGS_DEFAULTS.group}>
@@ -506,7 +585,8 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
               id="def-tier"
               className={SETTINGS_DEFAULTS.controlMt}
               value={defaults.defaultTier}
-              onChange={(e) => set("defaultTier", e.target.value.toUpperCase().slice(0, 2))}
+              onChange={(e) => set("defaultTier", e.target.value)}
+              placeholder="B"
             />
           </div>
           <div className={SETTINGS_DEFAULTS.group}>
@@ -526,9 +606,11 @@ function DefaultsEditor({ settings }: { settings: Settings }) {
             <Select value={defaults.calendarView} onValueChange={(v) => set("calendarView", v)}>
               <SelectTrigger id="def-calview" className={cn("w-full", SETTINGS_DEFAULTS.controlMt)}><SelectValue /></SelectTrigger>
               <SelectContent>
+                {/* Session-72 (M-72c3, bundle-decoded): the reference's
+                    Select ships exactly month/week — the invented
+                    "Agenda" option retired. */}
                 <SelectItem value="month">Month</SelectItem>
                 <SelectItem value="week">Week</SelectItem>
-                <SelectItem value="agenda">Agenda</SelectItem>
               </SelectContent>
             </Select>
           </div>

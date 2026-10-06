@@ -4,11 +4,12 @@
 // Query, no SWR). Actions call the API envelope, then refresh the affected
 // slice (fetchReports is the one exception — reports data is page-local,
 // never stored; the API call rides call() for the envelope contract).
-// call() is the only sanctioned JSON-ENVELOPE client (N-70c3 re-scope:
-// the nine raw-fetch call-sites across eight endpoints — the topbar AbortController search, the
-// pre-store login-card flows, the multipart photo uploads, the
-// BOM-preserving blob export, the profile PATCH — each documents its own
-// reason at its site).
+// call() is the only sanctioned JSON-ENVELOPE client (N-70c3 re-scope;
+// s72 update: the EIGHT raw-fetch call-sites across seven endpoints — the topbar AbortController search, the
+// pre-store login-card flows, the multipart photo uploads, and the
+// BOM-preserving blob export — each documents its own
+// reason at its site; the users PATCH joined call() at session-72
+// as updateUser — the reference's t(await me()) contract).
 
 import { create } from "zustand";
 import type {
@@ -127,6 +128,11 @@ export interface CrmState {
   deleteEvent: (id: string) => Promise<Result<null, string>>;
 
   updateSettings: (patch: Record<string, unknown>) => Promise<Result<Settings, string>>;
+  // Session-72 (S72-P7): the profile save's PATCH — the call() envelope
+  // form of the reference's `await rt.auth.updateMe(...); const p =
+  // await rt.auth.me(); t(p)` contract (the PATCH response IS the
+  // fresh user — the slice set replaces the me() round-trip).
+  updateUser: (patch: { name: string; photoUrl?: string | null }) => Promise<Result<User, string>>;
   resetData: () => Promise<Result<null, string>>;
 }
 
@@ -380,6 +386,23 @@ export const useCrmStore = create<CrmState>((set, get) => ({
     const session = sessionWriteToken;
     const res = await call<Settings>("/api/settings", { method: "PUT", body: JSON.stringify(patch) });
     if (res.ok && session === sessionWriteToken) set({ settings: res.data });
+    return res;
+  },
+
+  updateUser: async (patch) => {
+    // Session-72 (S72-P7): the s64 write-guard + the call() envelope —
+    // the profile save's PATCH flows through the store now (the page's
+    // raw fetch retired), and the response sets the user slice so the
+    // Account card + the name update land in the pre-reload window
+    // (the reference's own t(await me()) sequencing; a logout between
+    // the PATCH resolution and this set cannot re-populate the cleared
+    // slice).
+    const session = sessionWriteToken;
+    const res = await call<User>("/api/users", {
+      method: "PATCH",
+      body: JSON.stringify({ name: patch.name.trim(), photoUrl: patch.photoUrl }),
+    });
+    if (res.ok && session === sessionWriteToken) set({ user: res.data });
     return res;
   },
 

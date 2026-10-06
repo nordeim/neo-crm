@@ -2214,6 +2214,23 @@ test("the New Contact photo upload round-trip renders + persists (S30-P2)", asyn
 // upload toasts (NOT alerts), the form avatar + the Account card render
 // the img, the save persists and the TOPBAR avatar picks it up after the
 // 500ms reload.
+test("the profile upload negative: a non-image file toasts + renders NO img (S72-P9c — the server-side guard, the documented standing gap closed)", async ({ page }) => {
+  // The reference has NO client type-validation on the profile surface
+  // (its own inconsistency); OUR guard is the upload route's
+  // MIME whitelist (400 "Please upload an image file (JPG or PNG)") —
+  // surfaced to the user as the page's "Failed to upload photo" toast.
+  // The green-through-RED guard class (the S49-P3 precedent): pins
+  // already-working behavior so a future regression cannot silent-fail.
+  await page.goto("/profile");
+  await expect(page.getByText("Personal Information")).toBeVisible();
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("not an image") });
+  await expect(page.getByText("Failed to upload photo")).toBeVisible();
+  // No avatar rendered — the form keeps its blue-100 User fallback.
+  await expect(page.locator("form img")).toHaveCount(0);
+});
+
 test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async ({ page }) => {
   await page.goto("/profile");
   await expect(page.getByText("Personal Information")).toBeVisible();
@@ -2236,10 +2253,13 @@ test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async (
     });
   await expect(page.getByText("Photo uploaded successfully")).toBeVisible();
 
-  // Both profile avatars render the img (the form's + the Account
-  // card's — the card lives in the right column, outside the form).
+  // Session-72 (S72-P7, L-72c2 re-anchor): the reference's sequencing —
+  // right after the upload ONLY the form avatar renders the img (the
+  // Account card reads the STORE user's photoUrl, which is still the
+  // pre-save value); after the save's updateUser round-trip (the
+  // t(await me()) contract) BOTH avatars render it.
   await expect(page.locator("form img")).toHaveCount(1);
-  await expect(page.getByAltText("Profile")).toHaveCount(2);
+  await expect(page.getByAltText("Profile")).toHaveCount(1);
 
   // Session-63 (G-3): the comment corrected — the save is UNCONDITIONAL
   // since N-62b (the reference's own contract); the name change here
@@ -2248,6 +2268,9 @@ test("the profile photo upload round-trip + the topbar avatar (S30-P3)", async (
   await page.getByLabel("Full Name").fill("sepnetflix2023 P");
   await page.getByRole("button", { name: "Save Changes" }).click();
   await expect(page.getByText("Profile updated successfully")).toBeVisible();
+  // The store user updated (the updateUser response set the slice) —
+  // the Account card picks the photo up in the PRE-RELOAD window.
+  await expect(page.getByAltText("Profile")).toHaveCount(2);
   // Session-49 (S49-P3): the 1200ms sleep retired — the TOPBAR avatar
   // assertions below ARE the reload poll (the img exists only after the
   // server re-renders the session user; the heading check above passes
@@ -2404,6 +2427,64 @@ test("the dialog exit animation plays over the full body + reopen resets (S71-P1
   await page.getByRole("button", { name: "New Lead" }).click();
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel("Name *")).toHaveValue("");
+});
+
+test("the settings picklist add/rename/delete round-trip (S72-P1: the bordered-row anatomy — the ListEditor's first e2e)", async ({ page }) => {
+  // The H-72c1 surface: the reference's ly geometry — bordered rows with
+  // the Pencil inline-rename + the red Trash2 — exercised through a real
+  // add → rename → delete cycle (self-cleaning: the probe item is gone
+  // by the end, the seeded lists pristine for the reset test's wipe).
+  await page.goto("/settings");
+  const card = page.locator("main .rounded-xl", { hasText: "Contact Sources" });
+  await expect(card.getByText("Email", { exact: true })).toBeVisible();
+
+  // ADD: the add row's Input + the dark Plus button.
+  await card.getByLabel("Add new contact sources item").fill("Probe Source");
+  await card.getByRole("button", { name: "Add item" }).click();
+  const row = card.locator("div.border.rounded-lg", { hasText: "Probe Source" });
+  await expect(row).toBeVisible();
+
+  // RENAME: the Pencil swaps the row to the rename Input + Save/X.
+  // (In edit mode the item name lives in the input's VALUE, not its
+  // textContent — the hasText row locator no longer matches, so the
+  // fill re-scopes to the card. The run itself caught this.)
+  await row.getByRole("button", { name: "Rename Probe Source" }).click();
+  await card.getByLabel("Rename Probe Source").fill("Probe Renamed");
+  await card.getByRole("button", { name: "Save rename" }).click();
+  await expect(card.getByText("Probe Renamed")).toBeVisible();
+
+  // DELETE: the red Trash2 — the row is gone.
+  const renamedRow = card.locator("div.border.rounded-lg", { hasText: "Probe Renamed" });
+  await renamedRow.getByRole("button", { name: "Delete Probe Renamed" }).click();
+  await expect(card.getByText("Probe Renamed")).toHaveCount(0);
+});
+
+test("the settings defaults persist via the debounce WITHOUT losing focus (S72-P2: the M-72c1 contract)", async ({ page }) => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "Defaults" }).click();
+  const input = page.getByLabel("Default Currency");
+  await input.fill("USD");
+
+  // The M-72c1 contract: the input KEEPS FOCUS through the debounced
+  // persist — the s46-era JSON.stringify remount key unmounted the
+  // editor ~RTT after every save (focus lost, in-flight typing wiped).
+  await expect(input).toBeFocused();
+
+  // The 1200ms settle window (annotated): the 500ms debounce + the PUT
+  // round-trip — the s71 700ms precedent, widened for the reload below.
+  await page.waitForTimeout(1200);
+  await expect(input).toBeFocused();
+
+  // The persist is real: reload → the stored value (the epoch remount
+  // re-reads the resolved settings).
+  await page.reload();
+  await page.getByRole("tab", { name: "Defaults" }).click();
+  await expect(page.getByLabel("Default Currency")).toHaveValue("USD");
+
+  // Cleanup: restore the seed default — the later tests (and the reset
+  // test's wipe) meet the pristine settings contract.
+  await page.getByLabel("Default Currency").fill("AED");
+  await page.waitForTimeout(1200);
 });
 
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
