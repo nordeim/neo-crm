@@ -20,11 +20,15 @@ function SelectTrigger({
       // Session-10 (S10-2): the stock shadcn trigger, DOM-extracted from the
       // live reference: rounded-md (6px), NO gap-2 (justify-between only),
       // bg-transparent, ink text + placeholder #737373, chevron
-      // h-4 w-4 opacity-50 (50% of the ink — computed rgb(10,10,10)/50),
-      // keyboard-only focus-visible ring. No base w-full — surfaces add it
-      // (270px rails yes / 128px toolbars no, like the reference).
+      // h-4 w-4 opacity-50 (50% of the ink — computed rgb(10,10,10)/50).
+      // Session-77 (N-77c11, bundle-falsified S10-2 model): the focus ring
+      // is PLAIN focus: — it FIRES on mouse click, like the reference's
+      // stock Tr (the Input/Button bases stay focus-visible on BOTH
+      // apps). No base w-full — surfaces add it (270px rails yes /
+      // w-full sm:w-32 toolbars; the reference's bundle base carries
+      // w-full but our per-surface additions compute equal everywhere).
       className={cn(
-        `${SELECT_TRIGGER.base} ${SELECT_TRIGGER.placeholderState} focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate`,
+        `${SELECT_TRIGGER.base} ${SELECT_TRIGGER.placeholderState} ${SELECT_TRIGGER.focusRing} disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate`,
         className,
       )}
       {...props}

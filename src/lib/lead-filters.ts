@@ -24,8 +24,13 @@ export interface LeadFilters {
   status: string;
   /** "all" = all sources. RAW slugs: call/email/website/partner/referral. */
   source: string;
-  /** null = no minimum. Non-negative integer deal value. */
-  minValue: number | null;
+  /** "" = no minimum. The RAW input string — Session-77 (L-77c7,
+   *  bundle-decoded): the reference stores `t("minValue", d.target.value)`
+   *  verbatim and compares `!g.minValue || X.value && X.value >=
+   *  parseFloat(g.minValue)` (a typed "0" is a TRUTHY string: the filter
+   *  is active and excludes zero-value leads; fractions are not
+   *  floored). */
+  minValue: string;
   /** "" = any date. ISO date string (YYYY-MM-DD) otherwise. */
   followUpDate: string;
 }
@@ -42,7 +47,7 @@ export const LEAD_VIEWS_STORAGE_KEY = "neo-crm.leads.views";
 export const DEFAULT_LEAD_FILTERS: LeadFilters = {
   status: "all",
   source: "all",
-  minValue: null,
+  minValue: "",
   followUpDate: "",
 };
 
@@ -93,8 +98,12 @@ function asFilters(parsed: unknown): LeadFilters | null {
     return null;
   }
   if (
-    minValue !== null &&
-    (typeof minValue !== "number" || !Number.isInteger(minValue) || minValue < 0)
+    // Session-77 (L-77c7): the raw-string form — any string round-trips
+    // (the reference stores the input verbatim); the pre-s77 numeric
+    // payloads (integers / null) decode to null by design — the s29
+    // legacy-rejection precedent (stale saved views fall back to
+    // defaults).
+    typeof minValue !== "string"
   ) {
     return null;
   }

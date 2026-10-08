@@ -48,10 +48,14 @@ describe("session-29: the raw filter vocabularies", () => {
   });
 
   it("the defaults use the all sentinel (the reference's Gke state shape)", () => {
+    // Session-77 (L-77c7, lockstep): minValue is the RAW STRING (the
+    // reference's `{minValue: ""}` initial state — a typed "0" is a
+    // truthy string: the filter is ACTIVE and excludes zero-value
+    // leads, the reference's own quirk).
     expect(DEFAULT_LEAD_FILTERS).toEqual({
       status: "all",
       source: "all",
-      minValue: null,
+      minValue: "",
       followUpDate: "",
     });
   });
@@ -70,7 +74,7 @@ describe("session-29/55: the saved-views round-trip (the living seam)", () => {
     const filters: LeadFilters = {
       status: "contacted",
       source: "partner",
-      minValue: 5000,
+      minValue: "5000",
       followUpDate: "2026-10-15",
     };
     const view: SavedLeadView = { name: "Big partners", filters };
@@ -104,28 +108,40 @@ describe("session-29/55: the saved-views round-trip (the living seam)", () => {
     expect(decodeSavedLeadViews("not-json")).toBeNull();
     // A non-array top level is not a views list.
     expect(
-      decodeSavedLeadViews(JSON.stringify({ status: "new", source: "call", minValue: null, followUpDate: "" })),
+      decodeSavedLeadViews(JSON.stringify({ status: "new", source: "call", minValue: "", followUpDate: "" })),
     ).toBeNull();
     // An empty name is not a view.
     expect(
       decodeSavedLeadViews(
-        JSON.stringify([{ name: "", filters: { status: "new", source: "call", minValue: null, followUpDate: "" } }]),
+        JSON.stringify([{ name: "", filters: { status: "new", source: "call", minValue: "", followUpDate: "" } }]),
       ),
     ).toBeNull();
     // Bad filter types are not a filter set.
+    // Session-77 (L-77c7, lockstep): minValue validates as the RAW
+    // STRING (any string round-trips — the reference stores the input
+    // verbatim); the pre-s77 numeric payloads (5000 / null) decode to
+    // null by design — the s29 legacy-rejection precedent (stale
+    // saved views fall back to defaults).
     expect(
       decodeSavedLeadViews(
-        JSON.stringify([{ name: "X", filters: { status: 7, source: "all", minValue: null, followUpDate: "" } }]),
+        JSON.stringify([{ name: "X", filters: { status: 7, source: "all", minValue: "", followUpDate: "" } }]),
       ),
     ).toBeNull();
     expect(
       decodeSavedLeadViews(
         JSON.stringify([{ name: "X", filters: { status: "new", source: "call", minValue: "lots", followUpDate: "" } }]),
       ),
+    ).toEqual([
+      { name: "X", filters: { status: "new", source: "call", minValue: "lots", followUpDate: "" } },
+    ]);
+    expect(
+      decodeSavedLeadViews(
+        JSON.stringify([{ name: "X", filters: { status: "new", source: "call", minValue: 15, followUpDate: "" } }]),
+      ),
     ).toBeNull();
     expect(
       decodeSavedLeadViews(
-        JSON.stringify([{ name: "X", filters: { status: "new", source: "call", minValue: null, followUpDate: 15 } }]),
+        JSON.stringify([{ name: "X", filters: { status: "new", source: "call", minValue: null, followUpDate: "" } }]),
       ),
     ).toBeNull();
     // A missing filters object is not a view.
@@ -136,8 +152,8 @@ describe("session-29/55: the saved-views round-trip (the living seam)", () => {
 describe("session-29: the saved-views list (our persistence superset)", () => {
   it("round-trips the views list", () => {
     const views: SavedLeadView[] = [
-      { name: "My Pipeline", filters: { status: "new", source: "all", minValue: null, followUpDate: "" } },
-      { name: "Big deals", filters: { status: "all", source: "partner", minValue: 50000, followUpDate: "" } },
+      { name: "My Pipeline", filters: { status: "new", source: "all", minValue: "", followUpDate: "" } },
+      { name: "Big deals", filters: { status: "all", source: "partner", minValue: "50000", followUpDate: "" } },
     ];
     expect(decodeSavedLeadViews(encodeSavedLeadViews(views))).toEqual(views);
   });
@@ -152,7 +168,7 @@ describe("session-29: the saved-views list (our persistence superset)", () => {
   it("applySavedView returns the view's filters", () => {
     const view: SavedLeadView = {
       name: "Won only",
-      filters: { status: "won", source: "all", minValue: null, followUpDate: "" },
+      filters: { status: "won", source: "all", minValue: "", followUpDate: "" },
     };
     expect(applySavedView(view)).toEqual(view.filters);
   });
@@ -170,11 +186,15 @@ describe("session-29: the (Active) suffix predicate (live-confirmed)", () => {
   it("any set filter is active — status, source, minValue, or follow-up date", () => {
     expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, status: "new" })).toBe(true);
     expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, source: "call" })).toBe(true);
-    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, minValue: 100 })).toBe(true);
+    // Session-77 (L-77c7): the raw-string min value — "100" is a truthy
+    // string (the reference's some(v => v && v !== "all") sees it as
+    // active; "" is falsy — inactive, mirrored).
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, minValue: "100" })).toBe(true);
     expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, followUpDate: "2026-10-15" })).toBe(true);
-    // minValue 0 is falsy — the reference's some(v => v && v !== "all")
-    // treats it as inactive, mirrored.
-    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, minValue: 0 })).toBe(false);
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, minValue: "" })).toBe(false);
+    // a typed "0" is a TRUTHY string — the filter IS active (the
+    // reference's own quirk, L-77c7).
+    expect(filtersActive({ ...DEFAULT_LEAD_FILTERS, minValue: "0" })).toBe(true);
   });
 });
 
@@ -210,10 +230,10 @@ describe("session-29: the overdue predicate (the reference's ee)", () => {
 
 describe("session-29: equality", () => {
   it("leadFiltersEqual compares all four fields", () => {
-    const a: LeadFilters = { status: "new", source: "call", minValue: 5, followUpDate: "2026-01-01" };
-    const b: LeadFilters = { status: "new", source: "call", minValue: 5, followUpDate: "2026-01-01" };
+    const a: LeadFilters = { status: "new", source: "call", minValue: "5", followUpDate: "2026-01-01" };
+    const b: LeadFilters = { status: "new", source: "call", minValue: "5", followUpDate: "2026-01-01" };
     expect(leadFiltersEqual(a, b)).toBe(true);
     expect(leadFiltersEqual(a, { ...b, status: "all" })).toBe(false);
-    expect(leadFiltersEqual(a, { ...b, minValue: null })).toBe(false);
+    expect(leadFiltersEqual(a, { ...b, minValue: "" })).toBe(false);
   });
 });

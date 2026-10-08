@@ -10,8 +10,6 @@ import {
   Calendar,
   CircleAlert,
   CircleCheckBig,
-  ChevronDown,
-  ChevronUp,
   Download,
   // Session-29 (S29-P2, the C2 extract) + session-73 (N-73c10): the ⋮
   // trigger is the VERTICAL dots — the reference's single icon (Bw),
@@ -70,7 +68,10 @@ import { useCrmStore } from "@/stores/crm-store";
 // is shared across pages.tsx/activities/accounts, not owned by any one
 // surface; this file's only reference was the import itself).
 import { LEADS_FUNNEL, LEAD_INLINE_STATUS_OPTIONS } from "@/lib/constants";
-import { formatCurrency } from "@/lib/format";
+// Session-77 (L-77c6): formatCurrency retired from this import — the Won/
+// Dropped subValues now render the reference's raw `$${toLocaleString()}`
+// form (fraction digits preserved — N-77c16); this file's only consumer
+// was the pair (the s53 CHART_COLORS precedent).
 import { downloadBlob } from "@/lib/download";
 import { entityExportFilename, unquotedHeaderCsv } from "@/lib/entity-export";
 import type { Lead } from "@/types";
@@ -79,32 +80,21 @@ type SortKey = "name" | "email" | "value" | "createdAt";
 type SortDir = "asc" | "desc";
 
 // Session-53 (S53-P4, N-53d): the won-vs-lost month series, extracted to
-// a module-scope pure function — the body is VERBATIM the S10-9
-// row-derived series (one entry per DISTINCT closed month keyed
-// `year-month`, insertion-ordered by the first-seen sort stamp, EMPTY at
-// zero). It rode a useMemo whose deps [won, lost] were fresh filtered
-// identities every render, so the memo never cached anything — this
-// plain call is the honest form (the sibling pipelineByStage computes
-// plainly too).
-function buildWonVsLost(won: Lead[], lost: Lead[]) {
-  const key = (l: Lead) => {
-    const t = new Date(l.closedAt ?? l.createdAt);
-    return `${t.getFullYear()}-${t.getMonth()}`;
-  };
-  const byKey = new Map<string, { month: string; won: number; lost: number; sort: number }>();
-  for (const l of won) {
-    const e = byKey.get(key(l)) ?? { month: "", won: 0, lost: 0, sort: new Date(l.closedAt ?? l.createdAt).getTime() };
-    e.month = new Date(l.closedAt ?? l.createdAt).toLocaleString("en-US", { month: "short" });
-    e.won += 1;
-    byKey.set(key(l), e);
+// a module-scope pure function. Session-77 (M-77c2, bundle-decoded — the
+// reference's Xke r-memo): the buckets key on the CREATED date (not
+// closedAt), the label is the month+year form ("Oct 2026"), the entries
+// stay in INSERTION order over the sorted rows (the reference iterates
+// the merged list — no stamp sort), and the series caps at the LAST 6
+// buckets (slice(-6)).
+function buildWonVsLost(rows: Lead[]) {
+  const byMonth: Record<string, { month: string; won: number; lost: number }> = {};
+  for (const l of rows) {
+    if (l.stage !== "won" && l.stage !== "lost") continue;
+    const month = new Date(l.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    byMonth[month] ??= { month, won: 0, lost: 0 };
+    byMonth[month][l.stage]++;
   }
-  for (const l of lost) {
-    const e = byKey.get(key(l)) ?? { month: "", won: 0, lost: 0, sort: new Date(l.closedAt ?? l.createdAt).getTime() };
-    e.month = new Date(l.closedAt ?? l.createdAt).toLocaleString("en-US", { month: "short" });
-    e.lost += 1;
-    byKey.set(key(l), e);
-  }
-  return [...byKey.entries()].sort((a, b) => a[1].sort - b[1].sort).map(([, v]) => ({ month: v.month, won: v.won, lost: v.lost }));
+  return Object.values(byMonth).slice(-6);
 }
 
 export default function LeadsPage() {
@@ -121,6 +111,13 @@ export default function LeadsPage() {
   const [sortKey, setSortKey] = React.useState<SortKey>("createdAt");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  // Session-77 (M-77c3, bundle-decoded): the reference renders a colSpan-9
+  // "Loading..." row while its leads query is in flight (A ? Loading :
+  // B.length===0 ? empty : rows). Our store hydrates the leads slice on
+  // shell mount; this page-local flag flips once the page's own fetch
+  // resolves (success OR failure) — the s76 "Loading activities..."
+  // local-flag precedent (a text row; the loading-layer pins untouched).
+  const [leadsLoaded, setLeadsLoaded] = React.useState(false);
   // Session-28 (S28-P2): the Mke Edit Lead dialog — a SEPARATE max-w-2xl
   // dialog (NOT the create form), wired to the ⋮ Edit item.
   const [editOpen, setEditOpen] = React.useState(false);
@@ -130,7 +127,10 @@ export default function LeadsPage() {
   const [editTarget, setEditTarget] = React.useState<Lead | null>(null);
 
   React.useEffect(() => {
-    if (hydrated) fetchLeads();
+    if (!hydrated) return;
+    // Session-77 (M-77c3): the flag flips when the fetch settles (either
+    // way — a failed fetch must not strand the Loading row).
+    void fetchLeads().then(() => setLeadsLoaded(true));
   }, [hydrated, fetchLeads]);
 
   // Session-29 (S29-P3): load the persisted SAVED VIEWS list after mount
@@ -211,10 +211,14 @@ export default function LeadsPage() {
   }
 
   function toggleSort(key: SortKey) {
+    // Session-77 (L-77c9, bundle-decoded — the reference's D): a new key
+    // ALWAYS starts "asc" (`l===z ? toggle : (f(z), p("asc"))` — no
+    // createdAt→desc special case; only the INITIAL state pairs
+    // created_date with desc).
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
       setSortKey(key);
-      setSortDir(key === "createdAt" ? "desc" : "asc");
+      setSortDir("asc");
     }
   }
 
@@ -228,7 +232,9 @@ export default function LeadsPage() {
   // filter compares the raw date string (our stored datetimes compare on
   // the yyyy-MM-dd slice).
   const filtered = React.useMemo(() => {
-    const q = search.trim().toLowerCase();
+    // Session-77 (L-77c8): the RAW untrimmed query — the reference
+    // matches `X.name?.toLowerCase().includes(e.toLowerCase())`.
+    const q = search.toLowerCase();
     const rows = leads.filter((l) => {
       if (
         q &&
@@ -241,14 +247,23 @@ export default function LeadsPage() {
         return false;
       if (filters.status !== "all" && l.stage !== filters.status) return false;
       if (filters.source !== "all" && l.source !== filters.source) return false;
-      if (filters.minValue != null && filters.minValue > 0 && !(l.value && l.value >= filters.minValue)) return false;
+      // Session-77 (L-77c7, bundle-decoded): the raw-string min value —
+      // `!g.minValue || X.value && X.value >= parseFloat(g.minValue)`.
+      // A typed "0" is a TRUTHY string: the filter is active AND
+      // zero-value leads are excluded (the reference's own quirk —
+      // the `X.value &&` guard fails them on any active min).
+      if (filters.minValue && !(l.value && l.value >= parseFloat(filters.minValue))) return false;
       if (filters.followUpDate && toDateInputValue(l.nextFollowUp) !== filters.followUpDate) return false;
       return true;
     });
     rows.sort((a, b) => {
+      // Session-77 (L-77c9, bundle-decoded): the raw code-unit
+      // comparator (`te<fe?…:te>fe?…:0` — case-sensitive,
+      // uppercase-first), NOT localeCompare; created_date is the one
+      // Date-coerced key on the reference.
       let cmp = 0;
-      if (sortKey === "name") cmp = a.name.localeCompare(b.name);
-      else if (sortKey === "email") cmp = (a.email ?? "").localeCompare(b.email ?? "");
+      if (sortKey === "name") cmp = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+      else if (sortKey === "email") cmp = (a.email ?? "") < (b.email ?? "") ? -1 : (a.email ?? "") > (b.email ?? "") ? 1 : 0;
       else if (sortKey === "value") cmp = a.value - b.value;
       else cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       return sortDir === "asc" ? cmp : -cmp;
@@ -286,13 +301,12 @@ export default function LeadsPage() {
   }));
 
   // Won vs lost by month — session-10 (S10-9): ROW-DERIVED month series
-  // (one entry per DISTINCT closed month, EMPTY at zero — the reference
-  // renders no month ticks at zero data on this chart; DOM-verified).
-  // Session-53 (S53-P4, N-53d): the never-caching useMemo retired — its
-  // deps [won, lost] were fresh filtered identities every render, so it
-  // never memoized anything; the plain module-scope call is the honest
-  // sibling idiom (pipelineByStage computes plainly too).
-  const wonVsLost = buildWonVsLost(won, lost);
+  // (EMPTY at zero — the reference renders no month ticks at zero data
+  // on this chart; DOM-verified). Session-53 (S53-P4, N-53d): the
+  // never-caching useMemo retired. Session-77 (M-77c2): the reference's
+  // r-memo verbatim — the sorted FILTERED list rides in so the month
+  // buckets keep the table's insertion order; see the function header.
+  const wonVsLost = buildWonVsLost(filtered);
 
   // Session-27 (S27-P9, bundle-extracted): the funnel's true vocabulary —
   // New Leads / Contacted / Qualified / Won with STATUS-CUMULATIVE counts
@@ -389,33 +403,37 @@ export default function LeadsPage() {
       <div className={PAGE_KPI_GRIDS.leads}>
         {/* Session-29 (S29-P5): the H bundle extract — the KPIs derive from
             the FILTERED set; the conversion rate is the one-decimal
-            toFixed(1) form. */}
-        <IconStatCard variant="leads" label="Total Leads" value={filtered.length} icon={<TrendingUp className="h-5 w-5" />} color="#3b82f6" />
-        <IconStatCard variant="leads" label="Open Leads" value={open.length} icon={<Target className="h-5 w-5" />} color="#f97316" />
+            toFixed(1) form. Session-77 (L-77c6, bundle-decoded — the
+            reference's Sm): the class-pair chips (bg-*-50 text-*-600),
+            the responsive w-4 h-4 sm:w-5 sm:h-5 icons, the gray-600
+            labels, and the raw `$${toLocaleString()}` subValues (up to
+            3 fraction digits — N-77c16). */}
+        <IconStatCard variant="leads" label="Total Leads" value={filtered.length} icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />} chipTone="blue" />
+        <IconStatCard variant="leads" label="Open Leads" value={open.length} icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />} chipTone="orange" />
         <IconStatCard
           variant="leads"
           label="Won Deals"
           value={won.length}
-          subValue={formatCurrency(won.reduce((s, l) => s + l.value, 0))}
-          icon={<CircleCheckBig className="h-5 w-5" />}
-          color="#10b981"
+          subValue={`$${won.reduce((s, l) => s + (l.value || 0), 0).toLocaleString()}`}
+          icon={<CircleCheckBig className="w-4 h-4 sm:w-5 sm:h-5" />}
+          chipTone="green"
         />
         <IconStatCard
           variant="leads"
           label="Dropped Deals"
           value={lost.length}
-          subValue={formatCurrency(lost.reduce((s, l) => s + l.value, 0))}
-          icon={<XCircle className="h-5 w-5" />}
-          color="#ef4444"
+          subValue={`$${lost.reduce((s, l) => s + (l.value || 0), 0).toLocaleString()}`}
+          icon={<XCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
+          chipTone="red"
         />
         <IconStatCard
           variant="leads"
           label="Conversion Rate"
           value={`${filtered.length ? ((won.length / filtered.length) * 100).toFixed(1) : 0}%`}
-          icon={<Percent className="h-5 w-5" />}
-          color="#8b5cf6"
+          icon={<Percent className="w-4 h-4 sm:w-5 sm:h-5" />}
+          chipTone="purple"
         />
-        <IconStatCard variant="leads" label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<Calendar className="h-5 w-5" />} color="#14b8a6" />
+        <IconStatCard variant="leads" label="Avg. Sales Cycle" value={`${avgCycle} days`} icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />} chipTone="cyan" />
       </div>
 
       {/* Session-8 (S8-4/S8-5, DOM re-pinned; re-scoped S29-P3 bundle +
@@ -450,7 +468,7 @@ export default function LeadsPage() {
                   <FilterPolygon className={LEADS_FILTERS_POPOVER.triggerIcon} /> Filters {filtersActive(filters) && "(Active)"}
                 </Button>
               </DropdownTrigger>
-              <DropdownContent align="start" className={cn("rounded-md", LEADS_FILTERS_POPOVER.content)}>
+              <DropdownContent align="start" sideOffset={4} className={cn("rounded-md shadow-md", LEADS_FILTERS_POPOVER.content)}>
                 <div className={LEADS_FILTERS_POPOVER.stack}>
                   <div>
                     <span className={LEADS_FILTERS_POPOVER.fieldLabel}>Status</span>
@@ -483,16 +501,20 @@ export default function LeadsPage() {
                   </div>
                   <div>
                     <span className={LEADS_FILTERS_POPOVER.fieldLabel}>Min Deal Value</span>
+                    {/* Session-77 (L-77c7, bundle-decoded): the RAW STRING
+                        storage — `t("minValue", d.target.value)` verbatim;
+                        the truthiness + parseFloat live in the filter
+                        predicate (a typed "0" is active; fractions are
+                        not floored). */}
                     <Input
                       type="number"
-                      min={0}
                       placeholder="0"
                       className={LEADS_FILTERS_POPOVER.numberInput}
                       aria-label="Minimum deal value"
-                      value={filters.minValue ?? ""}
+                      value={filters.minValue}
                       onChange={(e) => {
                         const raw = e.target.value;
-                        setFilters((f) => ({ ...f, minValue: raw === "" ? null : Math.max(0, Math.floor(Number(raw))) }));
+                        setFilters((f) => ({ ...f, minValue: raw }));
                       }}
                     />
                   </div>
@@ -542,11 +564,11 @@ export default function LeadsPage() {
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <SortHead label="Lead Name" k="name" active={sortKey === "name"} dir={sortDir} onToggle={toggleSort} />
-                <SortHead label="Email" k="email" active={sortKey === "email"} dir={sortDir} onToggle={toggleSort} />
+                <SortHead label="Lead Name" k="name" onToggle={toggleSort} />
+                <SortHead label="Email" k="email" onToggle={toggleSort} />
                 <TableHead className="hidden md:table-cell">Phone</TableHead>
                 <TableHead className="hidden lg:table-cell">Company</TableHead>
-                <SortHead label="Value" k="value" active={sortKey === "value"} dir={sortDir} onToggle={toggleSort} />
+                <SortHead label="Value" k="value" onToggle={toggleSort} />
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden xl:table-cell">Source</TableHead>
                 <TableHead>Next Follow-up</TableHead>
@@ -554,7 +576,12 @@ export default function LeadsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 ? (
+              {/* Session-77 (M-77c3): the reference's three-way ternary —
+                  Loading... while the first fetch is in flight, THEN the
+                  empty row / the rows. */}
+              {!leadsLoaded ? (
+                <TableEmptyRow colSpan={9} message="Loading..." />
+              ) : filtered.length === 0 ? (
                 <TableEmptyRow colSpan={9} message="No leads found" />
               ) : (
                 <>
@@ -783,38 +810,24 @@ export default function LeadsPage() {
 function SortHead({
   label,
   k,
-  active,
-  dir,
   onToggle,
 }: {
   label: string;
   k: SortKey;
-  active: boolean;
-  dir: SortDir;
   onToggle: (key: SortKey) => void;
 }) {
   return (
     // S29-P2: the reference's sortable th carries cursor-pointer + the
     // flex items-center gap-2 label/icon container (bundle-extracted);
     // ours keeps the th>button accessible superset inside it.
+    // Session-77 (M-77c1, bundle-falsified s29 pin): the icon is a
+    // STATIC w-4 h-4 ArrowUpDown — the reference renders no chevron
+    // flip on this page (that is the CONTACTS page's s75-P6 family);
+    // no tracking-wide, no tint on the glyph.
     <TableHead className="cursor-pointer">
-      <button
-        type="button"
-        className="inline-flex items-center gap-2 tracking-wide"
-        onClick={() => onToggle(k)}
-      >
+      <button type="button" className="flex items-center gap-2" onClick={() => onToggle(k)}>
         {label}
-        {/* Reference: inactive sortable headers show lucide arrow-up-down
-            (w-4); the active sort flips to a directional chevron. */}
-        {active ? (
-          dir === "asc" ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )
-        ) : (
-          <ArrowUpDown className="h-4 w-4 text-subtle" />
-        )}
+        <ArrowUpDown className="h-4 w-4" />
       </button>
     </TableHead>
   );

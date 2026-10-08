@@ -1,0 +1,48 @@
+# Session 77 (2026-10-08) — the leads-page family rotation
+
+The workspace SURVIVED s76 (the pull fast-forwarded 917b38f → d6b4668, docs/session_148.md only — zero code drift). Environment verified in place (DATABASE_URL="file:../db/custom.db" with db/ at the repo root; census MATCH 15/24/10/23/12 + 4 users). The platform DATABASE_URL override hazard stands — all ops under env -u DATABASE_URL.
+
+Baseline gate GREEN: lint 0/0 · tsc 0 · 1457/1457 unit (85 suites) · playwright --list 132 in 4 files — the documented state exact; the skills/ exclusion verified in all three configs.
+
+Drift sweep #73 CLEAN — the reference bundle byte-identical (1,631,071 bytes, md5 a70a637... — the 48th consecutive stable session).
+
+Reference census #73 (agent-browser, live login at 1280 then a TRUE 390px viewport): the demo data zero ($0.0k/$0.0k/$0k); the mobile-nav defect STANDS at a TRUE 390px (vw=390, nav w=0, 8 links in DOM, 0 visible, no hamburger); desktop normal (256px, 8 links, all visible). Our mobile drawer stays the deliberate documented superset.
+
+Session 76 shipped at 917b38f. My task is **Session 77** — the session_147 suggested target: the leads-page family (the s29/s31-era interactive table — never a dedicated rotation since the s29/s31 builds; the inline-edit family + the filters popover + the saved-views seam).
+
+The triple audits ran in parallel (77-a the s76 re-audit, 77-b the graduation audit, 77-c the fresh-eyes rotation on the leads family) + the orchestrator's manual validation of every claim at file:line, the parity claims BUNDLE-DECODED against the fresh-fetched reference:
+
+- **77-a: 15/15 GENUINE** — every S76-P1..P13 fix verified at file:line, the counts corroborated by live runs, the 917b38f commit honest (28 files, zero strays). Six nano notes (the vx fallback arms, the trendDirection prop, the hand-rolled 42-cell loop, the token-computed colors, the Event textarea rows, the composition sub-tallies).
+- **77-b: ZERO graduations, 13/13 (the 34th consecutive)** — the 8 mechanical censuses 7 CLEAN + ONE finding: AGENTS.md:29 still carried the stale (1417)/(131) gate-order pair (every other carrier was at 1457/132) — fixed this session (S77-P13). Both operator decisions' evidence INTACT.
+- **77-c: the N-77 family — 4 M + 6 L + 7 N** on the leads page, every M/L claim bundle-decoded + manually validated (component identities: Qke page + Gke popover + Sm card + Xke charts + Tke create + Mke edit; the icon aliases resolved at their tr() assignments — l_ = ArrowUpDown). The APIs + the inline-edit family + the popover anatomy + the table chrome + the export + the create dialog + both routes: ZERO findings (the s29/s31 foundations solid).
+
+**The operator decisions (36th re-affirmation):** the CSV formula-injection posture (b) STANDS — the guard intact (csv.ts:31-33 → escapeCell → entity-export.ts's qq), ZERO new unguarded builders (the leads export rides the guarded unquotedHeaderCsv seam, 77-c-verified), the bundle byte-stable for the 48th consecutive session. The source-vocabulary documented parity STANDS AND EXTENDS to the leads family — the anchors re-confirmed (both OPTIONS arrays + the posture comments; no enum-membership at the four validation sites; the settings Capitalized defaults); the family's vocabularies byte-verified fresh (the 5+all filter sets with Referral popover-only, the 4+4 dialog sets, the 5-option inline set, LEADS_FUNNEL).
+
+The plan (S77-P1..P13) written + validated against the codebase (the blast radius pre-checked: the dch buildWonVsLost signature, the lead-filters minValue pins, the page-layout SELECT_TRIGGER pin; the loading-layer/entity-edit-dialog/stat-value/e2e pins verified to SURVIVE).
+
+RED: **40 failing pins exactly** (the new leads-family-parity suite's 34 + the 4 green-by-design anchors + the lead-filters re-anchors + the dch signature + the page-layout focusRing), after two mid-flight pin-shape repairs (the email-comparator regex's lazy-`??` escape; the store-comment pin moved to the RAW source — the helper strips comments). Non-vacuousness PROVEN at the pre-fix state: 40 failed | 1455 passed — exactly the modified-pin set, ZERO collateral (all other 82 files green).
+
+GREEN applied in full: the sortable-header family (the STATIC w-4 h-4 ArrowUpDown — the s29 chevron-flip pin bundle-falsified; the bare flex items-center gap-2 container; the raw code-unit comparator; the always-asc new-key toggle); the won-vs-lost rewrite (the reference's r-memo: created-date buckets, "Oct 2026" labels, insertion order over the merged sort, slice(-6)); the Loading... row (the leadsLoaded local flag — "Loading" → "Rows" observed live via MutationObserver); the edit-submit DIALOG_SUBMIT fix (rgb(23,23,23) dark — LIVE-verified); the "Creating..." labels x3 (Event/Activity keep "Saving..."); the Sm anatomy (STAT_CHIP_PAIRS + chipTone + the responsive icons + the gray-600 labels + the gray-500 mt-1 subValues + the cyan Avg-cycle + the $${toLocaleString()} raw subValues); the min-value RAW STRING (the truthy-"0" quirk mirrored — LIVE-verified "Filters (Active)" at a typed 0); the untrimmed search (LIVE: " supply" matches the empty row); the popover shadow-md + sideOffset 4; the select-trigger CLICK focus ring (SELECT_TRIGGER.focusRing — LIVE: rgb(10,10,10) 0px 0px 0px 1px on focus; the S10-2 pin's model corrected, the Input/Button focus-visible bases byte-verified on both apps); the min={0} retire; the two comment re-anchors (the default-lead-stage superset + the mutate/invalidate rationale); the AGENTS:29 count fix.
+
+Four lockstep re-anchors (all the predicted class): the dch buildWonVsLost signature (rows: Lead[]), the lead-filters minValue pins (the string form + the truthy-"0" filtersActive case + the "lots" round-trip + the numeric-payload rejections), the page-layout SELECT_TRIGGER pin (the focusRing field + the corrected comment).
+
+Typecheck clean. **FULL UNIT: 1495/1495 (86 suites, +38).** Lint 0/0 + build clean. **FULL E2E GATE: 132/132 on a fresh CI=1 boot (3.2m, all 9 mobile-nav checks green).**
+
+LIVE battery: the KPI chips computing the class pairs exactly (blue-50/blue-600 … cyan-50/cyan-600 on Avg-cycle — the six cards DOM-measured); the gray-600 labels + the 40px chips + the 20px icons; the subValues $687,000/$226,000 (14px gray-500 mt-4px); the sortable headers shipping exactly ONE svg each (the static glyph) + the sort starting asc on a new key; the wonVsLost ticks "May 2026"/"Jun 2026"; the edit submit computing rgb(23,23,23) + 6px radius; the min-value round-trip ("0" → (Active), 24 rows; "50000" → 18 rows); the padded search " supply" → the empty row; the popover shadow-md computed (rgba(0,0,0,0.1) 0px 4px 6px -1px …); the select ring on focus; the Loading → Rows transition; the drawer at TRUE 390px (full-bleed, 8 links, focus inside); zero overflow on all ten routes; NO Tailwind v4 bug (shadow-sm computing the 0 1px 2px re-pin, blur 4px); the closing census MATCH (256px/8 links).
+
+Screenshots 93 (the leads KPI chip pairs + the static sortable headers) + 94 (the edit dialog's dark submit) NEW — VLM 4/4 + 3/3 PASS.
+
+Docs realignment: SKILL v1.74.0 (§16bq + project_state, 6928 → 6991, via the assert-first scripts/skill_edits_s77.py at the sandbox root + the STALE VERSION HEADER REPAIR — the header had read v1.70.0 since s70 while the records carried v1.71.0-v1.73.0 nominally) + README badge 1627 + AGENTS/CLAUDE/PAD at 1495+132 + this record + the plan's execution record + the repo worklog. .env/.env.example verified (no env surface change).
+
+## Summary
+
+The full session-77 cycle completed on the **leads-page family** (the session_147 suggested target — the s29/s31-era interactive table's first dedicated rotation):
+
+- **Audits**: 77-a s76 re-audit 15/15 genuine · 77-b zero graduations 13/13 (34th consecutive), 7/8 censuses clean + the AGENTS:29 stale-count fix · 77-c the fresh-eyes rotation found the N-77 family (4 M + 6 L + 7 N, every M/L claim bundle-decoded + manually validated)
+- **Key fixes**: the sortable headers ship the reference's STATIC ArrowUpDown (the s29 chevron-flip pin bundle-falsified — the third bundle-beats-pin instance), the won-vs-lost series rebuilt on the reference's r-memo (created-date buckets + "Oct 2026" labels + insertion order + slice(-6)), the colSpan-9 Loading... row (the cold load no longer flashes "No leads found"), the edit-dialog submit joins the DIALOG_SUBMIT dark family, the "Creating..." create labels, the Sm chip-pair anatomy (STAT_CHIP_PAIRS + the cyan Avg-cycle + the toLocaleString subValues), the min-value RAW-STRING semantics (the reference's truthy-"0" quirk), the untrimmed search, the raw code-unit comparator + the always-asc toggle, the popover's stock chrome, and the select-trigger CLICK focus ring (the S10-2 pin's model corrected)
+- **Deferred with evidence**: N-77c17 (the stock TableHead text-muted vs text-muted-foreground token question — family-wide) + the select base's w-full sweep (computed-equal everywhere today)
+- **Gate**: lint 0/0 · tsc 0 · **1495/1495 unit (86 suites, +38)** · build · **132/132 e2e** — all RED-first, non-vacuousness proven (40 | 1455 pre-fix)
+- **LIVE-verified** incl. the mobile drawer at 390px, no Tailwind v4 bug, 2 VLM-verified screenshots (4/4 + 3/3), docs at SKILL v1.74.0 (the stale header repaired)
+- **Both operator decisions standing** (the 36th re-affirmation, evidence-first)
+
+**Suggested next (session 78)**: the dashboard's remaining KPI-memo seams (the session_147 alternate target — never re-rotated since the KPI_STATICS adjudication) or the N-77c17 TableHead token sweep; standing: the insights-dialog icon identities remain unresolvable-in-bundle.

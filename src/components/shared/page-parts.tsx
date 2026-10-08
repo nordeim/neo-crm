@@ -12,6 +12,7 @@ import {
   KPI_VALUE,
   PAGE_HEADER,
   STAT_CARD,
+  STAT_CHIP_PAIRS,
   type PageHeaderVariant,
 } from "@/lib/page-layout";
 
@@ -289,6 +290,7 @@ export function IconStatCard({
   gradient = false,
   variant = "contacts",
   color,
+  chipTone,
 }: {
   label: string;
   value: React.ReactNode;
@@ -300,18 +302,27 @@ export function IconStatCard({
   gradient?: boolean;
   /** "contacts" (gradient/p6/text-3xl) or "leads" (p4-sm:p6/text-xl-2xl). */
   variant?: "contacts" | "leads";
-  color: string;
+  color?: string;
+  /** Session-77 (L-77c6): the leads arm's chip KEY — the reference's Sm
+   *  class-pair map (STAT_CHIP_PAIRS); replaces the style-tint chip. */
+  chipTone?: keyof typeof STAT_CHIP_PAIRS;
 }) {
   if (variant === "leads") {
     return (
       // Session-11 (S11-P2): bare `shadow` — the reference's leads stat
       // cards compute the standard shadow, not the tiny one.
+      // Session-77 (L-77c6, bundle-decoded — the reference's Sm): the
+      // class-PAIR chip (bg-*-50 text-*-600 via STAT_CHIP_PAIRS), the
+      // gray-600 label, the gray-500 mt-1 subValue — the alpha-tint
+      // style chip + the text-muted labels retired on this arm.
       <div className="rounded-xl border border-line bg-surface p-4 shadow sm:p-6">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs text-muted sm:text-sm">{label}</span>
+          <span className="text-xs sm:text-sm text-gray-600">{label}</span>
           <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10"
-            style={{ backgroundColor: `${color}1a`, color }}
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10",
+              chipTone && STAT_CHIP_PAIRS[chipTone],
+            )}
             aria-hidden="true"
           >
             {icon}
@@ -319,7 +330,7 @@ export function IconStatCard({
         </div>
         <div className="flex flex-col">
           <span className="text-xl sm:text-2xl font-bold">{value}</span>
-          {subValue !== undefined && <span className="text-sm font-medium text-muted">{subValue}</span>}
+          {subValue !== undefined && <span className="text-xs sm:text-sm text-gray-500 mt-1">{subValue}</span>}
         </div>
       </div>
     );

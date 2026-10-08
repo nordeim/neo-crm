@@ -744,17 +744,28 @@ describe("session-10 stock-primitive pins (DOM-verified 2026-09-30)", () => {
     );
   });
 
-  it("select trigger matches the stock shadcn trigger (rounded-md, no gap, transparent, auto width)", () => {
-    // S10-2: the reference's Select trigger is stock: rounded-md (6px, not
-    // our 8px rounded-lg), NO gap-2 (justify-between only), bg-transparent,
-    // placeholder #737373, and NO base w-full (the reference adds w-full
-    // per-surface: 270px rail selects yes / 128px toolbar selects no).
+  it("select trigger matches the stock shadcn trigger (rounded-md, no gap, transparent, auto width, CLICK focus ring)", () => {
+    // S10-2, re-derived session-77 (N-77c11 — the S10-2 pin's model
+    // bundle-falsified on the focus form): the reference's Select
+    // trigger is stock: rounded-md (6px, not our 8px rounded-lg), NO
+    // gap-2 (justify-between only), bg-transparent, placeholder
+    // #737373 — and its focus ring is PLAIN focus: (the ring FIRES on
+    // mouse click), unlike the Input/Button bases which are
+    // focus-visible on BOTH apps (byte-verified session-77). The
+    // reference's bundle base also carries w-full; our per-surface
+    // w-full additions compute equal on every current surface (270px
+    // rails yes / w-full sm:w-32 toolbars) — the per-surface model
+    // stays, documented.
     expect(SELECT_TRIGGER.base).toBe(
       "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm text-ink shadow-sm transition-colors placeholder:text-muted-ink",
     );
     expect(SELECT_TRIGGER.base).not.toContain("w-full");
     expect(SELECT_TRIGGER.base).not.toContain("gap-2");
     expect(SELECT_TRIGGER.placeholderState).toBe("data-[placeholder]:text-muted-ink");
+    // Session-77 (N-77c11): the ring fires on mouse click — plain
+    // focus:, NOT the keyboard-only focus-visible: the S10-2 comment
+    // claimed.
+    expect(SELECT_TRIGGER.focusRing).toBe("focus:outline-none focus:ring-1 focus:ring-ring");
   });
 
   it("the topbar search is the stock Input + pl-10 gray-50 extras (12px right padding)", () => {

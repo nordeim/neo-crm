@@ -41,7 +41,7 @@ import {
 // Session-68 (N-68d): the edit family consumes the shared chrome
 // constants instead of hand-inlined byte-copies — a future constant
 // re-pin can no longer silently diverge the create/edit families.
-import { DIALOG_CONTENT, DIALOG_FOOTER_WIDE } from "@/lib/page-layout";
+import { DIALOG_CONTENT, DIALOG_FOOTER_WIDE, DIALOG_SUBMIT } from "@/lib/page-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -313,7 +313,12 @@ function EntityEditForm({
           {readOnly ? "Close" : "Cancel"}
         </Button>
         {!readOnly && (
-          <Button type="submit" disabled={isLoading}>
+          // Session-77 (M-77c4, bundle-decoded): the reference's Mke ships
+          // the UNCLASSED stock default submit — its in-dialog --primary is
+          // the stock shadcn dark rgb(23,23,23) (the S8-7/DIALOG_SUBMIT
+          // pin; the three create dialogs already carry it — the edit arm
+          // was the blue outlier).
+          <Button type="submit" disabled={isLoading} className={DIALOG_SUBMIT.button}>
             {isLoading ? "Saving..." : "Save Changes"}
           </Button>
         )}

@@ -320,7 +320,7 @@ function AccountForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving..." : "Create Account"}
+          {pending ? "Creating..." : "Create Account"}
         </Button>
       </DialogFooter>
     </form>
@@ -596,7 +596,7 @@ function ContactForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving..." : "Create Contact"}
+          {pending ? "Creating..." : "Create Contact"}
         </Button>
       </DialogFooter>
     </form>
@@ -649,9 +649,13 @@ function LeadForm({
     phone: "",
     company: "",
     value: "",
+    // Session-77 (N-77c13, bundle-decoded): the reference's Tke HARDCODES
+    // status:"new" — its Settings stores default_lead_stage but the create
+    // form never reads it (a dead setting there). Ours consumes the
+    // setting: the documented functional superset (the dead-exports
+    // precedent). Session-29 (S29-P4): the RAW source default (the Tke
+    // initial state is source:"email" — bundle-extracted).
     stage: settings?.defaultLeadStage ?? "new",
-    // Session-29 (S29-P4): the RAW source default (the Tke initial state
-    // is source:"email" — bundle-extracted).
     source: "email",
     expectedCloseDate: "",
     nextFollowUp: "",
@@ -746,7 +750,6 @@ function LeadForm({
             id="ld-value"
             className={DIALOG_GROUP.controlMt}
             type="number"
-            min={0}
             value={form.value}
             onChange={(e) => setForm({ ...form, value: e.target.value })}
           />
@@ -783,7 +786,7 @@ function LeadForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving..." : "Create Lead"}
+          {pending ? "Creating..." : "Create Lead"}
         </Button>
       </DialogFooter>
     </form>

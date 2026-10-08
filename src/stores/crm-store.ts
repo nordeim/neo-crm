@@ -316,10 +316,14 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
   updateLead: async (id, input) => {
     // Session-29 (S29-P2, the C2 contract): apply the patch to the leads
-    // slice BEFORE the network call — the reference's React-Query cache
-    // updates instantly on the inline row edits (Value/Status/Date), and
-    // the per-keystroke controlled inputs need the local apply to avoid
-    // the stale-race clobber. The set is TASK-SYNCHRONOUS with the onChange
+    // slice BEFORE the network call. Session-77 (N-77c14, comment
+    // re-anchor): the reference's own mutation is a plain
+    // P.mutate({id, data}) + invalidate-on-success — NOT optimistic
+    // (its inline inputs go stale until the refetch lands). OUR local
+    // apply is still the right construction: the per-keystroke
+    // controlled inputs need the local apply to avoid the stale-race
+    // clobber (equal-or-smoother than the reference). The set is
+    // TASK-SYNCHRONOUS with the onChange
     // (no await precedes it), so a logout continuation can never land
     // between the keystroke and the apply (the N-70c2 scoping note — the
     // s64 write-guard is unnecessary here, unlike updateSettings' POST-

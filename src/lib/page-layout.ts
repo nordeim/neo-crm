@@ -641,6 +641,13 @@ export const INPUT_BASE = {
 export const SELECT_TRIGGER = {
   base: "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm text-ink shadow-sm transition-colors placeholder:text-muted-ink",
   placeholderState: "data-[placeholder]:text-muted-ink",
+  // Session-77 (N-77c11, bundle-falsified S10-2 model): the reference's
+  // stock trigger ring is PLAIN focus: — the ring FIRES on mouse click
+  // (unlike the Input/Button bases, which are focus-visible on BOTH
+  // apps — byte-verified). The reference's bundle base also carries
+  // w-full; our per-surface w-full additions compute equal on every
+  // current surface, so the per-surface model stays.
+  focusRing: "focus:outline-none focus:ring-1 focus:ring-ring",
 } as const;
 
 /** S10-3: the topbar search pill = the shared (stock) Input + the
@@ -1433,3 +1440,17 @@ export const KPI_ICON_TEXT: Record<string, string> = {
   "#8b5cf6": "text-purple-600",
   "#f97316": "text-orange-600",
 };
+
+/** Session-77 (L-77c6, bundle-decoded — the reference's Sm): the LEADS
+ *  KPI chip map — the class PAIRS verbatim (`s={blue:"bg-blue-50
+ *  text-blue-600", green:…, orange:…, red:…, purple:…, cyan:…}`), keyed
+ *  by the reference's own color names. The Avg-cycle card rides the
+ *  CYAN pair (bg-cyan-50 text-cyan-600 — #0891b2, not teal). */
+export const STAT_CHIP_PAIRS = {
+  blue: "bg-blue-50 text-blue-600",
+  green: "bg-green-50 text-green-600",
+  orange: "bg-orange-50 text-orange-600",
+  red: "bg-red-50 text-red-600",
+  purple: "bg-purple-50 text-purple-600",
+  cyan: "bg-cyan-50 text-cyan-600",
+} as const;

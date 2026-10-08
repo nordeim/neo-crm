@@ -111,8 +111,12 @@ describe("session-53: the orphaned-import retirement + the never-caching memo (S
     expect(src).not.toMatch(/const wonVsLost = React\.useMemo/);
     // …replaced by the sibling idiom: a module-scope pure function
     // called plainly (pipelineByStage computes plainly too).
-    expect(src).toMatch(/function buildWonVsLost\(won: Lead\[\], lost: Lead\[\]\)/);
-    expect(src).toMatch(/const wonVsLost = buildWonVsLost\(won, lost\)/);
+    // Session-77 (M-77c2, lockstep): the signature takes the SORTED
+    // rows — the reference's r-memo iterates the merged list in table
+    // order, so the month buckets' insertion order must ride the
+    // merged sort (a won-then-lost partition would reorder them).
+    expect(src).toMatch(/function buildWonVsLost\(rows: Lead\[\]\)/);
+    expect(src).toMatch(/const wonVsLost = buildWonVsLost\(filtered\)/);
   });
 });
 
