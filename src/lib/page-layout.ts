@@ -412,7 +412,7 @@ export const SETTINGS_PICKLIST = {
   deleteBtn: "text-red-600 hover:text-red-700",
   empty: "text-sm text-muted text-center py-4",
   addRow: "flex gap-2",
-  addButton: "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
+  addButton: "bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 shadow h-9 px-4 py-2",
   industriesPlaceholder: "Add new industrie",
 } as const;
 
@@ -687,7 +687,7 @@ export const PAGE_TITLES = {
  *  settings-add / profile-save treatment. Header primary buttons stay
  *  blue-600 (the app `--primary` token). */
 export const DIALOG_SUBMIT = {
-  button: "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
+  button: "bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 shadow h-9 px-4 py-2",
 } as const;
 
 /** S9-3: card titles are DIVs on the reference (no heading semantics;
@@ -983,7 +983,7 @@ export const PROFILE_LAYOUT = {
    *  #171717 (NOT its global blue --primary), so the colors ride the
    *  literal neutral family: bg #171717, fg #fafafa (computed-verified). */
   badge:
-    "mt-2 inline-flex items-center rounded-md border border-transparent bg-neutral-900 text-neutral-50 px-2.5 py-0.5 text-xs font-semibold shadow transition-colors hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 capitalize",
+    "mt-2 inline-flex items-center rounded-md border border-transparent bg-neutral-900 text-neutral-50 px-2.5 py-0.5 text-xs font-semibold shadow transition-colors hover:bg-neutral-900/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 capitalize",
   /** Upload icon carries its margin ON THE SVG like the reference. */
   uploadIcon: "h-4 w-4 mr-2",
 } as const;

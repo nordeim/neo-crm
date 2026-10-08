@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.76.0
+version: 1.77.0
 last_updated: 2026-10-08
-project_state: 1561 unit checks + 132 e2e checks green; the session-79 layer (the login-family rotation — the session_151 suggested target, never a dedicated rotation, LIVE-extracted at 1440 AND 390 [the login card is PLATFORM code, not app-bundle code]: the M-79c1 AUTH TEXT-SIZE LADDER [the reference's auth inputs/submits compute 14px at desktop — text-base md:text-sm on the signin/reset inputs + text-sm on all four submits + the signup inputs' three-rung text-sm sm:text-base md:text-sm; ours shipped a flat 16px] + the M-79c2 BACK-BUTTON OVERLAP [the s21 verbatim -mb-2 v4-FALSIFIED — LIVE -8px overlap on ours vs the reference's +8px at both widths; mb-2 / mb-2 sm:mb-4 are the v4-correct expressions] + the M-79c3 SHIELDCHECK GLYPH [the verify tile is lucide-shield-check slate-700, not the sent view's Mail — the s21 pin's misrecord] + the M-79c4 AUTH FOCUS RING [solid slate-400 2px ring + 2px white offset, computed byte-identical to the reference; the 30%-opacity arm retired] + the M-79c5 N-77c17 TABLEHEAD ADJUDICATION [the reference's stock th is text-muted-foreground rgb(115,115,115); our computed-equal is text-muted-ink — the family-wide one-shade-darker text-muted retired] + the L-79c6/7/8/9/10/11 set [the mobile nbsp spacer; the verify hint line + its wrapper; the verify stack/form space-y-4 sm:space-y-6; the reset back's responsive 8/16px ladder; the slate-400 icon split; the flat stock code inputs] + the N-79c12/13/14/15 chrome set [the submit disabled+keyboard rings; the bare-text callouts; the back2 retirement; the CLAUDE.md 131-count repair])
+project_state: 1576 unit checks + 132 e2e checks green; the session-80 layer (the profile-page rotation — the session_154 suggested target, never a dedicated VISUAL rotation, LIVE-extracted at 1440 AND 390 + the reference's compiled stylesheet decoded): the M-80c1 NEUTRAL-900 HOVER ALPHA ARMS [the reference's dark-primary surfaces ship ALPHA hovers — its stylesheet reads hsl(var(--primary) / .8); LIVE-probed rgba(23,23,23,0.8) on the badge + /90 on the save/dialog-submit/settings-add; ours shipped SOLID hover:bg-neutral-800 #262626 on all five carriers — the s66 alpha-math miscalculation; the computed-equals are hover:bg-neutral-900/80 [badges] + /90 [buttons]] + the M-80c2 HOVER-VARIANT UN-WRAP [THE v4 bug of the session, the fourth re-pin family member: v4 wraps every hover: utility in @media (hover: hover) so ALL our hovers no-op on touch; the reference's stylesheet ships ZERO hover-media wraps — bare :hover; the fix is the one-line @custom-variant hover (&:hover); in globals.css, LIVE-verified in the hover:none environment that could not exercise the wrapped rules at all] + the L-80c3 EMAIL INPUT TYPE [type=email on the disabled profile email input, matching the reference's DOM] + the N-80c4 S21 COMMENT REMNANTS RETIRED + the N-80c5 documented parities pinned green [text-foreground rgb(10,10,10) both apps; the chips' computed-equal inline colors; the 0/8px gap stack; the 390px responsive set measured identical] + the 80-b doc carriers [CLAUDE:38/:125 + PAD:772 at the s79 counts])
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.76.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.77.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -5486,6 +5486,89 @@ sessions behind a green pin (the fix: measure the gap on BOTH apps
 before writing the pin). (3) A desktop-only probe of a RESPONSIVE
 class (`mb-4` for the reference's `16px gap`) misses the mobile rung —
 always probe both ends of a responsive expression.
+
+## 16bt. Session-80 Layer (the profile rotation + the hover-variant
+un-wrap)
+
+**What shipped:** the profile page's own surfaces' FIRST dedicated
+VISUAL rotation (the session_154 suggested target — never rotated:
+s13 pinned PROFILE_LAYOUT, s30 the photo flow, s72 the store/API
+seams; nobody had walked the page's DOM + computed styles against the
+live reference at 1440 AND 390) found the N-80 family — 2 M + 1 L +
+2 N (incl. 80-a's stale-comment remnant + 80-b's three stale doc
+carriers). The decisive fixes: the M-80c1 NEUTRAL-900 HOVER ALPHA
+ARMS (the reference's dark-primary surfaces ship ALPHA hovers — its
+stylesheet literally reads `.hover\:bg-primary\/80:hover
+{background-color:hsl(var(--primary) / .8)}` with --primary #171717;
+LIVE hover-probed: the profile role badge settles rgba(23,23,23,0.8),
+the profile Save rgba(23,23,23,0.9), the dialog submits + the settings
+picklist Add buttons carry the class-decoded hover:bg-primary/90.
+OURS shipped SOLID `hover:bg-neutral-800` (#262626 = rgb(38,38,38)) on
+ALL FIVE carriers — badge.tsx's default variant, PROFILE_LAYOUT.badge,
+DIALOG_SUBMIT.button [8 call sites], SETTINGS_PICKLIST.addButton, and
+the profile-page inline Save. The s66 badge translation miscalculated
+the alpha math (0.8x23 + 0.2x255 = 69.4 ~= #454545, NOT #262626 — the
+same genus as the s21 "-mb-2 verbatim" v4-math error): the solid arm
+renders rgb(38,38,38) where the reference renders rgb(69,69,69)
+[badges] / rgb(46,46,46) [buttons] on EVERY hover. The computed-equal
+expressions: `hover:bg-neutral-900/80` [badges] + `/90` [buttons]); and
+the M-80c2 HOVER-VARIANT UN-WRAP (THE Tailwind v4 bug of the session —
+the fourth member of the v4 shadow/blur/space-y re-pin family: v4
+compiles every `hover:` utility inside `@media (hover: hover)`
+[CSSOM-walked live: our .hover\:bg-neutral-800:hover rode TWO
+(hover: hover) blocks], so ALL our hover affordances no-op on
+hover-incapable devices — touch users never see a single sticky-hover
+wash. The reference's v3-era compiled stylesheet (79,581 bytes)
+contains ZERO (hover: hover) media queries — every hover rule is a
+BARE :hover selector. LIVE-PROVEN on the divergence: with the mouse
+parked over our role badge (:hover matching, polled true for 1s) the
+computed background stayed #171717 — the rule never fired in a
+hover:none environment where the reference's identical probe computes
+rgba(23,23,23,0.8). The fix is ONE top-level line after the imports:
+`@custom-variant hover (&:hover);` — restoring the reference's v3
+semantics family-wide AND making the alpha arms LIVE-exercisable in
+the headless battery [post-fix: our badge hovers at
+oklab(0.205.../0.8), the save/dialog/add buttons at /0.9 — the
+reference's values exact, verified in the hover:none environment that
+could not exercise the wrapped rules at all]).
+
+The L/N set: the L-80c3 PROFILE EMAIL INPUT TYPE (the reference's
+disabled email input renders type="email" — Full Name + Role stay
+text like ours; ours shipped type="text": a DOM attribute diff with
+autofill + password-manager + a11y-role semantics); the N-80c4 S21
+COMMENT REMNANTS (the login-reset.ts file header still asserted the
+LIVE-FALSIFIED "-mb-2 verbatim / computes 8px under BOTH v3 and v4"
+claim + login-card.tsx:305 still read "the -mb-2 back button" — 80-a's
+nano note, both retired with the s79 records); and 80-b's three stale
+doc carriers (CLAUDE.md:38 + :125 at 1523 + PAD:772 at 87/1523 — the
+N-50a class, three realignments missed them).
+
+**The documented parities pinned green (N-80c5):** the three info-card
+values' `text-foreground` (BOTH apps compute rgb(10,10,10) — the s73
+foreground re-pin made the class the computed-equal of the reference's
+inherited card-foreground); `text-muted` vs its `text-gray-500` (both
+#6b7280); the outline button's `bg-surface`/`border-line` vs its
+`bg-background`/`border-input` (white/#e5e5e5 both, live-probed); its
+`hover:bg-accent hover:text-accent-foreground` pair (the accent =
+#f5f5f5 = our line-soft; the text arm a no-op over the resting
+#0a0a0a); the chips' inline-style vs class expressions
+(computed-equal); the Account card's flat-80 avatar vs the form's
+80/96 ladder; the gap stack (h3->p 0, p->badge 8px via mt-2); the
+390px responsive set (upload/save w-full 308px, grid-cols-1, zero
+overflow — measured identical on both apps).
+
+**The audit lessons:** (1) a STYLESHEET is a parity surface like the
+DOM — fetching the reference's compiled CSS and decoding it settled in
+minutes what three sessions of class-string translation had gotten
+wrong (the /80-vs-800 question never needed probing once the literal
+rule `hsl(var(--primary) / .8)` was in hand). (2) An ALPHA-TRANSLATED
+hover ("bg-primary/80 ~= neutral-800") is a hypothesis until the
+blended value is computed — the same measure-both-apps rule as the s79
+gap lesson, now extended to color math. (3) v4's variant COMPILATION
+SEMANTICS (not just its renamed scales) are a parity surface: the
+(hover: hover) wrap silently disabled every hover affordance on touch
+— a divergence no desktop probe can see, caught only by walking the
+CSSOM media context of a live rule.
 
 ## 17. Responsive Breakpoint Reference
 

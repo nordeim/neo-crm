@@ -1,6 +1,24 @@
 @import "tailwindcss";
 @import "./vendor/tw-animate.css";
 
+/* Session-80 (M-80c2): the hover-variant un-wrap. Tailwind v4 compiles
+   every `hover:` utility inside `@media (hover: hover)` — CSSOM-walked
+   live on our dev server (our .hover\:bg-neutral-800:hover rode TWO
+   (hover: hover) blocks) — so ALL hover affordances no-op on
+   hover-incapable devices (touch: the sticky-hover washes never fire).
+   The reference's v3-era compiled stylesheet (index-Be9epoFc.css,
+   79,581 bytes) contains ZERO (hover: hover) media queries — every
+   hover rule is a BARE :hover selector, so its hovers apply on touch
+   exactly like desktop. LIVE-PROVEN on the divergence: with the mouse
+   parked over our role badge (:hover matching, polled true for 1s)
+   the computed background stayed #171717 — the rule never fired in a
+   hover:none environment where the reference's identical probe
+   computes rgba(23,23,23,0.8). The override restores the reference's
+   v3 semantics family-wide (the fourth member of the v4
+   shadow/blur/space-y re-pin family; pinned by
+   tests/profile-family-parity.test.ts). */
+@custom-variant hover (&:hover);
+
 /* ---------------------------------------------------------------------------
    NEO CRM design tokens — Tailwind CSS v4 CSS-first configuration.
    Rules (validated against docs/Tailwind-V4-Validation-Report.md):

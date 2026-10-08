@@ -539,8 +539,11 @@ describe("session-8 parity pins (DOM-verified 2026-09-30)", () => {
   it("settings picklist add buttons are dark neutral-900 (reference bg-primary = rgb(23,23,23))", () => {
     // S8-7: the reference's `bg-primary` resolves to the STOCK shadcn
     // zinc-950 (computed rgb(23,23,23)), not the app's blue-600 token.
+    // Session-80 (M-80c1): its Add button's hover is the class-decoded
+    // hover:bg-primary/90 — the computed-equal is neutral-900 at 90%
+    // alpha, NOT the solid neutral-800 the s8 translation shipped.
     expect(SETTINGS_PICKLIST.addButton).toBe(
-      "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
+      "bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 shadow h-9 px-4 py-2",
     );
   });
 });
@@ -610,8 +613,11 @@ describe("session-9 component-anatomy pins", () => {
     // S9-2: computed rgb(23,23,23) on Create Lead / Create Account / Log
     // Activity — same family as the session-8 settings add buttons. Header
     // primary buttons stay blue-600 (bg-primary token).
+    // Session-80 (M-80c1): the reference's dialog submits carry the
+    // class-decoded hover:bg-primary/90 — the computed-equal is
+    // neutral-900 at 90% alpha, not the solid neutral-800.
     expect(DIALOG_SUBMIT.button).toBe(
-      "bg-neutral-900 text-neutral-50 hover:bg-neutral-800 shadow h-9 px-4 py-2",
+      "bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 shadow h-9 px-4 py-2",
     );
   });
 
@@ -1186,7 +1192,7 @@ describe("session-13: profile page parity (S13-P2)", () => {
     expect(PROFILE_LAYOUT.badge).toContain("px-2.5 py-0.5 text-xs font-semibold");
     expect(PROFILE_LAYOUT.badge).toContain("bg-neutral-900 text-neutral-50");
     expect(PROFILE_LAYOUT.badge).toContain("shadow");
-    expect(PROFILE_LAYOUT.badge).toContain("hover:bg-neutral-800");
+    expect(PROFILE_LAYOUT.badge).toContain("hover:bg-neutral-900/80");
     expect(PROFILE_LAYOUT.badge).toContain("focus:ring-2 focus:ring-ring focus:ring-offset-2");
     expect(PROFILE_LAYOUT.badge).toContain("border-transparent");
     expect(PROFILE_LAYOUT.badge).toContain("mt-2");

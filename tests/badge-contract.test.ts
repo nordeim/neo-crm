@@ -82,7 +82,7 @@ describe("session-66: the Badge primitive stock mirror (N-66i)", () => {
     const src = badge();
     const region = src.slice(src.indexOf("default:"), src.indexOf("secondary:"));
     expect(region).toMatch(/border-transparent bg-neutral-900 text-neutral-50 shadow/);
-    expect(region).toMatch(/hover:bg-neutral-800/);
+    expect(region).toMatch(/hover:bg-neutral-900\/80/);
     // NOT our inverted --primary token — the reference's --primary is the
     // stock dark #171717, ours is the app blue (the s13 badge precedent).
     expect(region).not.toMatch(/bg-primary/);

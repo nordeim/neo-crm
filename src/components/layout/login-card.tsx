@@ -302,8 +302,10 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                       <>
                         {/* S21-P4: the reference's in-place signup view — a
                             minimal form (NO name field, NO Google button,
-                            NO divider), the -mb-2 back button, and the
-                            one-size-down submit. */}
+                            NO divider), the mb-2 back button (S79-P2: the
+                            v4-correct expression of the reference's
+                            computed +8px gap), and the one-size-down
+                            submit. */}
                         <button
                           type="button"
                           className={LOGIN_SIGNUP_LAYOUT.back}

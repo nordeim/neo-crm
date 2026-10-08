@@ -28,7 +28,7 @@ interface BadgeProps extends React.ComponentProps<"div"> {
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
   const variants: Record<string, string> = {
-    default: "border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800",
+    default: "border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-900/80",
     secondary: "border-transparent bg-neutral-100 text-neutral-900 hover:bg-neutral-100/80",
     destructive: "border-transparent bg-danger text-neutral-50 shadow hover:bg-danger/80",
     outline: "text-foreground",

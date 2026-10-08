@@ -32,10 +32,13 @@
  * "Create account". A successful signup swaps again to the verify-email
  * view (six single-digit inputs + the attempts ladder). The signup view's
  * error banner is the Callout vocabulary below (the red variant of the
- * s11 sent-callout); the -mb-2 on ITS back button is safe to mirror
- * verbatim because the signup stack is space-y-4 at ALL widths (the
- * margin collapse computes 8px under BOTH v3 and v4 — unlike the reset
- * view's sm:space-y-6 case documented above).
+ * s11 sent-callout). Session-79 (M-79c2) v4-FALSIFIED the s21 claim
+ * that the back buttons' -mb-2 mirrors verbatim: under v4's
+ * :where() margin-BOTTOM space-y, the negative own-class margin WINS
+ * the specificity fight and computes a -8px OVERLAP (LIVE-measured on
+ * our dev server) where the reference computes +8px at BOTH widths —
+ * mb-2 (signup/verify) and mb-2 sm:mb-4 (reset) are the v4-correct
+ * expressions of the reference's computed gaps.
  */
 
 /** The five card views. `signin` is the default (the /signup page starts at `signup`). */

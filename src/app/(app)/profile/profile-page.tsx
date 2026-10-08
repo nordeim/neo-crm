@@ -248,6 +248,7 @@ function ProfileForm({
                 indistinguishable from an editable input). */}
             <Input
               id="profile-email"
+              type="email"
               value={user.email}
               disabled
               className={PROFILE_LAYOUT.emailDisabled}
@@ -273,13 +274,18 @@ function ProfileForm({
                 bg-primary #171717 (its global --primary; its blue buttons
                 elsewhere are explicit bg-blue-600). Ours maps --primary
                 to blue, so the neutral literals carry the exact colors:
-                bg #171717, fg #fafafa, bare shadow, hover #262626.
+                bg #171717, fg #fafafa, bare shadow. Session-80 (M-80c1):
+                the reference's hover is the ALPHA hover:bg-primary/90 —
+                LIVE-probed rgba(23,23,23,0.9) — so the computed-equal is
+                neutral-900 at 90%, not the solid neutral-800 s13 shipped;
+                the inert border-transparent (the stock default ships no
+                border arm) retired with it.
                 Session-72 (L-72c4): the three-dot "Saving..." form —
                 the reference's own label (bundle-decoded). */}
             <Button
               type="submit"
               className={cn(
-                "border-transparent bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800",
+                "bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-900/90",
                 PROFILE_LAYOUT.saveBtn,
               )}
               disabled={saving}
