@@ -2,32 +2,41 @@
 
 // Session-28 (S28-P6): the reference's Account Insights dialog (the
 // bundle's `Ece`), opened by the accounts row click + the "View Insights"
-// menu item. Anatomy (bundle-extracted):
+// menu item. Anatomy (bundle-extracted; the icon identities + the box
+// shape re-derived session-84 at the aliases' own tr() assignment
+// lines — the s76 playbook trick):
 //
 // - max-w-3xl max-h-[80vh] overflow-y-auto dialog
 // - header: the account name (text-xl DialogTitle) + industry
 //   (text-sm text-gray-500) + the status badge (active = green-100/
 //   green-800, else gray-100/gray-800)
 // - THREE stat cards (grid grid-cols-3 gap-4, p-4 text-center):
-//   Total Revenue `$X.XM` (the closed_won OPP sum, blue), Open Deals
-//   (green — NOTE the reference's own quirk: `stage !== "closed_lost"`
-//   ONLY, so WON deals count too), Contacts (purple)
+//   Total Revenue `$X.XM` (the closed_won OPP sum — TrendingUp,
+//   blue), Open Deals (Target, green — NOTE the reference's own quirk:
+//   `stage !== "closed_lost"` ONLY, so WON deals count too), Contacts
+//   (Users, purple)
 // - the Recent Activities / Contacts / Open Deals tabs:
 //   - activities: the type-tinted w-10 h-10 icon rows (Email = blue-100/
 //     blue-600 Mail, Call = green-100/green-600 Phone, else purple-100/
-//     purple-600 CalendarDays) + description + toLocaleDateString + the
-//     type outline badge — max 5, "No recent activities" at zero
-//   - contacts: the initials box (w-10 h-10 bg-blue-100 text-blue-600)
-//     + name + position || "Contact" + email/phone right
+//     purple-600 Calendar — the BLANK-BODY glyph, the s17 sidebar
+//     family) + description + toLocaleDateString + the type outline
+//     badge — max 5, "No recent activities" at zero
+//   - contacts: the stock Avatar initials circle — the reference's Ll
+//     (Radix Avatar.Root: relative flex h-10 w-10 shrink-0
+//     overflow-hidden rounded-full) + the appended blue tint classes,
+//     twMerge-resolved below; the initials ride the reference's own
+//     split/map/join formula (no uppercase)
 //   - deals: the OPEN deals only (neither closed_lost nor closed_won) —
-//     name, "Close Date: " + date, $amount + the stage badge
+//     name, "Close Date: " + date, $amount + the stage badge (the BARE
+//     default-variant Badge + the raw slug — NOT the dashboard's
+//     colored P-map, a different surface)
 //
 // Session-31: the deals surfaces derive from OPPORTUNITIES matched by the
 // account NAME string (the reference's account_name join); activities
 // still match by our relational accountId.
 
 import * as React from "react";
-import { CalendarDays, Mail, Phone, Users } from "lucide-react";
+import { Calendar, Mail, Phone, Target, TrendingUp, Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -37,16 +46,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
-import { ACTIVITY_TYPE_META, OPP_STAGE_META } from "@/lib/constants";
+import { ACTIVITY_TYPE_META } from "@/lib/constants";
 import type { Account, Activity, Contact, Opportunity } from "@/types";
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
 
 export function AccountInsightsDialog({
   open,
@@ -96,14 +97,14 @@ export function AccountInsightsDialog({
         <div className="grid grid-cols-3 gap-4 mb-6">
           <Card>
             <CardContent className="p-4 text-center">
-              <Users className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+              <TrendingUp className="w-6 h-6 mx-auto mb-2 text-blue-600" />
               <div className="text-2xl font-bold">${(wonRevenue / 1e6).toFixed(1)}M</div>
               <div className="text-xs text-gray-500">Total Revenue</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <Phone className="w-6 h-6 mx-auto mb-2 text-green-600" />
+              <Target className="w-6 h-6 mx-auto mb-2 text-green-600" />
               <div className="text-2xl font-bold">{notLostCount}</div>
               <div className="text-xs text-gray-500">Open Deals</div>
             </CardContent>
@@ -156,7 +157,7 @@ export function AccountInsightsDialog({
                     ) : a.type === "call" ? (
                       <Phone className="w-5 h-5" />
                     ) : (
-                      <CalendarDays className="w-5 h-5" />
+                      <Calendar className="w-5 h-5" />
                     )}
                   </div>
                   <div className="flex-1">
@@ -185,9 +186,21 @@ export function AccountInsightsDialog({
             ) : (
               accountContacts.map((c) => (
                 <div key={c.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                  <div className="w-10 h-10 bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold">
-                    {initials(c.name)}
-                  </div>
+                  {/* Session-84 (M-84c3): the reference's stock Avatar
+                   * initials CIRCLE — its Ll is the Radix Avatar.Root
+                   * wrapper ("relative flex h-10 w-10 shrink-0
+                   * overflow-hidden rounded-full") with the tint
+                   * classes appended ("w-10 h-10 bg-blue-100
+                   * text-blue-600 flex items-center justify-center
+                   * text-sm font-semibold"); twMerge resolves the pair
+                   * to this single string (the topbar's s17 two-level
+                   * avatar is the house stock-mirror precedent). The
+                   * initials ride the reference's own formula (no
+                   * uppercase — N-84c6, the "FORMULA is the parity"
+                   * precedent). */}
+                  <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-blue-100 text-blue-600 items-center justify-center text-sm font-semibold">
+                    {c.name.split(" ").map((w) => w[0]).join("")}
+                  </span>
                   <div className="flex-1">
                     <p className="text-sm font-medium">{c.name}</p>
                     <p className="text-xs text-gray-500">{c.position || "Contact"}</p>
@@ -215,7 +228,13 @@ export function AccountInsightsDialog({
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold">${(d.amount || 0).toLocaleString()}</p>
-                    <Badge className={`mt-1 text-xs ${OPP_STAGE_META[d.stage]?.badge ?? ""}`}>{d.stage}</Badge>
+                    {/* Session-84 (L-84c4): the reference's deals badge
+                     * is the BARE default-variant zn with only
+                     * "mt-1 text-xs" — the dark stock primary + the
+                     * RAW stage slug. The colored OPP_STAGE_META map is
+                     * its DASHBOARD badge family (the Recent Deals
+                     * P[N.stage] — a different surface, kept there). */}
+                    <Badge className="mt-1 text-xs">{d.stage}</Badge>
                   </div>
                 </div>
               ))

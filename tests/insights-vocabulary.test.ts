@@ -10,13 +10,18 @@ import { describe, expect, it } from "vitest";
 // "Email"/"Call" against our lowercase Activity.type vocabulary
 // (ACTIVITY_TYPES call/email/meeting/whatsapp/task/note — the seed and
 // every other surface lowercase), so both branches were DEAD with real
-// data: every activity row rendered the purple CalendarDays fallback.
+// data: every activity row rendered the purple Calendar fallback.
 // The REFERENCE stores Capitalized types (bundle: ["Call","Email",
 // "Meeting","Task","Note"]), so ITS comparisons match ITS storage — our
 // clone pinned the lowercase vocabulary (s28, tested), so OUR dialog must
 // compare lowercase to render the same icons the reference renders with
-// its own data. The tint classes + the Mail/Phone/CalendarDays mapping
+// its own data. The tint classes + the Mail/Phone/Calendar mapping
 // stay VERBATIM (pin-pinned by account-surfaces.test.ts:122-127).
+//
+// Session-84 re-anchor (L-84c5): the fallback icon is the reference's
+// qd = tr("Calendar",jQ) — the BLANK-BODY calendar glyph (the s17
+// sidebar census family), NOT CalendarDays; the s28-era decode misread
+// the alias (the 84-c rotation resolved it at the tr() assignment line).
 
 function read(rel: string): string | null {
   const p = path.resolve(import.meta.dirname, "..", rel);
@@ -48,9 +53,9 @@ describe("session-47: the insights icon vocabulary (S47-P2, F-47b)", () => {
     expect(src).toMatch(/bg-blue-100 text-blue-600/);
     expect(src).toMatch(/bg-green-100 text-green-600/);
     expect(src).toMatch(/bg-purple-100 text-purple-600/);
-    // Mail for email, Phone for call, CalendarDays for the rest.
+    // Mail for email, Phone for call, Calendar (blank body) for the rest.
     expect(src).toMatch(/<Mail className="w-5 h-5" \/>/);
     expect(src).toMatch(/<Phone className="w-5 h-5" \/>/);
-    expect(src).toMatch(/<CalendarDays className="w-5 h-5" \/>/);
+    expect(src).toMatch(/<Calendar className="w-5 h-5" \/>/);
   });
 });

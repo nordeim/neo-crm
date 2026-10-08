@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1649 checks)       | `bun run test`                         |
+|  Unit tests (1670 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1649) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1670) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -1191,7 +1191,12 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   max-w-3xl max-h-[80vh]): the name+industry+status header, the 3 stat
   cards (Total Revenue $X.XM / Open Deals / Contacts), the Recent
   Activities/Contacts/Open Deals tabs with the type-tinted w-10 h-10
-  icon rows (Email=blue, Call=green, else purple) and "Close Date: "
+  icon rows (Email=blue, Call=green, else purple — session-84: the
+  stat icons are TrendingUp/Target/Users, the contacts initials box is
+  the stock Avatar rounded-full CIRCLE with the reference's no-uppercase
+  formula, the fallback icon is the blank-body Calendar, and the deals
+  badge is the BARE default dark variant + the raw slug — the colored
+  OPP_STAGE_META map is the dashboard-only family) and "Close Date: "
   deal rows. The rail's revenue ranges are $0-$1M/$1M-$5M/$5M+.
 - **The create Contact dialog ships two h3 section headers (session-28)**
   — "Contact Details" over Email/Phone and "Professional Details" over
