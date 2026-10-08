@@ -762,8 +762,13 @@ describe("session-10 stock-primitive pins (DOM-verified 2026-09-30)", () => {
     // w-full additions compute equal on every current surface (270px
     // rails yes / w-full sm:w-32 toolbars) — the per-surface model
     // stays, documented.
+    // Session-81 (M-81c3, bundle re-decoded + live-DOM-confirmed on the
+    // settings x2 + dashboard x3 selects): the base re-derived to the
+    // reference's verbatim construction — NO text color (the trigger
+    // inherits the #0a0a0a ink), NO transition-colors, NO placeholder:
+    // arm, + the latent ring-offset-background (offset-0 no-op).
     expect(SELECT_TRIGGER.base).toBe(
-      "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm text-ink shadow-sm transition-colors placeholder:text-muted-ink",
+      "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background",
     );
     expect(SELECT_TRIGGER.base).not.toContain("w-full");
     expect(SELECT_TRIGGER.base).not.toContain("gap-2");
@@ -1187,7 +1192,8 @@ describe("session-13: profile page parity (S13-P2)", () => {
     // #171717 (its global --primary; its blue buttons elsewhere are
     // explicit bg-blue-600). Ours maps --primary to blue, so the badge
     // carries the exact colors via the neutral literals (bg #171717 =
-    // neutral-900, fg #fafafa = neutral-50, hover #262626).
+    // neutral-900, fg #fafafa = neutral-50, hover the /80 alpha arm —
+    // session-80).
     expect(PROFILE_LAYOUT.badge).toContain("rounded-md border");
     expect(PROFILE_LAYOUT.badge).toContain("px-2.5 py-0.5 text-xs font-semibold");
     expect(PROFILE_LAYOUT.badge).toContain("bg-neutral-900 text-neutral-50");

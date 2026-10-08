@@ -559,7 +559,11 @@ function DefaultsEditor({ settings }: { settings: Settings | null }) {
       <Card>
         <CardHeader>
           <CardTitle>Default Values</CardTitle>
-          <p className={SETTINGS_DEFAULTS.subtitle}>Set default values for new records</p>
+          {/* Session-81 (N-81c6): the reference's CardDescription slot
+              renders a DIV (live-DOM on its settings Defaults card) —
+              the p retires; our own Data tab already renders the div
+              (the s26 pin). */}
+          <div className={SETTINGS_DEFAULTS.subtitle}>Set default values for new records</div>
         </CardHeader>
         <CardContent className={SETTINGS_DEFAULTS.body}>
           <div className={SETTINGS_DEFAULTS.group}>
@@ -594,12 +598,15 @@ function DefaultsEditor({ settings }: { settings: Settings | null }) {
           </div>
           <div className={SETTINGS_DEFAULTS.group}>
             <Label htmlFor="def-follow">Follow-up Days After Activity</Label>
+            {/* Session-81 (L-81c4): the reference's follow-up input ships
+                NO min/max (live-probed, hasAttribute false on both) — the
+                spinner is unbounded like its own quirk; the API-side 0-90
+                guard stays as the documented s43-P3/S46-P2 superset (the
+                debounce ensures only the FINAL value meets it). */}
             <Input
               id="def-follow"
               className={SETTINGS_DEFAULTS.controlMt}
               type="number"
-              min={0}
-              max={90}
               value={defaults.followUpDays}
               onChange={(e) => set("followUpDays", Number(e.target.value) || 0)}
             />

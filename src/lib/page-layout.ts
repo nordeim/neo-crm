@@ -639,13 +639,19 @@ export const INPUT_BASE = {
   file: "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
 } as const;
 
-/** S10-2: the stock shadcn Select trigger (DOM-extracted from the live
- *  reference): rounded-md (6px — NOT our rounded-lg 8px), NO gap-2
- *  (justify-between only), bg-transparent, placeholder #737373, and NO
- *  base w-full — the reference adds w-full per-surface (270px rail
- *  selects yes / 128px toolbar + dead switchers no). */
+/** S10-2 + Session-81 (M-81c3): the stock shadcn Select trigger —
+ *  re-derived to the reference's BUNDLE-VERBATIM base (decoded once
+ *  from the 1.63MB app bundle, live-DOM-confirmed on the settings x2
+ *  + dashboard x3 selects): rounded-md (6px — NOT rounded-lg), NO
+ *  gap-2 (justify-between only), bg-transparent, NO text color (the
+ *  trigger inherits the #0a0a0a ink), NO transition-colors, NO
+ *  placeholder: arm — and the latent ring-offset-background (the
+ *  offset-0 no-op the reference ships anyway). Our per-surface w-full
+ *  additions compute equal on every current surface (270px rails yes
+ *  / w-full sm:w-32 toolbars; the reference's bundle base carries
+ *  w-full) — the s77 documented decision. */
 export const SELECT_TRIGGER = {
-  base: "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm text-ink shadow-sm transition-colors placeholder:text-muted-ink",
+  base: "flex h-9 items-center justify-between whitespace-nowrap rounded-md border border-line bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background",
   placeholderState: "data-[placeholder]:text-muted-ink",
   // Session-77 (N-77c11, bundle-falsified S10-2 model): the reference's
   // stock trigger ring is PLAIN focus: — the ring FIRES on mouse click

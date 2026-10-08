@@ -188,6 +188,16 @@ function TabsPanel({ tab, className, children, ...props }: TabsPanelProps) {
       id={`${uid}-content-${tab}`}
       aria-labelledby={`${uid}-trigger-${tab}`}
       hidden={!active}
+      // Session-81 (L-81c5, live-DOM on the reference's settings strip):
+      // its Radix panels carry the stock data-state/data-orientation/
+      // tabindex trio alongside the id/aria-labelledby/hidden wiring
+      // our s23 shell already ships. tabindex=0 is the a11y-relevant
+      // one — the panel enters the tab order; data-state is the Radix
+      // data-attribute contract (the tw-animate data-[state] arms
+      // read it).
+      data-state={active ? "active" : "inactive"}
+      data-orientation="horizontal"
+      tabIndex={0}
       className={cn(PANEL_BASE, className)}
       {...props}
     >

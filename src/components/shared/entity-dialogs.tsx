@@ -283,11 +283,13 @@ function AccountForm({
         </div>
         <div className={DIALOG_GROUP.group}>
           <Label htmlFor="acc-revenue">Annual Revenue</Label>
+          {/* Session-81 (L-81c4): the reference's dialog number inputs ship
+              NO min (live-probed on its New Account dialog) — the s77
+              min-retire precedent. */}
           <Input
             id="acc-revenue"
             className={DIALOG_GROUP.controlMt}
             type="number"
-            min={0}
             value={form.annualRevenue}
             onChange={(e) => setForm({ ...form, annualRevenue: e.target.value })}
           />
@@ -298,7 +300,6 @@ function AccountForm({
             id="acc-employees"
             className={DIALOG_GROUP.controlMt}
             type="number"
-            min={0}
             value={form.employees}
             onChange={(e) => setForm({ ...form, employees: e.target.value })}
           />

@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.77.0
+version: 1.78.0
 last_updated: 2026-10-08
-project_state: 1576 unit checks + 132 e2e checks green; the session-80 layer (the profile-page rotation — the session_154 suggested target, never a dedicated VISUAL rotation, LIVE-extracted at 1440 AND 390 + the reference's compiled stylesheet decoded): the M-80c1 NEUTRAL-900 HOVER ALPHA ARMS [the reference's dark-primary surfaces ship ALPHA hovers — its stylesheet reads hsl(var(--primary) / .8); LIVE-probed rgba(23,23,23,0.8) on the badge + /90 on the save/dialog-submit/settings-add; ours shipped SOLID hover:bg-neutral-800 #262626 on all five carriers — the s66 alpha-math miscalculation; the computed-equals are hover:bg-neutral-900/80 [badges] + /90 [buttons]] + the M-80c2 HOVER-VARIANT UN-WRAP [THE v4 bug of the session, the fourth re-pin family member: v4 wraps every hover: utility in @media (hover: hover) so ALL our hovers no-op on touch; the reference's stylesheet ships ZERO hover-media wraps — bare :hover; the fix is the one-line @custom-variant hover (&:hover); in globals.css, LIVE-verified in the hover:none environment that could not exercise the wrapped rules at all] + the L-80c3 EMAIL INPUT TYPE [type=email on the disabled profile email input, matching the reference's DOM] + the N-80c4 S21 COMMENT REMNANTS RETIRED + the N-80c5 documented parities pinned green [text-foreground rgb(10,10,10) both apps; the chips' computed-equal inline colors; the 0/8px gap stack; the 390px responsive set measured identical] + the 80-b doc carriers [CLAUDE:38/:125 + PAD:772 at the s79 counts])
+project_state: 1599 unit checks + 132 e2e checks green; the session-81 layer (the settings-defaults rotation — the session_157 suggested target, never a dedicated rotation, LIVE-extracted at 1440 AND 390 + the reference's open-popover DOM + bundle decoded): the M-81c1 SELECT-CONTENT CHROME [the reference's popovers ship z-50 max-h-96 rounded-md shadow-md + ALL FOUR slide-in-from-* arms + the four per-side translates; ours shipped the scaffold-era z-[60] max-h-72 rounded-lg shadow-lg draft — LIVE-computed 8px vs 6px radius, shadow-lg vs md, 288px vs 384px, z-60 vs z-50; never pinned in 80 sessions — the s13 pin covered the dropdown-menu family] + the M-81c2 SELECT-ITEM + CHECK [rounded-sm computing 4px; the focus:text arm — the reference's highlighted item shifts #0a0a0a -> #171717 (its accent-foreground), ours stayed flat; the check svg BARE — ours rendered a BLUE #2563eb check (text-primary = the app blue) on every selected item where the reference inherits near-black] + the M-81c3 TRIGGER BASE re-derivation [[&>span]:line-clamp-1 (flow-root/clip/clamp-1 vs our truncate block/ellipsis/none); text-ink/transition-colors/placeholder:text-muted-ink retired; ring-offset-background added; the chevron shrink-0 retired — the bundle's h-4 w-4 shrink-0 is the CHECKBOX's] + the L-81c4 NUMBER-INPUT MIN FAMILY [the follow-up min/max + the dialogs' annualRevenue/employees min={0} retired — the reference ships none on any number input; the API 0-90 guard stays as the documented superset] + the L-81c5 TABSPANEL ATTR TRIO [data-state + data-orientation + tabIndex=0 — the reference's Radix stock] + the N-81c6 SUBTITLE DIV + the N-81c7 three stale s80-hover comment carriers [AGENTS:200 + badge-contract:32 + page-layout:1190] + 132 e2e checks green; the session-80 layer (the profile-page rotation — the session_154 suggested target, never a dedicated VISUAL rotation, LIVE-extracted at 1440 AND 390 + the reference's compiled stylesheet decoded): the M-80c1 NEUTRAL-900 HOVER ALPHA ARMS [the reference's dark-primary surfaces ship ALPHA hovers — its stylesheet reads hsl(var(--primary) / .8); LIVE-probed rgba(23,23,23,0.8) on the badge + /90 on the save/dialog-submit/settings-add; ours shipped SOLID hover:bg-neutral-800 #262626 on all five carriers — the s66 alpha-math miscalculation; the computed-equals are hover:bg-neutral-900/80 [badges] + /90 [buttons]] + the M-80c2 HOVER-VARIANT UN-WRAP [THE v4 bug of the session, the fourth re-pin family member: v4 wraps every hover: utility in @media (hover: hover) so ALL our hovers no-op on touch; the reference's stylesheet ships ZERO hover-media wraps — bare :hover; the fix is the one-line @custom-variant hover (&:hover); in globals.css, LIVE-verified in the hover:none environment that could not exercise the wrapped rules at all] + the L-80c3 EMAIL INPUT TYPE [type=email on the disabled profile email input, matching the reference's DOM] + the N-80c4 S21 COMMENT REMNANTS RETIRED + the N-80c5 documented parities pinned green [text-foreground rgb(10,10,10) both apps; the chips' computed-equal inline colors; the 0/8px gap stack; the 390px responsive set measured identical] + the 80-b doc carriers [CLAUDE:38/:125 + PAD:772 at the s79 counts])
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.77.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.78.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -7210,3 +7210,101 @@ What live-site testing catches that CI cannot: CSS-only regressions (the
 postcss bug), env-rewrite behavior (bun absolutization — visible only by
 inspecting a live process's file handles), and "works but looks wrong"
 drift.
+
+
+## 16bu. Session-81 Layer (the settings-defaults rotation + the Select
+stock-family re-derivation)
+
+**What shipped:** the settings defaults editors' deeper family's FIRST
+dedicated rotation (the session_157 suggested target #1 — never rotated:
+s14 pinned the SETTINGS_DEFAULTS layout records, s26 the data-tab chrome,
+s72 the store/API seams + the debounce contract; nobody had walked the
+editors' own DOM + computed styles + the Select stock family they ride
+against the live reference at 1440 AND 390) found the N-81 family —
+3 M + 2 L + 2 N (incl. 81-a's three stale s80-hover comment carriers).
+The decisive fixes: the M-81c1 SELECT-CONTENT CHROME (the reference's
+open popovers ship `z-50 max-h-96 … rounded-md … shadow-md` + the FULL
+animation arm set — all four slide-in-from-* arms + the four per-side
+translates, all unconditional on its single popper construction. OURS
+shipped the scaffold-era shadcn draft: `z-[60] max-h-72 rounded-lg
+shadow-lg` with fade+zoom only, behind a position ternary — LIVE-
+computed divergences: radius 8px vs 6px, shadow-lg (0 10px 15px -3px)
+vs md (0 4px 6px -1px), max-height 288px vs 384px, z-index 60 vs 50,
+plus the missing 8px slide-in open animation on every popover. The s13
+MENU_CONTENT pin had covered the dropdown-menu family; the select
+content was never pinned — 80 sessions of unpinned scaffold chrome);
+the M-81c2 SELECT-ITEM + CHECK family (the reference's items ship
+rounded-sm computing 4px (its shadcn radius derivation; ours computed
+6px as rounded-md) + the focus WASH pair `focus:bg-accent
+focus:text-accent-foreground` — the highlighted item's text SHIFTS
+#a0a0a0 -> #171717 (LIVE: the highlighted "Month" computed rgb(23,23,23)
+while the resting "Week" computed rgb(10,10,10); ours stayed flat
+#0a0a0a). Our computed-equals: `focus:bg-line-soft` (#f5f5f5 = its
+accent) + `focus:text-neutral-900` (#171717 — the s80 badge precedent
+for its accent-foreground). AND THE CHECK: the reference's selected
+item's check svg is BARE h-4 w-4 — inheriting the near-black ink.
+OURS carried `h-4 w-4 text-primary` = #2563eb — a BLUE check on every
+selected select item app-wide (our --color-primary is the app blue,
+not the reference's popover ink)); and the M-81c3 TRIGGER BASE
+RE-DERIVATION (the reference's bundle-verbatim base carries NO text
+color, NO transition-colors, NO placeholder: arm, and DOES carry the
+latent ring-offset-background (an offset-0 no-op) + `[&>span]:
+line-clamp-1` — LIVE-computed on its trigger span: `display:
+flow-root; overflow: hidden; text-overflow: clip; -webkit-line-clamp:
+1` vs OURS truncate's `display: block; text-overflow: ellipsis;
+line-clamp: none` — a different clipping construction on every
+select. OURS invented three arms (text-ink, transition-colors,
+placeholder:text-muted-ink — computed-equal/no-op but not the
+reference's construction), and the chevron carried an extra shrink-0 —
+the bundle's `h-4 w-4 shrink-0` is the CHECKBOX's class, not the
+chevron's).
+
+The L/N set: the L-81c4 NUMBER-INPUT MIN FAMILY (the reference ships
+NO min and NO max on its settings follow-up input and NO min on its
+New Account dialog's Annual Revenue + Employees inputs — live-probed,
+hasAttribute false; OURS shipped min={0} max={90} + min={0} x2 — DOM
+attribute divergences with real spinner-clamping + :out-of-range
+semantics, the s77 min-retire precedent; the API-side 0-90 guard
+STAYS as the documented s43-P3/S46-P2 superset); the L-81c5 TABSPANEL
+ATTR TRIO (the reference's Radix panels carry data-state="active" +
+data-orientation="horizontal" + tabindex="0" alongside the s23
+id/aria-labelledby/hidden wiring — tabindex=0 is the a11y-relevant
+one, the panel enters the tab order; shared across all three tab
+strips); the N-81c6 SUBTITLE ELEMENT (the reference's Default Values
+CardDescription slot renders a DIV; ours a `<p>` — tag-only, computed
+identical); and 81-a's three stale s80-hover comment carriers
+(AGENTS.md:200's Badge description still carrying the retired solid
+hover claim + badge-contract.test.ts:32's header map +
+page-layout.test.ts:1190's "#262626" comment).
+
+**The audit lessons:** (1) a STOCK PRIMITIVE the pins never covered is
+a 80-session blind spot — the s13 MENU pin covered the dropdown-menu
+family and everyone assumed the select rode the same record; it did
+not (its own inline scaffold draft). When walking a family, decode the
+REFERENCE'S OWN DOM class strings for every primitive the family
+touches, not just the records that exist. (2) The reference's
+highlighted-select-item color (#171717 via accent-foreground) differs
+from its resting color (#0a0a0a) — a probe that samples only ONE item
+(the auto-highlighted first) mis-reads the resting palette; probe BOTH
+the highlighted and the resting items. (3) Tailwind v4 scans COMMENTS
+— a hazard comment naming retired classes (max-h-72, z-[60]) emits
+dead rules into the built CSS; harmless, but the negative test pins
+must strip comments (the stripComments convention) or they false-FAIL
+on the documentation itself.
+
+**Gate:** lint 0/0 · tsc 0 · **1599/1599 unit (90 suites, +23)** ·
+build clean · **132/132 e2e on a fresh CI=1 boot (3.3m, FIRST run
+green; all 9 mobile-nav green)**. LIVE-verified: the popover 6px
+radius + shadow-md + z-50 + the full arm set; the item 4px radius +
+the highlighted text lab(7.78)≈#171717; the check BARE; the span
+flow-root/clip/clamp-1; the chevron bare; the follow-up input min/max
+gone; the panel attr trio; the subtitle DIV; the trigger's inherited
+#0a0a0a ink; the drawer at TRUE 390px (full-bleed, 8 links, dual
+lock, focus inside, navigate-close, Escape-inert); zero overflow ×10;
+the built CSS zero (hover: hover) wraps; the closing census MATCH.
+Screenshots 101 + 102 NEW (VLM 4/5 + 4/4 — the item-radius flag a
+VLM-scale artifact, DOM-proven borderRadius 4px). RED: 16 failing pins
+exactly (the new suite's 15 + the page-layout re-anchor) + 2 mid-flight
+pin-shape repairs (the epoch-key call-site scope + the stripComments
+negative); non-vacuousness PROVEN: 16 failed | 1583 passed at the
+pre-fix state — exactly the modified-pin set, ZERO collateral.

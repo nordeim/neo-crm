@@ -29,7 +29,9 @@ import { describe, expect, it } from "vitest";
 // Computed-equal expressions for the tokens we deliberately invert (our
 // --primary IS the app blue #2563eb; the reference's --primary is the stock
 // dark #171717 — the s5 DIALOG_SUBMIT / s13 PROFILE_LAYOUT.badge precedent):
-//   default     -> bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-800
+//   default     -> bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-900/80
+//                  (the reference's hover:bg-primary/80 — its --primary
+//                   #171717 at 80% = rgba(23,23,23,0.8), session-80)
 //   secondary   -> bg-neutral-100 text-neutral-900 hover:bg-neutral-100/80
 //                  (neutral-100 = hsl(0 0% 96.1%) = the reference's
 //                   --secondary exactly)
