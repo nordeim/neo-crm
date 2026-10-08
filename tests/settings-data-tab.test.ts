@@ -108,11 +108,11 @@ describe("session-26: the per-index button margins (S26-P1)", () => {
 });
 
 describe("session-26: the destructive button's trash icon (S26-P2 chrome)", () => {
-  it("the Reset All Data button carries the Trash2 icon at h-4 w-4", () => {
+  it("the Reset All Data button carries the Trash2 icon at h-4 w-4 mr-2 (the s82 per-surface class)", () => {
     const code = stripComments(read("src/app/(app)/settings/settings-page.tsx")!);
     const i = code.indexOf("Reset All Data");
     expect(i).toBeGreaterThan(-1);
     const block = code.slice(Math.max(0, i - 400), i + 60);
-    expect(block).toMatch(/Trash2\s+className="h-4 w-4"/);
+    expect(block).toMatch(/Trash2\s+className="h-4 w-4 mr-2"/);
   });
 });

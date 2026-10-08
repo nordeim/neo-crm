@@ -270,11 +270,11 @@ export const TOPBAR_LAYOUT = {
   // focus-visible:ring-1 focus-visible:ring-ring … hover:bg-accent
   // hover:text-accent-foreground h-9 px-4 py-2` + `flex items-center gap-1
   // sm:gap-2` (tailwind-merge replaces inline-flex/gap-2). The trigger now
-  // renders via <Button variant="ghost">; this className only supplies the
-  // flex/gap composition and neutralizes the iconGap's trailing-chevron
-  // margin (the reference's chevron carries NO mr-2 — its spacing is the
-  // flex gap alone).
-  userButton: "flex items-center gap-1 sm:gap-2 [&_svg]:mr-0",
+  // renders via <Button variant="ghost">; this className only supplies
+  // the flex/gap composition — the reference's chevron carries NO margin
+  // of its own (the s82 base retirement removed the trailing-chevron
+  // neutralizer the iconGap cascade required).
+  userButton: "flex items-center gap-1 sm:gap-2",
   userLabel: "hidden text-sm font-medium text-gray-700 sm:inline",
   // Session-17 (S17-P1): the reference ships the STOCK two-level Avatar —
   // a root span in the stock Avatar shape (w-8 h-8) wrapping a fallback
@@ -596,14 +596,18 @@ export const ACTIVITY_QUICKLOG = {
 // docs/plans/2026-09-30-session9-parity-remediation.md).
 // ---------------------------------------------------------------------------
 
-/** S9-1 + S9-16: the shared Button base. Reference text buttons carry
- *  `mr-2` ON their icons in addition to the flex `gap-2` — a measured 16px
- *  icon-text gap (ours was 8px). Icon-only buttons (mail/bell, ellipsis)
- *  carry NO margin on either side, hence the only-child guard. Focus rings
- *  are 1px near-black (`ring-1 ring-ring`, --color-ring = #0a0a0a), not
- *  the 2px translucent blue. */
+/** S9-16 + Session-82 (M-82c1): the shared Button base — the reference's
+ *  own stock base decoded verbatim from its bundle (uie): NO svg-margin
+ *  arms at all. Its icon-text spacing rides EACH SURFACE'S OWN svg
+ *  margin class (`w-4 h-4 mr-2` on the header/export family — the
+ *  measured 16px icon-text gap; `w-4 h-4 mr-1` on the compact family:
+ *  the slide-over actions, the mobile cards, the Check ghost). The s9
+ *  iconGap cascade ([&_svg]:mr-2 + [&_svg:only-child]:mr-0) retired —
+ *  its only-child arm (0,2,1) nullified the svg's own margins
+ *  (0,1,0) on every svg+bare-text button (LIVE-measured 0px). Focus
+ *  rings are 1px near-black (`ring-1 ring-ring`, --color-ring =
+ *  #0a0a0a), not the 2px translucent blue. */
 export const BUTTON_BASE = {
-  iconGap: "[&_svg]:mr-2 [&_svg:only-child]:mr-0",
   focusRing: "focus-visible:ring-1 focus-visible:ring-ring",
   // Session-73 (N-73c5 — the L-73c9 carrier): the reference's stock
   // Button base carries [&_svg]:size-4 — the cascade that makes its

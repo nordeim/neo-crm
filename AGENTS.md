@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1599 checks)       | `bun run test`                         |
+|  Unit tests (1619 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1599) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1619) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -198,8 +198,8 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   (session-66, N-66i)** — a `<div>` with `rounded-md border px-2.5
   py-0.5 text-xs font-semibold` + the stock variant set
   {default: `border-transparent bg-neutral-900 text-neutral-50 shadow
-  hover:bg-neutral-800` (the computed-equal of the reference's
-  --primary #171717 — ours is the app blue), secondary: neutral-100/900,
+  hover:bg-neutral-900/80` (the computed-equal of the reference's
+  alpha hover hsl(var(--primary) / .8) — ours is the app blue), secondary: neutral-100/900,
   destructive: `bg-danger text-neutral-50 shadow hover:bg-danger/80`
   (the solid #ef4444 — the accounts "N Overdue" family), outline:
   `text-foreground` (NOT muted)}; the call-site class MAPS (P map,

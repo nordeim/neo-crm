@@ -231,7 +231,7 @@ export default function DashboardPage() {
                     shadow-sm h-8 rounded-md px-3 text-xs + span.hidden
                     sm:inline). */}
                 <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4" /> <span className={DASHBOARD_HEADER.addLabelClass}>{DASHBOARD_HEADER.addLabel}</span>
+                  <Plus className="h-4 w-4 mr-2" /> <span className={DASHBOARD_HEADER.addLabelClass}>{DASHBOARD_HEADER.addLabel}</span>
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">
@@ -249,7 +249,7 @@ export default function DashboardPage() {
             <Dropdown>
               <DropdownTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4" /> <span className={DASHBOARD_HEADER.outlineExportLabelClass}>{DASHBOARD_HEADER.outlineExportLabel}</span>
+                  <Download className="h-4 w-4 mr-2" /> <span className={DASHBOARD_HEADER.outlineExportLabelClass}>{DASHBOARD_HEADER.outlineExportLabel}</span>
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">

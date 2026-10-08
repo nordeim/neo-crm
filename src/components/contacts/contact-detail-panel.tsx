@@ -23,25 +23,28 @@
 
 import * as React from "react";
 import {
+  Activity,
   Building2,
   CalendarDays,
   Mail,
   MessageCircle,
   Phone,
   X,
-  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsPanel } from "@/components/ui/tabs";
-import type { Activity, Contact, Opportunity } from "@/types";
+// Session-82 (M-82c2): the type rides an alias — the plain Activity
+// name is the lucide glyph (the reference's AC), keeping the
+// DOM-facing component name identical to the reference's icon.
+import type { Activity as ActivityRecord, Contact, Opportunity } from "@/types";
 import {
   CONTACT_PRIORITY_META,
   ENGAGEMENT_BARS_SOLID,
   engagementBarCount,
 } from "@/lib/constants";
-import { MONTHS_SHORT } from "@/lib/format";
+import { MONTHS_SHORT, formatMonthDayYearTime } from "@/lib/format";
 
 // Session-69 (F-69a5): rides the exported MONTHS_SHORT — the local
 // byte-identical month re-declaration (the N-68h class) retired.
@@ -58,7 +61,7 @@ export function ContactDetailPanel({
   onClose,
 }: {
   contact: Contact | null;
-  activities: Activity[];
+  activities: ActivityRecord[];
   /** Session-31: the reference's Pke joins OPPORTUNITIES by
    *  account_name === contact.company (bundle: Opportunity.filter). */
   opportunities: Opportunity[];
@@ -143,7 +146,9 @@ export function ContactDetailPanel({
               <Mail className="w-4 h-4 text-gray-400 mt-1" />
               <div className="flex-1">
                 <p className="text-sm text-gray-600">Email</p>
-                <p className="font-medium">{contact.email ?? "—"}</p>
+                {/* Session-82 (N-82c6): the reference renders the bare
+                e.email (no em-dash fallback; our email is non-null). */}
+                <p className="font-medium">{contact.email}</p>
               </div>
             </div>
             {contact.phone && (
@@ -199,12 +204,20 @@ export function ContactDetailPanel({
                 <Card key={a.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      <Zap className="w-4 h-4 text-blue-600 mt-1" />
+                      {/* Session-82 (M-82c2): the reference's card icon
+                          is lucide ACTIVITY - the bundle's AC alias
+                          (AC=tr("Activity",vQ), the pulse path), not Zap;
+                          our lucide's Activity path is byte-identical.
+                          Session-82 (M-82c3): the date line renders the
+                          reference's "MMM D, YYYY h:mm A" (st().format on
+                          l.date) via the datetime seam - not the bare
+                          date form the Last Activity row keeps. */}
+                      <Activity className="w-4 h-4 text-blue-600 mt-1" />
                       <div className="flex-1">
                         <p className="font-medium">{a.type}</p>
                         <p className="text-sm text-gray-600">{a.subject}</p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {mmmDyyyy(a.dueAt ?? a.completedAt ?? a.createdAt)}
+                          {formatMonthDayYearTime(a.dueAt ?? a.completedAt ?? a.createdAt)}
                         </p>
                       </div>
                     </div>
@@ -223,8 +236,13 @@ export function ContactDetailPanel({
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="font-medium">{d.name}</p>
+                        {/* Session-82 (L-82c4): the reference renders
+                            the jsx array ["$", amount?.toLocaleString()]
+                            — NO space after the $ and NO 0-fallback (a
+                            null amount renders "$" alone). */}
                         <p className="text-sm text-gray-600">
-                          $ {d.amount == null ? 0 : d.amount.toLocaleString()}
+                          {"$"}
+                          {d.amount == null ? undefined : d.amount.toLocaleString()}
                         </p>
                       </div>
                       <Badge>{d.stage}</Badge>

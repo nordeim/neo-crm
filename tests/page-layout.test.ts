@@ -321,10 +321,11 @@ describe("topbar parity (session-7 DOM-verified)", () => {
     // hover:text-accent-foreground h-9 px-4 py-2` + `flex items-center
     // gap-1 sm:gap-2` (tailwind-merge replacing inline-flex/gap-2). The
     // button now renders via <Button variant="ghost"> — this className
-    // only adds the flex/gap composition + neutralizes the iconGap's
-    // trailing-chevron margin (the reference's chevron carries NO mr-2).
+    // only adds the flex/gap composition (the reference's chevron
+    // carries NO margin; the s82 base retirement removed the
+    // trailing-chevron neutralizer the iconGap cascade required).
     expect(TOPBAR_LAYOUT.userButton).toBe(
-      "flex items-center gap-1 sm:gap-2 [&_svg]:mr-0",
+      "flex items-center gap-1 sm:gap-2",
     );
     expect(TOPBAR_LAYOUT.userLabel).toBe("hidden text-sm font-medium text-gray-700 sm:inline");
     // Session-17 (S17-P1): the reference ships the STOCK two-level
@@ -576,11 +577,19 @@ describe("session-9 component-anatomy pins", () => {
     expect(PAGE_HEADER.activities.actions).toBe("flex flex-wrap gap-2 w-full sm:w-auto");
   });
 
-  it("button base: 16px icon-text gap + 1px near-black focus ring", () => {
-    // S9-1: reference icons carry mr-2 ON TOP of gap-2 (measured 16px vs
-    // our 8px); icon-only buttons get no margin (only-child guard).
+  it("button base: the per-surface svg margins + 1px near-black focus ring", () => {
+    // Session-82 (M-82c1): the reference's stock Button base (the
+    // bundle's uie, decoded verbatim) ships NO svg-margin arms — its
+    // icon-text spacing rides EACH SURFACE'S OWN svg margin class
+    // (mr-2 on the header/export family, mr-1 on the compact family).
+    // The s9 iconGap invention ([&_svg]:mr-2 + [&_svg:only-child]:mr-0)
+    // nullified every per-surface margin on svg+bare-text buttons (the
+    // only-child mr-0 at (0,2,1) beats the svg's own (0,1,0) classes —
+    // LIVE-measured 0px where the reference computes 4px/8px) and
+    // required the topbar's mr-0 neutralizer. RETIRED; the 16px
+    // icon-text gap (the s9 measurement) now rides the per-surface
+    // mr-2 classes exactly like the reference.
     // S9-16: ring-1 ring-ring focus (reference --ring = 0 0% 3.9%).
-    expect(BUTTON_BASE.iconGap).toBe("[&_svg]:mr-2 [&_svg:only-child]:mr-0");
     expect(BUTTON_BASE.focusRing).toBe("focus-visible:ring-1 focus-visible:ring-ring");
     // Session-73 (N-73c5 — the L-73c9 carrier): the reference's stock
     // Button base carries [&_svg]:size-4 between pointer-events-none
@@ -2011,7 +2020,10 @@ describe("session-17: the remaining glyph swaps (S17-P2c-f)", () => {
     // Import button keeps the Download quirk.
     const toolbar = src.slice(src.indexOf("actions={"), src.indexOf("<ContactDialog open"));
     const importBtn = toolbar.slice(toolbar.indexOf("setImportOpen(true)"));
-    expect(importBtn.slice(0, 400)).toMatch(/<Download className="h-4 w-4"/);
+    // Session-82 (M-82c1b) re-anchor: the toolbar svgs now carry their
+    // own mr-2 (the reference's per-surface class) after the iconGap
+    // base retirement.
+    expect(importBtn.slice(0, 400)).toMatch(/<Download className="h-4 w-4 mr-2"/);
     expect(importBtn.slice(0, 400)).not.toMatch(/<Upload /);
   });
 

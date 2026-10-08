@@ -204,7 +204,7 @@ export default function AccountsPage() {
               disabled={filtered.length === 0}
               onClick={exportAccounts}
             >
-              <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export CSV</span>
+              <Download className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Export CSV</span>
             </Button>
             <Button
               size="sm"
@@ -212,7 +212,7 @@ export default function AccountsPage() {
                 setDialogOpen(true);
               }}
             >
-              <Plus className="h-4 w-4" /> New Account
+              <Plus className="h-4 w-4 mr-2" /> New Account
             </Button>
           </>
         }

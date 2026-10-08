@@ -117,7 +117,7 @@ export default function ReportsPage() {
             variant="outline"
             onClick={() => setSaveDialogOpen(true)}
           >
-            <Bookmark className="h-4 w-4" /> Saved Reports ({savedCount})
+            <Bookmark className="h-4 w-4 mr-2" /> Saved Reports ({savedCount})
           </Button>
         }
       />
@@ -654,10 +654,10 @@ function DealsTables({ data }: { data: ReportsData | null }) {
           <CardTitle>Open Deals by Stage</CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => exportTableCsv("open_deals", ["Deal", "Stage", "Amount"], openRows)}>
-              <Download className="h-4 w-4" /> Export CSV
+              <Download className="h-4 w-4 mr-2" /> Export CSV
             </Button>
             <Button variant="outline" size="sm" onClick={() => exportTablePdf("Open Deals by Stage", ["Deal", "Stage", "Amount"], openPdfRows)}>
-              <FileText className="h-4 w-4" /> Export PDF
+              <FileText className="h-4 w-4 mr-2" /> Export PDF
             </Button>
           </div>
         </CardHeader>
@@ -696,10 +696,10 @@ function DealsTables({ data }: { data: ReportsData | null }) {
           <CardTitle>Deals at Risk (No Activity 14+ Days)</CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => exportTableCsv("deals_at_risk", ["Deal", "Account", "Amount"], riskRows)}>
-              <Download className="h-4 w-4" /> Export CSV
+              <Download className="h-4 w-4 mr-2" /> Export CSV
             </Button>
             <Button variant="outline" size="sm" onClick={() => exportTablePdf("Deals at Risk", ["Deal", "Account", "Amount"], riskPdfRows)}>
-              <FileText className="h-4 w-4" /> Export PDF
+              <FileText className="h-4 w-4 mr-2" /> Export PDF
             </Button>
           </div>
         </CardHeader>

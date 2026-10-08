@@ -373,20 +373,20 @@ export default function ContactsPage() {
               disabled={filtered.length === 0}
               onClick={exportContacts}
             >
-              <Download className="h-4 w-4" /> Export CSV
+              <Download className="h-4 w-4 mr-2" /> Export CSV
             </Button>
             <Button variant="outline" onClick={() => setScanOpen(true)}>
-              <Scan className="h-4 w-4" /> <span className="hidden sm:inline">Scan Card</span>
+              <Scan className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Scan Card</span>
             </Button>
             <Button variant="outline" onClick={() => setImportOpen(true)}>
-              <Download className="h-4 w-4" /> <span className="hidden sm:inline">Import</span>
+              <Download className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Import</span>
             </Button>
             <Button
               onClick={() => {
                 setDialogOpen(true);
               }}
             >
-              <Plus className="h-4 w-4" /> New Contact
+              <Plus className="h-4 w-4 mr-2" /> New Contact
             </Button>
           </>
         }

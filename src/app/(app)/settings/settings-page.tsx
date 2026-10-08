@@ -374,7 +374,7 @@ export default function SettingsPage() {
                       }
                     }}
                   >
-                    <Trash2 className="h-4 w-4" /> Reset All Data
+                    <Trash2 className="h-4 w-4 mr-2" /> Reset All Data
                   </Button>
                 </CardContent>
               </Card>

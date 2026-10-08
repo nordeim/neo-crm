@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.78.0
+version: 1.79.0
 last_updated: 2026-10-08
-project_state: 1599 unit checks + 132 e2e checks green; the session-81 layer (the settings-defaults rotation — the session_157 suggested target, never a dedicated rotation, LIVE-extracted at 1440 AND 390 + the reference's open-popover DOM + bundle decoded): the M-81c1 SELECT-CONTENT CHROME [the reference's popovers ship z-50 max-h-96 rounded-md shadow-md + ALL FOUR slide-in-from-* arms + the four per-side translates; ours shipped the scaffold-era z-[60] max-h-72 rounded-lg shadow-lg draft — LIVE-computed 8px vs 6px radius, shadow-lg vs md, 288px vs 384px, z-60 vs z-50; never pinned in 80 sessions — the s13 pin covered the dropdown-menu family] + the M-81c2 SELECT-ITEM + CHECK [rounded-sm computing 4px; the focus:text arm — the reference's highlighted item shifts #0a0a0a -> #171717 (its accent-foreground), ours stayed flat; the check svg BARE — ours rendered a BLUE #2563eb check (text-primary = the app blue) on every selected item where the reference inherits near-black] + the M-81c3 TRIGGER BASE re-derivation [[&>span]:line-clamp-1 (flow-root/clip/clamp-1 vs our truncate block/ellipsis/none); text-ink/transition-colors/placeholder:text-muted-ink retired; ring-offset-background added; the chevron shrink-0 retired — the bundle's h-4 w-4 shrink-0 is the CHECKBOX's] + the L-81c4 NUMBER-INPUT MIN FAMILY [the follow-up min/max + the dialogs' annualRevenue/employees min={0} retired — the reference ships none on any number input; the API 0-90 guard stays as the documented superset] + the L-81c5 TABSPANEL ATTR TRIO [data-state + data-orientation + tabIndex=0 — the reference's Radix stock] + the N-81c6 SUBTITLE DIV + the N-81c7 three stale s80-hover comment carriers [AGENTS:200 + badge-contract:32 + page-layout:1190] + 132 e2e checks green; the session-80 layer (the profile-page rotation — the session_154 suggested target, never a dedicated VISUAL rotation, LIVE-extracted at 1440 AND 390 + the reference's compiled stylesheet decoded): the M-80c1 NEUTRAL-900 HOVER ALPHA ARMS [the reference's dark-primary surfaces ship ALPHA hovers — its stylesheet reads hsl(var(--primary) / .8); LIVE-probed rgba(23,23,23,0.8) on the badge + /90 on the save/dialog-submit/settings-add; ours shipped SOLID hover:bg-neutral-800 #262626 on all five carriers — the s66 alpha-math miscalculation; the computed-equals are hover:bg-neutral-900/80 [badges] + /90 [buttons]] + the M-80c2 HOVER-VARIANT UN-WRAP [THE v4 bug of the session, the fourth re-pin family member: v4 wraps every hover: utility in @media (hover: hover) so ALL our hovers no-op on touch; the reference's stylesheet ships ZERO hover-media wraps — bare :hover; the fix is the one-line @custom-variant hover (&:hover); in globals.css, LIVE-verified in the hover:none environment that could not exercise the wrapped rules at all] + the L-80c3 EMAIL INPUT TYPE [type=email on the disabled profile email input, matching the reference's DOM] + the N-80c4 S21 COMMENT REMNANTS RETIRED + the N-80c5 documented parities pinned green [text-foreground rgb(10,10,10) both apps; the chips' computed-equal inline colors; the 0/8px gap stack; the 390px responsive set measured identical] + the 80-b doc carriers [CLAUDE:38/:125 + PAD:772 at the s79 counts])
+project_state: 1619 unit checks + 132 e2e checks green; the session-82 layer (the contacts slide-over's deeper chrome — the session_159 suggested target, bundle-decoded from the byte-stable reference + LIVE-probed on our dev server): the M-82c1 BUTTON-ICON-MARGIN RE-DERIVATION [the reference's stock Button base (the bundle's uie) carries NO svg-margin arms — only [&_svg]:pointer-events-none + size-4 + shrink-0; its icon-text spacing rides each surface's OWN svg margin class (w-4 h-4 mr-2 on the entire 16-site header/export family — New X / Export CSV / Export PDF / Saved Reports / Reset All Data / Scan Card / Import / Add; w-4 h-4 mr-1 on the compact family — the slide-over's Call/Email/WhatsApp, the mobile cards, the Check ghost). OURS shipped the s9 iconGap invention ([&_svg]:mr-2 + [&_svg:only-child]:mr-0) whose cascade BROKE the per-surface margins: on svg+bare-text buttons the only-child mr-0 (0,2,1) nullified the svg's own mr-1/mr-2 (0,1,0) — LIVE-measured 0px margin where the reference computes 4px/8px (our total gap 8px vs its 12px/16px); on svg+span buttons the mr-2 arm fabricated the 8px; the topbar needed an mr-0 neutralizer to undo its own invention. RETIRED: the base arms + the neutralizer gone, the 16 sites gained their own mr-2, the already-carrying mr-1/mr-2 sites simply start applying — the 16px icon-text gap now rides the reference's own mechanism] + the M-82c2 ACTIVITY-ICON IDENTITY [the slide-over activity card's icon is lucide Activity — the bundle's AC=tr("Activity",vQ) pulse path, byte-identical in our lucide 0.525; ours rendered Zap (the lightning bolt) — the s76 alias rotation resolved the activities page's families but never walked this card] + the M-82c3 ACTIVITY-DATE FORMAT [the reference renders st(l.date).format("MMM D, YYYY h:mm A") — date + TIME; ours rendered the bare "MMM D, YYYY"; the new formatMonthDayYearTime seam (the house hand-rolled pattern) + the panel's card consumes it; the Last Activity row keeps the reference's own date-only form] + the L-82c4 DEALS AMOUNT [the reference's jsx array ["$", amount?.toLocaleString()] — no space, no 0-fallback (null renders "$" alone); ours rendered "$ 1,234"/"$ 0"] + the L-82c5 AGENTS:200-202 STALE CARRIER [the S81-P7 half claimed landed in six doc surfaces but never executed — the 82-a re-audit caught it; re-derived to the /80 alpha arm] + the N-82c6 EMAIL-ROW BARE FORM + the N-82c7 PAD:766 phantom-pin wording [the s81 row claimed the AGENTS:200 carrier was pinned — no such pin exists] + 132 e2e checks green; the session-81 layer (the settings-defaults rotation — the session_157 suggested target, never a dedicated rotation, LIVE-extracted at 1440 AND 390 + the reference's open-popover DOM + bundle decoded): the M-81c1 SELECT-CONTENT CHROME [the reference's popovers ship z-50 max-h-96 rounded-md shadow-md + ALL FOUR slide-in-from-* arms + the four per-side translates; ours shipped the scaffold-era z-[60] max-h-72 rounded-lg shadow-lg draft — LIVE-computed 8px vs 6px radius, shadow-lg vs md, 288px vs 384px, z-60 vs z-50; never pinned in 80 sessions — the s13 pin covered the dropdown-menu family] + the M-81c2 SELECT-ITEM + CHECK [rounded-sm computing 4px; the focus:text arm — the reference's highlighted item shifts #0a0a0a -> #171717 (its accent-foreground), ours stayed flat; the check svg BARE — ours rendered a BLUE #2563eb check (text-primary = the app blue) on every selected item where the reference inherits near-black] + the M-81c3 TRIGGER BASE re-derivation [[&>span]:line-clamp-1 (flow-root/clip/clamp-1 vs our truncate block/ellipsis/none); text-ink/transition-colors/placeholder:text-muted-ink retired; ring-offset-background added; the chevron shrink-0 retired — the bundle's h-4 w-4 shrink-0 is the CHECKBOX's] + the L-81c4 NUMBER-INPUT MIN FAMILY [the follow-up min/max + the dialogs' annualRevenue/employees min={0} retired — the reference ships none on any number input; the API 0-90 guard stays as the documented superset] + the L-81c5 TABSPANEL ATTR TRIO [data-state + data-orientation + tabIndex=0 — the reference's Radix stock] + the N-81c6 SUBTITLE DIV + the N-81c7 three stale s80-hover comment carriers [AGENTS:200 + badge-contract:32 + page-layout:1190] + 132 e2e checks green; the session-80 layer (the profile-page rotation — the session_154 suggested target, never a dedicated VISUAL rotation, LIVE-extracted at 1440 AND 390 + the reference's compiled stylesheet decoded): the M-80c1 NEUTRAL-900 HOVER ALPHA ARMS [the reference's dark-primary surfaces ship ALPHA hovers — its stylesheet reads hsl(var(--primary) / .8); LIVE-probed rgba(23,23,23,0.8) on the badge + /90 on the save/dialog-submit/settings-add; ours shipped SOLID hover:bg-neutral-800 #262626 on all five carriers — the s66 alpha-math miscalculation; the computed-equals are hover:bg-neutral-900/80 [badges] + /90 [buttons]] + the M-80c2 HOVER-VARIANT UN-WRAP [THE v4 bug of the session, the fourth re-pin family member: v4 wraps every hover: utility in @media (hover: hover) so ALL our hovers no-op on touch; the reference's stylesheet ships ZERO hover-media wraps — bare :hover; the fix is the one-line @custom-variant hover (&:hover); in globals.css, LIVE-verified in the hover:none environment that could not exercise the wrapped rules at all] + the L-80c3 EMAIL INPUT TYPE [type=email on the disabled profile email input, matching the reference's DOM] + the N-80c4 S21 COMMENT REMNANTS RETIRED + the N-80c5 documented parities pinned green [text-foreground rgb(10,10,10) both apps; the chips' computed-equal inline colors; the 0/8px gap stack; the 390px responsive set measured identical] + the 80-b doc carriers [CLAUDE:38/:125 + PAD:772 at the s79 counts])
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.78.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.79.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -7308,3 +7308,114 @@ exactly (the new suite's 15 + the page-layout re-anchor) + 2 mid-flight
 pin-shape repairs (the epoch-key call-site scope + the stripComments
 negative); non-vacuousness PROVEN: 16 failed | 1583 passed at the
 pre-fix state — exactly the modified-pin set, ZERO collateral.
+
+## 16bv. Session-82 Layer (the contacts slide-over rotation + the
+Button-icon-margin re-derivation)
+
+**What shipped:** the contacts slide-over's deeper chrome — the FIRST
+dedicated rotation (the session_159 suggested target #1: s28 decoded
+the Pke structure + s75 walked the filter rail, but nobody had ever
+walked the panel's own card bodies + the activity/deal constructions +
+the icon identities + the Button icon-text mechanics they ride). Every
+claim decoded from the byte-stable 1.63MB reference bundle (md5-exact
+for the 53rd consecutive session) + LIVE-probed on our dev server.
+The N-82 family: 3 M + 2 L + 2 N.
+
+**The headline — M-82c1, the Button-icon-margin re-derivation:** the
+reference's stock Button base (the bundle's `uie`, decoded verbatim)
+carries `[&_svg]:pointer-events-none [&_svg]:size-4
+[&_svg]:shrink-0` and NO svg-margin arms — its icon-text spacing rides
+EACH SURFACE'S OWN svg margin class: `w-4 h-4 mr-2` on the entire
+header/export family (New Account/Contact/Lead/Event, Export CSV/
+Export/Export PDF, Saved Reports, Reset All Data, Scan Card, Import,
+the dashboard Add — every one bundle-decoded with mr-2; 8px margin +
+the 8px flex gap = the 16px icon-text gap s9 measured), and
+`w-4 h-4 mr-1` on the compact family (the slide-over's Call/Email/
+WhatsApp, the contacts mobile cards' Call/Email, the activities
+Check-as-completed ghost: 4px + 8px = 12px). OURS shipped the s9
+`BUTTON_BASE.iconGap` invention (`[&_svg]:mr-2
+[&_svg:only-child]:mr-0`) whose cascade BROKE the per-surface
+margins: on svg+BARE-TEXT buttons (the svg is the only ELEMENT child
+— text labels are text nodes) the only-child mr-0 (specificity
+(0,2,1)) nullified the svg's own mr-1/mr-2 ((0,1,0)) — LIVE-measured
+**0px** margin on our contacts header Export CSV + New Contact (the
+reference's mr-2 family: our total gap 8px vs its 16px) and on the
+panel's Call button (the mr-1 family: 8px vs 12px); on svg+SPAN
+buttons the mr-2 arm fabricated the 8px (accidentally right only for
+the mr-2 family); and the topbar user button carried an
+`[&_svg]:mr-0` NEUTRALIZER that existed purely to undo our own
+invention. THE FIX: the base arms retired (the reference-verbatim
+construction), the neutralizer retired, the 16 header/export sites
+gained their own mr-2, and the 11 already-carrying sites (6 mr-1 +
+5 mr-2) simply start applying — the s9-measured 16px gap now rides
+the reference's own mechanism everywhere. Tailwind v4 note: the
+compiled CSS keeps two INERT dead rules (`.\[\&_svg\]\:mr-2 svg`
++ the only-child one) — comment-mention artifacts (v4 scans comments;
+the s80/s81 precedent), matched by zero elements.
+
+**M-82c2 — the Activity-icon identity:** the reference's slide-over
+activity card renders `AC` = lucide **Activity** (the bundle:
+`AC=tr("Activity",vQ)` with the pulse path `M22 12h-2.48a2 2 0 0 0
+1.93 1.46l-2.35 8.36…` — our lucide-react 0.525's Activity path is
+byte-identical). OURS rendered **Zap** (the lightning bolt) — the
+wrong glyph on every activity card in the slide-over; the s76
+icon-alias rotation resolved the activities page's families but never
+walked this card. (The panel's Activity TYPE import rides an alias —
+`Activity as ActivityRecord` — keeping the DOM-facing component name
+identical to the reference's glyph.)
+
+**M-82c3 — the activity-date format:** the reference renders
+`st(l.date).format("MMM D, YYYY h:mm A")` — the date AND the time
+(e.g. "Oct 5, 2026 10:00 AM"); ours rendered "MMM D, YYYY" (no time).
+The new `formatMonthDayYearTime` seam in `src/lib/format.ts` (the
+house hand-rolled pattern riding MONTHS_SHORT) + the panel's card
+consumes it; the `l.date` field maps to our dueAt (the ActivityDialog
+binding, the s76 mapping); the fallback chain stays (the robustness
+superset); the Last Activity row keeps the reference's own date-only
+form (its per-surface split).
+
+**L-82c4 — the deals amount:** the reference renders the jsx array
+`["$",(f=l.amount)==null?void 0:f.toLocaleString()]` — "$" +
+amount?.toLocaleString() with NO space and NO 0-fallback (a null
+amount renders "$" alone); ours rendered `$ {…0…}` ("$ 1,234" / "$ 0").
+Mirrored verbatim.
+
+**L-82c5 + N-82c6 + N-82c7:** the AGENTS.md:200-202 stale carrier
+(the S81-P7 half claimed landed in six doc surfaces but never
+executed — the 82-a re-audit caught it; re-derived to the /80 alpha
+arm); the email row's `?? "—"` retired (the reference renders the
+bare `e.email`; our email is non-null); the PAD:766 phantom-pin
+wording corrected (the s81 row claimed the AGENTS:200 carrier was
+pinned — no such pin exists, which is why the stale carrier survived
+the s81 gate — the N-50a doc-carrier-escapes-pins genus).
+
+**The gate:** lint 0/0 · tsc 0 · **1619/1619 unit (91 suites, +20)**
+· build clean · **132/132 e2e on a fresh CI=1 boot (3.2m, FIRST run
+green, all 9 mobile-nav checks green)**. LIVE: the contacts header
+Export CSV/New Contact svgs compute 8px margins (the 16px total gap);
+the panel's Call 4px (12px total); the dashboard Add 8px (preserved
+via its own mr-2); the topbar chevron 0px (the reference's bare
+form); the activity card's icon `lucide-activity` with the pulse
+path; the card dates "Sep 26, 2026 9:36 AM" / "Oct 8, 2026 2:00 PM";
+the deals amounts "$110,000"/"$145,000" (no space); the drawer at
+TRUE 390px (full-bleed, 8 links, dual scroll-lock, focus inside,
+navigate-close + locks released, Escape-inert); zero overflow ×10;
+the built CSS zero (hover: hover) wraps; the closing census MATCH
+(db pristine + the reference unchanged). Screenshots 103 (the
+slide-over Activities tab — the pulse icon + the datetime) + 104
+(the panel at TRUE 390px) — VLM 3/5 (both flags DOM-disproven: the
+16px pulse icon at screenshot scale + the date-only Last Activity
+row the reference itself ships) + 4/4 PASS.
+
+**The intake layers:** drift sweep #78 — the app bundle byte-identical
+for the 53rd consecutive session; the s81-flagged `/static/*`
+platform-shell re-check DONE: the login page now renders via the
+platform loader (37 modulepreloads, zero /assets refs in the login
+HTML) but the LIVE app post-login still loads ONLY the old /assets
+pair — ZERO app-code migration (the documented non-drift extends one
+step deeper). Reference census #78: demo zero, the mobile-nav defect
+standing at TRUE 390px, desktop normal. 82-a: the s81 re-audit 9/10
+GENUINE + the AGENTS:200 catch; 82-b: ZERO graduations 12/12 (the
+39th consecutive), the 8 censuses 8/8 CLEAN, both operator decisions
+standing (the 41st re-affirmation: CSV posture (b) + the
+source-vocabulary parity).

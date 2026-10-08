@@ -216,8 +216,9 @@ export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
                     (whitespace-nowrap / text-sm font-medium / the 1px
                     focus-visible ring / the ghost hover pair) plus `flex
                     items-center gap-1 sm:gap-2`; TOPBAR_LAYOUT.userButton
-                    adds the composition and neutralizes the iconGap's
-                    trailing-chevron margin. */}
+                    adds the composition (the reference's chevron carries
+                    no margin of its own — the s82 base retirement removed
+                    the neutralizer the iconGap cascade required). */}
                 <Button type="button" variant="ghost" className={TOPBAR_LAYOUT.userButton} aria-label="Account menu">
                   {/* Session-73 (L-73c4/N-73c1): the reference's fallback
                       chain — display_name || full_name || email ||

@@ -381,7 +381,7 @@ export default function LeadsPage() {
               className={PAGE_HEADER.leads.buttonStretch}
               onClick={onExport}
             >
-              <Download className="h-4 w-4" /> Export
+              <Download className="h-4 w-4 mr-2" /> Export
             </Button>
             <Button
               className={PAGE_HEADER.leads.buttonStretch}
@@ -389,7 +389,7 @@ export default function LeadsPage() {
                 setDialogOpen(true);
               }}
             >
-              <Plus className="h-4 w-4" /> New Lead
+              <Plus className="h-4 w-4 mr-2" /> New Lead
             </Button>
           </>
         }

@@ -113,6 +113,23 @@ export function formatMonthDayTime(d: Date | string | number | null | undefined)
   return `${MONTHS_SHORT[date.getMonth()]} ${date.getDate()}, ${h}:${date.getMinutes().toString().padStart(2, "0")} ${ampm}`;
 }
 
+/** Session-82 (M-82c3, bundle-decoded from the reference's slide-over
+ *  activity card): the contact panel's activity timestamp — the moment
+ *  format "MMM D, YYYY h:mm A" (e.g. "Oct 5, 2026 10:00 AM"), with the
+ *  year AND the 12-hour time. The reference's own per-surface split:
+ *  the panel's Last Activity row stays date-only ("MMM D, YYYY" —
+ *  mmmDyyyy in the panel), the upcoming row keeps formatMonthDayTime
+ *  ("MMM d, h:mm a" — no year), the agenda row formatWeekdayBulletTime. */
+export function formatMonthDayYearTime(d: Date | string | number | null | undefined): string {
+  if (!d) return "—";
+  const date = asDate(d);
+  if (Number.isNaN(date.getTime())) return "—";
+  let h = date.getHours();
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${MONTHS_SHORT[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} ${h}:${date.getMinutes().toString().padStart(2, "0")} ${ampm}`;
+}
+
 /** Session-76 (M-76c10, bundle-decoded from the reference's agenda row):
  *  the calendar AGENDA timestamp — date-fns format
  *  "EEEE, MMM d • h:mm a" (e.g. "Monday, Oct 5 • 10:00 AM"), with the

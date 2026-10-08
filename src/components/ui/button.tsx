@@ -6,10 +6,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { BUTTON_BASE } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 
-// Session-9 (S9-1, S9-16): the reference's text buttons carry `mr-2` ON
-// their icons in addition to the flex gap-2 — a measured 16px icon-text
-// gap (ours was 8px); icon-only buttons get no margin (only-child guard).
-// Focus rings are 1px near-black (`ring-ring`, --color-ring = #0a0a0a).
+// Session-82 (M-82c1): the reference's stock Button base (the bundle's
+// uie, decoded verbatim) carries NO svg-margin arms — its icon-text
+// spacing rides EACH SURFACE'S OWN svg margin class (mr-2 on the
+// header/export family = the 16px icon-text gap s9 measured; mr-1 on
+// the compact family — the slide-over actions, the mobile cards, the
+// Check-as-completed ghost). The s9 iconGap invention
+// ([&_svg]:mr-2 + [&_svg:only-child]:mr-0) retired: its cascade
+// nullified every per-surface svg margin on svg+bare-text buttons
+// (the only-child mr-0 at (0,2,1) beat the svg's own (0,1,0)
+// classes — LIVE-measured 0px where the reference computes 4/8px).
+// Focus rings are 1px near-black (`ring-ring`, --color-ring =
+// #0a0a0a).
 const buttonVariants = cva(
   cn(
     // Session-13 (S13-P3): rounded-md — the reference renders 6px radius
@@ -22,7 +30,6 @@ const buttonVariants = cva(
     // 16px.
     BUTTON_BASE.svgSize,
     "[&_svg]:shrink-0",
-    BUTTON_BASE.iconGap,
     BUTTON_BASE.focusRing,
   ),
   {
