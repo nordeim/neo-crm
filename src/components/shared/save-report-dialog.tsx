@@ -153,10 +153,12 @@ export function SaveReportDialog({
                         <p className="text-xs text-gray-500">{savedReportDate(r.createdAt)}</p>
                       </div>
                     </div>
+                    {/* Session-83 (N-83c7): the reference's Load button
+                        is the BARE outline sm — our appended className
+                        duplicated the sm size's own h-8 px-3 text-xs. */}
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 px-3 text-xs"
                       onClick={() => onLoad(r)}
                     >
                       Load

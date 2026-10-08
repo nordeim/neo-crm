@@ -332,7 +332,13 @@ export default function DashboardPage() {
       <div className={FILTER_BAR.card}>
         <div className={FILTER_BAR.row}>
         <Button variant="outline" size="sm" className="w-full sm:w-auto">
-          <FilterPolygon className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Filter</span>
+          {/* Session-83 (M-83c2, bundle-decoded): the reference's Filter
+              button ships its svg at w-4 h-4 mr-2 (OC at the Eke filter
+              bar) — ours carried the scaffold-era h-3.5 w-3.5 with no
+              margin, a 2-fold divergence (14px vs 16px AND the gap:
+              this svg+span construction's 16px gap regressed to 8px
+              when the s82 base cascade retired). */}
+          <FilterPolygon className="w-4 h-4 mr-2" /> <span className="hidden sm:inline">Filter</span>
         </Button>
         {/* Session-5: the reference's All Stages filter offers the PIPELINE
             stages (Prospecting/Qualification/Proposal/Negotiation/Won) — the

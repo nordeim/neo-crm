@@ -464,7 +464,10 @@ export const REPORT_TABS = [
   { id: "pipeline", label: "Pipeline & Forecast" },
   { id: "activity", label: "Activity & Productivity" },
   { id: "sources", label: "Lead Sources" },
-  { id: "health", label: "Account Health" },
+  // Session-83 (N-83c6): the reference's fifth tab id is "accounts"
+  // (its value:"accounts") — an invisible internal id (no URL state,
+  // the s24 census); was "health" since the s25 scaffold.
+  { id: "accounts", label: "Account Health" },
 ] as const;
 
 // Session-25 (S25-P6) + Session-32 (S32-P4): the reference's SIX periods

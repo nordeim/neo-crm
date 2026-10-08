@@ -529,11 +529,17 @@ describe("session-8 parity pins (DOM-verified 2026-09-30)", () => {
     ]);
   });
 
-  it("Log WhatsApp is a SOLID emerald button (reference regression since session 6)", () => {
-    // S8-6: bg-emerald-600 hover:bg-emerald-700 + shadow on the live
-    // reference — the session-6 "ghost" pin is stale.
+  it("Log WhatsApp is the DEFAULT variant + the bare emerald pair (the reference's own construction)", () => {
+    // Session-83 (L-83c4): the reference rides the DEFAULT Button
+    // variant + className:"bg-emerald-600 hover:bg-emerald-700" — the
+    // base's text-primary-foreground keeps the label WHITE on hover.
+    // Ours rode ghost + text-white: the ghost's surviving
+    // hover:text-foreground flipped the label #0a0a0a on hover over
+    // the emerald surface (live-exercisable since the s80 hover
+    // un-wrap). The s8 "SOLID emerald" pin (vs ghost-with-no-fill)
+    // survives; the construction is now the reference's own.
     expect(ACTIVITY_QUICKLOG.whatsapp).toBe(
-      "bg-emerald-600 hover:bg-emerald-700 text-white shadow",
+      "bg-emerald-600 hover:bg-emerald-700",
     );
   });
 
@@ -1467,10 +1473,14 @@ describe("session-14: settings Data tab structure (S14-P2)", () => {
 
   it("the Data tab buttons are stock outline default-size with w-full sm:w-auto", () => {
     // Reference: outline variant, h-9 px-4 py-2 text-sm, `w-full
-    // sm:w-auto`, download icon w-4 h-4. Ours shipped secondary/sm
-    // (h-8 px-3 text-xs, icon h-3.5, no responsive width).
+    // sm:w-auto`, download icon w-4 h-4 mr-2 (the reference's `cs` —
+    // session-83 M-83a1: the s72-era record shipped h-4 w-4 with no
+    // margin while the file's own s72 comment documented the reference's
+    // mr-2; the icon-text gap computed 8px vs the reference's 16px on
+    // all seven export buttons). Ours shipped secondary/sm (h-8 px-3
+    // text-xs, icon h-3.5, no responsive width).
     expect(SETTINGS_DATA.buttonCls).toContain("w-full sm:w-auto");
-    expect(SETTINGS_DATA.buttonIcon).toBe("h-4 w-4");
+    expect(SETTINGS_DATA.buttonIcon).toBe("h-4 w-4 mr-2");
   });
 
   it("the Data tab CardTitles ride the STOCK string", () => {

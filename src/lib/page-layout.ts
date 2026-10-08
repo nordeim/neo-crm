@@ -445,7 +445,10 @@ export const SETTINGS_DEFAULTS = {
  *  titled "Import Templates" (the reference carries the 'Import '
  *  prefix); both list bodies are VERTICAL `p-6 pt-0 space-y-2` stacks of
  *  stock outline default-size buttons (`w-full sm:w-auto`, download icon
- *  w-4 h-4 — the mr-2 gap rides BUTTON_BASE.iconGap). Ours shipped
+ *  w-4 h-4 mr-2 — the reference's own `cs`, the s82 per-surface margin
+ *  family; session-83 M-83a1 re-derived the record from h-4 w-4, which
+ *  computed an 8px icon-text gap on all seven buttons where the
+ *  reference computes 16px). Ours shipped
  *  "Templates", `flex flex-wrap gap-2` bodies and secondary/sm buttons
  *  (h-8 px-3 text-xs, icon h-3.5, no responsive width). */
 export const SETTINGS_DATA = {
@@ -459,7 +462,7 @@ export const SETTINGS_DATA = {
    *  inline row). A class-level pin that recorded only the FIRST button of
    *  a row misses the family (the s24 More... lesson). */
   buttonClsAlt: "w-full sm:w-auto ml-0 sm:ml-2",
-  buttonIcon: "h-4 w-4",
+  buttonIcon: "h-4 w-4 mr-2",
   /** Session-26 (S26-P1): the header subtitle — the reference's
    *  CardDescription is a `text-sm text-muted-foreground` DIV (#737373);
    *  our muted-ink token is that exact color. */
@@ -584,10 +587,14 @@ export const LEADS_FILTERS_POPOVER = {
 } as const;
 
 /** Session-8: activities quick-log row — Log WhatsApp is a SOLID emerald
- *  button on the reference (bg-emerald-600 hover:bg-emerald-700 + shadow);
- *  the session-6 "ghost" pin is stale. The other three stay outline h-8. */
+ *  button on the reference; the session-6 "ghost" pin is stale.
+ *  Session-83 (L-83c4): the reference rides the DEFAULT Button variant
+ *  + this bare color pair — the base's text-primary-foreground keeps
+ *  the label white on hover (the s8 translation's text-white + shadow
+ *  additions retired: our ghost variant's surviving hover:text-foreground
+ *  had flipped the label #0a0a0a on hover). */
 export const ACTIVITY_QUICKLOG = {
-  whatsapp: "bg-emerald-600 hover:bg-emerald-700 text-white shadow",
+  whatsapp: "bg-emerald-600 hover:bg-emerald-700",
 } as const;
 
 // ---------------------------------------------------------------------------

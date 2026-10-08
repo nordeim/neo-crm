@@ -244,13 +244,20 @@ export default function ActivitiesPage() {
         actions={
           <>
             {/* Session-8 (S8-6, re-pinned from the live DOM): the quick-log
-                row is outline h-8 x3 plus a SOLID emerald Log WhatsApp
-                (bg-emerald-600 hover:bg-emerald-700 + shadow) — the
-                session-6 "ghost" pin was stale. */}
+                row is outline h-8 x3 plus a SOLID emerald Log WhatsApp.
+                Session-83 (M-83c3 + L-83c4, bundle-decoded at the Rce
+                header): the reference's four svgs all carry w-4 h-4
+                mr-2 (ours shipped the bare h-4 w-4 — the margin never
+                applied, first nullified by the s9 only-child arm, then
+                simply absent post-s82); the WhatsApp button rides the
+                DEFAULT variant + the bare emerald pair — the base's
+                text-primary-foreground keeps the label white on hover
+                (our ghost variant's surviving hover:text-foreground
+                flipped it #0a0a0a). */}
             {QUICK_LOG.map((q) => (
               <Button
                 key={q.type}
-                variant={q.type === "whatsapp" ? "ghost" : "outline"}
+                variant={q.type === "whatsapp" ? "default" : "outline"}
                 size="sm"
                 className={q.type === "whatsapp" ? ACTIVITY_QUICKLOG.whatsapp : undefined}
                 onClick={() => {
@@ -259,7 +266,7 @@ export default function ActivitiesPage() {
                   setDialogOpen(true);
                 }}
               >
-                <q.icon className="h-4 w-4" /> {q.label}
+                <q.icon className="w-4 h-4 mr-2" /> {q.label}
               </Button>
             ))}
           </>

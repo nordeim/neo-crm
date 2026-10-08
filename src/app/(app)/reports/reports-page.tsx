@@ -106,7 +106,7 @@ export default function ReportsPage() {
     // Session-16 (S16-P2): the page owns its padding — the reference's
     // reports root is `p-4 sm:p-8 bg-gray-50 min-h-screen` (the sticky
     // filter bar still sticks to main's top).
-    <div className={PAGE_ROOT.standard}>
+    <div id="reports-content" className={PAGE_ROOT.standard}>
       <PageHeader
         title="Reports & Analytics"
         subtitle="Comprehensive CRM reporting hub"
@@ -133,7 +133,12 @@ export default function ReportsPage() {
             <div className={REPORTS_FILTER_BAR.selectWrap}>
               <CalendarIcon className={REPORTS_FILTER_BAR.selectIcon} />
               <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                {/* Session-83 (N-83c5, bundle-verbatim): the reference's
+                    SelectValue carries this placeholder — DEAD in both
+                    apps (the controlled value is always set; the reset
+                    terminal sets all four fields); mirrored for source
+                    parity, the FILTER_BAR.searchPlaceholder precedent. */}
+                <SelectTrigger className="w-44"><SelectValue placeholder="Date: This Quarter" /></SelectTrigger>
                 <SelectContent>
                   {REPORT_PERIODS.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
@@ -147,7 +152,7 @@ export default function ReportsPage() {
                   DISTINCT OPPORTUNITY owner strings (its `p` memo) — not
                   the user directory. */}
               <Select value={owner} onValueChange={setOwner}>
-                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-44"><SelectValue placeholder="Owner: All" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Owners</SelectItem>
                   {oppOwners.map((name) => (
@@ -160,7 +165,7 @@ export default function ReportsPage() {
                 six stages, the Closed Won / Closed Lost labels (the
                 reference's lCe filter card). */}
             <Select value={stage} onValueChange={setStage}>
-              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-44"><SelectValue placeholder="Stage: All" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Stages</SelectItem>
                 {/* Session-65 (N-65e): the `?.label ?? s` arms RETIRED —
@@ -174,7 +179,7 @@ export default function ReportsPage() {
               </SelectContent>
             </Select>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-44"><SelectValue placeholder="Status: All" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 {/* Session-49 (S49-P1): the status vocabulary is the shared
@@ -352,7 +357,10 @@ export default function ReportsPage() {
             <TabsPanel tab="pipeline" className="mt-2">{tab === "pipeline" && <PipelineTab data={data} />}</TabsPanel>
             <TabsPanel tab="activity" className="mt-2">{tab === "activity" && <ActivityTab data={data} />}</TabsPanel>
             <TabsPanel tab="sources" className="mt-2">{tab === "sources" && <SourcesTab data={data} />}</TabsPanel>
-            <TabsPanel tab="health" className="mt-2">{tab === "health" && <HealthTab data={data} />}</TabsPanel>
+            {/* Session-83 (N-83c6): the reference's fifth tab id is
+                "accounts" (its value:"accounts" — an invisible internal
+                id; no URL state, the s24 census). */}
+            <TabsPanel tab="accounts" className="mt-2">{tab === "accounts" && <HealthTab data={data} />}</TabsPanel>
           </Tabs>
 
           {/* Session-25 (S25-P4): the Save Custom Report View dialog —

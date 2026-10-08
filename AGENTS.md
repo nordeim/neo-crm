@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1619 checks)       | `bun run test`                         |
+|  Unit tests (1649 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1619) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1649) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -184,10 +184,11 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   the `src/lib/lead-filters.ts` encode/decode seam (localStorage key
   `neo-crm.leads.view`); Clear resets. The dashboard has NO owner filter —
   the old "All Owners" select was a misread of the empty switcher.
-- **Component anatomy (session-9)**: button icons in TEXT buttons carry
-  `mr-2` on top of the flex `gap-2` (a measured 16px icon-text gap;
-  `BUTTON_BASE.iconGap` applies it via `[&_svg]:mr-2
-  [&_svg:only-child]:mr-0`, so icon-only buttons stay unmarginated). Focus
+- **Component anatomy (session-9, re-derived s82/s83)**: button icons in
+  TEXT buttons carry their OWN `mr-2` per surface on top of the flex
+  `gap-2` (the measured 16px icon-text gap; the base ships NO svg-margin
+  arms — `mr-1` on the compact family: the slide-over actions, the
+  mobile cards, the Check ghost). Focus
   rings are 1px near-black (`ring-1 ring-ring`, `--color-ring: #0a0a0a`) on
   inputs, buttons and selects; tabs keep ring-2 + offset. Inputs are
   `text-base md:text-sm` (16px below md, matching the reference's phones).
@@ -682,8 +683,9 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   font-semibold text-sm`) and a chevron. Ours was a hand-written button
   with NO focus-visible ring (a keyboard-focus gap) and a one-level
   avatar. `TOPBAR_LAYOUT.userButton` now only adds the flex/gap
-  composition + `[&_svg]:mr-0` (the iconGap's trailing-chevron margin
-  must stay neutralized — the reference's chevron carries no margin).
+  composition (the chevron carries no margin of its own — the
+  reference's bare form, since the s82 base retirement no svg-margin
+  neutralizer is needed).
 - **Icon glyphs are a census-pinned layer (session-17)** — compare NAME +
   SVG PATH DATA, never names alone (lucide renames can hide redesigns;
   aliases can hide renames). The reference's sidebar ships `users`
