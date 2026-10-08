@@ -63,6 +63,12 @@ const MONTHS_LONG = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+// Session-76 (M-76c10): the long weekday names for the agenda timestamp's
+// "EEEE" component — Sunday-indexed like every getDay() consumer here.
+const DAYS_LONG = [
+  "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+];
+
 function asDate(d: Date | string | number): Date {
   return d instanceof Date ? d : new Date(d);
 }
@@ -105,6 +111,21 @@ export function formatMonthDayTime(d: Date | string | number | null | undefined)
   const ampm = h >= 12 ? "PM" : "AM";
   h = h % 12 || 12;
   return `${MONTHS_SHORT[date.getMonth()]} ${date.getDate()}, ${h}:${date.getMinutes().toString().padStart(2, "0")} ${ampm}`;
+}
+
+/** Session-76 (M-76c10, bundle-decoded from the reference's agenda row):
+ *  the calendar AGENDA timestamp — date-fns format
+ *  "EEEE, MMM d • h:mm a" (e.g. "Monday, Oct 5 • 10:00 AM"), with the
+ *  U+2022 bullet separator. The UPCOMING row keeps formatMonthDayTime
+ *  ("MMM d, h:mm a") — the reference's own per-surface split. */
+export function formatWeekdayBulletTime(d: Date | string | number | null | undefined): string {
+  if (!d) return "—";
+  const date = asDate(d);
+  if (Number.isNaN(date.getTime())) return "—";
+  let h = date.getHours();
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${DAYS_LONG[date.getDay()]}, ${MONTHS_SHORT[date.getMonth()]} ${date.getDate()} \u2022 ${h}:${date.getMinutes().toString().padStart(2, "0")} ${ampm}`;
 }
 
 export function formatTime(d: Date | string | number | null | undefined): string {

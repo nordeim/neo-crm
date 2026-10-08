@@ -390,6 +390,30 @@ export const ACTIVITY_TYPES = ["call", "email", "meeting", "whatsapp", "task", "
 // definition-only (the LeadStage class, same retirement). The array +
 // ACTIVITY_TYPE_META stay on their live consumers.
 
+/** Session-76 (M-76c14/L-76c6, bundle-decoded from the reference's Mce
+ *  dialog): the Log Activity dialog's type select lists FIVE options —
+ *  Call/Email/Meeting/Task/Note. WhatsApp is NEVER in the list: the
+ *  reference's quick-log applies the preset at SUBMIT time
+ *  (`type: i || N.type` — the preset state wins over the form value),
+ *  so the emerald quick-log's type never renders in the select. The
+ *  full ACTIVITY_TYPES array stays (the rail + the KPI card read
+ *  whatsapp). */
+export const ACTIVITY_DIALOG_TYPES = ["call", "email", "meeting", "task", "note"] as const;
+
+/** Session-76 (M-76c2, bundle-decoded from the reference's Rce timeline):
+ *  the tinted icon-square pairs per activity type — the square carries
+ *  the bg-100 + text-600 classes and the w-5 h-5 icon inherits the text
+ *  color. Unknown types (task among the reference's own vocabulary gaps)
+ *  fall to the gray terminal — the reference's `|| "bg-gray-100
+ *  text-gray-600"` fallback. */
+export const ACTIVITY_TIMELINE_TINT: Record<string, string> = {
+  email: "bg-blue-100 text-blue-600",
+  call: "bg-green-100 text-green-600",
+  meeting: "bg-purple-100 text-purple-600",
+  whatsapp: "bg-emerald-100 text-emerald-600",
+  note: "bg-gray-100 text-gray-600",
+};
+
 export const ACTIVITY_TYPE_META: Record<string, { label: string; color: string; badge: string }> = {
   call: { label: "Call", color: "#3b82f6", badge: "bg-blue-50 text-blue-700 border-blue-200" },
   email: { label: "Email", color: "#06b6d4", badge: "bg-cyan-50 text-cyan-700 border-cyan-200" },

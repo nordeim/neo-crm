@@ -92,11 +92,18 @@ describe("session-46: the mutation-failure feedback sweep (S46-P1)", () => {
     expect(region).toMatch(/toast\.error\(\s*"Could not delete lead",\s*res\.error\s*\)/);
   });
 
-  it("activities: the inline delete (the ⋮ Delete activity button) toasts a failed delete", () => {
+  it("activities: the toggle (Check as completed) toasts a failed update (s76 re-anchor)", () => {
     const src = activities();
-    const region = regionAt(src, "Delete activity", 600);
-    expect(region).toMatch(/const res = await deleteActivity\(/);
-    expect(region).toMatch(/if \(!res\.ok\)\s*\{?\s*toast\.error\(\s*"Could not delete activity",\s*res\.error\s*\)/);
+    // Session-76 (M-76c1): the timeline's inline Delete button retired
+    // with the old row construction (the reference's Rce ships no
+    // delete) — the page's live mutation is the priority-row toggle;
+    // the failure-toast contract follows it (the s54 retired-surface
+    // precedent).
+    const at = src.indexOf("async function toggleComplete");
+    expect(at).toBeGreaterThanOrEqual(0);
+    const region = src.slice(at, at + 420);
+    expect(region).toMatch(/const res = await updateActivity\(/);
+    expect(region).toMatch(/if \(!res\.ok\)\s*\{?\s*toast\.error\(\s*"Could not update activity",\s*res\.error\s*\)/);
   });
 
   it("calendar: the event-delete dropdown item toasts a failed delete", () => {

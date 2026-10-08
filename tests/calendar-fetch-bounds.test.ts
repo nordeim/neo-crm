@@ -95,31 +95,40 @@ describe("session-51: the calendar fetch window covers the rendered grid (N-51a)
     expect(effect).toContain("fetchEvents(from, to)");
   });
 
-  it("the KPI trend baselines read the same filtered population as the currents (N-51b)", () => {
+  it("the KPI values read the RAW events array (N-51b superseded s76 — the statics + the raw basis)", () => {
     const src = page();
     const kpi = region(src, "const todaysEvents", "function openNewEvent");
-    // The three baselines move off raw `events` onto `visible` —
-    // both sides of every trend measure the same population.
-    expect(kpi).toContain("yesterdaysEvents = visible.filter");
-    expect(kpi).toContain("meetingsLastWeek = visible.filter");
-    expect(kpi).toContain("callsLastWeek = visible.filter");
-    expect(kpi).not.toMatch(/= events\.filter/);
+    // Session-51 (N-51b): the baselines moved off raw `events` onto
+    // `visible` so both sides of every trend measured the same
+    // population. Session-76 (M-76c6 + L-76c3, bundle-decoded from Mx/
+    // jAe): the reference ships STATIC trend texts (+3/+34/+2/+3) and
+    // computes ALL FOUR values on the RAW events array (its $ memo
+    // reads `p`, not the filtered set) — the baseline memos retired
+    // with the statics, and the cards stay put under filters.
+    expect(kpi).not.toContain("yesterdaysEvents");
+    expect(kpi).not.toContain("meetingsLastWeek");
+    expect(kpi).not.toContain("callsLastWeek");
+    expect(kpi).toMatch(/const todaysEvents = events\.filter/);
+    expect(kpi).toMatch(/const meetingsThisWeek = events\.filter/);
+    expect(kpi).toMatch(/const callsThisWeek = events\.filter/);
   });
 
-  it("GUARD: the neighbors unchanged — the grid, the trim, the quirks, the verb", () => {
+  it("GUARD: the neighbors unchanged — the seam, the quirks, the verb (s76 re-anchor)", () => {
     // calendarGrid keeps the 42-cell leading form + the monday default.
     const lib = format();
     expect(lib).toContain("total = leading ? 42 :");
     expect(lib).toMatch(/firstDay: "monday" \| "sunday" = "monday"/);
-    // The page keeps its sunday-anchored call + the whole-week trim.
     const src = page();
+    // Session-76 (M-76c8): the page now renders the UNTRIMMED grid
+    // (the reference's always-42 construction — the whole-week trim
+    // and its Math.max/ceil/slice machinery retired); the seam call is
+    // still the sunday-anchored leading form, now consumed whole.
     expect(src).toContain('calendarGrid(year, month, "sunday", true)');
-    expect(src).toContain("Math.max(Math.ceil((lead + daysInMonth) / 7), 4)");
-    expect(src).toContain("grid.slice(0, weeks * 7)");
-    // The reference's own quirks stay verbatim: the Total Events
-    // pseudo-delta + the trend() helper.
-    expect(src).toContain("trend={`+${visible.length}`}");
-    expect(src).toMatch(/const trend = \(current: number, previous: number\)/);
+    expect(src).not.toMatch(/Math\.max\(Math\.ceil\(\(lead/);
+    // Session-76 (M-76c6): the Total Events pseudo-delta + the trend()
+    // helper retired with the statics (CALENDAR_KPI_STATICS).
+    expect(src).not.toContain("trend={`+${visible.length}`}");
+    expect(src).not.toMatch(/const trend = \(current: number, previous: number\)/);
     // The store verb's call shape is unchanged.
     expect(src).toContain("fetchEvents(from, to)");
   });

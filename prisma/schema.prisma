@@ -152,6 +152,11 @@ model Event {
   allDay      Boolean  @default(false)
   location    String?
   relatedType String? // session-5: the reference's "Related To" picker (none | contact | account | opportunity | lead)
+  // Session-76 (M-76c13, bundle-decoded from the reference's SAe dialog):
+  // the reference's CalendarEvent carries related_to_name — the
+  // conditional "Name" field renders in the Related To pair's second
+  // cell when a type is chosen. Our model lacked the column entirely.
+  relatedName String?
   accountId   String?
   contactId   String?
   ownerId     String?

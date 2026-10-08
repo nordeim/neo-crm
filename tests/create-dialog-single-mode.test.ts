@@ -125,8 +125,12 @@ describe("session-50: the create-mode surfaces intact (the regression guards)", 
     const activityBlock = src.slice(i);
     expect(event).toMatch(/event\?:/);
     expect(activityBlock).toMatch(/activity\?:/);
-    // Their forms keep the createMode dual-verb design.
+    // Their forms keep the dual-verb label design. Session-76
+    // (M-76c12): the EventForm's createMode VARIABLE retired when the
+    // submit went blue in BOTH modes — the dual-verb design now lives
+    // in the label ternaries (the s54 retired-surface precedent).
     const eventForm = region(src, "function EventForm", "export function ActivityDialog");
-    expect(eventForm).toContain("createMode");
+    expect(eventForm).toContain('event ? "Update Event" : "Create Event"');
+    expect(activityBlock).toContain('activity ? "Save Changes" : "Log Activity"');
   });
 });

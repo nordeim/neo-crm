@@ -351,7 +351,10 @@ export const STAT_CARD = {
   trend: "flex items-center gap-1 text-xs text-green-600",
   trendIcon: "h-3 w-3",
   value: "text-2xl font-bold",
-  label: "text-xs text-muted mt-1",
+  // Session-76 (L-76c1, bundle-decoded from the reference's gm/Mx cards):
+  // the label is the literal text-gray-600 (#4b5563) — one step darker
+  // than the muted token (#6b7280) the scaffold-era family shipped.
+  label: "text-xs text-gray-600 mt-1",
 } as const;
 
 /** Activities card headers — both cards title with `h2 text-lg
@@ -994,6 +997,11 @@ export const BY_TYPE_CARD = {
   chipSwatch: "w-3 h-3 rounded",
   chipLabel: "text-xs text-gray-600",
   footer: "mt-4 pt-4 border-t",
+  // Session-76 (M-76c11, bundle-decoded): the footer's children sit in
+  // an INNER flex row — [checkbox, label, ml-auto dots] — without it
+  // the ml-auto is inert (the ••• never right-aligns) and the checkbox
+  // and label sit flush.
+  footerRow: "flex items-center gap-2",
   footerLabel: "text-sm font-medium cursor-pointer",
   footerDotsButton: "ml-auto text-gray-400 hover:text-gray-600",
   colors: {
@@ -1367,6 +1375,39 @@ export const KPI_STATICS = {
   },
   /** The reports KPI cards' static spark (all four sparkline cards share it). */
   reportsSpark: [65, 72, 68, 85, 78, 92],
+} as const;
+
+/** Session-76 (M-76c6, bundle-decoded from the reference's gm/Mx cards):
+ *  the activities/calendar stat cards ship the reference's HARDCODED
+ *  STATIC deltas, subtexts and bar arrays — the same class as the
+ *  dashboard's KPI_STATICS above (its "NEVER feed these cards real"
+ *  rule extends here). The gm literals, verbatim from the bundle:
+ *  Activities Today trend "+23%" + [60,70,65,80,75,85] blue; Overdue
+ *  sub "Due now" + trend "2h overdue" + [40,50,45,60,55,50] red;
+ *  Emails Sent sub "+7 today" + [30,40,50,60,70,80] cyan; Calls
+ *  Logged sub "+4 today" + [50,55,60,65,70,75] green; Meetings
+ *  Scheduled sub "+1h 12m" + [40,50,55,60,70,65] — the gm color map has
+ *  NO purple arm ("purple" falls through to gray-400, hence
+ *  CHART_COLORS.gray below, byte-equal to the reference's rendered
+ *  bars); WhatsApp [30,35,40,45,50,55] green (green-400 — the same
+ *  green as Calls Logged, NOT green-500). The Mx calendar cards ship
+ *  static trends "+3"/"+34"/"+2"/"+3" (all up). The VALUES stay live —
+ *  only the deltas/subtexts/bars are static. */
+export const ACTIVITY_KPI_STATICS = {
+  activitiesToday: { delta: "+23%", bars: [60, 70, 65, 80, 75, 85] },
+  overdue: { sub: "Due now", delta: "2h overdue", bars: [40, 50, 45, 60, 55, 50] },
+  emailsSent: { sub: "+7 today", bars: [30, 40, 50, 60, 70, 80] },
+  callsLogged: { sub: "+4 today", bars: [50, 55, 60, 65, 70, 75] },
+  meetingsScheduled: { sub: "+1h 12m", bars: [40, 50, 55, 60, 70, 65] },
+  whatsapp: { bars: [30, 35, 40, 45, 50, 55] },
+} as const;
+
+/** Session-76 (M-76c6): the calendar Mx cards' static trend texts. */
+export const CALENDAR_KPI_STATICS = {
+  todaysEvents: "+3",
+  totalEvents: "+34",
+  meetingsThisWeek: "+2",
+  callsThisWeek: "+3",
 } as const;
 
 /** Session-12 (S12-P6): the stat-card icon chips are SOLID color-50

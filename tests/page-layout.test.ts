@@ -404,7 +404,7 @@ describe("stat/card header parity (session-7 DOM-verified)", () => {
     // retired (the s69 F-69a1 precedent; the stat-value-contract
     // session-70 describe pins the retirement).
     expect(STAT_CARD.value).toBe("text-2xl font-bold");
-    expect(STAT_CARD.label).toBe("text-xs text-muted mt-1");
+    expect(STAT_CARD.label).toBe("text-xs text-gray-600 mt-1");
   });
 
   it("activities card headers: h2 text-lg titles, mb-4/mb-6 rows, ••• text button", () => {
@@ -1681,19 +1681,27 @@ describe("session-15: no description, no invented placeholders (S15-P4/P14)", ()
     expect(src).not.toMatch(/<DialogDescription/);
   });
 
-  it("the create dialogs carry NO placeholder attributes — except the contact Name field's John Doe (S30-P2)", () => {
+  it("the create dialogs carry the reference's placeholder set — John Doe (S30-P2) + the five S76 additions", () => {
     // s15: `placeholder="` count = 0 across all five reference dialog
     // dumps. Session-30 (S30-P2): the AAe contact Name field DOES carry
     // placeholder="John Doe" (bundle-extracted + live-verified — the
-    // s15 dump missed it); the pin now allows exactly that one, and
-    // nothing else.
+    // s15 dump missed it). Session-76 (M-76c14): the fresh bundle decode
+    // found FIVE more the s15 dump missed (the Event Location / Event
+    // Related SelectValue / Activity Description / Activity Related Type
+    // SelectValue / Activity Related Name) — the pin now allows exactly
+    // the six, and nothing else.
     const src = readFileSync(
       path.resolve(import.meta.dirname, "../src/components/shared/entity-dialogs.tsx"),
       "utf8",
     );
     const placeholders = [...src.matchAll(/placeholder="([^"]*)"/g)].map((m) => m[1]);
-    expect(placeholders, "only the contact Name placeholder is allowed").toEqual([
+    expect([...placeholders].sort(), "exactly the reference's six dialog placeholders").toEqual([
+      "Enter activity details...",
+      "Enter location or meeting link",
       "John Doe",
+      "Select type",
+      "Select type",
+      "e.g., John Doe",
     ]);
   });
 });

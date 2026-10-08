@@ -234,7 +234,9 @@ export function BarStatCard({
   return (
     <div className={cn("rounded-xl border border-line bg-surface p-4 shadow", className)}>
       <div className="mb-3 flex items-start justify-between gap-2">
-        <span className="text-xs text-muted">{label}</span>
+        {/* Session-76 (L-76c1, bundle-decoded from gm): the label is the
+            literal gray-600 — one step darker than the muted token. */}
+        <span className="text-xs text-gray-600">{label}</span>
         {delta != null && (
           <DeltaBadgeText tone={tone} icon={deltaIcon}>
             {delta}
@@ -466,6 +468,7 @@ export function TrendStatCard({
   label,
   value,
   trend,
+  trendDirection,
   icon,
   chipBg,
   chipIconClass,
@@ -473,10 +476,14 @@ export function TrendStatCard({
   label: string;
   value: React.ReactNode;
   trend?: string;
+  /** Session-76 (M-76c6, bundle-decoded from Mx): the reference swaps
+   *  TrendingDown when trend==="down" — the scaffold hardcoded up. */
+  trendDirection?: "up" | "down";
   icon: React.ReactNode;
   chipBg: string;
   chipIconClass: string;
 }) {
+  const down = trendDirection === "down";
   return (
     <div className={STAT_CARD.card}>
       <div className={STAT_CARD.body}>
@@ -485,8 +492,12 @@ export function TrendStatCard({
             <span className={cn(STAT_CARD.chipIcon, chipIconClass)}>{icon}</span>
           </div>
           {trend && (
-            <span className={STAT_CARD.trend}>
-              <TrendingUp className={STAT_CARD.trendIcon} aria-hidden="true" />
+            <span className={down ? "flex items-center gap-1 text-xs text-red-600" : STAT_CARD.trend}>
+              {down ? (
+                <TrendingDown className={STAT_CARD.trendIcon} aria-hidden="true" />
+              ) : (
+                <TrendingUp className={STAT_CARD.trendIcon} aria-hidden="true" />
+              )}
               <span>{trend}</span>
             </span>
           )}

@@ -113,6 +113,9 @@ export interface CrmEvent {
   allDay: boolean;
   location: string | null;
   relatedType: string | null;
+  // Session-76 (M-76c13): the reference's CalendarEvent carries
+  // related_to_name — mirrored at the model, route and dialog.
+  relatedName: string | null;
   accountId: string | null;
   account?: { id: string; name: string } | null;
   contactId: string | null;

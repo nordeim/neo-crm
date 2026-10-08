@@ -2704,6 +2704,60 @@ test("the calendar month-boundary math: the December-January rollover increments
   await expect(title).toHaveText(`January ${cursor.getFullYear() + 1}`);
 });
 
+test("the opportunities consumers: the insights Open Deals tab + the contact Deals tab + the dashboard Recent Deals (S76-P13 — the opportunities surface's first e2e)", async ({ page }) => {
+  // The 76-c bundle verdict: the reference has NO /opportunities page —
+  // its Opportunity entity feeds ONLY its consumers (the account-insights
+  // dialog filtered by account_name, the contact-details Deals tab by
+  // contact.company, the dashboard Recent Deals slice(0,5), the reports
+  // tabs, the dead "Convert to Opportunity" item). Ours mirrors every
+  // consumer + the list-only route; this smoke proves the seeded opps
+  // round-trip through the three UI consumers (the /api/opportunities
+  // data path each slice rides).
+  //
+  // The seeded Meridian Financial opps: "Compliance tracking renewal"
+  // (closed_won, updated -1d) + "Procurement dashboard" (negotiation,
+  // OPEN) — the account_name filter's target set.
+  const meridianRow = page.locator("tbody tr", { hasText: "Meridian Financial" }).first();
+
+  // (1) The account insights dialog's Open Deals tab.
+  await page.goto("/Accounts");
+  await expect(page.getByText("No accounts found")).toHaveCount(0);
+  await expect(meridianRow).toBeVisible();
+  await meridianRow.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("tab", { name: "Open Deals" }).click();
+  // The OPEN deal renders in the dialog's Open Deals tab (the won one
+  // stays out — the tab filters open stages).
+  await expect(dialog.getByText("Procurement dashboard")).toBeVisible();
+
+  // (2) The contact panel's Deals tab (contact.company join).
+  await page.keyboard.press("Escape");
+  await page.goto("/Contacts");
+  await expect(page.getByText("No contacts found")).toHaveCount(0);
+  const whitfield = page.locator("tbody tr", { hasText: "James Whitfield" }).first();
+  await expect(whitfield).toBeVisible();
+  await whitfield.click();
+  // The slide-over (not a dialog — the s28 fixed right panel).
+  const panel = page.locator(".fixed.top-0.right-0");
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole("heading", { name: "Contact Details" })).toBeVisible();
+  await panel.getByRole("tab", { name: "Deals" }).click();
+  // The Meridian opp set renders (both stages live here — the panel
+  // filters by company only).
+  await expect(panel.getByText("Compliance tracking renewal")).toBeVisible();
+  await expect(panel.getByText("Procurement dashboard")).toBeVisible();
+  await panel.getByLabel("Close contact details").click();
+
+  // (3) The dashboard Recent Deals rows (opps by updatedAt desc, top 5).
+  await page.keyboard.press("Escape");
+  await page.goto("/");
+  await expect(page.getByText("Recent Deals").first()).toBeVisible();
+  // "Compliance tracking renewal" carries updatedAt -1d — always inside
+  // the recent-5 window (date-independent like the s18 all-time lesson).
+  await expect(page.getByText("Compliance tracking renewal").first()).toBeVisible();
+});
+
 test("the reset flow: confirm + alert + wipe (S26-P2) — LAST (its wipe must not poison earlier assertions)", async ({ page }) => {
   await page.goto("/settings");
   await page.getByRole("tab", { name: "Data" }).click();

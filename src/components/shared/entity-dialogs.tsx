@@ -50,7 +50,9 @@ import {
 import {
   ACCOUNT_STATUSES,
   ACCOUNT_STATUS_META,
-  ACTIVITY_TYPES,
+  // Session-76 (L-76c6): the dialog's type select rides the FIVE-option
+  // list (the full ACTIVITY_TYPES array stays on the rail/KPI consumers).
+  ACTIVITY_DIALOG_TYPES,
   ACTIVITY_TYPE_META,
   CONTACT_SOURCE_OPTIONS,
   EVENT_TYPES,
@@ -318,7 +320,7 @@ function AccountForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving…" : "Create Account"}
+          {pending ? "Saving..." : "Create Account"}
         </Button>
       </DialogFooter>
     </form>
@@ -594,7 +596,7 @@ function ContactForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving…" : "Create Contact"}
+          {pending ? "Saving..." : "Create Contact"}
         </Button>
       </DialogFooter>
     </form>
@@ -781,7 +783,7 @@ function LeadForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving…" : "Create Lead"}
+          {pending ? "Saving..." : "Create Lead"}
         </Button>
       </DialogFooter>
     </form>
@@ -851,7 +853,15 @@ function EventForm({
     startAt: event ? toLocalInputValue(event.startAt) : toLocalInputValue(defaultStart ?? new Date()),
     endAt: event?.endAt ? toLocalInputValue(event.endAt) : "",
     location: event?.location ?? "",
-    relatedType: event?.relatedType ?? "none",
+    // Session-76 (L-76c10, bundle-decoded from SAe): the initial
+    // related_to_type is "" — the "Select type" placeholder shows at
+    // rest (ours preselected "none" for 61 sessions). The None option's
+    // value stays "none" in our Radix string-value world (the reference
+    // uses null) — mapped to "" in the payload.
+    relatedType: event?.relatedType ?? "",
+    // Session-76 (M-76c13): the conditional "Name" field's value — the
+    // reference's related_to_name.
+    relatedName: event?.relatedName ?? "",
   }));
 
   async function submit(e: React.FormEvent) {
@@ -874,6 +884,7 @@ function EventForm({
       endAt: form.endAt ? new Date(form.endAt).toISOString() : null,
       location: form.location || null,
       relatedType: form.relatedType === "none" ? "" : form.relatedType,
+      relatedName: form.relatedName || null,
     };
     const res = event ? await updateEvent(event.id, payload) : await createEvent(payload);
     setPending(false);
@@ -892,11 +903,12 @@ function EventForm({
   // Session-15 (S15-P12): the WIDE family — max-w-2xl (672px), form
   // space-y-4, BARE unclassed field divs (label + control direct children,
   // ~4px natural gap), grid-cols-2 pairs (Type+Status, Start+End), Related
-  // To ALONE in a grid-cols-2 (the reference's second cell stays empty),
-  // the min-h-[60px] Description textarea, the pt-4 wide footer, and the
-  // ONE-OFF blue submit in create mode (edit keeps the dark superset —
-  // unverifiable surface).
-  const createMode = !event;
+  // To ALONE in a grid-cols-2 (the reference's second cell gains the
+  // CONDITIONAL Name field — session-76 M-76c13), the min-h-[60px]
+  // Description textarea, the pt-4 wide footer, and the blue submit in
+  // BOTH modes (session-76 M-76c12 — the reference's own footer decodes
+  // `bg-blue-600 hover:bg-blue-700` with the "Update Event" label in
+  // edit mode).
   return (
     <form onSubmit={submit} className={EVENT_DIALOG.form}>
       <div>
@@ -943,13 +955,18 @@ function EventForm({
       </div>
       <div>
         <Label htmlFor="ev-loc">Location</Label>
-        <Input id="ev-loc" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+        <Input
+          id="ev-loc"
+          value={form.location}
+          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          placeholder="Enter location or meeting link"
+        />
       </div>
       <div className={EVENT_DIALOG.relatedToAlone}>
         <div>
           <Label>Related To</Label>
           <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
             <SelectContent>
               {EVENT_RELATED_OPTIONS.map((o) => (
                 <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
@@ -957,17 +974,40 @@ function EventForm({
             </SelectContent>
           </Select>
         </div>
+        {/* Session-76 (M-76c13, bundle-decoded from SAe): the second cell
+            renders a CONDITIONAL "Name" field when a related TYPE is
+            chosen — `a.related_to_type && jsx(div, [Label "Name", Input
+            placeholder: `Enter ${a.related_to_type} name`])`. The s15
+            "second cell empty" pin was a zero-interaction live read; the
+            reference's placeholder capitalizes the wire value
+            ("Enter Contact name") — mirrored via the capitalize helper. */}
+        {form.relatedType && form.relatedType !== "none" && (
+          <div>
+            <Label htmlFor="ev-related-name">Name</Label>
+            <Input
+              id="ev-related-name"
+              value={form.relatedName}
+              onChange={(e) => setForm({ ...form, relatedName: e.target.value })}
+              placeholder={`Enter ${form.relatedType.charAt(0).toUpperCase()}${form.relatedType.slice(1)} name`}
+            />
+          </div>
+        )}
       </div>
       <DialogFooterWide>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
+        {/* Session-76 (M-76c12, bundle-decoded from SAe): the submit is
+            `bg-blue-600 hover:bg-blue-700` in BOTH modes with the label
+            "Update Event" in edit — the s15 "edit keeps the dark
+            superset" claim was bundle-falsified (the decoded footer:
+            `n?"Saving...":i?"Update Event":"Create Event"`). */}
         <Button
           type="submit"
           disabled={pending}
-          className={createMode ? EVENT_DIALOG.submit : DIALOG_SUBMIT.button}
+          className={EVENT_DIALOG.submit}
         >
-          {pending ? "Saving…" : event ? "Save Changes" : "Create Event"}
+          {pending ? "Saving..." : event ? "Update Event" : "Create Event"}
         </Button>
       </DialogFooterWide>
     </form>
@@ -1032,13 +1072,21 @@ function ActivityForm({
   const { createActivity, updateActivity } = useCrmStore();
   const [pending, setPending] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
-    type: activity?.type ?? defaultType,
+    // Session-76 (L-76c6, bundle-decoded from Mce): the form ALWAYS starts
+    // at "Call" in create mode — the quick-log preset never presets the
+    // visible form value (it rides the SUBMIT instead, the reference's
+    // `type: i || N.type` construction). Edit mode keeps the activity's
+    // own type.
+    type: activity?.type ?? "call",
     subject: activity?.subject ?? "",
     notes: activity?.notes ?? "",
     dueAt: activity?.dueAt ? toLocalInputValue(activity.dueAt) : toLocalInputValue(new Date()),
     status: activity?.status ?? "scheduled",
     priority: activity?.priority ?? "normal",
-    relatedType: activity?.relatedType ?? "contact",
+    // Session-76 (L-76c10): the reference's initial related_to_type is ""
+    // — the "Select type" placeholder shows at rest (ours preselected
+    // "contact" for 61 sessions).
+    relatedType: activity?.relatedType ?? "",
     relatedName: activity?.relatedName ?? "",
   }));
 
@@ -1053,8 +1101,13 @@ function ActivityForm({
       return;
     }
     setPending(true);
+    // Session-76 (L-76c6, bundle-decoded from the reference's Mce call
+    // site): `onSubmit: N => mutate({...N, type: i || N.type})` — the
+    // quick-log PRESET wins at submit time in create mode (the reference's
+    // own quirk: changing the select under an active preset is silently
+    // overridden). Edit mode keeps the form's own type.
     const payload = {
-      type: form.type,
+      type: activity ? form.type : (defaultType || form.type),
       subject: form.subject,
       notes: form.notes || null,
       dueAt: new Date(form.dueAt).toISOString(),
@@ -1090,7 +1143,11 @@ function ActivityForm({
           <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
             <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
-              {ACTIVITY_TYPES.map((t) => (
+              {/* Session-76 (L-76c6): FIVE options — Call/Email/Meeting/
+                  Task/Note. WhatsApp is NEVER listed (the quick-log preset
+                  rides the submit); listing it made our preset visible,
+                  diverging from the reference's select. */}
+              {ACTIVITY_DIALOG_TYPES.map((t) => (
                 <SelectItem key={t} value={t}>{ACTIVITY_TYPE_META[t].label}</SelectItem>
               ))}
             </SelectContent>
@@ -1103,13 +1160,24 @@ function ActivityForm({
       </div>
       <div>
         <Label htmlFor="ac-subject">Description *</Label>
-        <Textarea id="ac-subject" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required />
+        {/* Session-76 (L-76c8/M-76c14, bundle-decoded from Mce): the
+            Activity Description textarea is rows=4 (~88px — the Event
+            dialog's rows=3 min-h-[60px] is its own surface) and carries
+            the placeholder the s15 dump missed. */}
+        <Textarea
+          id="ac-subject"
+          value={form.subject}
+          onChange={(e) => setForm({ ...form, subject: e.target.value })}
+          placeholder="Enter activity details..."
+          rows={4}
+          required
+        />
       </div>
       <div className={ACTIVITY_DIALOG.pair}>
         <div>
           <Label>Related To (Type)</Label>
           <Select value={form.relatedType} onValueChange={(v) => setForm({ ...form, relatedType: v })}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
             <SelectContent>
               {ACTIVITY_RELATED_OPTIONS.map((o) => (
                 <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
@@ -1123,6 +1191,7 @@ function ActivityForm({
             id="ac-related-name"
             value={form.relatedName}
             onChange={(e) => setForm({ ...form, relatedName: e.target.value })}
+            placeholder="e.g., John Doe"
           />
         </div>
       </div>
@@ -1131,7 +1200,7 @@ function ActivityForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending} className={DIALOG_SUBMIT.button}>
-          {pending ? "Saving…" : activity ? "Save Changes" : "Log Activity"}
+          {pending ? "Saving..." : activity ? "Save Changes" : "Log Activity"}
         </Button>
       </DialogFooterWide>
     </form>

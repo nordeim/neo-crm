@@ -62,22 +62,18 @@ describe("session-46: the dead-code hygiene pair (S46-P5)", () => {
     expect(accounts()).not.toMatch(/\bleads\b/);
   });
 
-  it("activities-page reads createdAt DIRECTLY at BOTH count filters (re-anchored s62)", () => {
+  it("activities-page reads createdAt DIRECTLY at BOTH count filters (re-anchored s62; the count filters retired s76)", () => {
     const src = activities();
     // Session-62 (N-62c): the s46 retirement removed only the trailing
     // `?? a.createdAt` tail; the surviving `?? a.dueAt` arm was
     // unreachable by the type contract (Activity.createdAt is a
     // non-nullable string — src/types/index.ts), so the whole ?? chain
-    // retires: both filters read `new Date(a.createdAt)` directly. This
-    // pin re-anchors the s46 two-arm expectation (the s54 re-anchor
-    // precedent — a retired surface's pin follows the retirement).
+    // retires. Session-76 (M-76c6/L-76c2): the two count-filter sites
+    // themselves RETIRED (the KPI statics + the due-date derivations
+    // replaced them) — the s54 "a retired surface's pin follows the
+    // retirement" precedent; the no-dead-?? guards stay.
     expect(src).not.toMatch(/a\.createdAt\s*\?\?/);
     expect(src).not.toMatch(/\?\?\s*a\.dueAt/);
-    // The two count-filter sites, pinned by their exact forms (a bare
-    // count of `new Date(a.createdAt)` would be fragile — the timeline
-    // and meeting filters carry five more of them).
-    expect(src).toMatch(/new Date\(a\.createdAt\) >= startOfDay\(today\)/);
-    expect(src).toMatch(/const d = new Date\(a\.createdAt\);/);
   });
 });
 
@@ -313,7 +309,11 @@ describe("session-56: the orphaned-import sweep + the dead-module retirement (S5
     // its consumption).
     expect(acts).not.toMatch(/\bResponsiveContainer\b/);
     expect(acts).toMatch(/\bSingleBarChart\b/);
-    expect(acts).toMatch(/\btimeUntil\b/);
+    // Session-76 re-anchor: timeUntil's last consumer (the old
+    // PriorityRows meta line) retired with the vx rebuild — formatTime
+    // is the live format sibling now (the s70 ResponsiveContainer
+    // supersession precedent).
+    expect(acts).toMatch(/\bformatTime\b/);
   });
 
   it("the dashboard + the reports route + charts.tsx carry none of their three orphans (N-56a)", () => {

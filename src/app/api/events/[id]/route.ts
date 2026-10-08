@@ -40,6 +40,12 @@ export async function PUT(req: Request, { params }: Params) {
     if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
     data.relatedType = asString(body.relatedType, { optional: true, max: 40 }) ?? null;
   }
+  // Session-76 (M-76c13): the reference's CalendarEvent carries
+  // related_to_name — the PATCH twin of the POST guard.
+  if ("relatedName" in body) {
+    if (isBadString(body.relatedName)) return ERR.BAD_REQUEST("Invalid related name");
+    data.relatedName = asString(body.relatedName, { optional: true, max: 160 }) ?? null;
+  }
   // Session-42 (S42-P2): the strict-bool silent-clear family — a
   // present non-boolean used to silently CLEAR an existing true. The
   // event dialog has no all-day control, so the surface is API-only.

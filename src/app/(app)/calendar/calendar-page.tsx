@@ -41,12 +41,15 @@ import {
   formatDate,
   formatMonthDayTime,
   formatMonthYear,
+  formatWeekdayBulletTime,
   isSameDay,
   startOfWeek,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
+  CALENDAR_CELL,
   CALENDAR_CARD,
+  CALENDAR_KPI_STATICS,
   FILTER_RAIL,
   PAGE_KPI_GRIDS,
   PAGE_ROOT,
@@ -123,6 +126,10 @@ export default function CalendarPage() {
   const [cursor, setCursor] = React.useState(() => new Date()); // any date inside the visible month
   const [selectedDay, setSelectedDay] = React.useState(() => new Date());
   const [filters, setFilters] = React.useState<Record<string, boolean>>({});
+  // Session-76 (L-76c5): the Date rail's single-valued dateRange (radio
+  // semantics — one value or null; the type checkboxes keep the `filters`
+  // record above).
+  const [dateRange, setDateRange] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<CrmEvent | null>(null);
@@ -142,54 +149,57 @@ export default function CalendarPage() {
   }, [hydrated, year, month, fetchEvents]);
 
   const activeTypes = TYPE_FILTERS.filter((t) => filters[t.id]).map((t) => t.id);
-  const activeDates = DATE_FILTERS.filter((d) => filters[d.id]).map((d) => d.id);
+  // Session-76 (L-76c5, bundle-decoded from _Ae): the Date rail is
+  // SINGLE-VALUED radio semantics — the reference's `onCheckedChange:
+  // a ? value : null` (one dateRange at a time, unchecking clears).
+  // Ours OR'd multiple date filters for 61 sessions.
+  const activeDates = DATE_FILTERS.filter((d) => dateRange === d.id).map((d) => d.id);
   // Session-54 (S54-P1): the plain call — the memo wrapper never cached
   // (see buildVisibleEvents above).
   const visible = buildVisibleEvents(events, activeTypes, activeDates, query);
 
-  // Sunday-anchored grid with leading days, trimmed to whole weeks actually
-  // needed (the reference shows previous-month days like Aug 30/31).
-  const days = React.useMemo(() => {
-    const grid = calendarGrid(year, month, "sunday", true);
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const lead = grid.findIndex((d) => d.getMonth() === month && d.getDate() === 1);
-    const weeks = Math.max(Math.ceil((lead + daysInMonth) / 7), 4);
-    return grid.slice(0, weeks * 7);
-  }, [year, month]);
+  // Session-76 (M-76c8, bundle-decoded from jAe): the grid is ALWAYS the
+  // UNTRIMMED 42 cells — the reference's eachDayOfInterval from the
+  // Sunday before the 1st to the Saturday after the last (6 constant
+  // rows; our trim-to-whole-weeks made the card height jump between
+  // 28/35/42-cell months). The calendarFetchBounds seam already computes
+  // its `to` bound against this untrimmed grid (N-51a).
+  const days = React.useMemo(() => calendarGrid(year, month, "sunday", true), [year, month]);
   const today = new Date();
 
   // Session-54 (S54-P1): the plain form — the useCallback wrapper (deps
   // [visible]) recreated every render anyway (visible never cached), and
   // eventsOn is called only during render (the KPI rows + the days map).
+  // Session-76 (L-76c4): the chips render in the query's DESC order (the
+  // events route orders startAt desc — the reference's
+  // `list("-start_date")`).
   const eventsOn = (day: Date) =>
-    visible.filter((e) => isSameDay(new Date(e.startAt), day)).sort((a, b) => +new Date(a.startAt) - +new Date(b.startAt));
+    visible.filter((e) => isSameDay(new Date(e.startAt), day));
 
   const weekStart = startOfWeek(today, "sunday");
   const weekEnd = addDays(weekStart, 7);
-  const lastWeekStart = addDays(weekStart, -7);
 
+  // Session-76 (M-76c9, bundle-decoded from jAe's R memo): the upcoming
+  // list is the [now, now+7d] window + status "scheduled" + slice(0,5)
+  // riding the desc-ordered filtered set (the 5 LATEST in-window — the
+  // reference's exact derivation; ours was unbounded-future +
+  // not-cancelled + asc + 6).
   const upcoming = visible
-    .filter((e) => new Date(e.startAt) >= today && e.status !== "cancelled")
-    .sort((a, b) => +new Date(a.startAt) - +new Date(b.startAt))
-    .slice(0, 6);
+    .filter((e) => {
+      const start = new Date(e.startAt);
+      return start >= today && start < addDays(today, 7) && e.status === "scheduled";
+    })
+    .slice(0, 5);
 
-  // Green trend texts (reference shows "^ +N" deltas per card).
-  const trend = (current: number, previous: number) =>
-    current === previous ? "±0" : current > previous ? `+${current - previous}` : `-${previous - current}`;
-
-  const todaysEvents = eventsOn(today);
-  const yesterdaysEvents = visible.filter((e) => isSameDay(new Date(e.startAt), addDays(today, -1))).length;
-  const meetingsThisWeek = visible.filter(
+  // Session-76 (L-76c3, bundle-decoded from jAe's $ memo): all four KPI
+  // values read the RAW events array (the reference's `p`) — the cards
+  // stay put under active filters/search.
+  const todaysEvents = events.filter((e) => isSameDay(new Date(e.startAt), today));
+  const meetingsThisWeek = events.filter(
     (e) => e.type === "meeting" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd,
   ).length;
-  const meetingsLastWeek = visible.filter(
-    (e) => e.type === "meeting" && new Date(e.startAt) >= lastWeekStart && new Date(e.startAt) < weekStart,
-  ).length;
-  const callsThisWeek = visible.filter(
+  const callsThisWeek = events.filter(
     (e) => e.type === "call" && new Date(e.startAt) >= weekStart && new Date(e.startAt) < weekEnd,
-  ).length;
-  const callsLastWeek = visible.filter(
-    (e) => e.type === "call" && new Date(e.startAt) >= lastWeekStart && new Date(e.startAt) < weekStart,
   ).length;
 
   function openNewEvent(day?: Date) {
@@ -234,20 +244,25 @@ export default function CalendarPage() {
       />
 
       {/* Session-7 stat-card re-pin (STAT_CARD contracts): 40px -50 chips,
-          h-5 w-5 icons, green-600 trends, label under the value. */}
+          h-5 w-5 icons, green-600 trends, label under the value. Session-76
+          (M-76c6 + L-76c3, bundle-decoded from Mx/jAe): the trend texts are
+          the reference's STATIC literals (+3/+34/+2/+3) and the four
+          values derive from the RAW events array (the reference's $
+          memo reads `p`, not the filtered set — its cards never move
+          under filters). */}
       <div className={PAGE_KPI_GRIDS.calendar}>
         <TrendStatCard
           label="Today's Events"
           value={todaysEvents.length}
-          trend={trend(todaysEvents.length, yesterdaysEvents)}
+          trend={CALENDAR_KPI_STATICS.todaysEvents}
           icon={<Calendar className="h-5 w-5" />}
           chipBg="bg-blue-50"
           chipIconClass="text-blue-600"
         />
         <TrendStatCard
           label="Total Events"
-          value={visible.length}
-          trend={`+${visible.length}`}
+          value={events.length}
+          trend={CALENDAR_KPI_STATICS.totalEvents}
           icon={<Target className="h-5 w-5" />}
           chipBg="bg-green-50"
           chipIconClass="text-green-600"
@@ -255,7 +270,7 @@ export default function CalendarPage() {
         <TrendStatCard
           label="Meetings This Week"
           value={meetingsThisWeek}
-          trend={trend(meetingsThisWeek, meetingsLastWeek)}
+          trend={CALENDAR_KPI_STATICS.meetingsThisWeek}
           icon={<Users className="h-5 w-5" />}
           chipBg="bg-purple-50"
           chipIconClass="text-purple-600"
@@ -263,7 +278,7 @@ export default function CalendarPage() {
         <TrendStatCard
           label="Calls This Week"
           value={callsThisWeek}
-          trend={trend(callsThisWeek, callsLastWeek)}
+          trend={CALENDAR_KPI_STATICS.callsThisWeek}
           icon={<Phone className="h-5 w-5" />}
           chipBg="bg-orange-50"
           chipIconClass="text-orange-600"
@@ -331,23 +346,30 @@ export default function CalendarPage() {
                     onClick={() => setSelectedDay(day)}
                     onDoubleClick={() => openNewEvent(day)}
                     className={cn(
-                      // Session-13 (S13-P7): the reference's literal state
-                      // classes — out-of-month cells KEEP the default
-                      // border (bg-gray-50 text-gray-400) and current
-                      // cells hover to the gray-50 wash; transition-all.
-                      // Our cells stay BUTTONS (the clickable superset) —
-                      // the focus ring is the only interactive extra.
-                      "flex min-h-20 flex-col items-stretch rounded-lg border p-1 text-left transition-all sm:min-h-24 sm:p-2",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-                      // Exclusive ternary chain — the selected/today cell
-                      // carries NO hover (the reference's blue pill is
-                      // inert); the hover wash belongs to the plain
-                      // current-month cells only.
-                      isSelected
-                        ? "border-sidebar bg-sidebar text-white"
+                      // Session-76 (M-76c7 + N-76c2, bundle-decoded from
+                      // jAe): TODAY ALWAYS carries the blue pill — the
+                      // reference's `X?"bg-blue-600 text-white
+                      // border-blue-600":W?"bg-white hover:bg-gray-50":
+                      // "bg-gray-50 text-gray-400"` chain keys isToday
+                      // FIRST (there is no selection state on the
+                      // reference at all). Ours keyed the pill on
+                      // isSelected, so selecting any other day left today
+                      // a bg-white cell with a text-white number —
+                      // white-on-white, invisible (61 sessions). The
+                      // cell states now render through CALENDAR_CELL (the
+                      // record becomes the source of truth); our SELECTION
+                      // stays as the distinct superset treatment — a
+                      // ring on the plain cells, never displacing the
+                      // today pill. Our cells stay BUTTONS (the clickable
+                      // superset) — the focus ring is the only interactive
+                      // extra.
+                      CALENDAR_CELL.base,
+                      CALENDAR_CELL.focusRing,
+                      isToday
+                        ? CALENDAR_CELL.today
                         : inMonth
-                          ? "border-line bg-white hover:bg-gray-50"
-                          : "border-line bg-gray-50 text-gray-400",
+                          ? cn(CALENDAR_CELL.current, isSelected && "ring-1 ring-primary/40")
+                          : CALENDAR_CELL.outOfMonth,
                     )}
                     aria-label={`${formatDate(day)} — ${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}`}
                     aria-pressed={isSelected}
@@ -357,10 +379,15 @@ export default function CalendarPage() {
                         font-medium mb-1, text-white on today) — the
                         scaffold's h-6 w-6 rounded-full circle pill is
                         retired. */}
-                    <span className={cn("text-xs sm:text-sm font-medium mb-1", isToday || isSelected ? "text-white" : "")}>
+                    <span className={cn("text-xs sm:text-sm font-medium mb-1", isToday ? "text-white" : "")}>
                       {day.getDate()}
                     </span>
-                    <span className="mt-auto flex flex-col gap-0.5">
+                    {/* Session-76 (L-76c9): the chips sit in a PLAIN
+                        space-y-0.5 stack directly under the number (the
+                        reference's construction); the mt-auto flex
+                        bottom-pinning was an invention riding the button
+                        superset. */}
+                    <span className="space-y-0.5">
                       {dayEvents.slice(0, 2).map((e) => {
                         // Defensive DB-read posture (s65 N-65l, the s63
                         // family): Event.type is PERSISTED data — an
@@ -380,13 +407,13 @@ export default function CalendarPage() {
                             }}
                             className={cn(
                               "cursor-pointer truncate rounded px-1 py-0.5 text-xs",
-                              isSelected
+                              isToday
                                 ? "bg-white/20 text-white"
                                 : `${chip.bg} ${chip.text}`,
                             )}
                           >
                             <span
-                              className={cn("inline-block w-1.5 h-1.5 rounded-full mr-1", isSelected ? "bg-white" : chip.dot)}
+                              className={cn("inline-block w-1.5 h-1.5 rounded-full mr-1", isToday ? "bg-white" : chip.dot)}
                             />
                             {e.title}
                           </span>
@@ -396,7 +423,7 @@ export default function CalendarPage() {
                           chips (the reference reads "+N more", never the
                           scaffold's inline "+N"). */}
                       {dayEvents.length > 2 && (
-                        <span className={cn("text-xs", isSelected ? "text-white" : "text-gray-500")}>
+                        <span className={cn("text-xs", isToday ? "text-white" : "text-gray-500")}>
                           +{dayEvents.length - 2} more
                         </span>
                       )}
@@ -499,11 +526,18 @@ export default function CalendarPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium text-gray-900">{e.title}</p>
-                        <p className="text-sm text-gray-600">{formatMonthDayTime(e.startAt)}</p>
-                        {(e.account?.name ?? e.contact?.name) && (
-                          <p className="text-xs text-gray-500">
-                            {e.relatedType ?? "Contact"}: {e.account?.name ?? e.contact?.name}
-                          </p>
+                        {/* Session-76 (M-76c10, bundle-decoded from jAe's
+                            agenda row): the AGENDA timestamp is the
+                            weekday-bullet form ("EEEE, MMM d • h:mm a")
+                            and the third line is the event DESCRIPTION
+                            (text-xs text-gray-500 mt-1 line-clamp-2) —
+                            not the related line the scaffold shipped
+                            (the UPCOMING row above keeps its own
+                            "MMM d, h:mm a" + related-line pair — the
+                            reference's own per-surface split). */}
+                        <p className="text-sm text-gray-600">{formatWeekdayBulletTime(e.startAt)}</p>
+                        {e.description && (
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{e.description}</p>
                         )}
                       </div>
                       <Menu>
@@ -559,7 +593,7 @@ export default function CalendarPage() {
             <CardHeader className={FILTER_RAIL.headerPad}>
               <CardTitle className={FILTER_RAIL.titleWithAction}>
                 Filters
-                <button type="button" className={FILTER_RAIL.clearAllLink} onClick={() => setFilters({})}>
+                <button type="button" className={FILTER_RAIL.clearAllLink} onClick={() => { setFilters({}); setDateRange(null); }}>
                   Clear All
                 </button>
               </CardTitle>
@@ -581,11 +615,15 @@ export default function CalendarPage() {
               <div>
                 <Label className={FILTER_RAIL.groupLabel}>Date</Label>
                 <div className={FILTER_RAIL.checkboxStack}>
+                  {/* Session-76 (L-76c5, bundle-decoded from _Ae): the Date
+                      rail is SINGLE-VALUED — `onCheckedChange: a ? value :
+                      null` (radio semantics; one dateRange at a time,
+                      unchecking clears it). */}
                   {DATE_FILTERS.map((d) => (
                     <Checkbox
                       key={d.id}
-                      checked={filters[d.id] ?? false}
-                      onCheckedChange={(v) => setFilters((f) => ({ ...f, [d.id]: v }))}
+                      checked={dateRange === d.id}
+                      onCheckedChange={(v) => setDateRange(v ? d.id : null)}
                       label={d.label}
                     />
                   ))}

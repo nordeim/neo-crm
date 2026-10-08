@@ -30,7 +30,11 @@ export async function GET(req: Request) {
           ? { startAt: { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) } }
           : {}),
       },
-      orderBy: { startAt: "asc" },
+      // Session-76 (L-76c4, bundle-decoded): the reference's query is
+      // `CalendarEvent.list("-start_date")` — DESCENDING. The agenda's
+      // slice(0,10) takes the 10 LATEST and the day-cell chips render
+      // in desc order.
+      orderBy: { startAt: "desc" },
       include: {
         account: { select: { id: true, name: true } },
         contact: { select: { id: true, name: true } },
@@ -104,6 +108,7 @@ export async function POST(req: Request) {
     if (isBadString(body.description)) return ERR.BAD_REQUEST("Invalid description");
     if (isBadString(body.location)) return ERR.BAD_REQUEST("Invalid location");
     if (isBadString(body.relatedType)) return ERR.BAD_REQUEST("Invalid related type");
+    if (isBadString(body.relatedName)) return ERR.BAD_REQUEST("Invalid related name");
     // Session-42 (S42-P2): the strict-bool silent-clear family —
     // {"allDay":"yes"} used to silently store false (the === true
     // idiom's non-boolean edge; the event dialog has no all-day
@@ -120,6 +125,7 @@ export async function POST(req: Request) {
         allDay: body.allDay === true,
         location: asString(body.location, { optional: true, max: 200 }) ?? null,
         relatedType: asString(body.relatedType, { optional: true, max: 40 }) ?? null,
+        relatedName: asString(body.relatedName, { optional: true, max: 160 }) ?? null,
         accountId,
         contactId,
         ownerId: guard.user.id,

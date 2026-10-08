@@ -2,12 +2,11 @@
 
 import * as React from "react";
 import {
-  CheckCircle2,
-  Circle,
+  CircleCheck,
+  FileText,
   Mail,
   MoreHorizontal,
   Phone,
-  Trash2,
   // Session-17 (S17-P2f): the reference's quick-log ships `calendar` on
   // Log Meeting (ours: Video — an invented video affordance) and
   // `message-square` on Log WhatsApp (ours: message-circle — the round
@@ -35,9 +34,9 @@ import { BarStatCard, PageHeader } from "@/components/shared/page-parts";
 import { SingleBarChart } from "@/components/charts/charts";
 import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { ACTIVITY_TYPE_META, ACTIVITY_STATUS_META, CHART_COLORS } from "@/lib/constants";
-import { endOfDay, formatDate, formatTime, startOfDay, timeAgo, timeUntil } from "@/lib/format";
-import { BY_TYPE_CARD, ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD  } from "@/lib/page-layout";
+import { ACTIVITY_TYPE_META, ACTIVITY_TIMELINE_TINT, CHART_COLORS } from "@/lib/constants";
+import { formatTime, startOfDay } from "@/lib/format";
+import { ACTIVITY_KPI_STATICS, BY_TYPE_CARD, ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD  } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/types";
 
@@ -52,8 +51,21 @@ const QUICK_LOG = [
   { type: "call", label: "Log Call", icon: Phone },
   { type: "email", label: "Log Email", icon: Mail },
   { type: "meeting", label: "Log Meeting", icon: Calendar },
-  { type: "whatsapp", label: "Log WhatsApp", icon: MessageSquare, green: true },
+  { type: "whatsapp", label: "Log WhatsApp", icon: MessageSquare },
 ] as const;
+
+/** Session-76 (M-76c2, bundle-decoded from the reference's Rce timeline):
+ *  the per-type icon map for the tinted icon squares — the square carries
+ *  the ACTIVITY_TIMELINE_TINT pair and the w-5 h-5 icon inherits the text
+ *  color. Task/unknown fall to the gray terminal + FileText (the
+ *  reference's own `r(i) || Fy` fallback). */
+const TIMELINE_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  call: Phone,
+  email: Mail,
+  meeting: Calendar,
+  whatsapp: MessageSquare,
+  note: FileText,
+};
 
 /**
  * Reference stat card: label + delta row on top (trending icon on %
@@ -100,87 +112,91 @@ export default function ActivitiesPage() {
   const [typeFilters, setTypeFilters] = React.useState<Record<string, boolean>>({});
   const [showMoreFilters, setShowMoreFilters] = React.useState(false);
   const [ownerId, setOwnerId] = React.useState("all");
-  const [range, setRange] = React.useState("7");
+  // Session-76 (M-76c5, bundle-decoded from Lce): the Status select's
+  // vocabulary is 7days/30days/90days (default 7days) — the reference's
+  // own values. The select is DEAD on the reference (state set, never
+  // consumed); ours filters for real — the s8 dead-select precedent.
+  const [range, setRange] = React.useState("7days");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [defaultType, setDefaultType] = React.useState("call");
   const [editing, setEditing] = React.useState<Activity | null>(null);
+  // Session-76 (N-76c5, bundle-decoded from JSe): the reference renders
+  // "Loading activities..." while its React-Query isLoading is true — from
+  // mount until the first fetch resolves. Our equivalent: a local loaded
+  // flag flipped by the first fetchActivities resolution (the loadingFlags
+  // store family stays retired — this is page-local, exactly the query
+  // state the reference models).
+  const [loaded, setLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    if (hydrated) fetchActivities();
+    if (hydrated) {
+      fetchActivities().finally(() => setLoaded(true));
+    }
   }, [hydrated, fetchActivities]);
 
-  const now = new Date();
-  const today = new Date();
+  const rangeDays = range === "7days" ? 7 : range === "30days" ? 30 : 90;
   const rangeStart = new Date();
-  rangeStart.setDate(rangeStart.getDate() - Number(range));
+  rangeStart.setDate(rangeStart.getDate() - rangeDays);
+
+  // Session-76 (L-76c2, bundle-decoded from JSe's A/O/P memos): the
+  // reference's derivation family — all buckets and KPI values read the
+  // TYPE-SEARCH-FILTERED set (ours: baseFiltered — the owner/range
+  // functional superset folds in), and the boundaries are CALENDAR-DAY
+  // based: overdue = due < startOfToday && !completed; dueToday =
+  // [startOfToday, startOfTomorrow); upcoming = >= startOfTomorrow. The
+  // old `dueAt < now` boundary put a 9am-due activity into Overdue at
+  // 3pm where the reference keeps it in Due Today.
+  const todayStart = startOfDay(new Date());
+  const tomorrowStart = new Date(todayStart);
+  tomorrowStart.setDate(tomorrowStart.getDate() + 1);
 
   const baseFiltered = React.useMemo(() => {
     const activeTypes = Object.entries(typeFilters).filter(([, v]) => v).map(([k]) => k);
     return activities.filter((a) => {
       if (activeTypes.length > 0 && !activeTypes.includes(a.type)) return false;
       if (ownerId !== "all" && a.ownerId !== ownerId) return false;
-      if (range !== "all" && new Date(a.createdAt) < rangeStart) return false;
+      if (new Date(a.createdAt) < rangeStart) return false;
       return true;
     });
-  }, [activities, typeFilters, ownerId, range]);
+  }, [activities, typeFilters, ownerId, rangeStart]);
 
-  const overdue = baseFiltered.filter((a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) < now);
-  const dueToday = baseFiltered.filter(
-    (a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) >= now && new Date(a.dueAt) <= endOfDay(today),
+  const overdue = baseFiltered.filter(
+    (a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) < todayStart,
   );
-  const upcoming = baseFiltered.filter((a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) > endOfDay(today));
+  const dueToday = baseFiltered.filter(
+    (a) =>
+      a.status === "scheduled" &&
+      a.dueAt &&
+      new Date(a.dueAt) >= todayStart &&
+      new Date(a.dueAt) < tomorrowStart,
+  );
+  const upcoming = baseFiltered.filter(
+    (a) => a.status === "scheduled" && a.dueAt && new Date(a.dueAt) >= tomorrowStart,
+  );
   const completed = baseFiltered.filter((a) => a.status === "completed");
 
-  const todayCount = activities.filter((a) => new Date(a.createdAt) >= startOfDay(today)).length;
-  const yesterdayCount = activities.filter((a) => {
-    // Session-62 (N-62c): createdAt reads DIRECTLY — Activity.createdAt is
-    // a non-nullable string, so the old `?? a.dueAt` arm was unreachable
-    // by the type contract (the s42/s46 dead-?? class, surviving half).
-    const d = new Date(a.createdAt);
-    return d >= startOfDay(new Date(today.getTime() - 86400000)) && d < startOfDay(today);
-  }).length;
-  const todayDelta =
-    yesterdayCount === 0
-      ? `+${todayCount}`
-      : `${todayCount >= yesterdayCount ? "+" : ""}${Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100)}%`;
+  // Session-76 (L-76c2): the KPI values read the FILTERED set —
+  // Activities Today by the DUE DATE within the today window (the old
+  // createdAt basis diverged whenever an old activity was logged today);
+  // Meetings Scheduled counts ALL meetings (the reference's
+  // meetingsScheduled has NO status/window guard).
+  const activitiesToday = baseFiltered.filter(
+    (a) => a.dueAt && new Date(a.dueAt) >= todayStart && new Date(a.dueAt) < tomorrowStart,
+  ).length;
+  const emailsSent = baseFiltered.filter((a) => a.type === "email").length;
+  const callsLogged = baseFiltered.filter((a) => a.type === "call").length;
+  const meetingsScheduled = baseFiltered.filter((a) => a.type === "meeting").length;
+  const whatsappInteractions = baseFiltered.filter((a) => a.type === "whatsapp").length;
 
-  // "2h overdue"-style label: hours since the most overdue activity.
-  const oldestOverdue = overdue.reduce<number | null>((acc, a) => {
-    const t = a.dueAt ? new Date(a.dueAt).getTime() : null;
-    if (t === null) return acc;
-    return acc === null ? t : Math.min(acc, t);
-  }, null);
-  const overdueLabel =
-    oldestOverdue === null ? "0h overdue" : `${Math.max(0, Math.floor((now.getTime() - oldestOverdue) / 3600000))}h overdue`;
-
-  const emailsToday = activities.filter((a) => a.type === "email" && new Date(a.createdAt) >= startOfDay(today)).length;
-  const callsToday = activities.filter((a) => a.type === "call" && new Date(a.createdAt) >= startOfDay(today)).length;
-  const upcomingMeetings = baseFiltered.filter((a) => a.type === "meeting" && a.status === "scheduled" && a.dueAt && new Date(a.dueAt) >= now);
-  const meetingMinutes = upcomingMeetings.reduce((s, a) => {
-    const start = a.dueAt ? new Date(a.dueAt).getTime() : 0;
-    const end = a.completedAt ? new Date(a.completedAt).getTime() : start + 45 * 60000;
-    return s + Math.max(0, end - start) / 60000;
-  }, 0);
-  const meetingDuration = `${Math.floor(meetingMinutes / 60) || 0}h ${Math.round(meetingMinutes % 60)}m`;
-
-  const barsFor = (type: string, n = 7) =>
-    Array.from({ length: n }, (_, i) => {
-      const day = new Date(today);
-      day.setDate(day.getDate() - (n - 1 - i));
-      return activities.filter((a) => a.type === type && a.createdAt >= startOfDay(day).toISOString() && a.createdAt < endOfDay(day).toISOString()).length;
-    });
-
-  const allBars = Array.from({ length: 7 }, (_, i) => {
-    const day = new Date(today);
-    day.setDate(day.getDate() - (6 - i));
-    return activities.filter((a) => new Date(a.createdAt) >= startOfDay(day) && new Date(a.createdAt) < endOfDay(day)).length;
-  });
-
-  // Timeline grouped by date (createdAt), most recent first.
+  // Timeline grouped by the reference's LONG WEEKDAY date format
+  // (session-76 M-76c2, bundle-decoded from Rce: toLocaleDateString
+  // "en-US", {weekday:"long",year:"numeric",month:"long",day:"numeric"}),
+  // most recent first.
   const timeline = React.useMemo(() => {
     const groups = new Map<string, Activity[]>();
     for (const a of [...baseFiltered].sort((x, y) => +new Date(y.createdAt) - +new Date(x.createdAt))) {
-      const key = formatDate(a.createdAt);
+      const d = new Date(a.createdAt);
+      const key = d.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
       const arr = groups.get(key) ?? [];
       arr.push(a);
       groups.set(key, arr);
@@ -251,54 +267,61 @@ export default function ActivitiesPage() {
       />
 
       {/* Reference: six stat cards, value + colored bar strip side by side
-          (delta rows carry trending icons — DOM-verified). */}
+          (delta rows carry trending icons — DOM-verified). Session-76
+          (M-76c6, bundle-decoded from gm): the deltas/subtexts/bars are
+          the reference's STATIC literals (ACTIVITY_KPI_STATICS) — the
+          KPI_STATICS "NEVER feed these cards real" rule extends here;
+          only the VALUES stay live. */}
       <div className={PAGE_KPI_GRIDS.activities}>
         <ActivityStatCard
           label="Activities Today"
-          value={todayCount}
-          delta={todayDelta}
+          value={activitiesToday}
+          delta={ACTIVITY_KPI_STATICS.activitiesToday.delta}
           deltaIcon="up"
-          bars={allBars}
+          bars={[...ACTIVITY_KPI_STATICS.activitiesToday.bars]}
           barColor={CHART_COLORS.blue400}
         />
         <ActivityStatCard
           label="Overdue Activities"
           value={overdue.length}
-          sub="Due now"
-          delta={overdueLabel}
+          sub={ACTIVITY_KPI_STATICS.overdue.sub}
+          delta={ACTIVITY_KPI_STATICS.overdue.delta}
           deltaIcon="down"
-          bars={allBars.map((v) => Math.max(0, v - 1))}
+          bars={[...ACTIVITY_KPI_STATICS.overdue.bars]}
           barColor={CHART_COLORS.red400}
         />
-        {/* Session-5: "+N today" renders as a gray SUBTEXT under the value
-            (the reference's only header deltas are the green % and the red
-            "Xh overdue"). */}
         <ActivityStatCard
           label="Emails Sent"
-          value={activities.filter((a) => a.type === "email").length}
-          sub={`+${emailsToday} today`}
-          bars={barsFor("email")}
+          value={emailsSent}
+          sub={ACTIVITY_KPI_STATICS.emailsSent.sub}
+          bars={[...ACTIVITY_KPI_STATICS.emailsSent.bars]}
           barColor={CHART_COLORS.cyan400}
         />
         <ActivityStatCard
           label="Calls Logged"
-          value={activities.filter((a) => a.type === "call").length}
-          sub={`+${callsToday} today`}
-          bars={barsFor("call")}
+          value={callsLogged}
+          sub={ACTIVITY_KPI_STATICS.callsLogged.sub}
+          bars={[...ACTIVITY_KPI_STATICS.callsLogged.bars]}
           barColor={CHART_COLORS.green400}
         />
+        {/* Session-76 (M-76c6): the reference's color map has NO purple
+            arm — "purple" falls through to gray-400, so the Meetings bars
+            render GRAY (byte-equal to the reference's bg-gray-400). */}
         <ActivityStatCard
           label="Meetings Scheduled"
-          value={upcomingMeetings.length}
-          sub={`+${meetingDuration}`}
-          bars={barsFor("meeting")}
+          value={meetingsScheduled}
+          sub={ACTIVITY_KPI_STATICS.meetingsScheduled.sub}
+          bars={[...ACTIVITY_KPI_STATICS.meetingsScheduled.bars]}
           barColor={CHART_COLORS.gray}
         />
+        {/* Session-76 (L-76c7): the gm maps "green" → bg-green-400 for
+            BOTH Calls Logged and WhatsApp — the green-500 we shipped was
+            one step dark. */}
         <ActivityStatCard
           label="WhatsApp"
-          value={activities.filter((a) => a.type === "whatsapp").length}
-          bars={barsFor("whatsapp")}
-          barColor="#22c55e"
+          value={whatsappInteractions}
+          bars={[...ACTIVITY_KPI_STATICS.whatsapp.bars]}
+          barColor={CHART_COLORS.green400}
         />
       </div>
 
@@ -348,16 +371,21 @@ export default function ActivitiesPage() {
                 ]}
               >
                 <TabsPanel tab="overdue" className="mt-4 space-y-2">
+                  {/* Session-76 (M-76c4, bundle-decoded from JSe): NO cap on
+                      overdue/dueToday; slice(0,5) on upcoming/completed —
+                      ours sliced every tab at 8. */}
                   {tab === "overdue" && <PriorityRows rows={overdue} empty="No overdue activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
                 </TabsPanel>
                 <TabsPanel tab="dueToday" className="mt-4 space-y-2">
-                  {tab === "dueToday" && <PriorityRows rows={dueToday} empty="Nothing due today" onToggle={toggleComplete} onEdit={openEditActivity} />}
+                  {/* Session-76 (M-76c3): the reference's empty string —
+                      ours read "Nothing due today" for 61 sessions. */}
+                  {tab === "dueToday" && <PriorityRows rows={dueToday} empty="No activities due today" onToggle={toggleComplete} onEdit={openEditActivity} />}
                 </TabsPanel>
                 <TabsPanel tab="upcoming" className="mt-4 space-y-2">
-                  {tab === "upcoming" && <PriorityRows rows={upcoming} empty="No upcoming activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
+                  {tab === "upcoming" && <PriorityRows rows={upcoming.slice(0, 5)} empty="No upcoming activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
                 </TabsPanel>
                 <TabsPanel tab="completed" className="mt-4 space-y-2">
-                  {tab === "completed" && <PriorityRows rows={completed} empty="No completed activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
+                  {tab === "completed" && <PriorityRows rows={completed.slice(0, 5)} empty="No completed activities" onToggle={toggleComplete} onEdit={openEditActivity} />}
                 </TabsPanel>
               </Tabs>
             </div>
@@ -373,60 +401,64 @@ export default function ActivitiesPage() {
                 {ACTIVITY_CARD.dotsLabel}
               </Button>
             </div>
-            <CardContent className="flex flex-col gap-5 px-0 pb-0 pt-0">
-              {timeline.length === 0 ? (
-                <p className={ACTIVITY_CARD.emptyTimeline}>No activities found</p>
+            {/* Session-76 (M-76c2 + N-76c5, bundle-decoded from Rce): the
+                timeline rows are Card p-4 hover:shadow-md items with the
+                TINTED icon square + the Related-to link + the
+                avatar/owner/type-badge footer, grouped under the reference's
+                LONG-WEEKDAY h3 headers; "Loading activities..." renders
+                while the first fetch is in flight (the reference's own
+                React-Query isLoading render — a text line, not a
+                Skeleton/animate-pulse surface, so the s25 loading-layer
+                pins stay whole). */}
+            <CardContent className="space-y-6 px-0 pb-0 pt-0">
+              {!loaded ? (
+                <div className="text-center py-12 text-gray-500">Loading activities...</div>
+              ) : timeline.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">No activities found</div>
               ) : (
                 timeline.map(([date, rows]) => (
                   <div key={date}>
-                    <p className="mb-2 text-xs font-semibold tracking-wide text-subtle">{date}</p>
-                    <div className="relative flex flex-col gap-3 border-l border-line pl-5">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">{date}</h3>
+                    <div className="space-y-3">
                       {rows.map((a) => {
                         // Defensive DB-read posture (s65 N-65l, the s63
                         // family): Activity.type is PERSISTED data — an
-                        // unexpected key degrades to the call meta instead
-                        // of crashing the render (same arm at the
-                        // dashboard-timeline site below).
-                        const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call;
+                        // unexpected key degrades to the gray terminal +
+                        // FileText (the reference's own `|| Fy` fallback)
+                        // instead of crashing the render.
+                        const tint = ACTIVITY_TIMELINE_TINT[a.type] ?? "bg-gray-100 text-gray-600";
+                        const Icon = TIMELINE_ICON[a.type] ?? FileText;
                         return (
-                          <div key={a.id} className="relative rounded-lg border border-line bg-white p-3">
-                            <span
-                              className="absolute -left-[27px] top-4 h-3 w-3 rounded-full border-2 border-white"
-                              style={{ backgroundColor: meta.color }}
-                            />
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-medium text-foreground">{a.subject}</p>
-                                <p className="mt-0.5 text-xs text-muted">
-                                  {meta.label} · {timeAgo(a.createdAt)}
-                                  {a.relatedName ? ` · ${a.relatedName}` : a.contact ? ` · ${a.contact.name}` : ""}
-                                  {a.status === "completed" ? " · completed" : a.dueAt ? ` · due ${formatDate(a.dueAt)}` : ""}
-                                </p>
-                                {a.notes && <p className="mt-1 line-clamp-2 text-xs text-muted">{a.notes}</p>}
+                          <Card key={a.id} className="p-4 hover:shadow-md transition-shadow">
+                            <div className="flex gap-4">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${tint}`}>
+                                <Icon className="w-5 h-5" aria-hidden="true" />
                               </div>
-                              <div className="flex shrink-0 items-center gap-1">
-                                <Badge variant="outline" className={ACTIVITY_STATUS_META[a.status]?.badge}>
-                                  {ACTIVITY_STATUS_META[a.status]?.label}
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="iconSm"
-                                  aria-label="Delete activity"
-                                  className="text-danger hover:bg-danger-soft"
-                                  onClick={async () => {
-                                    if (window.confirm("Delete this activity?")) {
-                                      const res = await deleteActivity(a.id);
-                                      // Session-46 (S46-P1): the failure
-                                      // convention.
-                                      if (!res.ok) toast.error("Could not delete activity", res.error);
-                                    }
-                                  }}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
+                              <div className="flex-1">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div>
+                                    <p className="font-medium text-sm">{a.subject}</p>
+                                    {a.relatedName && (
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        Related to:{" "}
+                                        <span className="text-blue-600 hover:underline cursor-pointer">
+                                          {(a.relatedType ? ACTIVITY_TYPE_META[a.relatedType]?.label ?? a.relatedType : "Contact")}: {a.relatedName}
+                                        </span>
+                                      </p>
+                                    )}
+                                  </div>
+                                  <span className="text-xs text-gray-500">{formatTime(a.dueAt ?? a.createdAt)}</span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <div className="w-6 h-6 bg-gray-200 rounded-full" aria-hidden="true" />
+                                  <span className="text-xs text-gray-600">{a.owner?.name ?? "You"}</span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {ACTIVITY_TYPE_META[a.type]?.label ?? a.type}
+                                  </Badge>
+                                </div>
                               </div>
                             </div>
-                          </div>
+                          </Card>
                         );
                       })}
                     </div>
@@ -500,10 +532,15 @@ export default function ActivitiesPage() {
                 <Select value={range} onValueChange={setRange}>
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Last 24 hours</SelectItem>
-                    <SelectItem value="7">Last 7 Days</SelectItem>
-                    <SelectItem value="30">Last 30 Days</SelectItem>
-                    <SelectItem value="all">All Time</SelectItem>
+                    {/* Session-76 (M-76c5, bundle-decoded from Lce): the
+                        reference's three-value vocabulary — 7days/30days/
+                        90days (the select is dead on the reference; ours
+                        filters createdAt — the functional superset). The
+                        scaffold's Last 24 hours + All Time options were
+                        inventions. */}
+                    <SelectItem value="7days">Last 7 Days</SelectItem>
+                    <SelectItem value="30days">Last 30 Days</SelectItem>
+                    <SelectItem value="90days">Last 90 Days</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -584,16 +621,22 @@ export default function ActivitiesPage() {
                   primitive (S17-P3 — button role=checkbox + Check
                   indicator, the reference's exact anatomy). */}
               <div className={BY_TYPE_CARD.footer}>
-                <Checkbox
-                  id="activities-by-type-toggle"
-                  defaultChecked
-                />
-                <label htmlFor="activities-by-type-toggle" className={BY_TYPE_CARD.footerLabel}>
-                  Activities
-                </label>
-                <button type="button" className={BY_TYPE_CARD.footerDotsButton} aria-label="More actions">
-                  •••
-                </button>
+                {/* Session-76 (M-76c11, bundle-decoded from QSe): the
+                    footer's children sit in an INNER flex items-center
+                    gap-2 row — without it the ml-auto on the ••• is inert
+                    and the checkbox/label sit flush. */}
+                <div className={BY_TYPE_CARD.footerRow}>
+                  <Checkbox
+                    id="activities-by-type-toggle"
+                    defaultChecked
+                  />
+                  <label htmlFor="activities-by-type-toggle" className={BY_TYPE_CARD.footerLabel}>
+                    Activities
+                  </label>
+                  <button type="button" className={BY_TYPE_CARD.footerDotsButton} aria-label="More actions">
+                    •••
+                  </button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -605,10 +648,18 @@ export default function ActivitiesPage() {
   );
 }
 
-// Session-23 (S23-P1): the priority-tab row list, extracted so each wired
-// TabsPanel renders its own tab's rows — the reference's Radix structure
-// (all shells mounted, the inactive ones hidden and empty). Module-level
-// by the React 19 static-components rule (no components during render).
+// Session-76 (M-76c1, bundle-decoded from the reference's vx): the
+// priority-tab row family — the `flex items-center justify-between p-3
+// hover:bg-gray-50 rounded-lg border-b` row with the INITIALS AVATAR box
+// (w-10 h-10 bg-blue-100 text-blue-600 text-sm font-semibold, initials of
+// relatedName || "A"), the `relatedName || "Activity"` title + the
+// destructive "Xh/Xd overdue" Badge when overdue, the text-xs gray-600
+// description line, the right-side TIME span (text-red-600 when overdue
+// else text-gray-900) + the ghost-sm text-xs "Check as completed" button
+// (the CircleCheck w-4 h-4 mr-1 glyph). Our kept supersets (documented):
+// the toggle's aria-label + the edit affordance (the reference ships
+// neither edit nor toggle — its rows only complete) + the un-complete
+// arm of the toggle.
 function PriorityRows({
   rows,
   empty,
@@ -624,43 +675,56 @@ function PriorityRows({
     return <p className={ACTIVITY_CARD.emptyPanel}>{empty}</p>;
   }
   return (
-    <ul className="flex flex-col divide-y divide-line">
-      {rows.slice(0, 8).map((a) => {
-        const meta = ACTIVITY_TYPE_META[a.type] ?? ACTIVITY_TYPE_META.call; // defensive DB-read (see the timeline note above)
+    <div>
+      {rows.map((a) => {
+        const now = new Date();
+        const due = a.dueAt ? new Date(a.dueAt) : null;
+        const isOverdue = due !== null && due < now && a.status !== "completed";
+        // The reference's `a()` helper: hours-late floored, then d/h forms.
+        const hoursLate = due !== null ? Math.floor((now.getTime() - due.getTime()) / 3600000) : 0;
+        const overdueText = hoursLate >= 24 ? `${Math.floor(hoursLate / 24)}d overdue` : `${hoursLate}h overdue`;
         return (
-          <li key={a.id} className="flex items-center gap-3 py-3">
-            <button
-              type="button"
-              aria-label={a.status === "completed" ? "Mark as scheduled" : "Mark as completed"}
-              onClick={() => onToggle(a)}
-              className="text-subtle transition-colors hover:text-primary"
-            >
-              {a.status === "completed" ? (
-                <CheckCircle2 className="h-5 w-5 text-success" />
-              ) : (
-                <Circle className="h-5 w-5" />
-              )}
-            </button>
-            <div className="min-w-0 flex-1">
-              <p className={cn("truncate text-sm font-medium", a.status === "completed" ? "text-muted line-through" : "text-foreground")}>
-                {a.subject}
-              </p>
-              <p className="text-xs text-muted">
-                {meta.label}
-                {a.relatedName ? ` · ${a.relatedName}` : a.contact ? ` · ${a.contact.name}` : ""}
-                {a.dueAt ? ` · due ${formatDate(a.dueAt)} ${formatTime(a.dueAt)}` : ""}
-                {a.status === "scheduled" && a.dueAt ? ` (${timeUntil(a.dueAt)})` : ""}
-              </p>
+          <div key={a.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border-b">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
+                {(a.relatedName ?? a.contact?.name ?? "A").split(" ").map((w) => w[0]).join("")}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium text-sm">{a.relatedName || a.contact?.name || "Activity"}</p>
+                  {isOverdue && (
+                    <Badge variant="destructive" className="text-xs">
+                      {overdueText}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-gray-600">{a.subject}</p>
+              </div>
             </div>
-            <Badge variant="outline" className={meta.badge}>
-              {meta.label}
-            </Badge>
-            <Button variant="ghost" size="iconSm" aria-label="Edit activity" onClick={() => onEdit(a)}>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </li>
+            <div className="flex items-center gap-2">
+              <span className={`text-sm font-medium ${isOverdue ? "text-red-600" : "text-gray-900"}`}>
+                {formatTime(a.dueAt ?? a.createdAt)}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+                aria-label={a.status === "completed" ? "Mark as scheduled" : "Check as completed"}
+                onClick={() => onToggle(a)}
+              >
+                <CircleCheck className="w-4 h-4 mr-1" aria-hidden="true" />
+                Check as completed
+              </Button>
+              {/* Our documented superset: the reference's rows carry no
+                  edit affordance (only complete); ours opens the edit
+                  dialog (the s50 dual-mode keep). */}
+              <Button variant="ghost" size="iconSm" aria-label="Edit activity" onClick={() => onEdit(a)}>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 }
