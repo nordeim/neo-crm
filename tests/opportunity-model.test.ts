@@ -170,11 +170,15 @@ describe("session-31: the dashboard KPI derivations (the bundle's Eke memo)", ()
     expect(progBlock).toMatch(/=\s*0/);
   });
 
-  it("dealsClosedValue + revenueThisMonth derive from WON OPPORTUNITIES (updated_date month)", () => {
-    const src = route();
-    expect(src).toMatch(/db\.opportunity\.findMany/);
-    const wonBlock = src.slice(src.indexOf("const wonOpps"), src.indexOf("const wonOpps") + 400);
-    expect(wonBlock).toMatch(/closed_won/);
+  it("dealsClosedValue + revenueThisMonth derive from the page's FILTERED won opps (the s78 p-memo re-derivation — the route members retired)", () => {
+    // Session-78 (M-78c2): the reference's g memo reads the p memo (the
+    // stage/source-filtered opps) for BOTH members — the derivation moved
+    // client-side with the filter re-derivation; the route's copies
+    // retired (zero consumers).
+    const page = stripComments(read("src/app/(app)/page.tsx") ?? "");
+    expect(page).toMatch(/filteredOpps/);
+    const wonBlock = page.slice(page.indexOf("closed_won"), page.indexOf("closed_won") + 900);
+    expect(wonBlock).toMatch(/filteredOpps|filteredWon/);
   });
 
   it("avgSalesCycle is the average AGE of won leads (now − created, per-lead floored)", () => {
@@ -189,15 +193,22 @@ describe("session-31: the dashboard KPI derivations (the bundle's Eke memo)", ()
     expect(src).toMatch(/"Nov",\s*"Dec",\s*"Jan",\s*"Feb",\s*"Mar",\s*"Apr",\s*"May"/);
   });
 
-  it("the pipeline chart + topReps + recentDeals derive from opportunities", () => {
-    const src = route();
-    const pipelineBlock = src.slice(src.indexOf("const pipeline"), src.indexOf("const pipeline") + 400);
-    expect(pipelineBlock).toMatch(/OPPORTUNITY_STAGES|PIPELINE_STAGES/);
-    const topBlock = src.slice(src.indexOf("const repsMap"), src.indexOf("const repsMap") + 700);
-    expect(topBlock).toMatch(/wonOpps/);
-    const recentBlock = src.slice(src.indexOf("const recentDeals"), src.indexOf("const recentDeals") + 400);
-    expect(recentBlock).toMatch(/opportunities/);
-    expect(recentBlock).not.toMatch(/leads/);
+  it("the pipeline chart + topReps + recentDeals derive from the page's filtered opportunities (the s78 m/y/_ memos)", () => {
+    // Session-78 (M-78c2): the three derivations moved client-side onto
+    // the p memo; the route's copies retired (zero consumers).
+    const page = stripComments(read("src/app/(app)/page.tsx") ?? "");
+    const pipelineMemo = page.slice(page.indexOf("const filteredPipeline"), page.indexOf("const filteredPipeline") + 600);
+    expect(pipelineMemo).toMatch(/PIPELINE_STAGES/);
+    expect(pipelineMemo).toMatch(/PIPELINE_LABELS/);
+    expect(pipelineMemo).toMatch(/filteredOpps/);
+    const chart = page.slice(page.indexOf("Sales Pipeline by Stage"), page.indexOf("Sales Pipeline by Stage") + 1600);
+    expect(chart).toMatch(/filteredPipeline/);
+    expect(chart).not.toMatch(/dashboard\?\.pipeline/);
+    const topBlock = page.slice(page.indexOf("const topReps"), page.indexOf("const topReps") + 800);
+    expect(topBlock).toMatch(/filteredWon/);
+    const recentBlock = page.slice(page.indexOf("const filteredDeals"), page.indexOf("const filteredDeals") + 800);
+    expect(recentBlock).toMatch(/updatedAt/);
+    expect(recentBlock).toMatch(/slice\(0,\s*5\)/);
   });
 });
 

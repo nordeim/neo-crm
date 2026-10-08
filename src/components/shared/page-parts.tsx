@@ -231,7 +231,11 @@ export function BarStatCard({
   className?: string;
 }) {
   const tone = deltaTone ?? (deltaIcon === "down" ? "danger" : "success");
-  const pct = (v: number) => Math.max(Math.round((v / Math.max(...bars, 1)) * 100), 12);
+  // Session-78 (L-78c2): the reference's zv/gm stat cards render the RAW
+  // chartData values as percentage heights (`style height ${o}%` — the
+  // [50,60,55,70,65,75] arrays ARE the heights, max bar 75% of the h-10
+  // container). The pct() normalization + the 12% floor + the opacity arm
+  // were inventions, retired (both component defs bundle-decoded).
   return (
     <div className={cn("rounded-xl border border-line bg-surface p-4 shadow", className)}>
       <div className="mb-3 flex items-start justify-between gap-2">
@@ -255,9 +259,8 @@ export function BarStatCard({
               key={i}
               className="flex-1 rounded-sm"
               style={{
-                height: `${pct(v)}%`,
+                height: `${v}%`,
                 backgroundColor: barColor,
-                opacity: v > 0 ? 1 : 0.4,
               }}
             />
           ))}
@@ -543,10 +546,13 @@ export function Sparkline({
   variant?: "bars" | "line" | "area";
   className?: string;
 }) {
-  // Session-66 (N-66j): the empty guard runs BEFORE the max computation —
-  // Math.max(...[]) would have been dead arithmetic on the empty path.
+  // Session-78 (M-78c1): the reference's bar sparks render the RAW static
+  // values as percentage heights (`style height ${v}%` — LIVE-probed on
+  // the reference: 40%..75% on the 32px container, the max bar tops at
+  // 75%, NOT 100%). The v/max normalization + the 8% floor + the opacity
+  // treatment were inventions, retired. The N-66j empty guard stays (the
+  // line/area arms above it are the recharts surfaces).
   if (values.length === 0) return null;
-  const max = Math.max(...values, 1);
 
   if (variant === "line" || variant === "area") {
     const data = values.map((v, i) => ({ i, v }));
@@ -585,11 +591,10 @@ export function Sparkline({
       {values.map((v, i) => (
         <span
           key={i}
-          className="w-1.5 flex-1 rounded-[2px]"
+          className="flex-1 rounded-sm"
           style={{
-            height: `${Math.max((v / max) * 100, 8)}%`,
+            height: `${v}%`,
             backgroundColor: colorFor ? colorFor(v, i) : color,
-            opacity: v > 0 ? 1 : 0.35,
           }}
         />
       ))}

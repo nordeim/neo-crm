@@ -112,9 +112,18 @@ export default function AccountsPage() {
   // here. The reference's trigger DISPLAYS "Table" (its value is set),
   // unlike the dashboard's middle select which renders empty.
   const [view, setView] = React.useState<string>("Table");
+  // Session-78 (L-78c5, the M-77c3 missed sibling): the reference's accounts
+  // tbody renders a colSpan-8 "Loading..." row while the first fetch is in
+  // flight (bundle-decoded: `b ? Loading... : E.length===0 ? "No accounts
+  // found" : rows`) — the s77 leadsLoaded local-flag precedent, applied to
+  // the sibling page the s77 rotation did not cover.
+  const [accountsLoaded, setAccountsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    if (hydrated) fetchAccounts();
+    if (!hydrated) return;
+    // Session-78 (L-78c5): the flag flips when the fetch settles (either
+    // way — a failed fetch must not strand the Loading row).
+    void fetchAccounts().then(() => setAccountsLoaded(true));
   }, [hydrated, fetchAccounts]);
 
   const industries = React.useMemo(() => {
@@ -380,7 +389,9 @@ export default function AccountsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.length === 0 ? (
+                {!accountsLoaded ? (
+                  <TableEmptyRow colSpan={8} message="Loading..." />
+                ) : filtered.length === 0 ? (
                   <TableEmptyRow colSpan={8} message="No accounts found" />
                 ) : (
                   <>

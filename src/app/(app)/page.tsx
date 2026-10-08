@@ -51,7 +51,7 @@ import { formatCompactCurrency } from "@/lib/format";
 type QuickCreate = "lead" | "contact" | "account" | "event" | "activity" | null;
 
 export default function DashboardPage() {
-  const { dashboard, hydrated, fetchDashboard, leads, contacts, accounts, activities } = useCrmStore();
+  const { dashboard, hydrated, fetchDashboard, leads, contacts, accounts, activities, opportunities } = useCrmStore();
   const [stage, setStage] = React.useState("all");
   const [source, setSource] = React.useState("all");
   const [search, setSearch] = React.useState("");
@@ -66,16 +66,81 @@ export default function DashboardPage() {
     if (hydrated) fetchDashboard();
   }, [hydrated, fetchDashboard]);
 
-  // Client-side filtered deal rows (Recent Deals respects the filter bar) —
-  // session-31: the rows are OPPORTUNITIES now (the reference's `_` memo
-  // filters its opp list by owner/stage/source); the reference's bar
-  // carries NO owner select (the S8-2 re-read: what looked like one is
-  // the empty Table/Cards switcher) — stage + source are our filter
-  // axes, matching its computed behavior.
-  const filteredDeals = React.useMemo(() => {
-    let rows = dashboard?.recentDeals ?? [];
+  // Session-78 (M-78c2, bundle-decoded from the reference's Eke `p` memo):
+  // the filter bar re-derives HALF the dashboard from the STAGE/SOURCE-
+  // FILTERED opps — Deals Closed + Revenue This Month (the KPI cards), the
+  // pipeline chart + its legend chips, the Top Reps list, and the Recent
+  // Deals rows (the full list sorted updatedAt desc, slice 5). The
+  // reference's owner filter state is DEAD (no control ever sets it) —
+  // stage + source are the live axes. Total Leads / Conversion / Avg
+  // Cycle + the revenue chart + Lead Sources + Upcoming stay UNFILTERED
+  // (the g/b/x/A memos read the raw lists — the route's kpis).
+  const filteredOpps = React.useMemo(() => {
+    let rows = opportunities;
     if (stage !== "all") rows = rows.filter((o) => o.stage === stage);
     if (source !== "all") rows = rows.filter((o) => o.source === source);
+    return rows;
+  }, [opportunities, stage, source]);
+
+  // The g memo's p-reading members (the reference's exact formulas):
+  // dealsClosedValue = the filtered WON opps' amount sum; revenueThisMonth
+  // = the filtered won opps whose UPDATED month is the current one (the
+  // reference groups by updated_date, not close_date).
+  const filteredWon = React.useMemo(
+    () => filteredOpps.filter((o) => o.stage === "closed_won"),
+    [filteredOpps],
+  );
+  const dealsClosedValue = React.useMemo(
+    () => filteredWon.reduce((s, o) => s + (o.amount || 0), 0),
+    [filteredWon],
+  );
+  const revenueThisMonth = React.useMemo(() => {
+    const curMonth = new Date().getMonth();
+    return filteredWon
+      .filter((o) => new Date(o.updatedAt).getMonth() === curMonth)
+      .reduce((s, o) => s + (o.amount || 0), 0);
+  }, [filteredWon]);
+
+  // The m memo: the 5 OPP stages with VALUE sums + counts over the
+  // FILTERED set (the route's unfiltered copy retired with the slim).
+  const filteredPipeline = React.useMemo(
+    () =>
+      PIPELINE_STAGES.map((s) => {
+        const rows = filteredOpps.filter((o) => o.stage === s);
+        return {
+          stage: s,
+          label: PIPELINE_LABELS[s],
+          count: rows.length,
+          value: rows.reduce((sum, o) => sum + (o.amount || 0), 0),
+        };
+      }),
+    [filteredOpps],
+  );
+
+  // The y memo: WON opps of the FILTERED set by the owner STRING,
+  // value-desc, slice(0,3).
+  const topReps = React.useMemo(() => {
+    const map = new Map<string, { name: string; deals: number; value: number }>();
+    for (const o of filteredWon) {
+      if (!o.owner) continue;
+      const entry = map.get(o.owner) ?? { name: o.owner, deals: 0, value: 0 };
+      entry.deals += 1;
+      entry.value += o.amount || 0;
+      map.set(o.owner, entry);
+    }
+    return [...map.values()].sort((a, b) => b.value - a.value).slice(0, 3);
+  }, [filteredWon]);
+
+  // Client-side filtered deal rows (Recent Deals respects the filter bar) —
+  // session-78 (M-78c2): the reference's `_` memo — the FULL filtered list
+  // sorted updatedAt desc, slice(0,5) (NOT a filtered pre-sliced top-5);
+  // the search stays our functional superset (the reference's search input
+  // is dead — S33-P1), narrowing the shown rows.
+  const filteredDeals = React.useMemo(() => {
+    let rows = filteredOpps
+      .slice()
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 5);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       rows = rows.filter(
@@ -83,7 +148,7 @@ export default function DashboardPage() {
       );
     }
     return rows;
-  }, [dashboard, stage, source, search]);
+  }, [filteredOpps, search]);
 
   const k = dashboard?.kpis;
 
@@ -229,10 +294,10 @@ export default function DashboardPage() {
         <KpiCard label="Total Leads" value={k?.totalLeads ?? 0} delta={KPI_STATICS.deltas.totalLeads}>
           <Sparkline values={[...KPI_STATICS.sparks.totalLeads]} color={CHART_COLORS.emerald} variant="line" />
         </KpiCard>
-        <KpiCard label="Deals Closed" value={formatCompactCurrency(k?.dealsClosedValue ?? 0, { scale: "k" })}>
+        <KpiCard label="Deals Closed" value={formatCompactCurrency(dealsClosedValue, { scale: "k" })}>
           <Sparkline values={[...KPI_STATICS.sparks.dealsClosed]} color={CHART_COLORS.cyan400} />
         </KpiCard>
-        <KpiCard label="Revenue This Month" value={formatCompactCurrency(k?.revenueThisMonth ?? 0, { scale: "k" })} delta={KPI_STATICS.deltas.revenueThisMonth}>
+        <KpiCard label="Revenue This Month" value={formatCompactCurrency(revenueThisMonth, { scale: "k" })} delta={KPI_STATICS.deltas.revenueThisMonth}>
           <Sparkline values={[...KPI_STATICS.sparks.revenueThisMonth]} color={CHART_COLORS.green400} />
         </KpiCard>
         <KpiCard
@@ -343,7 +408,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <SingleBarChart
-              data={(dashboard?.pipeline ?? []).map((p) => ({ stage: p.label, value: p.value }))}
+              data={filteredPipeline.map((p) => ({ stage: p.label, value: p.value }))}
               xKey="stage"
               dataKey="value"
               fill="#3b82f6"
@@ -356,7 +421,7 @@ export default function DashboardPage() {
                 the reference's own lookup-miss quirk: the "Won" label
                 misses the snake_case map and falls back to bg-gray-400. */}
             <div className={PIPELINE_LEGEND.row}>
-              {(dashboard?.pipeline ?? []).map((p) => (
+              {filteredPipeline.map((p) => (
                 <div key={p.stage} className={PIPELINE_LEGEND.chip}>
                   {/* The reference looks the class up by the LABEL slug
                       (stage.toLowerCase().replace(" ","_")) — so its "Won"
@@ -425,7 +490,7 @@ export default function DashboardPage() {
                   renders its header row alone there). Each row: the
                   blue-100 INITIALS box + name + the static "Top Admin"
                   subtitle; right: $Xk + the Won/Active badge. */}
-              {(dashboard?.topReps ?? []).map((r) => (
+              {topReps.map((r) => (
                 <div key={r.name} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs font-semibold">
@@ -512,7 +577,7 @@ export default function DashboardPage() {
                       <Checkbox />
                       <div>
                         <p className="text-sm">{a.subject}</p>
-                        <p className="text-xs text-gray-500">{a.relatedName ?? a.type}</p>
+                        <p className="text-xs text-gray-500">{a.relatedName}</p>
                       </div>
                     </div>
                     <span className="text-xs text-gray-500">
@@ -619,7 +684,7 @@ export default function DashboardPage() {
                       owner STRING; the SECOND Status badge is the
                       Contacted/Proposal copy-paste quirk. */}
                   {filteredDeals.map((o) => (
-                    <tr key={o.id} className="border-b border-line text-xs text-muted transition-colors hover:bg-line-soft/60">
+                    <tr key={o.id} className="border-b hover:bg-background">
                       <td className="py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gray-200 rounded-full" />
@@ -655,7 +720,17 @@ export default function DashboardPage() {
                           {o.stage === "closed_won" ? "Contacted" : o.stage === "negotiation" ? "Proposal" : "Contacted"}
                         </Badge>
                       </td>
-                      <td className="w-8" />
+                      <td>
+                        {/* Session-78 (L-78c3, bundle-decoded): the
+                            reference ships a ghost MoreHorizontal h-8 w-8
+                            affordance in every row's trailing cell
+                            (invisible at its zero data — the bundle-only
+                            evidence class); ours carries the aria-label
+                            accessible-superset convention. */}
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="More actions">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

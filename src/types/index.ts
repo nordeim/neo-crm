@@ -173,31 +173,28 @@ export interface Settings {
 // ---- computed aggregates ---------------------------------------------------
 
 export interface DashboardData {
-  // Session-31 (S31-P2): the bundle's Eke KPI memo — dealsClosedValue +
-  // revenueThisMonth derive from WON OPPORTUNITIES; salesTarget is the
-  // reference's HARDCODED 0 (its literal V=0) with targetProgress 0;
-  // avgSalesCycleDays is the average AGE of won leads (now − created). The
-  // unused scaffold-era delta/count fields are retired (the page's deltas
-  // are the KPI_STATICS literals).
+  // Session-31 (S31-P2; slimmed session-78 M-78c2): the bundle's Eke KPI
+  // memo's UNFILTERED members — salesTarget is the reference's HARDCODED 0
+  // (its literal V=0) with targetProgress 0; avgSalesCycleDays is the
+  // average AGE of won leads (now − created). dealsClosedValue +
+  // revenueThisMonth moved CLIENT-SIDE with the filter re-derivation (the
+  // reference's `p` memo reads the stage/source-filtered opps — the page's
+  // filteredOpps memo); pipeline/topReps/recentDeals went with them (the
+  // route's copies retired, zero consumers).
   kpis: {
     totalLeads: number;
-    dealsClosedValue: number;
-    revenueThisMonth: number;
     salesTarget: number;
     salesTargetProgress: number;
     conversionRate: string;
     avgSalesCycleDays: number;
   };
-  /** The 5 OPP stages with VALUE sums (labels Prospecting..Won). */
-  pipeline: Array<{ stage: string; label: string; count: number; value: number }>;
-  /** The FIXED Nov..May label window (the reference's hardcoded quirk). */
+  /** The FIXED Nov..May label window (the reference's hardcoded quirk) —
+   *  over the UNFILTERED opps (the reference's `b` memo reads `f`). */
   revenueOverTime: Array<{ month: string; won: number; target: number }>;
-  /** WON opps by owner STRING, value-desc, slice(0,3). */
-  topReps: Array<{ name: string; deals: number; value: number }>;
   leadSources: Array<{ source: string; count: number; value: number }>;
-  upcomingActivities: Array<Activity & { daysUntil: number }>;
-  /** OPPS sorted by updatedAt desc, slice(0,5). */
-  recentDeals: Array<Opportunity>;
+  /** Session-78 (L-78c4): the reference's `A` memo — the top-10-by-date
+   *  window filtered to date >= now, slice(0,3). */
+  upcomingActivities: Activity[];
 }
 
 export interface ReportsData {

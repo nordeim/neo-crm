@@ -783,9 +783,13 @@ describe("session-63: the foreign-doc retirement + the dead-arm split + the micr
     // requires the arm — the codebase has zero type-predicate /
     // non-null-assertion patterns, so the arm is the honest static
     // form).
-    const dashboardRoute = stripComments(read("src/app/api/dashboard/route.ts") ?? "");
-    expect(dashboardRoute).toContain("label: PIPELINE_LABELS[stage],");
-    expect(dashboardRoute).not.toMatch(/PIPELINE_LABELS\[stage\] \?\?/);
+    const dashboardPage = dashboard();
+    // Session-78 (M-78c2): the pipeline derivation moved client-side
+    // onto the page's filteredPipeline memo — the `?? s` retirement
+    // evidence re-anchored to its new home (the route's copy retired
+    // with the slim).
+    expect(dashboardPage).toContain("label: PIPELINE_LABELS[s],");
+    expect(dashboardPage).not.toMatch(/PIPELINE_LABELS\[s\] \?\?/);
     expect(dashboard()).toContain("{PIPELINE_LABELS[s]}");
     expect(dashboard()).not.toMatch(/PIPELINE_LABELS\[s\] \?\?/);
     const settingsRoute = stripComments(read("src/app/api/settings/route.ts") ?? "");
@@ -797,7 +801,9 @@ describe("session-63: the foreign-doc retirement + the dead-arm split + the micr
     // The keep-annotations ride the RAW sources (comments above are
     // stripped for the form pins).
     expect(read("src/app/api/reports/route.ts") ?? "").toContain("defensive DB-read");
-    expect(read("src/app/api/dashboard/route.ts") ?? "").toContain("statically required");
+    // Session-78 (L-78c4): the dashboard route's `: 0` dueAt arm
+    // retired WITH daysUntil (the wire-extra retirement) — the
+    // filter's own `a.dueAt &&` guard carries the null handling now.
   });
 
   it("the DEV_SECRET fallback warns once in production (N-63g)", () => {
@@ -945,13 +951,15 @@ describe("session-66: the components dead-surface retirement (N-66b/c/j)", () =>
     expect(src).toMatch(/backgroundColor: barColor/);
   });
 
-  it("the Sparkline guards the empty series BEFORE computing Math.max (N-66j)", () => {
+  it("the Sparkline guards the empty series (N-66j; s78 re-anchor: the Math.max normalization RETIRED with the raw-percentage bars)", () => {
     const src = read("src/components/shared/page-parts.tsx") ?? "";
-    const guard = src.indexOf("if (values.length === 0) return null;");
-    const max = src.indexOf("Math.max(...values, 1)");
-    expect(guard).toBeGreaterThan(-1);
-    expect(max).toBeGreaterThan(-1);
-    expect(guard).toBeLessThan(max);
+    // Session-78 (M-78c1): the reference's bar sparks render the RAW
+    // static values as percentage heights (`style height ${v}%`) — the
+    // v/max normalization (and its Math.max) was an invention, retired.
+    // The empty-series guard STAYS (the line/area arms render empty
+    // data meaningfully; the guard is the N-66j fix).
+    expect(src).toMatch(/if \(values\.length === 0\) return null;/);
+    expect(src).not.toMatch(/Math\.max\(\.\.\.values/);
   });
 });
 

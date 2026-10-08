@@ -1972,10 +1972,12 @@ test("the contacts Filters button opens the kke checkbox panel (S28-P5)", async 
 
 test("the accounts row click opens the Ece insights dialog (S28-P6)", async ({ page }) => {
   await page.goto("/Accounts");
-  // Wait for the DATA, not just any row — the SSR'd empty-state row
-  // ("No accounts found") is the first tbody tr until the fetch lands,
-  // and clicking it does nothing (the click-races-the-fetch flake; the
-  // hydrate-race lesson, this variant).
+  // Wait for the DATA, not just any row — with the session-78 Loading
+  // row (L-78c5) the "No accounts found" gate passes WHILE Loading
+  // shows, so the Loading row must ALSO be gone before the first tbody
+  // tr is a real row (the click-races-the-fetch flake; the hydrate-race
+  // lesson, this variant re-anchored at s78).
+  await expect(page.getByText("Loading...")).toHaveCount(0);
   await expect(page.getByText("No accounts found")).toHaveCount(0);
   const firstRow = page.locator("tbody tr").first();
   await expect(firstRow).toBeVisible();
@@ -1998,6 +2000,9 @@ test("the accounts row click opens the Ece insights dialog (S28-P6)", async ({ p
 
 test("the accounts ⋮ menu ships Edit / View Insights / Delete + the health badge under Status (S28-P6)", async ({ page }) => {
   await page.goto("/Accounts");
+  // Session-78 (L-78c5): the Loading row makes the empty-state gate pass
+  // early — gate on Loading gone too (the race lesson above).
+  await expect(page.getByText("Loading...")).toHaveCount(0);
   await expect(page.getByText("No accounts found")).toHaveCount(0);
   const firstRow = page.locator("tbody tr").first();
   await expect(firstRow).toBeVisible();

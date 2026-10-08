@@ -1310,16 +1310,19 @@ export const DELTA_TEXT = {
   neutral: "text-gray-600",
 } as const;
 
-/** Session-12 (S12-P6): the KPI sparkline geometry, measured on the
- *  reference. Dashboard: the trend visual sits in a `mt-2 h-8` (32px)
- *  container. Reports: a `flex items-end justify-between mt-2` row with
- *  the spark in a `flex-1 h-12 mr-2` (48px) slot whose recharts wrapper
- *  caps at max-width 176px. The sparks themselves are recharts MONOTONE
- *  curves (type=monotone) — line variant strokeWidth 2, dot false, no
- *  axes/grid, stock 5px margins; area variant fillOpacity 0.3 with a 1px
- *  stroke closing at the chart's x-axis. The reports LOST DEALS card
- *  ships NO spark (only Total Leads / Open Leads / Won Deals / Conversion
- *  Rate do). */
+/** Session-12 (S12-P6; re-derived session-78 M-78c1): the KPI sparkline
+ *  geometry, measured on the reference. Dashboard: the trend visual sits
+ *  in a `mt-2 h-8` (32px) container. Reports: a `flex items-end
+ *  justify-between mt-2` row with the spark in a `flex-1 h-12 mr-2` (48px)
+ *  slot. The DASHBOARD family is MIXED (the s78 live probe): the three
+ *  bar cards (Deals Closed / Revenue This Month / Sales Target) render
+ *  STATIC BAR DIVS — the raw KPI_STATICS values as percentage heights —
+ *  while Total Leads / Conversion Rate / Avg. Sales Cycle + the reports
+ *  sparks are recharts MONOTONE curves (line variant strokeWidth 2, dot
+ *  false, no axes/grid, stock 5px margins; area variant fillOpacity 0.3
+ *  with a 1px stroke closing at the chart's x-axis). The reports LOST
+ *  DEALS card ships NO spark (only Total Leads / Open Leads / Won Deals /
+ *  Conversion Rate do). */
 export const KPI_SPARK = {
   dashboardContainer: "mt-2 h-8",
   reportsWrapper: "flex items-end justify-between mt-2",
@@ -1329,6 +1332,12 @@ export const KPI_SPARK = {
   // measured was the flex-b shrink, not a class).
   line: "monotone, strokeWidth: 2, dot: false",
   area: "monotone, strokeWidth: 1, fillOpacity: 0.3",
+  /** Session-78 (M-78c1, live-probed): the reference's bar-spark
+   *  construction — `mt-2 h-8 flex items-end gap-1` with `flex-1
+   *  rounded-sm` (4px) bars whose heights are the RAW static values
+   *  as percentages (`style height ${v}%` — the max bar tops at 75%,
+   *  NOT 100%; no normalization, no floor, no opacity). */
+  bars: "flex items-end gap-1 + flex-1 rounded-sm + raw `${v}%` heights",
   lostDealsSpark: false,
 } as const;
 

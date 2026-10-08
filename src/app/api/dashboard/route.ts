@@ -1,42 +1,32 @@
 import { db } from "@/lib/db";
 import { ok, ERR, isGuarded, requireSession } from "@/lib/api";
-import { PIPELINE_STAGES, PIPELINE_LABELS } from "@/lib/constants";
-import type { DashboardData, Opportunity } from "@/types";
+import type { DashboardData } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 // Session-31 (S31-P2): the dashboard re-derivation — the bundle's Eke memo
 // (index-DZ-xbrIm.js) computed against BOTH models: leads feed totalLeads,
-// the conversion rate and the avg sales cycle; OPPORTUNITIES feed
-// dealsClosedValue, revenueThisMonth, the pipeline chart, the revenue
-// chart, Top Reps and Recent Deals. salesTarget is the reference's
-// HARDCODED 0 (its literal `V=0`) with targetProgress 0.
+// the conversion rate and the avg sales cycle; OPPORTUNITIES feed the
+// revenue chart; activities feed the upcoming card. salesTarget is the
+// reference's HARDCODED 0 (its literal `V=0`) with targetProgress 0.
+//
+// Session-78 (M-78c2, the route slim): the reference's filter bar
+// re-derives Deals Closed + Revenue This Month + the pipeline chart +
+// Top Reps + Recent Deals from the STAGE/SOURCE-FILTERED opp list (its
+// `p` memo) — those five derivations moved CLIENT-SIDE onto the store's
+// opportunities slice (the page's filteredOpps memo, the reference's
+// exact g/m/y/_ split), so the route's copies retired here (zero
+// consumers, the dch wire-extra policy; daysUntil went with them —
+// never consumed). The route keeps the UNFILTERED members the
+// reference derives from the raw lists: totalLeads / conversionRate /
+// avgSalesCycleDays (the leads `l`), salesTarget (its literal 0),
+// revenueOverTime (the opps `f`), leadSources (leads) + the upcoming
+// window (activities).
 
 /** The reference's FIXED 7-label window — hardcoded in its bundle, it does
  *  NOT track the data months (the labels stay Nov..May forever; the data
  *  indexes the last 7 months relative to now). */
 const REVENUE_LABELS = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"] as const;
-
-function serializeOpportunity(o: {
-  id: string;
-  name: string;
-  accountName: string | null;
-  stage: string;
-  amount: number;
-  probability: number | null;
-  closeDate: Date | null;
-  source: string | null;
-  owner: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}): Opportunity {
-  return {
-    ...o,
-    closeDate: o.closeDate?.toISOString() ?? null,
-    createdAt: o.createdAt.toISOString(),
-    updatedAt: o.updatedAt.toISOString(),
-  };
-}
 
 export async function GET() {
   const guard = await requireSession();
@@ -47,12 +37,17 @@ export async function GET() {
   // Session-42 (S42-P1): the read family joined the envelope — every
   // derivation below is pure computation on the fetched arrays, so only
   // the reads need the wrap; the null-guard answers the envelope.
+  // Session-78 (L-78c4): the activities read mirrors the reference's
+  // `Activity.list("-date", 10)` — the TOP-10 by date DESC, no status
+  // filter (its window filters only `date >= now` client-side); the
+  // leads read drops the owner include nothing consumed (the s44
+  // dead-include precedent).
   const rows = await (async () => {
     try {
       return await Promise.all([
-        db.lead.findMany({ include: { owner: { select: { id: true, name: true, avatarColor: true } } } }),
-        db.opportunity.findMany({ orderBy: { createdAt: "desc" } }),
-        db.activity.findMany({ where: { status: "scheduled" }, orderBy: { dueAt: "asc" } }),
+        db.lead.findMany(),
+        db.opportunity.findMany(),
+        db.activity.findMany({ orderBy: { dueAt: "desc" }, take: 10 }),
       ]);
     } catch {
       return null;
@@ -64,18 +59,8 @@ export async function GET() {
   const wonOpps = opportunities.filter((o) => o.stage === "closed_won");
   const wonLeads = leads.filter((l) => l.stage === "won");
 
-  // ---- KPIs (the Eke memo) ----
+  // ---- KPIs (the Eke memo's UNFILTERED members — the leads list `l`) ----
   const totalLeads = leads.length;
-
-  // WON-OPP amount sum (NOT won-lead values).
-  const dealsClosedValue = wonOpps.reduce((s, o) => s + (o.amount || 0), 0);
-
-  // Won opps whose UPDATED month is the current one (the reference groups
-  // by updated_date, not close_date).
-  const curMonth = now.getMonth();
-  const revenueThisMonth = wonOpps
-    .filter((o) => o.updatedAt.getMonth() === curMonth)
-    .reduce((s, o) => s + (o.amount || 0), 0);
 
   // The reference's HARDCODED zero target (its literal V=0) — the Sales
   // Target card renders $0k / 0% on both sides. Our derived
@@ -100,24 +85,11 @@ export async function GET() {
         )
       : 0;
 
-  // ---- Pipeline by stage: the 5 OPP stages with VALUE sums ----
-  const pipeline = PIPELINE_STAGES.map((stage) => {
-    const rows = opportunities.filter((o) => o.stage === stage);
-    return {
-      stage,
-      // Session-63 (N-63b): the `?? stage` arm retired — the loop keys
-      // come from PIPELINE_STAGES, every one of which is keyed in
-      // PIPELINE_LABELS (unreachable by construction over internal
-      // constants, the N-62c class).
-      label: PIPELINE_LABELS[stage],
-      count: rows.length,
-      value: rows.reduce((s, o) => s + (o.amount || 0), 0),
-    };
-  });
-
   // ---- Revenue over time: the FIXED Nov..May labels + the 55k±random
-  // target (the reference recomputes the random per render; per request is
-  // our server-side expression of the same variance) ----
+  //      target (the reference recomputes the random per render; per request is
+  //      our server-side expression of the same variance) — over the
+  //      UNFILTERED opps (the reference's `b` memo reads `f`, not `p`) ----
+  const curMonth = now.getMonth();
   const revenueOverTime: DashboardData["revenueOverTime"] = REVENUE_LABELS.map((month, i) => {
     const m = (curMonth - 6 + i + 12) % 12;
     const won = wonOpps
@@ -126,18 +98,7 @@ export async function GET() {
     return { month, won, target: Math.round(55_000 + Math.random() * 10_000) };
   });
 
-  // ---- Top performing reps: WON opps by the owner STRING, slice(0,3) ----
-  const repsMap = new Map<string, { name: string; deals: number; value: number }>();
-  for (const o of wonOpps) {
-    if (!o.owner) continue;
-    const entry = repsMap.get(o.owner) ?? { name: o.owner, deals: 0, value: 0 };
-    entry.deals += 1;
-    entry.value += o.amount || 0;
-    repsMap.set(o.owner, entry);
-  }
-  const topReps = [...repsMap.values()].sort((a, b) => b.value - a.value).slice(0, 3);
-
-  // ---- Lead sources (LEADS — unchanged) ----
+  // ---- Lead sources (LEADS — the reference's `x` memo, unfiltered) ----
   const sourceMap = new Map<string, { count: number; value: number }>();
   for (const l of leads) {
     const key = l.source || "Unknown";
@@ -150,49 +111,31 @@ export async function GET() {
     .map(([source, v]) => ({ source, ...v }))
     .sort((a, b) => b.count - a.count);
 
-  // ---- Upcoming activities (unchanged) ----
+  // ---- Upcoming activities (the reference's `A` memo: the top-10-by-date
+  //      window filtered to date >= now, slice(0,3) — the s78 L-78c4
+  //      mirror of `list("-date", 10)` + filter + slice) ----
   const upcomingActivities = activities
     .filter((a) => a.dueAt && a.dueAt >= now)
-    .slice(0, 6)
+    .slice(0, 3)
     .map((a) => ({
-      ...a,
-      // Session-63 (N-63b): the `: 0` arm is statically required —
-      // Activity.dueAt is DateTime? and the codebase carries zero
-      // type-predicate / non-null-assertion patterns, so the filter
-      // guarantee cannot be expressed to the type system here. The arm
-      // is unreachable at runtime (the defensive DB-read posture).
-      daysUntil: a.dueAt ? Math.ceil((a.dueAt.getTime() - now.getTime()) / 86_400_000) : 0,
-    }));
-
-  // ---- Recent deals: OPPS by updatedAt desc, slice(0,5) ----
-  const recentDeals = opportunities
-    .slice()
-    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-    .slice(0, 5)
-    .map(serializeOpportunity);
-
-  const data: DashboardData = {
-    kpis: {
-      totalLeads,
-      dealsClosedValue,
-      revenueThisMonth,
-      salesTarget,
-      salesTargetProgress,
-      conversionRate,
-      avgSalesCycleDays,
-    },
-    pipeline,
-    revenueOverTime,
-    topReps,
-    leadSources,
-    upcomingActivities: upcomingActivities.map((a) => ({
       ...a,
       dueAt: a.dueAt?.toISOString() ?? null,
       completedAt: a.completedAt?.toISOString() ?? null,
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
-    })),
-    recentDeals,
+    }));
+
+  const data: DashboardData = {
+    kpis: {
+      totalLeads,
+      salesTarget,
+      salesTargetProgress,
+      conversionRate,
+      avgSalesCycleDays,
+    },
+    revenueOverTime,
+    leadSources,
+    upcomingActivities,
   };
 
   return ok(data);
