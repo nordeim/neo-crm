@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Lock, Mail } from "lucide-react";
+import { ArrowLeft, Lock, Mail, ShieldCheck } from "lucide-react";
 import { LOGIN_LAYOUT } from "@/lib/page-layout";
 import {
   canSubmitReset,
@@ -281,7 +281,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                               Email
                             </label>
                             <div className={LOGIN_LAYOUT.inputWrap}>
-                              <Mail className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                              <Mail className={LOGIN_RESET_LAYOUT.inputIcon} aria-hidden="true" />
                               <input
                                 id="reset-email"
                                 type="email"
@@ -322,7 +322,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                                 Email
                               </label>
                               <div className={LOGIN_LAYOUT.inputWrap}>
-                                <Mail className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                                <Mail className={LOGIN_SIGNUP_LAYOUT.inputIcon} aria-hidden="true" />
                                 <input
                                   id="email"
                                   type="email"
@@ -341,7 +341,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                                 Password
                               </label>
                               <div className={LOGIN_LAYOUT.inputWrap}>
-                                <Lock className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                                <Lock className={LOGIN_SIGNUP_LAYOUT.inputIcon} aria-hidden="true" />
                                 <input
                                   id="password"
                                   type="password"
@@ -361,7 +361,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                                 Confirm Password
                               </label>
                               <div className={LOGIN_LAYOUT.inputWrap}>
-                                <Lock className={LOGIN_LAYOUT.inputIcon} aria-hidden="true" />
+                                <Lock className={LOGIN_SIGNUP_LAYOUT.inputIcon} aria-hidden="true" />
                                 <input
                                   id="confirm-password"
                                   type="password"
@@ -386,9 +386,12 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                       </>
                     ) : view === "verify" ? (
                       <>
-                        {/* S21-P5: the reference's verify-email view — the
-                            envelope tile, the six single-digit inputs, the
-                            attempts ladder, and the resend line. */}
+                        {/* S21-P5 + session-79 (M-79c3): the reference's
+                            verify-email view — the SHIELDCHECK tile (the
+                            s21 pin wrongly recorded the sent view's Mail;
+                            live-extracted: lucide-shield-check slate-700),
+                            the six single-digit inputs, the attempts
+                            ladder, and the resend line. */}
                         <button
                           type="button"
                           className={LOGIN_VERIFY_LAYOUT.back}
@@ -399,7 +402,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                         </button>
                         <div className={LOGIN_VERIFY_LAYOUT.headingStack}>
                           <div className={LOGIN_VERIFY_LAYOUT.iconWrap} aria-hidden="true">
-                            <Mail className={LOGIN_VERIFY_LAYOUT.icon} />
+                            <ShieldCheck className={LOGIN_VERIFY_LAYOUT.icon} />
                           </div>
                           <div className={LOGIN_VERIFY_LAYOUT.titleStack}>
                             <h2 className={LOGIN_VERIFY_LAYOUT.title}>Verify your email</h2>
@@ -410,24 +413,41 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                             </p>
                           </div>
                         </div>
-                        <form className={LOGIN_SIGNUP_LAYOUT.form} onSubmit={onVerifySubmit} noValidate>
-                          <div className={LOGIN_VERIFY_LAYOUT.codeWrap}>
-                            {codeDigits.map((digit, idx) => (
-                              <input
-                                key={idx}
-                                ref={(el) => {
-                                  codeRefs.current[idx] = el;
-                                }}
-                                type="text"
-                                inputMode="numeric"
-                                autoComplete={idx === 0 ? "one-time-code" : "off"}
-                                aria-label={`Digit ${idx + 1}`}
-                                value={digit}
-                                onChange={(e) => onCodeDigit(idx, e.target.value)}
-                                onKeyDown={(e) => onCodeKeyDown(idx, e)}
-                                className={`flex h-11 rounded-lg border border-input bg-background px-3 py-2 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${LOGIN_VERIFY_LAYOUT.codeInput}`}
-                              />
-                            ))}
+                        {/* Session-79 (L-79c8): the verify view's OWN form
+                            family (space-y-4 sm:space-y-6) — not the
+                            signup's tighter pair. */}
+                        <form className={LOGIN_VERIFY_LAYOUT.form} onSubmit={onVerifySubmit} noValidate>
+                          {/* Session-79 (L-79c7/L-79c11): the codeWrap + the
+                              hint line ride the SAME plain wrapper div —
+                              the hint's mt-3 must not ride the form's
+                              space-y (margin collapse would eat it; the
+                              reference's own structure). The code inputs
+                              are the FLAT stock mirror — the scaffold-era
+                              shadow-sm / transition-colors / ring-offset
+                              extras retire (the reference's OTP boxes ship
+                              none of them). */}
+                          <div>
+                            <div className={LOGIN_VERIFY_LAYOUT.codeWrap}>
+                              {codeDigits.map((digit, idx) => (
+                                <input
+                                  key={idx}
+                                  ref={(el) => {
+                                    codeRefs.current[idx] = el;
+                                  }}
+                                  type="text"
+                                  inputMode="numeric"
+                                  autoComplete={idx === 0 ? "one-time-code" : "off"}
+                                  aria-label={`Digit ${idx + 1}`}
+                                  value={digit}
+                                  onChange={(e) => onCodeDigit(idx, e.target.value)}
+                                  onKeyDown={(e) => onCodeKeyDown(idx, e)}
+                                  className={`flex rounded-lg border border-input bg-background px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${LOGIN_VERIFY_LAYOUT.codeInput}`}
+                                />
+                              ))}
+                            </div>
+                            <p className={LOGIN_VERIFY_LAYOUT.hint}>
+                              {LOGIN_VERIFY_LAYOUT.hintLine}
+                            </p>
                           </div>
 
                           {error && <ErrorCallout message={error} />}
@@ -469,11 +489,12 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                           </div>
                         </div>
                         <div className={LOGIN_RESET_LAYOUT.sentCallout}>
+                          {/* Session-79 (N-79c13): the reference's callout
+                              text is a BARE text node — the [&_p] arm stays
+                              inert (its line-height never fires there). */}
                           <div className={LOGIN_RESET_LAYOUT.sentCalloutText}>
-                            <p>
-                              Please check your email for the password reset link. It may take a few
-                              minutes to arrive.
-                            </p>
+                            Please check your email for the password reset link. It may take a few
+                            minutes to arrive.
                           </div>
                         </div>
                         <button type="button" className={LOGIN_RESET_LAYOUT.sentBack} onClick={() => goto("back")}>
@@ -601,6 +622,13 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
 
         </div>
       </div>
+      {/* Session-79 (L-79c6, live-extracted on all five reference views):
+          the trailing mobile-only nbsp spacer rides INSIDE the max-w-md
+          wrapper AFTER the card — mt-8 + text-xs slate-400, hidden from sm
+          up (16px tall + the 32px margin at 390). */}
+      <div className="mt-8 text-center text-xs text-slate-400 sm:hidden">
+        <p>&nbsp;</p>
+      </div>
     </div>
   );
 }
@@ -610,14 +638,14 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
  * red variant of the s11 sent-callout), DOM-extracted live: bg-red-50/70 +
  * border-red-200 + p-4 + the inner red-700 text-sm div. The `[&>svg]`
  * classes position an icon the reference never renders on the auth
- * surfaces; they ship verbatim.
+ * surfaces; they ship verbatim. Session-79 (N-79c13): the text renders
+ * as a BARE text node — the [&_p] arm stays inert like the reference's
+ * own.
  */
 function ErrorCallout({ message }: { message: string }) {
   return (
     <div role="alert" className={LOGIN_ERROR_CALLOUT.callout}>
-      <div className={LOGIN_ERROR_CALLOUT.text}>
-        <p>{message}</p>
-      </div>
+      <div className={LOGIN_ERROR_CALLOUT.text}>{message}</div>
     </div>
   );
 }
@@ -630,9 +658,7 @@ function ErrorCallout({ message }: { message: string }) {
 function InfoCallout({ message }: { message: string }) {
   return (
     <div role="alert" className={LOGIN_INFO_CALLOUT.callout}>
-      <div className={LOGIN_INFO_CALLOUT.text}>
-        <p>{message}</p>
-      </div>
+      <div className={LOGIN_INFO_CALLOUT.text}>{message}</div>
     </div>
   );
 }

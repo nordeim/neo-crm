@@ -165,15 +165,18 @@ describe("session-21: the extended view state machine (S21-P4 / S21-P5)", () => 
 });
 
 describe("session-21: the signup view vocabulary (S21-P4)", () => {
-  it("the back button mirrors the reference's -mb-2 class (8px computed gap under space-y-4)", async () => {
+  it("the back button is the v4-correct mb-2 (the reference's computed 8px gap at all widths)", async () => {
     const L = await signupLayout();
     // DOM: <button class="flex items-center gap-2 text-sm text-slate-500
-    // hover:text-slate-700 font-medium transition-colors -mb-2"> … Unlike
-    // the reset view's -mb-2 (24px sm stack → 16px gap, the s11 v4 hazard),
-    // the signup view's stack is space-y-4 at ALL widths → the -mb-2
-    // collapse computes 8px in BOTH v3 and v4 — mirrored verbatim.
+    // hover:text-slate-700 font-medium transition-colors -mb-2"> …
+    // Session-79 (M-79c2): the s21 "-mb-2 mirrors verbatim" claim was
+    // v4-FALSIFIED — under our :where(space-y) margin-BOTTOM model the
+    // -mb-2 (0,1,0) WINS and computes an 8px OVERLAP (LIVE: -8px on our
+    // dev server). The reference computes +8px at BOTH 390 and 1440 (its
+    // v3 margin-TOP space-y-4 collapses 16-8). `mb-2` expresses the SAME
+    // computed 8px gap directly.
     expect(L.back).toBe(
-      "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors -mb-2",
+      "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors mb-2",
     );
     expect(L.backIcon).toBe(LOGIN_RESET_LAYOUT.backIcon);
   });

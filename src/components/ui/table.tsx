@@ -43,8 +43,16 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
+      // Session-79 (M-79c5 — the N-77c17 adjudication, deferred since
+      // s77): the reference's stock TableHead is `text-muted-foreground`
+      // and computes rgb(115,115,115) (#737373) on every table (live-
+      // probed on its /accounts); our `text-muted` (#6b7280) rendered
+      // one shade darker family-wide. Our computed-equal token for the
+      // #737373 role is `text-muted-ink` (the s10 muted-ink token the
+      // tabs track + stock placeholders already ride). Per-surface th
+      // color overrides (the contacts gray-700 etc.) are unaffected.
       className={cn(
-        "h-10 px-2 text-left align-middle font-medium text-muted [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "h-10 px-2 text-left align-middle font-medium text-muted-ink [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className,
       )}
       {...props}

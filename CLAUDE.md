@@ -111,8 +111,8 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (1523 checks)            |
-| `bun run test:e2e`  | Playwright E2E (131 checks, needs build first) |
+| `bun run test`      | Vitest unit suites (1561 checks)            |
+| `bun run test:e2e`  | Playwright E2E (132 checks, needs build first) |
 | `bun run gate`      | The full gate in one command (lint → typecheck → test → build → e2e) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
@@ -296,7 +296,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   TABLE_CARD plain-div rule, CALENDAR_CARD, SETTINGS_GRID + the
   design-tokens `th, td { padding: 1px }` platform reset). Node
   environment; `@` alias resolved.
-- **E2E (Playwright, 131 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 132 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -368,7 +368,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 1523).
+the seam (currently 1561).
 
 ## Code Quality Standards
 

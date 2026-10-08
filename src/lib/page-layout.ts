@@ -318,9 +318,15 @@ export const LOGIN_LAYOUT = {
   inputWrap: "relative",
   inputIcon: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500",
   input:
-    "h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 text-slate-900 placeholder:text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/30 sm:h-12",
+    "h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 text-slate-900 placeholder:text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 text-base md:text-sm sm:h-12",
+  // Session-79 (M-79c1/M-79c4, live-probed on the reference): the auth
+  // inputs carry the stock text-base md:text-sm pair (16px <768, 14px at
+  // desktop — LIVE: 14px at 1440) and focus to a SOLID slate-400 2px ring
+  // + a 2px WHITE offset (computed rgb(148,163,184) 0 0 0 4px over
+  // rgb(255,255,255) 0 0 0 2px) — the 30%-opacity ringless-offset arm
+  // we shipped since s7 computed oklab(… / 0.3) 0 0 0 2px.
   submit:
-    "flex h-11 w-full items-center justify-center gap-1 rounded-xl bg-slate-900 font-medium text-white shadow-sm transition-all duration-200 hover:bg-slate-800 sm:h-12",
+    "flex h-11 w-full items-center justify-center gap-1 rounded-xl bg-slate-900 font-medium text-white shadow-sm transition-all duration-200 hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm sm:h-12",
   footer: "flex flex-col items-center justify-between gap-2 sm:flex-row sm:gap-0",
   footerLink: "text-sm text-slate-500 transition-colors hover:text-slate-700",
   footerLinkStrong: "font-medium text-slate-700",

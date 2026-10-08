@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.75.0
+version: 1.76.0
 last_updated: 2026-10-08
-project_state: 1523 unit checks + 132 e2e checks green; the session-78 layer (the dashboard family rotation — the session_149 suggested target, the KPI-memo seams' first dedicated rotation since the KPI_STATICS adjudication: the M-78c1 KPI BAR-SPARK CONSTRUCTION [the reference renders the RAW static values as percentage heights — style height ${v}%, the max bar tops at 75% NOT 100%; flex-1 rounded-sm 4px bars; NO normalization/floor/opacity — LIVE-probed 12.8px on the 32px rail; the BarStatCard twin fixed with it on all eleven accounts/activities cards] + the M-78c2 FILTER RE-DERIVATION [the reference's p memo — the stage/source-filtered opps — feeds the Deals Closed + Revenue This Month KPIs, the pipeline chart + legend, the Top Reps list, and the Recent Deals rows (full-list updatedAt-desc sort, slice 5); the derivations moved client-side onto the store's opportunities slice, the route's unconsumed copies + daysUntil retired] + the L-78c3 TRAILING GHOST BUTTON [a MoreHorizontal h-8 w-8 per Recent Deals row — bundle-only, invisible at the reference's zero data] + the L-78c4 UPCOMING WINDOW [list("-date", 10) -> filter date >= now -> slice(0,3), NO status filter — the seeded data shows the delta LIVE: 3-furthest-desc, was 6-soonest-asc] + the L-78c5 ACCOUNTS LOADING ROW [the M-77c3 missed sibling — the colSpan-8 ternary + the accountsLoaded flag] + the N-78c6/7/8/9 hygiene set [the relatedName-bare subtext; the border-b hover:bg-background row classes; the KPI_SPARK bars member + the mixed-family comment; the STALE FRONTMATTER REPAIR — the YAML version/last_updated never rode a bump since s76])
+project_state: 1561 unit checks + 132 e2e checks green; the session-79 layer (the login-family rotation — the session_151 suggested target, never a dedicated rotation, LIVE-extracted at 1440 AND 390 [the login card is PLATFORM code, not app-bundle code]: the M-79c1 AUTH TEXT-SIZE LADDER [the reference's auth inputs/submits compute 14px at desktop — text-base md:text-sm on the signin/reset inputs + text-sm on all four submits + the signup inputs' three-rung text-sm sm:text-base md:text-sm; ours shipped a flat 16px] + the M-79c2 BACK-BUTTON OVERLAP [the s21 verbatim -mb-2 v4-FALSIFIED — LIVE -8px overlap on ours vs the reference's +8px at both widths; mb-2 / mb-2 sm:mb-4 are the v4-correct expressions] + the M-79c3 SHIELDCHECK GLYPH [the verify tile is lucide-shield-check slate-700, not the sent view's Mail — the s21 pin's misrecord] + the M-79c4 AUTH FOCUS RING [solid slate-400 2px ring + 2px white offset, computed byte-identical to the reference; the 30%-opacity arm retired] + the M-79c5 N-77c17 TABLEHEAD ADJUDICATION [the reference's stock th is text-muted-foreground rgb(115,115,115); our computed-equal is text-muted-ink — the family-wide one-shade-darker text-muted retired] + the L-79c6/7/8/9/10/11 set [the mobile nbsp spacer; the verify hint line + its wrapper; the verify stack/form space-y-4 sm:space-y-6; the reset back's responsive 8/16px ladder; the slate-400 icon split; the flat stock code inputs] + the N-79c12/13/14/15 chrome set [the submit disabled+keyboard rings; the bare-text callouts; the back2 retirement; the CLAUDE.md 131-count repair])
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.75.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.76.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -5422,6 +5422,70 @@ YAML frontmatter (`version:` / `last_updated:`) never rode ANY of the
 version bumps — the s77 "stale header repair" fixed the H1 but left the
 frontmatter at s76's 1.73.0. Both now bump together with every layer
 (pinned going forward by this record).
+
+## 16bs. Session-79 Layer (the login-family rotation + the N-77c17
+TableHead adjudication)
+
+**What shipped:** the login/signup card family's FIRST dedicated
+rotation (the session_151 suggested target — never rotated; the card is
+PLATFORM code, not app-bundle code: zero auth markers exist in the
+1.63MB bundle, so every claim was LIVE-EXTRACTED from the reference at
+1440 AND 390 and cross-probed on our own dev server) found the N-79
+family — 5 M + 6 L + 5 N (incl. the folded-in N-77c17 adjudication +
+79-b's CLAUDE.md census finding). The decisive fixes: the AUTH
+TEXT-SIZE LADDER (the reference's auth inputs/submits compute 14px at
+desktop — the stock `text-base md:text-sm` on the signin/reset inputs,
+`text-sm` on all four submits, and the SIGNUP inputs' three-rung
+`text-sm sm:text-base` riding the stock `md:text-sm` [14px <640 /
+16px 640-767 / 14px >=768]; ours shipped a flat 16px everywhere —
+LIVE: 14px vs our old 16px at 1440); the BACK-BUTTON OVERLAP (the s21
+"-mb-2 mirrors verbatim" claim v4-FALSIFIED — under our :where(space-y)
+margin-BOTTOM model the own class WINS and computed an 8px OVERLAP
+[LIVE: -8px] where the reference computes +8px at BOTH widths; the
+reset view's ladder is 8px <640 / 16px >=640 [LIVE-measured on both
+apps] — `mb-2` / `mb-2 sm:mb-4` are the v4-correct expressions); the
+VERIFY-EMAIL ShieldCheck GLYPH (the s21 pin wrongly recorded the sent
+view's Mail — the reference's tile is lucide-shield-check slate-700);
+the AUTH FOCUS RING (a SOLID slate-400 2px ring + a 2px WHITE offset —
+computed `rgb(255,255,255) 0 0 0 2px, rgb(148,163,184) 0 0 0 4px` on
+the reference; ours shipped a 30%-opacity ring with no offset); and
+the N-77c17 TABLEHEAD adjudication (deferred since s77 — the
+reference's stock th is `text-muted-foreground` computing
+rgb(115,115,115) on every table [live-probed]; our computed-equal token
+is `text-muted-ink` #737373 — the `text-muted` #6b7280 retired
+family-wide, per-surface th overrides unaffected).
+
+The L/N set: the missing MOBILE SPACER (every reference auth view
+ships a trailing `mt-8 text-center text-xs text-slate-400 sm:hidden`
+nbsp spacer inside the max-w-md wrapper — 16px + the 32px margin at
+390); the VERIFY view's missing HINT LINE (`text-xs text-slate-500
+text-center mt-3` "Enter the verification code sent to your email"
+riding the SAME plain wrapper div as the codeWrap — the mt-3 must not
+ride the form's space-y, margin collapse would eat it); the verify
+STACK/FORM spacing (its own `space-y-4 sm:space-y-6` pair — ours
+shipped the signup's tighter families); the INPUT-ICON COLOR SPLIT
+(the signin icons slate-500; the reset/signup icons the LIGHTER
+slate-400); the CODE-INPUT EXTRAS (the flat stock mirror — the
+scaffold-era shadow-sm / transition-colors / ring-offset-2 retired);
+the SUBMIT CHROME (disabled:pointer-events-none disabled:opacity-50 +
+the keyboard focus-visible ring); the CALLOUT TEXT NODES (the
+reference's callout text is a BARE text node — the `[&_p]` arm stays
+inert; our `<p>` wrappers retired); the dead `LOGIN_VERIFY_LAYOUT
+.back2` member (the dch policy); and 79-b's CLAUDE.md:115/:299 stale
+"(131 checks)" pair (the N-50a class — three realignments missed the
+e2e-carrier lines).
+
+**The audit lessons:** (1) a PLATFORM page's parity evidence is the
+LIVE DOM + computed probes, never the app bundle — the login card
+lives in the base44 shell's runtime chunks, and the rotation's first
+move (bundle grep) found zero markers. (2) A documented v3->v4
+"computed-equal" claim that was never LIVE-measured is a hypothesis,
+not a pin — the s21 -mb-2 analysis reasoned correctly about v3 but
+asserted the v4 result without measuring it; the overlap hid for 58
+sessions behind a green pin (the fix: measure the gap on BOTH apps
+before writing the pin). (3) A desktop-only probe of a RESPONSIVE
+class (`mb-4` for the reference's `16px gap`) misses the mobile rung —
+always probe both ends of a responsive expression.
 
 ## 17. Responsive Breakpoint Reference
 

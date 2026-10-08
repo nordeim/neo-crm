@@ -76,29 +76,39 @@ export const LOGIN_RESET_LAYOUT = {
   viewStack: "space-y-4 sm:space-y-6",
   /** The reset view's left-aligned Back to sign in. NOTE: the reference's
    *  class is `… -mb-2`, which under ITS v3-era space-y (margin-TOP on
-   *  following siblings) computes a 16px gap to the title (24 − 8). Under
-   *  OUR Tailwind v4, space-y is wrapped in :where() and sets
-   *  margin-BOTTOM — where a `-mb-2` (0,1,0) WINS the specificity fight
-   *  and produces an 8px OVERLAP. `mb-4` is the v4-correct expression of
-   *  the same computed 16px gap (16 = 24 − 8, directly).
-   *  Live-verified: reference gap 16px / clone gap must be 16px. */
-  back: "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors mb-4",
+   *  following siblings) collapses to an 8px gap at <640 (under space-y-4)
+   *  and a 16px gap at >=640 (under sm:space-y-6) — LIVE-measured at 390
+   *  and 1512 (session-79). Under OUR Tailwind v4, space-y is wrapped in
+   *  :where() and sets margin-BOTTOM — where any own mb class WINS the
+   *  specificity fight — so `mb-2 sm:mb-4` expresses the SAME computed
+   *  ladder directly. (Session-11 VLM round: the clone rendered -8px
+   *  until the re-pin; session-79: the flat mb-4 was 8px too tall at
+   *  phones.) */
+  back: "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors mb-2 sm:mb-4",
+  /** The reset view's mail icon — the LIGHTER slate-400 family (the
+   *  reference's reset/signup views ride slate-400 icons where the
+   *  signin view rides slate-500; session-79 L-79c10, live-extracted). */
+  inputIcon: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400",
   /** The back button's ArrowLeft icon size. */
   backIcon: "h-4 w-4",
   /** Both views' h2 — one step below the login h1 (text-xl vs text-2xl). */
   title: "text-xl sm:text-2xl font-bold text-slate-900",
   /** Both views' description / email line. */
   description: "text-slate-600 text-sm sm:text-base",
-  /** The reset view's submit — one size below Sign in (h-10 sm:h-11). */
+  /** The reset view's submit — one size below Sign in (h-10 sm:h-11);
+   *  Session-79 (M-79c1/N-79c12): text-sm (14px at all widths, the
+   *  reference's stock Button) + the disabled/keyboard-ring chrome. */
   send:
-    "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200",
+    "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
   /** The reset view's email input — the login input family one size down
    *  (h-10 sm:h-11 vs the sign-in form's h-11 sm:h-12), same pl-10 mail
    *  icon + slate-50/50 surface. The placeholder is LIGHTER than the
    *  sign-in fields' (slate-400 vs slate-600 — the reference's own
-   *  inconsistency, mirrored; DOM: rgb(148,163,184)). */
+   *  inconsistency, mirrored; DOM: rgb(148,163,184)). Session-79
+   *  (M-79c1/M-79c4): the stock text-base md:text-sm pair + the SOLID
+   *  slate-400 ring with the 2px offset (live-probed on the reference). */
   resetInput:
-    "h-10 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/30 sm:h-11",
+    "h-10 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 text-base md:text-sm sm:h-11",
   /** The sent view's heading stack (icon circle + title block). */
   sentHeadingStack: "text-center space-y-3 sm:space-y-4",
   /** The sent view's icon circle wrap. */
@@ -134,10 +144,12 @@ export const LOGIN_SIGNUP_LAYOUT = {
   viewColumn: "w-full",
   /** The space-y-4 stack (NO sm variant — unlike the reset view's sm:space-y-6). */
   viewStack: "space-y-4",
-  /** The back button — -mb-2 mirrored VERBATIM (the stack's 16px margin
-   *  collapses with the -8px to an 8px gap under BOTH v3 and v4; the s11
-   *  reset-view hazard does not apply at this width). */
-  back: "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors -mb-2",
+  /** The back button — the reference's computed +8px gap (its -mb-2
+   *  collapses under v3 space-y-4 at ALL widths; session-79 M-79c2
+   *  LIVE-falsified the s21 "verbatim -mb-2" claim: under our v4 the
+   *  own class WINS the :where() fight and computed an 8px OVERLAP —
+   *  `mb-2` is the v4-correct direct expression). */
+  back: "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors mb-2",
   /** The back button's ArrowLeft icon size (the s11 pin). */
   backIcon: "h-4 w-4",
   /** The view's h2 — the s11 title family. */
@@ -146,6 +158,9 @@ export const LOGIN_SIGNUP_LAYOUT = {
   form: "space-y-3 sm:space-y-4",
   /** The fields group inside the form. */
   fields: "space-y-3",
+  /** The signup view's mail/lock icons — the LIGHTER slate-400 family
+   *  (the reset view's twin; session-79 L-79c10, live-extracted). */
+  inputIcon: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400",
   /** The field wrapper + label — the signin family (space-y-1.5 + the
    *  stock-label slate-700), DOM-verified on the signup view. */
   field: "space-y-1.5",
@@ -156,9 +171,10 @@ export const LOGIN_SIGNUP_LAYOUT = {
    *  focus:border-slate-400 focus:ring-slate-400 rounded-xl
    *  placeholder:text-slate-400 text-sm sm:text-base. */
   input:
-    "h-10 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-400 text-sm sm:text-base sm:h-11",
-  /** The submit — the s11 one-size-down send family. */
-  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200",
+    "h-10 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 text-sm sm:text-base md:text-sm sm:h-11",
+  /** The submit — the s11 one-size-down send family (the text-sm +
+   *  chrome ride the shared send record). */
+  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
 } as const;
 
 /**
@@ -169,11 +185,14 @@ export const LOGIN_SIGNUP_LAYOUT = {
  * reference's center/size overrides.
  */
 export const LOGIN_VERIFY_LAYOUT = {
-  /** The w-full column + stack (the signup view's space-y-4 family). */
+  /** The w-full column + stack — session-79 (L-79c8, live-extracted):
+   *  the verify view's own stack carries the sm:space-y-6 arm (the
+   *  space-y-4-only pin was the s21 misread). */
   viewColumn: "w-full",
-  viewStack: "space-y-4",
-  /** The back button (left-aligned, the -mb-2 family). */
-  back: "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors -mb-2",
+  viewStack: "space-y-4 sm:space-y-6",
+  /** The back button (left-aligned — the signup view's mb-2 twin after
+   *  the session-79 M-79c2 overlap fix). */
+  back: "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors mb-2",
   backIcon: "h-4 w-4",
   /** The centered heading stack (the sent view's family). */
   headingStack: "text-center space-y-3 sm:space-y-4",
@@ -199,8 +218,11 @@ export const LOGIN_VERIFY_LAYOUT = {
    *  conflict resolves to 40px under ITS v3 cascade; under our v4 the
    *  same pair flex-shrinks to ~56px, so only w-10 ships. */
   codeInput: "text-center w-10 h-11 text-base font-semibold md:text-sm",
+  /** The form — session-79 (L-79c8, live-extracted): the verify view's
+   *  own space-y-4 sm:space-y-6 family (NOT the signup's tighter pair). */
+  form: "space-y-4 sm:space-y-6",
   /** The submit — the s11 one-size-down send family. */
-  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200",
+  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
   /** The "Didn't receive the code? Resend" line (the P itself). */
   resendLine: "text-sm text-slate-600",
   /** The resend line's centered wrapper (DOM: div.text-center > p). */
@@ -210,8 +232,13 @@ export const LOGIN_VERIFY_LAYOUT = {
   /** The form's buttons group (DOM: div.space-y-3 holding the submit +
    *  the resend line — the verify view's own bottom-of-form family). */
   buttonsGroup: "space-y-3",
-  /** The full-width centered Back to sign in below the resend line. */
-  back2: "w-full flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors",
+  /** The hint line under the six code inputs — session-79 (L-79c7,
+   *  live-extracted): `<p class="text-xs text-slate-500 text-center
+   *  mt-3">Enter the verification code sent to your email</p>` riding
+   *  the SAME plain wrapper div as the codeWrap (the mt-3 must not ride
+   *  the form's space-y — margin collapse would eat it). */
+  hint: "text-xs text-slate-500 text-center mt-3",
+  hintLine: "Enter the verification code sent to your email",
 } as const;
 
 /**

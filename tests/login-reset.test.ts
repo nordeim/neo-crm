@@ -50,17 +50,19 @@ describe("login reset flow — view state machine", () => {
 });
 
 describe("login reset flow — reference class vocabulary", () => {
-  it("the reset view's Back to sign in matches the reference's computed 16px gap", () => {
+  it("the reset view's Back to sign in matches the reference's responsive 8px/16px gap ladder", () => {
     // DOM: <button class="flex items-center gap-2 text-sm text-slate-500
     // hover:text-slate-700 font-medium transition-colors -mb-2"> …
     // <svg lucide-arrow-left h-4 w-4> Back to sign in</button>
-    // The reference's -mb-2 + v3 space-y (margin-TOP semantics) computes a
-    // 16px gap to the title. Under our v4, :where(space-y) sets
-    // margin-BOTTOM and loses specificity to -mb-2 (8px overlap) — `mb-4`
-    // expresses the SAME computed 16px gap. (Session-11 VLM round: the
-    // clone rendered -8px until this re-pin.)
+    // The reference's -mb-2 + v3 space-y (margin-TOP semantics) collapses
+    // to 8px under space-y-4 (<640) and 16px under sm:space-y-6 (>=640) —
+    // LIVE-measured 8px at 390 / 16px at 1512 (session-79). Under our v4,
+    // :where(space-y) sets margin-BOTTOM and loses specificity to any own
+    // mb class — `mb-2 sm:mb-4` expresses the SAME computed ladder
+    // directly. (Session-11 VLM round: the clone rendered -8px until the
+    // re-pin; session-79: the flat mb-4 was 8px too tall at phones.)
     expect(LOGIN_RESET_LAYOUT.back).toBe(
-      "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors mb-4",
+      "flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors mb-2 sm:mb-4",
     );
     expect(LOGIN_RESET_LAYOUT.backIcon).toBe("h-4 w-4");
   });
@@ -77,8 +79,11 @@ describe("login reset flow — reference class vocabulary", () => {
     // DOM: …px-3 py-2 w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800
     // text-white font-medium shadow-sm rounded-xl transition-all
     // duration-200 — the login's Sign in is h-11 sm:h-12.
+    // Session-79 (M-79c1/N-79c12): the record gained the stock text-sm
+    // (14px at all widths, live-measured) + the disabled/keyboard-ring
+    // chrome the reference's stock Button carries.
     expect(LOGIN_RESET_LAYOUT.send).toBe(
-      "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200",
+      "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
     );
   });
 
