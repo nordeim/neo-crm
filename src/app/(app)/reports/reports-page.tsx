@@ -416,6 +416,10 @@ export default function ReportsPage() {
 function SalesTab({ data }: { data: ReportsData | null }) {
   return (
     <div className="space-y-6">
+      {/* Session-85 (N-85c2): the reference's cCe renders THREE grid
+          children — Revenue+WonLost, then Pipeline+Funnel, then the
+          tables (DealTables owns the third). Our single 4-chart grid is
+          retired; visually identical (all charts height 300, gap-6). */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title="Revenue Over Time">
           {/* Session-27 (S27-P3): the reference's tab-1 revenue chart is a
@@ -443,6 +447,8 @@ function SalesTab({ data }: { data: ReportsData | null }) {
             ]}
           />
         </ChartCard>
+      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title="Pipeline by Stage">
           {/* Session-27 (S27-P3): ROW-DERIVED (open deals by stage — EMPTY
               at zero, like the reference) with the violet VALUE bars and
@@ -507,7 +513,11 @@ function DealTables({ data }: { data: ReportsData | null }) {
               data!.recentWonDeals.map((d) => (
                 <TableRow key={d.id}>
                   <TableCell className="font-medium">{d.name}</TableCell>
-                  <TableCell>{d.account ?? "—"}</TableCell>
+                  {/* Session-85 (L-85c1): the reference renders d.account_name
+                      BARE — no fallback (a null account renders an EMPTY
+                      cell; the s82 "$"-alone precedent for invented
+                      fallbacks). */}
+                  <TableCell>{d.account}</TableCell>
                   <TableCell className="text-right">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
@@ -573,7 +583,11 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
   const aging = data?.agingPipeline ?? [];
   return (
     <div className="space-y-6">
-      <ChartCard title="Forecasting Accuracy" wide>
+      {/* Session-85 (N-85c3): the reference's ZEe ships this ONE header
+          with the appended flex-row family (its other tab-2 headers are
+          plain) — a structural mirror, visually identical with a single
+          title child. */}
+      <ChartCard title="Forecasting Accuracy" wide headerClassName="flex flex-row items-center justify-between">
         {/* Session-31: the series is the reference's actual/forecasted
             model — forecasted = amount × (probability||50)/100 per closed
             opp, actual = won amounts, grouped by close month (the s10
@@ -588,10 +602,15 @@ function PipelineTab({ data }: { data: ReportsData | null }) {
           ]}
           formatter={dollarFormatter}
         />
-        <p className="mt-4 text-center text-sm text-gray-500">
-          Average Accuracy:{" "}
-          <span className="text-lg font-bold text-gray-900">{data?.forecastingAccuracy.average ?? 0}%</span>
-        </p>
+        {/* Session-85 (N-85c4): the reference's caption construction —
+            div.mt-4.text-center > p.text-sm.text-gray-500 > the span at
+            the reference's own class order (font-bold text-lg). */}
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-500">
+            Average Accuracy:{" "}
+            <span className="font-bold text-lg text-gray-900">{data?.forecastingAccuracy.average ?? 0}%</span>
+          </p>
+        </div>
       </ChartCard>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ChartCard title="Pipeline by Stage">
@@ -731,7 +750,10 @@ function DealsTables({ data }: { data: ReportsData | null }) {
               data!.dealsAtRisk.map((d) => (
                 <TableRow key={d.id} className="bg-red-50">
                   <TableCell className="font-medium">{d.deal}</TableCell>
-                  <TableCell>{d.account ?? "—"}</TableCell>
+                  {/* Session-85 (L-85c1): the reference's bare
+                      p.account_name — the same no-fallback mirror as the
+                      Recent Won table. */}
+                  <TableCell>{d.account}</TableCell>
                   <TableCell className="text-right">${(d.amount || 0).toLocaleString()}</TableCell>
                 </TableRow>
               ))
@@ -813,7 +835,11 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
                     <TableCell>
                       <Badge variant="outline">{a.type}</Badge>
                     </TableCell>
-                    <TableCell>{a.dueAt ? formatDate(a.dueAt) : "—"}</TableCell>
+                    {/* Session-85 (N-85c5): the reference renders
+                        Tc(li(f.date), "MMM d, yyyy") BARE — its filter's
+                        date-present guard (f.date &&) guarantees the date,
+                        so no ternary, no fallback. */}
+                    <TableCell>{formatDate(a.dueAt)}</TableCell>
                   </TableRow>
                 ))
                 )}
@@ -1095,16 +1121,21 @@ function ChartCard({
   title,
   children,
   wide = false,
+  headerClassName,
 }: {
   title: string;
   children: React.ReactNode;
   /** Session-10: the tab-2 Forecasting Accuracy card spans the full row
    *  on the reference (1142px at 1512 viewport — DOM-extracted). */
   wide?: boolean;
+  /** Session-85 (N-85c3): the reference's ZEe appends the flex-row
+   *  family to the Forecasting Accuracy CardHeader — the one per-card
+   *  escape (every other chart card keeps the plain base). */
+  headerClassName?: string;
 }) {
   return (
     <Card className={wide ? "lg:col-span-3" : undefined}>
-      <CardHeader>
+      <CardHeader className={headerClassName}>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>{children}</CardContent>

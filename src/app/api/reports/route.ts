@@ -401,9 +401,13 @@ export async function GET(req: Request) {
   }));
 
   // Overdue: past-date NON-Note activities, slice(0,20) (the reference's
-  // `f.date&&isBefore(now,f.date)&&f.type!=="Note"`).
+  // `f.date && isBefore(now, f.date) && f.type !== "Note"`). Session-85
+  // (N-85c5): the DATE-PRESENT guard mirrors the reference's `f.date &&`
+  // arm — date-less activities are EXCLUDED from this table (the
+  // activityDate createdAt fallback never reaches it), and the map
+  // carries the GUARANTEED date so the page renders it bare.
   const overdueActivities = filteredActivities
-    .filter((a) => activityDate(a) < now && a.type !== "note")
+    .filter((a) => a.dueAt !== null && a.dueAt.getTime() < now.getTime() && a.type !== "note")
     .slice(0, 20)
     .map((a) => ({
       id: a.id,
@@ -411,7 +415,7 @@ export async function GET(req: Request) {
       // Session-63 (N-63b): the defensive DB-read posture (the tab-3
       // triple's sibling — see the annotation above).
       type: ACTIVITY_TYPE_META[a.type]?.label ?? a.type,
-      dueAt: a.dueAt?.toISOString() ?? null,
+      dueAt: a.dueAt!.toISOString(),
     }));
 
   const serializeLead = (l: (typeof leads)[number]) => ({

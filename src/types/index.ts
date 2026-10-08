@@ -263,7 +263,9 @@ export interface ReportsData {
   /** Months with activities count vs won-OPP count (Activities vs Wins chart). */
   activitiesVsWins: Array<{ month: string; activities: number; wins: number }>;
   /** Overdue activities table rows (Activity/Type/Due Date) — slice(0,20). */
-  overdueActivities: Array<{ id: string; subject: string; type: string; dueAt: string | null }>;
+  // Session-85 (N-85c5): dueAt narrows to string — the overdue filter's
+  // date-present guard (the reference's `f.date &&` arm) guarantees it.
+  overdueActivities: Array<{ id: string; subject: string; type: string; dueAt: string }>;
   /** Leads list by source table rows (Lead/Source/Status). */
   leadsListBySource: Array<Lead>;
 }
