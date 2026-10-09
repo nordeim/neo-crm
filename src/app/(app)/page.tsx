@@ -3,6 +3,9 @@
 import { downloadBlob } from "@/lib/download";
 import { csvFilename } from "@/lib/csv";
 import { entityDumpCsv, entityExportFilename, toQuotedCsv, unquotedHeaderCsv } from "@/lib/entity-export";
+// Session-86 (M-86c2): the computed-tier seam (the reference derives
+// tier from revenue — its export carries the derived fe.tier).
+import { accountTierFromRevenue } from "@/lib/account-tier";
 import { toDateInputValue } from "@/lib/lead-filters";
 import {
   DASHBOARD_CARD,
@@ -194,6 +197,10 @@ export default function DashboardPage() {
   function exportAccountsCsv() {
     if (accounts.length === 0) return;
     const header = ["Name", "Industry", "Phone", "Email", "Website", "Annual Revenue", "Employees", "Status", "Tier", "Health"];
+    // Session-86 (M-86c2): the Tier column carries the COMPUTED tier —
+    // the reference's export maps its filter memo's derived fe.tier
+    // (revenue > 1M Key / > 500k A / > 100k B / else C), never a stored
+    // field (it models none).
     const rows = accounts.map((a) => [
       a.name || "",
       a.industry || "",
@@ -203,7 +210,7 @@ export default function DashboardPage() {
       String(a.annualRevenue || ""),
       String(a.employees || ""),
       a.status || "",
-      a.tier || "",
+      accountTierFromRevenue(a.annualRevenue),
       a.health || "",
     ]);
     downloadBlob(toQuotedCsv(header, rows), csvFilename("accounts"), "text/csv");

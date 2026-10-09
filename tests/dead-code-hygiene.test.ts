@@ -850,16 +850,18 @@ describe("session-64: the stripComments dead-cargo retirement (N-64g)", () => {
 });
 
 describe("session-65: the page-render dead-surface retirement (N-65c/d/e + the /Profile doc re-derive)", () => {
-  it("accounts-page carries no construction-dead Key disjunct (tier is membership-validated to A/B/C at both write seams)", () => {
-    // N-65d (the 65-c rotation): `(a.isKey || a.tier === "Key")` rode the
-    // accounts table + card rows, but tier can never hold "Key" — the
-    // create + update routes membership-validate it against ACCOUNT_TIERS
-    // (["A","B","C"]) and the seed plants only A/B/C; a.isKey is the
-    // live arm (the display mapping `a.isKey ? "Key" : a.tier` is the
-    // honest form). The adjudicated s63 N-63b class over persisted data
-    // — retired, with the record comment in the source.
+  it("accounts-page carries no construction-dead Key disjunct (the tier is DERIVED from revenue — session-86)", () => {
+    // N-65d (the 65-c rotation) + Session-86 (M-86c2) re-derivation: the
+    // s65 retirement kept the stored a.isKey/a.tier arms; the s86
+    // rotation bundle-decoded the reference's tier as DERIVED from
+    // revenue (its N memo's te — >1M Key / >500k A / >100k B / else C)
+    // with NO stored field at all. The stored columns retired with
+    // their write seams; the display derives through
+    // accountTierFromRevenue (src/lib/account-tier.ts).
     const src = accounts();
     expect(src).not.toContain('a.tier === "Key"');
+    expect(src).not.toMatch(/a\.isKey/);
+    expect(src).toMatch(/accountTierFromRevenue/);
     expect(read("src/app/(app)/accounts/accounts-page.tsx") ?? "").toMatch(/N-65d/);
   });
 

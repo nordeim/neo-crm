@@ -22,8 +22,6 @@ export interface Account {
   website: string | null;
   annualRevenue: number | null;
   employees: number | null;
-  tier: string;
-  isKey: boolean;
   status: string;
   // Session-26 (S26-P5): the reference's stored health (Healthy | At Risk |
   // Needs Attention) — backend-defaulted, surfaced through the accounts

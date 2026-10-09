@@ -854,8 +854,9 @@ describe("session-41: the POST-side lenient-create completion (S41-P1 — the si
     ["src/app/api/leads/route.ts", "email", "Invalid email"],
     ["src/app/api/leads/route.ts", "phone", "Invalid phone number"],
     ["src/app/api/leads/route.ts", "company", "Invalid company"],
-    // accounts: tier→"B", status→"active", the four strings→null
-    ["src/app/api/accounts/route.ts", "tier", "Invalid tier"],
+    // accounts: status→"active", the four strings→null (Session-86
+    // M-86c2: the tier row RETIRED with the stored column — the
+    // reference derives tier from revenue and models no tier field)
     ["src/app/api/accounts/route.ts", "status", "Invalid status"],
     ["src/app/api/accounts/route.ts", "industry", "Invalid industry"],
     ["src/app/api/accounts/route.ts", "email", "Invalid email"],
@@ -966,8 +967,9 @@ describe("session-42: the GET list routes hold every DB call inside the envelope
 describe("session-42: booleans reject the present-non-boolean class (S42-P2)", () => {
   it.each([
     // [route, verb, field, message]
-    ["src/app/api/accounts/route.ts", "POST", "isKey", "Invalid key account"],
-    ["src/app/api/accounts/[id]/route.ts", "PUT", "isKey", "Invalid key account"],
+    // Session-86 (M-86c2): the two isKey rows RETIRED with the stored
+    // column + its write seams (the reference models no key-account
+    // flag — its star rides the computed tier).
     ["src/app/api/events/route.ts", "POST", "allDay", "Invalid all-day flag"],
     ["src/app/api/events/[id]/route.ts", "PUT", "allDay", "Invalid all-day flag"],
   ])("%s %s: %s rejects present non-booleans (400 %s)", (rel, verb, field, message) => {

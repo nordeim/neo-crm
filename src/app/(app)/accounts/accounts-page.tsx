@@ -29,6 +29,10 @@ import { EntityEditDialog, ACCOUNT_EDIT_FIELDS } from "@/components/shared/entit
 import { AccountInsightsDialog } from "@/components/accounts/account-insights-dialog";
 import { useCrmStore } from "@/stores/crm-store";
 import { ACCOUNT_TIER_BADGE, ACCOUNT_HEALTH_BADGE, CHART_COLORS } from "@/lib/constants";
+// Session-86 (M-86c2): the COMPUTED tier seam — the reference derives
+// tier from revenue everywhere (its N memo's te); our stored tier/isKey
+// columns retire.
+import { accountTierFromRevenue } from "@/lib/account-tier";
 import { formatCompactCurrency, timeAgo } from "@/lib/format";
 import { csvFilename } from "@/lib/csv";
 import { toQuotedCsv } from "@/lib/entity-export";
@@ -57,38 +61,6 @@ export default function AccountsPage() {
     updateAccount,
     fetchAccounts,
   } = useCrmStore();
-  // Session-26 (S26-P5): the reference's accounts page export
-  // (bundle-extracted): a client-side quoted CSV with the 10-column set
-  // Name,Industry,Phone,Email,Website,Annual Revenue,Employees,Status,
-  // Tier,Health + the `accounts_ISO-date.csv` filename + the
-  // `if (length === 0) return;` guard. The reference's header button is
-  // disabled at zero data; its toolbar one stays ENABLED with the runtime
-  // guard (its own pair inconsistency, mirrored verbatim). The export
-  // covers the FULL list, not the filtered view.
-  // Session-62 (N-62e) precision note: the header binding below reads
-  // `filtered.length === 0` — zero-FILTERED, not zero-data. The
-  // reference's own zero-data state makes the two indistinguishable
-  // LIVE (its demo workspace ships empty), so the mirror claim cannot
-  // be resolved beyond what the bundle shows; the binding + its pin
-  // stay as shipped, annotated here.
-  function exportAccounts() {
-    if (accounts.length === 0) return;
-    const header = ["Name", "Industry", "Phone", "Email", "Website", "Annual Revenue", "Employees", "Status", "Tier", "Health"];
-    const rows = accounts.map((a) => [
-      a.name || "",
-      a.industry || "",
-      a.phone || "",
-      a.email || "",
-      a.website || "",
-      String(a.annualRevenue || ""),
-      String(a.employees || ""),
-      a.status || "",
-      a.tier || "",
-      a.health || "",
-    ]);
-    downloadBlob(toQuotedCsv(header, rows), csvFilename("accounts"), "text/csv");
-  }
-
   const [search, setSearch] = React.useState("");
   const [ownerId, setOwnerId] = React.useState("all");
   const [industry, setIndustry] = React.useState("all");
@@ -158,26 +130,68 @@ export default function AccountsPage() {
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
+    const tiers = [tierKey && "Key", tierA && "A", tierB && "B", tierC && "C"].filter(Boolean);
     return accounts.filter((a) => {
-      if (q && !`${a.name} ${a.industry ?? ""} ${a.email ?? ""}`.toLowerCase().includes(q)) return false;
+      // Session-86 (L-86c3): the reference's search matches NAME ONLY
+      // (its memo: `U.name?.toLowerCase().includes(e.toLowerCase())`)
+      // — the s10-era name+industry+email concat retired (searching
+      // "logistics", an INDUSTRY value, matched 2 rows where the
+      // reference matches 0).
+      if (q && !a.name.toLowerCase().includes(q)) return false;
+      // Session-86 (N-86c7, documented superset): the reference's Owner
+      // + Revenue Range selects are DEAD — its filter memo reads
+      // name/industry/tiers ONLY (d.owner/d.revenue are tracked state,
+      // never read). OURS filter live (fix-over-defect, the S33-P1
+      // dashboard-search precedent — our workspace carries real users
+      // + revenue data that the filters genuinely narrow).
       if (ownerId !== "all" && a.ownerId !== ownerId) return false;
       if (industry !== "all" && a.industry !== industry) return false;
       const rev = a.annualRevenue ?? 0;
       if (revenue === "0-1m" && !(rev < 1_000_000)) return false;
       if (revenue === "1m-5m" && !(rev >= 1_000_000 && rev < 5_000_000)) return false;
       if (revenue === "5m+" && !(rev >= 5_000_000)) return false;
-      const tiers = [tierKey && "key", tierA && "A", tierB && "B", tierC && "C"].filter(Boolean);
-      if (tiers.length > 0) {
-        const match =
-          (tiers.includes("key") && a.isKey) ||
-          tiers.includes(a.tier);
-        if (!match) return false;
-      }
-      return true;
+      // Session-86 (M-86c2): the checkbox filter matches the COMPUTED
+      // tier (the reference's `d.tiers.includes(U.tier)` — with
+      // "Key Account" mapping to computed "Key"); the stored a.isKey/
+      // a.tier arms retired with the columns.
+      const match =
+        tiers.length === 0 ||
+        tiers.includes(accountTierFromRevenue(a.annualRevenue));
+      return match;
     });
   }, [accounts, search, ownerId, industry, revenue, tierKey, tierA, tierB, tierC]);
 
   const totalRevenue = accounts.reduce((s, a) => s + (a.annualRevenue ?? 0), 0);
+
+  // Session-26 (S26-P5) + Session-86 (L-86c4): the reference's accounts
+  // page export (bundle-extracted): a client-side quoted CSV with the
+  // 10-column set Name,Industry,Phone,Email,Website,Annual Revenue,
+  // Employees,Status,Tier,Health + the `accounts_ISO-date.csv` filename
+  // + the `if (m.length === 0) return;` guard — a zero-RAW guard. The
+  // ROWS map the FILTERED memo (its `ee = E.map(...)` — E is the filter
+  // memo; the s26 "covers the FULL list" note was a misdecode of the
+  // same bundle). The header button is disabled at zero RAW data; the
+  // toolbar one stays ENABLED with the runtime guard (its own pair
+  // inconsistency, mirrored verbatim). The Tier column carries the
+  // COMPUTED tier (its fe.tier is the memo's derived value).
+  function exportAccounts() {
+    if (accounts.length === 0) return;
+    const header = ["Name", "Industry", "Phone", "Email", "Website", "Annual Revenue", "Employees", "Status", "Tier", "Health"];
+    const rows = filtered.map((a) => [
+      a.name || "",
+      a.industry || "",
+      a.phone || "",
+      a.email || "",
+      a.website || "",
+      String(a.annualRevenue || ""),
+      String(a.employees || ""),
+      a.status || "",
+      accountTierFromRevenue(a.annualRevenue),
+      a.health || "",
+    ]);
+    downloadBlob(toQuotedCsv(header, rows), csvFilename("accounts"), "text/csv");
+  }
+
 
   async function onDelete(account: Account) {
     if (!window.confirm(`Delete "${account.name}"? This cannot be undone.`)) return;
@@ -201,7 +215,7 @@ export default function AccountsPage() {
             <Button
               variant="outline"
               size="sm"
-              disabled={filtered.length === 0}
+              disabled={accounts.length === 0}
               onClick={exportAccounts}
             >
               <Download className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Export CSV</span>
@@ -239,7 +253,7 @@ export default function AccountsPage() {
         />
         <BarStatCard
           label="Key Accounts"
-          value={accounts.filter((a) => a.isKey).length}
+          value={accounts.filter((a) => accountTierFromRevenue(a.annualRevenue) === "Key").length}
           delta="+5%"
           bars={[40, 45, 50, 55, 58, 62]}
           barColor={CHART_COLORS.cyan400}
@@ -310,8 +324,16 @@ export default function AccountsPage() {
                 More
               </Button>
               <div className="relative flex-1">
+                {/* Session-86 (N-86c6 + N-86c7): the reference's icon is
+                    `absolute left-3 top-1/2 transform -translate-y-1/2
+                    text-gray-400 w-4 h-4` (its v3-era transform is inert
+                    under v4; text-subtle computes the same #9ca3af) and its
+                    input carries the explicit `pl-9 h-9` — mirrored. The
+                    pointer-events-none is OUR click-through fix (the
+                    reference's icon is a 16x16 click dead-zone over the
+                    input's padding). */}
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search accounts..." className="pl-9" aria-label="Search accounts" />
+                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search accounts..." className="pl-9 h-9" aria-label="Search accounts" />
               </div>
               <Button
                 variant="outline"
@@ -349,8 +371,8 @@ export default function AccountsPage() {
                       </div>
                       <div className="mt-3 flex items-center justify-between">
                         <span className="flex items-center gap-1.5">
-                          <Badge className={ACCOUNT_TIER_BADGE[a.isKey ? "Key" : a.tier] ?? ACCOUNT_TIER_BADGE.C}>
-                            {a.isKey ? "Key" : a.tier}
+                          <Badge className={ACCOUNT_TIER_BADGE[accountTierFromRevenue(a.annualRevenue)] ?? ACCOUNT_TIER_BADGE.C}>
+                            {accountTierFromRevenue(a.annualRevenue)}
                           </Badge>
                         </span>
                         <span className="text-sm font-semibold text-foreground">
@@ -409,18 +431,17 @@ export default function AccountsPage() {
                       const ownerInitials = owner
                         ? owner.name.split(" ").map((w) => w[0]).join("")
                         : "A";
-                      const tier = a.isKey ? "Key" : a.tier;
+                      const tier = accountTierFromRevenue(a.annualRevenue);
                       return (
                     <TableRow
                       key={a.id}
-                      // Session-65 (N-65d): the `a.tier === "Key"` disjunct
-                      // RETIRED — tier is membership-validated to A/B/C at
-                      // both write seams (create + [id] routes) and the seed
-                      // plants only A/B/C; a.isKey is the live arm (the s63
-                      // N-63b adjudicated class over persisted data).
+                      // Session-65 (N-65d) + Session-86 (M-86c2): the tier
+                      // is DERIVED from revenue (the reference's N memo's
+                      // te — >1M Key / >500k A / >100k B / else C); the
+                      // stored a.isKey/a.tier arms retired with the columns.
                       className={cn(
                         "cursor-pointer hover:bg-gray-50",
-                        a.isKey && "bg-yellow-50/30",
+                        tier === "Key" && "bg-yellow-50/30",
                         overdue > 0 && "border-l-4 border-l-red-500",
                       )}
                       onClick={() => {
@@ -436,7 +457,7 @@ export default function AccountsPage() {
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-medium">{a.name}</p>
-                              {a.isKey && (
+                              {tier === "Key" && (
                                 <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                               )}
                               {overdue > 0 && (
@@ -550,6 +571,12 @@ export default function AccountsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
+                    // Session-86 (N-86c7, documented superset): the
+                    // reference's Save All has NO onClick — a dead button
+                    // (the Oce bundle decode). OURS resets the filters to
+                    // their defaults (fix-over-defect — a control that
+                    // looks like an action should do something; the
+                    // dashboard view-switcher precedent).
                     setOwnerId("all");
                     setIndustry("all");
                     setRevenue("all");
@@ -566,8 +593,18 @@ export default function AccountsPage() {
             <CardContent className={FILTER_RAIL.body}>
               <div>
                 <Label className={FILTER_RAIL.groupLabelSelect}>Owner</Label>
+                {/* Session-86 (N-86c5): the reference's SelectValue
+                    placeholders ("John Kuy" / "Technology" /
+                    "$1M to $5M") are DEAD — its filter defaults are the
+                    "all" values, which always match an item, so the
+                    placeholder never renders; mirrored for source parity
+                    (the N-83c5 reports-filter precedent). Session-86
+                    (N-86c7): its Owner/Industry ITEM sets are static
+                    literals (All Owners/John Kuy + the five industries) —
+                    OURS map the real workspace users + the settings
+                    industries (functional supersets). */}
                 <Select value={ownerId} onValueChange={setOwnerId}>
-                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="John Kuy" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Owners</SelectItem>
                     {users.map((u) => (
@@ -579,7 +616,7 @@ export default function AccountsPage() {
               <div>
                 <Label className={FILTER_RAIL.groupLabelSelect}>Industry</Label>
                 <Select value={industry} onValueChange={setIndustry}>
-                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Technology" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Industries</SelectItem>
                     {industries.map((i) => (
@@ -591,7 +628,7 @@ export default function AccountsPage() {
               <div>
                 <Label className={FILTER_RAIL.groupLabelSelect}>Revenue Range</Label>
                 <Select value={revenue} onValueChange={setRevenue}>
-                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="$1M to $5M" /></SelectTrigger>
                   <SelectContent>
                     {REVENUE_RANGES.map((r) => (
                       <SelectItem key={r.id} value={r.id}>{r.label}</SelectItem>

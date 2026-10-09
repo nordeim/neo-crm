@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isBadString, isBadBool, isBodyTooLarge, isGuarded, requireSession  } from "@/lib/api";
-import { ACCOUNT_STATUSES, ACCOUNT_TIERS, ACCOUNT_HEALTH_STATUSES } from "@/lib/constants";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadNumber, isBadString, isBodyTooLarge, isGuarded, requireSession  } from "@/lib/api";
+import { ACCOUNT_STATUSES, ACCOUNT_HEALTH_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -40,13 +40,10 @@ export async function POST(req: Request) {
   const name = asString(body.name, { max: 120 });
   if (!name) return ERR.BAD_REQUEST("Account name is required");
 
-  // Session-41 (S41-P1): the POST-side lenient-create completion — the
-  // enum type-gaps closed (a non-string tier/status used to silently
-  // default to "B"/"active"). The PUT twins' guards + vocabulary.
-  if (isBadString(body.tier)) return ERR.BAD_REQUEST("Invalid tier");
-  const tier = asString(body.tier, { optional: true }) ?? "B";
-  if (!(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Invalid tier");
-
+  // Session-86 (M-86c2): the tier/isKey write seams RETIRED — the
+  // reference models NO stored tier (its tier is DERIVED from revenue
+  // at render time; its dialogs offer no tier field). A stored field
+  // nothing displays is the s42 silent-lie API class.
   if (isBadString(body.status)) return ERR.BAD_REQUEST("Invalid status");
   const status = asString(body.status, { optional: true }) ?? "active";
   if (!(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
@@ -83,10 +80,9 @@ export async function POST(req: Request) {
     if (isBadString(body.email)) return ERR.BAD_REQUEST("Invalid email");
     if (isBadString(body.phone)) return ERR.BAD_REQUEST("Invalid phone number");
     if (isBadString(body.website)) return ERR.BAD_REQUEST("Invalid website");
-    // Session-42 (S42-P2): the strict-bool silent-clear family —
-    // {"isKey":"yes"} used to silently store false (the === true
-    // idiom's non-boolean edge).
-    if (isBadBool(body.isKey)) return ERR.BAD_REQUEST("Invalid key account");
+    // Session-86 (M-86c2): the isKey write seam RETIRED with the stored
+    // column (the reference models no key-account flag — its star rides
+    // the computed tier).
     const account = await db.account.create({
       data: {
         name,
@@ -96,8 +92,6 @@ export async function POST(req: Request) {
         website: asString(body.website, { optional: true, max: 200 }) ?? null,
         annualRevenue: asNumber(body.annualRevenue) ?? null,
         employees: asInt(body.employees) ?? null,
-        tier,
-        isKey: body.isKey === true,
         status,
         health,
         ownerId,

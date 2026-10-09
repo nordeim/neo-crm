@@ -138,12 +138,15 @@ describe("session-28: the ce() last-activity formatter", () => {
 
 describe("session-28: the account edit vocabulary + the health/tier badge maps", () => {
   it("the account Status select maps over ACCOUNT_STATUSES (the live wce wiring)", () => {
-    // Session-54 (S54-P2) re-anchor: the ACCOUNT_EDIT_STATUSES constant
-    // (["active","inactive","prospect"]) was a stale s28 decode with zero
-    // src consumers — the LIVE Edit Account select maps over
-    // ACCOUNT_STATUSES (active/inactive/churned) through
-    // ACCOUNT_STATUS_META labels. The constant retired with this pin's
-    // old subject; this is the honest s49-style re-anchor.
+    // Session-54 (S54-P2) re-anchor + Session-86 (M-86c1) vocabulary fix:
+    // the retired ACCOUNT_EDIT_STATUSES constant's "stale decode" note
+    // mis-read WHICH surface the prospect trio rode — the s28 wce
+    // EDIT-config decode was RIGHT, and the LIVE Create select + both
+    // API validators carried churned instead (the edit dialog's offered
+    // Prospect ALWAYS 400'd). ACCOUNT_STATUSES now IS the reference's
+    // trio (active/inactive/prospect) — the Create select maps it
+    // through ACCOUNT_STATUS_META labels, the Edit config ships it
+    // verbatim, and the option SAVES.
     const src = stripComments(read("src/components/shared/entity-dialogs.tsx") ?? "");
     expect(src).toMatch(/\{ACCOUNT_STATUSES\.map\(\(s\) =>/);
     expect(src).toMatch(/\{ACCOUNT_STATUS_META\[s\]\.label\}/);

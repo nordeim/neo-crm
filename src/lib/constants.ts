@@ -315,13 +315,17 @@ export const COMPANY_SIZES = ["Small (1-50)", "Medium (51-500)", "Large (500+)"]
 // The contact STATUS select vocabulary (the W7 edit dialog).
 export const CONTACT_STATUSES = ["active", "inactive"] as const;
 
-// The account EDIT status vocabulary — the wce select ships THREE options
-// (its own superset of the create dialog's pair).
-// Session-54 (S54-P2, N-54b): ACCOUNT_EDIT_STATUSES RETIRED here — a
-// stale s28 decode (["active","inactive","prospect"]) with zero src
-// consumers; the LIVE select maps ACCOUNT_STATUSES
-// (active/inactive/churned) through ACCOUNT_STATUS_META labels
-// (entity-dialogs.tsx; pinned in contact-model.test.ts).
+// The account status vocabulary — the reference's bce CREATE dialog and
+// wce EDIT dialog both ship the SAME trio Active/Inactive/Prospect
+// (value "prospect").
+// Session-54 (S54-P2, N-54b): the then-dead ACCOUNT_EDIT_STATUSES constant
+// retired here; its "stale s28 decode" note mis-read WHICH surface the
+// trio rode — the s28 wce EDIT-config decode was RIGHT (prospect), and
+// the live CREATE select + both API validators carried churned instead.
+// Session-86 (M-86c1): the split retired — the unified trio mirrors the
+// reference's own dialogs (the edit dialog's previously-offered Prospect
+// option ALWAYS 400'd against the churned validators; pinned in
+// tests/accounts-rail-parity.test.ts).
 
 // The lead EDIT vocabularies — the Mke dialog's own inconsistencies: the
 // status set is New/Contacted/Qualified/Unqualified (NOT the table's
@@ -377,12 +381,16 @@ export const ACCOUNT_TIERS = ["A", "B", "C"] as const;
 // scaffold with zero consumers (the live tier badge is ACCOUNT_TIER_BADGE,
 // the s28 bundle B map; pinned in contact-model.test.ts).
 
-export const ACCOUNT_STATUSES = ["active", "inactive", "churned"] as const;
+export const ACCOUNT_STATUSES = ["active", "inactive", "prospect"] as const;
 
 export const ACCOUNT_STATUS_META: Record<string, { label: string; badge: string; color: string }> = {
   active: { label: "Active", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", color: "#10b981" },
   inactive: { label: "Inactive", badge: "bg-gray-100 text-gray-600 border-gray-200", color: "#6b7280" },
-  churned: { label: "Churned", badge: "bg-rose-50 text-rose-700 border-rose-200", color: "#ef4444" },
+  // Session-86 (M-86c1): prospect replaces churned — the reference's own
+  // dialog vocabulary. The badge/color pair is OURS (the reference never
+  // badges account status; our Cards view + insights supersets render it
+  // — amber for the prospective semantic).
+  prospect: { label: "Prospect", badge: "bg-amber-50 text-amber-700 border-amber-200", color: "#f59e0b" },
 };
 
 export const ACTIVITY_TYPES = ["call", "email", "meeting", "whatsapp", "task", "note"] as const;

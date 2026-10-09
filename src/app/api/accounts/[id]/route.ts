@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadString, isBadNumber, isBadBool, isBodyTooLarge, isGuarded, requireSession  } from "@/lib/api";
-import { ACCOUNT_STATUSES, ACCOUNT_TIERS, ACCOUNT_HEALTH_STATUSES } from "@/lib/constants";
+import { ok, ERR, asString, asNumber, asInt, asFKId, isBadFK, isBadString, isBadNumber, isBodyTooLarge, isGuarded, requireSession  } from "@/lib/api";
+import { ACCOUNT_STATUSES, ACCOUNT_HEALTH_STATUSES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -54,13 +54,6 @@ export async function PUT(req: Request, { params }: Params) {
     if (isBadNumber(body.employees)) return ERR.BAD_REQUEST("Invalid employee count");
     data.employees = asInt(body.employees) ?? null;
   }
-  // Session-42 (S42-P2): the strict-bool silent-clear family — a
-  // present non-boolean used to silently CLEAR an existing true (a key
-  // account de-keyed without an error — LIVE-proven).
-  if ("isKey" in body) {
-    if (isBadBool(body.isKey)) return ERR.BAD_REQUEST("Invalid key account");
-    data.isKey = body.isKey === true;
-  }
   // Session-37 (S37-P3): a non-string FK payload is a 400, not a silent
   // coercion to null (the silent FK clear on PUT).
   if ("ownerId" in body) {
@@ -75,11 +68,9 @@ export async function PUT(req: Request, { params }: Params) {
     if (!status || !(ACCOUNT_STATUSES as readonly string[]).includes(status)) return ERR.BAD_REQUEST("Invalid status");
     data.status = status;
   }
-  if ("tier" in body) {
-    const tier = asString(body.tier);
-    if (!tier || !(ACCOUNT_TIERS as readonly string[]).includes(tier)) return ERR.BAD_REQUEST("Invalid tier");
-    data.tier = tier;
-  }
+  // Session-86 (M-86c2): the tier PUT block RETIRED — the reference
+  // models NO stored tier (derived from revenue at render time); a
+  // stored-but-never-displayed write seam is the s42 silent-lie class.
   // Session-44 (S44-P1): health joins the PUT vocabulary — the badge's
   // stored value was frozen at its seed forever (neither verb accepted a
   // health payload). Present "" is the sibling enums' 400 (a required

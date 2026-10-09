@@ -50,9 +50,7 @@ model Account {
   website       String?
   annualRevenue Float? // in default currency units (not minor units — display app)
   employees     Int?
-  tier          String    @default("B") // A | B | C
-  isKey         Boolean   @default(false)
-  status        String    @default("active") // active | inactive | churned
+  status        String    @default("active") // active | inactive | prospect (session-86: the reference's bce/wce dialog trio)
   // Session-26 (S26-P5): the reference's Account entity carries a STORED
   // health (Healthy | At Risk | Needs Attention — its detail view's
   // class-map), backend-defaulted (its New Account dialog has NO health
@@ -73,7 +71,6 @@ model Account {
 
   @@index([name])
   @@index([status])
-  @@index([tier])
 }
 
 model Contact {

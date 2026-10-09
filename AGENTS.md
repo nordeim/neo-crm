@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1687 checks)       | `bun run test`                         |
+|  Unit tests (1709 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1687) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1709) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -104,8 +104,11 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   (placeholder:text-muted-ink) — page-level text keeps `--color-foreground`
   #111827 (the reference's h1s/body use gray-900 there). The Select trigger
   is stock: `rounded-md`, no `gap-2`, transparent, NO base `w-full`
-  (`w-full` is per-surface — 270px rails yes / 128px toolbars no, like the
-  reference); the topbar search is the shared Input + `pl-10 bg-gray-50
+  (`w-full` is per-surface — 270px rails yes / 128px toolbars no; the
+  reference's own stock trigger base DOES carry `w-full` and its
+  toolbar triggers override with `w-full sm:w-32` — computed-equal
+  everywhere, the mechanisms differ [session-86 precision note]); the
+  topbar search is the shared Input + `pl-10 bg-gray-50
   border-gray-200` (12px right padding, keyboard-only focus-visible).
 - **`tw-animate-css` is vendored at `src/app/vendor/tw-animate.css`** — the
   npm package exposes only the `style` export condition, which Turbopack's CSS
@@ -222,6 +225,15 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   (`TOP_REPS`), not a table. The profile card: default-size Upload Photo +
   stretched buttons, Avatar-primitive avatar with a stroke-2 user icon, and
   the raw lowercase role value.
+- **The account tier is DERIVED, never stored (session-86)** — the
+  reference computes tier from revenue (`>1M "Key" / >500k "A" /
+  >100k "B" / else "C"`, null-safe) at the row (tint/star/badge), the
+  Key Accounts KPI, the tier checkbox filter, and the CSV exports;
+  `src/lib/account-tier.ts` (`accountTierFromRevenue`) is the seam;
+  the stored tier/isKey columns + their API write seams are RETIRED
+  (the reference models no tier field — its settings defaultTier is
+  its own dead default). The account STATUS vocabulary is
+  active/inactive/prospect (the reference's bce/wce dialog trio).
 - **Status vocabularies are distinct** — never mix them. Lead stages
   (incl. session-5's `unqualified` — the leads KPI's "Dropped Deals"
   counts `lost` STRICTLY, `unqualified` is NOT dropped; the s5
@@ -3130,3 +3142,54 @@ documented supersets kept + commented in-code: the contacts Log
 Activity wiring (the reference's item is DEAD — the S29-P2 twin; ours
 opens the ContactDetailPanel) + the row-delete window.confirm gates
 (the reference's deletes are direct) + the mail/bell aria-labels.
+
+
+**Session-86 (SKILL v1.83.0)** — the accounts filter-rail session (the
+86-c fresh-eyes rotation on the standing session_165 alternate — the
+Oce rail's own chrome + the accounts page's filter/tier/export family,
+never a dedicated pass: s28 pinned the rail structure, s17 the CHECKBOX
+anatomy, but nobody had decoded the rail's select family, the filter
+memo, the tier derivation, or the export's row basis — finding the
+N-86 family [2 M + 2 L + 3 N] with every claim bundle-decoded from the
+byte-stable reference + LIVE-probed on BOTH apps): the M-86c1 ACCOUNT
+STATUS VOCABULARY SPLIT [the reference's bce + wce dialogs both ship
+Active/Inactive/PROSPECT; our edit config had it right but
+ACCOUNT_STATUSES + both API validators carried CHURNED — the edit
+dialog's own offered Prospect option ALWAYS 400'd; the trio unified,
+the seed's Sahara churned→inactive, the option now SAVES
+(LIVE-verified end-to-end)] + the M-86c2 COMPUTED-TIER DERIVATION [the
+reference derives tier from revenue (>1M Key / >500k A / >100k B /
+else C) at the row/KPI/filter/exports; ours read the STORED isKey/tier
+— 4 Key + a spread on the seed vs the reference's 9 Key + 1 A; the new
+src/lib/account-tier.ts seam consumed at all six sites, the stored
+columns + write seams RETIRED, the settings defaultTier stays as the
+reference's own dead-default parity] + the L-86c3 SEARCH SCOPE [the
+reference filters NAME ONLY; our name+industry+email concat retired] +
+the L-86c4 EXPORT ROW BASIS + HEADER BINDING [the reference maps the
+FILTERED rows under the zero-RAW guard + binds the RAW zero on the
+header button — ours mapped ALL accounts + bound the filtered zero;
+the s26 "FULL list" note was a misdecode, the N-62e ambiguity
+RESOLVED] + the N-86c5 THREE DEAD SELECTVALUE PLACEHOLDERS ["John
+Kuy"/"Technology"/"$1M to $5M" mirrored — dead in both apps, the
+N-83c5 precedent] + the N-86c6 SEARCH INPUT h-9 [the reference's
+explicit pl-9 h-9 mirrored] + the N-86c7 SUPERSET DOCUMENTATION [the
+reference's Owner/Revenue selects are DEAD filters + its Save All has
+no onClick + its item sets are STATIC — ours filter/reset/map live,
+now documented per the S33-P1/S47-P1 convention] — all pinned RED-first
+[19 failing pins: the new accounts-rail-parity suite's 25 its minus the
+6 green anchors; non-vacuousness proven: 19 failed | 1693 passed (1712
+total) — exactly the modified-pin set, ZERO collateral; 5 mid-flight
+pin-shape repairs, all anchor-side]; GATE: lint 0/0 · tsc 0 ·
+1709/1709 unit [95 suites, +22 net] · build · 132/132 e2e fresh CI=1
+[3.2m, FIRST run green; all 9 mobile-nav green] · LIVE-verified [the
+computed family at 9 Key + 1 A + stars 9 + tints 9 + the KPI 9; the
+name-only search; the Prospect save persisted; the rail trio; the
+drawer at TRUE 390px full-bleed + dual lock + navigate-close + closed
+inert+hidden; zero overflow; the closing census MATCH + the reference
+md5-exact] · 3 screenshots [112 + 113 + 114, VLM 3/5-both-NOs-DOM-
+disproven + 3/3 + 4/4] · docs at SKILL v1.83.0 [§16bz + project_state]
++ README badge 1841 + AGENTS/CLAUDE/PAD at 1709+132 [+ the PAD s86
+inventory row + the Total 95/1709 + the N-86a1 footnote fix] +
+session_169.md + the plan + its execution record + the worklog; the
+React-Compiler hazard documented (the forward-reference bail —
+exportAccounts reading the later-declared filtered const).

@@ -164,7 +164,7 @@ function AccountForm({
   onOpenChange: (open: boolean) => void;
   onSaved?: (account: Account) => void;
 }) {
-  const { createAccount, settings } = useCrmStore();
+  const { createAccount } = useCrmStore();
   const [pending, setPending] = React.useState(false);
   const [form, setForm] = React.useState(() => ({
     name: "",
@@ -174,9 +174,7 @@ function AccountForm({
     website: "",
     annualRevenue: "",
     employees: "",
-    tier: settings?.defaultTier ?? "B",
     status: "active",
-    isKey: false,
     ownerId: "",
   }));
 
@@ -195,9 +193,7 @@ function AccountForm({
       website: form.website || null,
       annualRevenue: form.annualRevenue ? Number(form.annualRevenue) : null,
       employees: form.employees ? Number(form.employees) : null,
-      tier: form.tier,
       status: form.status,
-      isKey: form.isKey,
       ownerId: form.ownerId || null,
     };
     const res = await createAccount(payload);
@@ -213,15 +209,18 @@ function AccountForm({
 
   // Session-19 (S19-P7): the industries list fed the scaffold-era
   // datalist on the Industry input — the reference ships no datalist, so
-  // both are gone (settings stays: it drives the default-tier fallback).
+  // both are gone. Session-86 (M-86c2): the settings destructure retired
+  // with the defaultTier consumption (its create dialog consumes
+  // neither, like the reference's own dead default).
 
   // Session-5: the reference's CREATE dialog ships exactly eight fields
   // (Account Name*/Industry/Email/Phone/Website/Annual Revenue/Employees/
-  // Status — no Tier/Owner/Key account; those fall back to workspace
-  // defaults through the payload's form state). Session-50 (S50-P1): the
-  // dead edit-mode superset branch (Tier/Owner/Key — unreachable since
-  // the s28 EntityEditDialog family took over editing) is retired; the
-  // reference's own create dialog is create-only the same way.
+  // Status — no Tier/Owner/Key account). Session-50 (S50-P1): the dead
+  // edit-mode superset branch retired. Session-86 (M-86c2): the hidden
+  // tier/isKey payload fields retired too — the reference's bce payload
+  // carries neither (its tier is derived from revenue at render time;
+  // the settings defaultTier is its own dead default, the Default
+  // Currency AED genus).
   //
   // Session-15 (S15-P10): the body is the reference's 2-COLUMN grid
   // (`grid grid-cols-2 gap-4 py-4` — pairs Name/Industry, Email/Phone,

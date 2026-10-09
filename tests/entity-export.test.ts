@@ -159,15 +159,16 @@ describe("session-26: the accounts page export (S26-P5)", () => {
 
   it("the header button keeps the disabled binding; the toolbar one stays enabled-but-guarded", () => {
     const code = stripComments(read("src/app/(app)/accounts/accounts-page.tsx")!);
-    // The reference: the header Export CSV disabled at zero data, the
+    // The reference: the header Export CSV disabled at zero RAW data
+    // (`disabled: m.length === 0` — m is the unfiltered list), the
     // toolbar Export CSV enabled with the runtime guard.
-    // Session-63 (G-4, the N-62e precision note): the binding reads
-    // `filtered.length` while the export ships the FULL list — kept as
-    // shipped (the reference's zero-data state makes the two readings
-    // indistinguishable LIVE; see the accounts-page record comment).
+    // Session-86 (L-86c4): the N-62e ambiguity RESOLVED by the s86
+    // bundle decode — the binding re-anchors from filtered.length to
+    // the RAW accounts.length (and the export itself now maps the
+    // FILTERED rows, per the reference's `ee = E.map(...)`).
     const header = code.indexOf("Export CSV");
     const headerRegion = code.slice(Math.max(0, header - 400), header + 200);
-    expect(headerRegion).toMatch(/disabled=\{filtered\.length === 0\}/);
+    expect(headerRegion).toMatch(/disabled=\{accounts\.length === 0\}/);
     const toolbarI = code.indexOf("Export CSV", code.indexOf("Export CSV") + 10);
     const toolbar = code.slice(toolbarI, toolbarI + 500);
     expect(toolbar).not.toMatch(/disabled=/);
