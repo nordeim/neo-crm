@@ -862,7 +862,13 @@ export default function ContactsPage() {
               <>
                 <div className="space-y-2">
                   <Label>Select File</Label>
-                  <div className="flex flex-col gap-3">
+                  {/* Session-91 (L-91c4, the 91-c bundle decode): the
+                    dropzone wrapper carries the controlMt — the reference's
+                    space-y-2 Select File group computes a 12px
+                    label->dropzone gap (v3 space-y semantics); our v4
+                    margin-bottom on the INLINE label collapsed it to 4px
+                    (the DIALOG_GROUP.controlMt precedent). */}
+                <div className="flex flex-col gap-3 mt-2">
                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-all">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Upload className="w-8 h-8 text-gray-400" />

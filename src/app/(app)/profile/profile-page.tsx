@@ -179,7 +179,9 @@ function ProfileForm({
           <div className="space-y-6">
           <div className="space-y-2">
             <Label>Profile Picture</Label>
-            <div className="flex flex-col items-center gap-4 sm:flex-row">
+            {/* Session-91 (M-91c1): the avatar row carries controlMt — the
+                v4 inline-label collapse fix (see PROFILE_LAYOUT.controlMt). */}
+            <div className={cn("flex flex-col items-center gap-4 sm:flex-row", PROFILE_LAYOUT.controlMt)}>
               {/* Reference: the stock Avatar primitive wrapping a bg-blue-100
                   inner div with a stroke-2 user glyph (DOM-verified 80/96px,
                   icon #2563EB). Session-30 (S30-P3): the reference renders
@@ -238,6 +240,7 @@ function ProfileForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={PROFILE_LAYOUT.namePlaceholder}
+              className={PROFILE_LAYOUT.controlMt}
             />
           </div>
 
@@ -251,7 +254,7 @@ function ProfileForm({
               type="email"
               value={user.email}
               disabled
-              className={PROFILE_LAYOUT.emailDisabled}
+              className={cn(PROFILE_LAYOUT.emailDisabled, PROFILE_LAYOUT.controlMt)}
             />
             <p className="text-xs text-muted">Email cannot be changed</p>
           </div>
@@ -264,7 +267,7 @@ function ProfileForm({
               id="profile-role"
               value={user.role}
               disabled
-              className={PROFILE_LAYOUT.roleDisabled}
+              className={cn(PROFILE_LAYOUT.roleDisabled, PROFILE_LAYOUT.controlMt)}
             />
           </div>
 

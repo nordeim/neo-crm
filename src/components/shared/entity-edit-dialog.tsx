@@ -271,7 +271,15 @@ function EntityEditForm({
       {fields.map((row, ri) => (
         <div key={ri} className={row.length === 2 ? "grid grid-cols-2 gap-4" : undefined}>
           {row.map((f) => (
-            <div key={f.key} className="space-y-2">
+            // Session-91 (L-91c3, the 91-c bundle decode): the reference's
+            // wce/Mke/Edit-Lead field groups are BARE unclassed divs —
+            // label + control as direct children (the DIALOG_BARE_GROUP
+            // form the s15 decode documented for the Event/Activity
+            // dialogs, never re-derived for the EDIT family). Our
+            // space-y-2 computed the same 4px gap only through the v4
+            // inline-label collapse (margin-bottom ignored on the INLINE
+            // label) — the bare construction guarantees it instead.
+            <div key={f.key}>
               <Label>{f.label}</Label>
               {f.options ? (
                 <Select

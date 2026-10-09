@@ -7,10 +7,18 @@ import { describe, expect, it } from "vitest";
 // (S13-P9) proved the leading-none/tracking-tight trio a REAL computed
 // diff (line-height 30 vs 36px, letter-spacing -0.75px) but fixed only
 // KpiCard/KPI_VALUE. The bundle (byte-stable since, re-fetched fresh
-// for this pin set) renders the KPI-value forms BARE at every surface:
-// `text-2xl sm:text-3xl font-bold` x15, `text-3xl font-bold` x4,
-// `text-2xl font-bold` x10 — leading-none/tracking-tight appear ONLY
-// on the Label/DialogTitle/CardTitle primitives, never on a KPI value.
+// for this pin set) renders the KPI-value forms with NO extra
+// decoration at any surface — three BARE families (dashboard
+// `text-2xl sm:text-3xl font-bold`, activities/accounts
+// `text-2xl sm:text-3xl font-bold` over the gm/zv arms, leads
+// `text-xl sm:text-2xl font-bold`) + FOUR families carrying the
+// EXPLICIT text-gray-900 (contacts/leads-contacts-arm + calendar +
+// reports + the leads Sm arm — the s75/s89/s90 mirrors;
+// leading-none/tracking-tight appear ONLY on the
+// Label/DialogTitle/CardTitle primitives, never on a KPI value.
+// Session-91 (G-91a1): the header's old "BARE at every surface" census
+// pre-dated the s89/s90 explicit-gray-900 mirrors — re-derived to the
+// live 3-bare + 4-explicit census.
 //
 // The currency half (N-68b): the reference's reports Won/Lost KPIs are
 // ALWAYS /1e3 — `value: `${count} $${(value/1e3).toFixed(1)}K`` and

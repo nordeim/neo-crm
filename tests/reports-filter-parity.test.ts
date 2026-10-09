@@ -46,10 +46,12 @@ import { describe, expect, it } from "vitest";
 // explicit bg-blue-600 override = our default blue; PDF outline sm +
 // FileText mr-2); the page header family; the KPI grid + the
 // [65,72,68,85,78,92] static spark; the KPI card construction (the
-// chips' -50/-600 pairs; the value's BARE form = the s69/s70 documented
-// standing decision — the reference's text-gray-900 accepted as the
-// inherited #0a0a0a); the TABS_PILL resolved forms; the Sparkline line
-// variant; the save dialog's Current-Filters box + saved-list family.
+// chips' -50/-600 pairs; the value's EXPLICIT text-gray-900 — the
+// M-90c2 mirror, the s74 comment's own citation finally landed; the
+// old "bare form = the s69/s70 standing decision" premise was the
+// M-89c1 misdecode genus, retired at s90); the TABS_PILL resolved
+// forms; the Sparkline line variant; the save dialog's
+// Current-Filters box + saved-list family.
 // - the three stale doc carriers (AGENTS.md:187-190 + :684-686 +
 // page-layout.ts:448) still documenting the RETIRED s9 iconGap
 // mechanism as current — re-derived (absence-pinned here so the N-50a

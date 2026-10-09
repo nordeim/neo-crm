@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.87.0
-last_updated: 2026-10-09
-project_state: 1788 unit checks + 132 e2e checks green; the session-90 layer (the activities/calendar table-family chrome rotation — the first-listed standing alternate per session_176's suggested next: the table/priority/timeline/rail surfaces walked LIVE and verified SOLID, then the stat-card family FULLY decoded — all four reference components gm/zv/Mx/ay + all twenty call sites + LIVE-probed on BOTH apps): the M-90c1 CALENDAR VALUE COLOR [the reference's Mx value = text-2xl font-bold text-gray-900 LIVE rgb(17,24,39); ours bare → rgb(10,10,10) — the F-70a1 s70 pin's own comment CITED the gray-900 + its LIVE color then shipped the bare form on the FALSE 'inherited card foreground' premise — the M-89c1 misdecode genus on the calendar arm] + the M-90c2 REPORTS VALUE COLOR [the ay value's gray-900 — the s74 comment's own citation finally landed] + the L-90c3 CARD SPLIT ×3 [BarStatCard merged / TrendStatCard plain-divs / CircleStatCard merged reportsCard — all → Card > CardContent p-4/p-5; the s89 'EVERY stat-card arm' claim was overbroad, these three components were standing] + the L-90c4 BAR CONSTRUCTION [SPAN + inline backgroundColor → DIV + the per-arm bg-CLASS color maps (gm: blue/green/red/cyan else-GRAY rounded-sm AFTER; zv: else-PURPLE rounded-sm BEFORE) + the raw-percentage inline height ONLY; the CHART_COLORS -400 family + gray retired with zero key-reads] + the L-90c5 CHIP MECHANISM ×2 [the w-10 h-10 rounded-lg ${bg-50} DIV with the icon rendered DIRECTLY carrying w-5 h-5 ${text-600} — the icon a COMPONENT reference, the color a KEY (Mx blue/green/purple/orange; ay + red/cyan); the nested chipIcon span, the SPAN chip, the inline bg style, the shrink-0/aria-hidden extras and the hex-keyed chip maps all retire] + the L-90c6 DELTA ROW [the DIV flex items-center gap-1 text-xs up/down-only rows with the width-first w-3 h-3 icons + the bare span; the muted arm + the wrapper aria-hidden retire; the ay row uniquely font-medium — dead on the reference] + the N-90c7-c10 nanos [the label-row gap-2; the gm/zv value-column arm split; the CircleStatCard label DIV gray-500; the calendar rail's bare span] + the S90-P0 PALETTE EXTENSION [red-400 #f87171 + purple-400 #c084fc — the (family, step) pairs the s88 re-pin never covered; the census 92 → 94] + the two audit nanos [the README 'all FIVE families' prose + the stat-value-contract 'bare' title] — pinned RED-first [30 new pins + 10 re-anchors; non-vacuousness: 40 failed | 1748 passed (1788 total) — exactly the modified pin set, ZERO collateral; 6 mid-flight pin-shape repairs + 6 lockstep re-anchors discovered by the full-suite collateral sweep]; GATE: lint 0/0 · tsc 0 · 1788/1788 unit [99 suites, +29 net] · build · 132/132 e2e fresh CI=1 [3.3m; one settings-debounce timing flake on the first run passed standalone + on the full re-run — the known-sensitive test, untouched by this session's delta] · LIVE-verified [the calendar + reports values rgb(17,24,39) (were rgb(10,10,10)); the Card > CardContent walks; the DIV bars with bg-blue-400 rgb(96,165,250) / bg-red-400 rgb(248,113,113) / bg-purple-400 rgb(192,132,252) / bg-gray-400 rgb(156,163,175) — every new palette pin computing the reference's compiled v3 values; the direct-icon chips; the activities/accounts values still bare rgb(10,10,10); the 390px state (358px cards, zero overflow); the drawer at TRUE 390px (the w-72 panel computing the sidebar blue rgb(37,99,235), 8 links, focus inside, dual lock, navigate-close, the closed root inert + hidden + pointer-events none); the closing census MATCH + the reference md5-exact — the 61st consecutive stable session] · 3 screenshots NEW [124 + 125 + 126, VLM 5/5 + 4/4 + 4/4] · docs at SKILL v1.87.0 [§16cd + project_state + the H1] + README badge 1920 + the suite list + AGENTS/CLAUDE/PAD at 1788+132 [the PAD s90 inventory row + the Total 99/1788 + the footnote]
+version: 1.88.0
+last_updated: 2026-10-10
+project_state: 1801 unit checks + 132 e2e checks green; the session-91 layer (the 91-c rotation — the FULL-APP SCREENSHOT DIFF against the reference, the strong sweep: both apps driven to the ZERO-DATA state — the reference's own standing state, our side via the session-scoped scripts/zero-data.ts clearing the 7 domain tables incl. opportunity; 9 pages per app at 1440x900, pairwise pixel diff + cluster analysis + DOM probes on BOTH apps): accounts/reports 0.00% byte-clean, calendar/activities 0.01%, contacts 0.51% (empty-state DOM byte-identical — noise + the lucide superset), dashboard 0.33% (a 2px zero-area chart-baseline artifact, library-internal), settings 4.73% (the picklist-DATA genus — the reference's picklists wiped with its workspace, ours seeded; the empty form itself mirrored) — and TWO REAL finds, all ONE ROOT CAUSE: THE V4 space-y SEMANTICS [v3 = margin-TOP on FOLLOWING siblings via .space-y-N > :not([hidden]) ~ :not([hidden]) at (0,3,0) with a margin-bottom calc sidecar; v4 = margin-BOTTOM on NON-LAST children inside :where() at ZERO specificity — identical for plain block stacks, diverging exactly when a non-last child is INLINE (every shadcn Label) or a non-first child carries mb-*]: the M-91c1 PROFILE FORM COLLAPSED GAPS x4 [the reference's space-y-2 groups compute 12px label→control gaps; ours 4px — the v4 label margin-bottom IGNORED on the inline label; the form 32px shorter; FIXED via PROFILE_LAYOUT.controlMt — the FOURTH controlMt of the s14/s15 family (SETTINGS_DEFAULTS/SETTINGS_DANGER/DIALOG_GROUP) — on the avatar row + the 3 Inputs] + the M-91c2 LEADS TOOLBAR DEAD mb-4 [the reference's filters-row mb-4 computes 0px — v3's space-y rule at (0,3,0) kills the (0,1,0) class; ours kept it alive → 16px extra, the toolbar 137 vs 121px, the table 16px lower; FIXED by retiring the class per the s11 computed-gap rule] + the L-91c3 EDIT-DIALOG GROUPS [the reference's wce/Mke field groups are BARE unclassed divs — the DIALOG_BARE_GROUP form, never re-derived for the EDIT family; ours shipped space-y-2 computing 4px only by the v4 accident; FIXED to the bare construction] + the L-91c4 IMPORT-DIALOG SELECT FILE GROUP [ref 12px vs ours 4px; FIXED with mt-2 on the dropzone wrapper] + the N-91c5 GENUS SWEEP [all 99 space-y usages swept — the 4 finds are the complete set; the other toolbars carry no space-y, the create dialogs + settings carry controlMt, the rail/save-report labels are block] + the 7 audit nanos [G-91a1..a5 + B-1/B-2 — the count-in-comment genus guard re-run] — pinned RED-first [13 new pins; non-vacuousness: 9 failed | 1792 passed (1801 total, incl. the pre-fix stash-verified re-proof) — exactly the modified pin set, ZERO collateral; 5 mid-flight pin-shape repairs (the cn()/token forms, the needle-in-own-docs comment-strip, the comment-window width)]; GATE: lint 0/0 · tsc 0 · 1801/1801 unit [100 suites, +13 net] · build · 132/132 e2e fresh CI=1 [3.2m; the known settings-debounce focus flake on the first run passed standalone AND on the full re-run — untouched by this session's delta] · LIVE-verified [the profile gaps rgb-exact 12px + the form 504px (was 472); the leads toolbar 121px + row mb 0px + the table at y496 (was 512); the edit-dialog groups BARE at 4px; the import gap 12px; the drawer battery at TRUE 390px (the w-72 panel at x0 + the sidebar blue rgb(37,99,235) + 8 links + focus inside + dual lock + navigate-close + the closed root inert + visibility:hidden + pointer-events none); THE ZERO-DATA RE-DIFF: leads 2.17% → 0.00% + profile 2.08% → 0.00% — both pages BYTE-CLEAN; the closing census MATCH + the reference md5-exact — the 62nd consecutive stable session] · 3 screenshots NEW [127 + 128 + 129, VLM 5/5 + 5/5 + 5/5 — zero adjudications] · docs at SKILL v1.88.0 [§16ce + project_state + the H1] + README badge 1933 + the suite list + AGENTS/CLAUDE/PAD at 1801+132 [the PAD s91 inventory row + the Total 100/1801 + the footnote]
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.87.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.88.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -8236,3 +8236,80 @@ v1.87.0 [this section + project_state + the H1] + README badge 1920
 + the suite list + AGENTS/CLAUDE/PAD at 1788+132 [the PAD s90
 inventory row + the Total 99/1788 + the carried-forward footnote] +
 session_179.md + the plan + its execution record + the worklog.
+
+
+## 16ce. Session-91 Layer (the v4 space-y hazard family — the full-app zero-data screenshot diff)
+
+The 91-c rotation (the first-listed suggested next per session_179.md —
+the strong sweep): both apps at the ZERO-DATA state, all 9 pages,
+the pairwise pixel diff + the DOM probes. Four pages byte-clean
+(accounts/reports 0.00%, calendar/activities 0.01%), the rest explained
+(the 2px zero-area chart artifact; the contacts noise + the lucide
+superset; the settings picklist-data genus — the reference's picklists
+were wiped with its workspace, our own empty-picklist form IS mirrored),
+and TWO pages with real finds — plus the bundle decode surfacing the
+edit/import arms of the same root cause.
+
+**THE ROOT CAUSE (one family):** v3 compiles `space-y-N` as margin-TOP
+on FOLLOWING siblings through `.space-y-N > :not([hidden]) ~
+:not([hidden])` at (0,3,0) with a `margin-bottom: calc(N ×
+--tw-space-y-reverse)` sidecar; v4 compiles it as margin-BOTTOM on
+NON-LAST children inside `:where(& > :not(:last-child))` at ZERO
+specificity. Identical for plain block stacks. Divergent when (a) a
+non-last child is INLINE (vertical margins do not apply to inline
+boxes — every shadcn `<Label>` is `display: inline`), or (b) a
+non-first child carries `mb-*` (v3's (0,3,0) rule kills it; v4's
+:where preserves it).
+
+- **M-91c1 — THE PROFILE FORM'S COLLAPSED LABEL→CONTROL GAPS ×4.**
+  Ref 12px (input margin-top 8 + the 4px inline strut) vs ours 4px
+  (the label's ignored margin-bottom); the form 472 vs 504px. The
+  fix: `PROFILE_LAYOUT.controlMt: "mt-2"` — the FOURTH controlMt of
+  the s14/s15 family (SETTINGS_DEFAULTS / SETTINGS_DANGER /
+  DIALOG_GROUP) — applied to the avatar row + the Full Name / Email /
+  Role inputs.
+- **M-91c2 — THE LEADS TOOLBAR'S DEAD mb-4.** The reference's
+  filters-row `mb-4` computes 0px (the v3 space-y rule kills it at
+  (0,3,0)); ours kept it alive → the toolbar 137 vs 121px, the table
+  16px lower, the card 262 vs 246px. The fix: the class retires (the
+  s11 rule — re-derive from the reference's COMPUTED gap, never copy
+  the class string).
+- **L-91c3 — THE EDIT-DIALOG GROUPS.** The reference's wce/Mke/
+  Edit-Lead field groups are BARE unclassed divs (the
+  DIALOG_BARE_GROUP form the s15 decode documented for the
+  Event/Activity dialogs, never re-derived for the EDIT family); ours
+  shipped space-y-2 computing 4px only through the v4 accident. The
+  fix: the bare construction.
+- **L-91c4 — THE IMPORT DIALOG'S SELECT FILE GROUP.** Ref 12px vs
+  ours 4px. The fix: mt-2 on the dropzone wrapper.
+- **N-91c5 — THE GENUS SWEEP.** All 99 space-y usages swept: the
+  four finds are the complete set (the other toolbars carry no
+  space-y; the create dialogs + settings carry controlMt; the
+  rail/save-report labels are block; the checkbox stacks are block
+  rows).
+- **The audit nanos** — G-91a1..a5 + B-1/B-2 (the count-in-comment
+  genus guard re-run): the stat-value-contract + reports-filter-parity
+  headers re-derived off the retired "bare" premises; the
+  dead-code-hygiene parenthetical re-derived (red/violet/emerald);
+  the ACTIVITY_KPI_STATICS comment re-derived off the retired
+  CHART_COLORS.gray; the PAD 8→9 miscount; the "four surviving
+  components" wording; the constants -400 enumeration.
+
+RED 9 failing pins (13 new; non-vacuousness: 9 failed | 1792 passed —
+exactly the modified pin set, ZERO collateral, re-proven via the src
+stash after the pin-shape repairs; 5 mid-flight repairs: the cn()/
+token forms ×2, the needle-in-own-docs comment-strip, the
+comment-window width, the foundation anchor). GATE: lint 0/0 · tsc 0 ·
+1801/1801 unit [100 suites, +13 net] · build · 132/132 e2e fresh CI=1
+[3.2m; the known settings-debounce focus flake on the first run passed
+standalone AND on the full re-run]. LIVE-verified [the profile gaps
+12px + the form 504px; the leads toolbar 121px + the table at y496;
+the edit groups BARE at 4px; the import gap 12px; the drawer battery
+at TRUE 390px; THE ZERO-DATA RE-DIFF: leads 2.17% → 0.00% + profile
+2.08% → 0.00% — both BYTE-CLEAN; the closing census MATCH + the
+reference md5-exact — the 62nd consecutive stable session]. 3
+screenshots [127 + 128 + 129, VLM 5/5 + 5/5 + 5/5]. Docs at SKILL
+v1.88.0 [this section + project_state + the H1] + README badge 1933 +
+the suite list + AGENTS/CLAUDE/PAD at 1801+132 [the PAD s91 inventory
+row + the Total 100/1801 + the footnote] + session_182.md + the plan
++ its execution record + the worklog.

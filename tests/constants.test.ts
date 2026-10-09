@@ -48,10 +48,13 @@ describe("chart palette parity (session-4 DOM-verified)", () => {
 
   it("stat-card bar family: the tailwind -400 palette the reference renders (s90 re-anchor: the CLASS maps)", () => {
     // Accounts/activities stat cards: bg-blue-400 / bg-green-400 /
-    // bg-cyan-400 / bg-purple-400 / bg-red-400 (+ the Sales Target
-    // two-tone bg-amber-400 + bg-blue-500 on the dashboard sparks).
-    // Session-90 (L-90c4): the bars ride the bg-CLASS maps in
-    // page-parts.tsx now — the CHART_COLORS -400 hexes retired with
+    // bg-cyan-400 / bg-purple-400 / bg-red-400 / bg-gray-400 (the gm
+    // arm's Meetings else-fallthrough — session-91 G-91a2-class prose
+    // re-derivation: the enumeration omitted it). The Sales Target
+    // two-tone on the dashboard sparks rides the INLINE-HEX colorFor
+    // (#fbbf24 amber-400 + #3b82f6 blue-500 — page.tsx:322), not a
+    // bg-CLASS. Session-90 (L-90c4): the bars ride the bg-CLASS maps
+    // in page-parts.tsx now — the CHART_COLORS -400 hexes retired with
     // zero key-reads; the computed contract moved to the @theme
     // re-pins (the s88 block + the s90 red-400/purple-400 extension).
     expect(CHART_COLORS.emerald).toBe("#10b981");

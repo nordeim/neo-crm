@@ -467,7 +467,18 @@ export default function LeadsPage() {
               <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search leads..." className={LEADS_TOOLBAR.searchInput} aria-label="Search leads" />
             </div>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-4">
+          {/* Session-91 (M-91c2, the 91-c zero-data screenshot diff): the
+              reference's filters row carries `mb-4` but it computes 0px —
+              v3's space-y-4 rule (`.space-y-4 > :not([hidden]) ~
+              :not([hidden])` at specificity (0,3,0)) forces
+              margin-bottom: calc(1rem × --tw-space-y-reverse = 0), killing
+              the (0,1,0) `.mb-4` on every non-first child. Our v4
+              `:where()` compiles at ZERO specificity, so the class stayed
+              ALIVE here and pushed the whole table 16px down (the toolbar
+              137 vs 121px, the card 262 vs 246px — LIVE-measured on both
+              apps). The class retires per the s11 rule: re-derive from the
+              reference's COMPUTED gap, never copy the class string. */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
             <Dropdown>
               <DropdownTrigger asChild>
                 <Button variant="outline" className={LEADS_FILTERS_POPOVER.trigger} aria-label="Open lead filters">

@@ -553,11 +553,14 @@ describe("session-60: the dead-surface narrowing (S60-P2)", () => {
     // 60-b fresh-eyes (the map-key census rotation): six of the
     // palette's sixteen keys — blue/cyan/teal/amber/orange/green — had
     // zero key-reads AND zero computed access repo-wide (the live read
-    // set: red/gray/violet/emerald + the -400 family — the raw-hex
+    // set at s60: red/gray/violet/emerald + the -400 family — the raw-hex
     // literals in the contacts/reports pages are independent string
-    // props, not key reads). The s54 fully-dead class, KEY variant —
-    // the third face after the TYPE (s58) and INTERFACE (s59)
-    // variants. The CSS --color-chart-1…6 token family is a different
+    // props, not key reads; the L-90c4 mirror retired gray + the -400s
+    // with the bars riding the bg-CLASS maps — the live read set today
+    // is red/violet/emerald, as the guard it below documents). The s54
+    // fully-dead class, KEY variant — the third face after the TYPE
+    // (s58) and INTERFACE (s59) variants. The CSS --color-chart-1…6
+    // token family is a different
     // surface and stays whole; `emerald` shares the retired `green`'s
     // #10b981 hex but is key-distinct (the pins anchor on key names).
     const src = stripComments(read("src/lib/constants.ts") ?? "");

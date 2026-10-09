@@ -336,12 +336,13 @@ export const LOGIN_LAYOUT = {
  *  reference's gm/zv/Mx/ay + LIVE-probed on BOTH apps): the s7/s12/
  *  s70-era stat-card token family (card/body/topRow/chip/chipIcon/
  *  trend/trendIcon/value/label/reportsCard — the last stat-card token
- *  group standing) RETIRED: the four surviving stat-card components
- *  (BarStatCard/TrendStatCard/CircleStatCard riding gm/zv/Mx/ay) now
- *  mirror the reference's own Card > CardContent constructions with
- *  the class strings INLINE at their sites (the color maps
- *  BAR_BG_GM/BAR_BG_ZV/TREND_CHIP/REPORT_CHIP live in page-parts.tsx
- *  beside their consumers). The s70-era note that lived here
+ *  group standing) RETIRED: our three surviving stat-card components
+ *  (BarStatCard/TrendStatCard/CircleStatCard — riding the reference's
+ *  four gm/zv/Mx/ay identities, BarStatCard covering gm+zv through its
+ *  arm prop) now mirror the reference's own Card > CardContent
+ *  constructions with the class strings INLINE at their sites (the
+ *  color maps BAR_BG_GM/BAR_BG_ZV/TREND_CHIP/REPORT_CHIP live in
+ *  page-parts.tsx beside their consumers). The s70-era note that lived here
  *  documented the calendar value as "the bare family form ... the
  *  color carried by the inherited card foreground" while its own
  *  citation read `text-2xl font-bold text-gray-900` — a FALSE
@@ -979,6 +980,18 @@ export const REPORTS_TABLE_CARD = {
 export const PROFILE_LAYOUT = {
   uploadBtn: "w-full sm:w-auto",
   saveBtn: "w-full sm:w-auto",
+  /** Session-91 (M-91c1, the 91-c zero-data screenshot diff): the v4
+   *  inline-label fix on the profile arm — the fourth controlMt of the
+   *  family (SETTINGS_DEFAULTS / SETTINGS_DANGER / DIALOG_GROUP). The
+   *  reference's four `space-y-2` form groups compute 12px
+   *  label->control gaps (v3 space-y = margin-TOP 8px on the block
+   *  control + the 4px inline-label strut); our v4 space-y lands
+   *  margin-BOTTOM on the INLINE label — vertical margins do not apply
+   *  to inline boxes — collapsing the gap to 4px and the whole form to
+   *  32px shorter than the reference's 504px (LIVE-measured on both
+   *  apps). The explicit mt-2 on every control restores the computed
+   *  geometry. */
+  controlMt: "mt-2",
   avatarIcon: "h-10 w-10 sm:h-12 sm:w-12",
   avatarIconStroke: 2,
   nameWrap: "flex flex-col items-center text-center",
@@ -1450,9 +1463,12 @@ export const KPI_STATICS = {
  *  Emails Sent sub "+7 today" + [30,40,50,60,70,80] cyan; Calls
  *  Logged sub "+4 today" + [50,55,60,65,70,75] green; Meetings
  *  Scheduled sub "+1h 12m" + [40,50,55,60,70,65] — the gm color map has
- *  NO purple arm ("purple" falls through to gray-400, hence
- *  CHART_COLORS.gray below, byte-equal to the reference's rendered
- *  bars); WhatsApp [30,35,40,45,50,55] green (green-400 — the same
+ *  NO purple arm ("purple" falls through to gray-400 — the
+ *  gm arm's BAR_BG_GM_ELSE "bg-gray-400" in page-parts.tsx → the
+ *  @theme --color-gray-400 #9ca3af, byte-equal to the reference's
+ *  rendered bars; the s90 L-90c4 mirror — the retired CHART_COLORS
+ *  hex-key mechanism no longer carries this); WhatsApp
+ *  [30,35,40,45,50,55] green (green-400 — the same
  *  green as Calls Logged, NOT green-500). The Mx calendar cards ship
  *  static trends "+3"/"+34"/"+2"/"+3" (all up). The VALUES stay live —
  *  only the deltas/subtexts/bars are static. */
