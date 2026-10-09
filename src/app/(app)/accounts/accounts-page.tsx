@@ -28,7 +28,7 @@ import { AccountDialog } from "@/components/shared/entity-dialogs";
 import { EntityEditDialog, ACCOUNT_EDIT_FIELDS } from "@/components/shared/entity-edit-dialog";
 import { AccountInsightsDialog } from "@/components/accounts/account-insights-dialog";
 import { useCrmStore } from "@/stores/crm-store";
-import { ACCOUNT_TIER_BADGE, ACCOUNT_HEALTH_BADGE, CHART_COLORS } from "@/lib/constants";
+import { ACCOUNT_TIER_BADGE, ACCOUNT_HEALTH_BADGE } from "@/lib/constants";
 // Session-86 (M-86c2): the COMPUTED tier seam — the reference derives
 // tier from revenue everywhere (its N memo's te); our stored tier/isKey
 // columns retire.
@@ -232,47 +232,55 @@ export default function AccountsPage() {
         }
       />
 
-      {/* KPI cards — reference anatomy: label + trending-icon delta on top,
-          bold value left + h-10 mini-bar strip right (DOM-verified). */}
+      {/* KPI cards — the zv (accounts) arm of the gm/zv family
+          (DOM-verified): label + trending-icon delta on top, bold value
+          left + h-10 w-24 mini-bar strip right. Session-90 (L-90c4):
+          the color KEY + the trend/trendValue pair (the reference's
+          own call-site vocabulary — trend="up" on the first four, none
+          on Overdue). */}
       <div className={PAGE_KPI_GRIDS.accounts}>
         <BarStatCard
+          arm="accounts"
           label="Total Accounts"
           value={accounts.length}
-          delta="+2%"
+          trend="up"
+          trendValue="+2%"
           bars={[50, 60, 55, 70, 65, 75]}
-          barColor={CHART_COLORS.blue400}
-          barWidth="w-24"
+          color="blue"
         />
         <BarStatCard
+          arm="accounts"
           label="Active Accounts"
           value={accounts.filter((a) => a.status === "active").length}
-          delta="+2%"
+          trend="up"
+          trendValue="+2%"
           bars={[55, 60, 58, 68, 65, 72]}
-          barColor={CHART_COLORS.green400}
-          barWidth="w-24"
+          color="green"
         />
         <BarStatCard
+          arm="accounts"
           label="Key Accounts"
           value={accounts.filter((a) => accountTierFromRevenue(a.annualRevenue) === "Key").length}
-          delta="+5%"
+          trend="up"
+          trendValue="+5%"
           bars={[40, 45, 50, 55, 58, 62]}
-          barColor={CHART_COLORS.cyan400}
-          barWidth="w-24"
+          color="cyan"
         />
         <BarStatCard
+          arm="accounts"
           label="Total Revenue"
           value={formatCompactCurrency(totalRevenue, { scale: "M" })}
-          delta="+3.6%"
+          trend="up"
+          trendValue="+3.6%"
           bars={[60, 65, 70, 75, 78, 82]}
-          barColor={CHART_COLORS.purple400}
-          barWidth="w-24"
+          color="purple"
         />
         <BarStatCard
+          arm="accounts"
           label="Overdue Activities"
           value={overdueAccounts}
           bars={[30, 35, 40, 38, 42, 45]}
-          barColor={CHART_COLORS.red400}
-          barWidth="w-24"
+          color="red"
         />
       </div>
 

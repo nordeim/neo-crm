@@ -112,7 +112,11 @@ describe("session-88: the @theme v3-palette re-pin (M-88c1)", () => {
     expect(globalsSrc()).toMatch(/#155dfc/);
   });
 
-  it("the pin set covers every literal (family, step) used in src/ — the 92-token census", () => {
+  it("the pin set covers every literal (family, step) used in src/ — the 94-token census", () => {
+    // Session-90 (S90-P0): 92 → 94 — the stat-card bar color maps'
+    // bg-red-400/bg-purple-400 pairs (the (family, step) combinations
+    // the s88 sweep never covered: our bars rode inline hexes, so the
+    // classes never appeared in src/ before the s90 mirror).
     const all = execFileSync(
       "grep",
       [
@@ -125,7 +129,7 @@ describe("session-88: the @theme v3-palette re-pin (M-88c1)", () => {
       { cwd: root, encoding: "utf8" },
     ).split("\n").filter(Boolean);
     const tokens = new Set(all.map((c) => c.replace(/^(text|bg|border|ring|from|via|to)-/, "color-")));
-    expect(tokens.size).toBe(92);
+    expect(tokens.size).toBe(94);
     for (const t of tokens) {
       expect(themeToken(t), `token ${t} must be pinned`).toBeDefined();
     }

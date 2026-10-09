@@ -7,12 +7,9 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   KPI_CARD,
-  KPI_CHIP_BG,
-  KPI_ICON_TEXT,
   KPI_SPARK,
   KPI_VALUE,
   PAGE_HEADER,
-  STAT_CARD,
   STAT_CHIP_PAIRS,
   type PageHeaderVariant,
 } from "@/lib/page-layout";
@@ -102,31 +99,36 @@ export function DeltaText({
 }
 
 /**
- * Delta row with the reference's trending icon — accounts/activities stat
- * cards render `flex items-center gap-1 text-xs text-{green|red}-600` with a
+ * Delta row with the reference's trending icon — the gm/zv/Mx stat cards
+ * render `flex items-center gap-1 text-xs text-{green|red}-600` with a
  * w-3 h-3 lucide trending-up (positive) / trending-down (negative) glyph.
- * Text deltas that the reference renders bare ("+4 today") pass `icon={null}`.
+ * Session-90 (L-90c6): the reference's own row is a DIV keyed by the
+ * DIRECTION ("up"/"down") — up/down only, the bare-span text child.
  */
 export function DeltaBadgeText({
   children,
-  tone = "success",
-  icon = "up",
+  direction = "up",
 }: {
   children: React.ReactNode;
-  tone?: "success" | "danger" | "muted";
-  icon?: "up" | "down" | null;
+  /** Session-90 (L-90c6, bundle-decoded from the reference's
+   *  gm/zv/Mx trend rows): the trend is a DIRECTION string picking BOTH
+   *  the row color and the icon — up/down ONLY (the muted tone arm and
+   *  the tone/icon props retired: zero call sites ever passed a
+   *  non-default tone; the ay row's font-medium variant constructs its
+   *  own row in CircleStatCard). The row is a DIV with the width-first
+   *  w-3 h-3 glyph + a bare span — the wrapper-level aria-hidden
+   *  retired (the lucide library-level svg superset stands, documented
+   *  at icons.tsx). */
+  direction?: "up" | "down";
 }) {
-  const Glyph = icon === "down" ? TrendingDown : TrendingUp;
+  const Glyph = direction === "down" ? TrendingDown : TrendingUp;
   return (
-    <span
-      className={cn(
-        "flex items-center gap-1 text-xs",
-        tone === "success" ? "text-green-600" : tone === "danger" ? "text-red-600" : "text-muted",
-      )}
+    <div
+      className={`flex items-center gap-1 text-xs ${direction === "up" ? "text-green-600" : "text-red-600"}`}
     >
-      {icon && <Glyph className="h-3 w-3" aria-hidden="true" />}
+      <Glyph className="w-3 h-3" />
       <span>{children}</span>
-    </span>
+    </div>
   );
 }
 
@@ -213,82 +215,123 @@ export function KpiCard({
 // inline p-3 rounded-lg chip with the w-6 h-6 icon), leaving this
 // helper with zero consumers (the dch living-surfaces policy).
 
+// Session-90 (L-90c4, bundle-decoded from the reference's gm): the
+// ACTIVITIES bar color map — the reference's own ternary chain
+// blue/green/red/cyan with the GRAY else (any unmatched key falls
+// through, so "purple" [Meetings] renders bg-gray-400 — the s76
+// M-76c6 note). The bars carry the bg-CLASS + the raw-percentage
+// inline height ONLY (never an inline backgroundColor).
+const BAR_BG_GM: Record<string, string> = {
+  blue: "bg-blue-400",
+  green: "bg-green-400",
+  red: "bg-red-400",
+  cyan: "bg-cyan-400",
+};
+const BAR_BG_GM_ELSE = "bg-gray-400";
+
+// Session-90 (L-90c4, the zv twin): the ACCOUNTS map — blue/green/
+// cyan/red with the PURPLE else (the reference's own map — Total
+// Revenue's "purple" resolves through it).
+const BAR_BG_ZV: Record<string, string> = {
+  blue: "bg-blue-400",
+  green: "bg-green-400",
+  cyan: "bg-cyan-400",
+  red: "bg-red-400",
+};
+const BAR_BG_ZV_ELSE = "bg-purple-400";
+
 /**
- * Accounts / activities stat card — the side-by-side reference anatomy:
- * header row (label left, delta-with-trending-icon right), footer row
- * (bold value + optional sub-text left, `h-10` mini-bar strip right).
- * DOM-verified: bars are `flex-1 rounded-sm bg-{color}-400` with percentage
- * heights inside `h-10 w-24` (accounts) / `h-10 w-20` (activities).
- * Session-5: header deltas carry ONLY the reference's two icon-deltas
- * (green trending-up percentages, red trending-down "Xh overdue"); the
- * "+N today" / "+Xh Ym" / "Due now" annotations render as gray `text-xs
- * mt-1` SUBTEXTS UNDER the value instead.
+ * Accounts / activities stat card — the gm (activities) + zv (accounts)
+ * components FULLY decoded at s90 from the byte-stable reference bundle
+ * + LIVE-probed on BOTH apps: `Card` (the stock ot, BARE) >
+ * `CardContent` className="p-4" > [the label row (`flex justify-between
+ * items-start mb-3` — the label span + the guarded trend row), the
+ * value row (`flex items-end justify-between`)]. The ARM SPLIT is the
+ * reference's own: gm wraps [the value DIV, the truthy-guarded
+ * subValue DIV `text-xs text-gray-500 mt-1`] in a BARE div; zv renders
+ * the value DIV directly (no wrapper — the two components genuinely
+ * differ). The bar wrap: the guarded `h-10 w-20|w-24 flex items-end
+ * gap-0.5` (height-first, no shrink-0, no aria-hidden); each bar a DIV
+ * `flex-1 ${bg-CLASS} rounded-sm` (gm — rounded-sm AFTER the map) /
+ * `flex-1 rounded-sm ${bg-CLASS}` (zv — rounded-sm BEFORE) with the
+ * raw-percentage inline height (the s78 L-78c2 contract). The values
+ * are BARE on BOTH apps (rgb(10,10,10) — the dashboard/activities/
+ * accounts bare family; the explicit gray-900 is the leads/calendar/
+ * reports arms' own). Session-90 (L-90c6): the trend row is the
+ * DIRECTION-keyed DeltaBadgeText (the reference's own
+ * trend/trendValue props — the delta/deltaIcon/deltaTone vocabulary
+ * and the barColor/barWidth hex props retired with the color-KEY
+ * mechanism). The reference's gm/zv also accept an `Icon` prop no
+ * component body ever references (dead on both sides — unmirrored).
  */
 export function BarStatCard({
   label,
   value,
   subValue,
-  delta,
-  deltaIcon = "up",
-  deltaTone,
+  trend,
+  trendValue,
   bars,
-  barColor,
-  barWidth = "w-20",
-  className,
+  color = "blue",
+  arm = "activities",
 }: {
   label: string;
   value: React.ReactNode;
   subValue?: React.ReactNode;
-  delta?: React.ReactNode;
-  deltaIcon?: "up" | "down" | null;
-  /** Derived from the icon direction when omitted. */
-  deltaTone?: "success" | "danger" | "muted";
+  /** The reference's trend: the DIRECTION string picking the row color
+   *  AND the icon (falsy renders no row). */
+  trend?: "up" | "down";
+  trendValue?: React.ReactNode;
   bars: number[];
-  barColor: string;
-  /** Session-66 (N-66c): barColorFor retired — zero callers ever passed
-   * it, so the per-bar ternary arm was construction-dead (Sparkline's
-   * colorFor IS the live twin, on the dashboard). */
-  /** `w-20` (activities) or `w-24` (accounts) — no responsive growth. */
-  barWidth?: "w-20" | "w-24";
-  className?: string;
+  /** The color KEY — the per-arm map resolves the bg-CLASS (defaults
+   *  "blue", the reference's own color="blue"). */
+  color?: string;
+  /** gm (activities) wraps the value column; zv (accounts) renders the
+   *  value direct — the reference's own per-component split. */
+  arm?: "activities" | "accounts";
 }) {
-  const tone = deltaTone ?? (deltaIcon === "down" ? "danger" : "success");
+  const barBg =
+    arm === "activities"
+      ? BAR_BG_GM[color] ?? BAR_BG_GM_ELSE
+      : BAR_BG_ZV[color] ?? BAR_BG_ZV_ELSE;
   // Session-78 (L-78c2): the reference's zv/gm stat cards render the RAW
   // chartData values as percentage heights (`style height ${o}%` — the
   // [50,60,55,70,65,75] arrays ARE the heights, max bar 75% of the h-10
   // container). The pct() normalization + the 12% floor + the opacity arm
   // were inventions, retired (both component defs bundle-decoded).
   return (
-    <div className={cn("rounded-xl border border-line bg-surface p-4 shadow", className)}>
-      <div className="mb-3 flex items-start justify-between gap-2">
-        {/* Session-76 (L-76c1, bundle-decoded from gm): the label is the
-            literal gray-600 — one step darker than the muted token. */}
-        <span className="text-xs text-gray-600">{label}</span>
-        {delta != null && (
-          <DeltaBadgeText tone={tone} icon={deltaIcon}>
-            {delta}
-          </DeltaBadgeText>
-        )}
-      </div>
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-2xl sm:text-3xl font-bold">{value}</p>
-          {subValue !== undefined && <p className="mt-1 text-xs text-muted">{subValue}</p>}
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-3">
+          {/* Session-76 (L-76c1, bundle-decoded from gm): the label is the
+              literal gray-600 — one step darker than the muted token. */}
+          <span className="text-xs text-gray-600">{label}</span>
+          {trend && (
+            <DeltaBadgeText direction={trend}>{trendValue}</DeltaBadgeText>
+          )}
         </div>
-        <div className={cn("flex h-10 shrink-0 items-end gap-0.5", barWidth)} aria-hidden="true">
-          {bars.map((v, i) => (
-            <span
-              key={i}
-              className="flex-1 rounded-sm"
-              style={{
-                height: `${v}%`,
-                backgroundColor: barColor,
-              }}
-            />
-          ))}
+        <div className="flex items-end justify-between">
+          {arm === "activities" ? (
+            <div>
+              <div className="text-2xl sm:text-3xl font-bold">{value}</div>
+              {subValue && <div className="text-xs text-gray-500 mt-1">{subValue}</div>}
+            </div>
+          ) : (
+            <div className="text-2xl sm:text-3xl font-bold">{value}</div>
+          )}
+          {bars && (
+            <div className={`h-10 ${arm === "activities" ? "w-20" : "w-24"} flex items-end gap-0.5`}>
+              {bars.map((v, i) => (
+                <div
+                  key={i}
+                  className={arm === "activities" ? `flex-1 ${barBg} rounded-sm` : `flex-1 rounded-sm ${barBg}`}
+                  style={{ height: `${v}%` }}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -423,75 +466,108 @@ export function IconStatCard({
   );
 }
 
+// Session-90 (L-90c5, bundle-decoded from the reference's ay): the
+// reports chip pair map — the same -50/-600 pair mechanism as the
+// calendar Mx, two keys wider (red/cyan — the reference's own map).
+const REPORT_CHIP: Record<string, { bg: string; text: string }> = {
+  blue: { bg: "bg-blue-50", text: "text-blue-600" },
+  green: { bg: "bg-green-50", text: "text-green-600" },
+  purple: { bg: "bg-purple-50", text: "text-purple-600" },
+  orange: { bg: "bg-orange-50", text: "text-orange-600" },
+  red: { bg: "bg-red-50", text: "text-red-600" },
+  cyan: { bg: "bg-cyan-50", text: "text-cyan-600" },
+};
+
 /**
- * Reports stat card — session-5 DOM-verified anatomy: header row
- * (`flex items-center gap-3`, mb-3) with a SQUARE `w-10 h-10 rounded-lg
- * bg-{c}-50` tinted chip, label `text-xs text-gray-500 mb-1` and the count
- * + amount INLINE in one `text-2xl font-bold` value ("6 $542.0K"); optional
- * sparkline below. The card keeps its hover shadow (the reference reports
- * cards are the one place `hover:shadow-md` appears).
+ * Reports stat card — the ay component FULLY decoded at s90 from the
+ * byte-stable reference bundle + LIVE-probed on BOTH apps: `Card`
+ * className="border border-gray-200 hover:shadow-md
+ * transition-shadow" (our border-line-strong token — computed-equal,
+ * the one stat family with the hover treatment) >
+ * `CardContent` className="p-5" > [the top row (`flex items-start
+ * justify-between mb-3` > the `flex items-center gap-3` group > [the
+ * chip DIV `w-10 h-10 rounded-lg ${bg-50} flex items-center
+ * justify-center` with the icon rendered DIRECTLY carrying `w-5 h-5
+ * ${text-600}` (the component-reference mechanism — the SPAN chip,
+ * the inline bg style, the shrink-0/aria-hidden extras and the
+ * hex-keyed chip-color maps all retire), the BARE div >
+ * (the label DIV `text-xs text-gray-500 mb-1`, the value DIV
+ * `text-2xl font-bold text-gray-900` — M-90c2: the EXPLICIT gray-900
+ * LIVE rgb(17,24,39), the s74 comment's own citation finally landed;
+ * the min-w-0 wrapper retires)]), the bottom row (`flex items-end
+ * justify-between mt-2` > the guarded spark slot `flex-1 h-12 mr-2`
+ * (children), the delta column `flex flex-col items-end` > the DEAD
+ * trend row — the ay form uniquely carries font-medium, no call site
+ * passes trend (the N-89c5 genus) — + the truthy-guarded subtitle
+ * `text-xs text-gray-500 mt-1`)].
  */
 export function CircleStatCard({
   label,
   value,
   subValue,
+  trend,
+  trendValue,
   icon,
-  color,
+  color = "blue",
   children,
 }: {
   label: string;
   value: React.ReactNode;
-  /** Inline amount rendered INSIDE the big bold value (same size/weight). */
+  /** The reference's subtitle — the bottom-right delta column's
+   *  `text-xs text-gray-500 mt-1` (Lost Deals' $XK). */
   subValue?: React.ReactNode;
-  icon: React.ReactNode;
-  color: string;
+  /** The reference's trend: the DIRECTION string — DEAD on the
+   *  reference (no ay call site passes it); the row uniquely carries
+   *  font-medium. */
+  trend?: "up" | "down";
+  trendValue?: React.ReactNode;
+  /** The icon COMPONENT reference — the component applies the
+   *  `w-5 h-5 ${pair.text}` classes itself (the ay mechanism). */
+  icon: React.ComponentType<{ className?: string }>;
+  /** The color KEY — REPORT_CHIP resolves the -50/-600 pair (defaults
+   *  "blue", the reference's own color="blue"). */
+  color?: string;
   children?: React.ReactNode;
 }) {
+  const pair = REPORT_CHIP[color];
+  const Icon = icon;
   return (
-    // Session-12 (S12-P3/P5/P6): the reports KPI family is the one stat
-    // family that still carries the reference's EXPLICIT gray-200 border
-    // (--color-line-strong) + hover:shadow-md after its dashboard KPI
-    // cards dropped theirs; the icon chips are SOLID color-50s
-    // (KPI_CHIP_BG), not alpha tints; the spark row renders the
-    // reference's flex-end split with the h-12 slot.
-    // Session-74 (L-74c10/c15): the icon GLYPH carries the -600 text
-    // class (the reference's ay map — one step darker than the -500
-    // sparkline strokes) and the value renders on a PLAIN div (the
-    // reference's `text-2xl font-bold text-gray-900` — the flex-wrap
-    // gap family + the leading-space fragment retired).
-    <div className={STAT_CARD.reportsCard}>
-      <div className="mb-3 flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <span
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-              KPI_ICON_TEXT[color] ?? "",
-            )}
-            style={{ backgroundColor: KPI_CHIP_BG[color] ?? `${color}1a` }}
-            aria-hidden="true"
-          >
-            {icon}
-          </span>
-          <div className="min-w-0">
-            <p className="mb-1 text-xs text-muted">{label}</p>
-            <div className="text-2xl font-bold">{value}</div>
+    <Card className="border border-line-strong hover:shadow-md transition-shadow">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-lg ${pair.bg} flex items-center justify-center`}>
+              <Icon className={`w-5 h-5 ${pair.text}`} />
+            </div>
+            <div>
+              <div className="text-xs text-gray-500 mb-1">{label}</div>
+              <div className="text-2xl font-bold text-gray-900">{value}</div>
+            </div>
           </div>
         </div>
-      </div>
-      {(children || subValue !== undefined) && (
         <div className={KPI_SPARK.reportsWrapper}>
-          <div className={KPI_SPARK.reportsSlot}>{children}</div>
+          {children && <div className={KPI_SPARK.reportsSlot}>{children}</div>}
           {/* Session-27 (S27-P5): the reference's `ay` card renders the
               subtitle (Lost Deals' $XK) in the bottom-right delta column —
               text-xs text-gray-500 mt-1 — NOT inline with the value. */}
           <div className="flex flex-col items-end">
-            {subValue !== undefined && (
-              <div className="mt-1 text-xs text-gray-500">{subValue}</div>
+            {trend && (
+              <div
+                className={`flex items-center gap-1 text-xs font-medium ${trend === "down" ? "text-red-600" : "text-green-600"}`}
+              >
+                {trend === "down" ? (
+                  <TrendingDown className="w-3 h-3" />
+                ) : (
+                  <TrendingUp className="w-3 h-3" />
+                )}
+                <span>{trendValue}</span>
+              </div>
             )}
+            {subValue && <div className="text-xs text-gray-500 mt-1">{subValue}</div>}
           </div>
         </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -518,56 +594,70 @@ export function TableEmptyRow({
   );
 }
 
+// Session-90 (L-90c5, bundle-decoded from the reference's Mx): the
+// calendar chip pair map — the color KEY resolving to the {bg: -50,
+// text: -600} pair (the reference's own map also carries a `chart`
+// member no call site exercises — dead, unmirrored).
+const TREND_CHIP: Record<string, { bg: string; text: string }> = {
+  blue: { bg: "bg-blue-50", text: "text-blue-600" },
+  green: { bg: "bg-green-50", text: "text-green-600" },
+  purple: { bg: "bg-purple-50", text: "text-purple-600" },
+  orange: { bg: "bg-orange-50", text: "text-orange-600" },
+};
+
 /**
- * Calendar stat card — session-7 re-pin (STAT_CARD contracts): `p-4`
- * body, `mb-3` top row, 40px `-50` tinted chip with an `h-5 w-5` icon,
- * `text-green-600` trend with a `w-3 h-3` trending-up glyph, label under
- * the `text-2xl font-bold` value. Chip colors arrive as class pairs
- * (`chipBg="bg-blue-50"` + `chipIconClass="text-blue-600"`) matching the
- * reference's -50/-600 pairs.
+ * Calendar stat card — the Mx component FULLY decoded at s90 from the
+ * byte-stable reference bundle + LIVE-probed on BOTH apps: `Card` (the
+ * stock ot, BARE) > `CardContent` className="p-4" > [the top row
+ * (`flex items-start justify-between mb-3` — the chip DIV `w-10 h-10
+ * rounded-lg ${bg-50} flex items-center justify-center` with the ICON
+ * RENDERED DIRECTLY carrying `w-5 h-5 ${text-600}` applied BY the
+ * component [the icon arrives as a component reference, the color a
+ * KEY — the nested chipIcon span retires], the guarded trend row),
+ * the value DIV `text-2xl font-bold text-gray-900` (M-90c1: the
+ * EXPLICIT gray-900 — LIVE rgb(17,24,39) on the reference where our
+ * bare form computed the page ink rgb(10,10,10); the F-70a1 s70 pin's
+ * own comment cited the gray-900 then shipped the bare form on the
+ * FALSE "inherited card foreground" premise), the label DIV
+ * `text-xs text-gray-600 mt-1`]. The trend row: the direction-keyed
+ * DeltaBadgeText (up/down + the w-3 h-3 glyph + the bare span).
  */
 export function TrendStatCard({
   label,
   value,
   trend,
-  trendDirection,
+  trendValue,
   icon,
-  chipBg,
-  chipIconClass,
+  color = "blue",
 }: {
   label: string;
   value: React.ReactNode;
-  trend?: string;
-  /** Session-76 (M-76c6, bundle-decoded from Mx): the reference swaps
-   *  TrendingDown when trend==="down" — the scaffold hardcoded up. */
-  trendDirection?: "up" | "down";
-  icon: React.ReactNode;
-  chipBg: string;
-  chipIconClass: string;
+  /** The reference's trend: the DIRECTION string (falsy renders no
+   *  row); trendValue is the row's TEXT. */
+  trend?: "up" | "down";
+  trendValue?: React.ReactNode;
+  /** The icon COMPONENT reference — the component applies the
+   *  `w-5 h-5 ${pair.text}` classes itself (the Mx mechanism). */
+  icon: React.ComponentType<{ className?: string }>;
+  /** The color KEY — TREND_CHIP resolves the -50/-600 pair (defaults
+   *  "blue", the reference's own color="blue"). */
+  color?: string;
 }) {
-  const down = trendDirection === "down";
+  const pair = TREND_CHIP[color];
+  const Icon = icon;
   return (
-    <div className={STAT_CARD.card}>
-      <div className={STAT_CARD.body}>
-        <div className={STAT_CARD.topRow}>
-          <div className={cn(STAT_CARD.chip, chipBg)}>
-            <span className={cn(STAT_CARD.chipIcon, chipIconClass)}>{icon}</span>
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className={`w-10 h-10 rounded-lg ${pair.bg} flex items-center justify-center`}>
+            <Icon className={`w-5 h-5 ${pair.text}`} />
           </div>
-          {trend && (
-            <span className={down ? "flex items-center gap-1 text-xs text-red-600" : STAT_CARD.trend}>
-              {down ? (
-                <TrendingDown className={STAT_CARD.trendIcon} aria-hidden="true" />
-              ) : (
-                <TrendingUp className={STAT_CARD.trendIcon} aria-hidden="true" />
-              )}
-              <span>{trend}</span>
-            </span>
-          )}
+          {trend && <DeltaBadgeText direction={trend}>{trendValue}</DeltaBadgeText>}
         </div>
-        <div className={STAT_CARD.value}>{value}</div>
-        <div className={STAT_CARD.label}>{label}</div>
-      </div>
-    </div>
+        <div className="text-2xl font-bold text-gray-900">{value}</div>
+        <div className="text-xs text-gray-600 mt-1">{label}</div>
+      </CardContent>
+    </Card>
   );
 }
 

@@ -243,45 +243,49 @@ export default function CalendarPage() {
         }
       />
 
-      {/* Session-7 stat-card re-pin (STAT_CARD contracts): 40px -50 chips,
-          h-5 w-5 icons, green-600 trends, label under the value. Session-76
-          (M-76c6 + L-76c3, bundle-decoded from Mx/jAe): the trend texts are
-          the reference's STATIC literals (+3/+34/+2/+3) and the four
+      {/* Session-7 stat-card re-pin: 40px -50 chips, h-5 w-5 icons,
+          green-600 trends, label under the value. Session-76
+          (M-76c6 + L-76c3, bundle-decoded from Mx/jAe): the trend texts
+          are the reference's STATIC literals (+3/+34/+2/+3) and the four
           values derive from the RAW events array (the reference's $
           memo reads `p`, not the filtered set — its cards never move
-          under filters). */}
+          under filters). Session-90 (L-90c5 + M-90c1, bundle-decoded
+          from the Mx component itself): the icon arrives as a
+          COMPONENT REFERENCE + the color as a KEY (the component
+          applies the w-5 h-5 ${text-600} classes itself); the value
+          carries the EXPLICIT text-gray-900 (LIVE rgb(17,24,39)). */}
       <div className={PAGE_KPI_GRIDS.calendar}>
         <TrendStatCard
           label="Today's Events"
           value={todaysEvents.length}
-          trend={CALENDAR_KPI_STATICS.todaysEvents}
-          icon={<Calendar className="h-5 w-5" />}
-          chipBg="bg-blue-50"
-          chipIconClass="text-blue-600"
+          trend="up"
+          trendValue={CALENDAR_KPI_STATICS.todaysEvents}
+          icon={Calendar}
+          color="blue"
         />
         <TrendStatCard
           label="Total Events"
           value={events.length}
-          trend={CALENDAR_KPI_STATICS.totalEvents}
-          icon={<Target className="h-5 w-5" />}
-          chipBg="bg-green-50"
-          chipIconClass="text-green-600"
+          trend="up"
+          trendValue={CALENDAR_KPI_STATICS.totalEvents}
+          icon={Target}
+          color="green"
         />
         <TrendStatCard
           label="Meetings This Week"
           value={meetingsThisWeek}
-          trend={CALENDAR_KPI_STATICS.meetingsThisWeek}
-          icon={<Users className="h-5 w-5" />}
-          chipBg="bg-purple-50"
-          chipIconClass="text-purple-600"
+          trend="up"
+          trendValue={CALENDAR_KPI_STATICS.meetingsThisWeek}
+          icon={Users}
+          color="purple"
         />
         <TrendStatCard
           label="Calls This Week"
           value={callsThisWeek}
-          trend={CALENDAR_KPI_STATICS.callsThisWeek}
-          icon={<Phone className="h-5 w-5" />}
-          chipBg="bg-orange-50"
-          chipIconClass="text-orange-600"
+          trend="up"
+          trendValue={CALENDAR_KPI_STATICS.callsThisWeek}
+          icon={Phone}
+          color="orange"
         />
       </div>
 
@@ -592,7 +596,11 @@ export default function CalendarPage() {
           <Card>
             <CardHeader className={FILTER_RAIL.headerPad}>
               <CardTitle className={FILTER_RAIL.titleWithAction}>
-                Filters
+                {/* Session-90 (N-90c10, bundle-decoded from the reference's
+                    _Ae): the title text rides a BARE span inside the
+                    CardTitle's flex row (the activities rail's nested-row
+                    construction differs and matches already). */}
+                <span>Filters</span>
                 <button type="button" className={FILTER_RAIL.clearAllLink} onClick={() => { setFilters({}); setDateRange(null); }}>
                   Clear All
                 </button>

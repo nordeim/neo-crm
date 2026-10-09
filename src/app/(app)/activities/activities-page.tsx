@@ -34,7 +34,7 @@ import { BarStatCard, PageHeader } from "@/components/shared/page-parts";
 import { SingleBarChart } from "@/components/charts/charts";
 import { ActivityDialog } from "@/components/shared/entity-dialogs";
 import { useCrmStore } from "@/stores/crm-store";
-import { ACTIVITY_TYPE_META, ACTIVITY_TIMELINE_TINT, CHART_COLORS } from "@/lib/constants";
+import { ACTIVITY_TYPE_META, ACTIVITY_TIMELINE_TINT } from "@/lib/constants";
 import { formatTime, startOfDay } from "@/lib/format";
 import { ACTIVITY_KPI_STATICS, BY_TYPE_CARD, ACTIVITY_QUICKLOG, ACTIVITY_CARD, FILTER_RAIL, PAGE_KPI_GRIDS, PAGE_ROOT, RAIL_LAYOUT, TABLE_CARD  } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
@@ -67,44 +67,12 @@ const TIMELINE_ICON: Record<string, React.ComponentType<{ className?: string }>>
   note: FileText,
 };
 
-/**
- * Reference stat card: label + delta row on top (trending icon on %
- * deltas — DOM-verified), big value with the h-10 bar strip to its RIGHT,
- * optional sub text under the value. Thin wrapper over BarStatCard.
- */
-function ActivityStatCard({
-  label,
-  value,
-  sub,
-  delta,
-  deltaIcon = "up",
-  deltaTone,
-  bars,
-  barColor,
-}: {
-  label: string;
-  value: React.ReactNode;
-  sub?: string;
-  delta?: string;
-  deltaIcon?: "up" | "down" | null;
-  deltaTone?: "success" | "danger" | "muted";
-  bars: number[];
-  barColor: string;
-}) {
-  return (
-    <BarStatCard
-      label={label}
-      value={value}
-      subValue={sub}
-      delta={delta}
-      deltaIcon={deltaIcon}
-      deltaTone={deltaTone}
-      bars={bars}
-      barColor={barColor}
-      className="p-4"
-    />
-  );
-}
+// Session-90 (L-90c3/c4/c6): the ActivityStatCard thin wrapper RETIRED
+// — the calls go to BarStatCard directly (the component now mirrors the
+// reference's gm construction itself; the wrapper's only value was the
+// p-4 className the Card split retired). The delta props rename to the
+// reference's own trend/trendValue + the hex barColor becomes the color
+// KEY.
 
 export default function ActivitiesPage() {
   const { activities, users, hydrated, fetchActivities, updateActivity, deleteActivity } = useCrmStore();
@@ -280,55 +248,58 @@ export default function ActivitiesPage() {
           KPI_STATICS "NEVER feed these cards real" rule extends here;
           only the VALUES stay live. */}
       <div className={PAGE_KPI_GRIDS.activities}>
-        <ActivityStatCard
+        {/* Session-90 (L-90c4/c6, bundle-decoded from the reference's gm
+            call sites): the color KEY + the trend/trendValue pair —
+            trend="up" trendValue="+23%" on Activities Today, the DOWN
+            arm on Overdue, none on the middle four. */}
+        <BarStatCard
           label="Activities Today"
           value={activitiesToday}
-          delta={ACTIVITY_KPI_STATICS.activitiesToday.delta}
-          deltaIcon="up"
+          trend="up"
+          trendValue={ACTIVITY_KPI_STATICS.activitiesToday.delta}
           bars={[...ACTIVITY_KPI_STATICS.activitiesToday.bars]}
-          barColor={CHART_COLORS.blue400}
+          color="blue"
         />
-        <ActivityStatCard
+        <BarStatCard
           label="Overdue Activities"
           value={overdue.length}
-          sub={ACTIVITY_KPI_STATICS.overdue.sub}
-          delta={ACTIVITY_KPI_STATICS.overdue.delta}
-          deltaIcon="down"
+          subValue={ACTIVITY_KPI_STATICS.overdue.sub}
+          trend="down"
+          trendValue={ACTIVITY_KPI_STATICS.overdue.delta}
           bars={[...ACTIVITY_KPI_STATICS.overdue.bars]}
-          barColor={CHART_COLORS.red400}
+          color="red"
         />
-        <ActivityStatCard
+        <BarStatCard
           label="Emails Sent"
           value={emailsSent}
-          sub={ACTIVITY_KPI_STATICS.emailsSent.sub}
+          subValue={ACTIVITY_KPI_STATICS.emailsSent.sub}
           bars={[...ACTIVITY_KPI_STATICS.emailsSent.bars]}
-          barColor={CHART_COLORS.cyan400}
+          color="cyan"
         />
-        <ActivityStatCard
+        <BarStatCard
           label="Calls Logged"
           value={callsLogged}
-          sub={ACTIVITY_KPI_STATICS.callsLogged.sub}
+          subValue={ACTIVITY_KPI_STATICS.callsLogged.sub}
           bars={[...ACTIVITY_KPI_STATICS.callsLogged.bars]}
-          barColor={CHART_COLORS.green400}
+          color="green"
         />
         {/* Session-76 (M-76c6): the reference's color map has NO purple
-            arm — "purple" falls through to gray-400, so the Meetings bars
-            render GRAY (byte-equal to the reference's bg-gray-400). */}
-        <ActivityStatCard
+            arm — "purple" falls through to the GRAY else, so the Meetings
+            bars render bg-gray-400 (byte-equal to the reference). */}
+        <BarStatCard
           label="Meetings Scheduled"
           value={meetingsScheduled}
-          sub={ACTIVITY_KPI_STATICS.meetingsScheduled.sub}
+          subValue={ACTIVITY_KPI_STATICS.meetingsScheduled.sub}
           bars={[...ACTIVITY_KPI_STATICS.meetingsScheduled.bars]}
-          barColor={CHART_COLORS.gray}
+          color="purple"
         />
         {/* Session-76 (L-76c7): the gm maps "green" → bg-green-400 for
-            BOTH Calls Logged and WhatsApp — the green-500 we shipped was
-            one step dark. */}
-        <ActivityStatCard
+            BOTH Calls Logged and WhatsApp. */}
+        <BarStatCard
           label="WhatsApp"
           value={whatsappInteractions}
           bars={[...ACTIVITY_KPI_STATICS.whatsapp.bars]}
-          barColor={CHART_COLORS.green400}
+          color="green"
         />
       </div>
 

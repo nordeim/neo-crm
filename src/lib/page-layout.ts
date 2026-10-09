@@ -332,36 +332,22 @@ export const LOGIN_LAYOUT = {
   footerLinkStrong: "font-medium text-slate-700",
 } as const;
 
-/** TrendStatCard (calendar KPI cards) — session-7 re-pin: p-4 body, mb-3
- *  top row, 40px `-50` tinted chips with `h-5 w-5` icons, `text-green-600`
- *  trend with a `w-3 h-3` trending-up glyph, label under the value.
- *  Session-12: reportsCard pins the REPORTS KPI family (CircleStatCard)
- *  — the one stat family that still carries the explicit gray-200 border
- *  (--color-line-strong) + hover after the reference's dashboard KPI
- *  cards dropped theirs.
- *  Session-70 (F-70a1): the value is the BARE family form — the 5th
- *  stat-card family the s68/s69 sweeps never enumerated kept the
- *  scaffold-era semantic-foreground class (and a page-layout pin
- *  asserting it AS-CORRECT). The reference's calendar KPI values are
- *  `text-2xl font-bold text-gray-900` (bundle-decoded; computed
- *  rgb(17,24,39)/24px/700/32px LIVE) — the same gray-900-carrying
- *  surface the s69 leads precedent normalized to the bare family form,
- *  the color carried by the inherited card foreground. */
-export const STAT_CARD = {
-  card: "rounded-xl border border-line bg-surface shadow",
-  reportsCard: "rounded-xl border border-line-strong bg-surface p-5 shadow transition-shadow hover:shadow-md",
-  body: "p-4",
-  topRow: "flex items-start justify-between mb-3",
-  chip: "w-10 h-10 rounded-lg flex items-center justify-center",
-  chipIcon: "h-5 w-5",
-  trend: "flex items-center gap-1 text-xs text-green-600",
-  trendIcon: "h-3 w-3",
-  value: "text-2xl font-bold",
-  // Session-76 (L-76c1, bundle-decoded from the reference's gm/Mx cards):
-  // the label is the literal text-gray-600 (#4b5563) — one step darker
-  // than the muted token (#6b7280) the scaffold-era family shipped.
-  label: "text-xs text-gray-600 mt-1",
-} as const;
+/** Session-90 (L-90c3/c5 + M-90c1/c2, bundle-decoded from the
+ *  reference's gm/zv/Mx/ay + LIVE-probed on BOTH apps): the s7/s12/
+ *  s70-era stat-card token family (card/body/topRow/chip/chipIcon/
+ *  trend/trendIcon/value/label/reportsCard — the last stat-card token
+ *  group standing) RETIRED: the four surviving stat-card components
+ *  (BarStatCard/TrendStatCard/CircleStatCard riding gm/zv/Mx/ay) now
+ *  mirror the reference's own Card > CardContent constructions with
+ *  the class strings INLINE at their sites (the color maps
+ *  BAR_BG_GM/BAR_BG_ZV/TREND_CHIP/REPORT_CHIP live in page-parts.tsx
+ *  beside their consumers). The s70-era note that lived here
+ *  documented the calendar value as "the bare family form ... the
+ *  color carried by the inherited card foreground" while its own
+ *  citation read `text-2xl font-bold text-gray-900` — a FALSE
+ *  premise (our card foreground computes #0a0a0a, LIVE-disproven at
+ *  s90): the Mx/ay values carry the EXPLICIT gray-900, pinned in the
+ *  statcard-family-parity suite. */
 
 /** Activities card headers — both cards title with `h2 text-lg
  *  font-semibold`; the Timeline action is a ghost h-8 button with the
@@ -1111,15 +1097,18 @@ export const SETTINGS_GRID = "grid grid-cols-1 md:grid-cols-2 gap-4" as const;
  *  coverage class). The vocabulary/data groups stay OUT by design:
  *  PAGE_TITLES (document titles), RECENT_DEALS (the header vocabulary),
  *  KPI_STATICS (delta labels + spark arrays), CHART_GEOMETRY (numeric
- *  heights), KPI_CHIP_BG (the hex-color chip map — s64 naming). Mixed
- *  records (KPI_SPARK, EMPTY_STATE, PIPELINE_LEGEND) ride along — the
- *  string filter below keeps every STRING member (nested objects and
- *  non-string values are skipped), which means their non-class string
- *  members ride too (KPI_SPARK.line's recharts option string,
- *  PIPELINE_LEGEND.valueFormat) — harmless to the de-bracket guard
- *  (a non-class token can never contain the bracket vocabulary the
- *  guard hunts), and the honest description of what the sweep carries
- *  (the s64 I-3 precision). */
+ *  heights). Mixed records (KPI_SPARK, EMPTY_STATE, PIPELINE_LEGEND)
+ *  ride along — the string filter below keeps every STRING member
+ *  (nested objects and non-string values are skipped), which means
+ *  their non-class string members ride too (KPI_SPARK.line's recharts
+ *  option string, PIPELINE_LEGEND.valueFormat) — harmless to the
+ *  de-bracket guard (a non-class token can never contain the bracket
+ *  vocabulary the guard hunts), and the honest description of what the
+ *  sweep carries (the s64 I-3 precision). Session-90: the hex-keyed
+ *  chip-color maps retired with the CircleStatCard mirror (the
+ *  color-KEY pair maps live in page-parts.tsx now) and the s7-era
+ *  stat-card group retired with the construction mirrors — both leave
+ *  this list with zero export sites. */
 export function allLayoutClasses(): string[] {
   const out: string[] = [];
   for (const group of [
@@ -1134,7 +1123,6 @@ export function allLayoutClasses(): string[] {
     NAV_LAYOUT,
     TOPBAR_LAYOUT,
     LOGIN_LAYOUT,
-    STAT_CARD,
     ACTIVITY_CARD,
     DASHBOARD_CARD,
     DASHBOARD_HEADER,
@@ -1484,30 +1472,6 @@ export const CALENDAR_KPI_STATICS = {
   meetingsThisWeek: "+2",
   callsThisWeek: "+3",
 } as const;
-
-/** Session-12 (S12-P6): the stat-card icon chips are SOLID color-50
- *  surfaces on the reference (computed: #eff6ff / #fff7ed / #f0fdf4 /
- *  #fef2f2 / #faf5ff) — not 10%-alpha tints of the series color. Keyed
- *  by the series hex the pages already pass. */
-export const KPI_CHIP_BG: Record<string, string> = {
-  "#3b82f6": "#eff6ff",
-  "#f97316": "#fff7ed",
-  "#10b981": "#f0fdf4",
-  "#ef4444": "#fef2f2",
-  "#8b5cf6": "#faf5ff",
-};
-
-/** Session-74 (L-74c10): the ICON GLYPH colors — the reference's ay map
- *  carries the -600 TEXT classes (text-blue-600 #2563eb etc.), one step
- *  darker than the -500 series hexes the sparkline STROKES use. Keyed
- *  by the same series hex so the call sites stay single-prop. */
-export const KPI_ICON_TEXT: Record<string, string> = {
-  "#3b82f6": "text-blue-600",
-  "#10b981": "text-green-600",
-  "#ef4444": "text-red-600",
-  "#8b5cf6": "text-purple-600",
-  "#f97316": "text-orange-600",
-};
 
 /** Session-77 (L-77c6, bundle-decoded — the reference's Sm): the LEADS
  *  KPI chip map — the class PAIRS verbatim (`s={blue:"bg-blue-50

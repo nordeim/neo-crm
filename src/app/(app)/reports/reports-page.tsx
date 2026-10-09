@@ -301,17 +301,27 @@ export default function ReportsPage() {
                 (its `z=X=>[65,72,68,85,78,92]` — one static array shared by
                 every sparkline card) and the Lost Deals amount is a
                 SUBTITLE in the delta column, not part of the bold value. */}
-            <CircleStatCard label="Total Leads" value={(k?.totalLeads ?? 0).toLocaleString()} icon={<Target className="h-5 w-5" />} color="#3b82f6">
+            <CircleStatCard
+              label="Total Leads"
+              value={(k?.totalLeads ?? 0).toLocaleString()}
+              icon={Target}
+              color="blue"
+            >
               <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#3b82f6" variant="line" />
             </CircleStatCard>
-            <CircleStatCard label="Open Leads" value={(k?.openLeads ?? 0).toLocaleString()} icon={<Users className="h-5 w-5" />} color="#f97316">
+            <CircleStatCard
+              label="Open Leads"
+              value={(k?.openLeads ?? 0).toLocaleString()}
+              icon={Users}
+              color="orange"
+            >
               <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#f97316" variant="line" />
             </CircleStatCard>
             <CircleStatCard
               label="Won Deals"
               value={`${k?.wonDeals ?? 0} ${formatCompactCurrency(k?.wonValue ?? 0, { scale: "k", upper: true })}`}
-              icon={<TrendingUp className="h-5 w-5" />}
-              color="#10b981"
+              icon={TrendingUp}
+              color="green"
             >
               <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#10b981" variant="line" />
             </CircleStatCard>
@@ -322,8 +332,8 @@ export default function ReportsPage() {
               label="Lost Deals"
               value={k?.lostDeals ?? 0}
               subValue={formatCompactCurrency(k?.lostValue ?? 0, { scale: "k", upper: true, decimals: 0 })}
-              icon={<TrendingDown className="h-5 w-5" />}
-              color="#ef4444"
+              icon={TrendingDown}
+              color="red"
             />
             {/* Session-10 (S10 VLM round): the reference's Conversion Rate
                 chip icon is lucide-target (same as Total Leads) — ours
@@ -331,8 +341,8 @@ export default function ReportsPage() {
             <CircleStatCard
               label="Conversion Rate"
               value={`${k?.conversionRate ?? 0}%`}
-              icon={<Target className="h-5 w-5" />}
-              color="#8b5cf6"
+              icon={Target}
+              color="purple"
             >
               <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#8b5cf6" variant="line" />
             </CircleStatCard>

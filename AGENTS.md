@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1759 checks)       | `bun run test`                         |
+|  Unit tests (1788 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1759) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1788) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3327,3 +3327,42 @@ one NO a VLM-scale artifact)]. Docs at SKILL v1.86.0 [§16cc +
 project_state] + README badge 1891 + AGENTS/CLAUDE/PAD at
 1759+132 [+ the PAD s89 inventory row + the Total 98/1759] +
 session_176.md + the plan + its execution record + the worklog.
+
+### Session-90 — the stat-card family construction (the gm/zv/Mx/ay decode)
+
+The activities/calendar table-family chrome rotation (the
+first-listed standing alternate per session_176's suggested next).
+The table/priority/timeline/rail surfaces verified SOLID; the
+stat-card family FULLY decoded — all four reference components
+(gm/zv/Mx/ay) + all twenty call sites + LIVE-probed on BOTH apps.
+The N-90 family [2 M + 4 L + 4 N]: the M-90c1 CALENDAR VALUE COLOR
+[the Mx value = text-gray-900 LIVE rgb(17,24,39); ours bare →
+rgb(10,10,10) — the F-70a1 s70 pin's own comment CITED the gray-900
+then shipped the bare form on the FALSE "inherited card foreground"
+premise, the M-89c1 misdecode genus] + the M-90c2 REPORTS VALUE
+COLOR [the ay value's gray-900 — the s74 comment's own citation] +
+the L-90c3 CARD SPLIT ×3 [BarStatCard/TrendStatCard/CircleStatCard
+all → Card > CardContent p-4/p-5; the s89 "EVERY stat-card arm"
+claim was overbroad] + the L-90c4 BARS [DIVs + the per-arm bg-CLASS
+color maps + the raw-percentage height ONLY; the CHART_COLORS -400
+family + gray retired] + the L-90c5 CHIPS [the color-KEY pair maps
+with the direct-icon mechanism — the icon a component reference] +
+the L-90c6 TREND ROWS [the direction-keyed DIV rows, w-3 h-3, up/down
+only; the ay font-medium arm dead on the reference] + the N-90c7-c10
+nanos + the S90-P0 palette extension [red-400 #f87171 + purple-400
+#c084fc; the census 92 → 94] + the two audit nanos [the README "all
+FIVE families" prose + the stat-value-contract "bare" title]. RED 40
+pins (non-vacuous: 40 failed | 1748 passed, ZERO collateral; 6
+pin-shape repairs + 6 lockstep re-anchors). GATE: lint 0/0 · tsc 0 ·
+1788/1788 unit [99 suites, +29 net] · build · 132/132 e2e fresh
+CI=1 [one known-sensitive settings-debounce flake on the first run,
+green standalone + on the re-run]. LIVE-verified [the calendar +
+reports values rgb(17,24,39); the Card > CardContent walks; the DIV
+bars at the reference's compiled v3 rgb on every new palette pin;
+the direct-icon chips; the 390px state; the drawer battery; the
+census MATCH + the reference md5-exact — the 61st consecutive stable
+session]. 3 screenshots [124 + 125 + 126, VLM 5/5 + 4/4 + 4/4].
+Docs at SKILL v1.87.0 [§16cd + project_state] + README badge 1920 +
+AGENTS/CLAUDE/PAD at 1788+132 [+ the PAD s90 inventory row + the
+Total 99/1788] + session_179.md + the plan + its execution record +
+the worklog.

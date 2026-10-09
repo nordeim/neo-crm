@@ -583,26 +583,30 @@ describe("session-60: the dead-surface narrowing (S60-P2)", () => {
   });
 
   it("the living palette stays (guard)", () => {
-    // The ten live keys + their live consumers — the palette's real
-    // contract surface: the dashboard KPI sparklines (emerald/violet/
-    // red + the cyan400/green400 default-variant bars), the accounts
-    // and activities stat-card mini bars (the -400 family + gray).
+    // The live keys + their live consumers — the palette's real
+    // contract surface: the dashboard KPI sparklines + the lost-bar
+    // trio (red/violet/emerald). Session-90 (L-90c4): the -400 family
+    // + gray RETIRED — the accounts/activities stat-card mini bars
+    // ride the bg-CLASS color maps in page-parts.tsx now (the
+    // BAR_BG_GM/BAR_BG_ZV keys — the s60 guard's accounts/activities
+    // assertions re-derived with them).
     const src = stripComments(read("src/lib/constants.ts") ?? "");
     expect(src).toMatch(/red: "#ef4444"/);
-    expect(src).toMatch(/gray: "#9ca3af"/);
     expect(src).toMatch(/violet: "#8b5cf6"/);
     expect(src).toMatch(/emerald: "#10b981"/);
-    expect(src).toMatch(/blue400: "#60a5fa"/);
-    expect(src).toMatch(/green400: "#4ade80"/);
-    expect(src).toMatch(/cyan400: "#22d3ee"/);
-    expect(src).toMatch(/purple400: "#c084fc"/);
-    expect(src).toMatch(/red400: "#f87171"/);
-    expect(src).toMatch(/amber400: "#fbbf24"/);
+    // the retired members are gone
+    expect(src).not.toMatch(/gray: "#9ca3af"/);
+    expect(src).not.toMatch(/blue400:/);
+    expect(src).not.toMatch(/amber400:/);
     expect(dashboard()).toMatch(/CHART_COLORS\.emerald/);
     expect(dashboard()).toMatch(/CHART_COLORS\.violet/);
     expect(dashboard()).toMatch(/CHART_COLORS\.red\b/);
-    expect(accounts()).toMatch(/CHART_COLORS\.blue400/);
-    expect(activities()).toMatch(/CHART_COLORS\.gray\b/);
+    // the stat-card bars consume the CLASS maps, never the hex palette
+    const parts = stripComments(read("src/components/shared/page-parts.tsx") ?? "");
+    expect(parts).toMatch(/BAR_BG_GM/);
+    expect(parts).toMatch(/BAR_BG_ZV/);
+    expect(accounts()).not.toMatch(/CHART_COLORS/);
+    expect(activities()).not.toMatch(/CHART_COLORS/);
   });
 });
 
@@ -950,7 +954,10 @@ describe("session-66: the components dead-surface retirement (N-66b/c/j)", () =>
     expect(src).not.toMatch(/barColorFor/);
     // The old arm: backgroundColor: barColorFor ? barColorFor(v, i) : barColor
     expect(src).not.toMatch(/barColorFor \? barColorFor\(v, i\) : barColor/);
-    expect(src).toMatch(/backgroundColor: barColor/);
+    // Session-90 (L-90c4): the inline backgroundColor mechanism itself
+    // retired — the bars carry the bg-CLASS + the raw height ONLY
+    expect(src).not.toMatch(/backgroundColor: barColor/);
+    expect(src).toMatch(/BAR_BG_GM\[color\] \?\? BAR_BG_GM_ELSE/);
   });
 
   it("the Sparkline guards the empty series (N-66j; s78 re-anchor: the Math.max normalization RETIRED with the raw-percentage bars)", () => {

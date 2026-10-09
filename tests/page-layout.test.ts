@@ -36,7 +36,6 @@ import {
   FILTER_RAIL,
   INPUT_BASE,
   KPI_CARD,
-  KPI_CHIP_BG,
   KPI_SPARK,
   KPI_VALUE,
   LEADS_FILTERS_POPOVER,
@@ -67,7 +66,6 @@ import {
   SETTINGS_GRID,
   SETTINGS_PICKLIST,
   SHELL_LAYOUT,
-  STAT_CARD,
   STAT_SHADOWS,
   TABS_PILL,
   TABS_SEGMENTED,
@@ -79,6 +77,12 @@ import {
   VIEW_SWITCHER,
   allLayoutClasses,
 } from "@/lib/page-layout";
+
+/** Session-90: the raw-source reader for the construction-retirement
+ * pins (the STAT_CARD/KPI_CHIP_BG re-anchors read the source, not the
+ * module — the tokens retire with zero consumers). */
+const read = (p: string) =>
+  readFileSync(path.resolve(import.meta.dirname, "..", p), "utf8");
 
 // Session-6 parity pins: every class string below was extracted from the
 // LIVE reference app's DOM (class-list extraction at 1512x945 + 390x844 on
@@ -393,19 +397,19 @@ describe("login-card parity (session-7 DOM-verified)", () => {
 });
 
 describe("stat/card header parity (session-7 DOM-verified)", () => {
-  it("TrendStatCard: p-4 body, mb-3 top row, 40px -50 chips, green-600 trend", () => {
-    expect(STAT_CARD.card).toBe("rounded-xl border border-line bg-surface shadow");
-    expect(STAT_CARD.body).toBe("p-4");
-    expect(STAT_CARD.topRow).toBe("flex items-start justify-between mb-3");
-    expect(STAT_CARD.chip).toBe("w-10 h-10 rounded-lg flex items-center justify-center");
-    expect(STAT_CARD.chipIcon).toBe("h-5 w-5");
-    expect(STAT_CARD.trend).toBe("flex items-center gap-1 text-xs text-green-600");
-    expect(STAT_CARD.trendIcon).toBe("h-3 w-3");
-    // Session-70 (F-70a1): the bare family form — the text-foreground
-    // retired (the s69 F-69a1 precedent; the stat-value-contract
-    // session-70 describe pins the retirement).
-    expect(STAT_CARD.value).toBe("text-2xl font-bold");
-    expect(STAT_CARD.label).toBe("text-xs text-gray-600 mt-1");
+  it("TrendStatCard: the STAT_CARD token family RETIRED at s90 (the construction inlined per the Mx decode)", () => {
+    // Session-90 (L-90c3/c5): the TrendStatCard/CircleStatCard mirrors
+    // ride the stock Card > CardContent pair with the reference's own
+    // inline constructions — the s7-era STAT_CARD token family (card/
+    // body/topRow/chip/chipIcon/trend/trendIcon/value/label/reportsCard)
+    // retired with zero consumers; the per-component forms are pinned
+    // in the statcard-family-parity suite (the s88/s89 precedent for
+    // construction rotations).
+    const layout = read("src/lib/page-layout.ts") ?? "";
+    expect(layout).not.toContain("export const STAT_CARD");
+    expect(layout).not.toContain("STAT_CARD");
+    expect(layout).not.toContain("KPI_CHIP_BG");
+    expect(layout).not.toContain("KPI_ICON_TEXT");
   });
 
   it("activities card headers: h2 text-lg titles, mb-4/mb-6 rows, ••• text button", () => {
@@ -985,13 +989,16 @@ describe("session-12: dashboard KPI card de-hover + label tokens (S12-P5)", () =
     expect(DELTA_TEXT.bad).toBe("text-red-600");
   });
 
-  it("the reports KPI cards (CircleStatCard) KEEP hover + gain the strong border", () => {
+  it("the reports KPI cards (CircleStatCard) KEEP hover + gain the strong border (re-anchored at s90)", () => {
     // The reference's reports KPI cards still ship `border-gray-200
     // hover:shadow-md transition-shadow` — the one stat family with the
     // hover treatment. The border rides --color-line-strong (#e5e7eb).
-    expect(STAT_CARD.reportsCard).toContain("border-line-strong");
-    expect(STAT_CARD.reportsCard).toContain("hover:shadow-md");
-    expect(STAT_CARD.reportsCard).toContain("transition-shadow");
+    // Session-90 (L-90c3): the merged reportsCard token retired — the
+    // classes ride the stock Card's className prop now.
+    const parts = read("src/components/shared/page-parts.tsx") ?? "";
+    const block = parts.slice(parts.indexOf("export function CircleStatCard"));
+    expect(block).toContain('border border-line-strong hover:shadow-md transition-shadow');
+    expect(block).not.toContain("STAT_CARD.reportsCard");
   });
 });
 
@@ -1026,15 +1033,19 @@ describe("session-12: sparkline geometry + chip palette (S12-P6)", () => {
     expect(KPI_SPARK.area).toContain("fillOpacity: 0.3");
   });
 
-  it("the icon chips are SOLID color-50s (not alpha tints)", () => {
-    // Computed: blue-50 #eff6ff / orange-50 #fff7ed / green-50 #f0fdf4 /
-    // red-50 #fef2f2 / violet-50 #faf5ff. Ours shipped 10%-alpha tints
-    // (rgba(59,130,246,.1) ≈ #e8f0fd — a different wash).
-    expect(KPI_CHIP_BG["#3b82f6"]).toBe("#eff6ff");
-    expect(KPI_CHIP_BG["#f97316"]).toBe("#fff7ed");
-    expect(KPI_CHIP_BG["#10b981"]).toBe("#f0fdf4");
-    expect(KPI_CHIP_BG["#ef4444"]).toBe("#fef2f2");
-    expect(KPI_CHIP_BG["#8b5cf6"]).toBe("#faf5ff");
+  it("the icon chips are the color-KEY pair maps post-s90 (the hex-keyed KPI_CHIP_BG retired)", () => {
+    // Session-90 (L-90c5): the reference's Mx/ay chips take the color
+    // KEY and map to the {bg: bg-*-50, text: text-*-600} pairs — the
+    // inline-hex KPI_CHIP_BG/KPI_ICON_TEXT maps retired with zero
+    // consumers. The computed -50s are unchanged (blue-50 #eff6ff /
+    // orange-50 #fff7ed / green-50 #f0fdf4 / red-50 #fef2f2 /
+    // purple-50 #faf5ff — the s88 re-pin's -50 steps).
+    const parts = read("src/components/shared/page-parts.tsx") ?? "";
+    const map = parts.slice(parts.indexOf("TREND_CHIP"), parts.indexOf("TREND_CHIP") + 500);
+    expect(map).toContain('bg: "bg-blue-50"');
+    expect(map).toContain('bg: "bg-green-50"');
+    expect(map).toContain('bg: "bg-purple-50"');
+    expect(map).toContain('bg: "bg-orange-50"');
   });
 
   it("the reports LOST DEALS card ships NO sparkline", () => {
@@ -2060,7 +2071,11 @@ describe("session-17: the remaining glyph swaps (S17-P2c-f)", () => {
       "utf8",
     );
     expect(src).not.toMatch(/<CalendarDays|CalendarDays,/);
-    expect(src).toMatch(/icon=\{<Users className="h-5 w-5" \/>\}/);
+    // Session-90 (L-90c5): the icon arrives as a COMPONENT REFERENCE
+    // (icon={Users}) — the component applies the w-5 h-5 classes
+    // itself (the Mx mechanism).
+    expect(src).toMatch(/icon=\{Users\}/);
+    expect(src).toMatch(/icon=\{Calendar\}/);
   });
 
   it("activities quick-log: Calendar (Log Meeting) + MessageSquare (Log WhatsApp)", () => {

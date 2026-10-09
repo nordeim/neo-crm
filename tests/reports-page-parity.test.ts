@@ -265,24 +265,32 @@ describe("session-74: the Reset button is the selects cluster's last child (L-74
 // S74-P7 — the KPI trio (L-74c10/c11/c15)
 // ---------------------------------------------------------------------------
 
-describe("session-74: the KPI icon -600 text classes (L-74c10)", () => {
-  it("KPI_ICON_TEXT maps the -500 hexes to the -600 text classes", () => {
-    const src = layout();
-    expect(src).toMatch(/KPI_ICON_TEXT/);
-    expect(src).toMatch(/"#3b82f6":\s*"text-blue-600"/);
-    expect(src).toMatch(/"#10b981":\s*"text-green-600"/);
-    expect(src).toMatch(/"#ef4444":\s*"text-red-600"/);
-    expect(src).toMatch(/"#8b5cf6":\s*"text-purple-600"/);
-    expect(src).toMatch(/"#f97316":\s*"text-orange-600"/);
+describe("session-74: the KPI icon -600 text classes (L-74c10 — re-anchored at s90)", () => {
+  it("the -600 glyph classes ride the color-KEY pair maps (the hex-keyed map retired)", () => {
+    // Session-90 (L-90c5, bundle-decoded from the reference's ay): the
+    // icon glyph classes ride the REPORT_CHIP pair map — the same
+    // -600 text classes the s74 decode found (one step darker than
+    // the -500 sparkline strokes), keyed by the reference's own color
+    // strings instead of the series hexes (the hex-keyed map retired
+    // with zero consumers).
+    const src = parts();
+    const map = src.slice(src.indexOf("REPORT_CHIP"), src.indexOf("REPORT_CHIP") + 600);
+    expect(map).toContain('blue: { bg: "bg-blue-50", text: "text-blue-600" }');
+    expect(map).toContain('green: { bg: "bg-green-50", text: "text-green-600" }');
+    expect(map).toContain('red: { bg: "bg-red-50", text: "text-red-600" }');
+    expect(map).toContain('purple: { bg: "bg-purple-50", text: "text-purple-600" }');
+    expect(map).toContain('orange: { bg: "bg-orange-50", text: "text-orange-600" }');
   });
 
-  it("CircleStatCard carries the class on the icon span (the inline color style retired)", () => {
+  it("the chip renders the icon DIRECTLY with the pair classes (the icon span + inline style retired)", () => {
+    // Session-90 (L-90c5): the reference's ay applies `w-5 h-5
+    // ${f.text}` to the icon itself — our chip renders the icon
+    // component directly, no wrapper span, no inline color style.
     const src = parts();
-    const at = src.indexOf("KPI_CHIP_BG[color]");
-    expect(at).toBeGreaterThanOrEqual(0);
-    const region = src.slice(at - 400, at + 400);
-    expect(region).toMatch(/KPI_ICON_TEXT\[color\]/);
-    expect(region).not.toMatch(/,\s*color\s*\}\}/);
+    const block = src.slice(src.indexOf("export function CircleStatCard"));
+    expect(block).toMatch(/<Icon className=\{`w-5 h-5 \$\{pair\.text\}`\} \/>/);
+    expect(block).not.toMatch(/style=\{\{ backgroundColor/);
+    expect(block).not.toMatch(/icon span|chipIcon/);
   });
 });
 

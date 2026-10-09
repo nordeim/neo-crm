@@ -46,17 +46,27 @@ describe("chart palette parity (session-4 DOM-verified)", () => {
     expect(STAGE_META.won.badge).toContain("emerald");
   });
 
-  it("stat-card bar family: the tailwind -400 palette the reference renders", () => {
-    // Accounts/activities stat cards: bg-blue-400 / bg-green-400 / bg-cyan-400
-    // / bg-purple-400 / bg-red-400; Sales Target two-tone bg-amber-400 +
-    // bg-blue-500; sparkline lines stroke #10b981.
-    expect(CHART_COLORS.blue400).toBe("#60a5fa");
-    expect(CHART_COLORS.green400).toBe("#4ade80");
-    expect(CHART_COLORS.cyan400).toBe("#22d3ee");
-    expect(CHART_COLORS.purple400).toBe("#c084fc");
-    expect(CHART_COLORS.red400).toBe("#f87171");
-    expect(CHART_COLORS.amber400).toBe("#fbbf24");
+  it("stat-card bar family: the tailwind -400 palette the reference renders (s90 re-anchor: the CLASS maps)", () => {
+    // Accounts/activities stat cards: bg-blue-400 / bg-green-400 /
+    // bg-cyan-400 / bg-purple-400 / bg-red-400 (+ the Sales Target
+    // two-tone bg-amber-400 + bg-blue-500 on the dashboard sparks).
+    // Session-90 (L-90c4): the bars ride the bg-CLASS maps in
+    // page-parts.tsx now — the CHART_COLORS -400 hexes retired with
+    // zero key-reads; the computed contract moved to the @theme
+    // re-pins (the s88 block + the s90 red-400/purple-400 extension).
     expect(CHART_COLORS.emerald).toBe("#10b981");
+    const globals = readFileSync(
+      path.resolve(import.meta.dirname, "../src/app/globals.css"),
+      "utf8",
+    );
+    const token = (name: string) =>
+      globals.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]?.trim();
+    expect(token("color-blue-400")).toBe("#60a5fa");
+    expect(token("color-green-400")).toBe("#4ade80");
+    expect(token("color-cyan-400")).toBe("#22d3ee");
+    expect(token("color-purple-400")).toBe("#c084fc");
+    expect(token("color-red-400")).toBe("#f87171");
+    expect(token("color-amber-400")).toBe("#fbbf24");
   });
 });
 

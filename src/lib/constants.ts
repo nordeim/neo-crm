@@ -514,21 +514,17 @@ export const REPORT_STATUSES = [
 export const CHART_COLORS = {
   // Session-60 (N-60a): six never-read keys retired — blue/cyan/teal/
   // amber/orange/green had zero key-reads AND zero computed access
-  // repo-wide (the s54 fully-dead class, KEY variant — the live read
-  // set: red/gray/violet/emerald + the -400 family below). The CSS
+  // repo-wide (the s54 fully-dead class, KEY variant). The CSS
   // --color-chart-1…6 token family in globals.css is a different
   // surface and stays whole.
+  // Session-90 (L-90c4): the -400 family + gray RETIRED — the
+  // stat-card mini bars ride the bg-CLASS color maps in page-parts.tsx
+  // now (BAR_BG_GM/BAR_BG_ZV keyed by the reference's own color
+  // strings), leaving these keys with zero key-reads. The live read
+  // set: the dashboard KPI sparklines + the lost-bar trio (red/violet/
+  // emerald).
   red: "#ef4444",
-  gray: "#9ca3af",
   violet: "#8b5cf6",
-  // Tailwind -400 family — the reference's stat-card mini bars render
-  // bg-{color}-400 (DOM-verified on accounts/activities/dashboard cards).
-  blue400: "#60a5fa",
-  green400: "#4ade80",
-  cyan400: "#22d3ee",
-  purple400: "#c084fc",
-  red400: "#f87171",
-  amber400: "#fbbf24",
   emerald: "#10b981",
 };
 

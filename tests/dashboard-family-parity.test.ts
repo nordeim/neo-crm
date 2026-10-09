@@ -104,12 +104,17 @@ describe("session-78: the BarStatCard raw-height twin (L-78c2)", () => {
     expect(src).not.toMatch(/Math\.max\(\.\.\.bars/);
   });
 
-  it("the bars render the RAW percentage height + backgroundColor: barColor (no opacity arm)", () => {
+  it("the bars render the RAW percentage height on the bg-CLASS color map (no inline backgroundColor, no opacity arm — re-anchored at s90)", () => {
     const src = pageParts();
-    const bar = src.slice(src.indexOf("flex h-10 shrink-0"), src.indexOf("flex h-10 shrink-0") + 700);
+    // Session-90 (L-90c4): the bars ride the reference's own per-arm
+    // bg-CLASS color maps (BAR_BG_GM/BAR_BG_ZV) with the raw-percentage
+    // inline height ONLY — the inline `backgroundColor: barColor`
+    // mechanism retired with the hex barColor prop.
+    const start = src.indexOf("h-10 ");
+    const bar = src.slice(start, start + 700);
     expect(bar).toMatch(/height:\s*`\$\{v\}%`/);
-    expect(bar).toMatch(/backgroundColor: barColor/);
-    expect(bar).not.toMatch(/opacity:/);
+    expect(src).not.toMatch(/backgroundColor: barColor/);
+    expect(src).not.toMatch(/<span\s+key=\{i\}/);
   });
 });
 

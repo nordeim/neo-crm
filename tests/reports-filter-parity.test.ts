@@ -311,28 +311,32 @@ describe("session-83: the filter-card family's standing computed-equal surfaces 
     expect(KPI_STATICS.reportsSpark).toEqual([65, 72, 68, 85, 78, 92]);
   });
 
-  it("the KPI card: the reportsCard chrome + the chip pairs + the BARE value (the s69/s70 standing decision)", async () => {
-    const { STAT_CARD, KPI_ICON_TEXT, KPI_CHIP_BG } = await layout();
-    expect(STAT_CARD.reportsCard).toBe(
-      "rounded-xl border border-line-strong bg-surface p-5 shadow transition-shadow hover:shadow-md",
+  it("the KPI card: the Card/CardContent split + the chip pair maps + the EXPLICIT gray-900 value (the s90 mirror)", async () => {
+    const parts = read("src/components/shared/page-parts.tsx") ?? "";
+    const block = parts.slice(parts.indexOf("export function CircleStatCard"));
+    // Session-90 (M-90c2 + L-90c3/c5, bundle-decoded from the reference's
+    // ay + LIVE-probed on BOTH apps): the reports card = Card
+    // className="border border-gray-200 hover:shadow-md transition-shadow"
+    // (our border-line-strong token — computed-equal) > CardContent "p5"
+    // — the merged reportsCard token retired. The value carries the
+    // EXPLICIT text-gray-900 (LIVE rgb(17,24,39); the s69/s70/s74
+    // "standing decision" was the M-89c1 misdecode genus). The chips ride
+    // the color-KEY pair maps (bg-*-50 + text-*-600 — one step darker
+    // than the -500 sparkline strokes); the hex-keyed KPI_CHIP_BG/
+    // KPI_ICON_TEXT maps retired with zero consumers.
+    expect(block).toContain(
+      '<Card className="border border-line-strong hover:shadow-md transition-shadow">',
     );
-    // The ay color map: bg-*-50 chips + text-*-600 icons (one step
-    // darker than the -500 sparkline strokes). The chip bg rides the
-    // inline style (KPI_CHIP_BG's hex values = the -50 literals):
-    // blue-50 #eff6ff, green-50 #ecfdf5, red-50 #fef2f2,
-    // purple-50 #f5f3ff, orange-50 #fff7ed.
-    expect(KPI_ICON_TEXT["#3b82f6"]).toBe("text-blue-600");
-    expect(KPI_ICON_TEXT["#10b981"]).toBe("text-green-600");
-    expect(KPI_ICON_TEXT["#ef4444"]).toBe("text-red-600");
-    expect(KPI_ICON_TEXT["#8b5cf6"]).toBe("text-purple-600");
-    expect(KPI_ICON_TEXT["#f97316"]).toBe("text-orange-600");
-    expect(KPI_CHIP_BG["#3b82f6"]).toBe("#eff6ff");
-    expect(KPI_CHIP_BG["#ef4444"]).toBe("#fef2f2");
-    // The value: the reference ships text-gray-900; ours rides the
-    // documented bare family form (the inherited #0a0a0a accepted —
-    // the s69 leads / s70 calendar precedent, the standing decision).
-    expect(STAT_CARD.value).toBe("text-2xl font-bold");
-    expect(STAT_CARD.value).not.toContain("text-foreground");
+    expect(block).toContain('<CardContent className="p-5">');
+    expect(block).toContain('<div className="text-2xl font-bold text-gray-900">{value}</div>');
+    const pairMap = parts.slice(parts.indexOf("REPORT_CHIP"), parts.indexOf("REPORT_CHIP") + 600);
+    expect(pairMap).toContain('bg: "bg-blue-50", text: "text-blue-600"');
+    expect(pairMap).toContain('bg: "bg-green-50", text: "text-green-600"');
+    expect(pairMap).toContain('bg: "bg-red-50", text: "text-red-600"');
+    expect(pairMap).toContain('bg: "bg-purple-50", text: "text-purple-600"');
+    expect(pairMap).toContain('bg: "bg-orange-50", text: "text-orange-600"');
+    expect(block).not.toContain("STAT_CARD.reportsCard");
+    expect(block).not.toContain("KPI_CHIP_BG");
   });
 
   it("the spark: the line variant is the reference's LineChart + strokeWidth 2 + dot false", async () => {

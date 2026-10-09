@@ -121,18 +121,28 @@ describe("session-76: the KPI STATICS family (gm/Mx literals)", () => {
     const parts = pageParts();
     // BarStatCard's LABEL span (the gm label) — scoped: the KpiCard
     // suffix / IconStatCard / CircleStatCard labels are OTHER families
-    // with their own prior pins.
-    const barBlock = parts.slice(parts.indexOf("export function BarStatCard"), parts.indexOf("export function BarStatCard") + 1200);
+    // with their own prior pins. Session-90: the window anchored to the
+    // next component boundary (the construction mirror grew the body
+    // past the old 1200-char window).
+    const barStart = parts.indexOf("export function BarStatCard");
+    const barBlock = parts.slice(barStart, parts.indexOf("export function", barStart + 30) > 0 ? parts.indexOf("export function", barStart + 30) : barStart + 2600);
     expect(barBlock).toMatch(/text-xs text-gray-600/);
     expect(barBlock).not.toMatch(/<span className="text-xs text-muted">\{label\}/);
-    const layout = pageLayoutSrc();
-    expect(layout).toMatch(/label: "text-xs text-gray-600 mt-1"/);
+    // Session-90 (L-90c3): the Mx label lives in the TrendStatCard
+    // component (page-parts), not the calendar page — the construction
+    // mirror moved it there.
+    const trendBlock = parts.slice(parts.indexOf("export function TrendStatCard"));
+    expect(trendBlock).toContain('<div className="text-xs text-gray-600 mt-1">{label}</div>');
   });
 
-  it("the WhatsApp bars are green-400 (the gm color map)", () => {
+  it("the WhatsApp bars are the green color KEY (the gm color map — re-anchored at s90)", () => {
     const src = activitiesPage();
     const block = src.slice(src.indexOf('label="WhatsApp"'), src.indexOf('label="WhatsApp"') + 300);
-    expect(block).toMatch(/green400/);
+    // Session-90 (L-90c4): the bars ride the bg-CLASS color map keyed
+    // by the reference's own color strings — the CHART_COLORS.green400
+    // hex prop retired.
+    expect(block).toMatch(/color="green"/);
+    expect(block).not.toMatch(/green400/);
     expect(block).not.toMatch(/#22c55e/);
   });
 });
