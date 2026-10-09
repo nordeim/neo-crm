@@ -3,12 +3,13 @@
 import { downloadBlob } from "@/lib/download";
 import * as React from "react";
 import {
+  Activity,
+  Award,
   ChevronDown,
   ChevronUp,
   CircleAlert,
   CircleCheckBig,
   CircleUser,
-  Crown,
   Download,
   EllipsisVertical,
   FileText,
@@ -24,7 +25,6 @@ import {
   TrendingUp,
   Upload,
   Users,
-  Zap,
 } from "lucide-react";
 import { FilterPolygon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
@@ -349,19 +349,26 @@ export default function ContactsPage() {
     // short of the real 69px topbar (a reference quirk mirrored
     // verbatim — main overflows 5px).
     <div className={CONTACTS_LAYOUT.fullHeight}>
-      <div className={CONTACTS_LAYOUT.innerScroll}>
+      {/* Session-88 (L-88c7, bundle-decoded): the reference appends
+          mr-[500px] to this scroll area while the Pke detail slide-over
+          is open — `flex-1 overflow-auto ${A ? "mr-[500px] : ""}` —
+          pushing the table left so nothing hides under the 500px panel
+          (ours kept the static form; the table sat under the overlay). */}
+      <div className={cn(CONTACTS_LAYOUT.innerScroll, detailContact && "mr-[500px]")}>
         <div className={CONTACTS_LAYOUT.content}>
       {/* Session-6: contacts is the flat header variant (text-3xl title,
           plain row, gap-3 actions); buttons are h-9 outline with hidden-sm
           labels on Scan Card/Import.
-          Session-63 (G-4, the N-62e precision note completing the set):
-          the header Export CSV's disabled binding reads
-          `filtered.length === 0` while the export itself ships the FULL
-          list (the runtime guard is contacts.length === 0) — a
-          filter-to-empty state therefore disables an export whose
-          artifact would be non-empty. Kept as shipped: the reference's
-          own zero-data state makes the filtered-vs-full distinction
-          unresolvable LIVE (indistinguishable mirrors). */}
+          Session-88 (L-88c6, bundle-resolved): the header Export CSV's
+          disabled binding reads the RAW list — the reference's own
+          `disabled: $.length === 0` where $ is the unfiltered query
+          result (its export maps the RAW rows under the same RAW zero
+          guard, exactly like ours). The s63 G-4/N-62e note kept our
+          `filtered.length === 0` binding as "unresolvable LIVE" — the
+          bundle resolves it (the s76 bundle-beats-live-read lesson); a
+          filter-to-empty state therefore KEEPS the export enabled on
+          the reference (and now on ours), matching the s86 L-86c4
+          accounts fix. */}
       <PageHeader
         title="Contacts"
         subtitle="Manage your contacts"
@@ -370,7 +377,7 @@ export default function ContactsPage() {
           <>
             <Button
               variant="outline"
-              disabled={filtered.length === 0}
+              disabled={contacts.length === 0}
               onClick={exportContacts}
             >
               <Download className="h-4 w-4 mr-2" /> Export CSV
@@ -402,34 +409,31 @@ export default function ContactsPage() {
           label="Total Contacts"
           value={filtered.length}
           icon={<Users className="w-6 h-6 text-white" />}
-          tone="solid"
           gradient
-          color="#3b82f6"
+          iconColor="bg-blue-500"
         />
         <IconStatCard
           label="New This Month"
           value={newThisMonth}
           trend={`+${newThisMonth}`}
+          trendDir="up"
           icon={<TrendingUp className="w-6 h-6 text-white" />}
-          tone="solid"
           gradient
-          color="#22c55e"
+          iconColor="bg-green-500"
         />
         <IconStatCard
           label="Top Decision Makers"
           value={filtered.filter((c) => c.role === "Decision Maker" || c.role === "Key Contact").length}
-          icon={<Crown className="w-6 h-6 text-white" />}
-          tone="solid"
+          icon={<Award className="w-6 h-6 text-white" />}
           gradient
-          color="#f59e0b"
+          iconColor="bg-amber-500"
         />
         <IconStatCard
           label="No Recent Activity"
           value={filtered.filter((c) => !c.lastActivityAt || new Date(c.lastActivityAt) < new Date(Date.now() - 30 * 86400000)).length}
           icon={<CircleAlert className="w-6 h-6 text-white" />}
-          tone="solid"
           gradient
-          color="#ef4444"
+          iconColor="bg-red-500"
         />
       </div>
 
@@ -446,6 +450,10 @@ export default function ContactsPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-subtle" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contacts..." className="pl-10" aria-label="Search contacts" />
           </div>
+          {/* Session-88 (N-88c9): the aria-expanded attribute is OUR
+              accessibility superset — the reference's button carries only
+              the variant ternary + the onClick toggle (no aria); kept for
+              the same a11y reason as the activities More-Filters toggle. */}
           <Button
             variant={showFilters ? "default" : "outline"}
             aria-expanded={showFilters}
@@ -559,7 +567,10 @@ export default function ContactsPage() {
                           </div>
                           {ve && (
                             <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center shadow-sm">
-                              <Crown className="w-3 h-3 text-white" />
+                              {/* Session-88 (M-88c3): the reference's
+                                  wT = tr("Award") — the medal glyph (the
+                                  bundle ships NO Crown). */}
+                              <Award className="w-3 h-3 text-white" />
                             </div>
                           )}
                         </div>
@@ -588,7 +599,12 @@ export default function ContactsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Zap className={`w-4 h-4 ${pe ? "text-red-500" : "text-green-500"}`} />
+                        {/* Session-88 (M-88c2, bundle-decoded): the row's
+                            last-activity icon is the reference's AC =
+                            tr("Activity") — the pulse glyph (the M-82c2
+                            slide-over fix's missed sibling; Zap never
+                            appears in the bundle). */}
+                        <Activity className={`w-4 h-4 ${pe ? "text-red-500" : "text-green-500"}`} />
                         <span className={`text-sm font-medium ${pe ? "text-red-600" : "text-gray-700"}`}>
                           {lastActivityCe(c.lastActivityAt)}
                         </span>
@@ -716,7 +732,7 @@ export default function ContactsPage() {
                       <p className="text-sm text-gray-600">{c.position}</p>
                     </div>
                   </div>
-                  <Badge className={`${CONTACT_PRIORITY_META[c.priority] ?? CONTACT_PRIORITY_META.Standard} border font-medium`}>
+                  <Badge className={`${CONTACT_PRIORITY_META[c.priority] ?? CONTACT_PRIORITY_META.Standard}`}>
                     {c.priority || "Standard"}
                   </Badge>
                 </div>
@@ -990,6 +1006,10 @@ export default function ContactsPage() {
               <Card>
                 <CardHeader><CardTitle className="text-sm">Source</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
+                  {/* Session-88 (M-88c4, bundle-decoded): the reference
+                      maps the RAW lowercase values but renders the LABEL
+                      capitalized — i.charAt(0).toUpperCase()+i.slice(1) —
+                      the raw value only rides the id + the wire. */}
                   {CONTACT_SOURCE_OPTIONS.map((o) => (
                     <div key={o.value} className="flex items-center space-x-2">
                       <Checkbox
@@ -997,7 +1017,9 @@ export default function ContactsPage() {
                         checked={sourcesF.includes(o.value)}
                         onCheckedChange={() => toggleFilter("sources", o.value)}
                       />
-                      <Label htmlFor={`source-${o.value}`} className="text-sm font-normal cursor-pointer">{o.value}</Label>
+                      <Label htmlFor={`source-${o.value}`} className="text-sm font-normal cursor-pointer">
+                        {o.value.charAt(0).toUpperCase() + o.value.slice(1)}
+                      </Label>
                     </div>
                   ))}
                 </CardContent>

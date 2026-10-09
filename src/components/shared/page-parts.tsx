@@ -294,12 +294,15 @@ export function BarStatCard({
 
 /**
  * Contacts / leads stat card: label top-left, big value (plus optional
- * sub-value line) bottom-left, icon chip on the far right — the reference
- * layout. Two DOM-verified variants (session-5):
- * - `contacts` (default): gradient card (`bg-gradient-to-br from-white
- *   to-gray-50`), `p-6`, label `text-sm font-medium text-gray-600`, value
- *   `text-3xl font-bold`, solid `bg-{c}-500` chip (`tone: "solid"`) with a
- *   white glyph, optional trend row (trending-up + green text).
+ * sub-value line on the LEADS arm) bottom-left, icon chip on the far
+ * right — the reference layout. Two DOM-verified variants:
+ * - `contacts` (default — session-88 L-88c5, bundle-decoded from the
+ *   reference's Rx): Card (the stock component, gradient className) >
+ *   CardContent "p-6" > the `flex items-start justify-between` row >
+ *   [div.flex-1 (label p + value p + the trend row), the chip
+ *   `p-3 rounded-lg ${iconColor}` — a CLASS string, no inline style];
+ *   the trend row = `flex items-center gap-1` with the EXPLICIT-color
+ *   TrendingUp|TrendingDown w-4 h-4 + the direction-colored span.
  * - `leads`: plain white card, `p-4 sm:p-6`, header `flex items-center
  *   justify-between mb-2`, label `text-xs sm:text-sm` plain, value
  *   `text-xl sm:text-2xl font-bold`, tinted `rounded-lg bg-{c}-50` chip
@@ -310,24 +313,29 @@ export function IconStatCard({
   value,
   subValue,
   trend,
+  trendDir = "up",
   icon,
-  tone = "tint",
   gradient = false,
   variant = "contacts",
-  color,
+  iconColor,
   chipTone,
 }: {
   label: string;
   value: React.ReactNode;
+  /** Leads-arm-only sub-value line under the value. */
   subValue?: React.ReactNode;
-  /** Optional trend row under the value: trending-up icon + green text. */
+  /** Optional trend row under the value (the reference's trendValue). */
   trend?: React.ReactNode;
+  /** Session-88 (L-88c5): the trend row's DIRECTION — the reference's
+   *  trend prop ("up" green TrendingUp / "down" red TrendingDown). */
+  trendDir?: "up" | "down";
   icon: React.ReactNode;
-  tone?: "solid" | "tint";
   gradient?: boolean;
-  /** "contacts" (gradient/p6/text-3xl) or "leads" (p4-sm:p6/text-xl-2xl). */
+  /** "contacts" (Card/gradient/p6/text-3xl) or "leads" (p4-sm:p6/text-xl-2xl). */
   variant?: "contacts" | "leads";
-  color?: string;
+  /** Session-88 (L-88c5): the chip's CLASS string ("bg-blue-500" …) — the
+   *  reference's iconColor prop; replaces the retired inline-style chip. */
+  iconColor?: string;
   /** Session-77 (L-77c6): the leads arm's chip KEY — the reference's Sm
    *  class-pair map (STAT_CHIP_PAIRS); replaces the style-tint chip. */
   chipTone?: keyof typeof STAT_CHIP_PAIRS;
@@ -360,40 +368,37 @@ export function IconStatCard({
       </div>
     );
   }
+  // Session-88 (L-88c5, bundle-decoded from the reference's Rx): the
+  // card splits Card > CardContent "p-6" > the row — the padding never
+  // merges into the card div (the L-87c3 KpiCard genus); the chip is
+  // `p-3 rounded-lg ${iconColor}` — a Tailwind bg-CLASS mechanism, no
+  // inline style, no shrink-0, no aria-hidden; the trend row is a DIV
+  // with the explicit-color icon + the direction-colored span; the
+  // subValue stays leads-only (the reference's Rx has no sub-value).
   return (
-    <div
-      className={cn(
-        // Session-11 (S11-P2): bare `shadow` here too — the reference's
-        // contacts gradient cards compute the standard shadow.
-        // Session-75 (L-75c2-7, bundle-decoded — the reference's Rx
-        // component): the row is items-start (the chip TOP-aligns with
-        // the label), NO gap class; the left column is flex-1; the
-        // gray-600 label + the gray-900 value both carry mb-2; the chip
-        // is the p-3 rounded-lg box (48px) with the w-6 h-6 white icon
-        // (24px) — the 40px/20px IconChip retired from this arm.
-        "flex items-start justify-between rounded-xl border border-line p-6 shadow",
-        gradient ? "bg-gradient-to-br from-white to-gray-50" : "bg-surface",
-      )}
-    >
-      <div className="flex-1">
-        <p className="text-sm font-medium text-gray-600 mb-2">{label}</p>
-        <p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>
-        {trend !== undefined && (
-          <span className="flex items-center gap-1 text-sm font-medium text-green-600">
-            <TrendingUp className="h-4 w-4" aria-hidden="true" />
-            {trend}
-          </span>
-        )}
-        {subValue !== undefined && <p className="mt-1.5 text-sm font-medium text-muted">{subValue}</p>}
-      </div>
-      <div
-        className="p-3 rounded-lg shrink-0"
-        style={{ backgroundColor: tone === "solid" ? color : `${color}1a`, color: tone === "solid" ? "#ffffff" : color }}
-        aria-hidden="true"
-      >
-        {icon}
-      </div>
-    </div>
+    <Card className={gradient ? "bg-gradient-to-br from-white to-gray-50" : undefined}>
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-600 mb-2">{label}</p>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>
+            {trend !== undefined && (
+              <div className="flex items-center gap-1">
+                {trendDir === "up" ? (
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-red-600" />
+                )}
+                <span className={`text-sm font-medium ${trendDir === "up" ? "text-green-600" : "text-red-600"}`}>
+                  {trend}
+                </span>
+              </div>
+            )}
+          </div>
+          {icon && <div className={`p-3 rounded-lg ${iconColor}`}>{icon}</div>}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

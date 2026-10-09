@@ -1081,15 +1081,18 @@ describe("session-43: leads accept contactId on both verbs (S43-P1)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Session-43 (S43-P2): the nine dead-`??` enum-default sites — non-
+// Session-43 (S43-P2): the dead-`??` enum-default sites — non-
 // optional asString returns "" (never undefined), so `?? "<enum>"` can
 // never fire and "" already 400s on the membership check below (the
-// exact shape s42-P5 removed from settings, ×9). The removals are
+// exact shape s42-P5 removed from settings). The removals are
 // behavior-identical; the pins keep the dead fallbacks from creeping
 // back (each row asserts the NON-OPTIONAL parse carries no `??`).
+// Session-88 (N-88a1): the count re-derived — EIGHT rows stand after
+// the s86 tier retirement (the N-87a1 row removal; the s43-era
+// "×9"/"nine" titles drifted).
 // ---------------------------------------------------------------------------
 
-describe("session-43: the nine dead-?? enum defaults are gone (S43-P2)", () => {
+describe("session-43: the eight dead-?? enum defaults are gone (S43-P2)", () => {
   it.each([
     ["src/app/api/leads/[id]/route.ts", "stage"],
     ["src/app/api/activities/[id]/route.ts", "priority"],

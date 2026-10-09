@@ -894,11 +894,15 @@ export const CONTACT_DIALOG = {
  *  grid-cols-2 (second cell empty — a reference quirk mirrored), the
  *  pt-4 wide footer, and the ONE-OFF blue submit (the reference ships
  *  `bg-blue-600 hover:bg-blue-700` — its v3 palette = #2563eb/#1d4ed8,
- *  which is EXACTLY our --primary/--primary-hover token pair; a v4
- *  HAZARD: the literal bg-blue-600 class compiles to v4's oklch default
- *  (computes rgb(21,93,252) — a DIFFERENT blue than the reference's),
- *  so the computed-equal expression is the TOKEN pair, never the
- *  literal class). Every other dialog ships the dark stock primary. */
+ *  which is EXACTLY our --primary/--primary-hover token pair. The
+ *  original S15-P12 hazard note — the literal classes compiling to
+ *  v4's re-derived oklch blue (rgb(21,93,252), a different blue than
+ *  the reference's) — was RETIRED family-wide at session-88 (M-88c1):
+ *  the @theme v3-palette re-pin makes every literal palette class
+ *  compute the reference's own values, so the literal is safe
+ *  everywhere now; the TOKEN pair remains the sanctioned form here
+ *  because it predates the pin and computes identically). Every other
+ *  dialog ships the dark stock primary. */
 export const EVENT_DIALOG = {
   content: "max-w-2xl",
   form: "space-y-4",

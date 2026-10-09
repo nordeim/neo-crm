@@ -839,7 +839,9 @@ describe("session-11 stat-card shadow + chart geometry pins (DOM-verified 2026-0
     // DOM: `rounded-xl bg-card text-card-foreground shadow border
     // border-gray-200 hover:shadow-md transition-shadow` on the REPORTS
     // KPI rows ONLY — the dashboard half retired at s12 (S12-P5;
-    // KPI_CARD.card is pinned WITHOUT the hover below).
+    // the dashboard KPI card's split is pinned in the session-87
+    // suite — the s88 N-88a2 comment re-derivation: the old
+    // KPI_CARD.card member retired at s87).
     expect(STAT_SHADOWS.kpiHover).toBe("hover:shadow-md transition-shadow");
   });
 

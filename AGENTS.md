@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1733 checks)       | `bun run test`                         |
+|  Unit tests (1750 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1733) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1750) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3238,3 +3238,52 @@ prompt-artifact-DOM-disproven]. Docs at SKILL v1.84.0 [§16ca +
 project_state] + README badge 1865 + AGENTS/CLAUDE/PAD at 1733+132
 [+ the PAD s87 inventory row + the Total 96/1733] + session_171.md
 + the plan + its execution record + the worklog.
+
+### Session-88 — the contacts filter-panel + stat-card rotation + the v3-palette re-pin
+
+The standing session_171 first-listed alternate (the kke panel's own
+chrome + the Rx stat cards + the Cke toolbar/export/shrink family)
+PLUS the rotation's root-cause discovery: THE V4 PALETTE DIVERGENCE —
+Tailwind v4's default palette is NOT v3's (blue-600 v4 #155dfc
+rgb(21,93,252) vs the reference's v3 #2563eb rgb(37,99,235); red-600
+Δ38; green-400 Δ69; amber-400 Δ36; purple-600 Δ35; cyan-400 Δ34) — 56
+of the 118 literal classes used in src/ diverged visibly (canvas pixel
+reads vs the reference's compiled CSS). FIXED by the @theme
+V3-PALETTE RE-PIN: 92 tokens covering every literal (family, step)
+used in src/, verified against the reference's compiled CSS on 97
+rules (zero mismatches) — the fifth member of the v4 re-pin family
+(shadow-sm s9 → blur-sm s10 → space-y s11/s14 → hover-variant s80 →
+palette s88); the S15-P12 hazard retired family-wide. The N-88 family
+[4 M + 3 L + 4 N]: the M-88c1 PALETTE [above] + the M-88c2 ROW ICON
+[Zap → the reference's AC=tr("Activity") pulse — the M-82c2 missed
+sibling] + the M-88c3 AWARD PAIR [wT=tr("Award") at the stat card +
+the name-cell overlay; the bundle ships NO Crown] + the M-88c4 SOURCE
+LABEL CASE [the reference capitalizes via charAt(0).toUpperCase()+
+slice(1); the id/value stay raw] + the L-88c5 STAT CARD SPLIT [Card >
+CardContent "p-6" > the row; the chip as a bg-CLASS mechanism; the
+trend row div with explicit-color TrendingUp|TrendingDown + trendDir;
+the subValue/tone/color retire from the contacts arm] + the L-88c6
+EXPORT BINDING [disabled reads the RAW list — the bundle's
+$.length===0; the s63 "unresolvable" resolved; filter-to-empty keeps
+the export enabled] + the L-88c7 mr-[500px] DETAIL SHRINK [the scroll
+area narrows while the Pke slide-over is open] + the N-88c8 mobile
+badge extras retired [font-medium lost the twMerge fight — 500 vs the
+base's 600] + the N-88c9 aria-expanded superset documented + the
+N-88a1/a2/b1 audit nanos [the "nine"→8 describe title; the stale s11
+comment; the 115/116 byte-identical duplicate re-captured]. The kke
+panel itself verified BYTE-EXACT (the s28+s75 layers hold). RED 17
+pins (non-vacuous: 17 failed | 1733 passed, ZERO collateral; 2
+pin-shape repairs — the census count + the arm window). GATE: lint
+0/0 · tsc 0 · 1750/1750 unit [97 suites, +17 net] · build · 132/132
+e2e fresh CI=1 [3.2m, FIRST run green; all 9 mobile-nav green].
+LIVE-verified [every probed palette class computing the reference's
+exact rgb; the stat card walk; the icons; the labels; the binding; the
+500px shrink; the badge weight; the drawer at TRUE 390px full-bleed +
+dual lock + navigate-close + closed inert+hidden; zero overflow; the
+closing census MATCH + the reference md5-exact — the 59th consecutive
+stable session]. 3 screenshots NEW [118 + 119 + 120] + the 116
+RE-CAPTURE, VLM 4/5 + 3/5 + 4/4-effective + 4/4 (every NO an
+artifact, DOM/bundle-disproven). Docs at SKILL v1.85.0 [§16cb +
+project_state] + README badge 1882 + AGENTS/CLAUDE/PAD at 1750+132
+[+ the PAD s88 inventory row + the Total 97/1750] + session_173.md +
+the plan + its execution record + the worklog.
