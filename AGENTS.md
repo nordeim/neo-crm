@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1750 checks)       | `bun run test`                         |
+|  Unit tests (1759 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1750) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1759) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3287,3 +3287,43 @@ artifact, DOM/bundle-disproven). Docs at SKILL v1.85.0 [§16cb +
 project_state] + README badge 1882 + AGENTS/CLAUDE/PAD at 1750+132
 [+ the PAD s88 inventory row + the Total 97/1750] + session_173.md +
 the plan + its execution record + the worklog.
+
+
+### Session-89 — the leads stat-card family (the Sm decode)
+
+The remaining standing alternate per session_173's suggested next —
+the Sm KPI-card family's own construction never walked (s11 the
+shadow, s29 the derivations, s68/s69 the value typography, s77 the
+chip PAIRS; nobody the Card/CardContent split, the chip's
+element/guard mechanism, the value's explicit color, or the dead
+trend row). The N-89 family [1 M + 2 L + 4 N]: the M-89c1 VALUE
+COLOR [the reference's Sm value = text-gray-900 LIVE rgb(17,24,39);
+ours inherited the page ink rgb(10,10,10) — the F-69a1 s69
+misdecode resolved; the dashboard values stay bare on both apps] +
+the L-89c2 CARD SPLIT [Card (bare) > CardContent "p-4 sm:p-6" — the
+merged-padding div retires; the L-87c3/L-88c5 genus, the LAST
+stat-card arm] + the L-89c3 CHIP [the icon-guarded width-first DIV
+consuming STAT_CHIP_PAIRS, chipTone defaulting "blue"; the
+SPAN/shrink-0/aria-hidden extras retire] + the N-89c4 CircleX
+import [BQ=tr("CircleX"); the deprecated XCircle alias retires] +
+the N-89c5 DEAD TREND MECHANISM [the Sm's number-trend row —
+sign-colored, w-3 h-3 icons, Math.abs + "%"; dead in the reference;
+mirrored via the shared prop's number arm] + the N-89c6 LUCIDE SVG
+aria-hidden SUPERSET documented [the 0.525 library injects it on
+every a11y-prop-less icon; the reference's older lucide renders
+bare svgs — icons.tsx] + the N-89c7 subValue truthy guard. The
+foundations SOLID (the six H-memo derivations expression-for-
+expression, the grid token, the chip pairs, the 390px geometry).
+RED 10 pins (non-vacuous: 10 failed | 1749 passed, ZERO collateral;
+3 pin-shape repairs). GATE: lint 0/0 · tsc 0 · 1759/1759 unit
+[98 suites, +9 net] · build · 132/132 e2e fresh CI=1 [3.2m, FIRST
+run green]. LIVE-verified [the value rgb(17,24,39); the Card >
+CardContent walk; the chip DIV; 0 trend rows; the 390px state; the
+drawer at TRUE 390px full-bleed + dual lock + navigate-close +
+closed inert+hidden; zero overflow; the census MATCH + the
+reference md5-exact — the 60th consecutive stable session]. 3
+screenshots [121 + 122 + 123, VLM 5/5 + 4/4 effective + 3/4 (the
+one NO a VLM-scale artifact)]. Docs at SKILL v1.86.0 [§16cc +
+project_state] + README badge 1891 + AGENTS/CLAUDE/PAD at
+1759+132 [+ the PAD s89 inventory row + the Total 98/1759] +
+session_176.md + the plan + its execution record + the worklog.

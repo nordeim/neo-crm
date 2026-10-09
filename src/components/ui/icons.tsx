@@ -1,7 +1,19 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-/** Session-17 (S17-P2b): the reference's Filter/Filters buttons ship the
+/** Session-89 (N-89c6, documented superset per the S33-P1/S47-P1
+ *  convention): lucide-react 0.525 INJECTS `aria-hidden="true"` on
+ *  every icon lacking an a11y prop (Icon.js:
+ *  `...!children && !hasA11yProp(rest) && { "aria-hidden": "true" }`)
+ *  — the reference's older lucide renders bare svgs (LIVE-verified:
+ *  our chip svg carries the attribute, the reference's does not). The
+ *  library-injected aria-hidden superset is family-wide, an a11y
+ *  IMPROVEMENT, and not removable without forking the pinned stack
+ *  (the s87/s88 fixes retired the WRAPPER-level attributes; this
+ *  documents the LIBRARY-level one). The FilterPolygon svg below
+ *  carries its own explicit aria-hidden for the same reason.
+ *
+ * Session-17 (S17-P2b): the reference's Filter/Filters buttons ship the
  *  OLD lucide `filter` — the straight-edged POLYGON funnel
  *  (`<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3">`,
  *  class-dumped on the live reference 2026-09-30). lucide-react 0.525

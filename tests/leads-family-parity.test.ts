@@ -227,16 +227,19 @@ describe("session-77: the Sm KPI-card anatomy (L-77c6 + N-77c16)", () => {
 
   it("the leads label is text-gray-600 (not the muted token)", () => {
     const src = pageParts();
-    const i = src.indexOf('variant === "leads"');
-    const arm = src.slice(i, i + 1400);
+    const i = src.indexOf('if (variant === "leads")');
+    // Session-89: the window re-anchored to the arm's CODE (the s89
+    // Card/CardContent mirror grew the comment block past the old
+    // 1400-char prose window — the assertions scan the code).
+    const arm = src.slice(i, src.indexOf("// Session-88 (L-88c5", i));
     expect(arm).toContain("text-xs sm:text-sm text-gray-600");
     expect(arm).not.toContain("text-muted sm:text-sm");
   });
 
   it("the leads subValue is the responsive gray-500 mt-1 form", () => {
     const src = pageParts();
-    const i = src.indexOf('variant === "leads"');
-    const arm = src.slice(i, i + 1400);
+    const i = src.indexOf('if (variant === "leads")');
+    const arm = src.slice(i, src.indexOf("// Session-88 (L-88c5", i));
     expect(arm).toContain("text-xs sm:text-sm text-gray-500 mt-1");
     expect(arm).not.toContain("text-sm font-medium text-muted");
   });

@@ -303,10 +303,14 @@ export function BarStatCard({
  *   `p-3 rounded-lg ${iconColor}` — a CLASS string, no inline style];
  *   the trend row = `flex items-center gap-1` with the EXPLICIT-color
  *   TrendingUp|TrendingDown w-4 h-4 + the direction-colored span.
- * - `leads`: plain white card, `p-4 sm:p-6`, header `flex items-center
- *   justify-between mb-2`, label `text-xs sm:text-sm` plain, value
- *   `text-xl sm:text-2xl font-bold`, tinted `rounded-lg bg-{c}-50` chip
- *   `w-8 h-8 sm:w-10 sm:h-10`, no hover shadow.
+ * - `leads`: Session-89 (the Sm decode): the bare stock Card >
+ *   CardContent "p-4 sm:p-6", header `flex items-center justify-between
+ *   mb-2` with the icon-guarded width-first tinted chip DIV
+ *   (`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center
+ *   ${pair}`, chipTone defaulting "blue"), label `text-xs sm:text-sm
+ *   text-gray-600`, value `text-xl sm:text-2xl font-bold text-gray-900`,
+ *   the truthy-guarded gray-500 mt-1 subValue, and the dead number-trend
+ *   row (sign-colored, Math.abs + "%").
  */
 export function IconStatCard({
   label,
@@ -318,14 +322,17 @@ export function IconStatCard({
   gradient = false,
   variant = "contacts",
   iconColor,
-  chipTone,
+  chipTone = "blue",
 }: {
   label: string;
   value: React.ReactNode;
   /** Leads-arm-only sub-value line under the value. */
   subValue?: React.ReactNode;
-  /** Optional trend row under the value (the reference's trendValue). */
-  trend?: React.ReactNode;
+  /** Optional trend row under the value. The CONTACTS arm consumes the
+   *  node form (the reference's Rx trendValue). The LEADS arm consumes
+   *  the NUMBER form (Session-89, the reference's Sm trend — a signed
+   *  percent; dead in the reference: no Sm call site passes it). */
+  trend?: React.ReactNode | number;
   /** Session-88 (L-88c5): the trend row's DIRECTION — the reference's
    *  trend prop ("up" green TrendingUp / "down" red TrendingDown). */
   trendDir?: "up" | "down";
@@ -337,35 +344,49 @@ export function IconStatCard({
    *  reference's iconColor prop; replaces the retired inline-style chip. */
   iconColor?: string;
   /** Session-77 (L-77c6): the leads arm's chip KEY — the reference's Sm
-   *  class-pair map (STAT_CHIP_PAIRS); replaces the style-tint chip. */
+   *  class-pair map (STAT_CHIP_PAIRS); replaces the style-tint chip.
+   *  Session-89 (L-89c3): defaults "blue" — the reference's own
+   *  color="blue" default. */
   chipTone?: keyof typeof STAT_CHIP_PAIRS;
 }) {
   if (variant === "leads") {
     return (
-      // Session-11 (S11-P2): bare `shadow` — the reference's leads stat
-      // cards compute the standard shadow, not the tiny one.
-      // Session-77 (L-77c6, bundle-decoded — the reference's Sm): the
-      // class-PAIR chip (bg-*-50 text-*-600 via STAT_CHIP_PAIRS), the
-      // gray-600 label, the gray-500 mt-1 subValue — the alpha-tint
-      // style chip + the text-muted labels retired on this arm.
-      <div className="rounded-xl border border-line bg-surface p-4 shadow sm:p-6">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-gray-600">{label}</span>
-          <span
-            className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10",
-              chipTone && STAT_CHIP_PAIRS[chipTone],
+      // Session-89 (L-89c2/c3 + M-89c1 + N-89c5/c7, bundle-decoded from
+      // the reference's Sm + LIVE-probed on BOTH apps at 1440 AND 390):
+      // the bare stock Card > CardContent "p-4 sm:p-6" split (the
+      // merged-padding div retires — the L-87c3/L-88c5 genus, this was
+      // the last stat-card arm standing); the chip is the icon-guarded
+      // width-first DIV consuming STAT_CHIP_PAIRS (chipTone defaults
+      // "blue" — the reference's color default); the value carries the
+      // EXPLICIT text-gray-900 (LIVE rgb(17,24,39) on the reference —
+      // our inherited form computed the page ink rgb(10,10,10); the
+      // dashboard KPI values stay bare, both apps rgb(10,10,10)); the
+      // subValue guard is the reference's truthy form; and the number
+      // trend row is the Sm's own dead mechanism (no reference call
+      // site passes trend — the sign picks BOTH the row color and the
+      // icon direction, the value renders Math.abs with a "%" suffix).
+      <Card>
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs sm:text-sm text-gray-600">{label}</span>
+            {icon && (
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${STAT_CHIP_PAIRS[chipTone]}`}>
+                {icon}
+              </div>
             )}
-            aria-hidden="true"
-          >
-            {icon}
-          </span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-xl sm:text-2xl font-bold">{value}</span>
-          {subValue !== undefined && <span className="text-xs sm:text-sm text-gray-500 mt-1">{subValue}</span>}
-        </div>
-      </div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl sm:text-2xl font-bold text-gray-900">{value}</span>
+            {subValue && (<span className="text-xs sm:text-sm text-gray-500 mt-1">{subValue}</span>)}
+            {typeof trend === "number" && (
+              <div className={`flex items-center gap-1 mt-2 text-xs ${trend >= 0 ? "text-green-600" : "text-red-600"}`}>
+                {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                <span>{Math.abs(trend)}%</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     );
   }
   // Session-88 (L-88c5, bundle-decoded from the reference's Rx): the

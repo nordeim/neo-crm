@@ -92,18 +92,17 @@ describe("session-68: the stat-card value typography (N-68a — the s13 sweep co
 });
 
 describe("session-69: the leads-variant stat value (F-69a1 — the s68 sweep's survivor)", () => {
-  it("IconStatCard (leads) renders the bare responsive form — no text-foreground", () => {
-    // The 69-a re-audit's find: the leads variant (leads-page x5) kept
-    // `text-xl font-bold text-foreground sm:text-2xl` — the 4th class
-    // the N-68a sweep named (text-foreground) plus the pre-normalization
-    // order, uncovered because the absence it pins only the COMBINED
-    // decoration strings. The reference's leads values are `text-xl
-    // sm:text-2xl font-bold text-gray-900` (x2 in the byte-stable
-    // bundle) — the size/weight classes in the family order, the color
-    // carried by the palette token, never the scaffold-era semantic
-    // class the sweep retired from every other stat VALUE.
+  it("IconStatCard (leads) renders the gray-900 responsive form — no text-foreground", () => {
+    // The 69-a re-audit's find: the leads variant kept `text-xl
+    // font-bold text-foreground sm:text-2xl` — retired at s69. Session-89
+    // (M-89c1, LIVE-probed on BOTH apps): the reference's leads values
+    // carry the EXPLICIT `text-gray-900` — rgb(17,24,39) on the
+    // reference where our bare inherited form computed the page ink
+    // rgb(10,10,10) — the s69 note's own bundle citation finally
+    // landed (the DASHBOARD values stay bare — rgb(10,10,10) on both
+    // apps; the gray-900 class is the leads Sm family's own).
     expect(parts()).toContain(
-      '<span className="text-xl sm:text-2xl font-bold">{value}</span>',
+      '<span className="text-xl sm:text-2xl font-bold text-gray-900">{value}</span>',
     );
     // the pre-fix form is gone (both the exact string and the broader
     // class-order shape)

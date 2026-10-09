@@ -10,6 +10,10 @@ import {
   Calendar,
   CircleAlert,
   CircleCheckBig,
+  // Session-89 (N-89c4): the reference's Dropped Deals icon is
+  // BQ=tr("CircleX") — the current lucide name; the deprecated
+  // x-circle alias (same circle-x glyph) retires.
+  CircleX,
   Download,
   // Session-29 (S29-P2, the C2 extract) + session-73 (N-73c10): the ⋮
   // trigger is the VERTICAL dots — the reference's single icon (Bw),
@@ -22,7 +26,6 @@ import {
   Target,
   TrendingUp,
   X,
-  XCircle,
 } from "lucide-react";
 import { FilterPolygon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
@@ -407,7 +410,10 @@ export default function LeadsPage() {
             reference's Sm): the class-pair chips (bg-*-50 text-*-600),
             the responsive w-4 h-4 sm:w-5 sm:h-5 icons, the gray-600
             labels, and the raw `$${toLocaleString()}` subValues (up to
-            3 fraction digits — N-77c16). */}
+            3 fraction digits — N-77c16). Session-89: the arm itself
+            re-mirrored to the Sm construction (the Card split + the
+            guarded chip DIV + the gray-900 value + the number-trend
+            mechanism) — see page-parts.tsx. */}
         <IconStatCard variant="leads" label="Total Leads" value={filtered.length} icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />} chipTone="blue" />
         <IconStatCard variant="leads" label="Open Leads" value={open.length} icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />} chipTone="orange" />
         <IconStatCard
@@ -423,7 +429,7 @@ export default function LeadsPage() {
           label="Dropped Deals"
           value={lost.length}
           subValue={`$${lost.reduce((s, l) => s + (l.value || 0), 0).toLocaleString()}`}
-          icon={<XCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
+          icon={<CircleX className="w-4 h-4 sm:w-5 sm:h-5" />}
           chipTone="red"
         />
         <IconStatCard

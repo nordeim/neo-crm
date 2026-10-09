@@ -390,8 +390,10 @@ describe("session-37: FK ids reject non-string payloads (S37-P3, no silent coerc
     expect(api.isBadFK([])).toBe(true);
   });
 
-  // The coercing parse pattern must be GONE from all nine route files,
-  // replaced by the isBadFK guard at every FK field the route accepts.
+  // The coercing parse pattern must be GONE from all ten route files
+  // (the s37-era "nine" count never re-derived after session-42's
+  // S42-P3 row — the 10th FK site; N-89a2), replaced by the isBadFK
+  // guard at every FK field the route accepts.
   const FK_SITES: Array<[string, string[]]> = [
     ["src/app/api/contacts/route.ts", ["accountId", "ownerId"]],
     ["src/app/api/contacts/[id]/route.ts", ["accountId", "ownerId"]],
