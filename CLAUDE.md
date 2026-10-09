@@ -35,7 +35,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (1709) → `bun run build` → `bun run test:e2e` (132) — or the
+   `bun run test` (1733) → `bun run build` → `bun run test:e2e` (132) — or the
    one-command `bun run gate` (session-38: the chain as a package script,
    so the build always precedes the e2e boot; session-39: the e2e step
    runs under `CI=1`, forcing a fresh server — a leftover :3100 listener
@@ -111,7 +111,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (1709 checks)            |
+| `bun run test`      | Vitest unit suites (1733 checks)            |
 | `bun run test:e2e`  | Playwright E2E (132 checks, needs build first) |
 | `bun run gate`      | The full gate in one command (lint → typecheck → test → build → e2e) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
@@ -122,7 +122,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 1709 checks)** — pure seams: `tests/db-path.test.ts`,
+- **Unit (Vitest, 1733 checks)** — pure seams: `tests/db-path.test.ts`,
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -368,7 +368,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 1709).
+the seam (currently 1733).
 
 ## Code Quality Standards
 

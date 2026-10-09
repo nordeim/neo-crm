@@ -302,10 +302,10 @@ export default function ReportsPage() {
                 every sparkline card) and the Lost Deals amount is a
                 SUBTITLE in the delta column, not part of the bold value. */}
             <CircleStatCard label="Total Leads" value={(k?.totalLeads ?? 0).toLocaleString()} icon={<Target className="h-5 w-5" />} color="#3b82f6">
-              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#3b82f6" variant="line" className="h-full" />
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#3b82f6" variant="line" />
             </CircleStatCard>
             <CircleStatCard label="Open Leads" value={(k?.openLeads ?? 0).toLocaleString()} icon={<Users className="h-5 w-5" />} color="#f97316">
-              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#f97316" variant="line" className="h-full" />
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#f97316" variant="line" />
             </CircleStatCard>
             <CircleStatCard
               label="Won Deals"
@@ -313,7 +313,7 @@ export default function ReportsPage() {
               icon={<TrendingUp className="h-5 w-5" />}
               color="#10b981"
             >
-              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#10b981" variant="line" className="h-full" />
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#10b981" variant="line" />
             </CircleStatCard>
             {/* Session-12 (S12-P6) + Session-27 (S27-P5): NO sparkline on
                 Lost Deals, and the $XK amount is the SUBTITLE in the delta
@@ -334,7 +334,7 @@ export default function ReportsPage() {
               icon={<Target className="h-5 w-5" />}
               color="#8b5cf6"
             >
-              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#8b5cf6" variant="line" className="h-full" />
+              <Sparkline values={[...KPI_STATICS.reportsSpark]} color="#8b5cf6" variant="line" />
             </CircleStatCard>
           </div>
 

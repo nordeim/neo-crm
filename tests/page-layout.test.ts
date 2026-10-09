@@ -953,15 +953,20 @@ describe("session-12: tabs anatomy (S12-P4)", () => {
 describe("session-12: dashboard KPI card de-hover + label tokens (S12-P5)", () => {
   it("the KpiCard drops the stale hover pin (the reference moved)", () => {
     // The reference's DASHBOARD KPI cards are now plain stock cards —
-    // `rounded-xl border bg-card text-card-foreground shadow` + p-4
-    // sm:p-6, NO hover:shadow-md, NO transition-shadow, NO
-    // border-gray-200 (rides the #e5e5e5 default). The s11 hover pin
-    // applied to a reference state that no longer exists; the REPORTS
-    // KPI family (CircleStatCard) keeps its hover.
-    expect(KPI_CARD.card).toContain("rounded-xl border border-line bg-surface");
-    expect(KPI_CARD.card).toContain("shadow");
-    expect(KPI_CARD.card).not.toContain("hover:shadow-md");
-    expect(KPI_CARD.card).not.toContain("transition-shadow");
+    // `rounded-xl border bg-card text-card-foreground shadow` + a
+    // CardContent override `p-4 sm:p-6`, NO hover:shadow-md, NO
+    // transition-shadow, NO border-gray-200 (rides the #e5e5e5 default).
+    // The s11 hover pin applied to a reference state that no longer
+    // exists; the REPORTS KPI family (CircleStatCard) keeps its hover.
+    // Session-87 (L-87c3): the merged-div KPI_CARD.card member retired
+    // with the Card/CardContent split — the stock classes live in the
+    // Card component's own base (pinned in the dashboard-kpi-parity
+    // suite's Card/CardContent construction pin); the padding rides
+    // KPI_CARD.content.
+    expect(KPI_CARD.content).toBe("p-4 sm:p-6");
+    expect(KPI_CARD.labelRow).toBe("flex justify-between items-start mb-2");
+    expect(KPI_CARD.valueRow).toBe("flex items-end gap-2");
+    expect("card" in KPI_CARD).toBe(false);
   });
 
   it("the KpiCard label + neutral delta are gray-600, deltas drop font-medium", () => {

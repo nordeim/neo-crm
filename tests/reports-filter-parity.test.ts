@@ -337,7 +337,12 @@ describe("session-83: the filter-card family's standing computed-equal surfaces 
 
   it("the spark: the line variant is the reference's LineChart + strokeWidth 2 + dot false", async () => {
     const src = stripComments(read("src/components/shared/page-parts.tsx") ?? "");
-    expect(src).toMatch(/<LineChart data=\{data\} margin=\{\{ top: 5, right: 5, bottom: 5, left: 5 \}\}>/);
+    // Session-87 (L-87c2): the line arm renders the ResponsiveContainer
+    // BARE inside the slot — no wrapping div, no explicit margin (the
+    // recharts default IS the 5px margin the reference inherits by
+    // passing none; the s83 pin's explicit margin prop was the same
+    // computed value spelled out).
+    expect(src).toMatch(/<LineChart data=\{data\}>/);
     expect(src).toMatch(/strokeWidth=\{2\}/);
     expect(src).toMatch(/dot=\{false\}/);
     const { KPI_SPARK } = await layout();

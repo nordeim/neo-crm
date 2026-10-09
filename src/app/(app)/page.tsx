@@ -16,6 +16,7 @@ import {
   VIEW_SWITCHER,
   TOP_REPS,
   CARD_TITLE_OVERRIDE,
+  KPI_SPARK,
   KPI_STATICS,
   PIPELINE_LEGEND,
 } from "@/lib/page-layout";
@@ -301,21 +302,24 @@ export default function DashboardPage() {
         <KpiCard label="Total Leads" value={k?.totalLeads ?? 0} delta={KPI_STATICS.deltas.totalLeads}>
           <Sparkline values={[...KPI_STATICS.sparks.totalLeads]} color={CHART_COLORS.emerald} variant="line" />
         </KpiCard>
-        <KpiCard label="Deals Closed" value={formatCompactCurrency(dealsClosedValue, { scale: "k" })}>
-          <Sparkline values={[...KPI_STATICS.sparks.dealsClosed]} color={CHART_COLORS.cyan400} />
+        <KpiCard label="Deals Closed" value={formatCompactCurrency(dealsClosedValue, { scale: "k" })} sparkClassName={KPI_SPARK.dashboardBarsContainer}>
+          {/* Session-87 (L-87c2): the reference's static bars carry Tailwind
+              bg-CLASSES (its `flex-1 bg-cyan-400 rounded-sm`) — the inline
+              hex retired with the span bars. */}
+          <Sparkline values={[...KPI_STATICS.sparks.dealsClosed]} barClassName="bg-cyan-400" />
         </KpiCard>
-        <KpiCard label="Revenue This Month" value={formatCompactCurrency(revenueThisMonth, { scale: "k" })} delta={KPI_STATICS.deltas.revenueThisMonth}>
-          <Sparkline values={[...KPI_STATICS.sparks.revenueThisMonth]} color={CHART_COLORS.green400} />
+        <KpiCard label="Revenue This Month" value={formatCompactCurrency(revenueThisMonth, { scale: "k" })} delta={KPI_STATICS.deltas.revenueThisMonth} sparkClassName={KPI_SPARK.dashboardBarsContainer}>
+          <Sparkline values={[...KPI_STATICS.sparks.revenueThisMonth]} barClassName="bg-green-400" />
         </KpiCard>
         <KpiCard
           label="Sales Target"
           value={formatCompactCurrency(k?.salesTarget ?? 0, { scale: "k", decimals: 0 })}
           valueNote={`${k?.salesTargetProgress ?? 0}%`}
+          sparkClassName={KPI_SPARK.dashboardBarsContainer}
         >
           <Sparkline
             values={[...KPI_STATICS.sparks.salesTarget]}
             colorFor={(_, i) => (i < 4 ? "#fbbf24" : "#3b82f6")}
-            color="#fbbf24"
           />
         </KpiCard>
         <KpiCard label="Conversion Rate" value={`${k?.conversionRate ?? 0}%`}>
@@ -338,20 +342,24 @@ export default function DashboardPage() {
           h-8 with a hidden-sm label. */}
       <div className={FILTER_BAR.card}>
         <div className={FILTER_BAR.row}>
-        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-          {/* Session-83 (M-83c2, bundle-decoded): the reference's Filter
+          <Button variant="outline" size="sm" className="sm:w-auto">
+            {/* Session-83 (M-83c2, bundle-decoded): the reference's Filter
               button ships its svg at w-4 h-4 mr-2 (OC at the Eke filter
               bar) — ours carried the scaffold-era h-3.5 w-3.5 with no
               margin, a 2-fold divergence (14px vs 16px AND the gap:
               this svg+span construction's 16px gap regressed to 8px
-              when the s82 base cascade retired). */}
+              when the s82 base cascade retired).
+              Session-87 (N-87c5): the reference carries the BARE
+              sm:w-auto — the flex-col bar's default stretch full-widths
+              it at mobile (our w-full was the explicit spelling of the
+              same computed result). */}
           <FilterPolygon className="w-4 h-4 mr-2" /> <span className="hidden sm:inline">Filter</span>
         </Button>
         {/* Session-5: the reference's All Stages filter offers the PIPELINE
             stages (Prospecting/Qualification/Proposal/Negotiation/Won) — the
             same labels the pipeline chart above it renders. */}
         <Select value={stage} onValueChange={setStage}>
-          <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="Stage" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Stages</SelectItem>
             {PIPELINE_STAGES.map((s) => (
@@ -378,7 +386,7 @@ export default function DashboardPage() {
           </SelectContent>
         </Select>
         <Select value={source} onValueChange={setSource}>
-          <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="Source" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Sources</SelectItem>
             {/* Session-29 (S29-P4): the RAW values with capitalized labels. */}
@@ -391,8 +399,10 @@ export default function DashboardPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
           {/* Session-33 (S33-P1): the reference's search input is DEAD
               (bundle: no value/onChange — the s32 topbar-search family).
-              Ours stays functional — the documented superset. */}
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={FILTER_BAR.searchPlaceholder} className="pl-9" aria-label="Filter deals" />
+              Ours stays functional — the documented superset.
+              Session-87 (N-87c6): the reference's explicit `pl-9 h-9`
+              mirrored (the N-86c6 accounts-search precedent). */}
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={FILTER_BAR.searchPlaceholder} className="pl-9 h-9" aria-label="Filter deals" />
         </div>
         {/* Session-6: "More..." is a ghost h-8 button on the reference
             (hover:bg-accent h-8 px-3 text-xs) — not a text link.
@@ -416,7 +426,10 @@ export default function DashboardPage() {
           with STOCK strokeWidth + the $ tooltip + tick 12. */}
       <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
         <Card>
-          <CardHeader className="flex-row items-center justify-between">
+          {/* Session-87 (N-87c7, bundle-decoded Ht): the Sales Pipeline
+              card ships the BARE stock CardHeader — the only dashboard
+              chart card with no trailing element (title only). */}
+          <CardHeader>
             <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Sales Pipeline by Stage</CardTitle>
           </CardHeader>
           <CardContent>
@@ -454,9 +467,19 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Revenue Over Time</CardTitle>
-            <span className="text-xs text-muted">Last 6 months</span>
+          {/* Session-87 (N-87c7): the five cards with trailing elements
+              nest the reference's `flex justify-between items-center`
+              row INSIDE the stock CardHeader (the FILTER_RAIL mechanism
+              — cn would keep flex-col without flex-row, and the
+              reference's own construction is the nested row). */}
+          <CardHeader>
+            <div className={DASHBOARD_CARD.headerRow}>
+              <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Revenue Over Time</CardTitle>
+              {/* Session-87 (N-87c7): the reference's literal
+                  text-gray-500 (our text-muted token computed the same
+                  #6b7280 — mirrored for source parity). */}
+              <span className="text-xs text-gray-500">Last 6 months</span>
+            </div>
           </CardHeader>
           <CardContent>
             <RevenueLineChart
@@ -478,12 +501,14 @@ export default function DashboardPage() {
           lg:grid-cols-3 gap-6 mb-6). */}
       <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-3">
         <Card>
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Top Performing Sales Reps</CardTitle>
-            {/* Session-7 (S7-18): ellipsis actions are ghost h-8 w-8. */}
-            <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+          <CardHeader>
+            <div className={DASHBOARD_CARD.headerRow}>
+              <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Top Performing Sales Reps</CardTitle>
+              {/* Session-7 (S7-18): ellipsis actions are ghost h-8 w-8. */}
+              <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {/* Session-9 (S9-17): the reference renders this card as a DIV
@@ -529,17 +554,19 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Lead Sources</CardTitle>
-            {/* Session-7 (S7-18): ghost h-8 blue-text Add with mr-1 plus. */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className={DASHBOARD_CARD.addBtn}
-              onClick={() => setQuickCreate("lead")}
-            >
-              <Plus className={DASHBOARD_CARD.addIcon} /> Add
-            </Button>
+          <CardHeader>
+            <div className={DASHBOARD_CARD.headerRow}>
+              <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Lead Sources</CardTitle>
+              {/* Session-7 (S7-18): ghost h-8 blue-text Add with mr-1 plus. */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className={DASHBOARD_CARD.addBtn}
+                onClick={() => setQuickCreate("lead")}
+              >
+                <Plus className={DASHBOARD_CARD.addIcon} /> Add
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {/* Session-27 (S27-P8, bundle-extracted): the rows are the
@@ -562,16 +589,18 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Upcoming Activities</CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={DASHBOARD_CARD.addBtn}
-              onClick={() => setQuickCreate("activity")}
-            >
-              <Plus className={DASHBOARD_CARD.addIcon} /> Add
-            </Button>
+          <CardHeader>
+            <div className={DASHBOARD_CARD.headerRow}>
+              <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Upcoming Activities</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={DASHBOARD_CARD.addBtn}
+                onClick={() => setQuickCreate("activity")}
+              >
+                <Plus className={DASHBOARD_CARD.addIcon} /> Add
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {/* Session-27 (S27-P8, bundle-extracted): the rows are the
@@ -613,11 +642,13 @@ export default function DashboardPage() {
           controls, empty-label selects); the cells render the same badge
           twice. */}
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Recent Deals</CardTitle>
-          <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
+        <CardHeader>
+          <div className={DASHBOARD_CARD.headerRow}>
+            <CardTitle className={CARD_TITLE_OVERRIDE.dashboard}>Recent Deals</CardTitle>
+            <Button variant="ghost" size="sm" className={DASHBOARD_CARD.ellipsisBtn} aria-label="More actions">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {/* Session-9 (S9-9): at zero rows the reference renders the

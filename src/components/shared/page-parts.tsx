@@ -4,6 +4,7 @@ import * as React from "react";
 import { Area, AreaChart, Line, LineChart, ResponsiveContainer } from "recharts";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   KPI_CARD,
   KPI_CHIP_BG,
@@ -74,7 +75,10 @@ export function DeltaText({
   className?: string;
 }) {
   if (typeof delta === "string") {
-    return <span className={cn("text-xs text-green-600", className)}>{delta}</span>;
+    // Session-87 (L-87c3): the reference's delta is a DIV construction
+    // (`c.jsx("div",{className:"text-xs text-green-600 mb-1"})` — the
+    // bundle's jsxs value-row children).
+    return <div className={cn("text-xs text-green-600", className)}>{delta}</div>;
   }
   if (typeof delta !== "number") return null;
   const neutral = delta === 0;
@@ -141,6 +145,7 @@ export function KpiCard({
   suffix,
   delta,
   valueNote,
+  sparkClassName,
   children,
 }: {
   label: string;
@@ -153,32 +158,49 @@ export function KpiCard({
    * module type-contract boundary). */
   /** Session-27 (S27-P7): a NEUTRAL text-xs text-gray-600 note in the value row (the Sales Target progress). */
   valueNote?: string;
+  /** Session-87 (L-87c2): the variant-aware spark slot — the reference
+   * renders ONE slot div per card (`mt-2 h-8` line/area; `mt-2 h-8 flex
+   * items-end gap-1` bars); the Sparkline itself is content-only, so the
+   * card owns the slot class. The bars cards pass
+   * KPI_SPARK.dashboardBarsContainer; the line/area cards take the
+   * default. */
+  sparkClassName?: string;
   children?: React.ReactNode;
 }) {
   return (
-    // Session-12 (S12-P5): the reference MOVED — its dashboard KPI cards
-    // are now PLAIN stock cards (`rounded-xl border bg-card shadow`, no
-    // hover, no border-gray-200; the border rides the #e5e5e5 default).
-    // The REPORTS KPI family (CircleStatCard) keeps the hover treatment.
-    <div className={KPI_CARD.card}>
-      <p className={KPI_CARD.label}>{label}</p>
-      <div className="mt-2 flex flex-wrap items-end gap-2">
-        {/* Session-13 (S13-P9): the reference's exact value string —
-            INHERITING the card foreground (#0a0a0a, line-height 36px,
-            letter-spacing normal). Our leading-none/tracking-tight/
-            text-foreground additions were real computed diffs. */}
-        <p className={KPI_VALUE}>{value}</p>
-        {suffix && <span className="mb-1 text-xs text-muted">{suffix}</span>}
-        {valueNote !== undefined && (
-          /* Session-27 (S27-P7): the reference's Sales Target progress — a
-             NEUTRAL text-xs text-gray-600 note in the value row, never a
-             green/red delta. */
-          <span className="mb-1 text-xs text-gray-600">{valueNote}</span>
-        )}
-        <DeltaText delta={delta} className="mb-1" />
-      </div>
-      {children && <div className={KPI_SPARK.dashboardContainer}>{children}</div>}
-    </div>
+    // Session-87 (L-87c3, bundle-decoded ot/ct): the reference's KPI card
+    // is the STOCK Card (no padding) > CardContent with className "p-4
+    // sm:p-6" > [the label row, the value row, the spark slot] — the
+    // padding NEVER merges into the card div. The s12 de-hover pin
+    // (plain stock card, no hover) is unchanged.
+    <Card>
+      <CardContent className={KPI_CARD.content}>
+        {/* The label row: the reference wraps the label span in a flex
+            `justify-between items-start mb-2` row div (the stock label-row
+            construction — its mb-2 provides the label→value gap). */}
+        <div className={KPI_CARD.labelRow}>
+          <span className={KPI_CARD.label}>{label}</span>
+        </div>
+        {/* The value row: the BARE `flex items-end gap-2` — no mt-2 (the
+            label row's mb-2 does it) and NO flex-wrap (the reference wraps
+            nothing; a long value+delta overflows rather than wrapping).
+            Session-13 (S13-P9): the value string INHERITS the card
+            foreground (#0a0a0a, line-height 36px, letter-spacing normal). */}
+        <div className={KPI_CARD.valueRow}>
+          <span className={KPI_VALUE}>{value}</span>
+          {suffix && <span className="text-xs text-gray-600 mb-1">{suffix}</span>}
+          {valueNote !== undefined && (
+            /* Session-27 (S27-P7): the reference's Sales Target progress — a
+               NEUTRAL text-xs text-gray-600 DIV in the value row, never a
+               green/red delta. Session-87 (L-87c3): span → div (the
+               reference's jsxs container). */
+            <div className="text-xs text-gray-600 mb-1">{valueNote}</div>
+          )}
+          <DeltaText delta={delta} className="mb-1" />
+        </div>
+        {children && <div className={sparkClassName ?? KPI_SPARK.dashboardContainer}>{children}</div>}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -536,15 +558,21 @@ export function Sparkline({
   values,
   color,
   colorFor,
+  barClassName,
   variant = "bars",
-  className,
 }: {
   values: number[];
-  color: string;
-  /** Per-bar override (e.g. blue when the monthly target was met). */
+  /** The line/area stroke/fill hex (the bars arm carries its color via
+   *  barClassName/colorFor — the reference's own split). */
+  color?: string;
+  /** Per-bar override (the Sales Target amber/blue split). */
   colorFor?: (value: number, index: number) => string;
+  /** Session-87 (L-87c2): the STATIC bar colors ride Tailwind bg-classes
+   *  (the reference's `flex-1 bg-cyan-400 rounded-sm` /
+   *  `flex-1 bg-green-400 rounded-sm` constructions) — only the colorFor
+   *  variant carries the inline backgroundColor. */
+  barClassName?: string;
   variant?: "bars" | "line" | "area";
-  className?: string;
 }) {
   // Session-78 (M-78c1): the reference's bar sparks render the RAW static
   // values as percentage heights (`style height ${v}%` — LIVE-probed on
@@ -554,50 +582,55 @@ export function Sparkline({
   // line/area arms above it are the recharts surfaces).
   if (values.length === 0) return null;
 
+  // Session-87 (L-87c2, bundle-decoded): the reference renders ONE slot
+  // div per card (`mt-2 h-8` / `mt-2 h-8 flex items-end gap-1`) with the
+  // CHART as the direct child — the line/area ResponsiveContainer sits
+  // BARE inside the card's slot (no intermediate wrapper, no aria-hidden,
+  // no margin prop: the recharts default IS the 5px margin the reference
+  // inherits by passing none).
   if (variant === "line" || variant === "area") {
     const data = values.map((v, i) => ({ i, v }));
     return (
-      <div className={cn("h-8 w-full", className)} aria-hidden="true">
-        <ResponsiveContainer width="100%" height="100%">
-          {variant === "area" ? (
-            <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-              <Area
-                type="monotone"
-                dataKey="v"
-                stroke={color}
-                strokeWidth={1}
-                fill={color}
-                fillOpacity={0.3}
-              />
-            </AreaChart>
-          ) : (
-            <LineChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-              <Line
-                type="monotone"
-                dataKey="v"
-                stroke={color}
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          )}
-        </ResponsiveContainer>
-      </div>
+      <ResponsiveContainer width="100%" height="100%">
+        {variant === "area" ? (
+          <AreaChart data={data}>
+            <Area
+              type="monotone"
+              dataKey="v"
+              stroke={color}
+              strokeWidth={1}
+              fill={color}
+              fillOpacity={0.3}
+            />
+          </AreaChart>
+        ) : (
+          <LineChart data={data}>
+            <Line
+              type="monotone"
+              dataKey="v"
+              stroke={color}
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        )}
+      </ResponsiveContainer>
     );
   }
 
+  // The bars arm renders the BARE bar divs (the card's slot provides the
+  // `mt-2 h-8 flex items-end gap-1` container): `div.flex-1
+  // bg-{color}-400 rounded-sm` + the raw-percentage inline heights for the
+  // static cards; the colorFor variant carries the inline backgroundColor.
   return (
-    <div className={cn("flex h-8 items-end gap-1", className)} aria-hidden="true">
+    <>
       {values.map((v, i) => (
-        <span
+        <div
           key={i}
-          className="flex-1 rounded-sm"
-          style={{
-            height: `${v}%`,
-            backgroundColor: colorFor ? colorFor(v, i) : color,
-          }}
+          className={barClassName ? `flex-1 ${barClassName} rounded-sm` : "flex-1 rounded-sm"}
+          style={colorFor ? { height: `${v}%`, backgroundColor: colorFor(v, i) } : { height: `${v}%` }}
         />
       ))}
-    </div>
+    </>
   );
 }

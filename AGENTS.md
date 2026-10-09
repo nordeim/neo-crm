@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1709 checks)       | `bun run test`                         |
+|  Unit tests (1733 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1709) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1733) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3193,3 +3193,48 @@ inventory row + the Total 95/1709 + the N-86a1 footnote fix] +
 session_169.md + the plan + its execution record + the worklog; the
 React-Compiler hazard documented (the forward-reference bail —
 exportAccounts reading the later-declared filtered const).
+
+
+### Session-87 — the dashboard KPI-family rotation
+
+The standing session_167 alternate. The KPI cards' own inner
+construction walked for the first time (s12 the de-hover + the label
+gray-600; s27 the statics + geometry; s78 the raw-percentage bars —
+nobody the Card/CardContent split, the label/value row divs, the
+spark double-container, the bars' span/div + class/inline color
+mechanisms, the chart headers' inner rows, or the filter bar's
+source chrome). The N-87 family [1 M + 2 L + 5 N]: the M-87c1 SUFFIX
+COLOR [the "days" suffix text-muted gray-500 → the reference's
+literal text-gray-600 rgb(75,85,99), LIVE-verified] + the L-87c2
+SPARK CONSTRUCTION [ONE slot div per card with the chart as the
+DIRECT child — the bare RC / the bare div bars with bg-CLASSES for
+the static pair + inline only for colorFor; the KpiCard owns the
+variant-aware sparkClassName; the Sparkline is content-only; the
+className prop + the aria-hidden + the reports' intermediate div
+retire] + the L-87c3 CARD STRUCTURE [Card > CardContent "p-4 sm:p-6"
+> the labelRow (flex justify-between items-start mb-2 > span) + the
+valueRow (bare flex items-end gap-2 — NO mt-2, NO flex-wrap) + the
+slot; the value a SPAN, the delta/valueNote DIVs] + the N-87c4
+dead placeholders [stage/source mirrored; the view switcher's
+"Format" documented-unmirrorable — our functional "" default would
+RENDER it] + the N-87c5 bare sm:w-auto + the N-87c6 explicit pl-9
+h-9 + the N-87c7 chart headers [Pipeline the BARE stock header; the
+other five the nested flex justify-between items-center rows + the
+Last-6-months literal text-gray-500] + the N-87a1 vacuous tier row
+retired. RED 25 pins (non-vacuous: 25 failed | 1709 passed, ZERO
+collateral; 1 RED-phase pin-shape repair — the view-switcher
+placeholder unmirrorable) + 3 lockstep re-anchors (page-layout
+KPI_CARD.card, dashboard-family bars-arm + KPI_SPARK.bars doc,
+reports-filter LineChart margin). GATE: lint 0/0 · tsc 0 · 1733/1733
+unit [96 suites, +24 net] · build · 132/132 e2e fresh CI=1 [3.2m,
+FIRST run green; all 9 mobile-nav green]. LIVE-verified [the suffix
+rgb(75,85,99); the single-container sparks with div bg-class bars;
+the Card>CardContent walk; the six headers; the filter bar; the
+drawer at TRUE 390px full-bleed + dual lock + navigate-close +
+closed inert+hidden; zero overflow; the closing census MATCH + the
+reference md5-exact — the 58th consecutive stable session]. 3
+screenshots [115 + 116 + 117, VLM 5/5 + 4/4 + 3/4-the-one-NO-a-
+prompt-artifact-DOM-disproven]. Docs at SKILL v1.84.0 [§16ca +
+project_state] + README badge 1865 + AGENTS/CLAUDE/PAD at 1733+132
+[+ the PAD s87 inventory row + the Total 96/1733] + session_171.md
++ the plan + its execution record + the worklog.

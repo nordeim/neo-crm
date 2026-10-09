@@ -1098,7 +1098,9 @@ describe("session-43: the nine dead-?? enum defaults are gone (S43-P2)", () => {
     ["src/app/api/events/[id]/route.ts", "type"],
     ["src/app/api/events/[id]/route.ts", "status"],
     ["src/app/api/accounts/[id]/route.ts", "status"],
-    ["src/app/api/accounts/[id]/route.ts", "tier"],
+    // Session-87 (N-87a1): the accounts `tier` row retired — the tier
+    // PUT block retired with the s86 computed-tier derivation (the
+    // stored-field retirement); the row had been vacuously green since.
     ["src/app/api/contacts/[id]/route.ts", "priority"],
   ])("%s: asString(body.%s) carries no dead ?? fallback", (rel, field) => {
     const put = handlerBlock(route(rel), "PUT");

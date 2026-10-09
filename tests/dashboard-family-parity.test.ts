@@ -67,7 +67,9 @@ describe("session-78: the KPI bar-spark construction (M-78c1, live-probed)", () 
   it("the bars render the RAW value as the percentage height (style height `${v}%` — no normalization)", () => {
     const src = pageParts();
     const arm = src.slice(src.indexOf("variant === \"line\""), src.indexOf("variant === \"line\"") + 2000);
-    const barsArm = arm.slice(arm.indexOf("flex h-8 items-end"));
+    // Session-87 (L-87c2): the bars arm is the bare-fragment construction
+    // (the container moved to the KpiCard's sparkClassName slot).
+    const barsArm = arm.slice(arm.indexOf("<>"));
     expect(barsArm).toMatch(/height:\s*`\$\{v\}%`/);
   });
 
@@ -332,9 +334,11 @@ describe("session-78: the Recent Deals row classes (N-78c7)", () => {
 describe("session-78: the KPI_SPARK record (N-78c8)", () => {
   it("the record gains a bars member pinning the reference's bar construction", () => {
     const src = pageLayout();
-    const block = src.slice(src.indexOf("export const KPI_SPARK"), src.indexOf("export const KPI_SPARK") + 900);
+    const block = src.slice(src.indexOf("export const KPI_SPARK"), src.indexOf("export const KPI_SPARK") + 2000);
     expect(block).toMatch(/bars:/);
-    expect(block).toMatch(/flex items-end gap-1/);
+    // Session-87 (L-87c2): the doc string re-derived to the single-slot +
+    // bare-div + bg-class construction.
+    expect(block).toMatch(/single mt-2 h-8 flex items-end gap-1 slot/);
     expect(block).toMatch(/rounded-sm/);
   });
 

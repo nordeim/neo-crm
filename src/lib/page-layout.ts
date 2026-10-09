@@ -383,6 +383,12 @@ export const DASHBOARD_CARD = {
   addBtn: "h-8 px-3 text-xs text-primary",
   addIcon: "h-4 w-4 mr-1",
   ellipsisBtn: "h-8 w-8",
+  /** Session-87 (N-87c7, bundle-decoded Ht): the five chart cards with
+   *  trailing elements nest this row INSIDE the stock CardHeader (the
+   *  FILTER_RAIL mechanism — passing the row class directly to
+   *  CardHeader would keep the column direction); the Sales Pipeline
+   *  card ships the BARE stock header (title only). */
+  headerRow: "flex justify-between items-center",
 } as const;
 
 /** Settings picklist cards — items stack `space-y-2 mb-4`, the empty state
@@ -539,6 +545,14 @@ export const DASHBOARD_HEADER = {
  *  the switch real (functional superset). */
 export const VIEW_SWITCHER = {
   trigger: "w-full sm:w-32",
+  /** Session-87 (N-87c4): the reference's middle select carries a DEAD
+   *  `placeholder="Format"` — dead because its value is the FIXED
+   *  no-match constant "format" (Radix renders EMPTY for a non-empty
+   *  value with no matching item). OURS is the functional superset
+   *  (value "" + onValueChange): an empty-string placeholder is what
+   *  keeps OUR default trigger rendering EMPTY like the reference's —
+   *  a "Format" placeholder would RENDER at our "" default (the
+   *  s8-2 empty-trigger mirror, mechanism now documented). */
   emptyLabel: "",
   options: ["Table", "Cards"] as const,
 } as const;
@@ -1319,8 +1333,19 @@ export const TABS_SEGMENTED = {
  *  text-muted); deltas are bare text-xs with NO font-medium, neutral in
  *  text-gray-600. */
 export const KPI_CARD = {
-  card: "rounded-xl border border-line bg-surface p-4 shadow sm:p-6",
+  /** Session-87 (L-87c3, bundle-decoded ot/ct): the reference's KPI card
+   *  is the stock Card (NO padding) > CardContent with className
+   *  "p-4 sm:p-6" — the old merged-div `card` member retired (the s12
+   *  de-hover record re-anchored here: the stock card carries no hover,
+   *  the border rides the #e5e5e5 default — unchanged). */
+  content: "p-4 sm:p-6",
+  /** The label row: a flex `justify-between items-start mb-2` div wrapping
+   *  the label span (its mb-2 provides the label→value gap). */
+  labelRow: "flex justify-between items-start mb-2",
   label: "text-xs sm:text-sm text-gray-600",
+  /** The value row: the BARE flex items-end gap-2 — no mt-2 (the label
+   *  row's mb-2 does it), NO flex-wrap (the reference wraps nothing). */
+  valueRow: "flex items-end gap-2",
 } as const;
 
 export const DELTA_TEXT = {
@@ -1348,6 +1373,10 @@ export const DELTA_TEXT = {
  *  Conversion Rate do). */
 export const KPI_SPARK = {
   dashboardContainer: "mt-2 h-8",
+  /** Session-87 (L-87c2): the BARS cards' slot — the reference's single
+   *  container div (`mt-2 h-8 flex items-end gap-1`), passed by the
+   *  KpiCard's sparkClassName on the three bar cards. */
+  dashboardBarsContainer: "mt-2 h-8 flex items-end gap-1",
   reportsWrapper: "flex items-end justify-between mt-2",
   reportsSlot: "flex-1 h-12 mr-2",
   // Session-74 (L-74c11): reportsMaxWidth RETIRED — the reference's ay
@@ -1355,12 +1384,15 @@ export const KPI_SPARK = {
   // measured was the flex-b shrink, not a class).
   line: "monotone, strokeWidth: 2, dot: false",
   area: "monotone, strokeWidth: 1, fillOpacity: 0.3",
-  /** Session-78 (M-78c1, live-probed): the reference's bar-spark
-   *  construction — `mt-2 h-8 flex items-end gap-1` with `flex-1
-   *  rounded-sm` (4px) bars whose heights are the RAW static values
-   *  as percentages (`style height ${v}%` — the max bar tops at 75%,
+  /** Session-78 (M-78c1, live-probed) + Session-87 (L-87c2, bundle-
+   *  decoded): the reference's bar-spark construction — ONE slot div
+   *  (`mt-2 h-8 flex items-end gap-1`) holding BARE `div.flex-1
+   *  bg-{color}-400 rounded-sm` bars (the static colors as Tailwind
+   *  bg-CLASSES; only the colorFor variant carries the inline
+   *  backgroundColor) whose heights are the RAW static values as
+   *  percentages (`style height ${v}%` — the max bar tops at 75%,
    *  NOT 100%; no normalization, no floor, no opacity). */
-  bars: "flex items-end gap-1 + flex-1 rounded-sm + raw `${v}%` heights",
+  bars: "single mt-2 h-8 flex items-end gap-1 slot + bare div flex-1 bg-*-400 rounded-sm bars + raw `${v}%` heights",
   lostDealsSpark: false,
 } as const;
 
