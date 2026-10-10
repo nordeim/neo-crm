@@ -7,7 +7,7 @@
 // The contract: `bun run sweep` boots (or reuses) the dev server on
 // :3000, drives OUR app to the zero-data state (the reference's own
 // standing state — its workspace has been empty for 13 censuses), logs
-// into BOTH apps, captures the 9 pages per app at 1440x900, pairwise
+// into BOTH apps, captures the ten pages per app at 1440x900, pairwise
 // pixel-diffs them (per-channel tolerance 12 — the s91 value), prints
 // the % table, and restores the seed. ZERO new dependencies: the
 // capture rides the existing @playwright/test chromium; the pixel diff
@@ -124,7 +124,7 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
   // phone-width page-sweep mode — the rotation method productized").
   // The dialog (s92), popover/menu (s93) and tabs (s94) families were
   // walked MANUALLY at TRUE 390x844 across three sessions; the sweep
-  // now runs the same 9-page zero-data pairwise diff at ANY viewport:
+  // now runs the same ten-page zero-data pairwise diff at ANY viewport:
   // `bun run sweep -- --width 390 --height 844`.
   it("parses --width/--height (defaults 1440x900) and feeds the capture viewport", () => {
     const src = read("scripts/sweep.ts");
@@ -362,10 +362,69 @@ describe("session-97 (S97-P1): the numeric-arg fail-fast (B-97a2)", () => {
     expect(src).toContain('parseNumberArg(process.argv, "--height", 900)');
   });
 
-  it("the stale 9-page comments are gone (the ten-page sweep, N-97a1)", () => {
+  it("the stale nine-page comments are gone from sweep.ts (N-97a1 — succeeded by the s98 WIDENED guard below)", () => {
+    // s98 (F-98a1): this s97 guard read only sweep.ts with a pattern
+    // that missed the bare-count form — the session-98 describe below
+    // replaces it with the two-file widened guard. This local pin keeps
+    // the sweep.ts half.
     const src = read("scripts/sweep.ts");
-    expect(src).not.toMatch(/the (full |same )?9-page sweep/);
+    expect(src).not.toMatch(new RegExp("the (full |same )?9" + "-page sweep"));
     // the corrected phrasing present
     expect(src).toMatch(/ten-page|10-page/);
+  });
+});
+
+describe("session-98 (F-98a1/B-98a1/N-98a1): the sweep docs + the per-class print", () => {
+  it("the stale nine-page phrasing is gone from BOTH the tool and this suite (the WIDENED F-98a1 guard)", () => {
+    // F-98a1: the s97 guard read only scripts/sweep.ts with a pattern
+    // that missed the bare-count form — and the stale phrasing survived
+    // in BOTH this file's header and the phone-mode comment. The guard
+    // now reads both files. The pattern is string-concatenated so this
+    // pin cannot match its own guard text.
+    const stale = new RegExp("\\b9" + "-page\\b|the 9\\s+pages");
+    const sweepSrc = read("scripts/sweep.ts");
+    const self = readFileSync(path.resolve(import.meta.dirname, "sweep-tool.test.ts"), "utf8");
+    expect(sweepSrc, "scripts/sweep.ts").not.toMatch(stale);
+    expect(self, "sweep-tool.test.ts").not.toMatch(stale);
+    expect(sweepSrc).toMatch(/ten pages|ten-page/);
+  });
+
+  it("the STANDING_BASELINES doc comment describes the 3-way class split (B-98a1 — no more two-way wording)", () => {
+    const src = read("scripts/sweep.ts");
+    const at = src.indexOf("export const STANDING_BASELINES");
+    expect(at).toBeGreaterThan(-1);
+    const doc = src.slice(Math.max(0, at - 1100), at);
+    expect(doc).toMatch(/tablet/);
+    expect(doc).toMatch(/1024/);
+    expect(doc).not.toMatch(/desktop otherwise/);
+  });
+
+  it("standingExplained(width): the per-class genera line (N-98a1 — the desktop trio no longer prints on phone runs)", async () => {
+    const { standingExplained } = await sweep();
+    const desktop = standingExplained(1440);
+    const phone = standingExplained(390);
+    const tablet = standingExplained(768);
+    // the desktop line keeps the standing trio
+    expect(desktop).toMatch(/picklist/);
+    expect(desktop).toMatch(/lucide/);
+    // the phone line carries the mobile-nav floor + the phone settings share
+    expect(phone).toMatch(/mobile-nav|floor/);
+    expect(phone).toMatch(/7\.3/);
+    expect(phone).not.toMatch(/~4\.7/);
+    // the tablet line carries the accounts overflow genus + its shares
+    expect(tablet).toMatch(/overflow/);
+    expect(tablet).toMatch(/5\.2/);
+    expect(tablet).not.toMatch(/~4\.7/);
+    // the class boundaries mirror standingBaseline
+    expect(standingExplained(767)).toEqual(phone);
+    expect(standingExplained(768)).toEqual(tablet);
+    expect(standingExplained(1024)).toEqual(desktop);
+  });
+
+  it("the print wires the seam (the runtime call, not a hardcoded string)", () => {
+    const src = read("scripts/sweep.ts");
+    expect(src).toMatch(/standingExplained\(WIDTH\)/);
+    // the old unconditional desktop line is gone
+    expect(src).not.toMatch(/standing explained: settings ~4\.7% picklist-data · contacts ~0\.5% lucide superset/);
   });
 });

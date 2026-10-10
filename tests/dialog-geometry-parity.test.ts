@@ -195,7 +195,7 @@ describe("session-92 (F-92a1): the space-y usage census (the documented method)"
   // occurrence count is the census below). This it IS the method: the
   // s91 suite's own noComments() strip + a global occurrence count
   // over src/**/*.{ts,tsx}. Re-derive here when the codebase changes.
-  it("the census: 111 comment-stripped space-y occurrences across the 19 src files that carry one", () => {
+  it("the census: 110 comment-stripped space-y occurrences across the 18 src files that carry one", () => {
     const files = execFileSync(
       "grep",
       ["-rl", "space-y-", `${root}/src`, "--include=*.ts", "--include=*.tsx"],
@@ -208,18 +208,22 @@ describe("session-92 (F-92a1): the space-y usage census (the documented method)"
       const stripped = noComments(readFileSync(f, "utf8"));
       total += (stripped.match(/space-y-/g) ?? []).length;
     }
-    expect(files.length).toBe(19);
+    expect(files.length).toBe(18);
     // session-96 re-anchor: 112 -> 111 (the v4 space-y genus fix on the
     // auth fields — the two `space-y-1.5` field constants retired to the
     // `[&>*+*]:mt-1.5` v3-semantics variant, the google wrap's inert
     // `space-y-3` added inside the new w-full section: net −1)
-    expect(total).toBe(111);
+    // session-98 re-anchor: 111 -> 110 / 19 -> 18 files (the CardHeader
+    // base's `space-y-1.5` retired to the `[&>*+*]:mt-1.5` v3-semantics
+    // variant — the F-98c1 row-genus fix; card.tsx's only space-y, the
+    // file drops out of the census)
+    expect(total).toBe(110);
   });
 
   it("the s91 header's unstable '99' claim is re-derived (spacey-hazard-parity no longer asserts an un-derivable count)", () => {
     const s91 = read("tests/spacey-hazard-parity.test.ts");
     expect(s91).not.toMatch(/all 99 space-y/);
-    expect(s91).toMatch(/111 comment-stripped/);
+    expect(s91).toMatch(/110 comment-stripped/);
   });
 
   it("the SKILL project_state + the PAD row carry the re-derived census (the living docs, method-stated)", () => {
@@ -229,7 +233,7 @@ describe("session-92 (F-92a1): the space-y usage census (the documented method)"
     // moment the s93 project_state stopped repeating it. Flexible
     // whitespace keeps the semantic anchor (the census, method-stated)
     // without depending on where the line breaks.
-    expect(read("neo-crm_SKILL.md")).toMatch(/111\s+comment-stripped space-y occurrences/);
+    expect(read("neo-crm_SKILL.md")).toMatch(/110\s+comment-stripped space-y occurrences/);
     expect(read("Project_Architecture_Document.md")).not.toMatch(/all 99 space-y/);
   });
 });
@@ -259,8 +263,11 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     // + the stale-comment pin + the 4 gate:full pins — the same lockstep
     // s92 performed 1788 -> 1828, s93 1828 -> 1829, s94 1829 -> 1832,
     // s95 1832 -> 1836, s96 1836 -> 1849)
-    expect(claude).toContain("Unit (Vitest, 1862 checks)");
-    expect(claude).toContain("(currently 1862)");
+    // session-98 lockstep carry-forward: 1862 -> 1870 (the s98 +8 — the
+    // 2 CardHeader row-genus pins + the 2 vs-wins legend pins + the 4
+    // sweep docs/per-class-print pins)
+    expect(claude).toContain("Unit (Vitest, 1870 checks)");
+    expect(claude).toContain("(currently 1870)");
     expect(claude).not.toMatch(/1788 checks/);
     expect(claude).not.toMatch(/currently 1788/);
     expect(claude).not.toMatch(/1828 checks/);
@@ -271,5 +278,7 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toMatch(/1849 checks/);
     expect(claude).not.toMatch(/currently 1849/);
     expect(claude).not.toMatch(/currently 1836/);
+    expect(claude).not.toMatch(/1862 checks/);
+    expect(claude).not.toMatch(/currently 1862/);
   });
 });

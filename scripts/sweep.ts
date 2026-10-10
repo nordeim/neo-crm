@@ -8,7 +8,7 @@
 //      standing state (its workspace has been empty for 13 censuses) —
 //      via scripts/zero-data.ts (the s91 tool, reused not duplicated;
 //      users + the Setting singleton stay functional)
-//   3. logs into BOTH apps, captures the 9 pages per app at the given
+//   3. logs into BOTH apps, captures the ten pages per app at the given
 //      viewport (default 1440x900; the reference's Base44 badge closed,
 //      content-waits per page)
 //   4. pairwise pixel-diffs each page (per-channel tolerance 12, the
@@ -151,13 +151,15 @@ export function parseNumberArg(
 export const TOLERANCE = 12;
 
 /** Session-96 (S96-P2): the per-page STANDING baselines — the documented
- * explained-diff genera by viewport class (phone = width < 768, the md
- * breakpoint — BOTH walked phone widths 390x844 and 375x812 ride the
- * phone table; desktop otherwise). The values sit just above the
- * measured standing tables (the s91–s96 runs) so the default margin
- * (0.5pct) absorbs run-to-run noise while any NEW drift — a 0.00% page
- * moving to 5%, invisible to a global --max-diff 8 gate — fails.
- * PURE by design: pinned in tests/sweep-tool.test.ts beside
+ * explained-diff genera by viewport class (the session-97 3-way md/lg
+ * banding: phone = width < 768, the md breakpoint — BOTH walked phone
+ * widths 390x844 and 375x812 ride the phone table · tablet = width <
+ * 1024, the lg breakpoint — the maiden 768x1024 run's table, the accounts
+ * overflow genus at the md boundary · else DESKTOP). The values sit just
+ * above the measured standing tables (the s91–s97 runs) so the default
+ * margin (0.5pct) absorbs run-to-run noise while any NEW drift — a
+ * 0.00% page moving to 5%, invisible to a global --max-diff 8 gate —
+ * fails. PURE by design: pinned in tests/sweep-tool.test.ts beside
  * PAGES/TOLERANCE/diffPixels/parsePagesArg. */
 export const STANDING_BASELINES = {
   desktop: {
@@ -223,6 +225,29 @@ export function standingBaseline(width: number): BaselineTable {
   if (width < 768) return { ...STANDING_BASELINES.phone };
   if (width < 1024) return { ...STANDING_BASELINES.tablet };
   return { ...STANDING_BASELINES.desktop };
+}
+
+/** PURE (Session-98, N-98a1): the class-appropriate "standing explained"
+ * genera line — the desktop trio used to print on EVERY run regardless
+ * of viewport class, describing shares that only exist at 1440 (the
+ * phone settings genus is ~7.3, not ~4.7; the tablet surface carries
+ * the accounts overflow genus). Mirrors the standingBaseline banding. */
+export function standingExplained(width: number): string {
+  if (width < 768) {
+    return (
+      "[sweep] standing explained (phone): the ~0.5% mobile-nav floor on every page (our superset topbar) " +
+      "· settings ~7.3% picklist-data · reports ~0.7% floor + chart noise · login ~0.75% logo genus"
+    );
+  }
+  if (width < 1024) {
+    return (
+      "[sweep] standing explained (tablet): accounts ~0.7% the s95 overflow genus at the md boundary " +
+      "· settings ~5.2% picklist-data · login ~0.44% logo genus"
+    );
+  }
+  return (
+    "[sweep] standing explained (desktop): settings ~4.7% picklist-data · contacts ~0.5% lucide superset · dashboard ~0.3% chart artifact"
+  );
 }
 
 export interface DriftFailure {
@@ -522,9 +547,7 @@ async function main() {
       worst = Math.max(worst, pct);
       console.log(`  ${name.padEnd(12)} ${pct.toFixed(2)}%`);
     }
-    console.log(
-      "[sweep] standing explained: settings ~4.7% picklist-data · contacts ~0.5% lucide superset · dashboard ~0.3% chart artifact",
-    );
+    console.log(standingExplained(WIDTH));
 
     // the seed restore (always — even when gated)
     log("restoring the seed (bun run db:seed)…");

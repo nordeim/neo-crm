@@ -130,8 +130,8 @@ export function SingleBarChart({
 
 /**
  * The grouped-bar pair family (the reference's won-vs-lost and
- * Activities/Won-Deals charts — bar PAIRS with the stock Legend, never
- * the lines our scaffold shipped).
+ * Activities/Won-Deals charts — bar PAIRS, never the lines our scaffold
+ * shipped; the stock Legend rides the wonlost charts only, s98 F-98c2).
  */
 export function GroupedBarsChart({
   data,
@@ -139,12 +139,19 @@ export function GroupedBarsChart({
   series,
   height = 300,
   tickFontSize,
+  legend = true,
 }: {
   data: Array<Record<string, string | number>>;
   xKey: string;
   series: Array<{ key: string; name: string; fill: string }>;
   height?: number;
   tickFontSize?: number;
+  /** Session-98 (F-98c2): the reference ships the stock Legend on the
+   *  WONLOST charts only (its "Won vs Lost Over Time" renders 2 items even
+   *  at zero data) — its "Activities vs Wins" renders NO legend wrapper at
+   *  all (live-censused at 390 AND 1440; the s27 bundle decode agrees).
+   *  Default true keeps the wonlost family; the vs-wins site opts out. */
+  legend?: boolean;
 }) {
   const tick: AxisTick = tickFontSize ? { fontSize: tickFontSize } : undefined;
   return (
@@ -155,7 +162,7 @@ export function GroupedBarsChart({
           <XAxis dataKey={xKey} tick={tick} />
           <YAxis tick={tick} />
           <Tooltip />
-          <Legend />
+          {legend && <Legend />}
           {series.map((s) => (
             <Bar key={s.key} dataKey={s.key} name={s.name} fill={s.fill} />
           ))}

@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1862 checks)       | `bun run test`                         |
+|  Unit tests (1870 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1862) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1870) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3805,3 +3805,51 @@ session's work took it to 1862/1862 (103 suites).
   project_state] + README badge 1994 + AGENTS/CLAUDE/PAD at
   1862+132 + the CLAUDE-count lockstep re-anchor (1849 → 1862) +
   session_195.md + the plan + its execution record + the worklog.
+### Session-98 — the reports tabs' chart family + the CardHeader v4 row-genus
+
+The 98-c rotation walked the LAST unwalked chart surface — the five
+reports tabs' chart family at TRUE 390×844 on BOTH apps at the
+zero-data state: **24/26 elements FLAT** initially, the two deltas
+decoded live into real fixes:
+
+- **F-98c1 — THE CARDHEADER V4 ROW-GENUS (the M-79c2/s96 family on a
+  NEW surface)**: the reports tab-2 table cards ("Open Deals by Stage"
+  +6h, "Deals at Risk" +6h/+6y). The base `flex flex-col space-y-1.5
+  p-6` + a call-site `flex-row` override: under the reference's v3 the
+  gap is margin-TOP on the FOLLOWING sibling (vertically inert in a
+  row); under our v4 it is margin-BOTTOM on the TITLE (grows the flex
+  line's cross-size +6px when the title is tallest). Single-child
+  headers immune — why every prior walk stayed FLAT; the genus was
+  invisible to all three sweeps (the tab-2 cards are not mounted at the
+  default tab). FIXED at the BASE: `flex flex-col [&>*+*]:mt-1.5 p-6`
+  (the v4 expression of the reference's own v3 computed semantics);
+  column-mode gaps identical, the genus structurally retired for every
+  future flex-row header. The space-y census re-anchored 111/19 →
+  110/18 (card.tsx's only space-y retired).
+- **F-98c2 — THE ACTIVITIES-VS-WINS LEGEND GENUS**: ours rendered the
+  recharts default `<Legend />` (2 items, 24px) on the vs-wins chart at
+  BOTH widths; the reference renders NO legend wrapper there (its
+  wonlost sibling DOES render its 2-item legend — the s27 bundle decode
+  agrees: Legend on wonlost only). FIXED: GroupedBarsChart gains
+  `legend?: boolean` (default true); the vs-wins call site opts out.
+- The audit finds closed: F-98a1 (the stale nine-page phrasing — the
+  three surviving sites fixed + the guard pin WIDENED to read both
+  files), B-98a1 (the STANDING_BASELINES doc → the 3-way wording),
+  N-98a1 (the PURE `standingExplained(width)` seam — the per-class
+  genera line, the desktop trio no longer prints on phone runs).
+- Audits clean: 98-a the s97 delta GENUINE (non-vacuousness re-proven
+  12 RED → 41/41); 98-b ZERO graduations 13/13 (~55th), the CSV census
+  17 sites ZERO unguarded, the source-vocabulary clean. Both operator
+  decisions STAND (58th: CSV posture (b) + source-vocabulary parity).
+- Standing layers (94th sweep): the bundle md5 EXACT (69th consecutive
+  stable); all three drift gates CLEAN pre- and post-fix; census #94:
+  demo zero, desktop 256px/8, the mobile-nav defect STANDS (19th); the
+  drawer battery FULLY GREEN live. One environmental lesson: a
+  long-lived dev server post-recompile produced a false drift-gate FAIL
+  (uniform +1.4% mid-animation captures) — the fresh-boot re-run
+  reproduced the standing tables exactly.
+- **GATE**: lint 0/0 · tsc 0 · 1870/1870 unit [103 suites, +8 net]
+  · build · 132/132 e2e fresh CI=1. Docs at SKILL v1.95.0 [§16cl +
+  project_state] + README badge 2002 + AGENTS/CLAUDE/PAD at
+  1870+132 + the CLAUDE-count lockstep re-anchor (1862 → 1870) +
+  session_197.md + the plan + its execution record + the worklog.

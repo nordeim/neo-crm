@@ -14,7 +14,17 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />;
+  // Session-98 (F-98c1, the M-79c2 v4 doctrine): the reference's base
+  // stacks its children with the v3 sibling-gap token at the 1.5 step —
+  // margin-TOP on FOLLOWING siblings, so a call-site `flex-row` override
+  // (the reports tab-2 table cards) makes the gap vertically INERT. Under
+  // our v4 the space-y family flips to margin-BOTTOM on :not(:last-child)
+  // — landing on the TITLE in a row header and growing the flex line's
+  // cross-size (+6px per card, measured live at 390). The mt-on-following
+  // form below is the v4 expression of the reference's own v3 COMPUTED
+  // semantics: identical 6px gaps in column mode, inert in row mode, and
+  // no margin on single-child headers either way.
+  return <div className={cn("flex flex-col [&>*+*]:mt-1.5 p-6", className)} {...props} />;
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {

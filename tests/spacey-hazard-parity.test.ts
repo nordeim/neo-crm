@@ -46,11 +46,11 @@ import { describe, expect, it } from "vitest";
 //   group computes a 12px label->dropzone gap; ours 4px.
 //
 // The foundations verified CLEAN (the genus sweep — the census is
-// 111 comment-stripped space-y occurrences across the 19 src files
+// 110 comment-stripped space-y occurrences across the 18 src files
 // that carry one, the algorithm + the count re-derived by the s92
 // dialog-geometry-parity suite [F-92a1: this header's old "all 99
 // space-y usages" was not re-derivable by any method — the raw grep
-// is 172 lines, the stripped occurrence count 111]): the create
+// is 172 lines, the stripped occurrence count 110]): the create
 // dialogs + the settings defaults/danger carry the controlMt fix;
 // the calendar-rail + save-report section labels are `block` (margins
 // apply); the checkbox stacks are block rows; the other table

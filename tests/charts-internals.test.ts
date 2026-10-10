@@ -100,7 +100,7 @@ describe("session-27: the grouped-bar pair family (GroupedBarsChart)", () => {
     expect(src).toMatch(/export function GroupedBarsChart\(/);
   });
 
-  it("renders one Bar per series entry with the stock <Legend /> (the wonlost + vs-wins family)", () => {
+  it("renders one Bar per series entry with the stock <Legend /> (the wonlost family — s98: vs-wins opts out via the legend prop)", () => {
     const src = charts();
     const fn = src.slice(src.indexOf("export function GroupedBarsChart"), src.indexOf("export function GroupedBarsChart") + 2400);
     expect(fn).toMatch(/series\.map/);
@@ -292,5 +292,50 @@ describe("session-70: the by-type family rewire + the animation retirement (N-70
       const src = stripComments(read(rel) ?? "");
       expect(src, rel).not.toContain("isAnimationActive");
     }
+  });
+});
+
+describe("session-98 (F-98c2): the vs-wins legend genus — the reference ships NO legend on that surface", () => {
+  it("GroupedBarsChart gains the legend prop (default true — the wonlost family keeps the stock Legend)", () => {
+    // The 98-c rotation decode: the reference's "Activities vs Wins"
+    // renders NO legend wrapper at EITHER 390 or 1440 (legendH=null, 0
+    // items) while its sibling "Won vs Lost Over Time" renders its
+    // 2-item legend — and the s27 bundle decode agrees (the per-surface
+    // contract list carries "+ Legend" on the wonlost charts only, never
+    // on vs-wins). Our single family shipped <Legend /> unconditionally
+    // — the vs-wins legend was OUR addition, not a reference mirror.
+    const src = charts();
+    const fn = src.slice(
+      src.indexOf("export function GroupedBarsChart"),
+      src.indexOf("export function GroupedBarsChart") + 2600,
+    );
+    expect(fn).toMatch(/legend = true/);
+    expect(fn).toMatch(/\{legend && <Legend \/>}/);
+  });
+
+  it("the reports vs-wins call site opts out (legend={false}); the tab-1 + leads wonlost sites ride the default", () => {
+    const page = stripComments(
+      read("src/app/(app)/reports/reports-page.tsx") ?? "",
+    );
+    const leads = stripComments(
+      read("src/app/(app)/leads/leads-page.tsx") ?? "",
+    );
+    // the vs-wins site opts out
+    const vsWinsAt = page.indexOf('"Activities vs Wins"');
+    expect(vsWinsAt).toBeGreaterThan(-1);
+    const vsWins = page.slice(vsWinsAt, vsWinsAt + 700);
+    expect(vsWins).toMatch(/legend=\{false\}/);
+    // the tab-1 wonlost site keeps the default (the reference renders
+    // its 2-item legend at zero data — FLAT on both apps)
+    const wonlostAt = page.indexOf('"Won vs Lost Over Time"');
+    expect(wonlostAt).toBeGreaterThan(-1);
+    const wonlost = page.slice(wonlostAt, wonlostAt + 700);
+    expect(wonlost).not.toMatch(/legend=/);
+    // the leads rail wonlost keeps the default too (the s27 bundle
+    // decode lists the Legend for the wonlost family)
+    const leadsCallAt = leads.indexOf("<GroupedBarsChart");
+    expect(leadsCallAt).toBeGreaterThan(-1);
+    const leadsCall = leads.slice(leadsCallAt, leadsCallAt + 700);
+    expect(leadsCall).not.toMatch(/legend=/);
   });
 });

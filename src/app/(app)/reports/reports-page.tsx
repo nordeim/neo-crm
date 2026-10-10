@@ -808,6 +808,12 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
           />
         </ChartCard>
         <ChartCard title="Activities vs Wins">
+          {/* Session-98 (F-98c2): the reference ships NO legend on this
+              chart — live-censused on BOTH apps at 390 and 1440 (its
+              sibling "Won vs Lost Over Time" DOES render its 2-item
+              legend; the s27 bundle decode lists the Legend on the
+              wonlost charts only). Ours rendered the family default —
+              a 24px legend strip the reference never draws here. */}
           <GroupedBarsChart
             data={data?.activitiesVsWins ?? []}
             xKey="month"
@@ -816,6 +822,7 @@ function ActivityTab({ data }: { data: ReportsData | null }) {
               { key: "wins", name: "Won Deals", fill: "#10b981" },
             ]}
             height={300}
+            legend={false}
           />
         </ChartCard>
       </div>

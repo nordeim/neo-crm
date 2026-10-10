@@ -2198,3 +2198,43 @@ describe("session-33 parity pins (the filter-bar search + the header trio)", () 
     expect(DASHBOARD_HEADER.primaryExportLabelClass).toBe("");
   });
 });
+
+describe("session-98 parity pins (the CardHeader v4 row-genus fix, F-98c1)", () => {
+  it("the CardHeader base carries the v3-COMPUTED margin form — the space-y-1.5 genus retired", () => {
+    // F-98c1 (the 98-c rotation decode): the base `flex flex-col
+    // space-y-1.5 p-6` + a call-site `flex-row` override computed +6px of
+    // header height under v4 — space-y's margin-BOTTOM lands on the TITLE
+    // (the non-last child) and grows the flex line's cross-size when the
+    // title is the tallest child (the reports tab-2 table cards: "Open
+    // Deals by Stage" 221 vs 215, "Deals at Risk" 253 vs 247 at 390).
+    // Under the reference's v3 the SAME class string is margin-TOP on the
+    // FOLLOWING sibling (the button row — vertically inert), so the
+    // reference computes NO gap contribution in row headers. The
+    // M-79c2 doctrine: re-derive from the COMPUTED gap, never copy the
+    // class string — the mt-on-following form IS the reference's v3
+    // semantics under v4 syntax (identical 6px gaps in column mode,
+    // inert in row mode, no margin on single-child headers either way).
+    const src = read("src/components/ui/card.tsx");
+    const fn = src
+      .slice(
+        src.indexOf("function CardHeader"),
+        src.indexOf("function CardHeader") + 1600,
+      )
+      // strip the line comments — the root-cause comment legitimately
+      // names the retired token; the pin guards the CODE
+      .replace(/\/\/[^\n]*/g, "");
+    expect(fn).not.toMatch(/space-y-1\.5/);
+    expect(fn).toMatch(/\[\&>\*\+\*\]:mt-1\.5/);
+  });
+
+  it("the two reports flex-row headers keep their call-site override (the row escape unchanged)", () => {
+    // The fix lives in the BASE (every current and future flex-row
+    // CardHeader is safe by construction); the two call sites keep the
+    // reference's own appended family verbatim (its Forecasting header
+    // computes the same string — the tabcontent-parity N-85c3 pin).
+    const src = read("src/app/(app)/reports/reports-page.tsx");
+    expect(
+      (src.match(/CardHeader className="flex-row items-center justify-between"/g) ?? []).length,
+    ).toBe(2);
+  });
+});

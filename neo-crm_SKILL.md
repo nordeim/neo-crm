@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.94.0
+version: 1.95.0
 last_updated: 2026-10-11
-project_state: 1862 unit checks + 132 e2e checks green; the session-97 layer (the 97-c rotation — THE DASHBOARD CHART CARDS AT TRUE 390x844 [the last chart surface, walked on BOTH apps at the zero-data state: FULL GEOMETRY MATCH, d=+0 on ALL 13 elements — the 6 KPI cards 358x130 at y 189/335/481/627/773/919 with the 324x32 sparkline SVGs; the KPI grids byte-identical; Sales Pipeline by Stage 358x494 + chart SVG 308x300 + 5 bars + 5 legend chips; Revenue Over Time 358x398 + SVG 308x300; Top Performing Sales Reps 358x131; Lead Sources 358x106; Upcoming Activities 358x158; Recent Deals 358x155 at the identical y-ladder 2337/2492/2622/2804 — the recharts reflow at phone width is at parity] + THE 768x1024 TABLET MAIDEN SWEEP [the md/sm boundary: zero catastrophic drift — dashboard 0.06, contacts 0.09, leads 0.07, calendar 0.02, activities 0.01, reports 0.00, profile 0.00, settings 5.19 the picklist genus, login 0.44 the logo genus, accounts 0.72 DECODED LIVE as the documented s95 overflow genus at the md boundary — the reference's table rides the bare flex-1 and POKES OUT (table 535, main scrollW 567 > clientW 512, h-scroll) while ours scrolls in-box (table 472, min-w-0, scrollW 512 = clientW); documented STANDING, ours the consistent pattern] + B-97a1 CLOSED [the reset view re-walked at 390: FULL GEOMETRY MATCH — card 358x358 @(16,243), the email label y399 h16 inline 14px, the input y425 294x40, the label->input gap 10 on BOTH apps, the submit y481 — the s96 LOGIN_LAYOUT.field fix's scope extension verified] + THE S97-P0 TABLET CLASS [standingBaseline() 3-way md/lg banding: <768 phone, <1024 tablet, else desktop; STANDING_BASELINES.tablet from the maiden run — accounts 0.8 the overflow genus, settings 5.5 the picklist genus, login 0.5 the logo genus, the rest 0.1; the tablet drift gate verified CLEAN live] + THE S97-P1 NUMERIC FAIL-FAST [B-97a2: the PURE parseNumberArg(argv, flag, fallback) seam — absent -> fallback, missing/non-numeric -> THROW listing the expected form; wired into ALL FOUR numeric flags --drift-margin/--max-diff/--width/--height; NaN must never silently disarm a gate — pct > NaN is always false; verified live: exit 1 with the helpful message] + S97-P2 [the N-97a1 stale 9-page comments -> ten-page] + S97-P3 [the gate:full composite: the standing gate chain + the three drift sweeps (desktop, phone 390x844, tablet 768x1024, each --fail-on-drift); the plain gate UNCHANGED] + the standing layers (93rd sweep) [the drift sweep #93: the bundle md5 a70a637f... EXACT, the 68th consecutive stable; the desktop + phone sweeps clean with the drift gate; census #93: demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 18th consecutive; the drawer battery FULLY GREEN live] + the audits [97-a: the s96 ship delta 7/7 GENUINE, the non-vacuousness re-proven 10 failed | 50 passed; 97-b: ZERO graduations 13/13 (~54th), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO layers verified] + both operator decisions re-affirmed (57th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1862/1862 unit [103 suites, +13 net] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [144 dashboard chart cards 390 + 145 accounts tablet 768, VLM 5/5 x2] + docs at SKILL v1.94.0 [16ck + this project_state + the H1] + README badge 1994 + AGENTS/CLAUDE/PAD at 1862+132 [the AGENTS Session-97 block + the PAD s97 inventory row + the Total 103/1862] + the CLAUDE-count lockstep re-anchor (1849 -> 1862)
+project_state: 1870 unit checks + 132 e2e checks green; the session-98 layer (the 98-c rotation — THE REPORTS TABS' CHART FAMILY AT TRUE 390x844 [the s97 suggested next #1: ALL FIVE analytics tabs walked live on BOTH apps at the zero-data state — 24/26 elements FLAT initially, the two deltas decoded live into real fixes; post-fix 26/26 FLAT d=+0: every chart card on Sales Overview (Revenue Over Time, Won vs Lost + its 2-item legend, Pipeline by Stage, the Conversion Funnel with 8 trapezoid bars, the two deal tables), Pipeline & Forecast (Forecasting Accuracy 434, Pipeline, Forecast by Probability, the 4-bucket Aging, Open Deals by Stage 215, Deals at Risk 247), Activity & Productivity (by Type, Over Time, vs Wins LEGEND-FREE, the two owner tables), Lead Sources (three charts + two tables), Account Health (the health PIE + Top 10 + two tables)] + F-98c1 THE CARDHEADER V4 ROW-GENUS FIXED [the M-79c2/s96 family on a NEW surface: the base flex flex-col space-y-1.5 p-6 + a call-site flex-row override computed +6px of header height under v4 — the reference's v3 space-y is margin-TOP on FOLLOWING siblings (inert in a row header), v4's margin-BOTTOM lands on the TITLE and grows the flex line's cross-size when the title is tallest; the reports tab-2 table cards 221/253 vs the reference's 215/247 at 390; single-child headers immune (the only child IS :last-child) — why every prior walk stayed FLAT and all three sweeps were blind to it (the tab-2 cards unmounted at the default tab, the s23 one-panel-per-tab construction); FIXED AT THE BASE: flex flex-col [&>*+*]:mt-1.5 p-6 — the v4 expression of the reference's own v3 COMPUTED semantics, column-mode gaps identical, the genus structurally retired for every future flex-row header; the space-y census re-anchored 111/19 -> 110/18 (card.tsx's only space-y retired)] + F-98c2 THE ACTIVITIES-VS-WINS LEGEND GENUS FIXED [ours rendered the recharts default <Legend /> (2 items, 24px strip) at BOTH 390 and 1440; the reference renders NO legend wrapper on that surface while its wonlost sibling DOES render its 2-item legend — the s27 bundle decode agrees (Legend on wonlost only); GroupedBarsChart gains legend?: boolean (default true — the wonlost family incl. the leads rail keeps it), the vs-wins call site opts out] + the audit finds closed [F-98a1 the three surviving nine-page sites -> ten-page + the WIDENED two-file guard pin (string-concatenated pattern — the pin cannot match its own guard text); B-98a1 the STANDING_BASELINES doc -> the 3-way wording; N-98a1 the PURE standingExplained(width) per-class genera seam wired into the print — the desktop trio no longer prints on phone runs] + the standing layers (94th sweep) [the drift sweep #94: the bundle md5 a70a637f... EXACT, the 69th consecutive stable; all three drift gates CLEAN pre- and post-fix; census #94: demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 19th consecutive; the drawer battery FULLY GREEN live; ONE ENVIRONMENTAL LESSON: a long-lived dev server post-recompile produced a false drift-gate FAIL (uniform +1.4% mid-animation captures + a reference login timeout) — the fresh-boot re-run reproduced the standing tables exactly, always restart the dev server before gating after src edits] + the audits [98-a: the s97 ship delta GENUINE, the non-vacuousness re-proven 12 RED -> 41/41; 98-b: ZERO graduations 13/13 (~55th), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO layers verified] + both operator decisions re-affirmed (58th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1870/1870 unit [103 suites, +8 net: 7 new RED pins + 1 green-by-design guard, 3 existing pins re-anchored] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [146 reports vs-wins 390 + 147 reports table-cards 390, VLM 5/5 x2 — one adjudicated capture repair on 147 (the scrollIntoView alignment)] + docs at SKILL v1.95.0 [16cl + this project_state + the H1] + README badge 2002 + AGENTS/CLAUDE/PAD at 1870+132 [the AGENTS Session-98 block + the PAD s98 inventory row + the Total 103/1870] + the CLAUDE-count lockstep re-anchor (1862 -> 1870)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.94.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.95.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -8284,8 +8284,8 @@ non-first child carries `mb-*` (v3's (0,3,0) rule kills it; v4's
   ours 4px. The fix: mt-2 on the dropzone wrapper.
 - **N-91c5 — THE GENUS SWEEP.** The space-y census swept (session-92
   F-92a1 re-derivation: the s91 prose said "all 99 space-y usages" —
-  not re-derivable by any method; the documented census is 111
-  comment-stripped space-y occurrences across the 19 src files that
+  not re-derivable by any method; the documented census is 110
+  comment-stripped space-y occurrences across the 18 src files that
   carry one, the algorithm living in the s92 dialog-geometry-parity
   suite): the four finds are the complete set (the other toolbars
   carry no space-y; the create dialogs + settings carry controlMt;
@@ -8357,8 +8357,8 @@ of the interiors — three of them new faces of the v4 space-y genus.
   `mt-1` per the s11 computed-gap rule — the M-91c2 genus in the
   INVERSE direction.
 - **The space-y census (F-92a1).** The s91 "all 99 space-y usages"
-  claim was not re-derivable by any method. The documented census: 111
-  comment-stripped space-y occurrences across the 19 src files that
+  claim was not re-derivable by any method. The documented census: 110
+  comment-stripped space-y occurrences across the 18 src files that
   carry one — the algorithm lives IN the s92 dialog-geometry-parity
   suite.
 - **The sweep tool (S92-P5).** The s91 zero-data screenshot-diff
@@ -8772,3 +8772,92 @@ not just the happy path but every silently-degrading path (NaN,
 empty, absent) — the same lesson as the `--pages` typo and the
 missing-baseline=0 doctrine, now complete across the sweep's flag
 family.
+
+## 16cl. Session-98 Layer (the reports tabs' chart family at TRUE 390 + the CardHeader v4 row-genus + the vs-wins legend)
+
+**The 98-c rotation — the last unwalked chart family.** All FIVE
+reports tabs' chart surfaces walked live on BOTH apps at TRUE
+390×844, zero-data state (the s97 suggested next #1): **24/26
+elements FLAT initially** — every chart card geometry (svg 308×300
+everywhere), every y-ladder, the funnel's 8 trapezoid bars, the
+aging's 4 buckets, the wonlost legend items — with exactly TWO
+deltas, both decoded live into real fixes. Post-fix: **26/26 FLAT
+(d=+0)**. The walk program now covers every interactive surface at
+TRUE 390: dialogs s92 → popovers/menus s93 → tabs s94 → tables s95
+→ forms s96 → charts s97 (dashboard) → **the reports tabs s98**.
+
+**F-98c1 — THE CARDHEADER V4 ROW-GENUS (the M-79c2 family on a NEW
+surface).** The two tab-2 table cards measured +6px card height each
+("Open Deals by Stage" 221 vs 215 · "Deals at Risk" +6h/+6y). The
+decode: the TABLE content blocks byte-identical (77px tables, thead
+40, td 37, same 24px paddings) — the +6 lives in the HEADER block
+(ours 118/150 vs ref 112/144). Root cause: our `CardHeader` base
+`flex flex-col space-y-1.5 p-6` + the call-site `flex-row items-center
+justify-between` override. Under the reference's v3, `space-y-1.5`
+computes margin-TOP on FOLLOWING siblings — landing on the button
+div, vertically INERT in a row header. Under our v4 it computes
+margin-BOTTOM on `:not(:last-child)` — landing on the TITLE, growing
+the flex line's cross-size by 6px whenever the title is the tallest
+child (the 6-line "Deals at Risk (No Activity 14+ Days)" wrap at
+390). **Single-child headers are immune** (the only child IS
+:last-child) — which is why the Forecasting Accuracy row header and
+every previously-walked card stayed FLAT. And the genus was INVISIBLE
+to all three sweeps: the tab-2 cards are not mounted at the default
+tab (the s23 one-panel-per-tab construction) — exactly the coverage
+gap the manual rotation program exists to close. **The fix at the
+BASE**: `flex flex-col [&>*+*]:mt-1.5 p-6` — the v4 expression of the
+reference's own v3 COMPUTED semantics (v3 space-y IS mt-on-following):
+identical 6px gaps in column mode, inert in row mode, no margin on
+single-child headers either way. Fixing the base (not the two call
+sites) structurally retires the genus for every future flex-row
+header. The space-y census re-anchored 111/19 → **110/18** (card.tsx's
+only space-y retired; the s96 precedent of updating every census
+phrase site followed).
+
+**F-98c2 — THE ACTIVITIES-VS-WINS LEGEND GENUS.** Ours rendered the
+recharts default `<Legend />` (2 items "Activities"/"Won Deals", a
+24px strip) on the vs-wins chart at BOTH 390 and 1440; the reference
+renders **NO legend wrapper at all** on that surface (legendH=null, 0
+items — live-censused at both widths) while its sibling "Won vs Lost
+Over Time" DOES render its 2-item legend even at zero data. The s27
+bundle decode agrees: the per-surface contract list carries "+ Legend"
+on the wonlost charts only. **The fix**: `GroupedBarsChart` gains
+`legend?: boolean` (default **true** — the wonlost family incl. the
+leads rail keeps the stock Legend); the reports tab-3 vs-wins call
+site passes `legend={false}`. The e2e tree carries zero legend
+assertions; the charts-internals `<Legend />` regex still matches the
+conditional form.
+
+**The audit finds closed (S98-P2/P3/P4).** F-98a1: the three
+surviving stale nine-page sites (sweep.ts:11 + sweep-tool.test.ts:10/
+:127) → ten-page, and the guard pin WIDENED to read BOTH files with a
+string-concatenated pattern (a self-reading pin must never match its
+own guard text — the s97 pin's regex lived in the file it should have
+been guarding). B-98a1: the STANDING_BASELINES doc comment now carries
+the 3-way wording. N-98a1: the PURE `standingExplained(width)` seam
+returns the class-appropriate genera line (desktop trio · phone floor/
+settings-7.3 · tablet overflow/settings-5.2) — the desktop-share
+genera no longer print on phone runs describing shares that only
+exist at 1440.
+
+**The environmental lesson (the false drift-gate FAIL).** The first
+post-fix phone/tablet sweep runs FAILED the drift gate (a uniform
++1.4% on 7 pages + a reference login timeout) after hours of
+dev-server uptime and a mid-session recompile — mid-animation chart
+captures on a slow server produce real pixel deltas. The fresh-boot
+re-run reproduced the standing tables EXACTLY (phone floor 0.51–0.56 ·
+settings 7.34; tablet accounts 0.72 · settings 5.19). **Always restart
+the dev server before gating after src edits** — a drift-gate failure
+on a long-lived server is an environment signal before it is a code
+signal.
+
+**The session-98 lesson (the tab-gated coverage gap):** the sweep
+shoots the DEFAULT tab of every page — any genus living on a
+non-default tab (the reports tabs 2–5, any future tabbed surface) is
+invisible to the pixel gate by construction. The rotation program is
+the only layer that walks the non-default tabs; when a page gains
+tabs, its tab surfaces must join the rotation queue. The
+dom-audit + live-walk pair (measure both apps, decode the delta to a
+mechanism, fix at the mechanism's root, re-walk to d=+0) remains the
+house method — this session it caught two real genera that 97 prior
+sessions of pixel sweeping could not see.
