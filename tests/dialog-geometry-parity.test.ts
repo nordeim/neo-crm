@@ -254,13 +254,13 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
 
   it("the CLAUDE.md stale 1788 anchors are re-derived (the test-pyramid line + the coverage line — F-92a3)", () => {
     const claude = read("CLAUDE.md");
-    // session-96 lockstep carry-forward: 1836 -> 1849 (the s96 +13 — the
-    // 4 login-view pins + the 5 sweep-tool drift-gate pins + the PAGES
-    // re-anchor + the 4 new drawer-battery-tool pins — the same lockstep
+    // session-97 lockstep carry-forward: 1849 -> 1862 (the s97 +13 — the
+    // 3 tablet-class baseline pins + the 5 parseNumberArg fail-fast pins
+    // + the stale-comment pin + the 4 gate:full pins — the same lockstep
     // s92 performed 1788 -> 1828, s93 1828 -> 1829, s94 1829 -> 1832,
-    // s95 1832 -> 1836)
-    expect(claude).toContain("Unit (Vitest, 1849 checks)");
-    expect(claude).toContain("(currently 1849)");
+    // s95 1832 -> 1836, s96 1836 -> 1849)
+    expect(claude).toContain("Unit (Vitest, 1862 checks)");
+    expect(claude).toContain("(currently 1862)");
     expect(claude).not.toMatch(/1788 checks/);
     expect(claude).not.toMatch(/currently 1788/);
     expect(claude).not.toMatch(/1828 checks/);
@@ -268,6 +268,8 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toMatch(/1832 checks/);
     expect(claude).not.toMatch(/currently 1832/);
     expect(claude).not.toMatch(/1836 checks/);
+    expect(claude).not.toMatch(/1849 checks/);
+    expect(claude).not.toMatch(/currently 1849/);
     expect(claude).not.toMatch(/currently 1836/);
   });
 });

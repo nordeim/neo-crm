@@ -105,3 +105,44 @@ describe("session-69: the E2E_PORT single source (N-69g)", () => {
     expect(spec).toMatch(/e2e-port/);
   });
 });
+
+describe("session-97 (S97-P3): the gate:full composite — the drift gate promoted into the CI chain", () => {
+  // The s96 suggested next #3: the standing `gate` chain proves the
+  // code, but the PARITY regression (a page drifting from its standing
+  // screenshot genus) only fails inside `bun run sweep -- --fail-on-drift`.
+  // `gate:full` chains the standing gate + the three walked viewport
+  // classes so the one command proves code AND parity.
+  it("package.json ships a `gate:full` script", () => {
+    expect(typeof pkg.scripts?.["gate:full"]).toBe("string");
+    expect(pkg.scripts!["gate:full"].length).toBeGreaterThan(0);
+  });
+
+  it("gate:full = the standing gate chain + the three drift sweeps (desktop, phone 390, tablet 768)", () => {
+    const steps = pkg.scripts!["gate:full"].split("&&").map((s) => s.trim());
+    expect(steps).toEqual([
+      "bun run lint",
+      "bun run typecheck",
+      "bun run test",
+      "bun run build",
+      "CI=1 bun run test:e2e",
+      "bun run sweep -- --fail-on-drift",
+      "bun run sweep -- --width 390 --height 844 --fail-on-drift",
+      "bun run sweep -- --width 768 --height 1024 --fail-on-drift",
+    ]);
+  });
+
+  it("the plain `gate` is UNCHANGED (the drift-free fast path keeps its ergonomics)", () => {
+    expect(pkg.scripts!.gate).toBe(
+      "bun run lint && bun run typecheck && bun run test && bun run build && CI=1 bun run test:e2e",
+    );
+  });
+
+  it("every drift sweep in gate:full carries --fail-on-drift (a report-only sweep would gate nothing)", () => {
+    const sweeps = pkg.scripts!["gate:full"]
+      .split("&&")
+      .map((s) => s.trim())
+      .filter((s) => s.startsWith("bun run sweep"));
+    expect(sweeps.length).toBe(3);
+    for (const s of sweeps) expect(s).toContain("--fail-on-drift");
+  });
+});

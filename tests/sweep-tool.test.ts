@@ -276,3 +276,96 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
     expect(src).toMatch(/db:seed[\s\S]*?driftVerdict/);
   });
 });
+
+describe("session-97 (S97-P0): the TABLET baseline class — the md/lg banding", () => {
+  it("standingBaseline: the 3-way split — <768 phone, <1024 tablet, else desktop (the md/lg breakpoints)", async () => {
+    const { standingBaseline } = await sweep();
+    const phone = standingBaseline(390);
+    const tablet = standingBaseline(768);
+    const desktop = standingBaseline(1440);
+    // the boundaries
+    expect(standingBaseline(767)).toEqual(phone);
+    expect(standingBaseline(768)).toEqual(tablet);
+    expect(standingBaseline(1023)).toEqual(tablet);
+    expect(standingBaseline(1024)).toEqual(desktop);
+    // three DISTINCT classes
+    expect(tablet).not.toEqual(phone);
+    expect(tablet).not.toEqual(desktop);
+  });
+
+  it("standingBaseline: the tablet table carries the maiden 768x1024 genera (accounts overflow · settings picklist · login logo)", async () => {
+    const { standingBaseline } = await sweep();
+    const b = standingBaseline(768);
+    // the maiden run measured accounts 0.72 (the s95 overflow genus at
+    // the md boundary — the reference's bare flex-1 poke-out vs our
+    // min-w-0 in-box scroll), settings 5.19 (the picklist genus at the
+    // tablet share), login 0.44 (the logo genus at the tablet share)
+    expect(b.accounts).toBeGreaterThanOrEqual(0.7);
+    expect(b.accounts).toBeLessThanOrEqual(0.9);
+    expect(b.settings).toBeGreaterThanOrEqual(5.0);
+    expect(b.settings).toBeLessThanOrEqual(5.7);
+    expect(b.login).toBeGreaterThanOrEqual(0.4);
+    expect(b.login).toBeLessThanOrEqual(0.7);
+    // every PAGES name has a tablet baseline (the fail-fast doctrine)
+    const { PAGES } = await sweep();
+    for (const p of PAGES) expect(b[p.name]).toBeDefined();
+  });
+
+  it("driftVerdict: the tablet accounts row passes ITS OWN class where the desktop baseline would fail it (why the class exists)", async () => {
+    const { driftVerdict, standingBaseline } = await sweep();
+    // the measured maiden row: accounts 0.72 at 768x1024
+    const rows = [["accounts", 0.72]] as Array<[string, number]>;
+    expect(driftVerdict(rows, standingBaseline(768), 0.5).ok).toBe(true);
+    // judged against the DESKTOP table (accounts 0.1) it would FAIL —
+    // the 0.72 overflow genus is tablet-specific, not drift
+    expect(driftVerdict(rows, standingBaseline(1440), 0.5).ok).toBe(false);
+  });
+});
+
+describe("session-97 (S97-P1): the numeric-arg fail-fast (B-97a2)", () => {
+  it("parseNumberArg: absent flag returns the fallback (the default run is unchanged)", async () => {
+    const { parseNumberArg } = await sweep();
+    expect(parseNumberArg([], "--drift-margin", 0.5)).toBe(0.5);
+    expect(parseNumberArg(["--pages", "leads"], "--width", 1440)).toBe(1440);
+  });
+
+  it("parseNumberArg: a present, valid value returns it", async () => {
+    const { parseNumberArg } = await sweep();
+    expect(parseNumberArg(["--drift-margin", "1.5"], "--drift-margin", 0.5)).toBe(1.5);
+    expect(parseNumberArg(["--width", "390"], "--width", 1440)).toBe(390);
+  });
+
+  it("parseNumberArg: a MISSING value fails fast (NaN must never silently disarm the gate)", async () => {
+    const { parseNumberArg } = await sweep();
+    // --drift-margin as the LAST token — Number(undefined) = NaN, and
+    // `pct > NaN` is always false: the gate would pass everything
+    expect(() => parseNumberArg(["--fail-on-drift", "--drift-margin"], "--drift-margin", 0.5)).toThrow(
+      /--drift-margin/,
+    );
+  });
+
+  it("parseNumberArg: a NON-NUMERIC value fails fast listing the expected form", async () => {
+    const { parseNumberArg } = await sweep();
+    expect(() => parseNumberArg(["--drift-margin", "zero"], "--drift-margin", 0.5)).toThrow(
+      /--drift-margin[\s\S]*number/,
+    );
+    expect(() => parseNumberArg(["--width", "wide"], "--width", 1440)).toThrow(
+      /--width[\s\S]*number/,
+    );
+  });
+
+  it("the sweep wires the seam: ALL FOUR numeric flags route through parseNumberArg (the --pages typo doctrine extended)", () => {
+    const src = read("scripts/sweep.ts");
+    expect(src).toContain('parseNumberArg(process.argv, "--drift-margin", 0.5)');
+    expect(src).toContain('parseNumberArg(process.argv, "--max-diff", null)');
+    expect(src).toContain('parseNumberArg(process.argv, "--width", 1440)');
+    expect(src).toContain('parseNumberArg(process.argv, "--height", 900)');
+  });
+
+  it("the stale 9-page comments are gone (the ten-page sweep, N-97a1)", () => {
+    const src = read("scripts/sweep.ts");
+    expect(src).not.toMatch(/the (full |same )?9-page sweep/);
+    // the corrected phrasing present
+    expect(src).toMatch(/ten-page|10-page/);
+  });
+});

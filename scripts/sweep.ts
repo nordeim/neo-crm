@@ -53,6 +53,18 @@
 //   baseline + margin (default 0.5pct; override --drift-margin <pct>) —
 //   a 0.00% page drifting to 5% fails here where a global --max-diff 8
 //   (which must sit above the settings genus) never could.
+//   The baseline classes (session-97, the 3-way md/lg banding):
+//   < 768 the PHONE table (both walked widths 390x844 + 375x812) ·
+//   < 1024 the TABLET table (the maiden 768x1024 run — the accounts
+//   0.72% overflow genus, the reference's bare flex-1 poke-out vs our
+//   min-w-0 in-box scroll) · else DESKTOP. A width in an un-walked
+//   band is judged by its class table; run a maiden sweep before
+//   trusting a new band.
+//   Numeric flags fail fast (session-97, B-97a2): a missing or
+//   non-numeric --width/--height/--max-diff/--drift-margin value
+//   throws listing the expected form — NaN must never silently disarm
+//   a gate. The `gate:full` package script chains the standing gate +
+//   all three drift sweeps.
 // Env:  OUR_URL (default http://localhost:3000)
 //       REF_URL (default https://neo-crm-8ab2c17c.base44.app)
 //       REF_EMAIL / REF_PASSWORD (the documented demo login defaults)
@@ -109,6 +121,32 @@ export function parsePagesArg(argv: string[], all: readonly PageEntry[]): PageEn
   return all.filter((p) => wantedSet.has(p.name));
 }
 
+/** Session-97 (S97-P1, the 97-a audit's B-97a2): the numeric-arg
+ * fail-fast. `Number(argv[idx + 1])` on a missing or non-numeric value
+ * yields NaN — and `pct > NaN` is always false, so a typo'd
+ * `--drift-margin` would SILENTLY DISARM the gate (the same shape as
+ * --max-diff/--width/--height). This seam returns the fallback when the
+ * flag is absent and THROWS listing the expected form when the value is
+ * missing or non-numeric — the --pages typo doctrine extended to the
+ * numeric family. PURE by design: pinned in tests/sweep-tool.test.ts. */
+export function parseNumberArg(
+  argv: string[],
+  flag: string,
+  fallback: number | null,
+): number | null {
+  const idx = argv.indexOf(flag);
+  if (idx < 0) return fallback;
+  const raw = idx + 1 < argv.length ? argv[idx + 1] : undefined;
+  const value = Number(raw);
+  if (raw === undefined || !Number.isFinite(value)) {
+    throw new Error(
+      `${flag}: expected a number, got ${raw === undefined ? "nothing" : JSON.stringify(raw)} ` +
+        `(e.g. ${flag} ${fallback ?? 1})`,
+    );
+  }
+  return value;
+}
+
 /** The per-channel anti-aliasing tolerance (the s91 value). */
 export const TOLERANCE = 12;
 
@@ -151,13 +189,40 @@ export const STANDING_BASELINES = {
     // larger share of the narrower frame
     login: 0.8,
   },
+  // Session-97 (S97-P0): the TABLET class — the md..lg band (768 <= w <
+  // 1024) walked by the maiden 768x1024 run. The desktop layout family
+  // is active (the sidebar shows from md) but the narrower frame gives
+  // the standing genera different shares. accounts carries the s95
+  // overflow genus at the md boundary: the reference's table rides the
+  // bare flex-1 container and POKES OUT (main h-scroll), ours scrolls
+  // in-box (min-w-0) — the th distribution differs downstream; ours the
+  // consistent pattern, documented STANDING since the phone walk.
+  tablet: {
+    dashboard: 0.1,
+    accounts: 0.8,
+    contacts: 0.1,
+    leads: 0.1,
+    calendar: 0.1,
+    activities: 0.1,
+    reports: 0.1,
+    settings: 5.5,
+    profile: 0.1,
+    // the maiden tablet run measured 0.44% — the logo genus at the
+    // tablet share
+    login: 0.5,
+  },
 } as const;
 
 export type BaselineTable = Record<string, number>;
 
-/** The baseline table for a viewport width (the md breakpoint split). */
+/** The baseline table for a viewport width — the 3-way md/lg banding
+ * (Session-97): < 768 the phone class (BOTH walked widths 390x844 +
+ * 375x812), < 1024 the tablet class (the maiden 768x1024 run), else
+ * desktop. */
 export function standingBaseline(width: number): BaselineTable {
-  return width < 768 ? { ...STANDING_BASELINES.phone } : { ...STANDING_BASELINES.desktop };
+  if (width < 768) return { ...STANDING_BASELINES.phone };
+  if (width < 1024) return { ...STANDING_BASELINES.tablet };
+  return { ...STANDING_BASELINES.desktop };
 }
 
 export interface DriftFailure {
@@ -358,8 +423,10 @@ async function diffPair(
 }
 
 async function main() {
-  const maxDiffIdx = process.argv.indexOf("--max-diff");
-  const maxDiff = maxDiffIdx >= 0 ? Number(process.argv[maxDiffIdx + 1]) : null;
+  // Session-97 (S97-P1): ALL numeric flags route through parseNumberArg —
+  // a missing/non-numeric value fails fast instead of arming NaN
+  // (B-97a2: `pct > NaN` is always false; the gate would pass everything)
+  const maxDiff = parseNumberArg(process.argv, "--max-diff", null);
 
   // Session-96 (S96-P2): the per-page drift gate — `--fail-on-drift`
   // exits 1 when any page exceeds ITS OWN standing baseline + margin
@@ -368,26 +435,23 @@ async function main() {
   // and so cannot see a 0.00% page drifting to 5%), the drift gate
   // judges each page against its own documented genus.
   const failOnDrift = process.argv.includes("--fail-on-drift");
-  const driftMarginIdx = process.argv.indexOf("--drift-margin");
-  const driftMargin = driftMarginIdx >= 0 ? Number(process.argv[driftMarginIdx + 1]) : 0.5;
+  const driftMargin = parseNumberArg(process.argv, "--drift-margin", 0.5) as number;
 
   // Session-95 (S95-P0): the --pages filter — restricts BOTH the capture
   // and the diff loops to the named pages for targeted rotation runs
   // (`bun run sweep -- --pages leads,settings`). The default (no flag) is
-  // the full 9-page sweep, unchanged; unknown names fail fast.
+  // the full ten-page sweep, unchanged; unknown names fail fast.
   const pages = parsePagesArg(process.argv, PAGES);
 
   // Session-94 (S94-P0): the phone-width mode — `bun run sweep --
-  // --width 390 --height 844` runs the same 9-page zero-data diff at
+  // --width 390 --height 844` runs the same ten-page zero-data diff at
   // phone width (the s93 suggested next: the 390px rotation method
   // productized — the dialog/popover/tabs families were walked
   // manually at TRUE 390x844 for three sessions before this). The
   // viewport feeds BOTH the capture context and the shots dir (a
   // w390x844 run must never collide with the desktop shots).
-  const widthIdx = process.argv.indexOf("--width");
-  const WIDTH = widthIdx >= 0 ? Number(process.argv[widthIdx + 1]) : 1440;
-  const heightIdx = process.argv.indexOf("--height");
-  const HEIGHT = heightIdx >= 0 ? Number(process.argv[heightIdx + 1]) : 900;
+  const WIDTH = parseNumberArg(process.argv, "--width", 1440) as number;
+  const HEIGHT = parseNumberArg(process.argv, "--height", 900) as number;
   const shots = path.join(SHOTS, `w${WIDTH}x${HEIGHT}`);
 
   // 1. the dev server: reuse :3000 or boot one

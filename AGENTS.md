@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1849 checks)       | `bun run test`                         |
+|  Unit tests (1862 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1849) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1862) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3744,3 +3744,64 @@ work took it to 1849/1849 (103 suites).
   space-y census re-anchor (112 → 111: two field constants retired
   to the mt-variant, the google wrap's inert space-y-3 added) +
   session_193.md + the plan + its execution record + the worklog.
+
+
+### Session-97 — the tablet class + the chart cards at TRUE 390 + the numeric fail-fast
+
+Fresh clone (the sandbox was reset): clone → install → .env → db:push +
+db:seed; all ops under `env -u DATABASE_URL`. Baseline 1849/1849 → the
+session's work took it to 1862/1862 (103 suites).
+
+- **The standing layers (93rd sweep)** — drift sweep #93: the bundle md5
+  `a70a637f…` EXACT (the 68th consecutive stable session). The desktop
+  sweep: the standing table + the drift gate CLEAN (dashboard 0.43
+  within margin). The phone sweep: the standing table + the gate CLEAN.
+  Census #93: demo zero · desktop 256px/8 · the mobile-nav defect
+  STANDS at TRUE 390 (the 18th consecutive). The drawer battery at
+  TRUE 390: FULLY GREEN live (the F-96a1-fixed reopen verified).
+- **The audits** — 97-a: the s96 ship delta 7/7 GENUINE (the
+  non-vacuousness independently re-proven via a throwaway pre-fix
+  tree: 10 failed | 50 passed → 60/60 reproduced); zero REAL findings;
+  B-97a1 (the reset view rides the fixed LOGIN_LAYOUT.field) CLOSED
+  this session by the live re-walk; B-97a2 (the --drift-margin NaN
+  hazard) fixed (S97-P1); N-97a1 (two stale 9-page comments) fixed
+  (S97-P2). 97-b: the graduation audit 13/13 GENUINE (ZERO
+  graduations, ~54th consecutive); the CSV census 17 sites ZERO
+  unguarded; the source-vocabulary clean; the config + SEO/sitemap
+  layers verified. Both operator decisions re-affirmed (57th: CSV
+  posture (b) + source-vocabulary parity).
+- **The rotation (97-c)** — THE DASHBOARD CHART CARDS AT TRUE 390×844
+  (the last chart surface): FULL GEOMETRY MATCH — Δ=+0 on ALL 13
+  elements (the 6 KPI cards 358×130 with the 324×32 sparks; Sales
+  Pipeline 358×494 + SVG 308×300 + 5 bars + 5 chips; Revenue 358×398 +
+  SVG 308×300; Top Reps 131 · Lead Sources 106 · Upcoming Activities
+  158 · Recent Deals 155 at the identical y-ladder). THE 768×1024
+  TABLET MAIDEN SWEEP (the md boundary): zero catastrophic drift; the
+  accounts 0.72% decoded live as the s95 overflow genus at the md
+  boundary (the reference's bare flex-1 poke-out scrollW 567 vs our
+  min-w-0 in-box 512). B-97a1: the reset view re-walked — FULL
+  GEOMETRY MATCH (the label→input gap 10 on both apps).
+- **S97-P0 (TDD)** — the sweep's TABLET class: `standingBaseline()`
+  3-way md/lg banding (<768 phone · <1024 tablet · else desktop) +
+  `STANDING_BASELINES.tablet` from the maiden run (accounts 0.8 the
+  overflow genus · settings 5.5 · login 0.5 · the rest 0.1) + the
+  header docs. The tablet drift gate verified CLEAN live.
+- **S97-P1 (TDD)** — the B-97a2 numeric-arg fail-fast: the PURE
+  `parseNumberArg()` seam (absent → fallback · missing/non-numeric →
+  THROW listing the expected form), wired into ALL FOUR numeric flags;
+  verified live (`--drift-margin` with no value → exit 1 with the
+  helpful message).
+- **S97-P2** — the N-97a1 stale-count nanos (the two 9-page comments →
+  ten-page).
+- **S97-P3 (TDD)** — the `gate:full` composite (the s96 suggested next
+  #3): the standing gate chain + the three drift sweeps; the plain
+  `gate` UNCHANGED. 4 pins in tests/gate-script.test.ts.
+- **S97-P4** — screenshots 144 (the dashboard chart cards at 390) +
+  145 (the accounts tablet surface at 768) — VLM 5/5 + 5/5, one
+  adjudication (145's edge crop = the documented overflow genus, a
+  viewport crop not a rendering error).
+- **GATE**: lint 0/0 · tsc 0 · 1862/1862 unit [103 suites, +13 net]
+  · build · 132/132 e2e fresh CI=1. Docs at SKILL v1.94.0 [§16ck +
+  project_state] + README badge 1994 + AGENTS/CLAUDE/PAD at
+  1862+132 + the CLAUDE-count lockstep re-anchor (1849 → 1862) +
+  session_195.md + the plan + its execution record + the worklog.

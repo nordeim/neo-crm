@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.93.0
-last_updated: 2026-10-10
-project_state: 1849 unit checks + 132 e2e checks green; the session-96 layer (the 96-c rotation — the FORM FAMILY AT TRUE 390px + the login-card v4 space-y-genus fix, the FIRST src/ change since s90): the FILTER ROWS FULL GEOMETRY MATCH [the leads Filters popover's form controls walked on BOTH apps — every value identical: the trigger 326x36 radius 6; the content 320x398 @(32,36) radius 6 white p-16; the rows 64/64/64/64/44 at y 53/133/213/293/373 w 286; the labels 14px/500 rgb(10,10,10) h20; the comboboxes 286x36 radius 6 p-8/12; the number/date inputs 286x36 16px; the Clear + Save View buttons 139x36] + THE LOGIN CARD: three rhythm deltas decoded as the v4 space-y GENUS ON THE AUTH SURFACE (never caught before — /login was not in the sweep's PAGES and the form family was the last unwalked static family): (1) the Google->divider gap 48 vs 24 [the reference nests google+divider+form in ONE w-full BLOCK section where margins COLLAPSE; ours had them as DIRECT children of the flex column — v4 space-y's margin-bottom STACKS with the divider's my-6, flex containers do not collapse margins] (2) the label->input gap 4 vs 10 per field [the reference's v3 space-y-1.5 = margin-TOP on the FOLLOWING inputWrap block; v4's margin-BOTTOM lands on the INLINE label where vertical margins are IGNORED — the 6px silently lost at BOTH 390 and 1440; the M-79c2 doctrine genus] (3) the card top offset [downstream: the net +12px card height at 390] + THE S96-P0 FIX (TDD, RED-first 3 pins + the inline-label guard, stash-proven 10 failed | 50 passed -> 60/60): LOGIN_LAYOUT.field + LOGIN_SIGNUP_LAYOUT.field space-y-1.5 -> [&>*+*]:mt-1.5 (the label stays INLINE like the reference's own 16px box) + the signin column restructured into ONE w-full section [google (its wrap the reference's inert space-y-3) + divider + form] + LOGIN ADDED TO THE SWEEP'S PAGES (10 pages — the S23-P2 authed-login finding; the auth surface now pixel-swept) + THE LIVE RE-WALK: THE LOGIN CARD FULL GEOMETRY MATCH — d=+0 on ALL 11 elements [h1 209 - subtitle 249 - google 293 - divider 371 - emailLabel 415 - emailInput 441 - pwLabel 501 - pwInput 527 - submit 587 - forgot 643 - signup 671; the rhythm gaps 24/10/10 exact] + THE S96-P1 DRAWER-BATTERY FIX (F-96a1, the 96-a audit find): step 5 REOPENS the drawer (verified open + locks engaged) before the resize-past-md probe [the auto-close listener only registers while open — the closed-drawer probe could never go red]; pinned in the NEW tests/drawer-battery-tool.test.ts (4 pins); the battery re-verified FULLY GREEN live + THE S96-P2 SWEEP --fail-on-drift MODE (the s95 suggested next #2): the STANDING_BASELINES table [desktop + phone classes split at the md breakpoint — BOTH walked phone widths 390x844 + 375x812 ride one table] + the PURE standingBaseline/driftVerdict seams; a page fails when it exceeds ITS OWN baseline + margin [default 0.5pct, --drift-margin override; a missing baseline judges at 0 — the fail-fast doctrine]; RED-first 5 pins; both maiden runs gated CLEAN + the maiden 10-page sweeps [desktop login 0.27% / phone 0.75% — the CSS brand-mark logo genus, the reference hotlinks a screenshot; the standing tables reproduced elsewhere] + the standing layers (92nd sweep): the drift sweep #92 bundle md5 a70a637f... EXACT [the 67th consecutive stable session; DECODE: the PRE-AUTH login shell references /static/* chunks — the tracked bundle is the POST-LOGIN shell's] + the desktop/phone standing tables reproduced + the MAIDEN 375x812 second-width run [the s95 suggested next #3 — the same standing genera at the iPhone baseline: floor ~0.55, settings 7.52; zero new drift; the fractional-column reflow holds] + census #92 [demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 17th consecutive] + the audits [96-a: the s95 ship delta GENUINE — the --pages filter verified line-by-line, the non-vacuousness independently re-proven 4/4 RED against git show c215904:scripts/sweep.ts, the docs counts verified, src/ untouched; F-96a1 the drawer-battery closed-drawer resize probe (fixed this session); 96-b: the graduation audit 13/13 GENUINE (zero graduations, ~53rd consecutive), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO/sitemap layers verified (37/37 / 47/47, db-path 20/20)] + both operator decisions re-affirmed (56th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1849/1849 unit [103 suites, +13 net] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [142 login card 390 post-fix + 143 leads filters popover 390, VLM 5/5 x2, zero adjudications] + docs at SKILL v1.93.0 [16cj + this project_state + the H1] + README badge 1981 + AGENTS/CLAUDE/PAD at 1849+132 [the AGENTS Session-96 block + the PAD s96 inventory row + the Total 103/1849] + the CLAUDE-count lockstep re-anchor (1836 -> 1849) + the space-y census re-anchor (112 -> 111: two field constants retired to the mt-variant, the google wrap's inert space-y-3 added)
+version: 1.94.0
+last_updated: 2026-10-11
+project_state: 1862 unit checks + 132 e2e checks green; the session-97 layer (the 97-c rotation — THE DASHBOARD CHART CARDS AT TRUE 390x844 [the last chart surface, walked on BOTH apps at the zero-data state: FULL GEOMETRY MATCH, d=+0 on ALL 13 elements — the 6 KPI cards 358x130 at y 189/335/481/627/773/919 with the 324x32 sparkline SVGs; the KPI grids byte-identical; Sales Pipeline by Stage 358x494 + chart SVG 308x300 + 5 bars + 5 legend chips; Revenue Over Time 358x398 + SVG 308x300; Top Performing Sales Reps 358x131; Lead Sources 358x106; Upcoming Activities 358x158; Recent Deals 358x155 at the identical y-ladder 2337/2492/2622/2804 — the recharts reflow at phone width is at parity] + THE 768x1024 TABLET MAIDEN SWEEP [the md/sm boundary: zero catastrophic drift — dashboard 0.06, contacts 0.09, leads 0.07, calendar 0.02, activities 0.01, reports 0.00, profile 0.00, settings 5.19 the picklist genus, login 0.44 the logo genus, accounts 0.72 DECODED LIVE as the documented s95 overflow genus at the md boundary — the reference's table rides the bare flex-1 and POKES OUT (table 535, main scrollW 567 > clientW 512, h-scroll) while ours scrolls in-box (table 472, min-w-0, scrollW 512 = clientW); documented STANDING, ours the consistent pattern] + B-97a1 CLOSED [the reset view re-walked at 390: FULL GEOMETRY MATCH — card 358x358 @(16,243), the email label y399 h16 inline 14px, the input y425 294x40, the label->input gap 10 on BOTH apps, the submit y481 — the s96 LOGIN_LAYOUT.field fix's scope extension verified] + THE S97-P0 TABLET CLASS [standingBaseline() 3-way md/lg banding: <768 phone, <1024 tablet, else desktop; STANDING_BASELINES.tablet from the maiden run — accounts 0.8 the overflow genus, settings 5.5 the picklist genus, login 0.5 the logo genus, the rest 0.1; the tablet drift gate verified CLEAN live] + THE S97-P1 NUMERIC FAIL-FAST [B-97a2: the PURE parseNumberArg(argv, flag, fallback) seam — absent -> fallback, missing/non-numeric -> THROW listing the expected form; wired into ALL FOUR numeric flags --drift-margin/--max-diff/--width/--height; NaN must never silently disarm a gate — pct > NaN is always false; verified live: exit 1 with the helpful message] + S97-P2 [the N-97a1 stale 9-page comments -> ten-page] + S97-P3 [the gate:full composite: the standing gate chain + the three drift sweeps (desktop, phone 390x844, tablet 768x1024, each --fail-on-drift); the plain gate UNCHANGED] + the standing layers (93rd sweep) [the drift sweep #93: the bundle md5 a70a637f... EXACT, the 68th consecutive stable; the desktop + phone sweeps clean with the drift gate; census #93: demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 18th consecutive; the drawer battery FULLY GREEN live] + the audits [97-a: the s96 ship delta 7/7 GENUINE, the non-vacuousness re-proven 10 failed | 50 passed; 97-b: ZERO graduations 13/13 (~54th), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO layers verified] + both operator decisions re-affirmed (57th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1862/1862 unit [103 suites, +13 net] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [144 dashboard chart cards 390 + 145 accounts tablet 768, VLM 5/5 x2] + docs at SKILL v1.94.0 [16ck + this project_state + the H1] + README badge 1994 + AGENTS/CLAUDE/PAD at 1862+132 [the AGENTS Session-97 block + the PAD s97 inventory row + the Total 103/1862] + the CLAUDE-count lockstep re-anchor (1849 -> 1862)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.93.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.94.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -8702,3 +8702,73 @@ geometry and express it with the v4-correct construction. The remaining
 unwalked surfaces are covered by the now-10-page sweep (login
 included) — any future genus on the auth surface ships as a drift
 number, not a silent gap.
+
+## 16ck. Session-97 Layer (the tablet class + the chart cards at TRUE 390 + the numeric fail-fast)
+
+**The 97-c rotation — the chart-surface walk program CLOSED.** The
+dashboard's chart cards walked at TRUE 390×844 on BOTH apps at the
+zero-data state: **FULL GEOMETRY MATCH, Δ=+0 on ALL 13 elements** —
+the 6 KPI cards (358×130, the sparkline SVGs 324×32 where present),
+Sales Pipeline by Stage (358×494, the chart SVG 308×300, 5 bars, 5
+legend chips), Revenue Over Time (358×398, SVG 308×300), Top
+Performing Sales Reps (358×131), Lead Sources (358×106), Upcoming
+Activities (358×158), Recent Deals (358×155) — every y-ladder position
+identical. With the dialogs (s92), popovers/menus (s93), tabs (s94),
+tables (s95), and forms (s96) already walked, the recharts reflow at
+phone width was the last chart surface: the interactive-surface walk
+program is now closed at every family. The method: probe BOTH apps at
+the same zero-data state, measure per-card bounding rects + the SVG
+surfaces + the bar/chip/row counts, then pairwise-delta.
+
+**The 768×1024 tablet maiden sweep (the md/sm boundary).** The third
+viewport class: zero catastrophic drift everywhere. The accounts 0.72%
+is the documented s95 overflow genus AT THE MD BOUNDARY — the
+reference's accounts table rides the bare `flex-1` container and
+pokes out (main scrollWidth 567 > clientWidth 512, main h-scroll
+on), ours scrolls in-box (`min-w-0`, scrollW = clientW) — the same
+mechanism as the phone walk, the th distribution differing
+downstream (ref 90/74/77/42/62/81/61/48 vs ours
+73/74/77/42/62/68/61/16). Ours stays the consistent pattern;
+documented STANDING, now carried as the tablet-class baseline.
+
+**S97-P0 — the tablet baseline class.** `standingBaseline()` is now
+the 3-way md/lg banding: `< 768` phone (both walked widths ride one
+table) · `< 1024` tablet (the maiden 768×1024 values: accounts 0.8,
+settings 5.5, login 0.5, the rest 0.1) · else desktop. A width in an
+un-walked band is judged by its class table — run a maiden sweep
+before trusting a new band.
+
+**S97-P1 — the numeric-arg fail-fast (B-97a2, a live audit find).**
+The hazard: `Number(argv[idx + 1])` on a missing or non-numeric value
+yields NaN, and `pct > NaN` is ALWAYS false — a typo'd `--drift-margin
+zero` (or a trailing flag) would silently disarm the drift gate. The
+fix: the PURE `parseNumberArg(argv, flag, fallback)` seam returns the
+fallback when the flag is absent and THROWS listing the expected form
+when the value is missing or non-numeric — the `--pages` typo doctrine
+extended to the numeric family. Wired into ALL FOUR numeric flags
+(`--drift-margin`, `--max-diff`, `--width`, `--height`); verified live
+(exit 1, the helpful message).
+
+**S97-P3 — the `gate:full` composite (the s96 suggested next #3).**
+`bun run gate:full` chains the standing gate (lint → typecheck →
+test → build → CI=1 e2e) + the three drift sweeps (desktop, phone
+390×844, tablet 768×1024, each `--fail-on-drift` against its own
+class baselines). The plain `gate` is UNCHANGED — the drift-free fast
+path keeps its ergonomics; `gate:full` is the one command that proves
+code AND parity.
+
+**B-97a1 — the reset-view scope extension, re-walked.** The s96
+`LOGIN_LAYOUT.field` fix also styles the reset view's email field
+(the shared constant); the live re-walk at 390 verified the label→
+input gap 10 on BOTH apps (the fix's computed gap) with the card
+358×358, the label inline 14px, the input 294×40 — the scope
+extension is correct, not a regression.
+
+**The session-97 lesson (the audit-to-remediation loop):** the 97-a
+audit found the NaN hazard precisely BECAUSE the drift gate became
+load-bearing (S96-P2) — the more a tool gates, the more its own
+argument surface needs the fail-fast doctrine. Tool pins must cover
+not just the happy path but every silently-degrading path (NaN,
+empty, absent) — the same lesson as the `--pages` typo and the
+missing-baseline=0 doctrine, now complete across the sweep's flag
+family.

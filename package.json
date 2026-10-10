@@ -17,7 +17,8 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "gate": "bun run lint && bun run typecheck && bun run test && bun run build && CI=1 bun run test:e2e",
-    "sweep": "bun scripts/sweep.ts"
+    "sweep": "bun scripts/sweep.ts",
+    "gate:full": "bun run lint && bun run typecheck && bun run test && bun run build && CI=1 bun run test:e2e && bun run sweep -- --fail-on-drift && bun run sweep -- --width 390 --height 844 --fail-on-drift && bun run sweep -- --width 768 --height 1024 --fail-on-drift"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
