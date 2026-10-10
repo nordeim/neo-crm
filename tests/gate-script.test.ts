@@ -117,7 +117,7 @@ describe("session-97 (S97-P3): the gate:full composite — the drift gate promot
     expect(pkg.scripts!["gate:full"].length).toBeGreaterThan(0);
   });
 
-  it("gate:full = the standing gate chain + the three drift sweeps (desktop, phone 390, tablet 768)", () => {
+  it("gate:full = the standing gate chain + the FOUR drift sweeps (desktop, phone 390, tablet 768, landscape 1024 — the s99 fourth sweep)", () => {
     const steps = pkg.scripts!["gate:full"].split("&&").map((s) => s.trim());
     expect(steps).toEqual([
       "bun run lint",
@@ -128,6 +128,7 @@ describe("session-97 (S97-P3): the gate:full composite — the drift gate promot
       "bun run sweep -- --fail-on-drift",
       "bun run sweep -- --width 390 --height 844 --fail-on-drift",
       "bun run sweep -- --width 768 --height 1024 --fail-on-drift",
+      "bun run sweep -- --width 1024 --height 768 --fail-on-drift",
     ]);
   });
 
@@ -142,7 +143,7 @@ describe("session-97 (S97-P3): the gate:full composite — the drift gate promot
       .split("&&")
       .map((s) => s.trim())
       .filter((s) => s.startsWith("bun run sweep"));
-    expect(sweeps.length).toBe(3);
+    expect(sweeps.length).toBe(4);
     for (const s of sweeps) expect(s).toContain("--fail-on-drift");
   });
 });

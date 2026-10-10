@@ -266,8 +266,12 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     // session-98 lockstep carry-forward: 1862 -> 1870 (the s98 +8 — the
     // 2 CardHeader row-genus pins + the 2 vs-wins legend pins + the 4
     // sweep docs/per-class-print pins)
-    expect(claude).toContain("Unit (Vitest, 1870 checks)");
-    expect(claude).toContain("(currently 1870)");
+    // session-99 lockstep carry-forward: 1870 -> 1872 (the s99 +2 — the
+    // landscape table pin + the landscape driftVerdict contrast pin;
+    // the banding/doc/explained/gate/lockstep pins are re-anchors,
+    // not new its)
+    expect(claude).toContain("Unit (Vitest, 1872 checks)");
+    expect(claude).toContain("(currently 1872)");
     expect(claude).not.toMatch(/1788 checks/);
     expect(claude).not.toMatch(/currently 1788/);
     expect(claude).not.toMatch(/1828 checks/);
@@ -280,5 +284,7 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toMatch(/currently 1836/);
     expect(claude).not.toMatch(/1862 checks/);
     expect(claude).not.toMatch(/currently 1862/);
+    expect(claude).not.toMatch(/1870 checks/);
+    expect(claude).not.toMatch(/currently 1870/);
   });
 });

@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.95.0
+version: 1.96.0
 last_updated: 2026-10-11
-project_state: 1870 unit checks + 132 e2e checks green; the session-98 layer (the 98-c rotation — THE REPORTS TABS' CHART FAMILY AT TRUE 390x844 [the s97 suggested next #1: ALL FIVE analytics tabs walked live on BOTH apps at the zero-data state — 24/26 elements FLAT initially, the two deltas decoded live into real fixes; post-fix 26/26 FLAT d=+0: every chart card on Sales Overview (Revenue Over Time, Won vs Lost + its 2-item legend, Pipeline by Stage, the Conversion Funnel with 8 trapezoid bars, the two deal tables), Pipeline & Forecast (Forecasting Accuracy 434, Pipeline, Forecast by Probability, the 4-bucket Aging, Open Deals by Stage 215, Deals at Risk 247), Activity & Productivity (by Type, Over Time, vs Wins LEGEND-FREE, the two owner tables), Lead Sources (three charts + two tables), Account Health (the health PIE + Top 10 + two tables)] + F-98c1 THE CARDHEADER V4 ROW-GENUS FIXED [the M-79c2/s96 family on a NEW surface: the base flex flex-col space-y-1.5 p-6 + a call-site flex-row override computed +6px of header height under v4 — the reference's v3 space-y is margin-TOP on FOLLOWING siblings (inert in a row header), v4's margin-BOTTOM lands on the TITLE and grows the flex line's cross-size when the title is tallest; the reports tab-2 table cards 221/253 vs the reference's 215/247 at 390; single-child headers immune (the only child IS :last-child) — why every prior walk stayed FLAT and all three sweeps were blind to it (the tab-2 cards unmounted at the default tab, the s23 one-panel-per-tab construction); FIXED AT THE BASE: flex flex-col [&>*+*]:mt-1.5 p-6 — the v4 expression of the reference's own v3 COMPUTED semantics, column-mode gaps identical, the genus structurally retired for every future flex-row header; the space-y census re-anchored 111/19 -> 110/18 (card.tsx's only space-y retired)] + F-98c2 THE ACTIVITIES-VS-WINS LEGEND GENUS FIXED [ours rendered the recharts default <Legend /> (2 items, 24px strip) at BOTH 390 and 1440; the reference renders NO legend wrapper on that surface while its wonlost sibling DOES render its 2-item legend — the s27 bundle decode agrees (Legend on wonlost only); GroupedBarsChart gains legend?: boolean (default true — the wonlost family incl. the leads rail keeps it), the vs-wins call site opts out] + the audit finds closed [F-98a1 the three surviving nine-page sites -> ten-page + the WIDENED two-file guard pin (string-concatenated pattern — the pin cannot match its own guard text); B-98a1 the STANDING_BASELINES doc -> the 3-way wording; N-98a1 the PURE standingExplained(width) per-class genera seam wired into the print — the desktop trio no longer prints on phone runs] + the standing layers (94th sweep) [the drift sweep #94: the bundle md5 a70a637f... EXACT, the 69th consecutive stable; all three drift gates CLEAN pre- and post-fix; census #94: demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 19th consecutive; the drawer battery FULLY GREEN live; ONE ENVIRONMENTAL LESSON: a long-lived dev server post-recompile produced a false drift-gate FAIL (uniform +1.4% mid-animation captures + a reference login timeout) — the fresh-boot re-run reproduced the standing tables exactly, always restart the dev server before gating after src edits] + the audits [98-a: the s97 ship delta GENUINE, the non-vacuousness re-proven 12 RED -> 41/41; 98-b: ZERO graduations 13/13 (~55th), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO layers verified] + both operator decisions re-affirmed (58th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1870/1870 unit [103 suites, +8 net: 7 new RED pins + 1 green-by-design guard, 3 existing pins re-anchored] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [146 reports vs-wins 390 + 147 reports table-cards 390, VLM 5/5 x2 — one adjudicated capture repair on 147 (the scrollIntoView alignment)] + docs at SKILL v1.95.0 [16cl + this project_state + the H1] + README badge 2002 + AGENTS/CLAUDE/PAD at 1870+132 [the AGENTS Session-98 block + the PAD s98 inventory row + the Total 103/1870] + the CLAUDE-count lockstep re-anchor (1862 -> 1870)
+project_state: 1872 unit checks + 132 e2e checks green; the session-99 layer (the 99-c rotation — THE 1024x768 LANDSCAPE-TABLET MAIDEN RUN [the s98 suggested next #1 — the lg boundary where the w-80 rail joins]: 8/10 pages FLAT/standing, F-99c1 the accounts overflow genus at the lg band DECODED LIVE [2.43% — the reference's bare flex-1 content floors at its table's min-content 535, SQUEEZES its own w-80 rail 320->183, pokes main +6px (scrollW 774 vs 768); ours the min-w-0 in-box scroll + the full 320 rail — the s95 consistent pattern, VLM-confirmed, documented STANDING not copied] + the LANDSCAPE baseline class [STANDING_BASELINES.landscape: accounts 2.6 · settings 4.9 · dashboard 0.6 · login 0.5 · the rest 0.1; the 4-way md/lg/xl banding — 1024 is NOT desktop, the s97 boundary pin re-anchored; the standingExplained landscape line] + gate:full grown to the FOURTH drift sweep [1024x768 --fail-on-drift; the plain gate UNCHANGED] + the F-99a1 fix [PAD:358 the stale 1862 tree site -> the living count] + the standing layers [95th sweep: the bundle md5 a70a637f... EXACT, the 70th consecutive stable; all FOUR drift gates CLEAN; census #95: demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 20th consecutive; the drawer battery FULLY GREEN live] + the audits [99-a: the s98 ship delta GENUINE 9/9, the non-vacuousness re-proven 10 RED -> 277/277; 99-b: ZERO graduations 13/13 (~56th), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO layers verified] + both operator decisions re-affirmed (59th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1872/1872 unit [103 suites, +2 net new pins, 6 re-anchored] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [148 accounts landscape 1024 + 149 dashboard landscape 1024, VLM 4/4 x2] + docs at SKILL v1.96.0 [16cm + this project_state + the H1] + README badge 2004 + AGENTS/CLAUDE/PAD at 1872+132 [the AGENTS Session-99 block + the PAD s99 inventory row + the Total 103/1872] + the CLAUDE-count lockstep re-anchor (1870 -> 1872)) + beneath it the session-98 layer (the 98-c rotation — THE REPORTS TABS' CHART FAMILY AT TRUE 390x844 [the s97 suggested next #1: ALL FIVE analytics tabs walked live on BOTH apps at the zero-data state — 24/26 elements FLAT initially, the two deltas decoded live into real fixes; post-fix 26/26 FLAT d=+0: every chart card on Sales Overview (Revenue Over Time, Won vs Lost + its 2-item legend, Pipeline by Stage, the Conversion Funnel with 8 trapezoid bars, the two deal tables), Pipeline & Forecast (Forecasting Accuracy 434, Pipeline, Forecast by Probability, the 4-bucket Aging, Open Deals by Stage 215, Deals at Risk 247), Activity & Productivity (by Type, Over Time, vs Wins LEGEND-FREE, the two owner tables), Lead Sources (three charts + two tables), Account Health (the health PIE + Top 10 + two tables)] + F-98c1 THE CARDHEADER V4 ROW-GENUS FIXED [the M-79c2/s96 family on a NEW surface: the base flex flex-col space-y-1.5 p-6 + a call-site flex-row override computed +6px of header height under v4 — the reference's v3 space-y is margin-TOP on FOLLOWING siblings (inert in a row header), v4's margin-BOTTOM lands on the TITLE and grows the flex line's cross-size when the title is tallest; the reports tab-2 table cards 221/253 vs the reference's 215/247 at 390; single-child headers immune (the only child IS :last-child) — why every prior walk stayed FLAT and all three sweeps were blind to it (the tab-2 cards unmounted at the default tab, the s23 one-panel-per-tab construction); FIXED AT THE BASE: flex flex-col [&>*+*]:mt-1.5 p-6 — the v4 expression of the reference's own v3 COMPUTED semantics, column-mode gaps identical, the genus structurally retired for every future flex-row header; the space-y census re-anchored 111/19 -> 110/18 (card.tsx's only space-y retired)] + F-98c2 THE ACTIVITIES-VS-WINS LEGEND GENUS FIXED [ours rendered the recharts default <Legend /> (2 items, 24px strip) at BOTH 390 and 1440; the reference renders NO legend wrapper on that surface while its wonlost sibling DOES render its 2-item legend — the s27 bundle decode agrees (Legend on wonlost only); GroupedBarsChart gains legend?: boolean (default true — the wonlost family incl. the leads rail keeps it), the vs-wins call site opts out] + the audit finds closed [F-98a1 the three surviving nine-page sites -> ten-page + the WIDENED two-file guard pin (string-concatenated pattern — the pin cannot match its own guard text); B-98a1 the STANDING_BASELINES doc -> the 3-way wording; N-98a1 the PURE standingExplained(width) per-class genera seam wired into the print — the desktop trio no longer prints on phone runs] + the standing layers (94th sweep) [the drift sweep #94: the bundle md5 a70a637f... EXACT, the 69th consecutive stable; all three drift gates CLEAN pre- and post-fix; census #94: demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 19th consecutive; the drawer battery FULLY GREEN live; ONE ENVIRONMENTAL LESSON: a long-lived dev server post-recompile produced a false drift-gate FAIL (uniform +1.4% mid-animation captures + a reference login timeout) — the fresh-boot re-run reproduced the standing tables exactly, always restart the dev server before gating after src edits] + the audits [98-a: the s97 ship delta GENUINE, the non-vacuousness re-proven 12 RED -> 41/41; 98-b: ZERO graduations 13/13 (~55th), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO layers verified] + both operator decisions re-affirmed (58th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1870/1870 unit [103 suites, +8 net: 7 new RED pins + 1 green-by-design guard, 3 existing pins re-anchored] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [146 reports vs-wins 390 + 147 reports table-cards 390, VLM 5/5 x2 — one adjudicated capture repair on 147 (the scrollIntoView alignment)] + docs at SKILL v1.95.0 [16cl + this project_state + the H1] + README badge 2002 + AGENTS/CLAUDE/PAD at 1870+132 [the AGENTS Session-98 block + the PAD s98 inventory row + the Total 103/1870] + the CLAUDE-count lockstep re-anchor (1862 -> 1870)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.95.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.96.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -8861,3 +8861,75 @@ dom-audit + live-walk pair (measure both apps, decode the delta to a
 mechanism, fix at the mechanism's root, re-walk to d=+0) remains the
 house method — this session it caught two real genera that 97 prior
 sessions of pixel sweeping could not see.
+
+## 16cm. Session-99 Layer (the landscape-tablet maiden run at 1024×768 — the lg boundary)
+
+**The 99-c rotation — the fourth viewport band.** The maiden
+1024×768 landscape-tablet sweep (the s98 suggested next #1 — the lg
+boundary where the 2-col grids flip and the w-80 filter rail joins
+the accounts/calendar/activities rows): **8/10 pages FLAT or
+standing-family** (contacts/leads/reports/profile 0.00 · calendar
+0.02 · activities 0.01 · dashboard 0.47 the chart artifact ·
+settings 4.74 the picklist genus · login 0.44 the logo genus) — with
+ONE delta decoded live into a documented standing genus, not a fix.
+
+**F-99c1 — THE ACCOUNTS OVERFLOW GENUS AT THE LG BAND (2.43%).** At
+1024 the reference's accounts row is `[content flex-1 (BARE)] [rail
+w-80]`: its table's min-content (535) FLOORS the bare flex-1 at 535
+(min-width:auto), which SQUEEZES its own w-80 rail from 320 to **183**
+(flex-shrink absorbs the shortfall — the filter dropdowns visibly
+compress) and the row still overflows: main scrollW 774 vs clientW
+768, a **+6px poke-out past the viewport**. Ours keeps content
+`flex-1 min-w-0` (360, the table scrolling IN-BOX inside the card's
+overflow-x-auto) and the rail at its designed full 320 — the s95
+consistent pattern, the same doctrine the phone/md walks documented.
+VLM-confirmed visually on both apps. **The genus is the reference's
+own broken flexbox — ours the fix; documented STANDING, banded as its
+own class.** The 2.43% share is the genus at its lg-band maximum (the
+squeeze shrinks toward 1280; 1440 rides the desktop table).
+
+**S99-P0 — the LANDSCAPE class (the 4-way banding).**
+`STANDING_BASELINES.landscape` (dashboard 0.6 · accounts 2.6 · the
+rest 0.1 · settings 4.9 · login 0.5) + the `standingBaseline()` split
+grows the fourth band (`< 1024` tablet · `< 1280` landscape · else
+desktop — **1024 is NOT desktop**; the s97 boundary pin re-anchored
+with the old assignment documented) + the `standingExplained(width)`
+landscape line + the header/STANDING_BASELINES doc comments → the
+4-way wording.
+
+**S99-P1 — gate:full grows the FOURTH drift sweep.**
+`--width 1024 --height 768 --fail-on-drift` joins the chain; the
+plain `gate` UNCHANGED.
+
+**S99-P2 — the F-99a1 fix.** The audit's one REAL find: PAD:358 (the
+directory-tree "tests/ *.test.ts" site) still read "1862 checks"
+after the s98 realignment updated the other five PAD sites — no pin
+covers the PAD tree counts (the lockstep pin reads only CLAUDE.md).
+Fixed to the living count.
+
+**S99-P3 — the RED-first pins.** 3 NEW (the landscape table with the
+maiden genera ranges + every PAGES name defined · the driftVerdict
+landscape contrast — accounts 2.43 passes ITS OWN class where BOTH
+the desktop and tablet tables fail it) + 6 RE-ANCHORED (the 4-way boundary pin with six
+boundary probes and four distinct classes · the B-98a1 doc pin → the
+4-way wording · the N-98a1 explained boundary mirror — 1024 →
+landscape, 1280 → desktop · the gate:full chain + count pins · the
+CLAUDE-count lockstep 1870 → 1872). RED: **8 failed | 58 passed**
+pre-fix; stash-proven (sweep.ts + package.json + CLAUDE.md stashed →
+**8 failed** → pop → **66/66**).
+
+**The live verification.** The 1024 sweep `--fail-on-drift` → CLEAN
+under the new landscape class (accounts 2.43 within 2.6+0.5); the
+other three sweeps re-gated CLEAN post-fix (the banding change only
+claims 1024..1279 — the 390/768/1440 assignments byte-identical).
+Screenshots 148 (the accounts landscape genus — the in-box consistent
+pattern + the full rail) + 149 (the clean dashboard landscape) —
+VLM 4/4 + 4/4.
+
+**The doctrine (the s95/s97 line, extended):** a reference defect at
+a new width is NOT a parity gap — decode it, document it as the
+standing genus with its computed geometry (the floor + the squeeze +
+the poke, all three facets), and band it so the drift gate stays
+honest for the whole class. The maiden-run protocol: sweep the new
+width as a report first, decode any delta live against BOTH apps'
+DOM, then pin the class table before the width ever gates.

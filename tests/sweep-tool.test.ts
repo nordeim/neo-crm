@@ -278,19 +278,24 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
 });
 
 describe("session-97 (S97-P0): the TABLET baseline class — the md/lg banding", () => {
-  it("standingBaseline: the 3-way split — <768 phone, <1024 tablet, else desktop (the md/lg breakpoints)", async () => {
+  it("standingBaseline: the 4-way split — <768 phone, <1024 tablet, <1280 landscape, else desktop (the md/lg/xl breakpoints; the s99 re-anchor: 1024 is NOT desktop — the maiden landscape run carries its own genera)", async () => {
     const { standingBaseline } = await sweep();
     const phone = standingBaseline(390);
     const tablet = standingBaseline(768);
+    const landscape = standingBaseline(1024);
     const desktop = standingBaseline(1440);
     // the boundaries
     expect(standingBaseline(767)).toEqual(phone);
     expect(standingBaseline(768)).toEqual(tablet);
     expect(standingBaseline(1023)).toEqual(tablet);
-    expect(standingBaseline(1024)).toEqual(desktop);
-    // three DISTINCT classes
+    expect(standingBaseline(1024)).toEqual(landscape);
+    expect(standingBaseline(1279)).toEqual(landscape);
+    expect(standingBaseline(1280)).toEqual(desktop);
+    // four DISTINCT classes
     expect(tablet).not.toEqual(phone);
-    expect(tablet).not.toEqual(desktop);
+    expect(landscape).not.toEqual(phone);
+    expect(landscape).not.toEqual(tablet);
+    expect(landscape).not.toEqual(desktop);
   });
 
   it("standingBaseline: the tablet table carries the maiden 768x1024 genera (accounts overflow · settings picklist · login logo)", async () => {
@@ -319,6 +324,42 @@ describe("session-97 (S97-P0): the TABLET baseline class — the md/lg banding",
     // judged against the DESKTOP table (accounts 0.1) it would FAIL —
     // the 0.72 overflow genus is tablet-specific, not drift
     expect(driftVerdict(rows, standingBaseline(1440), 0.5).ok).toBe(false);
+  });
+});
+
+describe("session-99 (S99-P0): the LANDSCAPE baseline class — the lg/xl banding", () => {
+  it("standingBaseline: the landscape table carries the maiden 1024x768 genera (the accounts overflow genus at its lg share · settings picklist · login logo)", async () => {
+    const { standingBaseline } = await sweep();
+    const b = standingBaseline(1024);
+    // the maiden run measured accounts 2.43 (F-99c1 — the overflow genus
+    // at the lg band: the reference's bare flex-1 content FLOORS at its
+    // table's min-content 535, SQUEEZES its own w-80 rail 320->183, and
+    // pokes main +6px past the viewport; ours the min-w-0 in-box scroll
+    // + the full 320 rail — the documented consistent pattern), settings
+    // 4.74 (the picklist genus at the landscape share), login 0.44 (the
+    // logo genus), dashboard 0.47 (the chart artifact at its lg share)
+    expect(b.accounts).toBeGreaterThanOrEqual(2.3);
+    expect(b.accounts).toBeLessThanOrEqual(2.7);
+    expect(b.settings).toBeGreaterThanOrEqual(4.5);
+    expect(b.settings).toBeLessThanOrEqual(5.2);
+    expect(b.login).toBeGreaterThanOrEqual(0.4);
+    expect(b.login).toBeLessThanOrEqual(0.7);
+    expect(b.dashboard).toBeGreaterThanOrEqual(0.4);
+    expect(b.dashboard).toBeLessThanOrEqual(0.8);
+    // every PAGES name has a landscape baseline (the fail-fast doctrine)
+    const { PAGES } = await sweep();
+    for (const p of PAGES) expect(b[p.name]).toBeDefined();
+  });
+
+  it("driftVerdict: the landscape accounts row passes ITS OWN class where the desktop baseline would fail it (the 2.43 genus is lg-band-specific, not drift)", async () => {
+    const { driftVerdict, standingBaseline } = await sweep();
+    // the measured maiden row: accounts 2.43 at 1024x768
+    const rows = [["accounts", 2.43]] as Array<[string, number]>;
+    expect(driftVerdict(rows, standingBaseline(1024), 0.5).ok).toBe(true);
+    // judged against the DESKTOP table (accounts 0.1) it would FAIL —
+    // and against the TABLET table (accounts 0.8) too
+    expect(driftVerdict(rows, standingBaseline(1440), 0.5).ok).toBe(false);
+    expect(driftVerdict(rows, standingBaseline(768), 0.5).ok).toBe(false);
   });
 });
 
@@ -389,21 +430,24 @@ describe("session-98 (F-98a1/B-98a1/N-98a1): the sweep docs + the per-class prin
     expect(sweepSrc).toMatch(/ten pages|ten-page/);
   });
 
-  it("the STANDING_BASELINES doc comment describes the 3-way class split (B-98a1 — no more two-way wording)", () => {
+  it("the STANDING_BASELINES doc comment describes the 4-way class split (the B-98a1 pin re-anchored at s99 — no more three-way wording)", () => {
     const src = read("scripts/sweep.ts");
     const at = src.indexOf("export const STANDING_BASELINES");
     expect(at).toBeGreaterThan(-1);
     const doc = src.slice(Math.max(0, at - 1100), at);
     expect(doc).toMatch(/tablet/);
     expect(doc).toMatch(/1024/);
+    expect(doc).toMatch(/landscape/);
+    expect(doc).toMatch(/1280/);
     expect(doc).not.toMatch(/desktop otherwise/);
   });
 
-  it("standingExplained(width): the per-class genera line (N-98a1 — the desktop trio no longer prints on phone runs)", async () => {
+  it("standingExplained(width): the per-class genera line (N-98a1 — the desktop trio no longer prints on phone runs; s99: the fourth class)", async () => {
     const { standingExplained } = await sweep();
     const desktop = standingExplained(1440);
     const phone = standingExplained(390);
     const tablet = standingExplained(768);
+    const landscape = standingExplained(1024);
     // the desktop line keeps the standing trio
     expect(desktop).toMatch(/picklist/);
     expect(desktop).toMatch(/lucide/);
@@ -415,10 +459,17 @@ describe("session-98 (F-98a1/B-98a1/N-98a1): the sweep docs + the per-class prin
     expect(tablet).toMatch(/overflow/);
     expect(tablet).toMatch(/5\.2/);
     expect(tablet).not.toMatch(/~4\.7/);
+    // the landscape line carries the lg-band overflow genus (the rail
+    // squeeze decode) + its shares
+    expect(landscape).toMatch(/overflow/);
+    expect(landscape).toMatch(/rail/);
+    expect(landscape).toMatch(/2\.4/);
+    expect(landscape).not.toEqual(desktop);
     // the class boundaries mirror standingBaseline
     expect(standingExplained(767)).toEqual(phone);
     expect(standingExplained(768)).toEqual(tablet);
-    expect(standingExplained(1024)).toEqual(desktop);
+    expect(standingExplained(1024)).toEqual(landscape);
+    expect(standingExplained(1280)).toEqual(desktop);
   });
 
   it("the print wires the seam (the runtime call, not a hardcoded string)", () => {

@@ -53,18 +53,23 @@
 //   baseline + margin (default 0.5pct; override --drift-margin <pct>) —
 //   a 0.00% page drifting to 5% fails here where a global --max-diff 8
 //   (which must sit above the settings genus) never could.
-//   The baseline classes (session-97, the 3-way md/lg banding):
+//   The baseline classes (session-99, the 4-way md/lg/xl banding —
+//   the s97 3-way grown by the maiden landscape run):
 //   < 768 the PHONE table (both walked widths 390x844 + 375x812) ·
 //   < 1024 the TABLET table (the maiden 768x1024 run — the accounts
 //   0.72% overflow genus, the reference's bare flex-1 poke-out vs our
-//   min-w-0 in-box scroll) · else DESKTOP. A width in an un-walked
-//   band is judged by its class table; run a maiden sweep before
-//   trusting a new band.
+//   min-w-0 in-box scroll) · < 1280 the LANDSCAPE table (the maiden
+//   1024x768 run — the same overflow genus at its lg-band share: the
+//   reference's bare flex-1 content FLOORS at its table's min-content,
+//   SQUEEZES its own w-80 rail 320->183, and pokes main +6px; ours
+//   the min-w-0 in-box scroll + the full 320 rail) · else DESKTOP. A
+//   width in an un-walked band is judged by its class table; run a
+//   maiden sweep before trusting a new band.
 //   Numeric flags fail fast (session-97, B-97a2): a missing or
 //   non-numeric --width/--height/--max-diff/--drift-margin value
 //   throws listing the expected form — NaN must never silently disarm
 //   a gate. The `gate:full` package script chains the standing gate +
-//   all three drift sweeps.
+//   all four drift sweeps.
 // Env:  OUR_URL (default http://localhost:3000)
 //       REF_URL (default https://neo-crm-8ab2c17c.base44.app)
 //       REF_EMAIL / REF_PASSWORD (the documented demo login defaults)
@@ -152,11 +157,16 @@ export const TOLERANCE = 12;
 
 /** Session-96 (S96-P2): the per-page STANDING baselines — the documented
  * explained-diff genera by viewport class (the session-97 3-way md/lg
- * banding: phone = width < 768, the md breakpoint — BOTH walked phone
- * widths 390x844 and 375x812 ride the phone table · tablet = width <
- * 1024, the lg breakpoint — the maiden 768x1024 run's table, the accounts
- * overflow genus at the md boundary · else DESKTOP). The values sit just
- * above the measured standing tables (the s91–s97 runs) so the default
+ * banding grown 4-WAY at session-99: phone = width < 768, the md
+ * breakpoint — BOTH walked phone widths 390x844 and 375x812 ride the
+ * phone table · tablet = width < 1024, the lg breakpoint — the maiden
+ * 768x1024 run's table, the accounts overflow genus at the md boundary
+ * · landscape = width < 1280, the xl breakpoint — the maiden 1024x768
+ * run's table, the same overflow genus at its lg-band share (the
+ * reference's bare flex-1 floors at its table's min-content, squeezes
+ * its own w-80 rail, and pokes main; ours the min-w-0 consistent
+ * pattern) · else DESKTOP). The values sit just
+ * above the measured standing tables (the s91–s99 runs) so the default
  * margin (0.5pct) absorbs run-to-run noise while any NEW drift — a
  * 0.00% page moving to 5%, invisible to a global --max-diff 8 gate —
  * fails. PURE by design: pinned in tests/sweep-tool.test.ts beside
@@ -213,17 +223,47 @@ export const STANDING_BASELINES = {
     // tablet share
     login: 0.5,
   },
+  // Session-99 (S99-P0): the LANDSCAPE class — the lg..xl band
+  // (1024 <= w < 1280) walked by the maiden 1024x768 run. The desktop
+  // layout family is active (the w-80 filter rail joins at lg) but
+  // the reference's accounts row is BROKEN at this band: its bare
+  // flex-1 content FLOORS at the table's min-content (535), which
+  // SQUEEZES its own w-80 rail from 320 to 183 (flex-shrink absorbs
+  // the shortfall — its filter dropdowns visibly compress) and still
+  // overflows the row, poking main +6px past the viewport (scrollW 774
+  // vs clientW 768). Ours keeps content flex-1 min-w-0 (360, the table
+  // scrolling IN-BOX inside the card's overflow-x-auto) + the rail at
+  // its designed full 320 — the s95 consistent pattern, the same
+  // doctrine the phone/md walks documented. The 2.43% share is the
+  // genus at its lg-band maximum (the squeeze shrinks as width grows
+  // toward 1280; 1440 rides the desktop table).
+  landscape: {
+    dashboard: 0.6,
+    accounts: 2.6,
+    contacts: 0.1,
+    leads: 0.1,
+    calendar: 0.1,
+    activities: 0.1,
+    reports: 0.1,
+    settings: 4.9,
+    profile: 0.1,
+    // the maiden landscape run measured 0.44% — the logo genus at
+    // the landscape share
+    login: 0.5,
+  },
 } as const;
 
 export type BaselineTable = Record<string, number>;
 
-/** The baseline table for a viewport width — the 3-way md/lg banding
- * (Session-97): < 768 the phone class (BOTH walked widths 390x844 +
- * 375x812), < 1024 the tablet class (the maiden 768x1024 run), else
- * desktop. */
+/** The baseline table for a viewport width — the 4-way md/lg/xl banding
+ * (Session-99): < 768 the phone class (BOTH walked widths 390x844 +
+ * 375x812), < 1024 the tablet class (the maiden 768x1024 run),
+ * < 1280 the landscape class (the maiden 1024x768 run — the accounts
+ * overflow genus at its lg-band share), else desktop. */
 export function standingBaseline(width: number): BaselineTable {
   if (width < 768) return { ...STANDING_BASELINES.phone };
   if (width < 1024) return { ...STANDING_BASELINES.tablet };
+  if (width < 1280) return { ...STANDING_BASELINES.landscape };
   return { ...STANDING_BASELINES.desktop };
 }
 
@@ -243,6 +283,12 @@ export function standingExplained(width: number): string {
     return (
       "[sweep] standing explained (tablet): accounts ~0.7% the s95 overflow genus at the md boundary " +
       "· settings ~5.2% picklist-data · login ~0.44% logo genus"
+    );
+  }
+  if (width < 1280) {
+    return (
+      "[sweep] standing explained (landscape): accounts ~2.4% the overflow genus at the lg band (the reference's bare flex-1 floors at its table min-content, squeezes its own w-80 rail 320->183, pokes main +6px — ours the min-w-0 in-box rail-full consistent pattern) " +
+      "· settings ~4.7% picklist-data · login ~0.44% logo genus"
     );
   }
   return (

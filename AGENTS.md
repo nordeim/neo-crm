@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1870 checks)       | `bun run test`                         |
+|  Unit tests (1872 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1870) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1872) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3545,7 +3545,7 @@ sweep tool's `--width` phone mode (the rotation method productized).
   viewport-tagged shots dir (`sweep-shots/w390x844/`), and the
   width-AGNOSTIC per-page content-wait (`.locator("main")` — the nav
   links are display:none below md on BOTH apps, so the old nav-a
-  visible-wait burned 15s/page at 390). RED-first: 3 new pins
+  visible-wait burned 15s/page at 390). RED-first: 2 new pins
   (stash-re-proven non-vacuous: 3 failed | 9 passed pre-fix → 12/12
   post). The MAIDEN run: 8 pages at the ~0.5% mobile-nav-superset
   topbar floor (the displaced account glyphs + hamburger ≈ 1600px ≈
@@ -3853,3 +3853,51 @@ decoded live into real fixes:
   project_state] + README badge 2002 + AGENTS/CLAUDE/PAD at
   1870+132 + the CLAUDE-count lockstep re-anchor (1862 → 1870) +
   session_197.md + the plan + its execution record + the worklog.
+
+### Session-99 — the landscape-tablet maiden run (the lg boundary)
+
+- **Intake**: `git pull` `f96c0a9..ddac209` (the operator's
+  docs-only session_198.md); the workspace NOT reset. Baseline lint
+  0/0 · tsc 0 · 1870/1870 · census MATCH.
+- **Audits**: 99-a the s98 ship delta GENUINE 9/9 (the
+  non-vacuousness re-proven 10 failed | 267 passed → 277/277; F-99a1
+  REAL — PAD:358 the stale 1862 tree site) · 99-b ZERO graduations
+  13/13 (~56th; both operator decisions STAND, the 59th: CSV posture
+  (b) + source-vocabulary parity; the config + SEO layers verified).
+- **The standing layers (95th sweep)**: the bundle md5 EXACT (the 70th
+  consecutive stable); all three drift gates CLEAN; census #95: demo
+  zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390
+  (20th); the drawer battery FULLY GREEN live.
+- **99-c — THE 1024×768 LANDSCAPE-TABLET MAIDEN RUN** (the s98
+  suggested next #1 — the lg boundary): 8/10 pages FLAT/standing;
+  **F-99c1 the accounts overflow genus at the lg band decoded live
+  (2.43%)** — the reference's bare flex-1 content floors at its
+  table's min-content (535), SQUEEZES its own w-80 rail 320→183, and
+  pokes main +6px (scrollW 774 vs 768); ours the min-w-0 in-box
+  scroll + the full 320 rail (the s95 consistent pattern;
+  VLM-confirmed). Documented STANDING — the reference's own defect
+  family, not copied.
+- **S99-P0 (TDD)** — the LANDSCAPE class: `STANDING_BASELINES.landscape`
+  (accounts 2.6 · settings 4.9 · dashboard 0.6 · login 0.5 · the rest
+  0.1) + the 4-way md/lg/xl banding (1024 is NOT desktop — the s97
+  boundary pin re-anchored) + the `standingExplained` landscape line +
+  the doc comments. The landscape drift gate verified CLEAN live; the
+  other three gates re-verified CLEAN post-fix.
+- **S99-P1 (TDD)** — gate:full grows the FOURTH drift sweep (the
+  1024×768 landscape); the plain `gate` UNCHANGED.
+- **S99-P2** — the F-99a1 fix: PAD:358 the stale 1862 tree site →
+  the living count.
+- **S99-P3 (TDD)** — 2 NEW pins (the landscape table · the
+  driftVerdict landscape contrast · the standingExplained landscape
+  line) + 6 re-anchors (the 4-way boundary · the 4-way doc pin · the
+  explained boundary mirror · the gate:full chain + count · the
+  CLAUDE-count lockstep 1870 → 1872). RED 8 failed | 58 passed
+  pre-fix; stash-proven (sweep.ts + package.json + CLAUDE.md stashed
+  → 8 failed → pop → 66/66).
+- **S99-P4** — screenshots 148 (the accounts landscape genus at 1024)
+  + 149 (the dashboard landscape at 1024) — VLM 4/4 + 4/4.
+- **GATE**: lint 0/0 · tsc 0 · 1872/1872 unit [103 suites, +2 net]
+  · build · 132/132 e2e fresh CI=1. Docs at SKILL v1.96.0 [§16cm +
+  project_state] + README badge 2004 + AGENTS/CLAUDE/PAD at
+  1872+132 + the CLAUDE-count lockstep re-anchor (1870 → 1872) +
+  session_199.md + the plan + its execution record + the worklog.
