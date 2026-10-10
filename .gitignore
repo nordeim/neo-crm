@@ -56,3 +56,6 @@ playwright-report/
 # matched src/app/api/uploads/ and silently kept the GET route out of git
 # (the fresh-clone broken-photo bug).
 /uploads/
+
+# session-92: the sweep tool's capture artifacts (regenerated per run)
+scripts/sweep-shots/

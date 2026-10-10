@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "gate": "bun run lint && bun run typecheck && bun run test && bun run build && CI=1 bun run test:e2e"
+    "gate": "bun run lint && bun run typecheck && bun run test && bun run build && CI=1 bun run test:e2e",
+    "sweep": "bun scripts/sweep.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

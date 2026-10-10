@@ -805,10 +805,26 @@ export const DIALOG_CLOSE =
  *  28px top-to-top (the SAME geometry as the s14 settings fix). Under
  *  v4 the literal space-y-2 collapses on the INLINE label (the s14
  *  hazard) — the established fix is the explicit mt-2 on the control
- *  (SETTINGS_DEFAULTS.controlMt precedent). */
+ *  (SETTINGS_DEFAULTS.controlMt precedent).
+ *
+ *  Session-92 (M-92c1): controlMt gains `mb-0` — THE PHANTOM-MB
+ *  SELECT-TRIGGER GENUS. Radix renders a hidden native `<select>`
+ *  (position:absolute, aria-hidden, NO `hidden` attribute) as the LAST
+ *  TREE-CHILD of every Select group inside <form> contexts — so v4's
+ *  `:where(.space-y-2 > :not(:last-child))` matches the TRIGGER (a
+ *  non-last child!) and gives it margin-bottom: 8px, where v3's rule
+ *  gave the trigger margin-TOP only (mb always 0 on the reference —
+ *  live-probed 2026-10-10). In plain block groups the phantom mb
+ *  collapses out (invisible), but where the group is a DIRECT GRID
+ *  ITEM (grid items establish a BFC — child margins are contained)
+ *  the group inflates 68 -> 76px: the Account create dialog's Status
+ *  group + the Contact create dialog's source group (both live-
+ *  verified). `mb-0` at (0,1,0) beats the :where() rule at (0,0,0) ->
+ *  every controlMt trigger computes mb 0 = the reference. The Input
+ *  call sites are unaffected (Inputs are genuine last children). */
 export const DIALOG_GROUP = {
   group: "space-y-2",
-  controlMt: "mt-2",
+  controlMt: "mt-2 mb-0",
 } as const;
 
 /** Session-15 (S15-P12/P13): the max-w-2xl family's single fields +

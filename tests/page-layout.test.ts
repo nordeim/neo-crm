@@ -1640,8 +1640,12 @@ describe("session-15: dialog body anatomy — groups and wrappers (S15-P7/P8)", 
     // geometry as the s14 settings fix). Under v4 the literal space-y-2
     // collapses on the INLINE label — the established fix is the
     // explicit mt-2 on the control.
+    // Session-92 (M-92c1) re-anchor: controlMt gains mb-0 — the
+    // phantom-mb select-trigger genus (the Radix native-select
+    // tree-sibling + v4's :not(:last-child)); see the token's comment
+    // in page-layout.ts.
     expect(DIALOG_GROUP.group).toBe("space-y-2");
-    expect(DIALOG_GROUP.controlMt).toBe("mt-2");
+    expect(DIALOG_GROUP.controlMt).toBe("mt-2 mb-0");
   });
 
   it("max-w-2xl family field pairs are BARE (unclassed) — 4px natural gap", () => {

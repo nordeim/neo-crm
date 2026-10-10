@@ -902,7 +902,16 @@ export default function ContactsPage() {
                     <li>name</li>
                     <li>email</li>
                   </ul>
-                  <p className="font-semibold mt-2">Optional columns:</p>
+                  {/* Session-92 (N-92c4): the reference's p2 COMPUTES
+                      margin-top 4px — the box's space-y-1 rule at v3
+                      specificity (0,3,0) overrides the (0,1,0) .mt-2
+                      utility; our v4 :where() at (0,0,0) loses to it and
+                      computed 8px (the box 122 vs 118, the dialog 548 vs
+                      544). Fixed to mt-1 per the s11 computed-gap rule —
+                      the M-91c2 genus in the INVERSE direction (there a
+                      v3-killed mb computed 0; here a v3-killed mt
+                      computes 4). */}
+                  <p className="font-semibold mt-1">Optional columns:</p>
                   <ul className="list-disc list-inside space-y-0.5 ml-2">
                     <li>phone, company, position, source</li>
                   </ul>

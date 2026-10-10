@@ -525,9 +525,14 @@ function ContactForm({
             TWO h3 section headers (live-verified 2026-10-02) —
             "Contact Details" over the Email/Phone pair and "Professional
             Details" over the Company/Position pair
-            (text-sm font-semibold text-gray-700 uppercase tracking-wide). */}
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contact Details</h3>
+            (text-sm font-semibold text-gray-700 uppercase tracking-wide).
+            Session-92 (L-92c2): the headers nest INSIDE their space-y-4
+            sections (live-probed on the reference at 390: each section is
+            ONE `space-y-4` div [H3, group, group] — the H3->field gap
+            computes 16px; our flattened grid-item H3s computed the grid's
+            24px gap, the whole form +16px). */}
         <div className={CONTACT_DIALOG.pairGroup}>
+          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contact Details</h3>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-email">Email *</Label>
             <Input
@@ -554,8 +559,8 @@ function ContactForm({
             />
           </div>
         </div>
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Professional Details</h3>
         <div className={CONTACT_DIALOG.pairGroup}>
+          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Professional Details</h3>
           <div className={DIALOG_GROUP.group}>
             <Label htmlFor="ct-company">Company</Label>
             {/* Session-19 (S19-P7): the reference ships no datalist here
@@ -920,7 +925,13 @@ function EventForm({
       </div>
       <div>
         <Label htmlFor="ev-desc">Description</Label>
-        <Textarea id="ev-desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        {/* Session-92 (M-92c3): the reference's Description textarea is
+            rows=3 (live-probed at 390: 90px vs our collapsed rows=2
+            default 66px — the dialog 646 vs 622). The s91 comment at the
+            Activity textarea already documented "the Event dialog's
+            rows=3 is its own surface" — the decode was right, the prop
+            never landed. */}
+        <Textarea id="ev-desc" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
       </div>
       <div className={EVENT_DIALOG.pair}>
         <div>

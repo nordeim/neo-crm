@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1801 checks)       | `bun run test`                         |
+|  Unit tests (1828 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1801) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1828) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3366,3 +3366,102 @@ Docs at SKILL v1.87.0 [§16cd + project_state] + README badge 1920 +
 AGENTS/CLAUDE/PAD at 1788+132 [+ the PAD s90 inventory row + the
 Total 99/1788] + session_179.md + the plan + its execution record +
 the worklog.
+
+### Session-91 — the v4 space-y hazard family (the 91-c full-app zero-data screenshot diff)
+
+The strong sweep: both apps driven to the reference's own ZERO-DATA
+state (scripts/zero-data.ts clearing the 7 domain tables incl.
+opportunity), 9 pages per app at 1440×900, pairwise pixel diff +
+cluster analysis + DOM probes on BOTH apps. Four pages byte-clean
+[accounts/reports 0.00%, calendar/activities 0.01%], every other diff
+explained [contacts 0.51% noise + the lucide superset, dashboard 0.33%
+a 2px zero-area chart artifact, settings 4.73% the picklist-DATA
+genus], and TWO real finds + the bundle-decoded siblings — ALL ONE
+ROOT CAUSE: **v4's space-y compiles margin-BOTTOM on NON-LAST children
+inside `:where()` at zero specificity where v3 compiled margin-TOP on
+FOLLOWING siblings at (0,3,0)** — identical for plain block stacks,
+diverging exactly when a non-last child is INLINE (every shadcn Label;
+vertical margins do not apply to inline boxes) or a non-first child
+carries `mb-*` (v3's rule kills it, v4's `:where` preserves it).
+
+- **M-91c1** the profile form's four collapsed gaps (4px vs the
+  reference's 12px; the form 32px shorter) — FIXED via
+  `PROFILE_LAYOUT.controlMt`, the FOURTH of the s14/s15 family.
+- **M-91c2** the leads toolbar's dead `mb-4` (computes 0px on the
+  reference — v3's rule kills it; ours kept it alive → the table 16px
+  lower) — FIXED by the class retirement per the s11 computed-gap rule.
+- **L-91c3** the edit dialogs' groups (the reference ships BARE
+  unclassed divs) — FIXED to the bare construction.
+- **L-91c4** the import dialog's Select File group (ref 12px vs ours
+  4px) — FIXED with mt-2 on the dropzone wrapper.
+- **N-91c5** the genus sweep + the 7 audit nanos (G-91a1..a5 + B-1/B-2,
+  the count-in-comment genus guard re-run).
+- The 91-a s90 re-audit 13/13 GENUINE; the 91-b graduation audit zero
+  graduations 13/13 (the 48th consecutive); both operator decisions
+  re-affirmed (the 51st).
+
+RED 9 pins (non-vacuous: 9 failed | 1792 passed, ZERO collateral,
+re-proven via the src stash). GATE: lint 0/0 · tsc 0 · 1801/1801 unit
+[100 suites, +13 net] · build · 132/132 e2e fresh CI=1. LIVE: the
+profile gap 12px + form 504px; the leads toolbar 121px + row mb 0 +
+table y496; the edit groups BARE at 4px; the import gap 12px; the
+drawer battery at TRUE 390px; THE ZERO-DATA RE-DIFF: leads 2.17% →
+0.00% + profile 2.08% → 0.00% — both BYTE-CLEAN. 3 screenshots
+[127 + 128 + 129, VLM 5/5 × 3]. Docs at SKILL v1.88.0 [§16ce +
+project_state] + README badge 1933 + AGENTS/CLAUDE/PAD at 1801+132
+[+ the PAD s91 inventory row + the Total 100/1801] + session_182.md +
+the plan + its execution record + the worklog.
+
+
+### Session-92 — the dialogs-at-390 family walk (the phantom-mb select-trigger genus)
+
+The 92-c rotation: every dialog family opened at TRUE 390×844 on BOTH
+apps, geometry + construction diffed live. The outer chrome SOLID on
+every family; four real finds in the interiors — three of them new
+faces of the v4 space-y genus:
+
+- **M-92c1** the phantom-mb select-trigger genus: Radix renders a
+  hidden native `<select>` (position:absolute, no `hidden` attribute)
+  as the LAST TREE-CHILD of every Select group inside `<form>`
+  contexts — v4's `:not(:last-child)` matches the TRIGGER and gives it
+  margin-bottom 8px (v3 gave triggers margin-TOP only, mb always 0).
+  In plain block groups the phantom mb collapses out; where the group
+  is a DIRECT GRID ITEM (a BFC — margins contained) the group inflates
+  68 → 76px (the Account Status + Contact source groups). FIXED via
+  `DIALOG_GROUP.controlMt` "mt-2" → "mt-2 mb-0". The Lesson:
+  `:last-child` matches the TREE, not the layout.
+- **L-92c2** the contact dialog's flattened sections (the reference
+  nests `space-y-4 [H3, groups…]`; ours put the H3s in separate grid
+  rows — the H3→field gap 24px vs 16px). FIXED: nested.
+- **M-92c3** the Event Description textarea rows=3 (ours rendered the
+  HTML default rows=2 — the house's own comment had decoded rows=3 but
+  the prop never landed). FIXED.
+- **N-92c4** the Import columns-box p2 `mt-2` → `mt-1` (the reference
+  COMPUTES 4px — v3's space-y-1 rule at (0,3,0) overrides the
+  (0,1,0) utility; ours computed 8px). The M-91c2 genus INVERSE.
+- **The sweep tool promoted** (S92-P5): `bun run sweep` — the s91
+  zero-data screenshot-diff sweep as a one-command regression
+  (scripts/sweep.ts; zero new deps; the pure diffPixels seam; the
+  maiden runs ×2 reproducible: five pages byte-clean, every remaining
+  diff a standing explained genus).
+- The genus-guard nanos: F-92a1 the space-y census re-derived (112
+  comment-stripped occurrences across 19 files — the algorithm lives
+  in the s92 suite), F-92a2 the stat-value-contract leads-arm
+  double-count, F-92a3 CLAUDE.md's stale 1788s, B-92a4 the §Session-91
+  history block restored, B-92a5 the constants B-2 label.
+- The 92-a s91 re-audit 8/8 GENUINE; the 92-b graduation audit zero
+  graduations 13/13 (the 49th consecutive); both operator decisions
+  re-affirmed (the 52nd).
+
+RED 27 pins (non-vacuous: 23 failed | 1805 passed, ZERO collateral,
+stash-re-proven after the pin-shape repairs; 2 lockstep re-anchors).
+GATE: lint 0/0 · tsc 0 · 1828/1828 unit [102 suites, +27 net] · build
+· 132/132 e2e fresh CI=1 (the known settings-debounce flake green
+standalone + on the re-run). LIVE: the Account dialog 508/rows 68×4/mb
+0; the Contact sections [197,188,188,68] = the reference exact + gap
+16px + formH 817; the Event 646/ta 90 rows=3; the Import 544/box 118;
+the drawer battery at TRUE 390px; the sweep maiden ×2 — five pages
+0.00%, every diff standing-explained. 3 screenshots [130 + 131 + 132,
+VLM 5/5 × 3]. Docs at SKILL v1.89.0 [§16cf + project_state] + README
+badge 1960 + AGENTS/CLAUDE/PAD at 1828+132 + session_185.md + the
+plan + its execution record + the worklog.

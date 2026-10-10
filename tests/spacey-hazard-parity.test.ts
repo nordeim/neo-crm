@@ -45,11 +45,16 @@ import { describe, expect, it } from "vitest";
 // - L-91c4 THE IMPORT DIALOG: the reference's `space-y-2` Select File
 //   group computes a 12px label->dropzone gap; ours 4px.
 //
-// The foundations verified CLEAN (the genus sweep, all 99 space-y
-// usages): the create dialogs + the settings defaults/danger carry the
-// controlMt fix; the calendar-rail + save-report section labels are
-// `block` (margins apply); the checkbox stacks are block rows; the
-// other table toolbars carry no space-y.
+// The foundations verified CLEAN (the genus sweep — the census is
+// 112 comment-stripped space-y occurrences across the 19 src files
+// that carry one, the algorithm + the count re-derived by the s92
+// dialog-geometry-parity suite [F-92a1: this header's old "all 99
+// space-y usages" was not re-derivable by any method — the raw grep
+// is 172 lines, the stripped occurrence count 112]): the create
+// dialogs + the settings defaults/danger carry the controlMt fix;
+// the calendar-rail + save-report section labels are `block` (margins
+// apply); the checkbox stacks are block rows; the other table
+// toolbars carry no space-y.
 
 const root = path.resolve(import.meta.dirname, "..");
 const read = (p: string) => readFileSync(path.join(root, p), "utf8");
@@ -176,7 +181,11 @@ describe("session-91 (L-91c4): the import dialog's Select File group", () => {
 describe("session-91 (N-91c5): the genus census — the known-clean surfaces stand", () => {
   it("the three controlMt precedents stand (the s14/s15 fixes this session extends)", () => {
     const src = layoutSrc();
-    expect(src.match(/controlMt: "mt-2"/g)?.length).toBeGreaterThanOrEqual(4);
+    // session-92 (M-92c1) re-anchor: DIALOG_GROUP's token is now
+    // "mt-2 mb-0" (the phantom-mb select-triggers) — count the mt-2
+    // PREFIX so all four family members (SETTINGS_DEFAULTS /
+    // SETTINGS_DANGER / DIALOG_GROUP / PROFILE_LAYOUT) stay counted.
+    expect(src.match(/controlMt: "mt-2/g)?.length).toBeGreaterThanOrEqual(4);
   });
 
   it("the create dialogs apply DIALOG_GROUP.controlMt to their controls", () => {

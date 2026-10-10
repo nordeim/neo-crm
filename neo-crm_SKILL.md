@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.88.0
+version: 1.89.0
 last_updated: 2026-10-10
-project_state: 1801 unit checks + 132 e2e checks green; the session-91 layer (the 91-c rotation — the FULL-APP SCREENSHOT DIFF against the reference, the strong sweep: both apps driven to the ZERO-DATA state — the reference's own standing state, our side via the session-scoped scripts/zero-data.ts clearing the 7 domain tables incl. opportunity; 9 pages per app at 1440x900, pairwise pixel diff + cluster analysis + DOM probes on BOTH apps): accounts/reports 0.00% byte-clean, calendar/activities 0.01%, contacts 0.51% (empty-state DOM byte-identical — noise + the lucide superset), dashboard 0.33% (a 2px zero-area chart-baseline artifact, library-internal), settings 4.73% (the picklist-DATA genus — the reference's picklists wiped with its workspace, ours seeded; the empty form itself mirrored) — and TWO REAL finds, all ONE ROOT CAUSE: THE V4 space-y SEMANTICS [v3 = margin-TOP on FOLLOWING siblings via .space-y-N > :not([hidden]) ~ :not([hidden]) at (0,3,0) with a margin-bottom calc sidecar; v4 = margin-BOTTOM on NON-LAST children inside :where() at ZERO specificity — identical for plain block stacks, diverging exactly when a non-last child is INLINE (every shadcn Label) or a non-first child carries mb-*]: the M-91c1 PROFILE FORM COLLAPSED GAPS x4 [the reference's space-y-2 groups compute 12px label→control gaps; ours 4px — the v4 label margin-bottom IGNORED on the inline label; the form 32px shorter; FIXED via PROFILE_LAYOUT.controlMt — the FOURTH controlMt of the s14/s15 family (SETTINGS_DEFAULTS/SETTINGS_DANGER/DIALOG_GROUP) — on the avatar row + the 3 Inputs] + the M-91c2 LEADS TOOLBAR DEAD mb-4 [the reference's filters-row mb-4 computes 0px — v3's space-y rule at (0,3,0) kills the (0,1,0) class; ours kept it alive → 16px extra, the toolbar 137 vs 121px, the table 16px lower; FIXED by retiring the class per the s11 computed-gap rule] + the L-91c3 EDIT-DIALOG GROUPS [the reference's wce/Mke field groups are BARE unclassed divs — the DIALOG_BARE_GROUP form, never re-derived for the EDIT family; ours shipped space-y-2 computing 4px only by the v4 accident; FIXED to the bare construction] + the L-91c4 IMPORT-DIALOG SELECT FILE GROUP [ref 12px vs ours 4px; FIXED with mt-2 on the dropzone wrapper] + the N-91c5 GENUS SWEEP [all 99 space-y usages swept — the 4 finds are the complete set; the other toolbars carry no space-y, the create dialogs + settings carry controlMt, the rail/save-report labels are block] + the 7 audit nanos [G-91a1..a5 + B-1/B-2 — the count-in-comment genus guard re-run] — pinned RED-first [13 new pins; non-vacuousness: 9 failed | 1792 passed (1801 total, incl. the pre-fix stash-verified re-proof) — exactly the modified pin set, ZERO collateral; 5 mid-flight pin-shape repairs (the cn()/token forms, the needle-in-own-docs comment-strip, the comment-window width)]; GATE: lint 0/0 · tsc 0 · 1801/1801 unit [100 suites, +13 net] · build · 132/132 e2e fresh CI=1 [3.2m; the known settings-debounce focus flake on the first run passed standalone AND on the full re-run — untouched by this session's delta] · LIVE-verified [the profile gaps rgb-exact 12px + the form 504px (was 472); the leads toolbar 121px + row mb 0px + the table at y496 (was 512); the edit-dialog groups BARE at 4px; the import gap 12px; the drawer battery at TRUE 390px (the w-72 panel at x0 + the sidebar blue rgb(37,99,235) + 8 links + focus inside + dual lock + navigate-close + the closed root inert + visibility:hidden + pointer-events none); THE ZERO-DATA RE-DIFF: leads 2.17% → 0.00% + profile 2.08% → 0.00% — both pages BYTE-CLEAN; the closing census MATCH + the reference md5-exact — the 62nd consecutive stable session] · 3 screenshots NEW [127 + 128 + 129, VLM 5/5 + 5/5 + 5/5 — zero adjudications] · docs at SKILL v1.88.0 [§16ce + project_state + the H1] + README badge 1933 + the suite list + AGENTS/CLAUDE/PAD at 1801+132 [the PAD s91 inventory row + the Total 100/1801 + the footnote]
+project_state: 1828 unit checks + 132 e2e checks green; the session-92 layer (the 92-c rotation — the DIALOGS-AT-390 FAMILY WALK: every dialog family opened at TRUE 390px on BOTH apps, geometry + construction diffed live): the outer chrome SOLID on every family (the maxW 512/672 set, the max-h-[calc(100vh-84px)] 759.6px + overflow:auto scroll family on the 2xl dialogs, sm:rounded-lg -> radius 0 at 390, p-6, the footer 72px) + the matches (New Lead 676/592 groups 68x6, Log Activity 442/358 textarea rows=4, Save Custom Report View 476 exact, Edit Lead's BARE groups immune, the settings selects immune — no <form> -> no native select) + FOUR REAL FINDS: the M-92c1 PHANTOM-MB SELECT-TRIGGER GENUS [a NEW v4 space-y face: Radix renders a hidden native <select> (position:absolute, aria-hidden, NO hidden attribute) as the LAST TREE-CHILD of every Select group inside <form> contexts — v4's :where(.space-y-2 > :not(:last-child)) matches the TRIGGER (a non-last child!) giving it margin-bottom 8px where v3's rule gave margin-TOP only (mb always 0 on the reference); in plain block groups the phantom mb collapses out (invisible), but where the group is a DIRECT GRID ITEM (grid items establish a BFC — child margins contained) the group inflates 68 -> 76: the Account create dialog's Status group + the Contact create dialog's source group, both live-verified; FIXED via DIALOG_GROUP.controlMt 'mt-2' -> 'mt-2 mb-0' — mb-0 at (0,1,0) beats the :where() (0,0,0) rule, every controlMt trigger computes mb 0 = the reference; the 4 affected triggers: Account Status + Contact Source + Lead Status/Source] + the L-92c2 CONTACT DIALOG'S FLATTENED SECTIONS [the reference nests each section as space-y-4 [H3, group, group] (live-probed 188px sections); ours flattened the H3s as separate grid items — the H3->field gap 24px (grid gap-6) vs the reference's 16px = +16px; FIXED: the h3s nest INSIDE the pairGroup sections] + the M-92c3 EVENT DIALOG'S DESCRIPTION ROWS [the reference's textarea rows=3 (90px); ours rows=2 (66px, the HTML default — the house's own comment documented 'the Event dialog's rows=3' but the prop never landed); FIXED rows={3}] + the N-92c4 IMPORT DIALOG'S COLUMNS-BOX p2 MARGIN [the box's space-y-1: the reference's 'font-semibold mt-2' p2 COMPUTES 4px (v3's rule at (0,3,0) overrides the (0,1,0) utility); ours computed 8px; FIXED mt-1 per the s11 computed-gap rule — the M-91c2 genus INVERSE] + the genus-guard nanos [F-92a1 the 'all 99 space-y' census re-derived to 112 comment-stripped space-y occurrences across the 19 src files (the algorithm IN the s92 dialog-geometry-parity suite — the documented method); F-92a2 the stat-value-contract header's leads-arm double-count retired (2 bare + 4 explicit); F-92a3 CLAUDE.md's stale 1788 anchors -> 1828; B-92a4 the AGENTS.md §Session-91 history block restored; B-92a5 the constants.test B-2 label] + THE SWEEP TOOL PROMOTED [scripts/sweep.ts — the s91 zero-data screenshot-diff sweep as a ONE-COMMAND regression: bun run sweep boots/reuses :3000, zeroes the domain data via scripts/zero-data.ts, logs into BOTH apps, captures the 9 pages per app at 1440x900, pairwise pixel-diffs in a browser canvas (per-channel tolerance 12, the PURE diffPixels seam, ZERO new deps), prints the % table, restores the seed; --max-diff gates a threshold] — pinned RED-first [27 new pins across dialog-geometry-parity + sweep-tool; non-vacuousness: 23 failed | 1805 passed (1828 total, the stash-verified re-proof after the pin-shape repairs) — exactly the modified pin set, ZERO collateral; 2 lockstep re-anchors (page-layout's DIALOG_GROUP pin + spacey's controlMt-count regex)]; GATE: lint 0/0 · tsc 0 · 1828/1828 unit [102 suites, +27 net] · build · 132/132 e2e fresh CI=1 [3.2m; the known settings-debounce focus flake on the first run passed standalone AND on the full re-run — untouched by this session's delta; the mobile-nav suite green inside the run] · LIVE-verified [the Account dialog 508 (was 516) + rows 68px x4 (was ...76px) + the trigger mb 0px (was 8px) + formH 424; the Contact dialog's sections [197,188,188,68] = the reference's EXACT rows + the H3->field gap 16px (was 24) + formH 817 (was 841) = the reference; the Event dialog 646 (was 622) + the textarea 90px rows=3 (was 66/2); the Import dialog 544 (was 548) + the box 118 (was 122) + p2 mt 4px; the drawer battery at TRUE 390px (the trigger 16,16 + the panel 288px at x0 + the sidebar blue rgb(37,99,235) + 8 links + focus inside + the dual lock + navigate-close + the closed root inert + visibility:hidden + pointer-events none); THE SWEEP MAIDEN RUN x2 (reproducible): dashboard 0.35%, accounts/contacts/leads/reports/profile 0.00%, calendar/activities 0.01%, settings 4.73% — every diff a standing explained genus, ZERO new drift; the closing census MATCH + the reference md5-exact — the 63rd consecutive stable session] · 3 screenshots NEW [130 + 131 + 132, VLM 5/5 + 5/5 + 5/5 — one adjudication (130's 'side margins' NO vs the DOM-verified w=390@x=0) + one expected note (131's footer below the fold = the 760px scroll-box geometry, identical on both apps)] · docs at SKILL v1.89.0 [§16cf + project_state + the H1] + README badge 1960 + the suite list + AGENTS/CLAUDE/PAD at 1828+132 [the PAD s92 inventory rows + the Total 102/1828 + the footnote]
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.88.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.89.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -8282,11 +8282,15 @@ non-first child carries `mb-*` (v3's (0,3,0) rule kills it; v4's
   fix: the bare construction.
 - **L-91c4 — THE IMPORT DIALOG'S SELECT FILE GROUP.** Ref 12px vs
   ours 4px. The fix: mt-2 on the dropzone wrapper.
-- **N-91c5 — THE GENUS SWEEP.** All 99 space-y usages swept: the
-  four finds are the complete set (the other toolbars carry no
-  space-y; the create dialogs + settings carry controlMt; the
-  rail/save-report labels are block; the checkbox stacks are block
-  rows).
+- **N-91c5 — THE GENUS SWEEP.** The space-y census swept (session-92
+  F-92a1 re-derivation: the s91 prose said "all 99 space-y usages" —
+  not re-derivable by any method; the documented census is 112
+  comment-stripped space-y occurrences across the 19 src files that
+  carry one, the algorithm living in the s92 dialog-geometry-parity
+  suite): the four finds are the complete set (the other toolbars
+  carry no space-y; the create dialogs + settings carry controlMt;
+  the rail/save-report labels are block; the checkbox stacks are
+  block rows).
 - **The audit nanos** — G-91a1..a5 + B-1/B-2 (the count-in-comment
   genus guard re-run): the stat-value-contract + reports-filter-parity
   headers re-derived off the retired "bare" premises; the
@@ -8313,3 +8317,60 @@ v1.88.0 [this section + project_state + the H1] + README badge 1933 +
 the suite list + AGENTS/CLAUDE/PAD at 1801+132 [the PAD s91 inventory
 row + the Total 100/1801 + the footnote] + session_182.md + the plan
 + its execution record + the worklog.
+
+
+## 16cf. Session-92 Layer (the dialogs-at-390 family walk — the phantom-mb select-trigger genus)
+
+The 92-c rotation walked every dialog family at TRUE 390×844 on BOTH
+apps. The outer chrome was SOLID everywhere; four real finds came out
+of the interiors — three of them new faces of the v4 space-y genus.
+
+- **M-92c1 — THE PHANTOM-MB SELECT-TRIGGER GENUS.** Radix renders a
+  hidden native `<select>` (position:absolute, aria-hidden, **no
+  `hidden` attribute**) as the LAST TREE-CHILD of every Select group
+  inside `<form>` contexts. v4's `:where(.space-y-2 >
+  :not(:last-child))` therefore matches the TRIGGER (a non-last
+  child!) and gives it `margin-bottom: 8px` — v3's rule gave triggers
+  margin-TOP only (mb always 0). In plain block groups the phantom mb
+  collapses out through the parent (invisible); **where the group is a
+  DIRECT GRID ITEM (grid items establish a BFC — child margins are
+  contained and can never collapse out) the group inflates 68 →
+  76px**. Live-verified on the Account create dialog's Status group
+  and the Contact create dialog's source group. The fix:
+  `DIALOG_GROUP.controlMt` "mt-2" → "mt-2 mb-0" (the (0,1,0) class
+  beats the (0,0,0) `:where()` rule). The Lesson: **CSS
+  `:last-child` matches the TREE, not the layout** — an invisible
+  absolutely-positioned tree-sibling defeats it, and a grid item's
+  BFC turns a would-collapse margin into real geometry.
+- **L-92c2 — THE CONTACT DIALOG'S FLATTENED SECTIONS.** The reference
+  nests each section as `space-y-4 [H3, group, group]`; ours flattened
+  the H3s into separate grid rows (the H3→field gap 24px vs 16px).
+  Fixed by nesting the headers inside the section divs.
+- **M-92c3 — THE EVENT DIALOG'S DESCRIPTION ROWS.** The reference's
+  textarea is `rows=3`; ours rendered the HTML default `rows=2` — the
+  house's own comment documented the right decode but the prop never
+  landed. The Lesson: **a decoded fact in a comment is not a shipped
+  prop — pin it.**
+- **N-92c4 — THE IMPORT DIALOG'S COLUMNS-BOX p2.** The box carries
+  `space-y-1`; the reference's `mt-2` p2 COMPUTES 4px (v3's (0,3,0)
+  rule overrides the (0,1,0) utility); ours computed 8px. Fixed to
+  `mt-1` per the s11 computed-gap rule — the M-91c2 genus in the
+  INVERSE direction.
+- **The space-y census (F-92a1).** The s91 "all 99 space-y usages"
+  claim was not re-derivable by any method. The documented census: 112
+  comment-stripped space-y occurrences across the 19 src files that
+  carry one — the algorithm lives IN the s92 dialog-geometry-parity
+  suite.
+- **The sweep tool (S92-P5).** The s91 zero-data screenshot-diff
+  sweep promoted into the repo as a one-command regression:
+  `bun run sweep` (see §3 Bootstrapping). Zero new dependencies —
+  the capture rides @playwright/test's chromium; the pixel diff
+  decodes both PNGs in a browser canvas and runs the same pure
+  `diffPixels` seam the unit pins exercise in node. The maiden runs
+  (×2, reproducible): five pages byte-clean, every remaining diff a
+  standing explained genus.
+- **The gate**: lint 0/0 · tsc 0 · 1828/1828 unit (102 suites, +27
+  net) · build · 132/132 e2e (the known settings-debounce flake
+  passed standalone + on the full re-run). LIVE-verified on both
+  apps; the closing census MATCH + the reference md5-exact (the 63rd
+  consecutive stable session).

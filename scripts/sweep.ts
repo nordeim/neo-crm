@@ -1,0 +1,312 @@
+// Session-92 (S92-P5): the ZERO-DATA SCREENSHOT-DIFF SWEEP — the s91
+// session's strong-sweep methodology promoted into the repo as a
+// ONE-COMMAND regression (the s91 first-listed suggested next).
+//
+// What it does (bun run sweep):
+//   1. boots (or reuses) the dev server on :3000
+//   2. drives OUR app to the ZERO-DATA state — the reference's own
+//      standing state (its workspace has been empty for 13 censuses) —
+//      via scripts/zero-data.ts (the s91 tool, reused not duplicated;
+//      users + the Setting singleton stay functional)
+//   3. logs into BOTH apps, captures the 9 pages per app at 1440x900
+//      (the reference's Base44 badge closed, content-waits per page)
+//   4. pairwise pixel-diffs each page (per-channel tolerance 12, the
+//      s91 value) — the PNGs decode in a browser canvas (getImageData);
+//      the PURE diffPixels seam is the same function the unit pins
+//      exercise in node. ZERO new dependencies.
+//   5. prints the % table + restores the seed (bun run db:seed)
+//
+// The standing EXPLAINED diffs (do not treat as drift):
+//   settings ~4.7%  the picklist-DATA genus (the reference's picklists
+//                    wiped with its workspace, ours seeded)
+//   contacts ~0.5%  the lucide aria-hidden superset + noise
+//   dashboard ~0.3% a 2px zero-area chart-baseline artifact
+// Every other page ran 0.00-0.01% at the s91/s92 ships. The tool is a
+// drift REPORT (exit 0 with the table); pass --max-diff=<pct> to gate
+// a threshold CI-style (exit 1 when any page exceeds it).
+//
+// Run: bun run sweep   (or: bun scripts/sweep.ts)
+// Env:  OUR_URL (default http://localhost:3000)
+//       REF_URL (default https://neo-crm-8ab2c17c.base44.app)
+//       REF_EMAIL / REF_PASSWORD (the documented demo login defaults)
+//       HEADLESS=0 to watch the captures
+
+import { spawn, spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { chromium } from "@playwright/test";
+
+export const PAGES = [
+  { name: "dashboard", path: "/" },
+  { name: "accounts", path: "/accounts" },
+  { name: "contacts", path: "/contacts" },
+  { name: "leads", path: "/leads" },
+  { name: "calendar", path: "/calendar" },
+  { name: "activities", path: "/activities" },
+  { name: "reports", path: "/reports" },
+  { name: "settings", path: "/settings" },
+  { name: "profile", path: "/Profile" },
+] as const;
+
+/** The per-channel anti-aliasing tolerance (the s91 value). */
+export const TOLERANCE = 12;
+
+export interface DiffResult {
+  diffPx: number;
+  total: number;
+  pct: number;
+}
+
+/** The PURE pixel-diff seam — identical on node (the unit pins) and in
+ *  the browser (the sweep): counts a pixel as differing when ANY
+ *  channel diverges by more than `tol`. Throws on size mismatch — a
+ *  count without its geometry is not evidence. */
+export function diffPixels(
+  a: Uint8ClampedArray,
+  b: Uint8ClampedArray,
+  tol: number,
+  w: number,
+  h: number,
+): DiffResult {
+  const total = w * h;
+  if (a.length !== total * 4 || b.length !== total * 4) {
+    throw new Error(
+      `size mismatch: expected ${total * 4} samples per image (w=${w} h=${h}), got a=${a.length} b=${b.length}`,
+    );
+  }
+  let diffPx = 0;
+  for (let i = 0; i < total; i++) {
+    const o = i * 4;
+    if (
+      Math.abs(a[o] - b[o]) > tol ||
+      Math.abs(a[o + 1] - b[o + 1]) > tol ||
+      Math.abs(a[o + 2] - b[o + 2]) > tol ||
+      Math.abs(a[o + 3] - b[o + 3]) > tol
+    ) {
+      diffPx++;
+    }
+  }
+  return { diffPx, total, pct: (100 * diffPx) / total };
+}
+
+const REPO = path.resolve(import.meta.dirname, "..");
+const OUR_URL = process.env.OUR_URL ?? "http://localhost:3000";
+const REF_URL = process.env.REF_URL ?? "https://neo-crm-8ab2c17c.base44.app";
+const REF_EMAIL = process.env.REF_EMAIL ?? "sepnetflix2023@outlook.com";
+const REF_PASSWORD = process.env.REF_PASSWORD ?? "$Abcd1234";
+const SHOTS = path.join(REPO, "scripts", "sweep-shots");
+
+const log = (s: string) => console.log(`[sweep] ${s}`);
+
+/** Wait for a URL to answer 200 (the dev-server boot wait). */
+async function waitOnUrl(url: string, ms: number): Promise<boolean> {
+  const deadline = Date.now() + ms;
+  while (Date.now() < deadline) {
+    try {
+      const r = await fetch(url, { redirect: "follow" });
+      if (r.ok) return true;
+    } catch {
+      /* not up yet */
+    }
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  return false;
+}
+
+async function login(page: import("@playwright/test").Page, base: string) {
+  await page.goto(`${base}/login`, { waitUntil: "networkidle" });
+  // hydration settle: filling during hydration gets cleared by the
+  // re-render before submit (the observed 400 "email and password are
+  // required" race on our app)
+  await page.waitForTimeout(1200);
+  await page.fill('input[type="email"]', REF_EMAIL);
+  await page.fill('input[type="password"]', REF_PASSWORD);
+  await Promise.all([
+    page.waitForURL((u) => !u.pathname.endsWith("/login"), { timeout: 30000 }),
+    page.click('button[type="submit"]'),
+  ]);
+  await page.waitForTimeout(1500);
+}
+
+/** Close the reference's Base44 badge (it overlays the bottom-right). */
+async function closeBadge(page: import("@playwright/test").Page) {
+  await page
+    .locator('button[aria-label*="close badge" i]')
+    .click({ timeout: 2000 })
+    .catch(() => undefined);
+}
+
+async function captureAll(
+  page: import("@playwright/test").Page,
+  base: string,
+  dir: string,
+) {
+  mkdirSync(dir, { recursive: true });
+  for (const p of PAGES) {
+    await page.goto(`${base}${p.path}`, { waitUntil: "domcontentloaded" });
+    // content-wait: the shell's nav must paint before the capture
+    await page
+      .locator("nav a, header a, [role=navigation] a")
+      .first()
+      .waitFor({ state: "visible", timeout: 15000 })
+      .catch(() => undefined);
+    await page.waitForTimeout(2500);
+    await closeBadge(page);
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: path.join(dir, `${p.name}.png`) });
+    log(`captured ${dir}/${p.name}.png`);
+  }
+}
+
+/** Decode a PNG in the browser + run the diff seam on its pixels. */
+async function diffPair(
+  page: import("@playwright/test").Page,
+  refPng: Buffer,
+  ourPng: Buffer,
+): Promise<DiffResult> {
+  const a = `data:image/png;base64,${refPng.toString("base64")}`;
+  const b = `data:image/png;base64,${ourPng.toString("base64")}`;
+  return page.evaluate(
+    async ({ a, b, tol }) => {
+      const load = (src: string) =>
+        new Promise<HTMLImageElement>((res, rej) => {
+          const img = new Image();
+          img.onload = () => res(img);
+          img.onerror = () => rej(new Error("png decode failed"));
+          img.src = src;
+        });
+      const [ia, ib] = await Promise.all([load(a), load(b)]);
+      if (ia.width !== ib.width || ia.height !== ib.height) {
+        throw new Error(`size mismatch: ${ia.width}x${ia.height} vs ${ib.width}x${ib.height}`);
+      }
+      const w = ia.width;
+      const h = ia.height;
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext("2d", { willReadFrequently: true })!;
+      const px = (img: HTMLImageElement) => {
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0);
+        return ctx.getImageData(0, 0, w, h).data;
+      };
+      const da = px(ia);
+      const db = px(ib);
+      // the same seam as node — inlined for the browser (no bundling)
+      const total = w * h;
+      let diffPx = 0;
+      for (let i = 0; i < total; i++) {
+        const o = i * 4;
+        if (
+          Math.abs(da[o] - db[o]) > tol ||
+          Math.abs(da[o + 1] - db[o + 1]) > tol ||
+          Math.abs(da[o + 2] - db[o + 2]) > tol ||
+          Math.abs(da[o + 3] - db[o + 3]) > tol
+        ) {
+          diffPx++;
+        }
+      }
+      return { diffPx, total, pct: (100 * diffPx) / total };
+    },
+    { a, b, tol: TOLERANCE },
+  );
+}
+
+async function main() {
+  const maxDiffIdx = process.argv.indexOf("--max-diff");
+  const maxDiff = maxDiffIdx >= 0 ? Number(process.argv[maxDiffIdx + 1]) : null;
+
+  // 1. the dev server: reuse :3000 or boot one
+  let spawned: ReturnType<typeof spawn> | null = null;
+  if (await waitOnUrl(`${OUR_URL}/login`, 3000)) {
+    log(`reusing the dev server on ${OUR_URL}`);
+  } else {
+    log("booting the dev server (bun run dev)…");
+    spawned = spawn("bun", ["run", "dev"], { cwd: REPO, stdio: "ignore", detached: true });
+    if (!(await waitOnUrl(`${OUR_URL}/login`, 90000))) {
+      console.error("[sweep] the dev server never came up on :3000");
+      process.exit(1);
+    }
+    log("dev server up");
+  }
+
+  try {
+    // 2. the zero-data state on OUR side (users + settings kept).
+    //    The platform DATABASE_URL override hazard: UNSET the variable
+    //    (env -u), never set it empty — Prisma rejects an empty URL.
+    log("zeroing our domain data (scripts/zero-data.ts)…");
+    const zEnv = { ...process.env } as Record<string, string | undefined>;
+    delete zEnv.DATABASE_URL;
+    const z = spawnSync("bun", ["scripts/zero-data.ts"], {
+      cwd: REPO,
+      env: zEnv,
+      stdio: "inherit",
+    });
+    if (z.status !== 0) throw new Error("zero-data.ts failed");
+
+    // 3-4. capture both sides + diff
+    const browser = await chromium.launch({ headless: process.env.HEADLESS === "0" ? false : true });
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const refPage = await ctx.newPage();
+    log(`logging into the reference ${REF_URL}…`);
+    await login(refPage, REF_URL);
+    await captureAll(refPage, REF_URL, path.join(SHOTS, "ref"));
+
+    const ourPage = await ctx.newPage();
+    log(`logging into ours ${OUR_URL}…`);
+    await login(ourPage, OUR_URL);
+    await captureAll(ourPage, OUR_URL, path.join(SHOTS, "ours"));
+
+    const diffPage = await ctx.newPage();
+    await diffPage.goto("about:blank");
+    log("pairwise pixel diff (tolerance " + TOLERANCE + ")…");
+    const rows: Array<[string, number]> = [];
+    for (const p of PAGES) {
+      const refPng = readFileSync(path.join(SHOTS, "ref", `${p.name}.png`));
+      const ourPng = readFileSync(path.join(SHOTS, "ours", `${p.name}.png`));
+      const r = await diffPair(diffPage, refPng, ourPng);
+      rows.push([p.name, r.pct]);
+    }
+    await browser.close();
+
+    // 5. the report
+    console.log("\n[sweep] === the zero-data diff report ===");
+    let worst = 0;
+    for (const [name, pct] of rows) {
+      worst = Math.max(worst, pct);
+      console.log(`  ${name.padEnd(12)} ${pct.toFixed(2)}%`);
+    }
+    console.log(
+      "[sweep] standing explained: settings ~4.7% picklist-data · contacts ~0.5% lucide superset · dashboard ~0.3% chart artifact",
+    );
+
+    // the seed restore (always — even when gated)
+    log("restoring the seed (bun run db:seed)…");
+    const s = spawnSync("bun", ["run", "db:seed"], { cwd: REPO, env: zEnv, stdio: "inherit" });
+    if (s.status !== 0) throw new Error("db:seed failed — run it manually");
+    log("seed restored (verify: bun run db:census)");
+
+    if (maxDiff !== null && worst > maxDiff) {
+      console.error(`[sweep] GATE FAIL: worst ${worst.toFixed(2)}% > --max-diff ${maxDiff}`);
+      process.exit(1);
+    }
+    log("done");
+  } finally {
+    if (spawned?.pid) {
+      try {
+        process.kill(-spawned.pid, "SIGTERM");
+      } catch {
+        /* already gone */
+      }
+    }
+  }
+}
+
+// run only when executed directly (bun scripts/sweep.ts / bun run sweep),
+// never on the vitest import (the unit pins)
+if (process.argv[1] && process.argv[1].endsWith("sweep.ts")) {
+  main().catch((e) => {
+    console.error("[sweep]", e);
+    process.exit(1);
+  });
+}
