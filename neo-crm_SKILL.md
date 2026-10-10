@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.91.0
+version: 1.92.0
 last_updated: 2026-10-10
-project_state: 1832 unit checks + 132 e2e checks green; the session-94 layer (the 94-c rotation — the TABS FAMILY AT TRUE 390px [the last unwalked interactive family] + the phone-width sweep mode): the reports PILL strip FULL GEOMETRY MATCH [track 358x82 @ (16,1333) on both; grid-cols-2 reflow to 174px cols, 5 tabs in 3 rows of 24px, zero gaps, no overflow — the page above renders at identical heights down to the y-coordinate] + the settings SEGMENTED strip FULL MATCH INCLUDING THE DEFECT [3 fractional cols, track 358x36 @ (16,197); CRM Configuration scrollWidth>clientWidth on BOTH apps — the reference's own whitespace-nowrap clipping at 117px cols, faithfully mirrored, VLM-adjudicated visually benign] + the activities SEGMENTED strip FULL MATCH [track 326x36 @ (32,1057), 4 cols of 79.5px; the only delta is DATA — our seeded Overdue-3 count badge, the reference's own construction] + THE SWEEP TOOL PHONE-WIDTH MODE (S94-P0, TDD, the s93 suggested-next #1) [bun run sweep -- --width 390 --height 844: the flags feed the capture context AND the viewport-tagged shots dir sweep-shots/w390x844/; the per-page content-wait width-agnostic via .locator(main) — nav links are display:none below md on BOTH apps so the old nav-a wait burned 15s/page at 390; RED-first 3 pins stash-re-proven non-vacuous; the MAIDEN run: 8 pages at the ~0.5% mobile-nav-superset topbar floor (displaced account glyphs + hamburger = 1600px = 0.49% of the 390x844 frame) + settings 7.34% (the picklist genus, larger share of the narrower frame) — ZERO new drift, both standing tables in the tool header] + the audits [94-a: the s93 delta 4/4 GENUINE-OK + the count-in-comment genus guard — the F-94a1-a8 stale-count family (the mobile-nav 7-check quartet, the PAD tree freeze 77/1257/112 -> 102/1832/132, the db-path 16 -> 20 checks, the Lines-column drift x14, the gate-checklist 1191/112) + N-94a1 (the SKILL 16Session-93 §-mangling) — all fixed docs-only; 94-b: the graduation audit 13/13 GENUINE (zero graduations, ~50th consecutive), the CSV census 17 sites zero unguarded, the source-vocabulary diff empty since s90, the config + SEO/sitemap layers verified standing] + the reference census #90 [demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390] + the drift sweep #90 [bundle md5 a70a637f... EXACT — the 65th consecutive stable session] + THE CORRECTED DRAWER BATTERY FULLY GREEN at TRUE 390 [trigger 16,16 36x36; panel 288px @ x0 computing rgb(37,99,235); 8 links; focus inside; dual body+main lock; navigate-close -> /Leads; closed root inert+hidden+pe-none; Escape-close — after decoding the probe trap: a loose aria-label*=menu selector hits the hidden CLOSE button first and visibility:hidden preserves geometry+offsetParent, so closed-state probes read like open-state ones] + GATE: lint 0/0 · tsc 0 · 1832/1832 unit [102 suites, +3 net] · build · 132/132 e2e fresh CI=1 [3.2m, zero flakes — one environmental chromium crash at setup, clean after the stray-browser cleanup] + 3 screenshots NEW [136 + 137 + 138, VLM 5/5 x3 — one adjudication (138's clipped-label NO vs the DOM-verified shared overflow genus)] + docs at SKILL v1.91.0 [16ch + project_state + the H1] + README badge 1964 + AGENTS/CLAUDE/PAD at 1832+132 [the AGENTS §Session-94 block + the PAD s94 inventory row + the Total 102/1832] + both operator decisions re-affirmed (54th: CSV posture (b) + source-vocabulary parity)
+project_state: 1836 unit checks + 132 e2e checks green; the session-95 layer (the 95-c rotation — the TABLE FAMILY AT TRUE 390px + the sweep --pages filter): the leads table FULL GEOMETRY MATCH [table 380px in the 358px relative-w-full-overflow-auto scroll box inside the 358px rounded-lg card on the p-4 bare page; thead STICKY top:0 h:63 bg white; the 9 th widths 81/79/0/0/78/61/0/65/16 EXACT on both; thead at y=1142 EXACT; the LIVE sticky check — scrolling main by 800 sticks the thead to the container top on BOTH apps] + the contacts table FULL MATCH [633px table in the 324px scroll box inside the 326px rounded-xl card; the 201px zero-data empty row identical] + the accounts table MATCH + ONE EXPLAINED GENUS [the table surface identical — 472px/thead 43/empty row 85/y=1040 EXACT; the horizontal-overflow MECHANISM differs: the reference's bare flex-1 (min-width:auto) lets the 472px min-content poke out and MAIN h-scrolls (scrollW 488), ours adds min-w-0 so the table scrolls INSIDE its own box (main never h-scrolls) — visually equivalent (both cards end flush at the viewport edge; the phone sweep floor ~0.5%), ours matching the contacts/leads in-box pattern; documented, do NOT restructure] + THE SWEEP --PAGES FILTER (S95-P0, TDD, the s94 suggested-next #3) [bun run sweep -- --pages leads,settings — a comma-separated SUBSET for targeted rotation runs, restricting BOTH the capture and the diff loops; the PURE parsePagesArg(argv, all) seam exported beside PAGES/TOLERANCE/diffPixels (PAGES-order result; unknown names FAIL FAST listing the valid names); RED-first 4 pins stash-re-proven (4 failed | 12 passed pre-fix -> 16/16 post); the maiden filtered run reproduced the standing values (leads 0.00% + settings 4.73%); the B-95a8 --max-diff header fix (the space-separated form is the parsed one)] + THE DRAWER BATTERY PRODUCTIZED AS scripts/drawer-battery-390.ts (the s94 exact-selector protocol encoded: the panel div.h-dvh.w-72 inside the dialog root, never the root; a REAL user click; the URL-based wait — the /Leads route is the s24 CAPITAL-route construction and the dev server compiles it on first visit) — RE-VERIFIED FULLY GREEN at TRUE 390 + the audits [95-a: the s94 delta GENUINE — the phone-width mode verified, the non-vacuousness independently re-proven, the docs counts verified against the live tree, F-95a1 the SKILL 5.6 stale 300-lines/37-checks claim fixed to 1520/180; 95-b: the graduation audit 13/13 GENUINE (zero graduations, ~52nd consecutive; the src tree byte-identical since the s94-b base), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO/sitemap layers verified (37/37 across the three SEO suites)] + the reference census #91 [demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 16th consecutive] + the drift sweep #91 [bundle md5 a70a637f... EXACT — the 66th consecutive stable session] + the desktop sweep CLEAN (the standing table reproduced, zero new drift) + the phone sweep CLEAN (the s94 maiden table reproduced) + GATE: lint 0/0 · tsc 0 · 1836/1836 unit [102 suites, +4 net] · build · 132/132 e2e fresh CI=1 [3.1m, zero flakes; the mobile-nav suite green inside the run] + 3 screenshots NEW [139 leads sticky thead mid-scroll + 140 accounts + 141 contacts, VLM 5/5 x2 + 4/5 (one adjudication: 139's clipped-edge NO vs the DOM-verified shared horizontal-scroll genus)] + docs at SKILL v1.92.0 [16ci + project_state + the H1] + README badge 1968 + AGENTS/CLAUDE/PAD at 1836+132 [the AGENTS Session-95 block + the PAD s95 inventory row + the Total 102/1836] + both operator decisions re-affirmed (55th: CSV posture (b) + source-vocabulary parity)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.91.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.92.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -385,7 +385,7 @@ Do not weaken it; extend it when the drawer changes.
 ### 5.6 The layout + chrome system — `src/lib/page-layout.ts` (sessions 6–7)
 
 Every page-level layout AND app-chrome class string lives in ONE
-test-pinned module (300 lines; `tests/page-layout.test.ts`, 37 checks).
+test-pinned module (1520 lines; `tests/page-layout.test.ts`, 180 checks).
 Pages and chrome components import records — they never hand-write layout
 classes. Reference token mapping: gray-50 → `background`, white →
 `surface`, gray-200 → `line`, gray-500 → `muted`, gray-600/700 use the
@@ -8518,3 +8518,95 @@ suggested-next #1, the rotation method productized).
   reports pill tabs @390 + 138 settings segmented tabs @390, VLM
   5/5 × 3 — one adjudication). Both operator decisions re-affirmed
   (54th): CSV posture (b) + source-vocabulary parity.
+
+## 16ci. Session-95 Layer (the table family at TRUE 390 + the sweep --pages filter)
+
+The 95-c rotation — the TABLE family (the sticky thead + row geometry
+at phone width) walked at TRUE 390×844 on BOTH apps, plus the sweep
+tool's `--pages` filter (the s94 suggested-next #3) and the drawer
+battery productized as a committed tool.
+
+- **The leads table: FULL GEOMETRY MATCH.** Table 380px wide in the
+  `relative w-full overflow-auto` scroll box (358px, scrollW 380)
+  inside the `rounded-lg shadow` card (358px) on the `p-4 sm:p-8`
+  bare page. **The thead is STICKY (top:0, height 63px, bg white)**
+  with 9 header cells at widths [81,79,0,0,78,61,0,65,16] — the
+  array EXACT on both apps; the empty row 85px; the thead at
+  y=1142 EXACT (the whole page above at identical heights). The
+  LIVE sticky check: scrolling the main scroller by 800 sticks the
+  thead to the container top (342 == 342, stuck) on BOTH apps —
+  the rows slide under the opaque white header.
+- **The contacts table: FULL MATCH.** Table 633px in the 324px
+  scroll box inside the 326px `rounded-xl` card on the `p-8` page;
+  thead static 43px; the zero-data empty row 201px ("No contacts
+  found / Try adjusting…") — identical. NOTE the page's OWN scroller:
+  the contacts root nests `div.flex-1.overflow-auto` INSIDE main
+  (the fullHeight construction) — main itself barely scrolls (the
+  5px mirrored topbar quirk); drive the inner column when probing.
+- **The accounts table: MATCH + ONE EXPLAINED GENUS.** The table
+  surface identical (472px, thead 43, 8 columns, the empty row 85,
+  thead at y=1040 EXACT). The DIFFERENCE is the horizontal-overflow
+  MECHANISM at 390: the reference's accounts column is a bare
+  `flex-1` (min-width:auto) so the 472px min-content pokes out past
+  the viewport and the MAIN scroller scrolls horizontally (scrollW
+  488); OURS adds `min-w-0` so the column keeps the 358px width and
+  the table scrolls INSIDE its own overflow-auto box (main never
+  h-scrolls). Visually equivalent at first paint (both cards end
+  flush at the viewport edge — the phone sweep measures accounts at
+  the ~0.5% standing floor); functionally ours matches the
+  contacts/leads in-box pattern on BOTH apps. STANDING EXPLAINED
+  GENUS — do NOT restructure to chase the reference's poke-out.
+- **The sweep `--pages` filter (S95-P0, TDD).** `bun run sweep --
+  --pages leads,settings` restricts the run to the named pages (a
+  comma-separated list; BOTH the capture and the diff loops) for
+  targeted rotation runs. The PURE `parsePagesArg(argv, all)` seam
+  sits beside PAGES/TOLERANCE/diffPixels: the result keeps the
+  PAGES order; an unknown name FAILS FAST listing the valid names
+  (a typo must never silently sweep everything). RED-first 4 pins,
+  stash-re-proven non-vacuous (4 failed | 12 passed pre-fix → 16/16
+  post); the maiden filtered run reproduced the standing values
+  (leads 0.00% + settings 4.73%). The B-95a8 header fix landed with
+  it: `--max-diff <pct>` documents the space-separated form — the
+  one the parser actually reads.
+- **The drawer battery, productized.** `scripts/drawer-battery-390.ts`
+  (env -u DATABASE_URL bun scripts/drawer-battery-390.ts) encodes
+  the s94 corrected exact-selector protocol: the PANEL
+  `div.h-dvh.w-72` inside `[role="dialog"]` (never the root), exact
+  aria-labels, a REAL user click, and the URL-based wait — the
+  /Leads route is the s24 CAPITAL-route construction and the dev
+  server compiles it on first visit (a fixed 1200ms wait reads the
+  pre-navigation pathname). Re-verified FULLY GREEN at TRUE 390:
+  trigger (16,16) 36×36; panel 288px @ x0 computing rgb(37,99,235);
+  8 links; focus inside; dual body+main lock; navigate-close →
+  /Leads with the full release; Escape-close; the resize-past-md
+  lock release. One tooling decode: a pipeline sanitizer strips the
+  literal `[h` two-char sequence from DISPLAYED outputs — probe
+  selectors were correct all along; verify with od/python before
+  "fixing" a mangled-looking selector.
+- **The audits.** 95-a: the s94 delta GENUINE (the phone-width mode
+  verified end-to-end; the non-vacuousness re-proven independently
+  against `git show 7b43516:scripts/sweep.ts`; the docs counts
+  verified against the live tree; F-95a1 — the SKILL §5.6 stale
+  "300 lines; 37 checks" claim, fixed to 1520 lines / 180 checks).
+  95-b: the graduation audit 13/13 GENUINE (zero graduations, ~52nd
+  consecutive; the src tree byte-identical since the s94-b base);
+  the CSV census 17 sites ZERO unguarded; the source-vocabulary
+  clean; the config layer + the SEO/sitemap layer verified (37/37
+  across the three SEO suites; the 47/47 figure counts
+  csv-formula-guard's 10 in the four-suite sum). Both operator
+  decisions re-affirmed (55th): CSV posture (b) + source-vocabulary
+  parity.
+- **The standing layers.** Drift sweep #91: the reference bundle md5
+  `a70a637f…` EXACT — the 66th consecutive stable session. The
+  desktop sweep CLEAN (the standing table reproduced — dashboard
+  0.32%, settings 4.73%, the rest 0.00–0.01%); the phone sweep
+  CLEAN (the s94 maiden table reproduced — the ~0.5% floor +
+  settings 7.34%). Census #91: demo zero, desktop 256px/8 links,
+  the mobile-nav defect STANDS at TRUE 390 (the 16th consecutive).
+- **The gate.** lint 0/0 · tsc 0 · 1836/1836 unit (102 suites, +4
+  net) · build · 132/132 e2e fresh CI=1 (3.1m, zero flakes; the
+  mobile-nav suite green inside the run). 3 screenshots (139 leads
+  sticky thead mid-scroll + 140 accounts + 141 contacts, VLM 5/5 × 2
+  + 4/5 — one adjudication: 139's clipped-edge NO vs the
+  DOM-verified shared horizontal-scroll genus, the 380px table in
+  the 358px box on BOTH apps).

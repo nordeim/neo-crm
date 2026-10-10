@@ -143,4 +143,46 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
     // the width-blind selector is retired
     expect(src).not.toContain("nav a, header a");
   });
+
+  // Session-95 (S95-P0): the --pages filter — the s94 suggested next
+  // ("extend the sweep with a --pages filter for targeted rotation
+  // runs"). `bun run sweep -- --pages leads,settings` restricts BOTH
+  // the capture and the diff loops to the named pages; a pure seam
+  // (parsePagesArg) sits beside PAGES/TOLERANCE/diffPixels so these
+  // pins exercise REAL behavior, not strings.
+  it("parsePagesArg picks the named subset in PAGES order (request order does not matter)", async () => {
+    const { PAGES, parsePagesArg } = await sweep();
+    // given out of order — the result is still the PAGES order
+    const picked = parsePagesArg(["--pages", "settings,leads"], PAGES);
+    expect(picked).toEqual([
+      { name: "leads", path: "/leads" },
+      { name: "settings", path: "/settings" },
+    ]);
+  });
+
+  it("parsePagesArg without the flag returns the full list (the default sweep is unchanged)", async () => {
+    const { PAGES, parsePagesArg } = await sweep();
+    expect(parsePagesArg([], PAGES)).toEqual(PAGES);
+    // a lone --pages with a value absent from argv is also the full run
+    expect(parsePagesArg(["--width", "390"], PAGES)).toEqual(PAGES);
+  });
+
+  it("parsePagesArg fails fast on an unknown name, listing the valid names (a typo must not silently sweep everything)", async () => {
+    const { PAGES, parsePagesArg } = await sweep();
+    expect(() => parsePagesArg(["--pages", "leads,typo"], PAGES)).toThrow(
+      /typo[\s\S]*dashboard|dashboard[\s\S]*typo/,
+    );
+  });
+
+  it("the sweep wires the seam: main() rides the FILTERED list for BOTH capture and diff, and the header documents --pages", () => {
+    const src = read("scripts/sweep.ts");
+    // the seam is exported and consumed with the real argv
+    expect(src).toContain("parsePagesArg(process.argv, PAGES)");
+    // the run rides the filtered variable in BOTH loops
+    expect(src).toContain("for (const p of pages) {");
+    // the full-list export no longer drives the loops directly
+    expect(src).not.toContain("for (const p of PAGES) {");
+    // the header documents the flag (the run instructions)
+    expect(src).toContain("--pages");
+  });
 });

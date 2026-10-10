@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1832 checks)       | `bun run test`                         |
+|  Unit tests (1836 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1832) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1836) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3581,3 +3581,67 @@ sweep tool's `--width` phone mode (the rotation method productized).
   at SKILL v1.91.0 [§16ch + project_state] + README badge 1964 +
   AGENTS/CLAUDE/PAD at 1832+132 + session_189.md + the plan + its
   execution record + the worklog.
+
+### Session-95 — the table family at TRUE 390 + the sweep --pages filter
+
+Fresh clone (the workspace reset); the environment rebuilt (.env +
+db:push + db:seed, census MATCH). Baseline 1832/1832 → the session's
+work took it to 1836/1836 (102 suites).
+
+- **The rotation (95-c)** — the TABLE family at TRUE 390×844 on BOTH
+  apps (the s94 suggested next, both at the zero-data state): the
+  leads table FULL GEOMETRY MATCH [table 380px in the 358px
+  `relative w-full overflow-auto` scroll box inside the 358px
+  rounded-lg card on the p-4 bare page; thead STICKY top:0 h:63 bg
+  white; the 9 th widths [81,79,0,0,78,61,0,65,16] EXACT; thead at
+  y=1142 EXACT; the LIVE sticky check — scrolling main by 800 sticks
+  the thead to the container top on BOTH apps]; the contacts table
+  FULL MATCH [633px table in the 324px scroll box inside the 326px
+  rounded-xl card; the 201px zero-data empty row]; the accounts table
+  MATCH + ONE EXPLAINED GENUS [the table surface identical — 472px,
+  thead 43, the empty row 85, y=1040 EXACT; the DIFFERENCE is the
+  horizontal-overflow MECHANISM: the reference's bare `flex-1`
+  (min-width:auto) lets the 472px min-content poke out and MAIN
+  h-scrolls (scrollW 488), ours adds `min-w-0` so the table scrolls
+  INSIDE its own box (main never h-scrolls) — visually equivalent
+  (both cards end flush at the viewport edge; the phone sweep floor
+  ~0.5%), ours matching the contacts/leads in-box pattern; do NOT
+  restructure]. The interactive-surface program: dialogs s92 →
+  popovers/menus s93 → tabs s94 → TABLES s95.
+- **The drawer battery at TRUE 390: FULLY GREEN** (re-verified with
+  the exact-selector protocol; productized as
+  `scripts/drawer-battery-390.ts` — the s94 probe-trap lessons
+  encoded). One tooling decode: a pipeline sanitizer strips the
+  literal `[h` two-char sequence from displayed outputs (the
+  selectors were correct all along; the real catch was the CAPITAL
+  /Leads route — the s24 route-case construction).
+- **S95-P0 (TDD)**: the sweep `--pages` filter — the pure
+  `parsePagesArg` seam (PAGES-order result; unknown names fail fast
+  listing the valid names), the wiring through BOTH loops, the
+  B-95a8 `--max-diff <pct>` header fix. RED 4 failed | 12 passed →
+  stash-re-proven → 16/16; the maiden filtered run (leads,settings)
+  reproduced the standing values (0.00% / 4.73%).
+- **The audits**: 95-a — the s94 delta GENUINE (the phone-width mode
+  verified; the non-vacuousness independently re-proven; the docs
+  counts verified against the live tree; F-95a1 the SKILL §5.6
+  stale 300-lines/37-checks claim → fixed to 1520/180); 95-b — the
+  graduation audit 13/13 GENUINE (zero graduations, ~52nd
+  consecutive; the src tree byte-identical since the s94-b base),
+  the CSV census 17 sites zero unguarded, the source-vocabulary
+  clean, the config + SEO/sitemap layers verified (37/37 across the
+  three SEO suites). Both operator decisions re-affirmed (55th): CSV
+  posture (b) + source-vocabulary parity.
+- **The standing layers**: drift sweep #91 (bundle md5 a70a637f…
+  exact — the 66th consecutive stable session); the desktop sweep
+  CLEAN (the standing table reproduced, zero new drift); the phone
+  sweep CLEAN (the s94 maiden table reproduced); census #91 (demo
+  zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 —
+  the 16th consecutive).
+- **GATE**: lint 0/0 · tsc 0 · 1836/1836 unit [102 suites, +4 net] ·
+  build · 132/132 e2e fresh CI=1 (3.1m, zero flakes; the mobile-nav
+  suite green inside the run). 3 screenshots [139 leads sticky
+  thead mid-scroll + 140 accounts + 141 contacts, VLM 5/5 × 2 + 4/5
+  (one adjudication: 139's clipped-edge NO vs the DOM-verified
+  shared horizontal-scroll genus)]. Docs at SKILL v1.92.0 [§16ci +
+  project_state] + README badge 1968 + AGENTS/CLAUDE/PAD at 1836+132
+  + session_191.md + the plan + its execution record + the worklog.

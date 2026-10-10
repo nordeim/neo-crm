@@ -23,7 +23,8 @@
 //   contacts ~0.5%  the lucide aria-hidden superset + noise
 //   dashboard ~0.3% a 2px zero-area chart-baseline artifact
 // Every other page ran 0.00-0.01% at the s91/s92 ships. The tool is a
-// drift REPORT (exit 0 with the table); pass --max-diff=<pct> to gate
+// drift REPORT (exit 0 with the table); pass --max-diff <pct> (the
+// space-separated form — the one the parser reads) to gate
 // a threshold CI-style (exit 1 when any page exceeds it).
 //
 // The PHONE-WIDTH standing table (session-94 maiden run, 390x844 —
@@ -41,6 +42,12 @@
 //   --height 844. The shots land in a viewport-tagged subfolder
 //   (sweep-shots/w390x844/) so a phone run never collides with the
 //   desktop shots; the diff table is computed fresh per run either way.
+//   Targeted runs (session-95, the s94 suggested next): add
+//   --pages leads,settings to sweep a comma-separated SUBSET of the
+//   nine pages (both the captures and the diffs); unknown names fail
+//   fast listing the valid names.
+//   Threshold gate: --max-diff <pct> (space-separated — the parsed
+//   form; exit 1 when any page exceeds it).
 // Env:  OUR_URL (default http://localhost:3000)
 //       REF_URL (default https://neo-crm-8ab2c17c.base44.app)
 //       REF_EMAIL / REF_PASSWORD (the documented demo login defaults)
@@ -62,6 +69,33 @@ export const PAGES = [
   { name: "settings", path: "/settings" },
   { name: "profile", path: "/Profile" },
 ] as const;
+
+export type PageEntry = (typeof PAGES)[number];
+
+/** Session-95 (S95-P0): the --pages filter — `bun run sweep --
+ *  --pages leads,settings` restricts the run to the named pages for
+ *  targeted rotation runs (the s94 suggested next #3). PURE by design:
+ *  it sits beside PAGES/TOLERANCE/diffPixels so the unit pins exercise
+ *  real behavior. The result keeps the PAGES order (the capture and the
+ *  diff loops share one deterministic sequence); an unknown name fails
+ *  FAST listing the valid names — a typo must never silently sweep
+ *  everything (or nothing). */
+export function parsePagesArg(argv: string[], all: readonly PageEntry[]): PageEntry[] {
+  const idx = argv.indexOf("--pages");
+  if (idx < 0 || idx + 1 >= argv.length) return [...all];
+  const wanted = argv[idx + 1].split(",").map((s) => s.trim()).filter(Boolean);
+  if (wanted.length === 0) return [...all];
+  const valid = new Set<string>(all.map((p) => p.name));
+  const unknown = wanted.filter((w) => !valid.has(w));
+  if (unknown.length > 0) {
+    throw new Error(
+      `--pages: unknown page name(s) ${unknown.map((u) => JSON.stringify(u)).join(", ")} — ` +
+        `valid names: ${all.map((p) => p.name).join(", ")}`,
+    );
+  }
+  const wantedSet = new Set(wanted);
+  return all.filter((p) => wantedSet.has(p.name));
+}
 
 /** The per-channel anti-aliasing tolerance (the s91 value). */
 export const TOLERANCE = 12;
@@ -155,9 +189,10 @@ async function captureAll(
   page: import("@playwright/test").Page,
   base: string,
   dir: string,
+  pages: readonly PageEntry[],
 ) {
   mkdirSync(dir, { recursive: true });
-  for (const p of PAGES) {
+  for (const p of pages) {
     await page.goto(`${base}${p.path}`, { waitUntil: "domcontentloaded" });
     // content-wait: the shell's main column must paint before the
     // capture. Width-AGNOSTIC by design (session-94): the nav links
@@ -236,6 +271,12 @@ async function main() {
   const maxDiffIdx = process.argv.indexOf("--max-diff");
   const maxDiff = maxDiffIdx >= 0 ? Number(process.argv[maxDiffIdx + 1]) : null;
 
+  // Session-95 (S95-P0): the --pages filter — restricts BOTH the capture
+  // and the diff loops to the named pages for targeted rotation runs
+  // (`bun run sweep -- --pages leads,settings`). The default (no flag) is
+  // the full 9-page sweep, unchanged; unknown names fail fast.
+  const pages = parsePagesArg(process.argv, PAGES);
+
   // Session-94 (S94-P0): the phone-width mode — `bun run sweep --
   // --width 390 --height 844` runs the same 9-page zero-data diff at
   // phone width (the s93 suggested next: the 390px rotation method
@@ -291,18 +332,18 @@ async function main() {
     const refPage = await ctx.newPage();
     log(`logging into the reference ${REF_URL}…`);
     await login(refPage, REF_URL);
-    await captureAll(refPage, REF_URL, path.join(shots, "ref"));
+    await captureAll(refPage, REF_URL, path.join(shots, "ref"), pages);
 
     const ourPage = await ctx.newPage();
     log(`logging into ours ${OUR_URL}…`);
     await login(ourPage, OUR_URL);
-    await captureAll(ourPage, OUR_URL, path.join(shots, "ours"));
+    await captureAll(ourPage, OUR_URL, path.join(shots, "ours"), pages);
 
     const diffPage = await ctx.newPage();
     await diffPage.goto("about:blank");
     log(`pairwise pixel diff (viewport ${WIDTH}x${HEIGHT}, tolerance ${TOLERANCE})…`);
     const rows: Array<[string, number]> = [];
-    for (const p of PAGES) {
+    for (const p of pages) {
       const refPng = readFileSync(path.join(shots, "ref", `${p.name}.png`));
       const ourPng = readFileSync(path.join(shots, "ours", `${p.name}.png`));
       const r = await diffPair(diffPage, refPng, ourPng);
