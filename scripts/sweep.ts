@@ -44,10 +44,15 @@
 //   desktop shots; the diff table is computed fresh per run either way.
 //   Targeted runs (session-95, the s94 suggested next): add
 //   --pages leads,settings to sweep a comma-separated SUBSET of the
-//   nine pages (both the captures and the diffs); unknown names fail
+//   ten pages (both the captures and the diffs); unknown names fail
 //   fast listing the valid names.
 //   Threshold gate: --max-diff <pct> (space-separated — the parsed
 //   form; exit 1 when any page exceeds it).
+//   Per-page drift gate (session-96, the s95 suggested next #2):
+//   --fail-on-drift exits 1 when any page exceeds ITS OWN standing
+//   baseline + margin (default 0.5pct; override --drift-margin <pct>) —
+//   a 0.00% page drifting to 5% fails here where a global --max-diff 8
+//   (which must sit above the settings genus) never could.
 // Env:  OUR_URL (default http://localhost:3000)
 //       REF_URL (default https://neo-crm-8ab2c17c.base44.app)
 //       REF_EMAIL / REF_PASSWORD (the documented demo login defaults)
@@ -68,6 +73,13 @@ export const PAGES = [
   { name: "reports", path: "/reports" },
   { name: "settings", path: "/settings" },
   { name: "profile", path: "/Profile" },
+  // Session-96 (S96-P0): the login card joins the standing sweep — the
+  // reference serves the login card to AUTHENTICATED visitors too (the
+  // S23-P2 finding) and ours mirrors it, so the post-login capture works
+  // on BOTH apps. The auth surface is now pixel-swept: the form-family
+  // walk found the v4 space-y genus living there precisely because
+  // /login was never swept.
+  { name: "login", path: "/login" },
 ] as const;
 
 export type PageEntry = (typeof PAGES)[number];
@@ -99,6 +111,84 @@ export function parsePagesArg(argv: string[], all: readonly PageEntry[]): PageEn
 
 /** The per-channel anti-aliasing tolerance (the s91 value). */
 export const TOLERANCE = 12;
+
+/** Session-96 (S96-P2): the per-page STANDING baselines — the documented
+ * explained-diff genera by viewport class (phone = width < 768, the md
+ * breakpoint — BOTH walked phone widths 390x844 and 375x812 ride the
+ * phone table; desktop otherwise). The values sit just above the
+ * measured standing tables (the s91–s96 runs) so the default margin
+ * (0.5pct) absorbs run-to-run noise while any NEW drift — a 0.00% page
+ * moving to 5%, invisible to a global --max-diff 8 gate — fails.
+ * PURE by design: pinned in tests/sweep-tool.test.ts beside
+ * PAGES/TOLERANCE/diffPixels/parsePagesArg. */
+export const STANDING_BASELINES = {
+  desktop: {
+    dashboard: 0.4,
+    accounts: 0.1,
+    contacts: 0.6,
+    leads: 0.1,
+    calendar: 0.1,
+    activities: 0.1,
+    reports: 0.1,
+    settings: 4.9,
+    profile: 0.1,
+    // the maiden 10-page run measured 0.27% — the CSS brand-mark logo
+    // genus (the reference hotlinks a screenshot; ours draws the
+    // white-circle/blue-dot shape — the s7 note)
+    login: 0.3,
+  },
+  phone: {
+    dashboard: 0.75,
+    accounts: 0.75,
+    contacts: 0.75,
+    leads: 0.75,
+    calendar: 0.8,
+    activities: 0.75,
+    reports: 0.95,
+    settings: 7.7,
+    profile: 0.75,
+    // the maiden phone run measured 0.75% — the same logo genus at a
+    // larger share of the narrower frame
+    login: 0.8,
+  },
+} as const;
+
+export type BaselineTable = Record<string, number>;
+
+/** The baseline table for a viewport width (the md breakpoint split). */
+export function standingBaseline(width: number): BaselineTable {
+  return width < 768 ? { ...STANDING_BASELINES.phone } : { ...STANDING_BASELINES.desktop };
+}
+
+export interface DriftFailure {
+  page: string;
+  pct: number;
+  baseline: number;
+  allowed: number;
+}
+
+export interface DriftVerdict {
+  ok: boolean;
+  failures: DriftFailure[];
+}
+
+/** PURE: fails when any page exceeds ITS OWN standing baseline + margin.
+ * A page missing from the table is judged at baseline 0 — a new page
+ * must join the table deliberately (the fail-fast doctrine, the
+ * --pages typo lesson). */
+export function driftVerdict(
+  rows: Array<[string, number]>,
+  baselines: BaselineTable,
+  marginPct: number,
+): DriftVerdict {
+  const failures: DriftFailure[] = [];
+  for (const [page, pct] of rows) {
+    const baseline = baselines[page] ?? 0;
+    const allowed = baseline + marginPct;
+    if (pct > allowed) failures.push({ page, pct, baseline, allowed });
+  }
+  return { ok: failures.length === 0, failures };
+}
 
 export interface DiffResult {
   diffPx: number;
@@ -271,6 +361,16 @@ async function main() {
   const maxDiffIdx = process.argv.indexOf("--max-diff");
   const maxDiff = maxDiffIdx >= 0 ? Number(process.argv[maxDiffIdx + 1]) : null;
 
+  // Session-96 (S96-P2): the per-page drift gate — `--fail-on-drift`
+  // exits 1 when any page exceeds ITS OWN standing baseline + margin
+  // (default 0.5pct; override `--drift-margin <pct>`). Unlike the global
+  // --max-diff threshold (which must sit above the worst standing genus
+  // and so cannot see a 0.00% page drifting to 5%), the drift gate
+  // judges each page against its own documented genus.
+  const failOnDrift = process.argv.includes("--fail-on-drift");
+  const driftMarginIdx = process.argv.indexOf("--drift-margin");
+  const driftMargin = driftMarginIdx >= 0 ? Number(process.argv[driftMarginIdx + 1]) : 0.5;
+
   // Session-95 (S95-P0): the --pages filter — restricts BOTH the capture
   // and the diff loops to the named pages for targeted rotation runs
   // (`bun run sweep -- --pages leads,settings`). The default (no flag) is
@@ -371,6 +471,23 @@ async function main() {
     if (maxDiff !== null && worst > maxDiff) {
       console.error(`[sweep] GATE FAIL: worst ${worst.toFixed(2)}% > --max-diff ${maxDiff}`);
       process.exit(1);
+    }
+
+    // Session-96 (S96-P2): the per-page drift gate — AFTER the seed
+    // restore (the --max-diff ordering: the workspace is never left
+    // zeroed because a gate tripped).
+    if (failOnDrift) {
+      const verdict = driftVerdict(rows, standingBaseline(WIDTH), driftMargin);
+      if (!verdict.ok) {
+        for (const f of verdict.failures) {
+          console.error(
+            `[sweep] DRIFT: ${f.page} ${f.pct.toFixed(2)}% > baseline ${f.baseline} + margin ${driftMargin} (allowed ${f.allowed.toFixed(2)}%)`,
+          );
+        }
+        console.error(`[sweep] DRIFT GATE FAIL: ${verdict.failures.length} page(s) above their standing baselines`);
+        process.exit(1);
+      }
+      log(`drift gate clean (margin ${driftMargin}pct over the standing baselines)`);
     }
     log("done");
   } finally {

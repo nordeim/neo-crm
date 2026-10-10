@@ -313,7 +313,17 @@ export const LOGIN_LAYOUT = {
   dividerLabelSpan: "bg-white px-3 font-medium tracking-wider text-slate-500",
   form: "w-full space-y-4 sm:space-y-5",
   fields: "space-y-3 sm:space-y-4",
-  field: "space-y-1.5",
+  // Session-96 (S96-P0, the 96-c form-family walk): the v3 class string
+  // `space-y-1.5` is v4-FALSIFIED on the auth fields — v4's space-y puts
+  // margin-BOTTOM on the PRECEDING child (the label), a non-replaced
+  // INLINE element where vertical margins are IGNORED, silently losing
+  // the 6px gap (LIVE at 390+1440: label→input 4px ours vs 10px the
+  // reference; its v3 margin-TOP lands on the inputWrap BLOCK,
+  // m=[6px/0px] measured). `[&>*+*]:mt-1.5` expresses the reference's
+  // computed mechanism in v4 — the M-79c2 doctrine (same genus class as
+  // the back-button mb-2 fix). The label STAYS INLINE like the
+  // reference's own 16px inline box.
+  field: "[&>*+*]:mt-1.5",
   label: "text-sm font-medium text-slate-700",
   inputWrap: "relative",
   inputIcon: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500",

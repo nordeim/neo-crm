@@ -28,7 +28,7 @@ const read = (p: string) => readFileSync(path.join(root, p), "utf8");
 const sweep = () => import("../scripts/sweep");
 
 describe("session-92 (S92-P5): the sweep tool — the one-command regression", () => {
-  it("exports the 9-page sweep list (the s91 sweep set, route paths verbatim)", async () => {
+  it("exports the 10-page sweep list (the s91 sweep set + the s96 login addition, route paths verbatim)", async () => {
     const { PAGES } = await sweep();
     expect(PAGES).toEqual([
       { name: "dashboard", path: "/" },
@@ -40,6 +40,13 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
       { name: "reports", path: "/reports" },
       { name: "settings", path: "/settings" },
       { name: "profile", path: "/Profile" },
+      // Session-96 (S96-P0): the login card joins the standing sweep — the
+      // reference serves the login card to AUTHENTICATED visitors too
+      // (the S23-P2 finding) and ours mirrors it, so the post-login
+      // capture works on both apps. The auth surface is now pixel-swept
+      // (the form-family walk found the v4 space-y genus living there
+      // precisely because /login was never swept).
+      { name: "login", path: "/login" },
     ]);
   });
 
@@ -184,5 +191,88 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
     expect(src).not.toContain("for (const p of PAGES) {");
     // the header documents the flag (the run instructions)
     expect(src).toContain("--pages");
+  });
+
+  // Session-96 (S96-P2): the --fail-on-drift mode — the s95 suggested
+  // next #2 ("add a --fail-on-drift exit-code mode to the sweep for CI
+  // gating — the natural extension of --max-diff"). The global --max-diff
+  // gate must sit ABOVE the worst standing genus (settings ~7.5% at phone
+  // width), so it can never see a 0.00% page drifting to 5%. The drift
+  // gate judges each page against ITS OWN standing baseline + margin.
+  it("standingBaseline: the desktop table (the s91–s96 standing genera, generous to run noise)", async () => {
+    const { standingBaseline } = await sweep();
+    const b = standingBaseline(1440);
+    expect(b.settings).toBeGreaterThanOrEqual(4.7);
+    expect(b.settings).toBeLessThanOrEqual(5.2);
+    expect(b.dashboard).toBeGreaterThanOrEqual(0.3);
+    expect(b.contacts).toBeGreaterThanOrEqual(0.4);
+    // every PAGES name has a desktop baseline (a new page must join the
+    // table deliberately — the fail-fast doctrine)
+    const { PAGES } = await sweep();
+    for (const p of PAGES) expect(b[p.name]).toBeDefined();
+  });
+
+  it("standingBaseline: the phone table covers BOTH walked phone widths (390x844 + 375x812, split at the md breakpoint)", async () => {
+    const { standingBaseline } = await sweep();
+    const b390 = standingBaseline(390);
+    const b375 = standingBaseline(375);
+    // the mobile-nav-superset floor (~0.5% at 390, ~0.55% at 375) + the
+    // settings picklist genus (7.34/7.52 measured)
+    expect(b390.settings).toBeGreaterThanOrEqual(7.3);
+    expect(b375.settings).toBeGreaterThanOrEqual(7.5);
+    for (const name of ["dashboard", "leads", "reports", "login"])
+      expect(b390[name]).toBeGreaterThanOrEqual(0.5);
+    // desktop above the md breakpoint
+    const { standingBaseline: sb } = await sweep();
+    expect(sb(768)).not.toEqual(b390);
+    expect(sb(767)).toEqual(b390);
+  });
+
+  it("driftVerdict fails a page above ITS OWN baseline+margin and names it (a 0.00% page drifting to 5% fails where a global --max-diff 8 passes)", async () => {
+    const { driftVerdict } = await sweep();
+    const baselines = { leads: 0.05, settings: 4.9 };
+    const v = driftVerdict(
+      [
+        ["leads", 5.0],
+        ["settings", 4.9],
+      ],
+      baselines,
+      0.5,
+    );
+    expect(v.ok).toBe(false);
+    expect(v.failures).toHaveLength(1);
+    expect(v.failures[0].page).toBe("leads");
+    expect(v.failures[0].pct).toBe(5.0);
+    expect(v.failures[0].allowed).toBeCloseTo(0.55, 6);
+  });
+
+  it("driftVerdict passes at-baseline rows and treats a missing baseline as 0 (a page must join the table deliberately)", async () => {
+    const { driftVerdict } = await sweep();
+    expect(
+      driftVerdict(
+        [
+          ["leads", 0.0],
+          ["settings", 4.73],
+        ],
+        { leads: 0.05, settings: 4.9 },
+        0.5,
+      ).ok,
+    ).toBe(true);
+    // unknown page: baseline 0 — a drift above the margin fails
+    const v = driftVerdict([["brandnew", 0.6]], { leads: 0.05 }, 0.5);
+    expect(v.ok).toBe(false);
+    expect(v.failures[0].page).toBe("brandnew");
+  });
+
+  it("the sweep wires the drift gate: the flag + the margin parse + the exit-1 path after the seed restore, and the header documents it", () => {
+    const src = read("scripts/sweep.ts");
+    expect(src).toContain('--fail-on-drift');
+    expect(src).toContain("--drift-margin");
+    // the default margin
+    expect(src).toContain(": 0.5");
+    // the verdict rides the measured rows + the width-class baselines
+    expect(src).toContain("driftVerdict(rows, standingBaseline(WIDTH), driftMargin)");
+    // the gate fails AFTER the seed restore (the --max-diff ordering)
+    expect(src).toMatch(/db:seed[\s\S]*?driftVerdict/);
   });
 });

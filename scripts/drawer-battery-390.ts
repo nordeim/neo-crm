@@ -7,7 +7,9 @@
 // Run: env -u DATABASE_URL bun scripts/drawer-battery-390.ts
 // Verifies: trigger geometry · panel 288px @ x0 · 8 links · focus
 // inside · dual body+main lock · navigate-close -> /Leads with the full
-// release · Escape-close · the resize-past-md lock release.
+// release · Escape-close · the resize-past-md lock release (against a
+// REOPENED drawer — the F-96a1 fix: the auto-close listener only
+// registers while open).
 import { spawn } from "node:child_process";
 import { chromium } from "@playwright/test";
 
@@ -124,7 +126,24 @@ async function main() {
     });
     console.log("[battery] ESC-CLOSE:", JSON.stringify(afterEsc));
 
-    // 5. the resize-past-md lock release (the s8 regression)
+    // 5. the resize-past-md lock release (the s8 regression) — F-96a1
+    //    (session-96): the probe must run against an OPEN drawer. The
+    //    auto-close listener (mobile-nav.tsx:54-62) only registers while
+    //    the drawer is open — resizing the CLOSED drawer (the s95 shape)
+    //    could never go red for an s8-class regression. Reopen, verify
+    //    the locks re-engage, THEN grow past md.
+    await trigger.click();
+    await page.waitForTimeout(700);
+    const openBeforeGrow = await page.evaluate(() => {
+      const root = document.querySelector('[role="dialog"][aria-label="Navigation menu"]') as HTMLElement | null;
+      const panel = root ? (root.querySelector("div.h-dvh.w-72") as HTMLElement | null) : null;
+      return {
+        panelVisible: panel ? getComputedStyle(panel).visibility : null,
+        bodyOverflow: getComputedStyle(document.body).overflow,
+        mainOverflow: document.querySelector("main") ? getComputedStyle(document.querySelector("main")!).overflow : null,
+      };
+    });
+    console.log("[battery] REOPEN-BEFORE-GROW:", JSON.stringify(openBeforeGrow));
     await page.setViewportSize({ width: 900, height: 800 });
     await page.waitForTimeout(600);
     const afterGrow = await page.evaluate(() => ({

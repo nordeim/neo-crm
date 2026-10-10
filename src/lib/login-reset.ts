@@ -164,9 +164,13 @@ export const LOGIN_SIGNUP_LAYOUT = {
   /** The signup view's mail/lock icons — the LIGHTER slate-400 family
    *  (the reset view's twin; session-79 L-79c10, live-extracted). */
   inputIcon: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400",
-  /** The field wrapper + label — the signin family (space-y-1.5 + the
-   *  stock-label slate-700), DOM-verified on the signup view. */
-  field: "space-y-1.5",
+  /** The field wrapper + label — the signin family (the v4-correct
+   *  mt-on-following spacing + the stock-label slate-700), DOM-verified
+   *  on the signup view. Session-96 (S96-P0): the v3 `space-y-1.5`
+   *  string is v4-FALSIFIED (margin-bottom on the INLINE label is
+   *  ignored — the 6px gap silently lost); `[&>*+*]:mt-1.5` expresses
+   *  the reference's computed mechanism (the M-79c2 doctrine). */
+  field: "[&>*+*]:mt-1.5",
   label: "text-sm font-medium text-slate-700",
   /** The input — the s11 resetInput family (h-10 sm:h-11, ONE size down
    *  from the signin form's h-11 sm:h-12), DOM-verified on the reference's

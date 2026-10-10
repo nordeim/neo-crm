@@ -524,11 +524,21 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
               <p className={LOGIN_LAYOUT.subtitle}>Sign in to continue</p>
             </div>
 
-            {/* Google sign-in — the reference's white rounded-xl button. Its
-                click performs a REAL Google OAuth redirect (verified live);
-                the toast.info fallback is the documented self-hosted
-                expression of that unreachable surface. */}
+            {/* Session-96 (S96-P0, the 96-c form-family walk): ONE w-full
+                BLOCK section wrapping [the google button + the divider +
+                the form] — the reference's own construction (DOM-verified:
+                its form's parent chain runs form → div.w-full m=[24/0] →
+                the centered column). Inside the block section the
+                adjacent margins COLLAPSE (googleWrap mb 0 vs the
+                divider's my-6 mt 24 → 24; the divider's mb 24 vs the
+                form's mt 0 → 24). The s95-era flat shape (the three as
+                DIRECT children of the flex column) STACKED v4 space-y's
+                margin-bottom with the divider's my-6 — flex containers do
+                not collapse margins — 48px vs the reference's 24 at 390
+                (56 vs 24 at 1440). The google button's own wrap keeps the
+                reference's inert space-y-3 class. */}
             <div className="w-full">
+              <div className="space-y-3">
               <button
                 type="button"
                 className={LOGIN_LAYOUT.google}
@@ -544,7 +554,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                 </div>
                 <span>Continue with Google</span>
               </button>
-            </div>
+              </div>
 
             <div className={LOGIN_LAYOUT.divider} aria-hidden="true">
               <div className="absolute inset-0 flex items-center">
@@ -618,6 +628,7 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                 </div>
               </div>
             </form>
+            </div>
               </>
             )}
           </div>

@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.92.0
+version: 1.93.0
 last_updated: 2026-10-10
-project_state: 1836 unit checks + 132 e2e checks green; the session-95 layer (the 95-c rotation — the TABLE FAMILY AT TRUE 390px + the sweep --pages filter): the leads table FULL GEOMETRY MATCH [table 380px in the 358px relative-w-full-overflow-auto scroll box inside the 358px rounded-lg card on the p-4 bare page; thead STICKY top:0 h:63 bg white; the 9 th widths 81/79/0/0/78/61/0/65/16 EXACT on both; thead at y=1142 EXACT; the LIVE sticky check — scrolling main by 800 sticks the thead to the container top on BOTH apps] + the contacts table FULL MATCH [633px table in the 324px scroll box inside the 326px rounded-xl card; the 201px zero-data empty row identical] + the accounts table MATCH + ONE EXPLAINED GENUS [the table surface identical — 472px/thead 43/empty row 85/y=1040 EXACT; the horizontal-overflow MECHANISM differs: the reference's bare flex-1 (min-width:auto) lets the 472px min-content poke out and MAIN h-scrolls (scrollW 488), ours adds min-w-0 so the table scrolls INSIDE its own box (main never h-scrolls) — visually equivalent (both cards end flush at the viewport edge; the phone sweep floor ~0.5%), ours matching the contacts/leads in-box pattern; documented, do NOT restructure] + THE SWEEP --PAGES FILTER (S95-P0, TDD, the s94 suggested-next #3) [bun run sweep -- --pages leads,settings — a comma-separated SUBSET for targeted rotation runs, restricting BOTH the capture and the diff loops; the PURE parsePagesArg(argv, all) seam exported beside PAGES/TOLERANCE/diffPixels (PAGES-order result; unknown names FAIL FAST listing the valid names); RED-first 4 pins stash-re-proven (4 failed | 12 passed pre-fix -> 16/16 post); the maiden filtered run reproduced the standing values (leads 0.00% + settings 4.73%); the B-95a8 --max-diff header fix (the space-separated form is the parsed one)] + THE DRAWER BATTERY PRODUCTIZED AS scripts/drawer-battery-390.ts (the s94 exact-selector protocol encoded: the panel div.h-dvh.w-72 inside the dialog root, never the root; a REAL user click; the URL-based wait — the /Leads route is the s24 CAPITAL-route construction and the dev server compiles it on first visit) — RE-VERIFIED FULLY GREEN at TRUE 390 + the audits [95-a: the s94 delta GENUINE — the phone-width mode verified, the non-vacuousness independently re-proven, the docs counts verified against the live tree, F-95a1 the SKILL 5.6 stale 300-lines/37-checks claim fixed to 1520/180; 95-b: the graduation audit 13/13 GENUINE (zero graduations, ~52nd consecutive; the src tree byte-identical since the s94-b base), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO/sitemap layers verified (37/37 across the three SEO suites)] + the reference census #91 [demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 16th consecutive] + the drift sweep #91 [bundle md5 a70a637f... EXACT — the 66th consecutive stable session] + the desktop sweep CLEAN (the standing table reproduced, zero new drift) + the phone sweep CLEAN (the s94 maiden table reproduced) + GATE: lint 0/0 · tsc 0 · 1836/1836 unit [102 suites, +4 net] · build · 132/132 e2e fresh CI=1 [3.1m, zero flakes; the mobile-nav suite green inside the run] + 3 screenshots NEW [139 leads sticky thead mid-scroll + 140 accounts + 141 contacts, VLM 5/5 x2 + 4/5 (one adjudication: 139's clipped-edge NO vs the DOM-verified shared horizontal-scroll genus)] + docs at SKILL v1.92.0 [16ci + project_state + the H1] + README badge 1968 + AGENTS/CLAUDE/PAD at 1836+132 [the AGENTS Session-95 block + the PAD s95 inventory row + the Total 102/1836] + both operator decisions re-affirmed (55th: CSV posture (b) + source-vocabulary parity)
+project_state: 1849 unit checks + 132 e2e checks green; the session-96 layer (the 96-c rotation — the FORM FAMILY AT TRUE 390px + the login-card v4 space-y-genus fix, the FIRST src/ change since s90): the FILTER ROWS FULL GEOMETRY MATCH [the leads Filters popover's form controls walked on BOTH apps — every value identical: the trigger 326x36 radius 6; the content 320x398 @(32,36) radius 6 white p-16; the rows 64/64/64/64/44 at y 53/133/213/293/373 w 286; the labels 14px/500 rgb(10,10,10) h20; the comboboxes 286x36 radius 6 p-8/12; the number/date inputs 286x36 16px; the Clear + Save View buttons 139x36] + THE LOGIN CARD: three rhythm deltas decoded as the v4 space-y GENUS ON THE AUTH SURFACE (never caught before — /login was not in the sweep's PAGES and the form family was the last unwalked static family): (1) the Google->divider gap 48 vs 24 [the reference nests google+divider+form in ONE w-full BLOCK section where margins COLLAPSE; ours had them as DIRECT children of the flex column — v4 space-y's margin-bottom STACKS with the divider's my-6, flex containers do not collapse margins] (2) the label->input gap 4 vs 10 per field [the reference's v3 space-y-1.5 = margin-TOP on the FOLLOWING inputWrap block; v4's margin-BOTTOM lands on the INLINE label where vertical margins are IGNORED — the 6px silently lost at BOTH 390 and 1440; the M-79c2 doctrine genus] (3) the card top offset [downstream: the net +12px card height at 390] + THE S96-P0 FIX (TDD, RED-first 3 pins + the inline-label guard, stash-proven 10 failed | 50 passed -> 60/60): LOGIN_LAYOUT.field + LOGIN_SIGNUP_LAYOUT.field space-y-1.5 -> [&>*+*]:mt-1.5 (the label stays INLINE like the reference's own 16px box) + the signin column restructured into ONE w-full section [google (its wrap the reference's inert space-y-3) + divider + form] + LOGIN ADDED TO THE SWEEP'S PAGES (10 pages — the S23-P2 authed-login finding; the auth surface now pixel-swept) + THE LIVE RE-WALK: THE LOGIN CARD FULL GEOMETRY MATCH — d=+0 on ALL 11 elements [h1 209 - subtitle 249 - google 293 - divider 371 - emailLabel 415 - emailInput 441 - pwLabel 501 - pwInput 527 - submit 587 - forgot 643 - signup 671; the rhythm gaps 24/10/10 exact] + THE S96-P1 DRAWER-BATTERY FIX (F-96a1, the 96-a audit find): step 5 REOPENS the drawer (verified open + locks engaged) before the resize-past-md probe [the auto-close listener only registers while open — the closed-drawer probe could never go red]; pinned in the NEW tests/drawer-battery-tool.test.ts (4 pins); the battery re-verified FULLY GREEN live + THE S96-P2 SWEEP --fail-on-drift MODE (the s95 suggested next #2): the STANDING_BASELINES table [desktop + phone classes split at the md breakpoint — BOTH walked phone widths 390x844 + 375x812 ride one table] + the PURE standingBaseline/driftVerdict seams; a page fails when it exceeds ITS OWN baseline + margin [default 0.5pct, --drift-margin override; a missing baseline judges at 0 — the fail-fast doctrine]; RED-first 5 pins; both maiden runs gated CLEAN + the maiden 10-page sweeps [desktop login 0.27% / phone 0.75% — the CSS brand-mark logo genus, the reference hotlinks a screenshot; the standing tables reproduced elsewhere] + the standing layers (92nd sweep): the drift sweep #92 bundle md5 a70a637f... EXACT [the 67th consecutive stable session; DECODE: the PRE-AUTH login shell references /static/* chunks — the tracked bundle is the POST-LOGIN shell's] + the desktop/phone standing tables reproduced + the MAIDEN 375x812 second-width run [the s95 suggested next #3 — the same standing genera at the iPhone baseline: floor ~0.55, settings 7.52; zero new drift; the fractional-column reflow holds] + census #92 [demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390 — the 17th consecutive] + the audits [96-a: the s95 ship delta GENUINE — the --pages filter verified line-by-line, the non-vacuousness independently re-proven 4/4 RED against git show c215904:scripts/sweep.ts, the docs counts verified, src/ untouched; F-96a1 the drawer-battery closed-drawer resize probe (fixed this session); 96-b: the graduation audit 13/13 GENUINE (zero graduations, ~53rd consecutive), the CSV census 17 sites zero unguarded, the source-vocabulary clean, the config + SEO/sitemap layers verified (37/37 / 47/47, db-path 20/20)] + both operator decisions re-affirmed (56th: CSV posture (b) + source-vocabulary parity) + GATE: lint 0/0 - tsc 0 - 1849/1849 unit [103 suites, +13 net] - build - 132/132 e2e fresh CI=1 + 2 screenshots NEW [142 login card 390 post-fix + 143 leads filters popover 390, VLM 5/5 x2, zero adjudications] + docs at SKILL v1.93.0 [16cj + this project_state + the H1] + README badge 1981 + AGENTS/CLAUDE/PAD at 1849+132 [the AGENTS Session-96 block + the PAD s96 inventory row + the Total 103/1849] + the CLAUDE-count lockstep re-anchor (1836 -> 1849) + the space-y census re-anchor (112 -> 111: two field constants retired to the mt-variant, the google wrap's inert space-y-3 added)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.92.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.93.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -8284,7 +8284,7 @@ non-first child carries `mb-*` (v3's (0,3,0) rule kills it; v4's
   ours 4px. The fix: mt-2 on the dropzone wrapper.
 - **N-91c5 — THE GENUS SWEEP.** The space-y census swept (session-92
   F-92a1 re-derivation: the s91 prose said "all 99 space-y usages" —
-  not re-derivable by any method; the documented census is 112
+  not re-derivable by any method; the documented census is 111
   comment-stripped space-y occurrences across the 19 src files that
   carry one, the algorithm living in the s92 dialog-geometry-parity
   suite): the four finds are the complete set (the other toolbars
@@ -8357,7 +8357,7 @@ of the interiors — three of them new faces of the v4 space-y genus.
   `mt-1` per the s11 computed-gap rule — the M-91c2 genus in the
   INVERSE direction.
 - **The space-y census (F-92a1).** The s91 "all 99 space-y usages"
-  claim was not re-derivable by any method. The documented census: 112
+  claim was not re-derivable by any method. The documented census: 111
   comment-stripped space-y occurrences across the 19 src files that
   carry one — the algorithm lives IN the s92 dialog-geometry-parity
   suite.
@@ -8610,3 +8610,95 @@ battery productized as a committed tool.
   + 4/5 — one adjudication: 139's clipped-edge NO vs the
   DOM-verified shared horizontal-scroll genus, the 380px table in
   the 358px box on BOTH apps).
+
+## 16cj. Session-96 Layer (the form family at TRUE 390 + the login-card v4 space-y-genus fix — the FIRST src/ change since s90)
+
+**The rotation (96-c)** — the FORM family at TRUE 390×844 on BOTH apps
+(the s95 suggested next #1, the last unwalked static family):
+
+- **The FILTER ROWS: FULL GEOMETRY MATCH — every value identical.** The
+  leads Filters popover's form controls: the trigger (32,1089) 326×36
+  radius 6; the content (32,36) 320×398 radius 6 white p-16; the rows
+  64/64/64/64/44 at y 53/133/213/293/373 w 286; the labels (Status /
+  Source / Min Deal Value / Follow-up Date) 14px/500 rgb(10,10,10) h 20;
+  the combobox triggers 286×36 radius 6 border 1 p-8/12; the number/date
+  inputs 286×36 16px radius 6 p-4/12; the footer Clear + Save View
+  buttons 139×36 each. The in-app form family closes CLEAN (the popover
+  labels are `text-sm font-medium mb-2 block` — a BLOCK label with an
+  explicit margin, the s29-era construction; the genus does not bite
+  there).
+- **THE LOGIN CARD: THREE RHYTHM DELTAS — the v4 space-y genus on the
+  auth surface, decoded** (present at BOTH 390 and 1440; net +12px card
+  height at 390, +20px at 1440):
+  1. **The Google→divider gap: REF 24, OURS 48 (+24 at 390; 56 vs 24 at
+     1440).** The reference nests [google + divider + form] inside ONE
+     `w-full` BLOCK section (DOM-verified: its form's parent chain runs
+     form → `div.w-full` m=[24/0] → the centered column) — inside it
+     the adjacent margins COLLAPSE (googleWrap mb 0 vs the divider's
+     my-6 mt 24 → 24; the divider's mb 24 vs the form's mt 0 → 24).
+     OURS had the three as DIRECT children of the `flex flex-col`
+     centered column — flex containers do NOT collapse margins, so v4's
+     space-y-6 margin-BOTTOM (on the google wrap) STACKS with the
+     divider's my-6 margin-top → 48.
+  2. **The field label→input gap: REF 10, OURS 4 (−6 per field × 2).**
+     The reference's `space-y-1.5` is v3 — margin-TOP on the FOLLOWING
+     block (its inputWrap measures m=[6px/0px] live). Our v4
+     `space-y-1.5` puts margin-BOTTOM on the PRECEDING child — the
+     label — a non-replaced INLINE element where vertical margins are
+     IGNORED, so the 6px is silently LOST. The same genus class as
+     M-79c2 (the back-button −mb-2 → mb-2 fix).
+  3. **The card's top offset (−6 at 390): downstream** — resolves with
+     fixes 1+2.
+
+  Never caught before because the login page was NOT in the sweep's
+  PAGES and the form family was the last unwalked static family — the
+  s7/s11 class-string pins copied `space-y-1.5` verbatim from the
+  reference's own bundle, which is exactly wrong under v4 semantics.
+
+**The remediation (S96-P0, TDD — RED first)**: `LOGIN_LAYOUT.field` +
+`LOGIN_SIGNUP_LAYOUT.field` → `[&>*+*]:mt-1.5` (the v4-correct
+mt-on-following; the label stays INLINE like the reference's own 16px
+inline box — a block label would sit 2px high); the signin column
+restructured into ONE `w-full` section wrapping [the google button (its
+own wrap the reference's inert `space-y-3`) + the divider + the form];
+**login added to the sweep's PAGES** (10 pages — the reference serves
+the login card to AUTHENTICATED visitors, the S23-P2 finding, and ours
+mirrors it, so the post-login capture works on both apps). RED-first 3
+pins + the labels-stay-inline guard; the stash proof 10 failed | 50
+passed → pop → 60/60. **The LIVE re-walk: the login card FULL GEOMETRY
+MATCH — Δ=+0 on ALL 11 elements** (h1 209 · subtitle 249 · google 293
+· divider 371 · emailLabel 415 · emailInput 441 · pwLabel 501 ·
+pwInput 527 · submit 587 · forgot 643 · signup 671; the rhythm gaps
+24/10/10 exact).
+
+**The drawer battery (S96-P1, the F-96a1 audit fix)**: the step-5
+resize-past-md probe now REOPENS the drawer first (verified open +
+locks engaged before the grow — the auto-close listener at
+mobile-nav.tsx:54-62 only registers while open, so the closed-drawer
+probe could never go red for an s8-class regression); pinned in the new
+`tests/drawer-battery-tool.test.ts` (4 pins: the reopen construction +
+the exact-selector protocol + the URL-based CAPITAL /Leads wait + the
+dual-lock/no-synthetic-click guards); the battery re-verified FULLY
+GREEN live.
+
+**The drift gate (S96-P2, the s95 suggested next #2)**: `--fail-on-drift`
+judges each page against ITS OWN standing baseline + margin (default
+0.5pct, `--drift-margin` override) — a 0.00% page drifting to 5% fails
+here where a global `--max-diff 8` (which must sit above the settings
+genus) never could. The STANDING_BASELINES table splits at the md
+breakpoint (BOTH walked phone widths ride the phone table); a page
+missing from the table is judged at baseline 0 (the fail-fast
+doctrine). PURE seams (standingBaseline/driftVerdict) pinned RED-first;
+both maiden runs gated CLEAN. The login baselines document the NEW
+standing genus: 0.27% desktop / 0.75% phone — the CSS brand-mark logo
+(the reference hotlinks a screenshot; ours draws the white-circle/
+blue-dot shape).
+
+**The lesson (the fourth v4-genus fix in the family)**: M-79c2
+(−mb-2 → mb-2), the s91 space-y hazard family (controlMt), and now the
+auth fields + the flex-column section — the doctrine holds: NEVER copy
+a v3 class string verbatim; re-derive the reference's COMPUTED
+geometry and express it with the v4-correct construction. The remaining
+unwalked surfaces are covered by the now-10-page sweep (login
+included) — any future genus on the auth surface ships as a drift
+number, not a silent gap.

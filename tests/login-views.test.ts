@@ -292,3 +292,72 @@ describe("session-21: the verification machinery (S21-P5)", () => {
     expect(src).not.toMatch(/verificationCode:\s*code\b/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-96 (S96-P0): the FORM-family walk remediation — the v4 space-y
+// genus on the auth surface, decoded live on BOTH apps at TRUE 390x844 and
+// 1440x900 (the 96-c rotation, the last unwalked static family):
+//   - the reference's `space-y-1.5` fields are v3 — margin-TOP on the
+//     FOLLOWING block (its inputWrap measures m=[6px/0px] live). Our v4
+//     space-y puts margin-BOTTOM on the PRECEDING child — the label — a
+//     non-replaced INLINE element where vertical margins are IGNORED, so
+//     the 6px gap was silently LOST (live: label→input 4px ours vs 10px
+//     the reference, at BOTH widths; net +12px card height at 390).
+//   - the reference nests [google + divider + form] inside ONE `w-full`
+//     BLOCK section (DOM-verified: the form's parent chain runs form →
+//     div.w-full m=[24/0] → centered) — inside it the adjacent margins
+//     COLLAPSE to 24/24. Ours had them as DIRECT children of the flex
+//     column where v4's space-y margin-bottom STACKS with the divider's
+//     my-6 (48px vs 24 at 390; 56 vs 24 at 1440).
+// Same genus class as M-79c2 (the back-button -mb-2 → mb-2 fix): express
+// the reference's COMPUTED gap with the v4-correct construction, never the
+// v3 class string verbatim.
+// ---------------------------------------------------------------------------
+describe("session-96: the form-family walk remediation (the v4 space-y genus on the auth fields)", () => {
+  const loginLayout = async () => (await import("@/lib/page-layout")).LOGIN_LAYOUT;
+
+  it("the signin/reset field spacing is the v4-correct mt-on-following (the reference's computed 6px gap — the M-79c2 doctrine)", async () => {
+    const L = await loginLayout();
+    // DOM: <div class="space-y-1.5"><label class="text-sm …">Email</label>
+    //   <div class="relative">…input…</div></div>
+    // v4 space-y-1.5 = margin-BOTTOM on the label — INERT on the inline
+    // label (vertical margins on non-replaced inline elements are
+    // ignored). The reference's v3 margin-TOP lands on the inputWrap
+    // BLOCK. [&>*+*]:mt-1.5 expresses that exact mechanism in v4.
+    expect(L.field).toBe("[&>*+*]:mt-1.5");
+    // negative: the bare v3 class string must not come back
+    expect(L.field).not.toBe("space-y-1.5");
+  });
+
+  it("the signup field spacing rides the same v4-correct construction", async () => {
+    const L = await signupLayout();
+    expect(L.field).toBe("[&>*+*]:mt-1.5");
+    expect(L.field).not.toBe("space-y-1.5");
+  });
+
+  it("the labels stay INLINE (the reference's own 16px inline label box — a block label would sit 2px high)", async () => {
+    const L = await loginLayout();
+    expect(L.label).toBe("text-sm font-medium text-slate-700");
+    // negative: no display-changing class sneaks in
+    expect(L.label).not.toMatch(/\b(block|flex|inline-block)\b/);
+  });
+
+  it("the signin column nests [google + divider + form] in ONE w-full block section (the reference's margin-collapsing wrap)", () => {
+    const src = loginCardSrc();
+    // the section: ONE w-full div wrapping the google button's own
+    // space-y-3 wrap (the reference's inert class, DOM-verified), the
+    // divider, and the form — closed by the SAME div, so the adjacent
+    // margins collapse to 24/24 exactly like the reference's block
+    // section (measured m=[24/0] on its w-full wrap).
+    expect(src).toMatch(
+      /<div className="w-full">\s*<div className="space-y-3">[\s\S]*?Continue with Google[\s\S]*?<\/div>\s*<div className=\{LOGIN_LAYOUT\.divider\}[\s\S]*?<form onSubmit=\{onSigninSubmit\} className=\{LOGIN_LAYOUT\.form\}[\s\S]*?<\/form>\s*<\/div>/,
+    );
+    // negative: the OLD flat shape is gone — the google button no longer
+    // sits DIRECTLY inside a w-full wrap with the divider as its next
+    // sibling (the flex column stacks space-y's margin-bottom with the
+    // divider's my-6 — the +24px/+32px genus)
+    expect(src).not.toMatch(
+      /<div className="w-full">\s*<button[\s\S]*?<\/button>\s*<\/div>\s*<div className=\{LOGIN_LAYOUT\.divider\}/,
+    );
+  });
+});
