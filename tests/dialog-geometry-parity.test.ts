@@ -250,11 +250,14 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
 
   it("the CLAUDE.md stale 1788 anchors are re-derived (the test-pyramid line + the coverage line — F-92a3)", () => {
     const claude = read("CLAUDE.md");
-    // session-93 lockstep carry-forward: 1828 -> 1829 (the s93 +1 pin)
-    expect(claude).toContain("Unit (Vitest, 1829 checks)");
-    expect(claude).toContain("(currently 1829)");
+    // session-94 lockstep carry-forward: 1829 -> 1832 (the s94 +3
+    // sweep-tool phone-width pins — the same lockstep s92 performed
+    // 1788 -> 1828 and s93 1828 -> 1829)
+    expect(claude).toContain("Unit (Vitest, 1832 checks)");
+    expect(claude).toContain("(currently 1832)");
     expect(claude).not.toMatch(/1788 checks/);
     expect(claude).not.toMatch(/currently 1788/);
     expect(claude).not.toMatch(/1828 checks/);
+    expect(claude).not.toMatch(/1829 checks/);
   });
 });

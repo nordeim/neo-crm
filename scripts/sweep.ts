@@ -8,8 +8,9 @@
 //      standing state (its workspace has been empty for 13 censuses) —
 //      via scripts/zero-data.ts (the s91 tool, reused not duplicated;
 //      users + the Setting singleton stay functional)
-//   3. logs into BOTH apps, captures the 9 pages per app at 1440x900
-//      (the reference's Base44 badge closed, content-waits per page)
+//   3. logs into BOTH apps, captures the 9 pages per app at the given
+//      viewport (default 1440x900; the reference's Base44 badge closed,
+//      content-waits per page)
 //   4. pairwise pixel-diffs each page (per-channel tolerance 12, the
 //      s91 value) — the PNGs decode in a browser canvas (getImageData);
 //      the PURE diffPixels seam is the same function the unit pins
@@ -25,7 +26,21 @@
 // drift REPORT (exit 0 with the table); pass --max-diff=<pct> to gate
 // a threshold CI-style (exit 1 when any page exceeds it).
 //
+// The PHONE-WIDTH standing table (session-94 maiden run, 390x844 —
+// the first phone sweep): a uniform ~0.5% floor on EVERY page (the
+// mobile-nav superset topbar genus — ours renders [hamburger LEFT] +
+// [account RIGHT], the reference [account LEFT] alone; the displaced
+// account glyphs + the hamburger ≈ 1600 px ≈ 0.49% of the 390x844
+// frame) · settings ~7.3% (the same picklist genus, a LARGER share of
+// the narrower frame) · reports ~0.7% (the floor + chart noise). The
+// desktop table above still governs the default run.
+//
 // Run: bun run sweep   (or: bun scripts/sweep.ts)
+//   Phone-width mode (session-94, the s93 suggested next — the 390px
+//   rotation method productized): bun run sweep -- --width 390
+//   --height 844. The shots land in a viewport-tagged subfolder
+//   (sweep-shots/w390x844/) so a phone run never collides with the
+//   desktop shots; the diff table is computed fresh per run either way.
 // Env:  OUR_URL (default http://localhost:3000)
 //       REF_URL (default https://neo-crm-8ab2c17c.base44.app)
 //       REF_EMAIL / REF_PASSWORD (the documented demo login defaults)
@@ -144,9 +159,14 @@ async function captureAll(
   mkdirSync(dir, { recursive: true });
   for (const p of PAGES) {
     await page.goto(`${base}${p.path}`, { waitUntil: "domcontentloaded" });
-    // content-wait: the shell's nav must paint before the capture
+    // content-wait: the shell's main column must paint before the
+    // capture. Width-AGNOSTIC by design (session-94): the nav links
+    // are display:none below md on BOTH apps, so a nav-a visible-wait
+    // burns its full 15s timeout on every page at phone width. main
+    // paints at every width; the 2500ms settle below covers the
+    // shell's data fetch.
     await page
-      .locator("nav a, header a, [role=navigation] a")
+      .locator("main")
       .first()
       .waitFor({ state: "visible", timeout: 15000 })
       .catch(() => undefined);
@@ -216,6 +236,19 @@ async function main() {
   const maxDiffIdx = process.argv.indexOf("--max-diff");
   const maxDiff = maxDiffIdx >= 0 ? Number(process.argv[maxDiffIdx + 1]) : null;
 
+  // Session-94 (S94-P0): the phone-width mode — `bun run sweep --
+  // --width 390 --height 844` runs the same 9-page zero-data diff at
+  // phone width (the s93 suggested next: the 390px rotation method
+  // productized — the dialog/popover/tabs families were walked
+  // manually at TRUE 390x844 for three sessions before this). The
+  // viewport feeds BOTH the capture context and the shots dir (a
+  // w390x844 run must never collide with the desktop shots).
+  const widthIdx = process.argv.indexOf("--width");
+  const WIDTH = widthIdx >= 0 ? Number(process.argv[widthIdx + 1]) : 1440;
+  const heightIdx = process.argv.indexOf("--height");
+  const HEIGHT = heightIdx >= 0 ? Number(process.argv[heightIdx + 1]) : 900;
+  const shots = path.join(SHOTS, `w${WIDTH}x${HEIGHT}`);
+
   // 1. the dev server: reuse :3000 or boot one
   let spawned: ReturnType<typeof spawn> | null = null;
   if (await waitOnUrl(`${OUR_URL}/login`, 3000)) {
@@ -254,31 +287,31 @@ async function main() {
 
     // 3-4. capture both sides + diff
     const browser = await chromium.launch({ headless: process.env.HEADLESS === "0" ? false : true });
-    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const ctx = await browser.newContext({ viewport: { width: WIDTH, height: HEIGHT } });
     const refPage = await ctx.newPage();
     log(`logging into the reference ${REF_URL}…`);
     await login(refPage, REF_URL);
-    await captureAll(refPage, REF_URL, path.join(SHOTS, "ref"));
+    await captureAll(refPage, REF_URL, path.join(shots, "ref"));
 
     const ourPage = await ctx.newPage();
     log(`logging into ours ${OUR_URL}…`);
     await login(ourPage, OUR_URL);
-    await captureAll(ourPage, OUR_URL, path.join(SHOTS, "ours"));
+    await captureAll(ourPage, OUR_URL, path.join(shots, "ours"));
 
     const diffPage = await ctx.newPage();
     await diffPage.goto("about:blank");
-    log("pairwise pixel diff (tolerance " + TOLERANCE + ")…");
+    log(`pairwise pixel diff (viewport ${WIDTH}x${HEIGHT}, tolerance ${TOLERANCE})…`);
     const rows: Array<[string, number]> = [];
     for (const p of PAGES) {
-      const refPng = readFileSync(path.join(SHOTS, "ref", `${p.name}.png`));
-      const ourPng = readFileSync(path.join(SHOTS, "ours", `${p.name}.png`));
+      const refPng = readFileSync(path.join(shots, "ref", `${p.name}.png`));
+      const ourPng = readFileSync(path.join(shots, "ours", `${p.name}.png`));
       const r = await diffPair(diffPage, refPng, ourPng);
       rows.push([p.name, r.pct]);
     }
     await browser.close();
 
     // 5. the report
-    console.log("\n[sweep] === the zero-data diff report ===");
+    console.log(`\n[sweep] === the zero-data diff report (${WIDTH}x${HEIGHT}) ===`);
     let worst = 0;
     for (const [name, pct] of rows) {
       worst = Math.max(worst, pct);

@@ -108,7 +108,7 @@ regression suite.
   `<repo>/db/<name>`.
 - **Rationale:** Keeps `DATABASE_URL=file:../db/custom.db` working
   identically across `next dev`, `next build`, `next start`, Prisma CLI and
-  the Playwright webServer — pinned by `tests/db-path.test.ts` (16 checks:
+  the Playwright webServer — pinned by `tests/db-path.test.ts` (20 checks:
   urlForRoot first-boot mkdir, parseEnvFile, effectiveDatabaseUrl
   re-anchoring, runtimeDatabaseUrl discovery, plus the original passthrough
   and anchoring contract).
@@ -204,7 +204,7 @@ regression suite.
   adjust-during-render (React 19 lint-safe), and auto-close when the viewport
   grows past `md` (session-7: the drawer and trigger are `md:hidden`,
   matching the reference sidebar's `hidden md:flex`). Pinned by
-  `tests/e2e/mobile-navigation.spec.ts` (7 checks, 390/700px viewports).
+  `tests/e2e/mobile-navigation.spec.ts` (9 checks, 390/700px viewports).
 - **Rationale:** Restores the primary navigation affordance the reference
   lost; every behavior maps to a documented Tailwind-v4/React-19 failure
   class in the skills research (overlay clipping, z-index wars, scroll-lock
@@ -355,8 +355,8 @@ neo-crm/
 │   ├── stores/crm-store.ts      # single Zustand store + call() client
 │   └── types/index.ts           # wire types shared by API and client
 ├── tests/
-│   ├── *.test.ts                # 77 Vitest suites — 1257 checks
-│   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 112 checks
+│   ├── *.test.ts                # 102 Vitest suites — 1832 checks
+│   └── e2e/                     # global-setup, auth.setup, 3 spec files + setup project — 132 checks
 ├── docs/                        # validation report, SSH runbook, screenshots
 ├── next.config.ts               # standalone output + traced prisma root
 └── postcss.config.mjs           # @tailwindcss/postcss — REQUIRED (ADR-005)
@@ -771,7 +771,8 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 | Unit — the dialog-geometry parity layer (the 92-c dialogs-at-390 walk: every dialog family opened at TRUE 390px on BOTH apps — the M-92c1 pins [the PHANTOM-MB SELECT-TRIGGER GENUS: Radix's hidden native select (position:absolute, no hidden attribute) as the Select group's last TREE-child makes v4's :not(:last-child) match the TRIGGER → margin-bottom 8px where v3 computed 0; invisible in block groups (collapses out) but +8px wherever the group is a DIRECT GRID ITEM (a BFC) — the Account Status + Contact source groups 68→76; FIXED via DIALOG_GROUP.controlMt "mt-2" → "mt-2 mb-0", the (0,1,0) class beating the (0,0,0) :where() rule] + the L-92c2 pins [the contact dialog's sections NESTED — the h3s inside the space-y-4 pairGroups, the reference's own [H3, group, group] construction; the flattened grid-item H3s retired] + the M-92c3 pins [the Event Description textarea rows={3} — the reference's own rows, the house's own comment had decoded it but the prop never landed] + the N-92c4 pins [the Import columns-box p2 mt-1 — the reference COMPUTES 4px, the v3 space-y-1 (0,3,0) rule overriding the (0,1,0) mt-2 utility; the M-91c2 genus INVERSE] + the census anchors [the 4 controlMt select triggers; the Event family's BARE-cell selects immune; the textarea rows family 3+4; the 112 comment-stripped space-y occurrence census — F-92a1's documented method] + the audit-nano pins [the stat-value-contract 2-bare+4-explicit re-derivation; the AGENTS §Session-91 block; the CLAUDE 1828 anchors]; +19 its = 1828 — session-92) | 1 | 19 new (dialog-geometry-parity) + 2 files re-anchored (page-layout DIALOG_GROUP, spacey-hazard-parity controlMt-count) + 3 prose files (stat-value-contract header, constants label, spacey header) | `tests/dialog-geometry-parity.test.ts` (NEW), `tests/page-layout.test.ts`, `tests/spacey-hazard-parity.test.ts`, `tests/stat-value-contract.test.ts`, `tests/constants.test.ts` | Vitest |
 | Unit — the sweep-tool layer (the S92-P5 promotion: the s91 zero-data screenshot-diff sweep as a ONE-COMMAND repo regression — scripts/sweep.ts + the `bun run sweep` alias: the 9-page list verbatim, the per-channel tolerance 12, the PURE diffPixels seam [identical → 0.00%, a 2-pixel shift → exactly those pixels, tolerance-aware, size-mismatch throws], the zero-data.ts reuse + the db:seed restore, the canvas getImageData diff with ZERO new dependencies; +8 its — session-92) | 1 | 8 new (sweep-tool) | `tests/sweep-tool.test.ts` (NEW) | Vitest |
 | Unit — the fresh-clone gate-repair pin (the 93 F-A layer: scripts/sweep.ts failed `tsc --noEmit` on a FRESH CLONE — the child-process env was cast `as Record<string, string | undefined>` before `spawnSync({ env })`, and Next 16's next/types/global.d.ts augments NodeJS.ProcessEnv with a REQUIRED readonly NODE_ENV literal union that an index-signature record cannot satisfy; the s92 gate's tsc-0 was masked by its sandbox's incremental build state; FIXED by retiring the cast — the spread's inferred NodeJS.ProcessEnv is the correct spawnSync env, `delete zEnv.DATABASE_URL` stays legal via the Dict<string> index signature; the pin asserts the uncast construction in the positive form + the cast-retirement negative, stash-re-proven non-vacuous; +1 it = 1829 — session-93) | 1 | 1 new (the sweep-tool env-typing pin) | `tests/sweep-tool.test.ts` | Vitest |
-| **Total** | **102** | **1829 unit + 132 e2e** | | |
+| Unit — the phone-width sweep-mode layer (the 94 S94-P0 pins: scripts/sweep.ts gains `--width`/`--height` — `bun run sweep -- --width 390 --height 844` runs the same 9-page zero-data pairwise diff at phone width, the s93 suggested next with the 390px rotation method productized [the dialog s92 / popover-menu s93 / tabs s94 families were walked manually at TRUE 390x844 for three sessions first]; the pins assert the flag parsing + the parameterized capture viewport [the hardcoded 1440x900 retired], the viewport-tagged shots dir `w${WIDTH}x${HEIGHT}` [a phone run never collides with the desktop shots], and the width-AGNOSTIC per-page content-wait [`.locator("main")` — the nav links are display:none below md on BOTH apps, so the old nav-a visible-wait burned its full 15s timeout per page at 390]; the MAIDEN 390x844 run: 8 pages at the ~0.5% mobile-nav-superset topbar floor [the displaced account glyphs + the hamburger ≈ 1600px ≈ 0.49% of the 390x844 frame] + settings 7.34% [the picklist genus, a larger share of the narrower frame] — ZERO new drift, both standing tables documented in the tool header; +3 its = 1832 — session-94) | 1 | 3 new (the sweep-tool phone-width pins) + 1 file re-anchored (dialog-geometry-parity CLAUDE count 1829→1832) + 2 prose files (sweep-tool header usage docs, sweep-tool-test header) | `tests/sweep-tool.test.ts` | Vitest |
+| **Total** | **102** | **1832 unit + 132 e2e** | | |
 | Unit — the accounts rail layer (the M-86c1 pins [the account Status trio active/inactive/PROSPECT at BOTH dialog configs — the reference's bce/wce decode; the edit dialog's offered Prospect previously ALWAYS 400'd against the churned validators] + the M-86c2 pins [the accountTierFromRevenue boundary matrix + the six consumption sites — row/KPI/filter/both exports/Cards — + the five stored-field retirement negatives: schema/type/API/create-payload/seed] + the L-86c3 pins [the name-only search predicate + the industry/email concat negative] + the N-86c6 pin [the explicit pl-9 h-9] + the L-86c4 pins [the filtered-map export basis + the zero-RAW guard + the RAW header binding] + the N-86c5 pins [the three dead SelectValue placeholders] + the green anchors [the rail anatomy + the checkbox labels + the revenue ranges]; +25 its, −3 retired = +22 net → 1709 — session-86) | 1 | 25 new − 3 lockstep-retired (accounts-rail-parity) | `tests/accounts-rail-parity.test.ts` (NEW) | Vitest |
 | Unit — the dashboard KPI-family layer (the M-87c1 pins [the Avg-Sales-Cycle "days" suffix text-muted gray-500 -> the reference's literal text-gray-600 rgb(75,85,99), the s12 label fix's missed sibling, LIVE-verified both apps] + the L-87c2 pins [the SINGLE-SLOT spark construction — ONE slot div per card (mt-2 h-8 line/area; mt-2 h-8 flex items-end gap-1 bars) with the chart as the DIRECT child: the bare ResponsiveContainer / the bare div bars flex-1 bg-cyan-400|bg-green-400 rounded-sm (the static colors as bg-CLASSES, inline only for the colorFor variant); the KpiCard's sparkClassName slot + the content-only Sparkline (the className prop, the aria-hidden, the reports' h-full intermediate div all retire)] + the L-87c3 pins [the Card > CardContent "p-4 sm:p-6" split + the labelRow (flex justify-between items-start mb-2 > span) + the BARE valueRow (flex items-end gap-2 — no mt-2, no flex-wrap) + the span value + the div delta/valueNote] + the N-87c4 pins [the stage/source dead SelectValue placeholders mirrored + the view switcher's "Format" documented-unmirrorable (our functional "" default would render it)] + the N-87c5/c6 pins [the bare sm:w-auto + the explicit pl-9 h-9] + the N-87c7 pins [the Pipeline card's BARE stock CardHeader + the five nested flex justify-between items-center rows + the Last-6-months literal text-gray-500] + the N-87a1 pin [the vacuous api-robustness tier row retired]; +25 its, −1 vacuous-retired = +24 net → 1733 — session-87) | 1 | 25 new − 1 lockstep-retired (dashboard-kpi-parity) + 3 files re-anchored (page-layout KPI_CARD.card, dashboard-family-parity ×3 pins, reports-filter-parity LineChart) | `tests/dashboard-kpi-parity.test.ts` (NEW), `tests/page-layout.test.ts`, `tests/dashboard-family-parity.test.ts`, `tests/reports-filter-parity.test.ts`, `tests/api-robustness.test.ts` | Vitest |
 | Unit — the contacts-family layer + the v3-palette re-pin (the M-88c1 pins [the @theme V3-PALETTE RE-PIN — 92 --color-{family}-{step} tokens covering every literal palette class used in src/; Tailwind v4's default oklch palette diverges from the reference's v3 hex palette on the chromatic families (blue-600 v4 #155dfc rgb(21,93,252) vs v3 #2563eb rgb(37,99,235); red-600 Δ38; green-400 Δ69; amber-400 Δ36; purple-600 Δ35; cyan-400 Δ34 — 56 of 118 literal classes visibly; verified against the reference's compiled CSS on 97 rules, zero mismatches; the S15-P12 hazard retired family-wide; the fifth member of the v4 re-pin family)] + the M-88c2 pins [the table's last-activity icon Zap -> the reference's AC=tr("Activity") pulse glyph] + the M-88c3 pins [the Award pair — wT=tr("Award") at the stat card icon + the name-cell amber overlay; the bundle ships NO Crown] + the M-88c4 pins [the Source labels capitalized via the reference's own charAt(0).toUpperCase()+slice(1); the id/value stay raw] + the L-88c5 pins [the IconStatCard contacts-arm Card > CardContent "p-6" split + the iconColor bg-CLASS chip mechanism (no inline style/shrink-0/aria-hidden) + the trend-row div with explicit-color TrendingUp|TrendingDown + trendDir; the subValue/tone/color retire from the arm] + the L-88c6 pins [the Export CSV disabled binding reads the RAW list — the s63 N-62e "unresolvable" bundle-RESOLVED] + the L-88c7 pins [the conditional mr-[500px] on the inner scroll div while the detail slide-over is open] + the N-88c8 pins [the mobile badge's bare map — the border font-medium extras retired] + the N-88c9 pin [the aria-expanded superset documented] + the N-88a1/a2 pins [the describe-title count + the stale s11 comment re-derived]; +17 its = 1750 — session-88) | 1 | 17 new (contacts-family-parity) + 2 files re-anchored (api-robustness describe title, page-layout comment) | `tests/contacts-family-parity.test.ts` (NEW), `tests/api-robustness.test.ts`, `tests/page-layout.test.ts` | Vitest |
@@ -784,7 +785,7 @@ in Known Issues). The signup endpoint assigns `admin` to the first user only
 > those rows added or re-anchored — NOT the file's total checks, and NOT
 > a summable column (shared files like `constants.test.ts` appear in
 > several session rows). The **Total** row counts files and checks at
-> HEAD: 102 Vitest suites with 1829 checks + 132 e2e checks in 3 spec
+> HEAD: 102 Vitest suites with 1832 checks + 132 e2e checks in 3 spec
 > files (auth, crm, mobile-navigation) + the auth.setup project (the
 > s88 pass bumped the Total + inventory rows but missed this footnote —
 > N-89a1; re-derived at s89 and now carried forward each session).
@@ -1206,9 +1207,9 @@ must keep all 7 regression checks green unmodified.
 
 - [ ] `bun run lint` — 0 errors, 0 warnings
 - [ ] `bun run typecheck` — clean (the real type gate; build has `ignoreBuildErrors`)
-- [ ] `bun run test` — 1191/1191
+- [ ] `bun run test` — 1832/1832
 - [ ] `bun run build` — standalone build succeeds
-- [ ] `bun run test:e2e` — 112/112
+- [ ] `bun run test:e2e` — 132/132
 - [ ] Mobile drawer manually exercised at 390px (open → navigate → Escape)
 - [ ] Zero webfonts: `document.fonts` empty on /, body computes the stock
       `ui-sans-serif, system-ui` stack, smoothing `auto` (session-22)
@@ -1276,8 +1277,8 @@ bun run dev          # http://localhost:3000 — demo: sepnetflix2023@outlook.co
 | ------- | -------- | ------- |
 | `bun run dev` | root | Dev server :3000, log tee'd to `dev.log` |
 | `bun run lint` / `typecheck` | root | Quality gates (must be 0/0 / clean) |
-| `bun run test` | root | 1191 unit checks |
-| `bun run test:e2e` | root | 112 browser checks (build first) |
+| `bun run test` | root | 1832 unit checks |
+| `bun run test:e2e` | root | 132 browser checks (build first) |
 | `bun run db:census` | root | The sanctioned DB census — resolved path + counts + the seed-contract verdict (session-53; never a raw PrismaClient) |
 | `bun run gate` | root | The full gate in one command (lint → typecheck → test → build → e2e) |
 | `bunx vitest run tests/auth.test.ts` | root | One suite |
@@ -1322,28 +1323,28 @@ files. Push via the SSH wrapper (§8.4).
 
 | File | Lines | Purpose |
 | ---- | ----- | ------- |
-| `src/stores/crm-store.ts` | 343 | Single Zustand store: hydrate, slices, CRUD actions, `call()` envelope client |
-| `src/lib/auth.ts` | 133 | scrypt hashing, HMAC session tokens, cookie lifecycle, `getSessionUser` |
-| `src/lib/api.ts` | 137 | `ok`/`fail`/`ERR` envelope, `requireSession` guard, validation coercers |
+| `src/stores/crm-store.ts` | 437 | Single Zustand store: hydrate, slices, CRUD actions, `call()` envelope client |
+| `src/lib/auth.ts` | 153 | scrypt hashing, HMAC session tokens, cookie lifecycle, `getSessionUser` |
+| `src/lib/api.ts` | 172 | `ok`/`fail`/`ERR` envelope, `requireSession` guard, validation coercers |
 | `src/lib/db-path.ts` | 227 | SQLite URL normalization (CLI-rule mirroring, bun-absolutization re-anchoring, .env parsing, standalone-safe) |
 | `src/lib/db.ts` | 22 | `globalThis` Prisma singleton (the only sanctioned constructor) |
-| `src/lib/format.ts` | 257 | Currency/date/relative-time/calendar-grid pure helpers |
-| `src/lib/constants.ts` | 498 | Status vocabularies + label/color metadata + chart palette |
-| `src/lib/lead-filters.ts` | 174 | Leads Filters popover persist/restore seam — the saved-views list pair `encodeSavedLeadViews`/`decodeSavedLeadViews` (localStorage key `neo-crm.leads.views`), vocabulary-guarded decoding through the internal `asFilters` (legacy capitalized vocabularies decode to null), pinned by `tests/lead-filters.test.ts` (sessions 8/29/55) |
-| `src/lib/login-reset.ts` | 245 | Session-11 login reset-password seam — `LOGIN_RESET_LAYOUT` (the two view contracts: classes for the reset/sent views, the lighter slate-400 placeholder, the `mb-4` v4-correct back-gap), `nextLoginView()` swap table, `canSubmitReset()` gating — pinned by `tests/login-reset.test.ts` |
-| `src/lib/reports-data.ts` | ~210 | Session-31 reports derivations — `pipelineStageCounts` (the 8-slug leads+opps funnel SPLIT), `monthKey`/`countByMonth`/`revenueByMonth`/`wonLostByMonth` (the insertion-order "MMM yyyy" close-month series), `forecastAccuracySeries` (the actual/forecasted formula), `agingCounts` (created-date age), `dealsAtRiskRows` (the last-activity join) — pinned by `tests/reports-data.test.ts` |
-| `src/lib/page-layout.ts` | 1258 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint, stock-primitive pins, CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT) consumed by every page — sessions 6–11 |
+| `src/lib/format.ts` | 336 | Currency/date/relative-time/calendar-grid pure helpers |
+| `src/lib/constants.ts` | 547 | Status vocabularies + label/color metadata + chart palette |
+| `src/lib/lead-filters.ts` | 183 | Leads Filters popover persist/restore seam — the saved-views list pair `encodeSavedLeadViews`/`decodeSavedLeadViews` (localStorage key `neo-crm.leads.views`), vocabulary-guarded decoding through the internal `asFilters` (legacy capitalized vocabularies decode to null), pinned by `tests/lead-filters.test.ts` (sessions 8/29/55) |
+| `src/lib/login-reset.ts` | 275 | Session-11 login reset-password seam — `LOGIN_RESET_LAYOUT` (the two view contracts: classes for the reset/sent views, the lighter slate-400 placeholder, the `mb-4` v4-correct back-gap), `nextLoginView()` swap table, `canSubmitReset()` gating — pinned by `tests/login-reset.test.ts` |
+| `src/lib/reports-data.ts` | ~213 | Session-31 reports derivations — `pipelineStageCounts` (the 8-slug leads+opps funnel SPLIT), `monthKey`/`countByMonth`/`revenueByMonth`/`wonLostByMonth` (the insertion-order "MMM yyyy" close-month series), `forecastAccuracySeries` (the actual/forecasted formula), `agingCounts` (created-date age), `dealsAtRiskRows` (the last-activity join) — pinned by `tests/reports-data.test.ts` |
+| `src/lib/page-layout.ts` | 1520 | DOM-pinned layout + chrome contracts (KPI grids, page headers, rails, filter bars, shell/sidebar/topbar, login card, stat cards, view switchers, leads filters popover, mobile-nav breakpoint, stock-primitive pins, CHART_GEOMETRY / STAT_SHADOWS / TABLE_SHADOWS / CONTACTS_LAYOUT) consumed by every page — sessions 6–11 |
 | `src/lib/csv.ts` | 104 | RFC-4180 serializer/parser (export + import) |
 | `src/app/(app)/*/page.tsx` + `*-page.tsx` | — | Session-10 pattern: thin SERVER `page.tsx` wrappers (per-page metadata titles) rendering the renamed client parts — client pages cannot export metadata; per-route `layout.tsx` hit a Next 16 typed-routes bug |
-| `src/lib/rate-limit.ts` | 47 | Fixed-window limiter with sweeper |
+| `src/lib/rate-limit.ts` | 51 | Fixed-window limiter with sweeper |
 | `src/components/layout/mobile-nav.tsx` | 206 | THE mobile drawer fix (focus trap, dual scroll lock, inert) |
 | `src/components/layout/app-shell.tsx` | 70 | Chrome composition + store bootstrap; session-7 reference model: in-flow `hidden md:flex` sidebar, `flex h-screen` root, `main` the only scroller |
-| `src/components/shared/entity-dialogs.tsx` | ~1080 | Five entity forms, remount-via-key pattern |
-| `src/app/globals.css` | 269 | Tailwind v4 `@theme` tokens + `@utility` definitions |
+| `src/components/shared/entity-dialogs.tsx` | ~1222 | Five entity forms, remount-via-key pattern |
+| `src/app/globals.css` | 413 | Tailwind v4 `@theme` tokens + `@utility` definitions |
 | `src/app/(app)/layout.tsx` | 11 | Session guard for every authenticated page |
-| `prisma/schema.prisma` | 242 | 9 models, SQLite datasource, indexes, the session-21 verification columns |
-| `prisma/seed.ts` | 468 | Idempotent in-place demo workspace |
-| `tests/e2e/mobile-navigation.spec.ts` | ~150 | 7-check mobile drawer regression suite |
+| `prisma/schema.prisma` | 244 | 9 models, SQLite datasource, indexes, the session-21 verification columns |
+| `prisma/seed.ts` | 466 | Idempotent in-place demo workspace |
+| `tests/e2e/mobile-navigation.spec.ts` | ~228 | 9-check mobile drawer regression suite |
 | `postcss.config.mjs` | 8 | `@tailwindcss/postcss` — required for any styling at all |
 | `next.config.ts` | 47 | standalone output + tracing root |
 | `docs/ssh_git_wrapper_v3.py` | 336 | Verified SSH push wrapper (key never in repo) |

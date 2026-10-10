@@ -111,4 +111,36 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
     // Next 16 ProcessEnv augmentation
     expect(src).not.toMatch(/as Record<string, string \| undefined>/);
   });
+
+  // Session-94 (S94-P0): the phone-width sweep mode — the s93
+  // suggested next ("extend the sweep tool with a --width 390
+  // phone-width page-sweep mode — the rotation method productized").
+  // The dialog (s92), popover/menu (s93) and tabs (s94) families were
+  // walked MANUALLY at TRUE 390x844 across three sessions; the sweep
+  // now runs the same 9-page zero-data pairwise diff at ANY viewport:
+  // `bun run sweep -- --width 390 --height 844`.
+  it("parses --width/--height (defaults 1440x900) and feeds the capture viewport", () => {
+    const src = read("scripts/sweep.ts");
+    expect(src).toContain('"--width"');
+    expect(src).toContain('"--height"');
+    // the capture context rides the parsed values — the hardcoded
+    // 1440x900 viewport is retired
+    expect(src).toContain("viewport: { width: WIDTH, height: HEIGHT }");
+    expect(src).not.toContain("viewport: { width: 1440, height: 900 }");
+  });
+
+  it("the shots dir is viewport-tagged (a phone run never collides with the desktop shots)", () => {
+    const src = read("scripts/sweep.ts");
+    // w${WIDTH}x${HEIGHT} — the template literal in the dir construction
+    expect(src).toContain("w${WIDTH}x${HEIGHT}");
+  });
+
+  it("the per-page content-wait is width-agnostic (main paints at every width — nav links are display:none below md on BOTH apps, so the old nav-a wait would burn its 15s timeout on every page at 390)", () => {
+    const src = read("scripts/sweep.ts");
+    // prettier wraps `page` and `.locator("main")` across lines — assert
+    // the member-form needle (the s93 wrap-repair class)
+    expect(src).toContain('.locator("main")');
+    // the width-blind selector is retired
+    expect(src).not.toContain("nav a, header a");
+  });
 });

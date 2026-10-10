@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.90.0
+version: 1.91.0
 last_updated: 2026-10-10
-project_state: 1829 unit checks + 132 e2e checks green; the session-93 layer (the 93-c rotation — the POPOVER/MENU FAMILY AT TRUE 390px + the fresh-clone gate repair): the leads Filters popover FULL MATCH on both apps [content 320px @ x=32, h=398, radius 6, white bg; the interior space-y-4 rows 64/64/64/64/44 with 16px gaps on both — the reference computes the gaps as v3 margin-TOP on following rows, ours as v4 margin-BOTTOM on preceding rows; in block flow (no grid BFC, no inline-label face) the rendered geometry is IDENTICAL — the space-y genus does NOT bite in popover block flow] + the topbar account menu GEOMETRY MATCH [128x74 @ y=56, radius 6, items Profile/Logout on both] with the TRIGGER-POSITION GENUS DECODED AND DOCUMENTED [the reference's topbar is flex items-center justify-between gap-4 with (search wrapper hidden sm:flex flex-1 max-w-xl) + (right group flex items-center gap-2 sm:gap-4 — Messages/Notifications/account); at 390 the search wrapper is display:none so the right group is the SOLE flex item and justify-between places it at flex-START — the reference's account renders at x=16 LEFT, an accident of its own construction; OURS inserts the hamburger as an additional first child (the deliberate mobile-nav superset) so the row resolves [hamburger LEFT] + [account RIGHT] — the natural mobile pattern; the construction is byte-equivalent otherwise (same classes, same DOM order, same group membership, hidden sm:flex Messages/Notifications matched, the account trigger 84px on both); documented as a STANDING EXPLAINED GENUS in topbar.tsx — do NOT restructure to chase the reference's accidental left-placement] + the reference census #89 [isolated AGENT_BROWSER_SESSION, live login, TRUE 390x844: demo data zero, the mobile-nav defect STANDS — nav w=0, 0 visible links, NO menu button; desktop nav normal 256px/8 links; after a multi-tab probe ambiguity in the main session was chased down and the census re-run clean] + the drift sweep #89 [the reference bundle md5 a70a637f... EXACT + the stylesheet — the 64th consecutive stable session] + OUR DRAWER BATTERY re-verified LIVE at TRUE 390 [the trigger 16,16 36x36, the panel 288px @ x0 computing the sidebar blue rgb(37,99,235), 8 links, focus inside, body scroll lock, navigate-close -> /Leads, the closed root inert + visibility:hidden + pointer-events none, lock released — FULLY GREEN] + THE FRESH-CLONE GATE REPAIR (F-A, HIGH) [scripts/sweep.ts:241/:284 failed tsc --noEmit on a fresh clone: the env object was cast as Record<string, string | undefined> before spawnSync({ env }) — Next 16's next/types/global.d.ts (pulled into every program importing next/server) augments NodeJS.ProcessEnv with a REQUIRED readonly NODE_ENV literal union, and an index-signature record cannot satisfy that required member, so no spawnSync overload accepts it; reproduced on lockfile-exact versions fresh-clone/post-build/post-dev-types/clean-tsbuildinfo; the s92 gate's tsc-0 was masked by its sandbox's incremental build state; FIXED by retiring the cast — the spread's inferred NodeJS.ProcessEnv is the correct spawnSync env, and delete zEnv.DATABASE_URL stays legal (the property rides the Dict<string> index signature)] — pinned RED-first [the new sweep-tool pin: the uncast construction asserted in the positive form + the cast-retirement negative; non-vacuousness stash-re-proven: 1 failed | 8 passed pre-fix, 9/9 post-fix, ZERO collateral]; GATE: lint 0/0 · tsc 0 · 1829/1829 unit [102 suites, +1 net] · build · 132/132 e2e fresh CI=1 [3.1m on the re-run; the known settings-debounce focus flake on the first run passed standalone AND on the full re-run — untouched by this session's delta] · LIVE [the drawer battery GREEN; the popover + menu family re-verified; the census MATCH; the reference md5-exact — the 64th consecutive stable session] · 3 screenshots NEW [133 + 134 + 135, VLM 5/5 + 5/5 + 5/5 — two adjudications (133's anchored-below NO vs the DOM-verified right-edges-aligned menu at 246..374 within 390; 134's cut-off NO vs the DOM-verified popover at 32..352 within 390) + one expected note (135's recent-deals below the 900px fold — the shared dashboard scroll geometry)] · docs at SKILL v1.90.0 [16cg + project_state + the H1] + README badge 1961 + AGENTS/CLAUDE/PAD at 1829+132 [the AGENTS 16Session-93 block + the PAD s93 inventory row + the Total 102/1829 + the footnote]
+project_state: 1832 unit checks + 132 e2e checks green; the session-94 layer (the 94-c rotation — the TABS FAMILY AT TRUE 390px [the last unwalked interactive family] + the phone-width sweep mode): the reports PILL strip FULL GEOMETRY MATCH [track 358x82 @ (16,1333) on both; grid-cols-2 reflow to 174px cols, 5 tabs in 3 rows of 24px, zero gaps, no overflow — the page above renders at identical heights down to the y-coordinate] + the settings SEGMENTED strip FULL MATCH INCLUDING THE DEFECT [3 fractional cols, track 358x36 @ (16,197); CRM Configuration scrollWidth>clientWidth on BOTH apps — the reference's own whitespace-nowrap clipping at 117px cols, faithfully mirrored, VLM-adjudicated visually benign] + the activities SEGMENTED strip FULL MATCH [track 326x36 @ (32,1057), 4 cols of 79.5px; the only delta is DATA — our seeded Overdue-3 count badge, the reference's own construction] + THE SWEEP TOOL PHONE-WIDTH MODE (S94-P0, TDD, the s93 suggested-next #1) [bun run sweep -- --width 390 --height 844: the flags feed the capture context AND the viewport-tagged shots dir sweep-shots/w390x844/; the per-page content-wait width-agnostic via .locator(main) — nav links are display:none below md on BOTH apps so the old nav-a wait burned 15s/page at 390; RED-first 3 pins stash-re-proven non-vacuous; the MAIDEN run: 8 pages at the ~0.5% mobile-nav-superset topbar floor (displaced account glyphs + hamburger = 1600px = 0.49% of the 390x844 frame) + settings 7.34% (the picklist genus, larger share of the narrower frame) — ZERO new drift, both standing tables in the tool header] + the audits [94-a: the s93 delta 4/4 GENUINE-OK + the count-in-comment genus guard — the F-94a1-a8 stale-count family (the mobile-nav 7-check quartet, the PAD tree freeze 77/1257/112 -> 102/1832/132, the db-path 16 -> 20 checks, the Lines-column drift x14, the gate-checklist 1191/112) + N-94a1 (the SKILL 16Session-93 §-mangling) — all fixed docs-only; 94-b: the graduation audit 13/13 GENUINE (zero graduations, ~50th consecutive), the CSV census 17 sites zero unguarded, the source-vocabulary diff empty since s90, the config + SEO/sitemap layers verified standing] + the reference census #90 [demo zero, desktop 256px/8, the mobile-nav defect STANDS at TRUE 390] + the drift sweep #90 [bundle md5 a70a637f... EXACT — the 65th consecutive stable session] + THE CORRECTED DRAWER BATTERY FULLY GREEN at TRUE 390 [trigger 16,16 36x36; panel 288px @ x0 computing rgb(37,99,235); 8 links; focus inside; dual body+main lock; navigate-close -> /Leads; closed root inert+hidden+pe-none; Escape-close — after decoding the probe trap: a loose aria-label*=menu selector hits the hidden CLOSE button first and visibility:hidden preserves geometry+offsetParent, so closed-state probes read like open-state ones] + GATE: lint 0/0 · tsc 0 · 1832/1832 unit [102 suites, +3 net] · build · 132/132 e2e fresh CI=1 [3.2m, zero flakes — one environmental chromium crash at setup, clean after the stray-browser cleanup] + 3 screenshots NEW [136 + 137 + 138, VLM 5/5 x3 — one adjudication (138's clipped-label NO vs the DOM-verified shared overflow genus)] + docs at SKILL v1.91.0 [16ch + project_state + the H1] + README badge 1964 + AGENTS/CLAUDE/PAD at 1832+132 [the AGENTS §Session-94 block + the PAD s94 inventory row + the Total 102/1832] + both operator decisions re-affirmed (54th: CSV posture (b) + source-vocabulary parity)
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.90.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.91.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -356,7 +356,7 @@ proper drawer:
 - `inert` + `visibility:hidden` (with `transition-[visibility]`) when
   closed — never `display:none`, which kills the exit transition
 
-`tests/e2e/mobile-navigation.spec.ts` (7 checks, 390/700px viewports) is the regression suite.
+`tests/e2e/mobile-navigation.spec.ts` (9 checks, 390/700px viewports) is the regression suite.
 Do not weaken it; extend it when the drawer changes.
 
 ### 5.5 Reference-defect register (fixed deliberately)
@@ -8448,3 +8448,73 @@ pointer-event sequence Radix listens for; menus silently fail to open).
   net) · build · 132/132 e2e fresh CI=1 (the known settings-debounce
   flake passed standalone + on the full re-run). The closing census
   MATCH; the reference md5-exact.
+
+## 16ch. Session-94 Layer (the tabs family at TRUE 390 + the phone-width sweep mode)
+
+The 94-c rotation — the LAST unwalked interactive family (the tab
+strips on reports/settings/activities) walked at TRUE 390×844 on BOTH
+apps, plus the sweep tool's phone-width mode (the s93
+suggested-next #1, the rotation method productized).
+
+- **The reports PILL strip: FULL GEOMETRY MATCH.** Track 358×82 @
+  (16,1333) on both apps; the `grid-cols-2 lg:grid-cols-5` track
+  reflows to cols "174px 174px" at 390 with the 5 tabs in 3 rows of
+  24px (text-xs + py-1), zero row/column gaps, no label overflow —
+  and the ENTIRE page above the tabs renders at identical heights
+  (the y-coordinate 1333 matches exactly; the s91 full-page parity
+  extends to phone width).
+- **The settings SEGMENTED strip: FULL MATCH including the defect.**
+  3 cols ("116.656px 116.672px 116.656px" — the fractional widths
+  match), track 358×36 @ (16,197), 28px row. "CRM Configuration"
+  computes scrollWidth > clientWidth on BOTH apps — the reference's
+  OWN whitespace-nowrap clipping at 3 cols × 117px, faithfully
+  mirrored (VLM-adjudicated: the bleed is visually benign; the
+  parity claim stands on the DOM evidence).
+- **The activities SEGMENTED strip: FULL MATCH.** Track 326×36 @
+  (32,1057) (inset inside the toolbar), 4 cols of 79.5px, 28px row,
+  no overflow. The only visible delta is DATA-DRIVEN: our seeded
+  workspace renders the "Overdue 3" count badge (the reference's own
+  `>0 && <span>` construction at its zero-data state).
+- **The phone-width sweep mode (S94-P0, TDD)**: `bun run sweep --
+  --width 390 --height 844` — the flags feed BOTH the capture context
+  and the shots dir (`sweep-shots/w390x844/`, never colliding with
+  the desktop shots); the per-page content-wait is now width-agnostic
+  (`.locator("main")` — the nav links are display:none below md on
+  BOTH apps, so the old nav-a visible-wait burned its full 15s
+  timeout per page at 390). Pinned RED-first (3 pins;
+  stash-re-proven non-vacuous). The MAIDEN run table: 8 pages at the
+  ~0.5% mobile-nav-superset topbar floor (the displaced account
+  glyphs + the hamburger ≈ 1600px ≈ 0.49% of the 390×844 frame) +
+  settings 7.34% (the picklist genus, a larger share of the narrower
+  frame) — ZERO new drift; both standing tables live in the tool
+  header.
+- **The audits**: 94-a — the s93 delta 4/4 GENUINE-OK + the
+  count-in-comment genus guard (the F-94a1–a8 stale-count family:
+  the mobile-nav "7-check" quartet [CLAUDE/PAD×2/SKILL], the PAD
+  §3.2 tree freeze [77 suites/1257/112 → 102/1829/132], the
+  db-path "16 checks" → 20, the §11 Lines-column drift ×14 rows, the
+  gate-checklist 1191/112 — all fixed docs-only); 94-b — the
+  graduation audit 13/13 GENUINE (zero graduations, the ~50th
+  consecutive session), the CSV census 17 sites zero unguarded, the
+  source-vocabulary diff EMPTY since s90, the vitest/playwright
+  config layer + the SEO/sitemap layer verified standing.
+- **The probe-trap lesson (the corrected drawer battery)**: a loose
+  `aria-label*=menu` selector hits the drawer's hidden CLOSE button
+  FIRST (DOM order) — and `visibility:hidden` preserves geometry AND
+  offsetParent, so closed-state probes can read like open-state ones
+  (a programmatic `.click()` also bypasses inert, navigating anyway).
+  The battery re-run with exact selectors: trigger (16,16) 36×36;
+  panel 288px @ x0 computing rgb(37,99,235); 8 links; focus inside;
+  dual body+main lock; navigate-close → /Leads; closed root inert +
+  hidden + pe-none; Escape-close — FULLY GREEN.
+- **The standing layers**: drift sweep #90 (bundle md5 a70a637f…
+  EXACT — the 65th consecutive stable session); census #90 (demo
+  zero, desktop 256px/8 links, the mobile-nav defect STANDS at TRUE
+  390 — nav w=0, 0 visible links, no menu button).
+- **The gate**: lint 0/0 · tsc 0 · 1832/1832 unit (102 suites, +3
+  net) · build · 132/132 e2e fresh CI=1 (3.2m, zero flakes — one
+  environmental chromium crash at setup, clean after the
+  stray-browser cleanup). 3 screenshots (136 drawer-open @390 + 137
+  reports pill tabs @390 + 138 settings segmented tabs @390, VLM
+  5/5 × 3 — one adjudication). Both operator decisions re-affirmed
+  (54th): CSV posture (b) + source-vocabulary parity.

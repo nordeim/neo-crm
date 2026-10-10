@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1829 checks)       | `bun run test`                         |
+|  Unit tests (1832 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1829) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1832) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3518,3 +3518,66 @@ screenshots [133 + 134 + 135, VLM 5/5 × 3 — two adjudications + one
 expected below-fold note]. Docs at SKILL v1.90.0 [§16cg +
 project_state] + README badge 1961 + AGENTS/CLAUDE/PAD at 1829+132 +
 session_187.md + the plan + its execution record + the worklog.
+
+### Session-94 — the tabs family at TRUE 390 + the phone-width sweep mode
+
+The 94-c rotation (the s93 suggested-next, the LAST unwalked
+interactive family): the tab strips on all three carrier pages walked
+at TRUE 390×844 on BOTH apps — plus the s93 suggested-next #1, the
+sweep tool's `--width` phone mode (the rotation method productized).
+
+- **The reports PILL strip: FULL GEOMETRY MATCH** (track 358×82 @
+  (16,1333) on both; the grid reflows to cols "174px 174px" with 5
+  tabs in 3 rows of 24px, zero gaps, no overflow — the page above the
+  tabs renders at identical heights down to the y-coordinate).
+- **The settings SEGMENTED strip: FULL MATCH including the defect** —
+  3 cols ("116.656/116.672/116.656px"), track 358×36 @ (16,197), and
+  "CRM Configuration" scrollWidth>clientWidth on BOTH apps (the
+  reference's own whitespace-nowrap clipping at 3 cols × 117px,
+  faithfully mirrored — VLM-adjudicated visually benign).
+- **The activities SEGMENTED strip: FULL MATCH** (track 326×36 @
+  (32,1057) inside the toolbar, 4 cols of 79.5px, 28px row; the only
+  delta is DATA — our seeded "Overdue 3" count badge, the reference's
+  own construction at zero data).
+- **The sweep tool phone mode (S94-P0, TDD)**: `bun run sweep --
+  --width 390 --height 844` — the flag parsing, the parameterized
+  capture viewport (the hardcoded 1440×900 retired), the
+  viewport-tagged shots dir (`sweep-shots/w390x844/`), and the
+  width-AGNOSTIC per-page content-wait (`.locator("main")` — the nav
+  links are display:none below md on BOTH apps, so the old nav-a
+  visible-wait burned 15s/page at 390). RED-first: 3 new pins
+  (stash-re-proven non-vacuous: 3 failed | 9 passed pre-fix → 12/12
+  post). The MAIDEN run: 8 pages at the ~0.5% mobile-nav-superset
+  topbar floor (the displaced account glyphs + hamburger ≈ 1600px ≈
+  0.49% of the 390×844 frame) + settings 7.34% (the picklist genus,
+  larger share of the narrower frame) — ZERO new drift; both standing
+  tables documented in the tool header.
+- **The audits**: 94-a (subagent) — the s93 delta 4/4 GENUINE-OK, the
+  count-in-comment genus guard finding the F-94a1–a8 stale-count
+  family (the mobile-nav "7-check" quartet, the PAD §3.2 tree freeze
+  at 77/1257/112, the db-path "16 checks", the §11 Lines-column
+  drift) + N-94a1 (the SKILL "16Session-93" §-mangling) — all fixed
+  docs-only; 94-b (subagent) — the graduation audit 13/13 GENUINE
+  (zero graduations, the ~50th consecutive), the CSV census 17 sites
+  zero unguarded, the source-vocabulary diff empty since s90, the
+  config layer + the SEO/sitemap layer verified. Both operator
+  decisions re-affirmed (54th): CSV posture (b) + source-vocabulary
+  parity.
+- **The standing layers**: drift sweep #90 (bundle md5 a70a637f… exact
+  — the 65th consecutive stable session); census #90 (demo zero,
+  desktop 256px/8, the mobile-nav defect STANDS at TRUE 390); the
+  drawer battery FULLY GREEN at TRUE 390 (trigger 16,16 36×36; panel
+  288px @ x0 computing rgb(37,99,235); 8 links; focus inside; dual
+  body+main lock; navigate-close → /Leads; closed root inert +
+  hidden + pe-none; Escape-close) — after decoding a probe trap (the
+  loose aria-label*=menu selector hits the hidden close button first;
+  visibility:hidden preserves geometry + offsetParent).
+- **GATE**: lint 0/0 · tsc 0 · 1832/1832 unit [102 suites, +3 net] ·
+  build · 132/132 e2e fresh CI=1 (3.2m, zero flakes — one
+  environmental chromium crash at setup, clean after the stray-browser
+  cleanup; the mobile-nav suite green inside the run). 3 screenshots
+  [136 + 137 + 138, VLM 5/5 × 3 — one adjudication (138's
+  clipped-label NO vs the DOM-verified shared overflow genus)]. Docs
+  at SKILL v1.91.0 [§16ch + project_state] + README badge 1964 +
+  AGENTS/CLAUDE/PAD at 1832+132 + session_189.md + the plan + its
+  execution record + the worklog.
