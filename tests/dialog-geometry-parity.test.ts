@@ -219,7 +219,13 @@ describe("session-92 (F-92a1): the space-y usage census (the documented method)"
   });
 
   it("the SKILL project_state + the PAD row carry the re-derived census (the living docs, method-stated)", () => {
-    expect(read("neo-crm_SKILL.md")).toMatch(/112 comment-stripped space-y occurrences/);
+    // session-93 pin-shape repair: the census phrase lives line-wrapped in
+    // §16cf ("112\n  comment-stripped space-y occurrences") — the s92 form
+    // matched only the UNWRAPPED project_state line and went brittle the
+    // moment the s93 project_state stopped repeating it. Flexible
+    // whitespace keeps the semantic anchor (the census, method-stated)
+    // without depending on where the line breaks.
+    expect(read("neo-crm_SKILL.md")).toMatch(/112\s+comment-stripped space-y occurrences/);
     expect(read("Project_Architecture_Document.md")).not.toMatch(/all 99 space-y/);
   });
 });
@@ -244,9 +250,11 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
 
   it("the CLAUDE.md stale 1788 anchors are re-derived (the test-pyramid line + the coverage line — F-92a3)", () => {
     const claude = read("CLAUDE.md");
-    expect(claude).toContain("Unit (Vitest, 1828 checks)");
-    expect(claude).toContain("(currently 1828)");
+    // session-93 lockstep carry-forward: 1828 -> 1829 (the s93 +1 pin)
+    expect(claude).toContain("Unit (Vitest, 1829 checks)");
+    expect(claude).toContain("(currently 1829)");
     expect(claude).not.toMatch(/1788 checks/);
     expect(claude).not.toMatch(/currently 1788/);
+    expect(claude).not.toMatch(/1828 checks/);
   });
 });

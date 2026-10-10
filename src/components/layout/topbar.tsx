@@ -35,6 +35,23 @@ interface TopbarProps {
  * `justify-between` inner row. The global search hides below `sm` on the
  * reference; ours keeps the functional results dropdown and the e2e-pinned
  * aria-label. The hamburger is our mobile-nav fix (visible below `md`).
+ *
+ * Session-93 standing genus (documented, NOT a defect): at 390px the
+ * reference's account button renders at the LEFT edge — its topbar is
+ * [search wrapper `hidden sm:flex flex-1 max-w-xl`] + [right group
+ * `flex items-center gap-2 sm:gap-4`] in a `justify-between` row, and
+ * with the search wrapper display:none below sm the right group becomes
+ * the SOLE flex item, so justify-between places it at flex-start. That
+ * left placement is an accident of the reference's own construction
+ * (live-verified at TRUE 390, census #89). Ours inserts the hamburger
+ * as an additional first child, so the row resolves [hamburger LEFT] +
+ * [account RIGHT] — the natural mobile pattern and the direct
+ * second-order effect of the deliberate mobile-nav superset. The
+ * construction is otherwise byte-equivalent (same classes, same DOM
+ * order, same group membership, `hidden sm:flex` Messages/Notifications
+ * matched, the account trigger 84px on both). Do NOT restructure this
+ * row to chase the reference's accidental left-placement — that would
+ * imitate a defect-side artifact at the cost of a correct construction.
  */
 export function Topbar({ user, onOpenMobileNav, mobileNavOpen }: TopbarProps) {
   const router = useRouter();

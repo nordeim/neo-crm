@@ -8,12 +8,12 @@ description: >
   mobile-navigation drawer fix, auth, testing strategy, anti-patterns and
   the full debugging playbook. Use it to extend, debug, onboard, or
   replicate this architecture.
-version: 1.89.0
+version: 1.90.0
 last_updated: 2026-10-10
-project_state: 1828 unit checks + 132 e2e checks green; the session-92 layer (the 92-c rotation — the DIALOGS-AT-390 FAMILY WALK: every dialog family opened at TRUE 390px on BOTH apps, geometry + construction diffed live): the outer chrome SOLID on every family (the maxW 512/672 set, the max-h-[calc(100vh-84px)] 759.6px + overflow:auto scroll family on the 2xl dialogs, sm:rounded-lg -> radius 0 at 390, p-6, the footer 72px) + the matches (New Lead 676/592 groups 68x6, Log Activity 442/358 textarea rows=4, Save Custom Report View 476 exact, Edit Lead's BARE groups immune, the settings selects immune — no <form> -> no native select) + FOUR REAL FINDS: the M-92c1 PHANTOM-MB SELECT-TRIGGER GENUS [a NEW v4 space-y face: Radix renders a hidden native <select> (position:absolute, aria-hidden, NO hidden attribute) as the LAST TREE-CHILD of every Select group inside <form> contexts — v4's :where(.space-y-2 > :not(:last-child)) matches the TRIGGER (a non-last child!) giving it margin-bottom 8px where v3's rule gave margin-TOP only (mb always 0 on the reference); in plain block groups the phantom mb collapses out (invisible), but where the group is a DIRECT GRID ITEM (grid items establish a BFC — child margins contained) the group inflates 68 -> 76: the Account create dialog's Status group + the Contact create dialog's source group, both live-verified; FIXED via DIALOG_GROUP.controlMt 'mt-2' -> 'mt-2 mb-0' — mb-0 at (0,1,0) beats the :where() (0,0,0) rule, every controlMt trigger computes mb 0 = the reference; the 4 affected triggers: Account Status + Contact Source + Lead Status/Source] + the L-92c2 CONTACT DIALOG'S FLATTENED SECTIONS [the reference nests each section as space-y-4 [H3, group, group] (live-probed 188px sections); ours flattened the H3s as separate grid items — the H3->field gap 24px (grid gap-6) vs the reference's 16px = +16px; FIXED: the h3s nest INSIDE the pairGroup sections] + the M-92c3 EVENT DIALOG'S DESCRIPTION ROWS [the reference's textarea rows=3 (90px); ours rows=2 (66px, the HTML default — the house's own comment documented 'the Event dialog's rows=3' but the prop never landed); FIXED rows={3}] + the N-92c4 IMPORT DIALOG'S COLUMNS-BOX p2 MARGIN [the box's space-y-1: the reference's 'font-semibold mt-2' p2 COMPUTES 4px (v3's rule at (0,3,0) overrides the (0,1,0) utility); ours computed 8px; FIXED mt-1 per the s11 computed-gap rule — the M-91c2 genus INVERSE] + the genus-guard nanos [F-92a1 the 'all 99 space-y' census re-derived to 112 comment-stripped space-y occurrences across the 19 src files (the algorithm IN the s92 dialog-geometry-parity suite — the documented method); F-92a2 the stat-value-contract header's leads-arm double-count retired (2 bare + 4 explicit); F-92a3 CLAUDE.md's stale 1788 anchors -> 1828; B-92a4 the AGENTS.md §Session-91 history block restored; B-92a5 the constants.test B-2 label] + THE SWEEP TOOL PROMOTED [scripts/sweep.ts — the s91 zero-data screenshot-diff sweep as a ONE-COMMAND regression: bun run sweep boots/reuses :3000, zeroes the domain data via scripts/zero-data.ts, logs into BOTH apps, captures the 9 pages per app at 1440x900, pairwise pixel-diffs in a browser canvas (per-channel tolerance 12, the PURE diffPixels seam, ZERO new deps), prints the % table, restores the seed; --max-diff gates a threshold] — pinned RED-first [27 new pins across dialog-geometry-parity + sweep-tool; non-vacuousness: 23 failed | 1805 passed (1828 total, the stash-verified re-proof after the pin-shape repairs) — exactly the modified pin set, ZERO collateral; 2 lockstep re-anchors (page-layout's DIALOG_GROUP pin + spacey's controlMt-count regex)]; GATE: lint 0/0 · tsc 0 · 1828/1828 unit [102 suites, +27 net] · build · 132/132 e2e fresh CI=1 [3.2m; the known settings-debounce focus flake on the first run passed standalone AND on the full re-run — untouched by this session's delta; the mobile-nav suite green inside the run] · LIVE-verified [the Account dialog 508 (was 516) + rows 68px x4 (was ...76px) + the trigger mb 0px (was 8px) + formH 424; the Contact dialog's sections [197,188,188,68] = the reference's EXACT rows + the H3->field gap 16px (was 24) + formH 817 (was 841) = the reference; the Event dialog 646 (was 622) + the textarea 90px rows=3 (was 66/2); the Import dialog 544 (was 548) + the box 118 (was 122) + p2 mt 4px; the drawer battery at TRUE 390px (the trigger 16,16 + the panel 288px at x0 + the sidebar blue rgb(37,99,235) + 8 links + focus inside + the dual lock + navigate-close + the closed root inert + visibility:hidden + pointer-events none); THE SWEEP MAIDEN RUN x2 (reproducible): dashboard 0.35%, accounts/contacts/leads/reports/profile 0.00%, calendar/activities 0.01%, settings 4.73% — every diff a standing explained genus, ZERO new drift; the closing census MATCH + the reference md5-exact — the 63rd consecutive stable session] · 3 screenshots NEW [130 + 131 + 132, VLM 5/5 + 5/5 + 5/5 — one adjudication (130's 'side margins' NO vs the DOM-verified w=390@x=0) + one expected note (131's footer below the fold = the 760px scroll-box geometry, identical on both apps)] · docs at SKILL v1.89.0 [§16cf + project_state + the H1] + README badge 1960 + the suite list + AGENTS/CLAUDE/PAD at 1828+132 [the PAD s92 inventory rows + the Total 102/1828 + the footnote]
+project_state: 1829 unit checks + 132 e2e checks green; the session-93 layer (the 93-c rotation — the POPOVER/MENU FAMILY AT TRUE 390px + the fresh-clone gate repair): the leads Filters popover FULL MATCH on both apps [content 320px @ x=32, h=398, radius 6, white bg; the interior space-y-4 rows 64/64/64/64/44 with 16px gaps on both — the reference computes the gaps as v3 margin-TOP on following rows, ours as v4 margin-BOTTOM on preceding rows; in block flow (no grid BFC, no inline-label face) the rendered geometry is IDENTICAL — the space-y genus does NOT bite in popover block flow] + the topbar account menu GEOMETRY MATCH [128x74 @ y=56, radius 6, items Profile/Logout on both] with the TRIGGER-POSITION GENUS DECODED AND DOCUMENTED [the reference's topbar is flex items-center justify-between gap-4 with (search wrapper hidden sm:flex flex-1 max-w-xl) + (right group flex items-center gap-2 sm:gap-4 — Messages/Notifications/account); at 390 the search wrapper is display:none so the right group is the SOLE flex item and justify-between places it at flex-START — the reference's account renders at x=16 LEFT, an accident of its own construction; OURS inserts the hamburger as an additional first child (the deliberate mobile-nav superset) so the row resolves [hamburger LEFT] + [account RIGHT] — the natural mobile pattern; the construction is byte-equivalent otherwise (same classes, same DOM order, same group membership, hidden sm:flex Messages/Notifications matched, the account trigger 84px on both); documented as a STANDING EXPLAINED GENUS in topbar.tsx — do NOT restructure to chase the reference's accidental left-placement] + the reference census #89 [isolated AGENT_BROWSER_SESSION, live login, TRUE 390x844: demo data zero, the mobile-nav defect STANDS — nav w=0, 0 visible links, NO menu button; desktop nav normal 256px/8 links; after a multi-tab probe ambiguity in the main session was chased down and the census re-run clean] + the drift sweep #89 [the reference bundle md5 a70a637f... EXACT + the stylesheet — the 64th consecutive stable session] + OUR DRAWER BATTERY re-verified LIVE at TRUE 390 [the trigger 16,16 36x36, the panel 288px @ x0 computing the sidebar blue rgb(37,99,235), 8 links, focus inside, body scroll lock, navigate-close -> /Leads, the closed root inert + visibility:hidden + pointer-events none, lock released — FULLY GREEN] + THE FRESH-CLONE GATE REPAIR (F-A, HIGH) [scripts/sweep.ts:241/:284 failed tsc --noEmit on a fresh clone: the env object was cast as Record<string, string | undefined> before spawnSync({ env }) — Next 16's next/types/global.d.ts (pulled into every program importing next/server) augments NodeJS.ProcessEnv with a REQUIRED readonly NODE_ENV literal union, and an index-signature record cannot satisfy that required member, so no spawnSync overload accepts it; reproduced on lockfile-exact versions fresh-clone/post-build/post-dev-types/clean-tsbuildinfo; the s92 gate's tsc-0 was masked by its sandbox's incremental build state; FIXED by retiring the cast — the spread's inferred NodeJS.ProcessEnv is the correct spawnSync env, and delete zEnv.DATABASE_URL stays legal (the property rides the Dict<string> index signature)] — pinned RED-first [the new sweep-tool pin: the uncast construction asserted in the positive form + the cast-retirement negative; non-vacuousness stash-re-proven: 1 failed | 8 passed pre-fix, 9/9 post-fix, ZERO collateral]; GATE: lint 0/0 · tsc 0 · 1829/1829 unit [102 suites, +1 net] · build · 132/132 e2e fresh CI=1 [3.1m on the re-run; the known settings-debounce focus flake on the first run passed standalone AND on the full re-run — untouched by this session's delta] · LIVE [the drawer battery GREEN; the popover + menu family re-verified; the census MATCH; the reference md5-exact — the 64th consecutive stable session] · 3 screenshots NEW [133 + 134 + 135, VLM 5/5 + 5/5 + 5/5 — two adjudications (133's anchored-below NO vs the DOM-verified right-edges-aligned menu at 246..374 within 390; 134's cut-off NO vs the DOM-verified popover at 32..352 within 390) + one expected note (135's recent-deals below the 900px fold — the shared dashboard scroll geometry)] · docs at SKILL v1.90.0 [16cg + project_state + the H1] + README badge 1961 + AGENTS/CLAUDE/PAD at 1829+132 [the AGENTS 16Session-93 block + the PAD s93 inventory row + the Total 102/1829 + the footnote]
 ---
 
-# NEO CRM — Engineering Skill (SKILL.md v1.89.0)
+# NEO CRM — Engineering Skill (SKILL.md v1.90.0)
 
 > **How to use this document:** §1–§3 give you the mental model and a
 > working environment. §4–§8 describe what the code actually does (every
@@ -8374,3 +8374,77 @@ of the interiors — three of them new faces of the v4 space-y genus.
   passed standalone + on the full re-run). LIVE-verified on both
   apps; the closing census MATCH + the reference md5-exact (the 63rd
   consecutive stable session).
+
+## 16cg. Session-93 Layer (the popover/menu family at TRUE 390 + the fresh-clone gate repair)
+
+The 93-c rotation — the s92 suggested-next: the popover/menu family
+opened at TRUE 390×844 on BOTH apps (agent-browser, NATIVE clicks for
+the Radix menu triggers — a synthetic `.click()` does not fire the
+pointer-event sequence Radix listens for; menus silently fail to open).
+
+- **The leads Filters popover: FULL MATCH.** Content 320px @ x=32,
+  h=398, radius 6px, white bg on both apps. The interior `space-y-4`
+  rows measure 64/64/64/64/44 with 16px gaps on both — the reference
+  computes the gaps as v3 margin-TOP on following siblings, ours as v4
+  margin-BOTTOM on preceding siblings. In popover BLOCK flow (no grid
+  BFC, no inline-label face) the two mechanisms render IDENTICALLY:
+  the `space-y` genus does not bite here. The visible wrapper geometry
+  differs (the reference's popper wrapper 320px, ours 390px) but the
+  wrapper is an invisible positioning box — the content is the visual
+  surface and it matches.
+- **The topbar account menu: geometry MATCH, position genus decoded.**
+  Menu 128×74 @ y=56, radius 6, items [Profile, Logout] on both. The
+  trigger positions differ — the reference's account button renders at
+  the LEFT edge at 390. Root cause (live-decoded on both DOMs): the
+  topbar is `flex items-center justify-between gap-4` holding
+  [search wrapper `hidden sm:flex flex-1 max-w-xl`] + [right group
+  `flex items-center gap-2 sm:gap-4`]; below `sm` the search wrapper
+  is `display:none`, leaving the right group the SOLE flex item, and
+  `justify-between` places a sole item at flex-START. The reference's
+  left placement is an accident of its own construction. OURS inserts
+  the hamburger as an additional first child (the deliberate
+  mobile-nav superset), so the row resolves [hamburger LEFT] +
+  [account RIGHT]. The construction is byte-equivalent otherwise.
+  DECISION: keep ours; documented as a STANDING EXPLAINED GENUS in
+  `topbar.tsx` — chasing the accidental left-placement would imitate
+  a defect-side artifact at the cost of a correct construction. The
+  Lesson: when a superset addition shifts flex resolution, diff the
+  CONSTRUCTION (classes, DOM order, group membership), not the
+  accidental placement it produces.
+- **The ⋮ row action menus: not walkable on the reference** (its
+  workspace is zero-data — no rows). Our row menus stay pinned by the
+  e2e family. The reports period Select stays covered by the s92
+  settings-selects family (page-level, no `<form>` → no Radix native
+  select → phantom-mb-immune).
+- **F-A (HIGH) — the fresh-clone gate repair.** `scripts/sweep.ts`
+  failed `tsc --noEmit` on a fresh clone: the child-process env was
+  cast `as Record<string, string | undefined>` before
+  `spawnSync(..., { env })`. Next 16's `next/types/global.d.ts`
+  (pulled into every program importing `next/server` — `src/lib/api.ts`
+  et al.) augments `NodeJS.ProcessEnv` with a REQUIRED
+  `readonly NODE_ENV: 'development' | 'production' | 'test'`; an
+  index-signature record cannot satisfy that required member, so no
+  `spawnSync` overload accepts it. Reproduced on lockfile-exact
+  versions (next@16.3.6, typescript@5.9.3, @types/node@26.6.2) across
+  fresh-clone / post-build / post-dev-types / clean-tsbuildinfo
+  states — the s92 gate's tsc-0 was masked by its sandbox's
+  incremental build state. FIX: retire the cast —
+  `const zEnv = { ...process.env };` infers `NodeJS.ProcessEnv`
+  (the correct `env` type), and `delete zEnv.DATABASE_URL` stays
+  legal because the property rides the `Dict<string>` index
+  signature, not a declared required member. Pinned RED-first in the
+  sweep-tool suite (the positive construction pin + the
+  cast-retirement negative; stash-re-proven non-vacuous). The
+  Lesson: a green gate on a long-lived workspace is EVIDENCE ABOUT
+  THAT WORKSPACE, not about a fresh clone — the self-contained
+  zero-config contract is only proven by re-running the gate from a
+  clean checkout (or by distrusting incremental build state).
+- **The reference census #89** (isolated session, TRUE 390): demo
+  data zero, the mobile-nav defect STANDS, desktop normal. The drift
+  sweep #89: the bundle md5 EXACT — the 64th consecutive stable
+  session. Our drawer battery re-verified LIVE at TRUE 390 — FULLY
+  GREEN.
+- **The gate**: lint 0/0 · tsc 0 · 1829/1829 unit (102 suites, +1
+  net) · build · 132/132 e2e fresh CI=1 (the known settings-debounce
+  flake passed standalone + on the full re-run). The closing census
+  MATCH; the reference md5-exact.

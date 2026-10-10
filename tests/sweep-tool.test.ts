@@ -93,4 +93,22 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
     // the PNG decode rides the browser (canvas), never a node decoder
     expect(src).not.toMatch(/require\(["']pngjs|from ["']pngjs|pixelmatch/);
   });
+
+  // Session-93 (F-A): the fresh-clone typecheck contract. Next.js 16's
+  // next/types/global.d.ts augments NodeJS.ProcessEnv with a REQUIRED
+  // readonly NODE_ENV ('development' | 'production' | 'test') in every
+  // program that imports next/server — a widened index-signature record
+  // cannot satisfy that required member, so spawnSync's env option
+  // rejects it and `tsc --noEmit` fails from a FRESH CLONE (the s92
+  // gate's tsc-0 was masked by its sandbox's incremental build state).
+  // The env object must keep its inferred NodeJS.ProcessEnv type.
+  it("the child-process env keeps the inferred NodeJS.ProcessEnv type (the fresh-clone tsc gate — F-A)", () => {
+    const src = read("scripts/sweep.ts");
+    // the FIXED construction: the spread inferred as ProcessEnv, no cast
+    expect(src).toContain("const zEnv = { ...process.env };");
+    // the cast that broke the fresh-clone gate must stay retired — the
+    // widened record loses the required NODE_ENV member under the
+    // Next 16 ProcessEnv augmentation
+    expect(src).not.toMatch(/as Record<string, string \| undefined>/);
+  });
 });

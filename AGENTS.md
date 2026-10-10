@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1828 checks)       | `bun run test`                         |
+|  Unit tests (1829 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1828) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1829) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3465,3 +3465,56 @@ the drawer battery at TRUE 390px; the sweep maiden ×2 — five pages
 VLM 5/5 × 3]. Docs at SKILL v1.89.0 [§16cf + project_state] + README
 badge 1960 + AGENTS/CLAUDE/PAD at 1828+132 + session_185.md + the
 plan + its execution record + the worklog.
+
+### Session-93 — the popover/menu family at TRUE 390 + the fresh-clone gate repair
+
+The 93-c rotation (the s92 suggested-next): the popover/menu family
+opened at TRUE 390×844 on BOTH apps — with NATIVE clicks for Radix
+menu triggers (a synthetic `.click()` does not fire the pointer-event
+sequence Radix listens for; menus silently fail to open).
+
+- **The leads Filters popover: FULL MATCH** (content 320px @ x=32,
+  h=398, radius 6 on both; the interior space-y-4 rows 64×4 + 44 with
+  16px gaps on both — the reference's v3 margin-TOP mechanism vs our
+  v4 margin-BOTTOM render identically in popover block flow; the
+  space-y genus does not bite outside grid BFC / inline-label
+  contexts).
+- **The topbar account menu: geometry MATCH + the trigger-position
+  genus decoded and DOCUMENTED** (topbar.tsx): the reference's
+  topbar is [search `hidden sm:flex flex-1 max-w-xl`] + [right
+  group] in a `justify-between` row; at 390 the search wrapper is
+  display:none so the right group is the SOLE flex item → flex-START
+  → the reference's account renders LEFT (an accident of its own
+  construction). Ours inserts the hamburger (the deliberate
+  mobile-nav superset) → [hamburger LEFT] + [account RIGHT].
+  Construction byte-equivalent otherwise; documented as a standing
+  explained genus — do NOT restructure to chase the accidental
+  left-placement.
+- **F-A (HIGH) — the fresh-clone gate repair**: scripts/sweep.ts
+  failed `tsc --noEmit` on a fresh clone — the child-process env was
+  cast `as Record<string, string | undefined>` before
+  `spawnSync({ env })`, and Next 16's `next/types/global.d.ts`
+  augments NodeJS.ProcessEnv with a REQUIRED NODE_ENV literal union
+  that an index-signature record cannot satisfy (reproduced on
+  lockfile-exact versions across fresh-clone/post-build/post-dev-
+  types/clean-tsbuildinfo states; the s92 gate's tsc-0 was masked by
+  its sandbox's incremental build state). FIXED by retiring the cast
+  — the spread's inferred NodeJS.ProcessEnv is the correct env, and
+  `delete zEnv.DATABASE_URL` stays legal (the property rides the
+  Dict<string> index signature). RED-first pin in the sweep-tool
+  suite (stash-re-proven non-vacuous). The Lesson: a green gate on a
+  long-lived workspace is evidence about THAT workspace — the
+  zero-config contract is only proven from a clean checkout.
+- The reference census #89 (isolated session): demo zero, the
+  mobile-nav defect STANDS, desktop normal; the drift sweep #89
+  bundle md5 EXACT (the 64th consecutive). Our drawer battery
+  re-verified LIVE at TRUE 390 — FULLY GREEN.
+
+RED 1 pin (non-vacuous: 1 failed | 8 passed pre-fix, ZERO collateral,
+stash-re-proven). GATE: lint 0/0 · tsc 0 · 1829/1829 unit [102
+suites, +1 net] · build · 132/132 e2e fresh CI=1 (the known
+settings-debounce flake green standalone + on the full re-run). 3
+screenshots [133 + 134 + 135, VLM 5/5 × 3 — two adjudications + one
+expected below-fold note]. Docs at SKILL v1.90.0 [§16cg +
+project_state] + README badge 1961 + AGENTS/CLAUDE/PAD at 1829+132 +
+session_187.md + the plan + its execution record + the worklog.

@@ -235,7 +235,15 @@ async function main() {
     //    The platform DATABASE_URL override hazard: UNSET the variable
     //    (env -u), never set it empty — Prisma rejects an empty URL.
     log("zeroing our domain data (scripts/zero-data.ts)…");
-    const zEnv = { ...process.env } as Record<string, string | undefined>;
+    // Session-93 (F-A): NO cast here. Next 16's next/types/global.d.ts
+    // (pulled into every program importing next/server) augments
+    // NodeJS.ProcessEnv with a REQUIRED readonly NODE_ENV — a widened
+    // Record<string, string | undefined> cannot satisfy that member and
+    // spawnSync's env option rejects it, failing `tsc --noEmit` on a
+    // FRESH CLONE. The spread's inferred ProcessEnv type is the correct
+    // env; `delete` stays legal (DATABASE_URL rides the Dict<string>
+    // index signature, not a declared required member).
+    const zEnv = { ...process.env };
     delete zEnv.DATABASE_URL;
     const z = spawnSync("bun", ["scripts/zero-data.ts"], {
       cwd: REPO,
