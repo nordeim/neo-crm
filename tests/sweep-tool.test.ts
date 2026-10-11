@@ -395,12 +395,13 @@ describe("session-97 (S97-P1): the numeric-arg fail-fast (B-97a2)", () => {
     );
   });
 
-  it("the sweep wires the seam: ALL FOUR numeric flags route through parseNumberArg (the --pages typo doctrine extended)", () => {
+  it("the sweep wires the seam: ALL FIVE numeric flags route through parseNumberArg (the --pages typo doctrine extended; s100: the fifth flag --cluster-gap)", () => {
     const src = read("scripts/sweep.ts");
     expect(src).toContain('parseNumberArg(process.argv, "--drift-margin", 0.5)');
     expect(src).toContain('parseNumberArg(process.argv, "--max-diff", null)');
     expect(src).toContain('parseNumberArg(process.argv, "--width", 1440)');
     expect(src).toContain('parseNumberArg(process.argv, "--height", 900)');
+    expect(src).toContain('parseNumberArg(process.argv, "--cluster-gap", 16)');
   });
 
   it("the stale nine-page comments are gone from sweep.ts (N-97a1 — succeeded by the s98 WIDENED guard below)", () => {
@@ -477,5 +478,148 @@ describe("session-98 (F-98a1/B-98a1/N-98a1): the sweep docs + the per-class prin
     expect(src).toMatch(/standingExplained\(WIDTH\)/);
     // the old unconditional desktop line is gone
     expect(src).not.toMatch(/standing explained: settings ~4\.7% picklist-data · contacts ~0\.5% lucide superset/);
+  });
+});
+
+// Session-100 pins (S100-P0/P1): the diff-clustering decode promoted
+// into the tool (the twice-suggested #1 — the s98 suggested next #2,
+// re-suggested at s99). Every genus hunt since s95 decoded its deltas
+// with one-off bucket-diff probes; clusterDiff + --clusters makes that
+// decode a one-flag feature. The seam is PURE (the same contract as
+// diffPixels: identical tolerance semantics, size-mismatch throw) and
+// the CLI wiring rides the parseNumberArg fail-fast family.
+describe("session-100 (S100-P0/P1): the diff-clustering decode", () => {
+  // two same-size buffers; paint() diverges a block of b from the base
+  // fill by a channel delta far above the tolerance
+  const mk = (w: number, h: number) => new Uint8ClampedArray(w * h * 4).fill(100);
+  const paint = (b: Uint8ClampedArray, w: number, x0: number, y0: number, x1: number, y1: number) => {
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        const o = (y * w + x) * 4;
+        b[o] = 220;
+        b[o + 1] = 220;
+        b[o + 2] = 220;
+        b[o + 3] = 255;
+      }
+    }
+  };
+
+  it("clusterDiff: decodes two synthetic clusters into two buckets with exact geometry + shares (the F-99c1-style decode, one call)", async () => {
+    const { clusterDiff } = await sweep();
+    const w = 100;
+    const h = 100;
+    const a = mk(w, h);
+    const b = mk(w, h);
+    paint(b, w, 10, 10, 19, 19); // 10x10 = 100px
+    paint(b, w, 60, 50, 79, 69); // 20x20 = 400px
+    const r = clusterDiff(a, b, 12, w, h, 16);
+    expect(r.diffPx).toBe(500);
+    expect(r.total).toBe(10000);
+    expect(r.pct).toBeCloseTo(5, 10);
+    expect(r.buckets).toHaveLength(2);
+    // sorted DESC — the bigger genus first
+    const [big, small] = r.buckets;
+    expect(big.px).toBe(400);
+    expect(big.x0).toBe(60);
+    expect(big.y0).toBe(50);
+    expect(big.x1).toBe(79);
+    expect(big.y1).toBe(69);
+    expect(big.diffShare).toBeCloseTo(80, 10);
+    expect(big.frameShare).toBeCloseTo(4, 10);
+    expect(small.px).toBe(100);
+    expect(small.x0).toBe(10);
+    expect(small.y0).toBe(10);
+    expect(small.x1).toBe(19);
+    expect(small.y1).toBe(19);
+    expect(small.diffShare).toBeCloseTo(20, 10);
+    expect(small.frameShare).toBeCloseTo(1, 10);
+  });
+
+  it("clusterDiff: clusters closer than the gap MERGE (the anti-aliasing-noise absorption — the one-off probes' whole point)", async () => {
+    const { clusterDiff } = await sweep();
+    const w = 100;
+    const h = 100;
+    const a = mk(w, h);
+    const b = mk(w, h);
+    paint(b, w, 10, 40, 19, 49); // ends x=19
+    paint(b, w, 28, 40, 37, 49); // starts x=28 — 9px apart, inside gap 16
+    const r = clusterDiff(a, b, 12, w, h, 16);
+    expect(r.buckets).toHaveLength(1);
+    expect(r.buckets[0].px).toBe(200);
+    expect(r.buckets[0].x0).toBe(10);
+    expect(r.buckets[0].x1).toBe(37);
+  });
+
+  it("clusterDiff: clusters farther than the gap stay apart (the rail band vs the content band)", async () => {
+    const { clusterDiff } = await sweep();
+    const w = 100;
+    const h = 100;
+    const a = mk(w, h);
+    const b = mk(w, h);
+    paint(b, w, 10, 40, 19, 49); // cells 0-1
+    paint(b, w, 60, 40, 69, 49); // cells 3-4 — 41px apart, outside gap 16
+    const r = clusterDiff(a, b, 12, w, h, 16);
+    expect(r.buckets).toHaveLength(2);
+    expect(r.buckets.map((x) => x.px)).toEqual([100, 100]);
+  });
+
+  it("clusterDiff: an identical pair yields zero buckets (and no share division by zero)", async () => {
+    const { clusterDiff } = await sweep();
+    const w = 8;
+    const h = 8;
+    const a = mk(w, h);
+    const r = clusterDiff(a, a.slice(), 12, w, h, 16);
+    expect(r.diffPx).toBe(0);
+    expect(r.pct).toBe(0);
+    expect(r.buckets).toEqual([]);
+  });
+
+  it("clusterDiff: buckets sort by pixel count DESC regardless of construction order (the biggest genus first, always)", async () => {
+    const { clusterDiff } = await sweep();
+    const w = 120;
+    const h = 120;
+    const a = mk(w, h);
+    const b = mk(w, h);
+    paint(b, w, 5, 5, 14, 14); // 100px painted FIRST (cells (0,0))
+    paint(b, w, 40, 5, 99, 59); // 3300px painted second (cells x2-6, y0-3)
+    paint(b, w, 5, 80, 24, 99); // 400px painted third (cells x0-1, y5-6)
+    const r = clusterDiff(a, b, 12, w, h, 16);
+    expect(r.buckets).toHaveLength(3);
+    expect(r.buckets.map((x) => x.px)).toEqual([3300, 400, 100]);
+  });
+
+  it("clusterDiff: size mismatch throws (the diffPixels parity — a count without its geometry is not evidence)", async () => {
+    const { clusterDiff } = await sweep();
+    const a = mk(4, 4);
+    const b = mk(5, 4);
+    expect(() => clusterDiff(a, b, 12, 4, 4, 16)).toThrow(/size mismatch/);
+  });
+
+  it("clusterDiff: a non-positive gap fails fast (the B-97a2 NaN doctrine — the cell math divides by it)", async () => {
+    const { clusterDiff } = await sweep();
+    const w = 4;
+    const h = 4;
+    const a = mk(w, h);
+    const b = mk(w, h);
+    paint(b, w, 0, 0, 1, 1);
+    expect(() => clusterDiff(a, b, 12, w, h, 0)).toThrow(/gap/);
+    expect(() => clusterDiff(a, b, 12, w, h, -4)).toThrow(/gap/);
+  });
+
+  it("the sweep wires the seam: the --clusters flag + the parseNumberArg-routed --cluster-gap + the browser-side inline decode + the header documents the diff-clustering decode", () => {
+    const src = read("scripts/sweep.ts");
+    // the exported seam
+    expect(src).toContain("export function clusterDiff(");
+    // the flag (boolean) + the gap (the FIFTH numeric flag, fail-fast)
+    expect(src).toContain('process.argv.includes("--clusters")');
+    expect(src).toContain('parseNumberArg(process.argv, "--cluster-gap", 16)');
+    // the browser evaluate carries the inline twin (the no-bundling
+    // doctrine — the same cross-reference comment diffPixels carries)
+    expect(src).toContain("the inline twin of clusterDiff");
+    // the report prints the bucket table
+    expect(src).toContain("[sweep] clusters (gap");
+    // the header documents it (the usage block)
+    expect(src).toMatch(/--clusters/);
+    expect(src).toMatch(/diff-clustering decode/);
   });
 });

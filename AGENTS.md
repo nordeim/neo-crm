@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1872 checks)       | `bun run test`                         |
+|  Unit tests (1880 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1872) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1880) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3545,7 +3545,7 @@ sweep tool's `--width` phone mode (the rotation method productized).
   viewport-tagged shots dir (`sweep-shots/w390x844/`), and the
   width-AGNOSTIC per-page content-wait (`.locator("main")` — the nav
   links are display:none below md on BOTH apps, so the old nav-a
-  visible-wait burned 15s/page at 390). RED-first: 2 new pins
+  visible-wait burned 15s/page at 390). RED-first: 3 new pins
   (stash-re-proven non-vacuous: 3 failed | 9 passed pre-fix → 12/12
   post). The MAIDEN run: 8 pages at the ~0.5% mobile-nav-superset
   topbar floor (the displaced account glyphs + hamburger ≈ 1600px ≈
@@ -3901,3 +3901,59 @@ decoded live into real fixes:
   project_state] + README badge 2004 + AGENTS/CLAUDE/PAD at
   1872+132 + the CLAUDE-count lockstep re-anchor (1870 → 1872) +
   session_199.md + the plan + its execution record + the worklog.
+
+### Session-100 — the diff-clustering decode promoted + the 1280 xl-boundary spot-check
+
+The twice-suggested promotion (the s98 suggested next #2, re-suggested at
+s99) + the s99 suggested next #3, riding the promoted tool. Every genus
+hunt since s95 decoded its deltas with one-off bucket-diff probes; now
+`bun run sweep -- --clusters` decodes each page's diff into BUCKETS —
+clustered regions of differing pixels (a coarse-grid union-find, cell =
+`--cluster-gap` px [default 16]; clusters closer than ~gap px merge),
+each reported with its bbox, pixel count, share of the page's diff, and
+share of the frame (top 5 per page, biggest genus first). The PURE
+`clusterDiff` seam sits beside diffPixels with the IDENTICAL tolerance
+semantics (the size-mismatch throw parity + the non-positive-gap
+fail-fast, the B-97a2 doctrine); the browser-side diffPair evaluate
+carries the inline twin (the no-bundling doctrine). The gate semantics
+are UNCHANGED (the drift-gate output byte-identical with or without
+--clusters).
+
+- **The maiden 1280×800 spot-check (the s99 suggested next #3)**: the
+  s99 prediction CONFIRMED — accounts 0.00% (was 2.43% at 1024): the
+  rail-squeeze genus is DEAD at 1280; every page within the DESKTOP
+  standing baselines (dashboard 0.36 · the rest 0.00–0.01 · settings
+  4.67 · login 0.34) — the 1280 → desktop class assignment holds, NO
+  fifth class, gate:full unchanged. The cluster fingerprints at 1280
+  match the 1440 desktop genera (the dashboard chart-artifact bucket ·
+  the settings picklist band · the login logo genus).
+- **The tool validated against the KNOWN decode**: the landscape 1024
+  re-run with --clusters reproduces F-99c1 exactly — one dominant
+  accounts bucket [x 356..1023, y 303..767] at 95.4% of the diff (the
+  content/rail divergence band), settings' picklist genus at 100% of
+  diff in one content band.
+- **The audits (both subagents)**: 100-a the s99 ship delta GENUINE
+  10/10 (non-vacuousness re-proven 8 RED | 58 passed → 66/66; the full
+  suite live 103/1872) — findings F-100a1/F-100a2 REAL docs-only (the
+  "3 new"its off-by-one at PAD:779 + SKILL §16cm:8910; the AGENTS
+  §Session-94 history block wrongly edited "3 new pins" → "2 new pins"
+  by the s99 delta) — ALL FIXED this session; 100-b ZERO graduations
+  13/13 (~57th), the CSV census 17 sites zero unguarded, both operator
+  decisions STANDING (60th: CSV posture (b) + source-vocabulary
+  parity), the config + SEO layers verified 57/57.
+- **The standing layers (96th sweep)**: the bundle md5 a70a637f EXACT —
+  the 71st consecutive stable; census #96 demo zero · desktop 256px/8 ·
+  the mobile-nav defect STANDS at TRUE 390 (21st consecutive); the
+  drawer battery FULLY GREEN live.
+- **RED-first**: 8 new pins (the cluster seam family — two-cluster
+  geometry + shares · the merge · the split · the empty mask · the sort
+  · the two throws — + the --clusters wiring pin) + 2 re-anchors (the
+  ALL-FIVE parseNumberArg wiring pin + the CLAUDE-count lockstep 1872 →
+  1880). **10 failed | 53 passed** pre-fix; stash-proven (sweep.ts +
+  CLAUDE.md stashed → 10 failed → pop → 63/63). All four drift gates
+  re-verified CLEAN post-fix.
+- **GATE**: lint 0/0 · tsc 0 · 1880/1880 unit [103 suites, +8 net] ·
+  build · 132/132 e2e fresh CI=1. Docs at SKILL v1.97.0 [§16cn +
+  project_state] + README badge 2012 + AGENTS/CLAUDE/PAD at 1880+132 +
+  the F-100a1/F-100a2 fixes + session_201.md + the plan + its
+  execution record + the worklog.

@@ -270,8 +270,12 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     // landscape table pin + the landscape driftVerdict contrast pin;
     // the banding/doc/explained/gate/lockstep pins are re-anchors,
     // not new its)
-    expect(claude).toContain("Unit (Vitest, 1872 checks)");
-    expect(claude).toContain("(currently 1872)");
+    // session-100 lockstep carry-forward: 1872 -> 1880 (the s100 +8 —
+    // the 7 clusterDiff seam pins + the 1 --clusters wiring pin; the
+    // ALL-FIVE parseNumberArg re-anchor + this lockstep are re-anchors,
+    // not new its)
+    expect(claude).toContain("Unit (Vitest, 1880 checks)");
+    expect(claude).toContain("(currently 1880)");
     expect(claude).not.toMatch(/1788 checks/);
     expect(claude).not.toMatch(/currently 1788/);
     expect(claude).not.toMatch(/1828 checks/);
@@ -286,5 +290,7 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toMatch(/currently 1862/);
     expect(claude).not.toMatch(/1870 checks/);
     expect(claude).not.toMatch(/currently 1870/);
+    expect(claude).not.toMatch(/1872 checks/);
+    expect(claude).not.toMatch(/currently 1872/);
   });
 });

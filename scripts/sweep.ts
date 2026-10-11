@@ -53,6 +53,16 @@
 //   baseline + margin (default 0.5pct; override --drift-margin <pct>) —
 //   a 0.00% page drifting to 5% fails here where a global --max-diff 8
 //   (which must sit above the settings genus) never could.
+//   The diff-clustering decode (session-100, the twice-suggested
+//   promotion — the s98 suggested next #2, re-suggested at s99): add
+//   --clusters to decode each page's diff into BUCKETS — clustered
+//   regions of differing pixels (a coarse-grid union-find, cell =
+//   --cluster-gap px [default 16]; clusters closer than ~gap px merge)
+//   each reported with its bbox, pixel count, share of the page's
+//   diff, and share of the frame (top 5 per page, biggest first).
+//   The genus hunts ran this decode as one-off probes since s95 (the
+//   F-99c1 rail-band decode); now it is one flag. Pure decode output —
+//   the gate semantics are unchanged.
 //   The baseline classes (session-99, the 4-way md/lg/xl banding —
 //   the s97 3-way grown by the maiden landscape run):
 //   < 768 the PHONE table (both walked widths 390x844 + 375x812) ·
@@ -364,6 +374,146 @@ export function diffPixels(
   return { diffPx, total, pct: (100 * diffPx) / total };
 }
 
+/** Session-100 (S100-P0): one clustered region of the pixel diff —
+ *  the decode the genus hunts ran as one-off probes since s95 (the
+ *  F-99c1 "rail band vs content band", the s94 "displaced account
+ *  glyphs + hamburger ≈ 1600px"), now a first-class tool output. */
+export interface DiffBucket {
+  /** the bbox of the bucket's DIFF PIXELS (inclusive pixel coords) */
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+  /** the bucket's differing-pixel count */
+  px: number;
+  /** 100 * px / the page's total diff — which genus dominates */
+  diffShare: number;
+  /** 100 * px / the frame — the same unit as the % table */
+  frameShare: number;
+}
+
+/** clusterDiff's return: the diffPixels result + the buckets. */
+export interface ClusterResult extends DiffResult {
+  buckets: DiffBucket[];
+}
+
+/** Session-100 (S100-P0): the diff-clustering decode — PURE, beside
+ *  diffPixels with the IDENTICAL tolerance semantics (a pixel differs
+ *  when ANY channel diverges by more than `tol`). Clusters the diff
+ *  pixels by a coarse-grid union-find: the frame divides into `gap`-px
+ *  cells, a cell is MARKED when it contains a diff pixel, and
+ *  8-adjacent marked cells merge — so clusters separated by less than
+ *  ~`gap` px merge (the anti-aliasing-noise absorption the one-off
+ *  probes tuned by hand; grid alignment makes the exact merge boundary
+ *  data-dependent, which is fine for a decode). Each bucket carries
+ *  its diff-pixel bbox + count + its share of the page's diff + its
+ *  share of the frame, sorted by px DESC (the biggest genus first).
+ *  Throws on size mismatch (the diffPixels parity) and on a
+ *  non-positive gap (the B-97a2 doctrine — the cell math divides by
+ *  it). An identical pair yields zero buckets. */
+export function clusterDiff(
+  a: Uint8ClampedArray,
+  b: Uint8ClampedArray,
+  tol: number,
+  w: number,
+  h: number,
+  gap: number,
+): ClusterResult {
+  const total = w * h;
+  if (a.length !== total * 4 || b.length !== total * 4) {
+    throw new Error(
+      `size mismatch: expected ${total * 4} samples per image (w=${w} h=${h}), got a=${a.length} b=${b.length}`,
+    );
+  }
+  if (!Number.isFinite(gap) || gap < 1) {
+    throw new Error(
+      `clusterDiff: gap must be a finite number >= 1 (the cell math divides by it — the B-97a2 NaN doctrine), got ${gap}`,
+    );
+  }
+  // pass 1: mark cells + track each cell's diff-pixel bounds/count
+  const cw = Math.ceil(w / gap);
+  const cells = new Map<number, { px: number; x0: number; y0: number; x1: number; y1: number }>();
+  let diffPx = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const o = (y * w + x) * 4;
+      if (
+        Math.abs(a[o] - b[o]) > tol ||
+        Math.abs(a[o + 1] - b[o + 1]) > tol ||
+        Math.abs(a[o + 2] - b[o + 2]) > tol ||
+        Math.abs(a[o + 3] - b[o + 3]) > tol
+      ) {
+        diffPx++;
+        const key = Math.floor(y / gap) * cw + Math.floor(x / gap);
+        const c = cells.get(key);
+        if (c) {
+          c.px++;
+          if (x < c.x0) c.x0 = x;
+          if (x > c.x1) c.x1 = x;
+          if (y < c.y0) c.y0 = y;
+          if (y > c.y1) c.y1 = y;
+        } else {
+          cells.set(key, { px: 1, x0: x, y0: y, x1: x, y1: y });
+        }
+      }
+    }
+  }
+  // pass 2: union-find over the marked cells (8-adjacency; the
+  // connected partition is iteration-order-independent)
+  const parent = new Map<number, number>();
+  const find = (k: number): number => {
+    let r = k;
+    while (parent.get(r) !== r) r = parent.get(r)!;
+    let c = k;
+    while (parent.get(c) !== c) {
+      const next = parent.get(c)!;
+      parent.set(c, r);
+      c = next;
+    }
+    return r;
+  };
+  const union = (x: number, y: number) => {
+    const rx = find(x);
+    const ry = find(y);
+    if (rx !== ry) parent.set(rx, ry);
+  };
+  for (const key of cells.keys()) parent.set(key, key);
+  for (const key of cells.keys()) {
+    const cy = Math.floor(key / cw);
+    const cx = key - cy * cw;
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const nk = (cy + dy) * cw + (cx + dx);
+        if (cells.has(nk)) union(key, nk);
+      }
+    }
+  }
+  // pass 3: aggregate each root into one bucket (exact pixel bounds)
+  const agg = new Map<number, DiffBucket>();
+  for (const [key, c] of cells) {
+    const r = find(key);
+    const b = agg.get(r);
+    if (b) {
+      b.px += c.px;
+      if (c.x0 < b.x0) b.x0 = c.x0;
+      if (c.y0 < b.y0) b.y0 = c.y0;
+      if (c.x1 > b.x1) b.x1 = c.x1;
+      if (c.y1 > b.y1) b.y1 = c.y1;
+    } else {
+      agg.set(r, { x0: c.x0, y0: c.y0, x1: c.x1, y1: c.y1, px: c.px, diffShare: 0, frameShare: 0 });
+    }
+  }
+  const buckets = [...agg.values()]
+    .map((b) => ({
+      ...b,
+      diffShare: (100 * b.px) / diffPx,
+      frameShare: (100 * b.px) / total,
+    }))
+    .sort((p, q) => q.px - p.px);
+  return { diffPx, total, pct: (100 * diffPx) / total, buckets };
+}
+
 const REPO = path.resolve(import.meta.dirname, "..");
 const OUR_URL = process.env.OUR_URL ?? "http://localhost:3000";
 const REF_URL = process.env.REF_URL ?? "https://neo-crm-8ab2c17c.base44.app";
@@ -439,16 +589,21 @@ async function captureAll(
   }
 }
 
-/** Decode a PNG in the browser + run the diff seam on its pixels. */
+/** Decode a PNG in the browser + run the diff seam on its pixels.
+ *  Session-100 (S100-P1): pass a clusterGap to ALSO decode the diff
+ *  into buckets — the inline twin of clusterDiff (the no-bundling
+ *  doctrine — the same cross-reference diffPixels carries; the pure
+ *  seam is what the unit pins exercise in node). */
 async function diffPair(
   page: import("@playwright/test").Page,
   refPng: Buffer,
   ourPng: Buffer,
-): Promise<DiffResult> {
+  clusterGap: number | null = null,
+): Promise<ClusterResult> {
   const a = `data:image/png;base64,${refPng.toString("base64")}`;
   const b = `data:image/png;base64,${ourPng.toString("base64")}`;
   return page.evaluate(
-    async ({ a, b, tol }) => {
+    async ({ a, b, tol, gap }) => {
       const load = (src: string) =>
         new Promise<HTMLImageElement>((res, rej) => {
           const img = new Image();
@@ -487,9 +642,90 @@ async function diffPair(
           diffPx++;
         }
       }
-      return { diffPx, total, pct: (100 * diffPx) / total };
+      // the inline twin of clusterDiff — the same coarse-grid
+      // union-find decode (see the PURE seam above; gap === null skips
+      // the decode entirely, returning the plain diffPixels result)
+      if (gap === null) {
+        return { diffPx, total, pct: (100 * diffPx) / total, buckets: [] };
+      }
+      const cw = Math.ceil(w / gap);
+      const cells = new Map();
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const o = (y * w + x) * 4;
+          if (
+            Math.abs(da[o] - db[o]) > tol ||
+            Math.abs(da[o + 1] - db[o + 1]) > tol ||
+            Math.abs(da[o + 2] - db[o + 2]) > tol ||
+            Math.abs(da[o + 3] - db[o + 3]) > tol
+          ) {
+            const key = Math.floor(y / gap) * cw + Math.floor(x / gap);
+            const c = cells.get(key);
+            if (c) {
+              c.px++;
+              if (x < c.x0) c.x0 = x;
+              if (x > c.x1) c.x1 = x;
+              if (y < c.y0) c.y0 = y;
+              if (y > c.y1) c.y1 = y;
+            } else {
+              cells.set(key, { px: 1, x0: x, y0: y, x1: x, y1: y });
+            }
+          }
+        }
+      }
+      const parent = new Map();
+      const find = (k) => {
+        let r = k;
+        while (parent.get(r) !== r) r = parent.get(r);
+        let c = k;
+        while (parent.get(c) !== c) {
+          const next = parent.get(c);
+          parent.set(c, r);
+          c = next;
+        }
+        return r;
+      };
+      const union = (x, y) => {
+        const rx = find(x);
+        const ry = find(y);
+        if (rx !== ry) parent.set(rx, ry);
+      };
+      for (const key of cells.keys()) parent.set(key, key);
+      for (const key of cells.keys()) {
+        const cy = Math.floor(key / cw);
+        const cx = key - cy * cw;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const nk = (cy + dy) * cw + (cx + dx);
+            if (cells.has(nk)) union(key, nk);
+          }
+        }
+      }
+      const agg = new Map();
+      for (const [key, c] of cells) {
+        const r = find(key);
+        const b = agg.get(r);
+        if (b) {
+          b.px += c.px;
+          if (c.x0 < b.x0) b.x0 = c.x0;
+          if (c.y0 < b.y0) b.y0 = c.y0;
+          if (c.x1 > b.x1) b.x1 = c.x1;
+          if (c.y1 > b.y1) b.y1 = c.y1;
+        } else {
+          agg.set(r, { x0: c.x0, y0: c.y0, x1: c.x1, y1: c.y1, px: c.px, diffShare: 0, frameShare: 0 });
+        }
+      }
+      const buckets = [...agg.values()]
+        .map((b) => ({
+          ...b,
+          diffShare: (100 * b.px) / diffPx,
+          frameShare: (100 * b.px) / total,
+        }))
+        .sort((p, q) => q.px - p.px);
+      return { diffPx, total, pct: (100 * diffPx) / total, buckets };
     },
-    { a, b, tol: TOLERANCE },
+    { a, b, tol: TOLERANCE, gap: clusterGap },
   );
 }
 
@@ -507,6 +743,17 @@ async function main() {
   // judges each page against its own documented genus.
   const failOnDrift = process.argv.includes("--fail-on-drift");
   const driftMargin = parseNumberArg(process.argv, "--drift-margin", 0.5) as number;
+
+  // Session-100 (S100-P1): the diff-clustering decode — `--clusters`
+  // decodes each page's diff into BUCKETS (clustered regions of
+  // differing pixels, the coarse-grid union-find the genus hunts ran
+  // as one-off probes since s95 — now one flag). `--cluster-gap <px>`
+  // (default 16) tunes the merge distance: clusters closer than ~gap
+  // px merge. Pure decode/report output — the gate semantics are
+  // UNCHANGED (the drift-gate output byte-identical with or without
+  // --clusters).
+  const clusters = process.argv.includes("--clusters");
+  const clusterGap = parseNumberArg(process.argv, "--cluster-gap", 16) as number;
 
   // Session-95 (S95-P0): the --pages filter — restricts BOTH the capture
   // and the diff loops to the named pages for targeted rotation runs
@@ -576,13 +823,15 @@ async function main() {
 
     const diffPage = await ctx.newPage();
     await diffPage.goto("about:blank");
-    log(`pairwise pixel diff (viewport ${WIDTH}x${HEIGHT}, tolerance ${TOLERANCE})…`);
+    log(`pairwise pixel diff (viewport ${WIDTH}x${HEIGHT}, tolerance ${TOLERANCE}${clusters ? `, cluster gap ${clusterGap}px` : ""})…`);
     const rows: Array<[string, number]> = [];
+    const bucketRows: Array<[string, DiffBucket[]]> = [];
     for (const p of pages) {
       const refPng = readFileSync(path.join(shots, "ref", `${p.name}.png`));
       const ourPng = readFileSync(path.join(shots, "ours", `${p.name}.png`));
-      const r = await diffPair(diffPage, refPng, ourPng);
+      const r = await diffPair(diffPage, refPng, ourPng, clusters ? clusterGap : null);
       rows.push([p.name, r.pct]);
+      bucketRows.push([p.name, r.buckets]);
     }
     await browser.close();
 
@@ -594,6 +843,28 @@ async function main() {
       console.log(`  ${name.padEnd(12)} ${pct.toFixed(2)}%`);
     }
     console.log(standingExplained(WIDTH));
+
+    // Session-100 (S100-P1): the bucket table — the diff-clustering
+    // decode (top 5 per page, biggest genus first). The decode answers
+    // WHERE a diff lives (the rail band vs the content band) before any
+    // DOM probe is written.
+    if (clusters) {
+      console.log(`[sweep] clusters (gap ${clusterGap}px) — the diff-bucket decode (top 5 per page):`);
+      for (const [name, buckets] of bucketRows) {
+        if (buckets.length === 0) {
+          console.log(`  ${name.padEnd(12)} no diff pixels`);
+          continue;
+        }
+        console.log(`  ${name.padEnd(12)} ${buckets.length} bucket${buckets.length === 1 ? "" : "s"}`);
+        for (let i = 0; i < Math.min(buckets.length, 5); i++) {
+          const b = buckets[i];
+          console.log(
+            `    ${i + 1}. [x ${b.x0}..${b.x1}, y ${b.y0}..${b.y1}] ${b.px}px (${b.diffShare.toFixed(1)}% of diff, ${b.frameShare.toFixed(2)}% of frame)`,
+          );
+        }
+        if (buckets.length > 5) console.log(`    … +${buckets.length - 5} more`);
+      }
+    }
 
     // the seed restore (always — even when gated)
     log("restoring the seed (bun run db:seed)…");
