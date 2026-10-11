@@ -484,6 +484,13 @@ export function clusterDiff(
     for (let dy = -1; dy <= 1; dy++) {
       for (let dx = -1; dx <= 1; dx++) {
         if (dx === 0 && dy === 0) continue;
+        // F-101a1 (s101): the neighbor column must never wrap —
+        // cx=0 with dx=-1 aliases to the LAST column of the adjacent
+        // row (and cx=cw-1 with dx=+1 to the first of the next),
+        // falsely merging edge cells up to ~w-gap px apart. Vertical
+        // out-of-range keys cannot collide with a marked cell (the
+        // key space is bounded), so the horizontal guard is complete.
+        if (cx + dx < 0 || cx + dx >= cw) continue;
         const nk = (cy + dy) * cw + (cx + dx);
         if (cells.has(nk)) union(key, nk);
       }
@@ -697,6 +704,11 @@ async function diffPair(
         for (let dy = -1; dy <= 1; dy++) {
           for (let dx = -1; dx <= 1; dx++) {
             if (dx === 0 && dy === 0) continue;
+            // F-101a1 (s101): the neighbor column must never wrap —
+            // the inline twin carries the SAME guard the PURE seam
+            // carries (the no-bundling doctrine; see the node seam
+            // above for the decode)
+            if (cx + dx < 0 || cx + dx >= cw) continue;
             const nk = (cy + dy) * cw + (cx + dx);
             if (cells.has(nk)) union(key, nk);
           }

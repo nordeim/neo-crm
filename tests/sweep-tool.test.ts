@@ -623,3 +623,62 @@ describe("session-100 (S100-P0/P1): the diff-clustering decode", () => {
     expect(src).toMatch(/diff-clustering decode/);
   });
 });
+
+describe("session-101 (F-101a1/S101-P0): the clusterDiff edge-wrap fix", () => {
+  // two same-size buffers; paint() diverges a block of b from the base
+  // fill by a channel delta far above the tolerance (the s100 helpers)
+  const mk = (w: number, h: number) => new Uint8ClampedArray(w * h * 4).fill(100);
+  const paint = (b: Uint8ClampedArray, w: number, x0: number, y0: number, x1: number, y1: number) => {
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        const o = (y * w + x) * 4;
+        b[o] = 220;
+        b[o + 1] = 220;
+        b[o + 2] = 220;
+        b[o + 3] = 255;
+      }
+    }
+  };
+
+  it("clusterDiff: blocks at OPPOSITE horizontal edges of one row band stay TWO buckets (F-101a1 — the union-find neighbor lookup must never wrap columns)", async () => {
+    const { clusterDiff } = await sweep();
+    const w = 160;
+    const h = 40;
+    const a = mk(w, h);
+    const b = mk(w, h);
+    // two 16x16 blocks, 129px apart, both spanning cell-rows 0-1:
+    // block 1 in grid column 0 (the LEFT frame edge), block 2 in
+    // grid column 9 (the RIGHT frame edge; cw = 10 at gap 16). The
+    // unguarded neighbor lookup at cx=0, dx=-1 computes
+    // nk = (cy+dy)*cw - 1 — which ALIASES to column 9 (the last
+    // column) of row cy+dy: block 2's territory. Any adjacent-row
+    // probe wraps; the audit's live proof merged exactly this
+    // geometry into one [x 0..159] bucket.
+    paint(b, w, 0, 8, 15, 23); // x 0..15 — grid column 0, rows 0-1
+    paint(b, w, 144, 8, 159, 23); // x 144..159 — grid column 9, rows 0-1
+    const r = clusterDiff(a, b, 12, w, h, 16);
+    expect(r.diffPx).toBe(512);
+    // RED pre-fix: ONE merged bucket [x 0..159] via the wrap
+    expect(r.buckets).toHaveLength(2);
+    expect(r.buckets.map((x) => x.px)).toEqual([256, 256]);
+    expect(r.buckets[0].x0).toBe(0);
+    expect(r.buckets[0].x1).toBe(15);
+    expect(r.buckets[1].x0).toBe(144);
+    expect(r.buckets[1].x1).toBe(159);
+    // both blocks share the row band — the y geometry is intact
+    expect(r.buckets[0].y0).toBe(8);
+    expect(r.buckets[0].y1).toBe(23);
+    expect(r.buckets[1].y0).toBe(8);
+    expect(r.buckets[1].y1).toBe(23);
+  });
+
+  it("the sweep wires the fix in BOTH copies: the node seam + the browser inline twin carry the column-bounds guard (the no-bundling doctrine)", () => {
+    const src = read("scripts/sweep.ts");
+    // the guard — present TWICE (the node seam's neighbor loop + the
+    // browser twin's neighbor loop; identical text, both sites)
+    const guard = "if (cx + dx < 0 || cx + dx >= cw) continue;";
+    expect(src.split(guard).length - 1).toBe(2);
+    // the doctrine comment at the seam (why the guard exists)
+    expect(src).toContain("never wrap");
+  });
+});

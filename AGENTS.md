@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (1880 checks)       | `bun run test`                         |
+|  Unit tests (1892 checks)       | `bun run test`                         |
 |  Browser E2E (132 checks)        | `bun run test:e2e` (needs build first) |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -26,7 +26,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Seed demo workspace             | `bun run db:seed`                      |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (1880) → `bun run build` → `bun run test:e2e` (132) — or the
+`bun run test` (1892) → `bun run build` → `bun run test:e2e` (132) — or the
 one-command `bun run gate` (session-38: the same chain as a package
 script, so the build always precedes the e2e boot; session-39: the e2e
 step runs under `CI=1`, so `reuseExistingServer` evaluates false and the
@@ -3935,7 +3935,7 @@ are UNCHANGED (the drift-gate output byte-identical with or without
 - **The audits (both subagents)**: 100-a the s99 ship delta GENUINE
   10/10 (non-vacuousness re-proven 8 RED | 58 passed → 66/66; the full
   suite live 103/1872) — findings F-100a1/F-100a2 REAL docs-only (the
-  "3 new"its off-by-one at PAD:779 + SKILL §16cm:8910; the AGENTS
+  "3 new" its off-by-one at PAD:779 + SKILL §16cm:8910; the AGENTS
   §Session-94 history block wrongly edited "3 new pins" → "2 new pins"
   by the s99 delta) — ALL FIXED this session; 100-b ZERO graduations
   13/13 (~57th), the CSV census 17 sites zero unguarded, both operator
@@ -3956,4 +3956,61 @@ are UNCHANGED (the drift-gate output byte-identical with or without
   build · 132/132 e2e fresh CI=1. Docs at SKILL v1.97.0 [§16cn +
   project_state] + README badge 2012 + AGENTS/CLAUDE/PAD at 1880+132 +
   the F-100a1/F-100a2 fixes + session_201.md + the plan + its
+  execution record + the worklog.
+
+### Session-101 — the edge-wrap fix + the drift probe promoted + the 375 drift-gate maiden
+
+- **101-a audit**: the s100 ship delta GENUINE **12/12** (non-vacuousness
+  re-proven via the pre-fix tree: 10 failed | 53 passed → 63/63).
+  **F-101a1 REAL (code)**: the s100 clusterDiff union-find carried NO
+  column-bounds guard — the neighbor lookup `nk = (cy+dy)*cw + (cx+dx)`
+  wraps cx=0/dx=-1 onto the LAST column of the adjacent row, falsely
+  merging edge cells up to ~w-gap px apart (proven live: two 16×16
+  blocks 129px apart merged into one [x 0..159] bucket). **F-101a2
+  REAL (docs)**: PAD:779 the s99 Files column (the F-100a1 fix
+  over-reached 3→2; the s93–s98 semantics [Files = files gaining NEW
+  its] say 1) · B-101a-1 the s100 row Files 2→1 · N-101a-1 the
+  "non-positive gap" phrasing vs the `gap < 1` guard (record-only) ·
+  N-101a-2 the AGENTS:3938 space.
+- **101-b audit**: ZERO graduations 13/13 (~58th; src/ byte-identical
+  since the s100 ship); the CSV census 17 sites ZERO unguarded; the
+  source-vocabulary clean; the config + SEO layers verified 57/57.
+  **Both operator decisions re-affirmed (61st): CSV posture (b) +
+  source-vocabulary parity.**
+- **S101-P0 (F-101a1)**: `if (cx + dx < 0 || cx + dx >= cw) continue;`
+  in BOTH clusterDiff copies (the node seam + the browser inline twin,
+  the no-bundling doctrine). RED-first pinned.
+- **S101-P1 (the drift probe promoted)**: `scripts/drift-probe.ts` +
+  `bun run probe:ref` — the per-session reference-stability throwaway
+  (the s100-close suggested next #2) as a one-command tool: the
+  POST-LOGIN app-shell bundle discovery (largest JS) + md5 + the
+  demo-data census + the desktop 256/8 census + the TRUE-390
+  mobile-nav defect check; exit 1 on any CHANGED; `--json`; PURE
+  seams (pickAppBundle · stabilityVerdict · desktopNavVerdict ·
+  mobileNavVerdict · demoDataVerdict · STANDING) pinned in
+  tests/drift-probe-tool.test.ts. NOT part of gate/gate:full (the
+  reference is a network dependency).
+- **The LIVE verification**: the probe's MAIDEN RUN reproduced the
+  standing layers — bundle `index-DZ-xbrIm.js` md5
+  `a70a637fcf1d4291da8e0d965676dc11` (1,631,071 bytes) **STABLE (the
+  72nd consecutive)**; census #97: demo zero · desktop 256px/8 · the
+  mobile-nav defect STANDS at TRUE 390 (**22nd consecutive**). The
+  MAIDEN 375×812 drift-gate spot-check CLEAN (floor 0.55–0.59 ·
+  settings 7.52 · login 0.82 — the phone-class margin holds at the
+  second walked width, the s96 plain-run prediction now GATE-proven).
+  All four standing drift gates re-verified CLEAN post-fix; the
+  drawer battery FULLY GREEN live.
+- **RED**: 2 new sweep-tool pins (the edge-wrap geometry pin — blocks
+  at OPPOSITE horizontal edges stay TWO buckets; the browser-twin
+  guard wiring pin) + the NEW tests/drift-probe-tool.test.ts (10 its)
+  + the CLAUDE-count lockstep re-anchor (1880 → 1892). **13 failed |
+  62 passed** pre-fix; stash-proven (sweep.ts + drift-probe.ts +
+  package.json + CLAUDE.md stashed → 13 failed → pop → 76/76).
+- **S101-P5**: screenshots 152 (the dashboard at 375×812) + 153 (the
+  leads table at 375×812, the seeded rows + the in-card scroll) —
+  VLM 4/4 + 4/4, zero adjudications.
+- **GATE**: lint 0/0 · tsc 0 · 1892/1892 unit [104 suites, +12 net] ·
+  build · 132/132 e2e fresh CI=1. Docs at SKILL v1.98.0 [§16co +
+  project_state] + README badge 2024 + AGENTS/CLAUDE/PAD at 1892+132 +
+  the F-101a2/B-101a-1 fixes + session_203.md + the plan + its
   execution record + the worklog.
