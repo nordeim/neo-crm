@@ -3320,3 +3320,17 @@ Work Log:
 
 Stage Summary:
 - Session 101 executed end-to-end. Next: the full gate (lint -> tsc -> unit -> build -> e2e fresh CI=1), the closing census, then the house-style commit + the SSH-wrapper push to main
+
+---
+Task ID: 101-close
+Agent: main (Super Z)
+Task: Session 101 — the gate, the ship, the push
+
+Work Log:
+- GATE (the full chain, post-fix): lint 0/0 - tsc 0 (2 type errors in drift-probe.ts caught by the explicit typecheck step and fixed in place: the SharedArrayBuffer map -> Map<string, Uint8Array> [Buffer IS a Uint8Array] + the HTMLTableRowElement cast on tr.cells; the probe re-verified live after the fix — all standing layers reproduced again) - 1892/1892 unit (104 suites) - build (compiled 9.5s) - 132/132 e2e fresh CI=1 (3.2m, the mobile-nav suite green inside the run)
+- The closing census MATCH (15/24/10/23/12 + 4 users); .env.example tracked, 3 vars; the tree exactly as planned (10 modified + 6 new, ZERO src/)
+- The house-style commit 1017a5b; the SSH push via docs/ssh_git_wrapper_v3.py (paramiko shim on PATH, operator key 0600 in /tmp, dry-run first: ba18bb3..1017a5b clean fast-forward, then the real push)
+- The wrapper verified: refs/heads/main @ 1017a5b == local HEAD; the tracking ref synced; both key copies shredded; the tree clean
+
+Stage Summary:
+- Session 101 SHIPPED: main @ 1017a5b = the F-101a1 edge-wrap fix (both clusterDiff copies) + the drift probe promoted (bun run probe:ref, 10 PURE-seam pins) + the 375x812 drift-gate maiden CLEAN + all standing layers verified (bundle STABLE 72nd, defect STANDS 22nd, drawer battery green) + docs at SKILL v1.98.0, counts at 1892/132, README badge 2024
