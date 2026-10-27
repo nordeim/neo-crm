@@ -926,12 +926,15 @@ test("an oversized sessioned body is rejected before the parse (S68-P7, session-
 test("unknown routes render the reference's custom 404 page (S12-P2)", async ({ page }) => {
   // The reference ships a designed 404 (slate-50 centered card, "404"
   // display heading, "Page Not Found", the quoted pathname message and a
-  // Go Home button) — NOT the stock Next.js built-in.
+  // Go Home button) — NOT the stock Next.js built-in. Session-194
+  // (D-194a1): the quoted path carries NO leading slash (the reference
+  // interpolates its router path; our usePathname() strip form) — the
+  // e2e string re-anchored in the same commit as the cure.
   await page.goto("/this-page-does-not-exist");
 
   await expect(page.getByRole("heading", { name: "404", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Page Not Found" })).toBeVisible();
-  await expect(page.getByText('The page "/this-page-does-not-exist" could not be found in this application.')).toBeVisible();
+  await expect(page.getByText('The page "this-page-does-not-exist" could not be found in this application.')).toBeVisible();
 
   const goHome = page.getByRole("link", { name: "Go Home" });
   await expect(goHome).toBeVisible();

@@ -1,0 +1,23 @@
+census.status: OURS=404 REF=200
+census.h1.outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+census.h2.outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+arm.tag: OURS=a REF=button
+arm.href: OURS=/ REF=(none)
+arm.outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+ledger[5].ariaKeys: OURS=[aria-hidden] REF=[]
+ledger[5].aria.aria-hidden: OURS=true REF=undefined
+ledger[8].text: OURS="The page  could not be found in this app" REF="The page could not be found in this appl"
+ledger[11].tag: OURS=        a REF=        button
+ledger[12].ariaKeys: OURS=[aria-hidden] REF=[]
+ledger[12].aria.aria-hidden: OURS=true REF=undefined
+tab.stops: OURS=2 REF=3
+tab.stops[0]: OURS=a "Go Home" @658,556 123x38 REF=button "Go Home" @658,556 123x38
+tab.stops[1]: OURS=(body — chain end) REF=button "Close badge" @1393,856 18x18
+focus.goHome.shadow: OURS=[rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(255, 255, 255) 0px 0px 0px 2px, rgb(100, 116, 139) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px] REF=[rgb(255, 255, 255) 0px 0px 0px 2px, rgb(100, 116, 139) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px]
+focus.goHome.outline: OURS=[1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[2px solid rgba(0, 0, 0, 0)]
+anon.zzz.status: OURS=404 REF=200
+anon.zzz.finalUrl: OURS=http://localhost:3000/zzz-walk67 REF=https://neo-crm-8ab2c17c.base44.app/login?from_url=https%3A%2F%2Fneo-crm-8ab2c17c.base44.app%2Fzzz-walk67
+anon.zzz.h1: OURS="404" REF="Welcome to NEO CRM"
+anon.login.status: OURS=404 REF=200
+anon.login.finalUrl: OURS=http://localhost:3000/Login REF=https://neo-crm-8ab2c17c.base44.app/login?from_url=https%3A%2F%2Fneo-crm-8ab2c17c.base44.app%2FLogin
+anon.login.h1: OURS="404" REF="Welcome to NEO CRM"

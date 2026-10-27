@@ -897,7 +897,21 @@ const SUITES = 138;
 // E2E 192 re-verified (the round: ZERO product-code touches — the
 // s134/s188-precedent zero-fix freeze-pin round; the MODULE line
 // count 1718 HELD).
-const UNIT = 2805;
+// Session-194: 2805 -> 2811 (+6 — THE 404 INTERIOR'S INTERACTIVE
+// ARMS [walk67 — the s194 battery in tests/page-layout.test.ts: the
+// 3 RED-first cure pins (D-194a1 the quoted-path interpolation tail ·
+// D-194a3 the heroicons glyph construction + the no-stroke-width
+// negatives + the homeIcon class-order · D-194a4 the metadata-export
+// negatives — the windowed form) + the 3 born-green freezes (the
+// walk67 decode freeze + the 404 open-interior construction freeze
+// [the genuine battery gap: the s12 pins hold the constant strings,
+// never the call-site chains] + the D-194a5 ANON-posture construction
+// freeze [the no-session-check construction])] — the round's
+// product-code touch: not-found.tsx + not-found-body.tsx +
+// page-layout.ts +7 lines [the PAD §11 row + the SKILL §5.6 census
+// site re-anchored 1718 -> 1725 / 277 -> 283 checks, the s168
+// line-census doctrine]). SUITES 138 HELD · E2E 192 re-verified.
+const UNIT = 2811;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1362,13 +1376,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-193 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-194 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s192 layer now beneath the s193 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s193 layer now beneath the s194 head)",
     ).toContain(
-      "+ beneath it 2801 unit checks + 192 e2e checks green; the session-192 layer (THE LOGIN ANON-SURFACE INTERIORS",
+      "+ beneath it 2805 unit checks + 192 e2e checks green; the session-193 layer (THE MARKETING-INTERIOR ARMS",
     );
   });
 
@@ -1514,6 +1528,24 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     );
     expect(skill188).not.toContain(
       "project_state: 2805 unit checks + 192 e2e checks green; the session-192 layer (THE LOGIN ANON-SURFACE",
+    );
+    // THE DOCTRINE'S NEXT MEMBER (the s194 head surgery's own demotion):
+    // the retired session-193 block carries its OWN ship form too
+    // (2805 + the MARKETING-INTERIOR title) — the s171-fix doctrine
+    // extends to every demoted layer; this assertion makes a future
+    // ladder/head-surgery interaction that corrupts it FAIL the suite
+    // the same way.
+    const retired193Start = skill188.indexOf("<!-- retired session-193 layer");
+    expect(retired193Start, "the retired s193 block must exist").toBeGreaterThan(0);
+    const retired193Block = skill188.slice(retired193Start, skill188.indexOf("-->", retired193Start));
+    expect(
+      retired193Block,
+      "the retired s193 block's ship line must be the s193 SHIP form (2805 + its own layer name)",
+    ).toContain(
+      "project_state: 2805 unit checks + 192 e2e checks green; the session-193 layer (THE MARKETING-INTERIOR ARMS",
+    );
+    expect(skill188).not.toContain(
+      "project_state: 2811 unit checks + 192 e2e checks green; the session-193 layer (THE MARKETING-INTERIOR",
     );
   });
 
@@ -1923,8 +1955,17 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     // round, globals.css +12 lines [the PAD/SKILL line-census rows
     // re-anchored 430->442], page-layout.ts untouched).
     expect(skill).not.toContain("`tests/page-layout.test.ts`, 274 checks");
+    // Session-194: the retired 277/1718 form joins the negatives ladder
+    // (the walk67 404-interior round: the session-194 battery +6 checks
+    // [the D-194a1/a3/a4 RED-first cure pins + the walk67 decode freeze +
+    // the 404 construction freeze + the D-194a5 posture pin], the checks
+    // 277->283; the module +7 lines [the NOT_FOUND_LAYOUT doc-comment's
+    // decode notes + the homeIcon class-order match] — the PAD §11 row +
+    // this §5.6 census site re-anchored 1718->1725, the s168 doctrine).
+    expect(skill).not.toContain("`tests/page-layout.test.ts`, 277 checks");
+    expect(skill).not.toContain("test-pinned module (1718 lines");
     expect(skill, "the §5.6 line must carry the live line + check counts").toContain(
-      "test-pinned module (1718 lines; `tests/page-layout.test.ts`, 277 checks",
+      "test-pinned module (1725 lines; `tests/page-layout.test.ts`, 283 checks",
     );
     const pad = read("Project_Architecture_Document.md");
     expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1653 |");
@@ -1934,7 +1975,11 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(
       pad,
       "the module-table page-layout row must carry the live line count (F-108a2's PAD face)",
-    ).toContain("| `src/lib/page-layout.ts` | 1718 |");
+    ).toContain("| `src/lib/page-layout.ts` | 1725 |");
+    // Session-194: the retired 1718 row form joins the negatives ladder
+    // (the walk67 404-interior round: the NOT_FOUND_LAYOUT doc-comment's
+    // D-194 decode notes grew the module 1718->1725).
+    expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1718 |");
     // Session-187: the retired 1701 row form joins the negatives ladder
     // (the D-187a2/a3 cure comments' growth 1701->1718).
     expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1701 |");

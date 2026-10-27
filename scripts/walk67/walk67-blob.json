@@ -1,0 +1,693 @@
+{
+  "oursCensus": {
+    "found": true,
+    "path": "/zzz-walk67",
+    "status": 404,
+    "title": "NEO CRM",
+    "rootBox": "0,0 1440x900",
+    "rootCls": "bg-slate-50 flex items-center justify-center min-h-screen p-6",
+    "els": 13,
+    "ledger": [
+      {
+        "i": 0,
+        "depth": 0,
+        "tag": "div",
+        "cls": "bg-slate-50 flex items-center justify-center min-h-screen p-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 900
+        }
+      },
+      {
+        "i": 1,
+        "depth": 1,
+        "tag": "div",
+        "cls": "max-w-md w-full",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 288
+        }
+      },
+      {
+        "i": 2,
+        "depth": 2,
+        "tag": "div",
+        "cls": "space-y-6 text-center",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 288
+        }
+      },
+      {
+        "i": 3,
+        "depth": 3,
+        "tag": "div",
+        "cls": "space-y-2",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 82
+        }
+      },
+      {
+        "i": 4,
+        "depth": 4,
+        "tag": "h1",
+        "cls": "font-light text-7xl text-slate-300",
+        "role": null,
+        "aria": {},
+        "text": "404",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 72
+        }
+      },
+      {
+        "i": 5,
+        "depth": 4,
+        "tag": "div",
+        "cls": "bg-slate-200 h-0.5 mx-auto w-16",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 688,
+          "y": 386,
+          "w": 64,
+          "h": 2
+        }
+      },
+      {
+        "i": 6,
+        "depth": 3,
+        "tag": "div",
+        "cls": "space-y-3",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 412,
+          "w": 448,
+          "h": 96
+        }
+      },
+      {
+        "i": 7,
+        "depth": 4,
+        "tag": "h2",
+        "cls": "font-medium text-2xl text-slate-800",
+        "role": null,
+        "aria": {},
+        "text": "Page Not Found",
+        "box": {
+          "x": 496,
+          "y": 412,
+          "w": 448,
+          "h": 32
+        }
+      },
+      {
+        "i": 8,
+        "depth": 4,
+        "tag": "p",
+        "cls": "leading-relaxed text-slate-600",
+        "role": null,
+        "aria": {},
+        "text": "The page  could not be found in this app",
+        "box": {
+          "x": 496,
+          "y": 456,
+          "w": 448,
+          "h": 52
+        }
+      },
+      {
+        "i": 9,
+        "depth": 5,
+        "tag": "span",
+        "cls": "font-medium text-slate-700",
+        "role": null,
+        "aria": {},
+        "text": "\" zzz-walk67 \"",
+        "box": {
+          "x": 604,
+          "y": 459,
+          "w": 103,
+          "h": 19
+        }
+      },
+      {
+        "i": 10,
+        "depth": 3,
+        "tag": "div",
+        "cls": "pt-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 532,
+          "w": 448,
+          "h": 62
+        }
+      },
+      {
+        "i": 11,
+        "depth": 4,
+        "tag": "a",
+        "cls": "bg-white border border-slate-200 duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 font-medium hover:bg-slate-50 hover:border-slate-300 inline-flex items-center px-4 py-2 rounded-lg text-slate-700 text-sm transition-colors",
+        "role": null,
+        "aria": {},
+        "text": "Go Home",
+        "box": {
+          "x": 658,
+          "y": 556,
+          "w": 123,
+          "h": 38
+        }
+      },
+      {
+        "i": 12,
+        "depth": 5,
+        "tag": "svg",
+        "cls": "h-4 mr-2 w-4",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 675,
+          "y": 567,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 13,
+        "depth": 6,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 677,
+          "y": 569,
+          "w": 12,
+          "h": 12
+        }
+      }
+    ],
+    "h1": {
+      "text": "404",
+      "box": "496,306 448x72",
+      "cls": "font-light text-7xl text-slate-300",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(203, 213, 225)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+        "fontWeight": "300",
+        "fontSize": "72px",
+        "padding": "0px"
+      }
+    },
+    "h2": {
+      "text": "Page Not Found",
+      "box": "496,412 448x32",
+      "cls": "font-medium text-2xl text-slate-800",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(30, 41, 59)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+        "fontWeight": "500",
+        "fontSize": "24px",
+        "padding": "0px"
+      }
+    },
+    "p": {
+      "text": "The page \"zzz-walk67\" could not be found in this application.",
+      "box": "496,456 448x52",
+      "cls": "text-slate-600 leading-relaxed"
+    },
+    "span": {
+      "text": "\"zzz-walk67\"",
+      "box": "604,459 103x19",
+      "cls": "font-medium text-slate-700"
+    },
+    "arm": {
+      "tag": "a",
+      "text": "Go Home",
+      "href": "/",
+      "cls": "bg-white border border-slate-200 duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 font-medium hover:bg-slate-50 hover:border-slate-300 inline-flex items-center px-4 py-2 rounded-lg text-slate-700 text-sm transition-colors",
+      "box": "658,556 123x38",
+      "face": {
+        "bg": "rgb(255, 255, 255)",
+        "color": "rgb(51, 65, 85)",
+        "border": "1px solid rgb(226, 232, 240)",
+        "boxShadow": "none",
+        "borderRadius": "8px",
+        "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+        "fontWeight": "500",
+        "fontSize": "14px",
+        "padding": "8px 16px"
+      },
+      "glyph": {
+        "viewBox": "0 0 24 24",
+        "widthAttr": "(none)",
+        "heightAttr": "(none)",
+        "fill": "none",
+        "stroke": "currentColor",
+        "strokeWidthAttr": "(none)",
+        "computedStrokeWidth": "1px",
+        "strokeLinecap": "(none)",
+        "strokeLinejoin": "(none)",
+        "cls": "w-4 h-4 mr-2",
+        "paths": [
+          "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+        ],
+        "box": "675,567 16x16"
+      }
+    },
+    "chrome": {
+      "nav": 0,
+      "aside": 0,
+      "header": 0,
+      "footer": 0,
+      "main": 0
+    }
+  },
+  "oursTab": {
+    "stops": [
+      "a \"Go Home\" @658,556 123x38",
+      "(body — chain end)"
+    ],
+    "goHome": {
+      "label": "Go Home",
+      "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(255, 255, 255) 0px 0px 0px 2px, rgb(100, 116, 139) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outline": "1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+      "bg": "rgb(255, 255, 255)",
+      "color": "rgb(51, 65, 85)"
+    }
+  },
+  "oursRide": {
+    "landedPath": "/",
+    "h1AfterRide": "Every account, contact and deal in one calm workspace",
+    "ctaPresent": true
+  },
+  "refCensus": {
+    "found": true,
+    "path": "/zzz-walk67",
+    "status": 200,
+    "title": "NEO CRM",
+    "rootBox": "0,0 1440x900",
+    "rootCls": "bg-slate-50 flex items-center justify-center min-h-screen p-6",
+    "els": 13,
+    "ledger": [
+      {
+        "i": 0,
+        "depth": 0,
+        "tag": "div",
+        "cls": "bg-slate-50 flex items-center justify-center min-h-screen p-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 0,
+          "y": 0,
+          "w": 1440,
+          "h": 900
+        }
+      },
+      {
+        "i": 1,
+        "depth": 1,
+        "tag": "div",
+        "cls": "max-w-md w-full",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 288
+        }
+      },
+      {
+        "i": 2,
+        "depth": 2,
+        "tag": "div",
+        "cls": "space-y-6 text-center",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 288
+        }
+      },
+      {
+        "i": 3,
+        "depth": 3,
+        "tag": "div",
+        "cls": "space-y-2",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 82
+        }
+      },
+      {
+        "i": 4,
+        "depth": 4,
+        "tag": "h1",
+        "cls": "font-light text-7xl text-slate-300",
+        "role": null,
+        "aria": {},
+        "text": "404",
+        "box": {
+          "x": 496,
+          "y": 306,
+          "w": 448,
+          "h": 72
+        }
+      },
+      {
+        "i": 5,
+        "depth": 4,
+        "tag": "div",
+        "cls": "bg-slate-200 h-0.5 mx-auto w-16",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 688,
+          "y": 386,
+          "w": 64,
+          "h": 2
+        }
+      },
+      {
+        "i": 6,
+        "depth": 3,
+        "tag": "div",
+        "cls": "space-y-3",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 412,
+          "w": 448,
+          "h": 96
+        }
+      },
+      {
+        "i": 7,
+        "depth": 4,
+        "tag": "h2",
+        "cls": "font-medium text-2xl text-slate-800",
+        "role": null,
+        "aria": {},
+        "text": "Page Not Found",
+        "box": {
+          "x": 496,
+          "y": 412,
+          "w": 448,
+          "h": 32
+        }
+      },
+      {
+        "i": 8,
+        "depth": 4,
+        "tag": "p",
+        "cls": "leading-relaxed text-slate-600",
+        "role": null,
+        "aria": {},
+        "text": "The page could not be found in this appl",
+        "box": {
+          "x": 496,
+          "y": 456,
+          "w": 448,
+          "h": 52
+        }
+      },
+      {
+        "i": 9,
+        "depth": 5,
+        "tag": "span",
+        "cls": "font-medium text-slate-700",
+        "role": null,
+        "aria": {},
+        "text": "\" zzz-walk67 \"",
+        "box": {
+          "x": 604,
+          "y": 459,
+          "w": 103,
+          "h": 19
+        }
+      },
+      {
+        "i": 10,
+        "depth": 3,
+        "tag": "div",
+        "cls": "pt-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 532,
+          "w": 448,
+          "h": 62
+        }
+      },
+      {
+        "i": 11,
+        "depth": 4,
+        "tag": "button",
+        "cls": "bg-white border border-slate-200 duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 font-medium hover:bg-slate-50 hover:border-slate-300 inline-flex items-center px-4 py-2 rounded-lg text-slate-700 text-sm transition-colors",
+        "role": null,
+        "aria": {},
+        "text": "Go Home",
+        "box": {
+          "x": 658,
+          "y": 556,
+          "w": 123,
+          "h": 38
+        }
+      },
+      {
+        "i": 12,
+        "depth": 5,
+        "tag": "svg",
+        "cls": "h-4 mr-2 w-4",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 675,
+          "y": 567,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 13,
+        "depth": 6,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 677,
+          "y": 569,
+          "w": 12,
+          "h": 12
+        }
+      }
+    ],
+    "h1": {
+      "text": "404",
+      "box": "496,306 448x72",
+      "cls": "font-light text-7xl text-slate-300",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(203, 213, 225)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none rgba(10, 10, 10, 0.5)",
+        "fontWeight": "300",
+        "fontSize": "72px",
+        "padding": "0px"
+      }
+    },
+    "h2": {
+      "text": "Page Not Found",
+      "box": "496,412 448x32",
+      "cls": "font-medium text-2xl text-slate-800",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(30, 41, 59)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none rgba(10, 10, 10, 0.5)",
+        "fontWeight": "500",
+        "fontSize": "24px",
+        "padding": "0px"
+      }
+    },
+    "p": {
+      "text": "The page \"zzz-walk67\" could not be found in this application.",
+      "box": "496,456 448x52",
+      "cls": "text-slate-600 leading-relaxed"
+    },
+    "span": {
+      "text": "\"zzz-walk67\"",
+      "box": "604,459 103x19",
+      "cls": "font-medium text-slate-700"
+    },
+    "arm": {
+      "tag": "button",
+      "text": "Go Home",
+      "href": "(none)",
+      "cls": "bg-white border border-slate-200 duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 font-medium hover:bg-slate-50 hover:border-slate-300 inline-flex items-center px-4 py-2 rounded-lg text-slate-700 text-sm transition-colors",
+      "box": "658,556 123x38",
+      "face": {
+        "bg": "rgb(255, 255, 255)",
+        "color": "rgb(51, 65, 85)",
+        "border": "1px solid rgb(226, 232, 240)",
+        "boxShadow": "none",
+        "borderRadius": "8px",
+        "outline": "3px none rgba(10, 10, 10, 0.5)",
+        "fontWeight": "500",
+        "fontSize": "14px",
+        "padding": "8px 16px"
+      },
+      "glyph": {
+        "viewBox": "0 0 24 24",
+        "widthAttr": "(none)",
+        "heightAttr": "(none)",
+        "fill": "none",
+        "stroke": "currentColor",
+        "strokeWidthAttr": "(none)",
+        "computedStrokeWidth": "1px",
+        "strokeLinecap": "(none)",
+        "strokeLinejoin": "(none)",
+        "cls": "w-4 h-4 mr-2",
+        "paths": [
+          "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+        ],
+        "box": "675,567 16x16"
+      }
+    },
+    "chrome": {
+      "nav": 0,
+      "aside": 0,
+      "header": 0,
+      "footer": 0,
+      "main": 0
+    }
+  },
+  "refTab": {
+    "stops": [
+      "button \"Go Home\" @658,556 123x38",
+      "button \"Close badge\" @1393,856 18x18",
+      "(body — chain end)"
+    ],
+    "goHome": {
+      "label": "Go Home",
+      "shadow": "rgb(255, 255, 255) 0px 0px 0px 2px, rgb(100, 116, 139) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outline": "2px solid rgba(0, 0, 0, 0)",
+      "bg": "rgb(255, 255, 255)",
+      "color": "rgb(51, 65, 85)"
+    }
+  },
+  "refRide": {
+    "landedPath": "/",
+    "h1AfterRide": "Every account, contact and deal in one calm workspace",
+    "ctaPresent": true
+  },
+  "oursPhone": {
+    "found": true,
+    "cardBox": "24,278 342x288",
+    "h1Box": "24,278 342x72",
+    "armBox": "133,528 123x38",
+    "spanBox": "106,431 103x19"
+  },
+  "refPhone": {
+    "found": true,
+    "cardBox": "24,278 342x288",
+    "h1Box": "24,278 342x72",
+    "armBox": "133,528 123x38",
+    "spanBox": "106,431 103x19"
+  },
+  "oursAnonZzz": {
+    "requestedPath": "/zzz-walk67",
+    "finalUrl": "http://localhost:3000/zzz-walk67",
+    "status": 404,
+    "title": "NEO CRM",
+    "h1": "404"
+  },
+  "oursAnonLogin": {
+    "requestedPath": "/Login",
+    "finalUrl": "http://localhost:3000/Login",
+    "status": 404,
+    "title": "NEO CRM",
+    "h1": "404"
+  },
+  "refAnonZzz": {
+    "requestedPath": "/zzz-walk67",
+    "finalUrl": "https://neo-crm-8ab2c17c.base44.app/login?from_url=https%3A%2F%2Fneo-crm-8ab2c17c.base44.app%2Fzzz-walk67",
+    "status": 200,
+    "title": "NEO CRM",
+    "h1": "Welcome to NEO CRM"
+  },
+  "refAnonLogin": {
+    "requestedPath": "/Login",
+    "finalUrl": "https://neo-crm-8ab2c17c.base44.app/login?from_url=https%3A%2F%2Fneo-crm-8ab2c17c.base44.app%2FLogin",
+    "status": 200,
+    "title": "NEO CRM",
+    "h1": "Welcome to NEO CRM"
+  }
+}

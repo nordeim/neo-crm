@@ -37,7 +37,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (2805) → `bun run build` → `bun run test:e2e` (192) — or the
+   `bun run test` (2811) → `bun run build` → `bun run test:e2e` (192) — or the
    one-command `bun run gate` (session-38: the chain as a package script,
    so the build always precedes the e2e boot; session-39: the e2e step
    runs under `CI=1`, forcing a fresh server — a leftover :3100 listener
@@ -129,7 +129,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (2805 checks)            |
+| `bun run test`      | Vitest unit suites (2811 checks)            |
 | `bun run test:watch`| Vitest in watch mode                          |
 | `bun run smoke`     | Smoke the standalone artifact (14 checks, needs build first) |
 | `bun run test:e2e`  | Playwright E2E (192 checks, needs build first) |
@@ -142,7 +142,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 2805 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
+- **Unit (Vitest, 2811 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -552,7 +552,36 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   reference's family, the oklab-vs-rgba serialization the s126 noise
   genus) — the round's product-code touch globals.css (+12 lines —
   the PAD/SKILL line-census rows re-anchored 430→442) —
-  `scripts/walk66-marketing-interior-arms.ts`].
+  `scripts/walk66-marketing-interior-arms.ts`],
+  and session-194's walk67 layer — the 404 interior's interactive
+  arms walk's contract-freeze family [the walk67 decode freeze (the
+  tool's own contract: the two-context OPEN ledgers at both axes + the
+  REAL Tab chain with the Go Home focus capture + the write-free ride
+  + the anon posture census — the authenticated legs on the
+  sweep-state pair, the anon legs on fresh contexts) · the 404
+  open-interior construction freeze (the genuine battery gap: the s12
+  pins hold the NOT_FOUND_LAYOUT constant strings, never the
+  not-found-body call-site chains — the Link construction + the
+  leading-slash strip + the inline glyph) · the D-194a5 ANON-posture
+  construction freeze (the no-session-check construction — the
+  reference's auth-first client-router guard walls anon unknown-routes
+  at /login?from_url=<absolute-url>, its SPA platform artifact, never
+  mirrored) · the D-194a1/a3/a4 cure pins (RED-first: exactly 3 RED at
+  birth → the cures → GREEN — the quoted-path form
+  [usePathname's leading slash stripped at the interpolation; the
+  crm.spec e2e string re-anchored in the same commit] + the glyph [the
+  reference's heroicons home outline inlined — the M-82c2
+  icon-identity family's first cross-library member: ONE path, NO
+  stroke-width [computed weight 1], the bare w-4 h-4 class; the
+  lucide-house import retired at this one site] + the title [the s12
+  absolute title was a pre-drift decode — the current reference ships
+  bare "NEO CRM"; the metadata export retired, the root default
+  renders, byte-equal]; the re-walk proves the span/text/glyph/title
+  ledger deltas GONE, 43→23 — every remaining delta a documented genus
+  or pinned kept superset) — the round's product-code touch
+  not-found.tsx + not-found-body.tsx + page-layout.ts (+7 lines — the
+  PAD/SKILL line-census rows re-anchored 1718→1725 / 277→283) —
+  `scripts/walk67-404-interior-arms.ts`].
   Node environment; `@` alias resolved.
 - **Property (Vitest + fast-check, 29 checks)** — `tests/property.test.ts`
   (session-172: the invariant layer over the pure seams — the csv
@@ -695,7 +724,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 2805).
+the seam (currently 2811).
 
 ## Code Quality Standards
 

@@ -1475,8 +1475,15 @@ export const TABLE_SHADOWS = {
  *  slate-family surface (NOT the stock Next built-in): centered on
  *  bg-slate-50, "404" display heading in font-light slate-300, "Page Not
  *  Found" in slate-800, the quoted-pathname message, and a white bordered
- *  Go Home pill with a lucide Home icon navigating to `/`. No app shell.
- *  Title: "This Page Does Not Exist | NEO CRM". */
+ *  Go Home pill navigating to `/`. No app shell. Session-194 (walk67)
+ *  re-decoded the arm against the reference's CURRENT build: the glyph
+ *  is the heroicons home OUTLINE inlined (D-194a3 — the M-82c2
+ *  icon-identity family's first cross-library member: ONE path, NO
+ *  stroke-width [computed weight 1], the bare w-4 h-4 class order),
+ *  the interpolated path carries NO leading slash (D-194a1 — the strip
+ *  lives in not-found-body.tsx), and the title is the root default
+ *  "NEO CRM" (D-194a4 — the s12 absolute title was a pre-drift decode;
+ *  the metadata export retired). */
 export const NOT_FOUND_LAYOUT = {
   page: "min-h-screen flex items-center justify-center p-6 bg-slate-50",
   card: "max-w-md w-full",
@@ -1491,7 +1498,7 @@ export const NOT_FOUND_LAYOUT = {
   buttonGroup: "pt-6",
   homeButton:
     "inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500",
-  homeIcon: "h-4 w-4 mr-2",
+  homeIcon: "w-4 h-4 mr-2",
   homeHref: "/",
 } as const;
 

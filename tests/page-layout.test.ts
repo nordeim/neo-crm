@@ -1250,12 +1250,14 @@ describe("session-12: custom 404 page (S12-P2)", () => {
     // text-slate-700 bg-white border border-slate-200 rounded-lg
     // hover:bg-slate-50 hover:border-slate-300 transition-colors
     // duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
-    // focus:ring-slate-500` with a lucide Home icon (w-4 h-4 mr-2),
-    // navigating to `/`.
+    // focus:ring-slate-500` navigating to `/`. Session-194 (D-194a3):
+    // the icon is the reference's heroicons home OUTLINE inlined — the
+    // bare `w-4 h-4 mr-2` class (the reference's exact w/h order, the
+    // lucide-house prefix retired at this one site).
     expect(NOT_FOUND_LAYOUT.homeButton).toContain("bg-white border border-slate-200 rounded-lg");
     expect(NOT_FOUND_LAYOUT.homeButton).toContain("text-slate-700");
     expect(NOT_FOUND_LAYOUT.homeButton).toContain("focus:ring-slate-500");
-    expect(NOT_FOUND_LAYOUT.homeIcon).toBe("h-4 w-4 mr-2");
+    expect(NOT_FOUND_LAYOUT.homeIcon).toBe("w-4 h-4 mr-2");
     expect(NOT_FOUND_LAYOUT.homeHref).toBe("/");
   });
 });
@@ -4836,5 +4838,190 @@ describe("session-193: the marketing-interior arms walk (walk66 — the /About +
     // the desktop sidebar + the drawer's nav — the same construction
     expect(sidebar).toContain('"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"');
     expect(mobileNav).toContain('"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"');
+  });
+});
+
+// Session-194 (walk67): THE 404 INTERIOR'S INTERACTIVE ARMS — the
+// designed 404 view the s408 close named ("the 404/error-boundary
+// interiors' interactive arms, if any surface beyond the census gate's
+// coverage"), walked two-app at the OPEN-LEDGER level for the first
+// time (the s12 construction is 180+ sessions stale against the
+// reference's CURRENT build — the SKILL's own standing rule: "treat
+// any s-pin older than the current audit as provisional until
+// re-verified"). The error-boundary pair (error.tsx + global-error.tsx)
+// is OUR-ONLY (the s170 scandihaven ports, source-pinned — the
+// reference cannot be crash-walked); the 404 is LIVE on BOTH apps.
+// [D-194a1 the QUOTED-PATHNAME FORM CURED — OURS interpolated
+// usePathname() verbatim ('The page "/x" could not be found…', the
+// LEADING SLASH inside the quotes); the reference interpolates its
+// router path WITHOUT the leading slash ('The page "x" …' — the span
+// 604,459 103x19 vs our 601,459 108x19 at the walk's maiden decode);
+// THE CURE: pathname.replace(/^\//, "") at the interpolation].
+// [D-194a2 the GO HOME TAG — the KEPT SUPERSET, PINNED: OURS renders
+// <Link href="/"> (an anchor — role=link, the href affordances, the
+// WCAG-correct link semantics for a navigation affordance); the
+// reference renders a <button> with NO href (its SPA JS-router
+// idiom). Every VISIBLE layer byte-equal (box 658,556 123x38 · color
+// · bg · border · radius · font · padding); the rides byte-equal
+// (both land at the landing "/"). The D-112a2 a11y-superset
+// doctrine's next member — the reference's own gap never mirrored;
+// the construction carried ZERO test teeth on the TAG identity until
+// this round's freeze].
+// [D-194a3 the GO HOME GLYPH CURED — the M-82c2 icon-identity
+// family's first CROSS-LIBRARY member (the D-186a1 pen-cure
+// precedent): OURS shipped lucide `house` (2 paths — the house + the
+// door; stroke-width 2; the `lucide lucide-house` class prefix; the
+// width/height attrs); the reference ships the heroicons home
+// OUTLINE (exactly ONE path, NO stroke-width attr → computed weight
+// 1, NO width/height attrs, the bare `w-4 h-4 mr-2` class) — its 404
+// view's platform-template origin, the one non-lucide icon family in
+// its tree. THE CURE: the reference's exact svg inlined at the Go
+// Home site (the lucide Home import retired there; OUR aria-hidden
+// kept — the s19 superset family)]. [D-194a4 the 404 TITLE CURED —
+// OURS shipped the s12 absolute title 'This Page Does Not Exist |
+// NEO CRM' (decoded from the reference's PRE-DRIFT build); the
+// CURRENT reference ships bare 'NEO CRM' (live-verified at both
+// contexts, 3s settles — and the title machinery is byte-equal on
+// every real route: both ship bare 'NEO CRM' on /dashboard, 'Accounts
+// | NEO CRM' on /accounts, 'About | NEO CRM' on /about; only the 404
+// differed). THE CURE: the metadata export retired in not-found.tsx —
+// the root layout's title.default 'NEO CRM' renders, byte-equal].
+// [D-194a5 the ANON UNKNOWN-ROUTE POSTURE — the PLATFORM GENUS,
+// PINNED: the reference's auth-first client-router guard redirects
+// anon unknown-routes to /login?from_url=<absolute-url> (its
+// designed 404 appears only PAST the guard — it never adjudicates
+// routability for anon visitors, everything anon → the wall; its SPA
+// also never ships a real HTTP 404 status — 200 everywhere); OURS
+// renders the designed 404 AT the unknown URL with a true HTTP 404
+// (routability adjudicated first — the route-group architecture:
+// known guarded routes → the wall; unknown routes → the 404,
+// session-independent). The reference's posture is its SPA platform
+// artifact (the s149 family) — OURS keeps the correct web semantics,
+// PINNED]. Every other walk67 delta a documented genus: the
+// outline-color serialization (oklab vs rgba — the s126 noise genus,
+// the D-193a1 cure's own family, zero visible pixels) · the
+// box-shadow SLOT-COUNT (every VISIBLE layer byte-equal — white 2px
+// + slate-500 4px) · the outline VERSION FORM (1px none vs 2px solid
+// transparent — the walk51 decode, zero visible pixels both) · the
+// reference's platform badge-close Tab stop (the s149 genus, never
+// mirrored) · OUR aria-hidden superset (the s19 family, KEPT).
+describe("session-194: the 404 interior's interactive arms (walk67 — the designed 404 view [D-194a1 the quoted-path form cured; D-194a2 the Go Home tag the KEPT SUPERSET, pinned; D-194a3 the glyph cured; D-194a4 the title cured; D-194a5 the anon posture the PLATFORM GENUS, pinned]; the Tab chains structurally identical, the Go Home ride + the phone axes byte-equal)", () => {
+  it("D-194a1 the quoted-pathname form — the CURE PIN (RED-first: the reference interpolates its router path WITHOUT the leading slash; our usePathname() carries it — the strip at the interpolation is the parity form)", () => {
+    const body = read("src/app/not-found-body.tsx");
+    // the CONSTRUCTION form (the JSX interpolation chain — the windowed
+    // form: the file's own docstring quotes the bare expression as decode
+    // history, so the pin guards the `}&quot;` interpolation tail only
+    // the construction carries)
+    expect(body).toContain('{pathname.replace(/^\\//, "")}&quot;');
+  });
+
+  it("D-194a3 the Go Home glyph — the CURE PIN (RED-first: the reference's heroicons home outline inlined — exactly ONE path, NO stroke-width attr [computed weight 1], NO width/height attrs, the bare w-4 h-4 mr-2 class; the lucide House import retired at this one site — the M-82c2 icon-identity family's first cross-library member, the D-186a1 pen-cure precedent)", () => {
+    const body = read("src/app/not-found-body.tsx");
+    // the lucide import retired (the one non-lucide site in the reference's tree)
+    expect(body).not.toContain('import { Home } from "lucide-react"');
+    // the reference's exact glyph: the heroicons home outline path
+    expect(body).toContain(
+      'd="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"',
+    );
+    // the reference's exact attr set: NO width/height, NO stroke-width
+    // (computed weight 1 — the visible weight delta the walk decoded)
+    const svgMatch = body.match(/<svg[^>]*>/);
+    expect(svgMatch).not.toBeNull();
+    const svg = svgMatch![0];
+    expect(svg).toContain('viewBox="0 0 24 24"');
+    expect(svg).toContain('fill="none"');
+    expect(svg).toContain('stroke="currentColor"');
+    expect(svg).not.toContain("stroke-width");
+    expect(svg).not.toContain('width="');
+    expect(svg).not.toContain('height="');
+    // OUR aria-hidden kept (the s19 superset family — the reference's
+    // svg carries none, its own a11y gap, never mirrored)
+    expect(svg).toContain('aria-hidden="true"');
+    // the class rides the constant (the reference's exact w-4 h-4 order)
+    expect(read("src/lib/page-layout.ts")).toContain('homeIcon: "w-4 h-4 mr-2"');
+  });
+
+  it("D-194a4 the 404 title — the CURE PIN (RED-first: the s12 absolute title is a PRE-DRIFT decode — the current reference ships bare 'NEO CRM'; the metadata export retires and the root layout's title.default renders, byte-equal)", () => {
+    const src = read("src/app/not-found.tsx");
+    // the CONSTRUCTION negatives (the windowed form — the file's own
+    // comment legitimately quotes the retired title as decode history,
+    // so the pin guards the metadata export + the absolute-title form,
+    // never the prose)
+    expect(src).not.toContain("export const metadata");
+    expect(src).not.toContain("title: { absolute:");
+  });
+
+  it("the walk67 decode freeze — the two-context OPEN ledgers + the REAL Tab chain with the Go Home focus capture + the write-free ride + the phone axis + the anon posture census (the tool's own contract; the AUTHENTICATED legs ride the sweep-state pair, the anon legs ride fresh contexts)", () => {
+    const src = read("scripts/walk67-404-interior-arms.ts");
+    // the authenticated battery form (the s162 pair-state doctrine)
+    expect(src).toContain("preflightPairState");
+    expect(src).toContain('const REF_URL = process.env.REF_URL ?? "https://neo-crm-8ab2c17c.base44.app"');
+    // Phase A the OPEN census — the DFS ledger from the min-h-screen page
+    // root (the platform artifacts stay OUTSIDE, the s149 doctrine) + the
+    // h1/h2/p/span faces + the Go Home arm inventory + the glyph decode +
+    // the title + the http status
+    expect(src).toContain("notFoundCensus");
+    expect(src).toContain("LEDGER_JS");
+    expect(src).toContain("computedStrokeWidth");
+    expect(src).toContain("glyphDelta");
+    // Phase B the REAL keyboard Tab drive + Phase C the write-free ride +
+    // Phase D the phone axis
+    expect(src).toContain("tabDrive");
+    expect(src).toContain('await page.keyboard.press("Tab")');
+    expect(src).toContain("ridePhase");
+    expect(src).toContain("phoneCensus");
+    expect(src).toContain("{ width: 1440, height: 900 }");
+    expect(src).toContain("{ width: 390, height: 844 }");
+    // Phase E the anon posture census (fresh contexts — the D-194a5 genus
+    // decode: OURS the 404 at the unknown URL vs the REF the redirect to
+    // /login?from_url — censused, never fixed)
+    expect(src).toContain("anonLeg");
+    expect(src).toContain('"/Login"');
+    // the destructive-arm discipline: no writes, no logout, no external nav
+    expect(src).toContain("no writes, no logout, no external nav");
+    // the diff machinery
+    expect(src).toContain("rowsDelta");
+    expect(src).toContain("focusDelta");
+  });
+
+  it("the 404 open-interior construction freeze — the not-found-body call-site chains (the genuine battery gap: the s12 pins hold the NOT_FOUND_LAYOUT constant strings, never the call-site construction; the walk proves the h1/h2/p/span boxes + the Go Home arm box byte-equal two-app, the ride + the phone axes byte-equal)", () => {
+    const body = read("src/app/not-found-body.tsx");
+    const wrapper = read("src/app/not-found.tsx");
+    // the skeleton chains — the three-group center (the s12 VLM decode)
+    expect(body).toContain('<h1 className={NOT_FOUND_LAYOUT.h1}>404</h1>');
+    expect(body).toContain('<h2 className={NOT_FOUND_LAYOUT.h2}>Page Not Found</h2>');
+    expect(body).toContain('<div className={NOT_FOUND_LAYOUT.divider} aria-hidden="true" />');
+    // D-194a1: the stripped interpolation (the reference's router-path form)
+    expect(body).toContain('&quot;{pathname.replace(/^\\//, "")}&quot;');
+    // D-194a2: the ANCHOR construction — the KEPT SUPERSET (the reference
+    // renders a JS-router <button> with no href; ours keeps the
+    // WCAG-correct link semantics, the D-112a2 doctrine's next member).
+    // The negative is scoped to the JSX return block — the file's own
+    // docstring legitimately names the reference's <button> as decode
+    // history (the D-193a1 windowed-slice lesson).
+    expect(body).toContain('<Link href={NOT_FOUND_LAYOUT.homeHref} className={NOT_FOUND_LAYOUT.homeButton}>');
+    const jsx = body.slice(body.indexOf("return ("));
+    expect(jsx).not.toContain("<button");
+    // D-194a3: the inline heroicons glyph rides the constant
+    expect(body).toContain("<svg");
+    expect(body).toContain("className={NOT_FOUND_LAYOUT.homeIcon}");
+    // the client seam (the only way to read the unmatched pathname)
+    expect(body).toContain("usePathname");
+    // the wrapper renders the body — no metadata, no session check
+    expect(wrapper).toContain('import { NotFoundBody } from "./not-found-body"');
+    expect(wrapper).toContain("return <NotFoundBody />;");
+  });
+
+  it("D-194a5 the ANON unknown-route posture — the PLATFORM GENUS, pinned (the 404 is SESSION-INDEPENDENT by design: no session resolution, no redirect — the reference's auth-first client-router guard walls every anon URL at /login?from_url=<absolute-url>, its designed 404 appearing only PAST the guard, and its SPA never ships a real HTTP 404 status; OURS adjudicates routability first and renders the designed 404 with the true 404 status for anon and authenticated visitors alike — the s149 platform family, never mirrored)", () => {
+    const wrapper = read("src/app/not-found.tsx");
+    const body = read("src/app/not-found-body.tsx");
+    // the session-independent construction: no session seam, no redirect
+    expect(wrapper).not.toContain("getSessionUser");
+    expect(wrapper).not.toContain("redirect(");
+    expect(body).not.toContain("getSessionUser");
+    expect(body).not.toContain("redirect(");
+    // no auth import anywhere on the surface
+    expect(wrapper).not.toContain('from "@/lib/auth"');
+    expect(body).not.toContain('from "@/lib/auth"');
   });
 });
