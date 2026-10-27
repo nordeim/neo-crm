@@ -208,12 +208,18 @@ export default function CalendarPage() {
   ).length;
 
   function openNewEvent(day?: Date) {
-    const start = day ? new Date(day) : new Date();
+    // Session-191 (D-191a5): the header "New Event" flow ships the
+    // start EMPTY (the reference's own fresh-open face, live-walked);
+    // only the day-cell flows pass their OWN 09:00 default (the s54
+    // decode) — the no-day branch no longer synthesizes NOW+1h.
     if (!day) {
-      start.setHours(start.getHours() + 1, 0, 0, 0);
-    } else {
-      start.setHours(9, 0, 0, 0);
+      setEditing(null);
+      setDefaultStart(null);
+      setDialogOpen(true);
+      return;
     }
+    const start = new Date(day);
+    start.setHours(9, 0, 0, 0);
     setEditing(null);
     setDefaultStart(start);
     setDialogOpen(true);

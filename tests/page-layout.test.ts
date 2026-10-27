@@ -4378,3 +4378,223 @@ describe("session-190: the reports Save-Custom-View dialog focus/open interior w
     expect(comp).toContain("htmlFor={inputId}");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-191 (walk64): THE THREE CREATE DIALOGS' OPEN FACES — the two-app
+// element-level ledger of the three unwalked members of the create-dialog
+// family (the CONTACT — the s15/s30-era avatar + photo-upload construction ·
+// the ACCOUNT — the s15/s5-era 8-field 2-col grid · the EVENT — the
+// s15/s76 WIDE family), the discovery probe's live adjudication
+// (scripts/discover-191): all LIVE on BOTH apps, byte-equal at the census
+// level — the triggers 1255,115 153x36 / 1274,103 134x32 / 1269,113 139x36
+// byte-equal, the OPEN roots 464,45 512x810 / 384,214 672x472 /
+// 384,133 672x634 byte-equal, the titles byte-equal, the field vocabularies
+// byte-equal (the contact's 6 placeholders + type=tel; the account's 8
+// placeholder-LESS fields; the event's combobox trio + datetime pair +
+// Location placeholder), the footer pairs byte-equal, the mount-focus
+// byte-equal BEHAVIOR (the camera button on the contact; the first input on
+// the account/event), the REAL-TAB chains STRUCTURALLY IDENTICAL (19/12/19
+// stops), the select rides byte-equal (the meet-select's 5 emoji options +
+// the status 3-option set + the listbox boxes), the EVENT related-to pick
+// byte-equal (the M-76c13 conditional Name field — the placeholder "Enter
+// Contact name" + the box 728,638 303x36 + the comboTexts flip), the phone
+// axes byte-equal (0,42 390x760 / 0,168 390x508 / 0,99 390x646).
+// THE WALK'S VERDICT — the live finds, all ONE FAMILY (the ids): D-191a1
+// THE CONTACT DIALOG'S LITERAL ID/FOR MAP (the reference carries
+// id="name"/"email"/"phone"/"company"/"position" with for= the same; ours
+// shipped ct-*) · D-191a2 THE ACCOUNT DIALOG'S LITERAL ID/FOR MAP (the
+// reference: name/industry/email/phone/website/revenue/employees; ours
+// acc-*) · D-191a3 THE SELECTS' ID + LABEL FOR WIRING (the reference's
+// meet-select carries button id="source" + label for="source"; its account
+// Status button id="status" + label for="status"; ours shipped bare labels
+// + aria-label triggers — the cure wires the id/for while KEEPING the
+// aria-label superset, which wins the accessible-name computation) ·
+// D-191a4 THE CONTACT FILE INPUT'S EXPLICIT tabIndex (ours ships
+// tabIndex={-1}; the reference carries none — the D-187a1 retirement's
+// next member; both inert — className="hidden"). The event dialog's
+// id-less reference inputs + bare labels decode as the KEPT s172
+// SUPERSET (our labels wire htmlFor/id — the reference's bare labels are
+// its own defect, never mirrored). The cancel-then-reopen state delta
+// (ours clears via the S71-P1 epoch remount; the reference keeps the
+// draft) decodes as the PINNED house superset (the fresh-per-open
+// contract — dialog-mount-contract.test.ts). Every remaining delta a
+// documented genus (the box-shadow slot-count with every VISIBLE layer
+// byte-equal · the outline VERSION FORM + both sub-forms + the
+// color-carrier sub-form · the M-81c2 token pairs — border-line/
+// bg-surface vs border/bg-background, computed-equal · the md:text-sm
+// composition genus — the COMPUTED font 14px/500 byte-equal both apps ·
+// the aria-label supersets · our aria-hidden svg + Radix placeholder-
+// <option> supersets · the reference's own Radix-version artifacts — the
+// stale aria-controls at rest + the dangling aria-describedby genus ·
+// the React useId format).
+// ---------------------------------------------------------------------------
+
+describe("session-191: the three create dialogs' focus/open interior walk (walk64 — the id-parity family cured [D-191a1/a2 the literal id/for maps + D-191a3 the selects' id/for wiring + D-191a4 the tabIndex retirement]; every other delta a documented genus or kept superset, both apps byte-equal on every resting + REAL-keyboard face at both axes)", () => {
+  it("the walk64 decode freeze — the three-arm OPEN ledger at both axes + the REAL Tab drives + the select rides + the conditional-Name appearance + the cancel-then-reopen decode (the tool's own contract)", () => {
+    const src = read("scripts/walk64-createdialogs-focus-open.ts");
+    // the two-app pair form (the s162 login consolidation)
+    expect(src).toContain("preflightPairState");
+    expect(src).toContain('const REF_URL = process.env.REF_URL ?? "https://neo-crm-8ab2c17c.base44.app"');
+    // the three arms (the walk61 multi-arm form)
+    expect(src).toContain('{ key: "contact", path: "/contacts", trigger: "New Contact", submitText: "Create Contact" }');
+    expect(src).toContain('{ key: "account", path: "/accounts", trigger: "New Account", submitText: "Create Account" }');
+    expect(src).toContain('{ key: "event", path: "/calendar", trigger: "New Event", submitText: "Create Event" }');
+    // Phase A per dialog the OPEN census — the trigger's resting face,
+    // the click-open ride, the root geometry + DFS ledger, the title,
+    // the FULL inputs census (the id map), the labels census (the
+    // wiring map), the comboboxes, the file input, the footer pair, the
+    // mount focus, the Escape round-trip — at BOTH axes
+    expect(src).toContain("dialogPhase");
+    expect(src).toContain("idMapDiff");
+    expect(src).toContain("labelMapDiff");
+    expect(src).toContain("mountFocus");
+    expect(src).toContain('{ w: 390, h: 844 }');
+    // Phase B the REAL keyboard Tab drive through each OPEN dialog
+    // (the walk54/58/63 focus form) + the REAL :focus-visible faces at
+    // the first input + a combobox + the Create submit
+    expect(src).toContain("tabPhase");
+    expect(src).toContain('await page.keyboard.press("Tab")');
+    // Phase C the interactive arms — the select rides (the listbox OPEN
+    // face + the option vocabulary + the REAL data-highlighted face
+    // under ArrowDown) + the EVENT related-to pick ride (the M-76c13
+    // conditional) + the cancel-then-reopen state decode — the submits
+    // NEVER fired on either app
+    expect(src).toContain("selectRidePhase");
+    expect(src).toContain("conditionalRidePhase");
+    expect(src).toContain("cancelReopenPhase");
+    expect(src).toContain("submits NEVER fired on either app");
+  });
+
+  it("the CONTACT open-interior construction freeze — the avatar section + the two h3 headers + the pair groups + the file input + the footer pair (the genuine battery gap: the s19/s30 pins hold OUR wiring regexes, never the call-site chains; the walk proves the root byte-equal at 464,45 512x810 on both apps at both axes)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the body + the avatar section (the s15/s30 construction)
+    expect(src).toContain('<div className={CONTACT_DIALOG.body}>');
+    expect(src).toContain('<div className={CONTACT_AVATAR.section}>');
+    // the hidden file input (the s30-P2 REAL round-trip; the accept
+    // trio — the reference's explicit MIME list; D-191a4: NO tabIndex)
+    expect(src).toContain('accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={uploadPhoto}');
+    // the two h3 section headers (the L-92c2 nested sections)
+    expect(src).toContain('<h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contact Details</h3>');
+    expect(src).toContain('<h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Professional Details</h3>');
+    // the meet-select (the s28-P1 raw values + emoji labels)
+    expect(src).toContain("{CONTACT_SOURCE_OPTIONS.map((o) =>");
+    // the footer pair: the outline Cancel + the BLACK-pair submit (the
+    // s123 F-123a4 DIALOG_SUBMIT family)
+    expect(src).toContain('<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>');
+    expect(src).toContain('{pending ? "Creating..." : "Create Contact"}');
+  });
+
+  it("the ACCOUNT open-interior construction freeze — the 8-field 2-col grid + the Status select + the footer pair (the genuine gap: the s15/s5 pins hold the field ORDER + the payload contracts, never the call-site chains; the walk proves the root byte-equal at 384,214 672x472 on both apps at both axes)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the 2-column grid body (the S15-P10 pairs contract)
+    expect(src).toContain('<div className={ACCOUNT_DIALOG.body}>');
+    // the Status select rides the ACCOUNT_STATUSES vocabulary
+    expect(src).toContain("{ACCOUNT_STATUSES.map((s) =>");
+    // the footer pair + the pending label
+    expect(src).toContain('{pending ? "Creating..." : "Create Account"}');
+    expect(src).toContain("className={DIALOG_SUBMIT.button}");
+  });
+
+  it("the EVENT open-interior construction freeze — the wide family + the bare-field form + the combobox trio + the conditional Name arm + the blue submit (the genuine gap: the s15/s76 pins hold the constants + the bundle decode, never the call-site chains; the walk proves the root byte-equal at 384,133 672x634 + the M-76c13 conditional live on both apps)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the wide shell + the form rhythm + the two grid pairs
+    expect(src).toContain('<DialogContent className={DIALOG_CONTENT.wide}>');
+    expect(src).toContain('className={EVENT_DIALOG.form}');
+    expect(src).toContain('className={EVENT_DIALOG.pair}');
+    expect(src).toContain('className={EVENT_DIALOG.relatedToAlone}');
+    // the rows=3 textarea (the M-92c3 live decode)
+    expect(src).toContain('<Textarea id="ev-desc" rows={3}');
+    // the combobox trio (the aria-label superset family — the
+    // reference's own triggers are aria-less)
+    expect(src).toContain('<SelectTrigger aria-label="Event Type" className="w-full"><SelectValue /></SelectTrigger>');
+    expect(src).toContain('<SelectTrigger aria-label="Status" className="w-full"><SelectValue /></SelectTrigger>');
+    expect(src).toContain('<SelectTrigger aria-label="Related To" className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger>');
+    // the M-76c13 conditional Name field (the capitalized placeholder —
+    // live-walked byte-equal "Enter Contact name" on both apps)
+    expect(src).toContain('placeholder={`Enter ${form.relatedType.charAt(0).toUpperCase()}${form.relatedType.slice(1)} name`}');
+    // the blue submit (the M-76c12 one-off, BOTH modes)
+    expect(src).toContain("className={EVENT_DIALOG.submit}");
+    expect(src).toContain('{pending ? "Saving..." : event ? "Update Event" : "Create Event"}');
+  });
+
+  it("D-191a5 the EVENT create-dialog's start-date pre-fill retired — the reference's fresh-open start input is EMPTY (live-walked: the VLM battery caught the value-blind census's gap, the micro-probe confirmed OURS '2026-10-27T04:00' vs REF ''); ours pre-filled NOW (toLocalInputValue(defaultStart ?? new Date())) — the D-114a2 construction-parity family's behavioral member; the day-cell dblclick flow keeps its own defaultStart (the s54 decode, untouched by the cure)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the post-cure form: the create mode pre-fills ONLY the passed
+    // defaultStart (the day-cell flow), NEVER the NOW fallback — the
+    // fresh-open start is EMPTY, matching the reference
+    expect(src).toContain("startAt: event ? toLocalInputValue(event.startAt) : (defaultStart ? toLocalInputValue(defaultStart) : \"\"),");
+    expect(src).not.toContain("toLocalInputValue(defaultStart ?? new Date())");
+    // the submit gate still guards the empty start (the reference's
+    // required-attribute face; our toast superset stays)
+    expect(src).toContain('if (!form.startAt) {');
+    expect(src).toContain('"Start date and time are required"');
+    // the call site: the header "New Event" flow passes NO default
+    // (the reference's own fresh-open face); only the day-cell flows
+    // pass their OWN 09:00 default (the s54 decode)
+    const cal = read("src/app/(app)/calendar/calendar-page.tsx")!;
+    expect(cal).toContain("if (!day) {\n      setEditing(null);\n      setDefaultStart(null);\n      setDialogOpen(true);\n      return;\n    }");
+    expect(cal).toContain("start.setHours(9, 0, 0, 0);");
+    expect(cal).not.toContain("start.setHours(start.getHours() + 1, 0, 0, 0);");
+  });
+
+  it("D-191a1 the CONTACT dialog's LITERAL id/for map — the reference's inputs carry the bare literal ids (id=\"name\"/\"email\"/\"phone\"/\"company\"/\"position\", for= the same — live-walked byte-equal on the reference's DOM); ours shipped ct-* prefixed ids (the D-114a2/D-187a1/D-190a1 ids-are-construction-parity doctrine; the cure: the literal ids restored at every call site)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the five literal pairs (the reference's own construction)
+    expect(src).toContain('<Label htmlFor="name">Name *</Label>');
+    expect(src).toContain('<Label htmlFor="email">Email *</Label>');
+    expect(src).toContain('<Label htmlFor="phone">Phone</Label>');
+    expect(src).toContain('<Label htmlFor="company">Company</Label>');
+    expect(src).toContain('<Label htmlFor="position">Position</Label>');
+    // the ids themselves (the htmlFor targets)
+    expect(src).toMatch(/id="name"\s*\n/);
+    expect(src).toContain('id="email"');
+    expect(src).toContain('id="phone"');
+    expect(src).toContain('id="company"');
+    expect(src).toContain('id="position"');
+    // the ct-* era is GONE (no prefixed ids remain)
+    expect(src).not.toContain('id="ct-');
+    expect(src).not.toContain('htmlFor="ct-');
+  });
+
+  it("D-191a2 the ACCOUNT dialog's LITERAL id/for map — the reference's inputs carry the bare literal ids (id=\"name\"/\"industry\"/\"email\"/\"phone\"/\"website\"/\"revenue\"/\"employees\", for= the same); ours shipped acc-* prefixed ids (the same doctrine; the cure: the literal ids restored)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the seven literal pairs
+    expect(src).toContain('<Label htmlFor="name">Account Name *</Label>');
+    expect(src).toContain('<Label htmlFor="industry">Industry</Label>');
+    expect(src).toContain('<Label htmlFor="email">Email</Label>');
+    expect(src).toContain('<Label htmlFor="phone">Phone</Label>');
+    expect(src).toContain('<Label htmlFor="website">Website</Label>');
+    expect(src).toContain('<Label htmlFor="revenue">Annual Revenue</Label>');
+    expect(src).toContain('<Label htmlFor="employees">Employees</Label>');
+    // the ids themselves
+    expect(src).toContain('id="industry"');
+    expect(src).toContain('id="website"');
+    expect(src).toContain('id="revenue"');
+    expect(src).toContain('id="employees"');
+    // the acc-* era is GONE
+    expect(src).not.toContain('id="acc-');
+    expect(src).not.toContain('htmlFor="acc-');
+  });
+
+  it("D-191a3 the create-dialog SELECTS' id + label-for wiring — the reference's meet-select carries button id=\"source\" + label for=\"source\" and its account Status button id=\"status\" + label for=\"status\" (live-walked); ours shipped bare labels + aria-label triggers (the cure: the id/for wiring restored while KEEPING the aria-label superset — aria-label wins the accessible-name computation, so the a11y pin's name contract is unchanged)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the contact meet-select: the wired label + the id on the trigger
+    expect(src).toContain('<Label htmlFor="source">How did you meet?</Label>');
+    expect(src).toContain('<SelectTrigger id="source" aria-label="How did you meet?"');
+    // the account Status select: the wired label + the id
+    expect(src).toContain('<Label htmlFor="status">Status</Label>');
+    expect(src).toContain('<SelectTrigger id="status" aria-label="Status"');
+  });
+
+  it("D-191a4 the CONTACT file input's explicit tabIndex retirement — the reference's hidden input carries NO tabIndex attribute (live-walked: tabIndex=\"(none)\"); ours shipped tabIndex={-1} (the D-187a1 doctrine's next member — both inert, className=\"hidden\" removes the input from the layout AND the tab chain; the cure: the explicit attribute retired)", () => {
+    const src = read("src/components/shared/entity-dialogs.tsx");
+    // the post-cure construction: accept trio + hidden + onChange, NO
+    // explicit tabIndex anywhere on a file input
+    expect(src).toContain('accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={uploadPhoto}');
+    expect(src).not.toContain("tabIndex={-1}");
+    // the collateral pin: the s19 ct-phone source pin rides the cured
+    // literal id (the D-191a1 rename)
+    const pwa = read("tests/pwa-metadata.test.ts")!;
+    expect(pwa).toMatch(/id="phone"[\s\S]{0,120}type="tel"/);
+  });
+});

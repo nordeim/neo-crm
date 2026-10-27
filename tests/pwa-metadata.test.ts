@@ -204,7 +204,7 @@ describe("session-19: dialog input micro-contracts (S19-P6, S19-P7, S19-P8)", ()
   it("types the Contact dialog's Phone as tel (the reference's Lead-vs-Contact split)", () => {
     const src = dialogsSrc();
     // Contact phone = tel (reference-verified)…
-    expect(src).toMatch(/id="ct-phone"[\s\S]{0,120}type="tel"/);
+    expect(src).toMatch(/id="phone"[\s\S]{0,120}type="tel"/);
     // …while the Lead dialog's Phone stays type=text on BOTH apps (the
     // reference's own inconsistency, mirrored).
     expect(src).toMatch(/id="ld-phone"[\s\S]{0,200}\/>/);

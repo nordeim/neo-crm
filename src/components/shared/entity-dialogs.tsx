@@ -230,9 +230,13 @@ function AccountForm({
     <form onSubmit={submit}>
       <div className={ACCOUNT_DIALOG.body}>
         <div className={DIALOG_GROUP.group}>
-          <Label htmlFor="acc-name">Account Name *</Label>
+          {/* Session-191 (D-191a2): the reference's account-dialog inputs
+              carry the BARE literal ids (id="name" … id="employees",
+              live-walked on its DOM) — the acc-* prefixes retired per
+              the ids-are-construction-parity doctrine. */}
+          <Label htmlFor="name">Account Name *</Label>
           <Input
-            id="acc-name"
+            id="name"
             className={DIALOG_GROUP.controlMt}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -240,22 +244,22 @@ function AccountForm({
           />
         </div>
         <div className={DIALOG_GROUP.group}>
-          <Label htmlFor="acc-industry">Industry</Label>
+          <Label htmlFor="industry">Industry</Label>
           {/* Session-19 (S19-P7): the reference ships ZERO datalist
               suggestion elements in any create dialog (attribute + element
               counts probed live) — the scaffold-era industry dropdown is
               removed for parity. */}
           <Input
-            id="acc-industry"
+            id="industry"
             className={DIALOG_GROUP.controlMt}
             value={form.industry}
             onChange={(e) => setForm({ ...form, industry: e.target.value })}
           />
         </div>
         <div className={DIALOG_GROUP.group}>
-          <Label htmlFor="acc-email">Email</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
-            id="acc-email"
+            id="email"
             className={DIALOG_GROUP.controlMt}
             type="email"
             value={form.email}
@@ -263,30 +267,30 @@ function AccountForm({
           />
         </div>
         <div className={DIALOG_GROUP.group}>
-          <Label htmlFor="acc-phone">Phone</Label>
+          <Label htmlFor="phone">Phone</Label>
           <Input
-            id="acc-phone"
+            id="phone"
             className={DIALOG_GROUP.controlMt}
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
         </div>
         <div className={DIALOG_GROUP.group}>
-          <Label htmlFor="acc-website">Website</Label>
+          <Label htmlFor="website">Website</Label>
           <Input
-            id="acc-website"
+            id="website"
             className={DIALOG_GROUP.controlMt}
             value={form.website}
             onChange={(e) => setForm({ ...form, website: e.target.value })}
           />
         </div>
         <div className={DIALOG_GROUP.group}>
-          <Label htmlFor="acc-revenue">Annual Revenue</Label>
+          <Label htmlFor="revenue">Annual Revenue</Label>
           {/* Session-81 (L-81c4): the reference's dialog number inputs ship
               NO min (live-probed on its New Account dialog) — the s77
               min-retire precedent. */}
           <Input
-            id="acc-revenue"
+            id="revenue"
             className={DIALOG_GROUP.controlMt}
             type="number"
             value={form.annualRevenue}
@@ -294,19 +298,22 @@ function AccountForm({
           />
         </div>
         <div className={DIALOG_GROUP.group}>
-          <Label htmlFor="acc-employees">Employees</Label>
+          <Label htmlFor="employees">Employees</Label>
           <Input
-            id="acc-employees"
+            id="employees"
             className={DIALOG_GROUP.controlMt}
             type="number"
             value={form.employees}
             onChange={(e) => setForm({ ...form, employees: e.target.value })}
           />
         </div>
+        {/* Session-191 (D-191a3): the reference's Status select carries
+            button id="status" + label for="status" (live-walked on its
+            DOM) — the id/for wiring restored; the aria-label STAYS. */}
         <div className={DIALOG_GROUP.group}>
-          <Label>Status</Label>
+          <Label htmlFor="status">Status</Label>
           <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-            <SelectTrigger aria-label="Status" className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+            <SelectTrigger id="status" aria-label="Status" className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
             <SelectContent>
               {ACCOUNT_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>{ACCOUNT_STATUS_META[s].label}</SelectItem>
@@ -505,14 +512,22 @@ function ContactForm({
             {/* Session-19 (S19-P8): the reference's accept list is the
                 explicit MIME trio, not image/*. Session-30 (S30-P2): the
                 onChange is the REAL round-trip (the visual-parity stub
-                retired). */}
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" tabIndex={-1} onChange={uploadPhoto} />
+                retired). Session-191 (D-191a4): the explicit tabIndex
+                retired — the reference's hidden input carries NO tabIndex
+                (the D-187a1 doctrine; className="hidden" already removes
+                it from the layout AND the tab chain). */}
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={uploadPhoto} />
           </div>
           {uploading && <p className={CONTACT_AVATAR.uploadingHint}>Uploading photo...</p>}
           <div className={CONTACT_AVATAR.nameGroup}>
-            <Label htmlFor="ct-name">Name *</Label>
+            {/* Session-191 (D-191a1): the reference's create-dialog inputs
+                carry the BARE literal ids (id="name" … id="position",
+                live-walked on its DOM) — the ids-are-construction-parity
+                doctrine (D-114a2/D-187a1/D-190a1); the ct-* prefixes
+                retired. */}
+            <Label htmlFor="name">Name *</Label>
             <Input
-              id="ct-name"
+              id="name"
               className={`${DIALOG_GROUP.controlMt} text-center font-medium`}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -534,9 +549,9 @@ function ContactForm({
         <div className={CONTACT_DIALOG.pairGroup}>
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contact Details</h3>
           <div className={DIALOG_GROUP.group}>
-            <Label htmlFor="ct-email">Email *</Label>
+            <Label htmlFor="email">Email *</Label>
             <Input
-              id="ct-email"
+              id="email"
               className={DIALOG_GROUP.controlMt}
               type="email"
               value={form.email}
@@ -546,13 +561,13 @@ function ContactForm({
             />
           </div>
           <div className={DIALOG_GROUP.group}>
-            <Label htmlFor="ct-phone">Phone</Label>
+            <Label htmlFor="phone">Phone</Label>
             {/* Session-19 (S19-P6): the reference's CONTACT dialog Phone is
                 type=tel (live input census) while its LEAD dialog Phone is
                 plain text — its own inconsistency, mirrored exactly: only
                 the contact field gets tel. */}
             <Input
-              id="ct-phone"
+              id="phone"
               className={DIALOG_GROUP.controlMt}
               type="tel"
               value={form.phone}
@@ -564,11 +579,11 @@ function ContactForm({
         <div className={CONTACT_DIALOG.pairGroup}>
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Professional Details</h3>
           <div className={DIALOG_GROUP.group}>
-            <Label htmlFor="ct-company">Company</Label>
+            <Label htmlFor="company">Company</Label>
             {/* Session-19 (S19-P7): the reference ships no datalist here
                 either — the account-name suggestion dropdown is removed. */}
             <Input
-              id="ct-company"
+              id="company"
               className={DIALOG_GROUP.controlMt}
               value={form.company}
               onChange={(e) => setForm({ ...form, company: e.target.value })}
@@ -576,9 +591,9 @@ function ContactForm({
             />
           </div>
           <div className={DIALOG_GROUP.group}>
-            <Label htmlFor="ct-position">Position</Label>
+            <Label htmlFor="position">Position</Label>
             <Input
-              id="ct-position"
+              id="position"
               className={DIALOG_GROUP.controlMt}
               value={form.position}
               onChange={(e) => setForm({ ...form, position: e.target.value })}
@@ -586,10 +601,14 @@ function ContactForm({
             />
           </div>
         </div>
+        {/* Session-191 (D-191a3): the reference's meet-select carries
+            button id="source" + label for="source" (live-walked on its
+            DOM) — the id/for wiring restored; the aria-label STAYS (the
+            kept superset — it wins the accessible-name computation). */}
         <div className={DIALOG_GROUP.group}>
-          <Label>How did you meet?</Label>
+          <Label htmlFor="source">How did you meet?</Label>
           <Select value={form.source} onValueChange={(v) => setForm({ ...form, source: v })}>
-            <SelectTrigger aria-label="How did you meet?" className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
+            <SelectTrigger id="source" aria-label="How did you meet?" className={DIALOG_GROUP.controlMt + " w-full"}><SelectValue /></SelectTrigger>
             <SelectContent>
               {/* Session-28 (S28-P1): the RAW values with the emoji labels
                   (value "email", label "\u2709\ufe0f Email"). */}
@@ -862,7 +881,12 @@ function EventForm({
     description: event?.description ?? "",
     type: event?.type ?? "meeting",
     status: event?.status ?? "scheduled",
-    startAt: event ? toLocalInputValue(event.startAt) : toLocalInputValue(defaultStart ?? new Date()),
+    // Session-191 (D-191a5): the reference's fresh-open create form
+    // ships the start date EMPTY (live-walked — the VLM battery caught
+    // the value-blind census's gap); the NOW pre-fill retired. The
+    // day-cell dblclick flow keeps its OWN defaultStart (the s54
+    // decode) — only the no-default path empties.
+    startAt: event ? toLocalInputValue(event.startAt) : (defaultStart ? toLocalInputValue(defaultStart) : ""),
     endAt: event?.endAt ? toLocalInputValue(event.endAt) : "",
     location: event?.location ?? "",
     // Session-76 (L-76c10, bundle-decoded from SAe): the initial
