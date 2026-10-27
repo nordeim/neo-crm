@@ -4251,3 +4251,130 @@ describe("session-189: the leads Saved-Views select + calendar month-nav focus/o
     expect(src).toContain("setSelectedDay(now);");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-190 (walk63): the reports Save-Custom-View dialog open faces
+// interior walk — the s400 close's named candidates (the reports
+// SAVE-CUSTOM-VIEW dialog — the s25-era construction, its open faces
+// never walked under ADR-022 · the dashboard follow-up-rows checkbox
+// arms — the s27-era construction · the activities Completed-tab row
+// actions — the s109-era construction). The discovery
+// (scripts/discover-190.ts + the micro-probes) adjudicated: the
+// dialog LIVE on BOTH apps at every censused face; the dashboard
+// checkbox arms + the Completed-tab row actions KILLED (the
+// reference's zero-data state persists — 0 checkboxes on Lead
+// Sources, the No-upcoming empty state, the empty Completed panel);
+// the topbar-search gate KILLED again (populated=0). The walk's
+// verdict: ONE live find — D-190a1 THE SIX COLUMN CHECKBOXES'
+// LITERAL ID/FOR CONSTRUCTION (the reference's checkboxes carry the
+// literal REPORT_COLUMNS keys as ids — id="name" … id="wonDate",
+// for="name" … for="wonDate" — ours shipped React useId ids; the
+// D-114a2/D-187a1 ids-are-construction-parity doctrine; THE CURE:
+// id={col.key} at the call site, the component's id ?? generated
+// seam carrying it to the htmlFor). The byte-equal ledger: the
+// trigger `1216,113 192x36` + the OPEN dialog `384,240 672x420` +
+// the input `409,343 622x36` (placeholder + the COMPUTED font
+// 14px/400 line 20px byte-equal — the md:text-sm a class-order
+// genus, the reference appending it at the chain's end) + the
+// checkbox[0] `409,423 16x16` + the summary `409,521 622x46` + the
+// footer Cancel `792,599 81x36` / Save `882,599 149x36` / Close
+// `1023,257 16x16` — all byte-equal at BOTH axes (the phone root
+// `0,184 390x476`, the phone input 16px/400 — the s9 below-md
+// doctrine); the REAL-keyboard chain STRUCTURALLY IDENTICAL (10
+// stops: the mount input → 6 checkboxes → Cancel → Close → the
+// input wrap — the Save NEVER in the chain at the fresh-open state,
+// disabled buttons are not focusable; the post-type drive captures
+// its REAL face); the REAL :focus-visible faces byte-equal on the
+// VISIBLE layers (the 1px near-black ring); the interactive arms
+// byte-equal (the type-flip + the save round-trip `Saved Reports
+// (1)` + the L-74c8 post-save clear + the L-74c7 cancel-keep + the
+// saved row name/date + the Load token genus + the checkbox-toggle
+// faces); every remaining delta a documented genus (the slot-count
+// with every VISIBLE layer byte-equal · the outline VERSION FORM +
+// both sub-forms · the s129 ring-offset white zero-extent slot ·
+// the M-81c2 token pairs — border-line/bg-surface/text-ink/
+// muted-ink/line-soft/neutral-900 vs border-input/bg-background/
+// muted-foreground/accent/primary, computed-equal on every face ·
+// the class-order genus · the React useId format · the DANGLING
+// aria-describedby genus [walk54: the reference's own dead pointer,
+// not mirrored] · the aria-hidden svg superset [kept]).
+// ---------------------------------------------------------------------------
+
+describe("session-190: the reports Save-Custom-View dialog focus/open interior walk (walk63 — one live find cured [D-190a1 the checkbox literal ids]; every other delta a documented genus, both apps byte-equal on every resting + REAL-keyboard face at both axes)", () => {
+  it("the walk63 decode freeze — the one-arm OPEN ledger at both axes + the REAL Tab/Save drives + the save/reopen round-trips + the checkbox-toggle ride (the tool's own contract)", () => {
+    const src = read("scripts/walk63-savedreports-dialog-focus-open.ts");
+    // the two-app pair form (the s162 login consolidation)
+    expect(src).toContain("preflightPairState");
+    expect(src).toContain('const REF_URL = process.env.REF_URL ?? "https://neo-crm-8ab2c17c.base44.app"');
+    // Phase A the OPEN dialog census at BOTH axes — the trigger's
+    // resting face, the click-open ride, the root geometry ledger,
+    // the title, the name input's FULL chain + computed font, the
+    // 6-column checkbox grid, the Current-Filters summary, the
+    // footer pair, the close X, the mount focus
+    expect(src).toContain("dialogPhase");
+    expect(src).toContain("mountFocus");
+    expect(src).toContain("closeAria");
+    expect(src).toContain('{ w: 390, h: 844 }');
+    // Phase B the REAL keyboard Tab drive through the OPEN dialog
+    // (the walk54/58 focus form) + the disabled-Save decode (the
+    // Save NEVER in the fresh-open chain — the post-type drive
+    // captures its REAL face)
+    expect(src).toContain("tabPhase");
+    expect(src).toContain("the Save button is DISABLED at the fresh-open state");
+    expect(src).toContain('await page.keyboard.press("Tab")');
+    // Phase C the interactive arms — the type-flip, the SAVE
+    // round-trip (the localStorage seam), the post-save REOPEN (the
+    // L-74c8 name-clear), the saved-list arm, the cancel-then-reopen
+    // decode (the L-74c7 keep), the checkbox-toggle ride
+    expect(src).toContain("interactivePhase");
+    expect(src).toContain("typeFlipsSave");
+    expect(src).toContain("reopenName");
+    expect(src).toContain("cancelReopenKeepsName");
+    expect(src).toContain("checkboxToggle");
+  });
+
+  it("the Saved-Reports TRIGGER call-site construction — the outline button's own chain (the genuine battery gap: the s25 pins hold the wiring regex, never the trigger's own construction; the walk proves the box byte-equal at 1216,113 192x36 on both apps)", () => {
+    const src = read("src/app/(app)/reports/reports-page.tsx");
+    // the outline variant + the Bookmark glyph + the LIVE count form
+    // (the s25-P4 wiring, now the construction freeze)
+    expect(src).toContain('<Button\n            variant="outline"\n            onClick={() => setSaveDialogOpen(true)}\n          >');
+    expect(src).toContain('<Bookmark className="h-4 w-4 mr-2" /> Saved Reports ({savedCount})');
+  });
+
+  it("the Save-Report-Dialog open-interior construction — the wide shell + the name input + the checkbox grid + the summary box + the footer pair (the genuine gap: the s25 pins hold the content words as regexes, never the call-site chains; the walk proves the root byte-equal at 384,240 672x420 + the input 409,343 622x36 + the checkbox[0] 409,423 16x16 + the summary 409,521 622x46 + Cancel 792,599 81x36 + Save 882,599 149x36 on both apps at BOTH axes)", () => {
+    const src = read("src/components/shared/save-report-dialog.tsx");
+    // the wide shell (the s30-P6 scroll-cap pair — the s68 N-68d wiring)
+    expect(src).toContain('<DialogContent className={DIALOG_CONTENT.wide}>');
+    // the name input: the htmlFor/id pairing + the mt-1 + the exact
+    // placeholder (the walk: the COMPUTED font byte-equal 14px/400)
+    expect(src).toContain('<Label htmlFor="reportName">Report Name</Label>');
+    expect(src).toContain('id="reportName"');
+    expect(src).toContain('className="mt-1"');
+    expect(src).toContain('placeholder="e.g., Q1 Won Deals by Region"');
+    // the six-column checkbox grid: the two-column rhythm
+    expect(src).toContain('<div className="grid grid-cols-2 gap-3">');
+    // the Current-Filters summary box (the three-dimension line)
+    expect(src).toContain('className="bg-blue-50 border border-blue-200 rounded-lg p-3"');
+    // the footer pair: the outline Cancel + the BLACK-pair Save (the
+    // s123 F-123a4 DIALOG_SUBMIT family) with the disabled-until-named
+    // gate + the L-74c8 post-save clear
+    expect(src).toContain('<Button variant="outline" onClick={() => onOpenChange(false)}>');
+    expect(src).toContain('className={DIALOG_SUBMIT.button}');
+    expect(src).toContain("disabled={name.trim().length === 0}");
+    expect(src).toContain('setName("");');
+  });
+
+  it("D-190a1 the six column checkboxes' LITERAL id/for construction — the reference's checkboxes carry the literal REPORT_COLUMNS keys as ids (id=\"name\" … id=\"wonDate\", for=\"name\" … for=\"wonDate\" — live-walked byte-equal on the reference's DOM); ours shipped React useId ids (the D-114a2/D-187a1 ids-are-construction-parity doctrine; the cure: id={col.key} at the call site, the component's id ?? generated seam carrying it to the htmlFor)", () => {
+    const src = read("src/components/shared/save-report-dialog.tsx");
+    // the literal-id cure: every checkbox rides its REPORT_COLUMNS
+    // key as the id (the reference's own construction)
+    expect(src).toContain("<Checkbox");
+    expect(src).toContain("id={col.key}");
+    expect(src).toContain("key={col.key}");
+    // the component seam honors the id (the generated fallback only
+    // when no id passed)
+    const comp = read("src/components/ui/label.tsx")!;
+    expect(comp).toContain("const inputId = id ?? generated;");
+    expect(comp).toContain("htmlFor={inputId}");
+  });
+});

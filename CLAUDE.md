@@ -37,7 +37,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (2781) → `bun run build` → `bun run test:e2e` (192) — or the
+   `bun run test` (2786) → `bun run build` → `bun run test:e2e` (192) — or the
    one-command `bun run gate` (session-38: the chain as a package script,
    so the build always precedes the e2e boot; session-39: the e2e step
    runs under `CI=1`, forcing a fresh server — a leftover :3100 listener
@@ -129,7 +129,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (2781 checks)            |
+| `bun run test`      | Vitest unit suites (2786 checks)            |
 | `bun run test:watch`| Vitest in watch mode                          |
 | `bun run smoke`     | Smoke the standalone artifact (14 checks, needs build first) |
 | `bun run test:e2e`  | Playwright E2E (192 checks, needs build first) |
@@ -142,7 +142,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 2781 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
+- **Unit (Vitest, 2786 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -451,6 +451,23 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   call-sites); the round ZERO live finds — every delta a documented
   genus, the second consecutive zero-fix freeze-pin session —
   `scripts/walk62-savedviews-calnav-focus-open.ts`].
+    and session-190's walk63 layer — the reports Save-Custom-View
+  dialog focus/open interior walk's contract-freeze family [the walk63
+  decode freeze (the tool's own contract: the one-arm OPEN ledger at
+  both axes + the REAL Tab/Save drives + the save/reopen round-trips +
+  the checkbox-toggle ride) · the Saved-Reports trigger call-site
+  construction freeze (the genuine battery gap: the s25 pins hold the
+  wiring regex, never the trigger's own chain) · the Save-Report-Dialog
+  open-interior construction freeze (the genuine gap: the s25 pins hold
+  the content words as regexes, never the call-site chains) · the
+  D-190a1 cure pin — the six column checkboxes' LITERAL id/for
+  construction (the reference's REPORT_COLUMNS keys as ids; ours
+  shipped React useId ids; the D-114a2/D-187a1 doctrine; id={col.key}
+  at the call site; RED-first: 1 RED at birth -> the cure -> GREEN);
+  the round ONE live find cured, every other delta a documented genus
+  (incl. the md:text-sm class-order genus + the checkbox token genus,
+  both computed-equal live) —
+  `scripts/walk63-savedreports-dialog-focus-open.ts`].
   Node environment; `@` alias resolved.
 - **Property (Vitest + fast-check, 29 checks)** — `tests/property.test.ts`
   (session-172: the invariant layer over the pure seams — the csv
@@ -593,7 +610,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 2781).
+the seam (currently 2786).
 
 ## Code Quality Standards
 

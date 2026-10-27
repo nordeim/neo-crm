@@ -120,6 +120,14 @@ export function SaveReportDialog({
                 {REPORT_COLUMNS.map((col) => (
                   <Checkbox
                     key={col.key}
+                    // Session-190 (D-190a1, walk63): the reference's six
+                    // column checkboxes carry the LITERAL REPORT_COLUMNS
+                    // keys as ids (id="name" … id="wonDate", for="name" …
+                    // for="wonDate" — live-walked on its DOM); ours shipped
+                    // React useId ids. The D-114a2/D-187a1 doctrine: the ids
+                    // are construction-parity material. The component's
+                    // `id ?? generated` seam carries the key to the htmlFor.
+                    id={col.key}
                     checked={columns[col.key]}
                     onCheckedChange={() => toggleColumn(col.key)}
                     label={col.label}

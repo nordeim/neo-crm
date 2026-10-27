@@ -897,7 +897,7 @@ const SUITES = 138;
 // E2E 192 re-verified (the round: ZERO product-code touches — the
 // s134/s188-precedent zero-fix freeze-pin round; the MODULE line
 // count 1718 HELD).
-const UNIT = 2781;
+const UNIT = 2786;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1362,13 +1362,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-189 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-190 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s188 layer now beneath the s189 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s189 layer now beneath the s190 head)",
     ).toContain(
-      "+ beneath it 2778 unit checks + 192 e2e checks green; the session-188 layer (THE SETTINGS SEGMENTED TAB-BAR FOCUS/OPEN INTERIOR WALK + ACCOUNTS-RAIL/LEADS-SEARCH PAGE-ARMS SIBLING",
+      "+ beneath it 2781 unit checks + 192 e2e checks green; the session-189 layer (THE LEADS SAVED-VIEWS SELECT OPEN FACES + THE CALENDAR MONTH-NAV ARMS",
     );
   });
 
@@ -1443,6 +1443,45 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(skill188).not.toContain(
       "project_state: 2781 unit checks + 192 e2e checks green; the session-189 layer (THE SETTINGS SEGMENTED TAB-BAR",
     );
+    // THE DOCTRINE'S NEXT MEMBER (the s190 head surgery's own demotion):
+    // the retired session-189 block carries its OWN ship form too
+    // (2781 + the LEADS SAVED-VIEWS title) — the s171-fix doctrine
+    // extends to every demoted layer; this assertion makes a future
+    // ladder/head-surgery interaction that corrupts it FAIL the suite
+    // the same way.
+    const retired189Start = skill188.indexOf("<!-- retired session-189 layer");
+    expect(retired189Start, "the retired s189 block must exist").toBeGreaterThan(0);
+    const retired189Block = skill188.slice(retired189Start, skill188.indexOf("-->", retired189Start));
+    expect(
+      retired189Block,
+      "the retired s189 block's ship line must be the s189 SHIP form (2781 + its own layer name)",
+    ).toContain(
+      "project_state: 2781 unit checks + 192 e2e checks green; the session-189 layer (THE LEADS SAVED-VIEWS SELECT OPEN FACES",
+    );
+    expect(skill188).not.toContain(
+      "project_state: 2785 unit checks + 192 e2e checks green; the session-190 layer (THE LEADS SAVED-VIEWS",
+    );
+  });
+
+  // ------------------------------------------------------------------
+  // Session-190 (D-190a2): the README Tested row's CLAUSE-UNIQUENESS
+  // pin — the s189 first-pass residue: the round appended its walk62
+  // clause TWICE to the Tested row (once INSIDE the s29 leads-layer
+  // parenthetical + once after it, the second copy leaving an
+  // UNBALANCED double close "kept))," — the row's paren nesting
+  // corrupted) and shipped undetected at 3739c96/b8ea9f3 — no
+  // assertion read the row's clause multiplicity. The walk63 round's
+  // docs lockstep found it (the s188 D-188a1 genus on a new axis: a
+  // docs defect shipped by a prior round's own lockstep edit). This
+  // pin holds the UNIQUE form — a future lockstep that re-appends a
+  // clause already present fails `bun run test` the same way.
+  // ------------------------------------------------------------------
+  it("session-190 (D-190a2): the README Tested row carries each session's walk clause EXACTLY ONCE (the s189 walk62 duplication cured — the clause-unique doctrine, pinned)", () => {
+    const readme = read("README.md");
+    const walk62 = readme.split("the walk62 saved-views-select + calendar month-nav focus-open contract (session-189:").length - 1;
+    expect(walk62, "the walk62 clause must appear exactly once (the s189 duplication cured)").toBe(1);
+    const walk63 = readme.split("the walk63 save-report-dialog focus-open contract (session-190:").length - 1;
+    expect(walk63, "the walk63 clause must appear exactly once").toBe(1);
   });
 
   // ------------------------------------------------------------------
@@ -1802,8 +1841,16 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     // count 1718 HELD — the second consecutive zero-fix round,
     // page-layout.ts untouched).
     expect(skill).not.toContain("`tests/page-layout.test.ts`, 252 checks");
+    // Session-190: the retired 255 form joins the negatives ladder (the
+    // walk63 Save-Custom-View dialog round: the session-190 battery +4
+    // pins in page-layout [the walk63 decode freeze + the trigger
+    // call-site freeze + the open-interior construction freeze + the
+    // D-190a1 literal-id cure pin], the checks 255->259; the MODULE
+    // line count 1718 HELD — the one-cure round, page-layout.ts
+    // untouched).
+    expect(skill).not.toContain("`tests/page-layout.test.ts`, 255 checks");
     expect(skill, "the §5.6 line must carry the live line + check counts").toContain(
-      "test-pinned module (1718 lines; `tests/page-layout.test.ts`, 255 checks",
+      "test-pinned module (1718 lines; `tests/page-layout.test.ts`, 259 checks",
     );
     const pad = read("Project_Architecture_Document.md");
     expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1653 |");
