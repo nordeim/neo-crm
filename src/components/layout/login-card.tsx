@@ -357,13 +357,13 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                         <form className="space-y-4 sm:space-y-5" onSubmit={onSendResetLink} noValidate>
                           {error && <ErrorCallout message={error} />}
                           <div className={LOGIN_LAYOUT.field}>
-                            <label htmlFor="reset-email" className={LOGIN_LAYOUT.label}>
+                            <label htmlFor="email" className={LOGIN_LAYOUT.label}>
                               Email
                             </label>
                             <div className={LOGIN_LAYOUT.inputWrap}>
                               <Mail className={LOGIN_RESET_LAYOUT.inputIcon} aria-hidden="true" />
                               <input
-                                id="reset-email"
+                                id="email"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -442,13 +442,13 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                             </div>
 
                             <div className={LOGIN_SIGNUP_LAYOUT.field}>
-                              <label htmlFor="confirm-password" className={LOGIN_SIGNUP_LAYOUT.label}>
+                              <label htmlFor="confirmPassword" className={LOGIN_SIGNUP_LAYOUT.label}>
                                 Confirm Password
                               </label>
                               <div className={LOGIN_LAYOUT.inputWrap}>
                                 <Lock className={LOGIN_SIGNUP_LAYOUT.inputIcon} aria-hidden="true" />
                                 <input
-                                  id="confirm-password"
+                                  id="confirmPassword"
                                   type="password"
                                   value={confirmPassword}
                                   onChange={(e) => setConfirmPassword(e.target.value)}

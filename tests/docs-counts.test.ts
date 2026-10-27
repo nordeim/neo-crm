@@ -897,7 +897,7 @@ const SUITES = 138;
 // E2E 192 re-verified (the round: ZERO product-code touches — the
 // s134/s188-precedent zero-fix freeze-pin round; the MODULE line
 // count 1718 HELD).
-const UNIT = 2795;
+const UNIT = 2801;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1362,13 +1362,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-191 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-192 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s190 layer now beneath the s191 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s191 layer now beneath the s192 head)",
     ).toContain(
-      "+ beneath it 2786 unit checks + 192 e2e checks green; the session-190 layer (THE REPORTS SAVE-CUSTOM-VIEW DIALOG OPEN FACES",
+      "+ beneath it 2795 unit checks + 192 e2e checks green; the session-191 layer (THE THREE CREATE DIALOGS' OPEN FACES",
     );
   });
 
@@ -1478,6 +1478,24 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     );
     expect(skill188).not.toContain(
       "project_state: 2794 unit checks + 192 e2e checks green; the session-191 layer (THE REPORTS SAVE-CUSTOM-VIEW",
+    );
+    // THE DOCTRINE'S NEXT MEMBER (the s192 head surgery's own demotion):
+    // the retired session-191 block carries its OWN ship form too
+    // (2795 + the THREE CREATE DIALOGS title) — the s171-fix doctrine
+    // extends to every demoted layer; this assertion makes a future
+    // ladder/head-surgery interaction that corrupts it FAIL the suite
+    // the same way.
+    const retired191Start = skill188.indexOf("<!-- retired session-191 layer");
+    expect(retired191Start, "the retired s191 block must exist").toBeGreaterThan(0);
+    const retired191Block = skill188.slice(retired191Start, skill188.indexOf("-->", retired191Start));
+    expect(
+      retired191Block,
+      "the retired s191 block's ship line must be the s191 SHIP form (2795 + its own layer name)",
+    ).toContain(
+      "project_state: 2795 unit checks + 192 e2e checks green; the session-191 layer (THE THREE CREATE DIALOGS' OPEN FACES",
+    );
+    expect(skill188).not.toContain(
+      "project_state: 2801 unit checks + 192 e2e checks green; the session-191 layer (THE THREE CREATE DIALOGS",
     );
   });
 
@@ -1878,7 +1896,7 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     // product-code touch entity-dialogs.tsx 1226->1250).
     expect(skill).not.toContain("`tests/page-layout.test.ts`, 259 checks");
     expect(skill, "the §5.6 line must carry the live line + check counts").toContain(
-      "test-pinned module (1718 lines; `tests/page-layout.test.ts`, 268 checks",
+      "test-pinned module (1718 lines; `tests/page-layout.test.ts`, 274 checks",
     );
     const pad = read("Project_Architecture_Document.md");
     expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1653 |");

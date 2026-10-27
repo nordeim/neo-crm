@@ -307,13 +307,13 @@ describe("session-79: the submit chrome family (N-79c12)", () => {
   it("the signin submit carries the disabled + keyboard-ring stock arms", async () => {
     const L = await loginLayout();
     expect(L.submit).toContain("disabled:opacity-50");
-    expect(L.submit).toContain("focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2");
+    expect(L.submit).toContain("focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2");
   });
 
   it("the shared send record carries the same chrome (reset/signup/verify)", async () => {
     const L = await resetLayout();
     expect(L.send).toContain("disabled:opacity-50");
-    expect(L.send).toContain("focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2");
+    expect(L.send).toContain("focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2");
   });
 });
 

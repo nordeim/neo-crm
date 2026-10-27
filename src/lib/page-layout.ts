@@ -375,7 +375,7 @@ export const LOGIN_LAYOUT = {
   // rgb(255,255,255) 0 0 0 2px) — the 30%-opacity ringless-offset arm
   // we shipped since s7 computed oklab(… / 0.3) 0 0 0 2px.
   submit:
-    "flex h-11 w-full items-center justify-center gap-1 rounded-xl bg-slate-900 font-medium text-white shadow-sm transition-all duration-200 hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm sm:h-12",
+    "flex h-11 w-full items-center justify-center gap-1 rounded-xl bg-slate-900 font-medium text-white shadow-sm transition-all duration-200 hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm sm:h-12",
   footer: "flex flex-col items-center justify-between gap-2 sm:flex-row sm:gap-0",
   footerLink: "text-sm text-slate-500 transition-colors hover:text-slate-700",
   footerLinkStrong: "font-medium text-slate-700",

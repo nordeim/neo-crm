@@ -102,7 +102,7 @@ export const LOGIN_RESET_LAYOUT = {
    *  Session-79 (M-79c1/N-79c12): text-sm (14px at all widths, the
    *  reference's stock Button) + the disabled/keyboard-ring chrome. */
   send:
-    "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
+    "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm",
   /** The reset view's email input — the login input family one size down
    *  (h-10 sm:h-11 vs the sign-in form's h-11 sm:h-12), same pl-10 mail
    *  icon + slate-50/50 surface. The placeholder is LIGHTER than the
@@ -186,7 +186,7 @@ export const LOGIN_SIGNUP_LAYOUT = {
     "h-10 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 text-sm sm:text-base md:text-sm sm:h-11",
   /** The submit — the s11 one-size-down send family (the text-sm +
    *  chrome ride the shared send record). */
-  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
+  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm",
 } as const;
 
 /**
@@ -241,7 +241,7 @@ export const LOGIN_VERIFY_LAYOUT = {
    *  own space-y-4 sm:space-y-6 family (NOT the signup's tighter pair). */
   form: "space-y-4 sm:space-y-6",
   /** The submit — the s11 one-size-down send family. */
-  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
+  submit: "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm",
   /** The "Didn't receive the code? Resend" line (the P itself). */
   resendLine: "text-sm text-slate-600",
   /** The resend line's centered wrapper (DOM: div.text-center > p). */

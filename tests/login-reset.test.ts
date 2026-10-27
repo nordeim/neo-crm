@@ -83,7 +83,7 @@ describe("login reset flow — reference class vocabulary", () => {
     // (14px at all widths, live-measured) + the disabled/keyboard-ring
     // chrome the reference's stock Button carries.
     expect(LOGIN_RESET_LAYOUT.send).toBe(
-      "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 text-sm",
+      "w-full h-10 sm:h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm rounded-xl transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-sm",
     );
   });
 

@@ -4598,3 +4598,147 @@ describe("session-191: the three create dialogs' focus/open interior walk (walk6
     expect(pwa).toMatch(/id="phone"[\s\S]{0,120}type="tel"/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-192 (walk65): THE LOGIN ANON-SURFACE INTERIORS + THE LANDING
+// MARKETING ARMS — the two-app element-level ledger of the two surfaces
+// the s404 close adjudicated as the round material (the discovery
+// probe scripts/discover-192.ts): the login view ladder (signin →
+// signup → reset → sent — the client-state arms only) + the FAQ
+// single-open accordion + the mobile disclosure menu, both apps at
+// 1440×900 + 390×844 on FRESH contexts (the anon battery).
+// ---------------------------------------------------------------------------
+
+describe("session-192: the login anon-surface + landing marketing-arms walk (walk65 — the id-parity family + the REAL focus ring cured [D-192a1 the signup confirm literal id + D-192a2 the reset email literal id + D-192a3 the dark submits' REAL focus-visible ring]; every other delta a documented genus or kept superset, both apps byte-equal on every resting + REAL-keyboard face at both axes)", () => {
+  it("the walk65 decode freeze — the four-view OPEN ledgers + the REAL Tab chain + the draft decode + the FAQ/menu arms + the CTA faces at both axes (the tool's own contract; the anon battery — FRESH contexts, NO storageState on either app)", () => {
+    const src = read("scripts/walk65-login-landing-arms.ts");
+    // the anon battery form (the s162 login consolidation RETIRED for
+    // this battery — the login/landing legs ride FRESH contexts)
+    expect(src).toContain("FRESH contexts on BOTH apps (no login, no storageState)");
+    expect(src).toContain('const REF_URL = process.env.REF_URL ?? "https://neo-crm-8ab2c17c.base44.app"');
+    expect(src).not.toContain("preflightPairState");
+    // the four login views (the walk61 multi-arm form)
+    expect(src).toContain('const VIEWS = ["signin", "signup", "reset", "sent"] as const;');
+    // Phase A per view the OPEN census — the card root geometry + DFS
+    // ledger + heading + the FULL inputs census (the id map) + the
+    // labels wiring map + the google button + the submit face + the
+    // back/footer links + the mount focus — at BOTH axes
+    expect(src).toContain("viewPhase");
+    expect(src).toContain("idMapDiff");
+    expect(src).toContain("labelMapDiff");
+    expect(src).toContain('{ w: 1440, h: 900 }, { w: 390, h: 844 }');
+    // the sent-ride write-free contract: the nonexistent-email POST
+    // (the no-enumeration 200 family — the reference's own
+    // forgot-password is client-side theater, never a network call)
+    expect(src).toContain('await emailInput.fill("walk192probe@example.com")');
+    expect(src).toContain("the signin/signup submits NEVER fired");
+    // Phase B the REAL keyboard Tab drive through the signin card + the
+    // REAL :focus-visible faces at the email input + the google button +
+    // the submit (the programmatic face never the true face)
+    expect(src).toContain("tabPhase");
+    expect(src).toContain('await page.keyboard.press("Tab")');
+    // Phase C the view-flip draft decode (the client-state contract)
+    expect(src).toContain("draftPhase");
+    // Phase E/F the landing arms — the FAQ single-open ride + the mobile
+    // disclosure menu ride + Phase G the CTA faces
+    expect(src).toContain("faqPhase");
+    expect(src).toContain("menuPhase");
+    expect(src).toContain("ctaPhase");
+  });
+
+  it("the LOGIN open-interior construction freeze — the signin card chain + the signup 3-field chain + the reset email chain + the sent callout chain (the genuine battery gap: the s11/s21/s79/s111 pins hold OUR wiring regexes + the computed-style contracts, never the call-site chains at the walk65 level; the walk proves the card root byte-equal at 496,95 448x710 / 16,73 358x650 on both apps at both axes)", () => {
+    const src = read("src/components/layout/login-card.tsx");
+    // the signin view: the h1/subtitle pair + the google button + the
+    // footer link pair (the in-place view machine)
+    expect(src).toContain('<h1 className={LOGIN_LAYOUT.title}>Welcome to NEO CRM</h1>');
+    expect(src).toContain('<p className={LOGIN_LAYOUT.subtitle}>Sign in to continue</p>');
+    expect(src).toContain("Continue with Google");
+    expect(src).toContain('onClick={() => goto("forgot")}');
+    expect(src).toContain('onClick={() => goto("signup")}');
+    // the view machine replaces the login column entirely (the S21-P4
+    // in-place contract — no logo, no google, no divider)
+    expect(src).toContain('{view !== "signin" ? (');
+    // the signup view: the back + the h2 + the 3-field vocabulary
+    expect(src).toContain("<h2 className={LOGIN_SIGNUP_LAYOUT.title}>Create your account</h2>");
+    expect(src).toContain('placeholder="Re-enter password"');
+    expect(src).toContain('{pending ? "Please wait…" : "Create account"}');
+    // the reset view: the back + the h2 + the description + the form
+    expect(src).toContain("<h2 className={LOGIN_RESET_LAYOUT.title}>Reset your password</h2>");
+    expect(src).toContain("Enter your email and we'll send you a link to reset your password");
+    expect(src).toContain("onSubmit={onSendResetLink}");
+    // the sent view: the icon tile + the h2 + the email line + the
+    // callout + the back (the s163 resetUrl rides ONLY when present)
+    expect(src).toContain("<h2 className={LOGIN_RESET_LAYOUT.title}>Check your email</h2>");
+    expect(src).toContain("We've sent password reset instructions to");
+    expect(src).toContain("{resetUrl && (");
+    expect(src).toContain('onClick={() => goto("back")}');
+  });
+
+  it("the LANDING marketing-arms construction freeze — the FAQ single-open accordion chain + the mobile disclosure menu chain (the genuine battery gap: the s142 pins hold the component-level regexes, never the call-site chains; the walk proves the FAQ section byte-equal at 1440x677 with Q1 open by default + the menu panel byte-equal at 0,64 390x229 with the 6-link vocabulary on both apps)", () => {
+    const src = read("src/components/landing/landing-page.tsx");
+    // the FAQ single-open machine: Q1 (index 0) open by default, the
+    // click flips open→-1 (close) or→index (single-open)
+    expect(src).toContain("const [openIndex, setOpenIndex] = React.useState(0);");
+    expect(src).toContain("onClick={() => setOpenIndex(open ? -1 : index)}");
+    // the a11y superset (the reference's toggles carry NO aria — the
+    // standing s142 DEVIATION pin, KEPT)
+    expect(src).toContain("aria-expanded={open}");
+    expect(src).toContain('aria-controls={`faq-answer-${index}`}');
+    // the answer mounts/unmounts with the open item (the walk65
+    // visibleAnswers=1 evidence: exactly ONE answer on any ride)
+    expect(src).toContain("{open && (");
+    expect(src).toContain('id={`faq-answer-${index}`}');
+    // the chevron gains rotate-180 on the open item
+    expect(src).toContain('open && "rotate-180"');
+    // the mobile disclosure menu: the mount/unmount in-flow panel +
+    // the menu↔x icon swap + the in-panel close
+    expect(src).toContain("const [menuOpen, setMenuOpen] = React.useState(false);");
+    expect(src).toContain("{menuOpen && (");
+    expect(src).toContain("{menuOpen ? <X className=\"w-6 h-6\" /> : <Menu className=\"w-6 h-6\" />}");
+    expect(src).toContain('onClick={() => setMenuOpen((v) => !v)}');
+    expect(src).toContain("onClick={() => setMenuOpen(false)}");
+    expect(src).toContain('className="md:hidden text-gray-700 p-1"');
+  });
+
+  it("D-192a1 the SIGNUP view's confirm input LITERAL id — the reference's confirm carries id=\"confirmPassword\" + for=\"confirmPassword\" (live-walked byte-equal on the reference's DOM: the walk65 signup id-map decode); ours shipped the kebab-case id=\"confirm-password\" (the D-114a2/D-187a1/D-190a1/D-191a1/a2 ids-are-construction-parity doctrine; the cure: the literal id restored at the call site — matching the reset-password page's own confirmPassword family)", () => {
+    const src = read("src/components/layout/login-card.tsx");
+    // the post-cure pair (the reference's own construction)
+    expect(src).toContain('<label htmlFor="confirmPassword" className={LOGIN_SIGNUP_LAYOUT.label}>');
+    expect(src).toContain('id="confirmPassword"');
+    // the kebab-case era is GONE
+    expect(src).not.toContain('id="confirm-password"');
+    expect(src).not.toContain('htmlFor="confirm-password"');
+  });
+
+  it("D-192a2 the RESET view's email input LITERAL id — the reference's reset view carries the bare literal id=\"email\" + for=\"email\" (live-walked byte-equal on the reference's DOM: the walk65 reset id-map decode); ours shipped id=\"reset-email\" (the same doctrine; the cure: the bare literal restored — the views never render simultaneously, so no id collision with the signin view's own id=\"email\")", () => {
+    const src = read("src/components/layout/login-card.tsx");
+    // the post-cure pair (the reset branch's own chain — the
+    // LOGIN_LAYOUT.label carrier distinguishes it from the signup
+    // branch's LOGIN_SIGNUP_LAYOUT.label email label)
+    expect(src).toContain('<label htmlFor="email" className={LOGIN_LAYOUT.label}>');
+    expect(src).toContain('className={LOGIN_RESET_LAYOUT.resetInput}');
+    // the reset-email era is GONE
+    expect(src).not.toContain('id="reset-email"');
+    expect(src).not.toContain('htmlFor="reset-email"');
+  });
+
+  it("D-192a3 the auth-card dark submits' REAL focus-visible ring — the reference's stock dark submits focus to the near-black --ring token (rgb(9,9,11) over the white 2px offset — live-walked on the signin/signup/reset submits' REAL keyboard faces: the walk65 Phase B + the micro-probe-192 family check); ours shipped ring-slate-400 (the s10-era authoring assumption, never live-probed on the submit — the INPUTS' slate-400 rings are byte-equal and STAY; the cure: focus-visible:ring-ring at all four submit sites)", () => {
+    const pl = read("src/lib/page-layout.ts")!;
+    const lr = read("src/lib/login-reset.ts")!;
+    // the signin submit (LOGIN_LAYOUT.submit)
+    expect(pl).toContain("focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2");
+    expect(pl).not.toContain("focus-visible:ring-slate-400");
+    // the three one-size-down submits (the reset send + the signup
+    // submit + the verify submit)
+    const submitLines = lr.split("\n").filter((l) => l.includes("bg-slate-900") && l.includes("focus-visible:ring"));
+    expect(submitLines.length).toBeGreaterThanOrEqual(3);
+    for (const line of submitLines) {
+      expect(line).toContain("focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2");
+      expect(line).not.toContain("focus-visible:ring-slate-400");
+    }
+    // the INPUTS keep their byte-equal slate-400 rings (the walk65
+    // evidence: the email input's REAL ring white-2px + slate-400-4px
+    // byte-equal on both apps)
+    expect(lr).toContain("focus:ring-2 focus:ring-slate-400 focus:ring-offset-2");
+  });
+});

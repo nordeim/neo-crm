@@ -37,7 +37,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (2795) → `bun run build` → `bun run test:e2e` (192) — or the
+   `bun run test` (2801) → `bun run build` → `bun run test:e2e` (192) — or the
    one-command `bun run gate` (session-38: the chain as a package script,
    so the build always precedes the e2e boot; session-39: the e2e step
    runs under `CI=1`, forcing a fresh server — a leftover :3100 listener
@@ -129,7 +129,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (2795 checks)            |
+| `bun run test`      | Vitest unit suites (2801 checks)            |
 | `bun run test:watch`| Vitest in watch mode                          |
 | `bun run smoke`     | Smoke the standalone artifact (14 checks, needs build first) |
 | `bun run test:e2e`  | Playwright E2E (192 checks, needs build first) |
@@ -142,7 +142,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 2795 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
+- **Unit (Vitest, 2801 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -493,7 +493,38 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   member]; the re-walk proves the id/for/tabIndex ledger deltas gone,
   byte-equal both apps) — the round's product-code touch
   entity-dialogs.tsx 1226→1250 —
-  `scripts/walk64-createdialogs-focus-open.ts`].
+  `scripts/walk64-createdialogs-focus-open.ts`],
+  and session-192's walk65 layer — the login anon-surface interiors +
+  the landing marketing-arms' focus/open walk's
+  contract-freeze family [the walk65 decode freeze (the tool's own
+  contract: the four-view OPEN ledgers at both axes + the REAL Tab
+  chain + the draft decode + the FAQ/menu arms + the CTA faces — the
+  anon battery, FRESH contexts on both apps) · the LOGIN open-interior
+  construction freeze (the genuine battery gap: the s11/s21/s79/s111
+  pins hold OUR wiring regexes + the computed-style contracts, never
+  the call-site chains — the signin card chain + the signup 3-field
+  chain + the reset email chain + the sent callout chain) · the
+  LANDING marketing-arms construction freeze (the same gap: the s142
+  pins hold the component-level regexes, never the call-site chains —
+  the FAQ single-open machine + the mobile disclosure menu) · the
+  D-192a1/a2/a3 cure pins (RED-first: exactly 3 RED at birth → the
+  cures → GREEN — the signup confirm input's literal id
+  [confirm-password → confirmPassword] + the reset view's bare
+  literal email id [reset-email → email, the
+  ids-are-construction-parity doctrine's next members] + the
+  auth-card dark submits' REAL focus-visible ring
+  [ring-slate-400 → ring-ring at all four sites — the first
+  REAL-keyboard-face ring find: the reference's stock dark submits
+  focus to the near-black --ring token over the white 2px offset,
+  live-walked on the signin/signup/reset submits; the INPUTS'
+  slate-400 rings byte-equal and stay]; the re-walk proves the
+  id/for ledger deltas gone + the submit's REAL ring now the
+  reference's family; the draft-keep decode documented as the KEPT
+  house superset — ours keeps the typed email across the in-card view
+  flips, the reference clears it, its own defect never mirrored) —
+  the round's product-code touch login-card.tsx + page-layout.ts +
+  login-reset.ts (all string swaps, zero line-count changes) —
+  `scripts/walk65-login-landing-arms.ts`].
   Node environment; `@` alias resolved.
 - **Property (Vitest + fast-check, 29 checks)** — `tests/property.test.ts`
   (session-172: the invariant layer over the pure seams — the csv
@@ -636,7 +667,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 2795).
+the seam (currently 2801).
 
 ## Code Quality Standards
 
