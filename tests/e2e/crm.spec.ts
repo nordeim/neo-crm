@@ -677,13 +677,24 @@ test("settings Defaults tab renders the reference's single-column layout (S14-P1
   // card visible + classes green, label box null). expect().toBeVisible()
   // waits for the element itself, so the geometry that follows is the
   // settled geometry.
+  //
+  // Session-195: the starved-read window closed at the BOX READS too —
+  // the s164 pre-waits closed the label-subtree race, but the final
+  // full-battery gate caught the residual remount window twice (the
+  // visible face green, the bare box read null — a re-render falling
+  // between the two reads), then four clean isolation runs. The
+  // expect.poll idiom (the s15 New Lead hardening, the s28 zoom-in-95
+  // precedent): the geometry reads retry until BOTH boxes resolve with
+  // the vertical order intact — the assertion semantics unchanged.
   await expect(card.getByLabel("Default Currency")).toBeVisible();
   await expect(card.getByLabel("First Day of Week")).toBeVisible();
-  const first = await card.getByLabel("Default Currency").boundingBox();
-  const last = await card.getByLabel("First Day of Week").boundingBox();
-  expect(first).not.toBeNull();
-  expect(last).not.toBeNull();
-  expect(last!.y).toBeGreaterThan(first!.y);
+  await expect
+    .poll(async () => {
+      const first = await card.getByLabel("Default Currency").boundingBox();
+      const last = await card.getByLabel("First Day of Week").boundingBox();
+      return Boolean(first && last && last.y > first.y);
+    })
+    .toBe(true);
 });
 
 test("settings Data tab ships Import Templates + stacked outline buttons (S14-P2/P3)", async ({ page }) => {
@@ -930,11 +941,26 @@ test("unknown routes render the reference's custom 404 page (S12-P2)", async ({ 
   // (D-194a1): the quoted path carries NO leading slash (the reference
   // interpolates its router path; our usePathname() strip form) — the
   // e2e string re-anchored in the same commit as the cure.
-  await page.goto("/this-page-does-not-exist");
+  //
+  // Session-195 (D-195a1): the TRUE-HTTP-404 freeze. D-194a5's ship
+  // claim ("OURS renders the designed 404 AT the unknown URL with the
+  // true HTTP 404") carried ZERO gate teeth — page.goto() tolerates
+  // any status, no smoke leg hits an unknown route, and the unit
+  // posture pin is source-string only. A future catch-all route or
+  // redirect regression would have kept every gate green while
+  // falsifying the contract. The born-green freeze form (the s194
+  // doctrine for a genuine battery gap); mutation-proven at RED birth
+  // by a planted redirect (the pin flipped exactly once, then GREEN).
+  const response = await page.goto("/this-page-does-not-exist");
+  expect(response?.status()).toBe(404);
 
   await expect(page.getByRole("heading", { name: "404", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Page Not Found" })).toBeVisible();
   await expect(page.getByText('The page "this-page-does-not-exist" could not be found in this application.')).toBeVisible();
+  // The authenticated context rides the SAME true-404 posture (the
+  // 404 is session-independent by design — D-194a5's both-contexts
+  // census form, now pinned on the wire status too).
+  expect((await page.request.get("/another-missing-page")).status()).toBe(404);
 
   const goHome = page.getByRole("link", { name: "Go Home" });
   await expect(goHome).toBeVisible();

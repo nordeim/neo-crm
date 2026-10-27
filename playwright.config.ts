@@ -77,6 +77,15 @@ export default defineConfig({
       NODE_ENV: "production",
       DATABASE_URL: E2E_DATABASE_URL,
       AUTH_SECRET: "playwright-e2e-session-secret",
+      // Session-195 (D-195a3): the in-app delivery kill-switches pinned
+      // OFF — a polluted parent shell exporting these would silently
+      // hide the OTP/reset payloads the ladder tests assert (the signup
+      // code + the reset link), failing e2e with confusing symptoms.
+      // Pinning the empty string makes the child server's responses
+      // deterministic regardless of shell state (the config's own
+      // N-69a "the dev server lies" family — here on the env axis).
+      NEO_DISABLE_IN_APP_OTP: "",
+      NEO_DISABLE_IN_APP_RESET: "",
     } as Record<string, string>,
   },
 });

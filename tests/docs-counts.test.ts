@@ -143,7 +143,7 @@ const listFiles = (rel: string): string[] => {
 // Session-171: E2E 153 lineage 161 -> 186 (+25 — the a11y two-gate spec:
 // the nine CRM pages × both widths + the three anon surfaces × both
 // widths + the drawer-open state — the §8.3 axe battery).
-const E2E = 192;
+const E2E = 194;
 // Session-152: SUITES 118 -> 119 (the interior-census-tool file — the
 // standing sixth gate's pin suite).
 // Session-159: SUITES 119 -> 120 (the settings-rhythm-tool file — the
@@ -1376,13 +1376,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-194 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-195 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s193 layer now beneath the s194 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s194 layer now beneath the s195 head)",
     ).toContain(
-      "+ beneath it 2805 unit checks + 192 e2e checks green; the session-193 layer (THE MARKETING-INTERIOR ARMS",
+      "+ beneath it 2811 unit checks + 192 e2e checks green; the session-194 layer (THE 404 INTERIOR'S INTERACTIVE ARMS",
     );
   });
 

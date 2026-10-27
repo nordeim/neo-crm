@@ -399,7 +399,12 @@ describe("session-79: the CLAUDE.md e2e count carriers (N-79b1)", () => {
     // marketing-mobile spec — the internal-scroller scroll model).
     // session-163 lockstep carry-forward: 153 -> 161 (the reset-password
     // spec — the digma reset-funnel port's 8 checks).
-    expect(src).toContain("**E2E (Playwright, 192 checks)**");
+    // session-195 lockstep carry-forward: 192 -> 194 (the s195 two-gate
+    // 404 registrations — the desktop + phone scans of the one
+    // anon-reachable surface the register never adjudicated; the retired
+    // form joins its negatives, the doctrine unchanged).
+    expect(src).not.toContain("**E2E (Playwright, 192 checks)**");
+    expect(src).toContain("**E2E (Playwright, 194 checks)**");
   });
 });
 

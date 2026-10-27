@@ -19,7 +19,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Type check                      | `bun run typecheck`                    |
 |  Unit tests (2811 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
-|  Browser E2E (192 checks)        | `bun run test:e2e` (needs build first) |
+|  Browser E2E (194 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -36,7 +36,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 `bun run test` (2811) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
-`bun run test:e2e` (192) — or the one-command `bun run gate` (session-38:
+`bun run test:e2e` (194) — or the one-command `bun run gate` (session-38:
 the same chain as a package script, so the build always precedes the e2e
 boot; session-39: the e2e step runs under `CI=1`, so
 `reuseExistingServer` evaluates false and the gate ALWAYS boots the
@@ -12271,3 +12271,146 @@ structurally identical (2/3 stops — the REF's platform badge the
 difference) · the re-walk STABLE (43→23 deltas, every residual a
 documented genus or pinned superset) · the captures: the round's
 ours+ref faces.
+
+### Session-195 — THE 404 GATE-COVERAGE PINS (2026-10-28)
+
+The post-194 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`facdd56` — the session_411 transcript, the s194 round's own
+execution record). The round is the TWO-SKILL AUDIT round: the
+`skills/web-application` SKILL.md v1.2.0 rubric applied over the
+s193/s194 product-code changes (not-found.tsx · not-found-body.tsx ·
+page-layout.ts · globals.css · the error boundaries) AND the
+operator's named standing surfaces (the mobile navigation · the
+Tailwind v4 setup · the vitest/playwright configs · the sitemap/SEO
+surfaces · the env contract) — the audit disposition **0 CRITICAL /
+0 HIGH / 0 MEDIUM / 5 LOW / 5 INFORMATIONAL**, every finding
+triaged under the parity doctrine (the documented-genera and
+pinned-superset families are never "fixed"; the declined items are
+recorded considered-and-declined in the plan with their rationale:
+the sitemap's `/login`+`/signup` omission [byte-verified reference
+parity, double test-pinned] · the shell root's `h-screen`
+[reference-parity pinned] · the `bg-gradient-to-*` v3 alias spelling
+[compiles identically in v4] · the boundaries' omitted console.error
+[the leak posture correct — only the digest rendered] · the
+probe-script knobs outside `.env.example` [tooling, not the app
+contract] · the robots allow-all [byte-verified parity] · the
+nav-landmark shape [the documented per-family contract]).
+
+The baseline gate GREEN at the exact s194 ship state (the clone to
+`facdd56`, tree clean): lint 0/0 · tsc 0 · **138/2811** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **192/192** (clean
+first run, 5.7m — the fresh-sandbox Playwright chromium install an
+environment gap, never source debt) · probe:ref STABLE
+(`46bc2d9c` — the bundle md5 unchanged, the demo data still ZERO,
+the desktop census 256px/8 links STANDING, the TRUE-390 census
+STANDING with the reference's own 1 menu button, the landing census
+STANDING) · db census MATCH (15/24/10/23/12 + 4 users at
+`<repo>/db/custom.db`) · sitemap 11 routes + robots + manifest 200
+(smoke check 12) · the sweeps CLEAN (desktop + TRUE-390 + the
+interior census, baselines held, seed restored).
+
+**THREE CURES — the gate-teeth round** (the round's material was
+the GATE TEETH, not the product — every shipped s193/s194 change
+verified clean on every rubric axis):
+
+- **D-195a1 — THE TRUE-HTTP-404 WIRE FREEZE** (Audit A L-1): the
+  D-194a5 ship claim — OURS renders the designed 404 AT the unknown
+  URL with the TRUE HTTP 404 — carried ZERO gate teeth (the e2e
+  render test's `page.goto()` tolerates any status, no smoke leg
+  hits an unknown route, the unit posture pin source-string only; a
+  future catch-all route would have kept every gate green while
+  falsifying the contract). THE CURE: the response status asserted
+  inside the existing S12-P2 e2e test — `page.goto`'s response +
+  the authenticated `request.get` arm (the both-contexts census
+  form). Born-green (the s194 doctrine for a genuine battery gap).
+  MUTATION-PROVEN: the planted `[...catchall]/page.tsx` redirect
+  flipped the pin RED exactly at the status line (Expected 404 /
+  Received 200) — the shape every visibility pin survives — then
+  restored GREEN; the in-boundary `redirect()` mutation found the
+  404 status ALREADY committed at the render (the audit's L-1
+  adjudicated at the catch-all shape).
+- **D-195a2 — THE TWO-GATE'S 404 REGISTRATIONS** (Audit A L-2): the
+  one anon-reachable page the 31-registration register never
+  adjudicated (its display heading ≈1.42:1 — pure reference
+  parity). THE CURE: +2 EXPLICIT registrations (desktop 1280×800 +
+  phone 390×844, the anon-surface form — the 404 is
+  session-independent by design, D-194a5) + the sanctioned
+  color-contrast matcher with its citation (the navy-chip
+  precedent's exact form; the axe target form the BARE `h1` selector
+  — the surface's only h1, the s171 substring-match doctrine; the
+  class arm held for the selector form). GATE 1 structural ZERO at
+  both widths (the D-194a2 Link superset's named arm live).
+  MUTATION-PROVEN: the neutralized matcher arms tripped GATE 2
+  exactly once per registration ("cites no sanctioned matcher"),
+  then restored GREEN.
+- **D-195a3 — THE CHILD-ENV KILL-SWITCH SCRUBBING** (Audit B L-2):
+  the playwright webServer's `...process.env` spread would let a
+  polluted parent shell's `NEO_DISABLE_IN_APP_OTP`/`RESET` silently
+  hide the OTP/reset payloads the ladder tests assert (the N-69a
+  dev-server-lies family on the env axis). THE CURE: both pinned to
+  the empty string in the child env beside `DATABASE_URL`/
+  `AUTH_SECRET` — deterministic e2e regardless of shell state, no
+  existing pin weakened.
+
+- **D-195a4 — THE STARVED-READ FLAKE HARDENING** (the final-gate
+  catch): the final full-battery gate caught the settings Defaults-tab
+  geometry test RED twice in a row (the s164 starved-read class: the
+  visibility pre-waits green, the bare boundingBox() read null — a
+  re-render falling between the two reads), then four clean isolation
+  runs confirmed the flake window rather than a regression. THE CURE:
+  the house expect.poll idiom (the s15 New Lead hardening, the s28
+  zoom-in-95 precedent) applied to the box reads themselves — the
+  geometry poll retries until BOTH boxes resolve with the vertical
+  order intact, the assertion semantics unchanged, no pin weakened.
+
+The operator's round-shaped asks all verified standing: the `.env`
+DATABASE_URL `file:../db/custom.db` with the `db/` folder at the
+repo root (census MATCH at `<repo>/db/custom.db`) · the vitest +
+playwright config files verified standing (138/2811 unit + the
+**194-check** e2e battery this round's own census) · the sitemap +
+SEO surface re-verified (the 11-route sitemap.xml + robots.txt with
+its Sitemap line + the installable manifest.json — smoke check 12
+carries the 200s) · the mobile-nav comparison re-verified LIVE (the
+reference's own login + dashboard + menu walked: the plain login
+lands at `/` on BOTH apps — the from_url round-trip form; the
+reference's drawer opened/rode; the VLM battery 3/3 "Structural
+Differences: None" on the dashboard-desktop + dashboard-mobile-390
++ menu-open pairs — the sole residual the s149 platform badge
+genus; OURS the Radix Sheet superset, the drawer opened/rode/closed
+at 390×844 on the dev server — the link ride /Contacts lands, the
+menu closes, the trigger re-collapses; the auto-close query holds
+at 768px matching the `md:hidden` trigger) · **the Tailwind v4
+state — the audit's zero-finding form** (all five §12 traps
+mitigated: literal-hex `@theme`, no `tailwind.config.*`, the
+vendored tw-animate, the `@utility` cascade law, the
+`--shadow-sm`/`--blur-sm` re-pins) · the `.env.example` verified
+bidirectional (every knob consumed, every consumer documented) and
+included in the round's commit.
+
+**THE COUNT LADDER + THE LOCKSTEP**: E2E 192 → **194** (+2: the two
+404 registrations) · SUITES 138 HELD · UNIT 2811 HELD · badge
+3003 → **3005** (the unit+e2e arithmetic: 2811+194). skill-head-195.py
+ran FIRST (the SKILL v1.192.0, the s194 layer comment-demoted at its
+ship counts 2811/192, the s195 layer live at 2811/194, idempotent);
+count-ladder-195.py (assert-first, idempotent, unique-anchor — 19
+flips: the docs-counts E2E constant · the README badge + Tested
+row + tree + commands · the AGENTS commands + gate-order · the
+CLAUDE gate-order + commands + pyramid · the PAD tree + Total +
+HEAD + checklist + commands · the SKILL commands + Appendix B e2e
+total + wall-clock + the a11y row 31 → 33). The three test-side
+re-anchors in the same stroke: the docs-counts layer-axis (first =
+s195, second = s194) · the login-family negatives ladder (the
+retired `**E2E (Playwright, 192 checks)**` joins its negatives, the
+live positive re-anchored 194) · the PAD §11 a11y row's line census
+407 → 436. The docs lockstep: this AGENTS Session-195 section ·
+session_412.md · the PAD §7.1 s195 inventory row · the README
+walk-contracts paragraph's s195 clause · the plan's execution
+record · the worklog entry {Task ID 195}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2811** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **194/194** (the
+full battery, 5.8m) · db census MATCH · probe:ref STABLE · the
+mobile-nav battery 10/10 · the a11y two-gate 33/33 · the VLM parity
+battery 3/3 "Structural Differences: None" · the captures: the
+round's ours-vs-ref dashboard pairs (desktop + 390 + the menu-open
+state) + the dev-server set under `docs/screenshots/`.

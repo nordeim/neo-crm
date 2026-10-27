@@ -86,6 +86,16 @@ const SANCTIONED: Record<string, Array<{ any: string[]; cite: string }>> = {
       cite: "the pricing \"Most popular\" pill — the reference's own design (byte-identical on its DOM)",
     },
     {
+      // the 404's "404" display heading (slate-300 on the slate-50 card —
+      // the reference's own designed 404 palette, walk67-decoded on its
+      // DOM: the `text-7xl font-light text-slate-300` h1 face). The axe
+      // target form is the BARE `h1` selector (the 404's only h1 — the
+      // s171 substring-match doctrine); the class arm covers the
+      // selector form if a second h1 ever lands on the surface.
+      any: ["h1", "text-slate-300"],
+      cite: "the 404 display heading — the reference's own designed 404 palette",
+    },
+    {
       // the inactive segmented-tab triggers (the Radix tab ids) — the
       // muted-ink #737373 inactive state is the reference's own tab design
       any: ["-trigger-"],
@@ -302,6 +312,25 @@ test.describe("the a11y two-gate: the anon surfaces", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
     await scanTwoGate(page, "phone / (landing, anon)");
+  });
+
+  // Session-195 (D-195a2): the 404 surface — the one anon-reachable page
+  // the register never adjudicated. The 404 is session-independent by
+  // design (D-194a5 — the reference's own auth-first redirect is its SPA
+  // platform genus, never mirrored), so the anon context reaches the
+  // same designed view. Its display heading rides the reference's own
+  // palette (the sanctioned matcher above); every other face passes AA
+  // unassisted (slate-800/700/600 on slate-50).
+  test("desktop /this-page-does-not-exist (the 404, anon) — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/this-page-does-not-exist");
+    await scanTwoGate(page, "desktop /this-page-does-not-exist (the 404, anon)");
+  });
+
+  test("phone /this-page-does-not-exist (the 404, anon) — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/this-page-does-not-exist");
+    await scanTwoGate(page, "phone /this-page-does-not-exist (the 404, anon)");
   });
 });
 
