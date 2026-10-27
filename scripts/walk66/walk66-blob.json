@@ -1,0 +1,2801 @@
+{
+  "ours/about": {
+    "found": true,
+    "path": "/about",
+    "mainBox": "256,69 1184x831",
+    "mainCls": "bg-background flex-1 overflow-auto",
+    "mainH": 831,
+    "els": 46,
+    "ledger": [
+      {
+        "i": 0,
+        "depth": 0,
+        "tag": "div",
+        "cls": "max-w-3xl mx-auto px-4 py-12 sm:px-8",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 464,
+          "y": 69,
+          "w": 768,
+          "h": 994
+        }
+      },
+      {
+        "i": 1,
+        "depth": 1,
+        "tag": "h1",
+        "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "About NEO CRM",
+        "box": {
+          "x": 496,
+          "y": 117,
+          "w": 704,
+          "h": 40
+        }
+      },
+      {
+        "i": 2,
+        "depth": 1,
+        "tag": "div",
+        "cls": "leading-relaxed space-y-4 text-gray-700",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 181,
+          "w": 704,
+          "h": 422
+        }
+      },
+      {
+        "i": 3,
+        "depth": 2,
+        "tag": "p",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "NEO CRM is a clean, intuitive customer r",
+        "box": {
+          "x": 496,
+          "y": 181,
+          "w": 704,
+          "h": 130
+        }
+      },
+      {
+        "i": 4,
+        "depth": 2,
+        "tag": "p",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "With NEO CRM you can track companies and",
+        "box": {
+          "x": 496,
+          "y": 327,
+          "w": 704,
+          "h": 156
+        }
+      },
+      {
+        "i": 5,
+        "depth": 2,
+        "tag": "p",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "NEO CRM is designed for individuals, fre",
+        "box": {
+          "x": 496,
+          "y": 499,
+          "w": 704,
+          "h": 104
+        }
+      },
+      {
+        "i": 6,
+        "depth": 1,
+        "tag": "div",
+        "cls": "gap-4 grid grid-cols-1 mt-10 sm:grid-cols-2",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 643,
+          "w": 704,
+          "h": 308
+        }
+      },
+      {
+        "i": 7,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 643,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 8,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-users mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 517,
+          "y": 664,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 9,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 519,
+          "y": 679,
+          "w": 14,
+          "h": 6
+        }
+      },
+      {
+        "i": 10,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 522,
+          "y": 667,
+          "w": 8,
+          "h": 8
+        }
+      },
+      {
+        "i": 11,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 536,
+          "y": 679,
+          "w": 3,
+          "h": 6
+        }
+      },
+      {
+        "i": 12,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 667,
+          "w": 3,
+          "h": 8
+        }
+      },
+      {
+        "i": 13,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Accounts & Contacts",
+        "box": {
+          "x": 517,
+          "y": 700,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 14,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Keep every company and person you work w",
+        "box": {
+          "x": 517,
+          "y": 728,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 15,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 856,
+          "y": 643,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 16,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-target mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 877,
+          "y": 664,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 17,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 879,
+          "y": 666,
+          "w": 20,
+          "h": 20
+        }
+      },
+      {
+        "i": 18,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 883,
+          "y": 670,
+          "w": 12,
+          "h": 12
+        }
+      },
+      {
+        "i": 19,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 887,
+          "y": 674,
+          "w": 4,
+          "h": 4
+        }
+      },
+      {
+        "i": 20,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Leads & Pipeline",
+        "box": {
+          "x": 877,
+          "y": 700,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 21,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Track prospects from first contact all t",
+        "box": {
+          "x": 877,
+          "y": 728,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 22,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 805,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 23,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-calendar-check mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 517,
+          "y": 826,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 24,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 525,
+          "y": 828,
+          "w": 0,
+          "h": 4
+        }
+      },
+      {
+        "i": 25,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 828,
+          "w": 0,
+          "h": 4
+        }
+      },
+      {
+        "i": 26,
+        "depth": 4,
+        "tag": "rect",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 520,
+          "y": 830,
+          "w": 18,
+          "h": 18
+        }
+      },
+      {
+        "i": 27,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 520,
+          "y": 836,
+          "w": 18,
+          "h": 0
+        }
+      },
+      {
+        "i": 28,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 526,
+          "y": 840,
+          "w": 6,
+          "h": 4
+        }
+      },
+      {
+        "i": 29,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Activities & Calendar",
+        "box": {
+          "x": 517,
+          "y": 862,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 30,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Log calls, emails and meetings, and neve",
+        "box": {
+          "x": 517,
+          "y": 890,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 31,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 856,
+          "y": 805,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 32,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-chart-column mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 877,
+          "y": 826,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 33,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 880,
+          "y": 829,
+          "w": 18,
+          "h": 18
+        }
+      },
+      {
+        "i": 34,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 895,
+          "y": 835,
+          "w": 0,
+          "h": 8
+        }
+      },
+      {
+        "i": 35,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 890,
+          "y": 831,
+          "w": 0,
+          "h": 12
+        }
+      },
+      {
+        "i": 36,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 885,
+          "y": 840,
+          "w": 0,
+          "h": 3
+        }
+      },
+      {
+        "i": 37,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Reports",
+        "box": {
+          "x": 877,
+          "y": 862,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 38,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Understand your performance with clear, ",
+        "box": {
+          "x": 877,
+          "y": 890,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 39,
+        "depth": 1,
+        "tag": "div",
+        "cls": "mt-10",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 991,
+          "w": 704,
+          "h": 24
+        }
+      },
+      {
+        "i": 40,
+        "depth": 2,
+        "tag": "a",
+        "cls": "font-medium hover:underline text-blue-600",
+        "role": null,
+        "aria": {},
+        "text": "Get in touch with us →",
+        "box": {
+          "x": 496,
+          "y": 993,
+          "w": 180,
+          "h": 19
+        }
+      }
+    ],
+    "h1": {
+      "text": "About NEO CRM",
+      "box": "496,117 704x40",
+      "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(17, 24, 39)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+        "fontWeight": "700"
+      }
+    },
+    "h2s": [
+      "Accounts & Contacts",
+      "Leads & Pipeline",
+      "Activities & Calendar",
+      "Reports"
+    ],
+    "anchors": [
+      {
+        "text": "Get in touch with us →",
+        "href": "/Contact",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "font-medium hover:underline text-blue-600",
+        "box": "496,993 180x19",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(37, 99, 235)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "About",
+        "href": "/About",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "433,1080 41x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "400"
+        }
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "494,1080 54x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "400"
+        }
+      }
+    ],
+    "footerLinks": [
+      {
+        "text": "About",
+        "href": "/About",
+        "box": "433,1080 41x20"
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "box": "494,1080 54x20"
+      }
+    ],
+    "navLinks": [
+      "Dashboard",
+      "Accounts",
+      "Contacts",
+      "Leads",
+      "Calendar",
+      "Activities",
+      "Reports",
+      "Settings"
+    ]
+  },
+  "ours/contact": {
+    "found": true,
+    "path": "/contact",
+    "mainBox": "256,69 1184x831",
+    "mainCls": "bg-background flex-1 overflow-auto",
+    "mainH": 831,
+    "els": 33,
+    "ledger": [
+      {
+        "i": 0,
+        "depth": 0,
+        "tag": "div",
+        "cls": "max-w-3xl mx-auto px-4 py-12 sm:px-8",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 464,
+          "y": 69,
+          "w": 768,
+          "h": 530
+        }
+      },
+      {
+        "i": 1,
+        "depth": 1,
+        "tag": "h1",
+        "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Contact Us",
+        "box": {
+          "x": 496,
+          "y": 117,
+          "w": 704,
+          "h": 40
+        }
+      },
+      {
+        "i": 2,
+        "depth": 1,
+        "tag": "p",
+        "cls": "leading-relaxed mb-8 text-gray-700",
+        "role": null,
+        "aria": {},
+        "text": "Have a question about NEO CRM, need a ha",
+        "box": {
+          "x": 496,
+          "y": 181,
+          "w": 704,
+          "h": 52
+        }
+      },
+      {
+        "i": 3,
+        "depth": 1,
+        "tag": "div",
+        "cls": "bg-white border mb-8 p-6 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 265,
+          "w": 704,
+          "h": 126
+        }
+      },
+      {
+        "i": 4,
+        "depth": 2,
+        "tag": "div",
+        "cls": "flex gap-4 items-start",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 521,
+          "y": 290,
+          "w": 654,
+          "h": 76
+        }
+      },
+      {
+        "i": 5,
+        "depth": 3,
+        "tag": "div",
+        "cls": "bg-blue-50 flex h-10 items-center justify-center rounded-full shrink-0 w-10",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 521,
+          "y": 290,
+          "w": 40,
+          "h": 40
+        }
+      },
+      {
+        "i": 6,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-5 lucide lucide-mail text-blue-600 w-5",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 531,
+          "y": 300,
+          "w": 20,
+          "h": 20
+        }
+      },
+      {
+        "i": 7,
+        "depth": 5,
+        "tag": "rect",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 303,
+          "w": 17,
+          "h": 13
+        }
+      },
+      {
+        "i": 8,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 306,
+          "w": 17,
+          "h": 5
+        }
+      },
+      {
+        "i": 9,
+        "depth": 3,
+        "tag": "div",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 577,
+          "y": 290,
+          "w": 298,
+          "h": 76
+        }
+      },
+      {
+        "i": 10,
+        "depth": 4,
+        "tag": "h2",
+        "cls": "font-semibold text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Email",
+        "box": {
+          "x": 577,
+          "y": 290,
+          "w": 298,
+          "h": 24
+        }
+      },
+      {
+        "i": 11,
+        "depth": 4,
+        "tag": "p",
+        "cls": "mb-2 text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Drop us a line and we will get back to y",
+        "box": {
+          "x": 577,
+          "y": 314,
+          "w": 298,
+          "h": 20
+        }
+      },
+      {
+        "i": 12,
+        "depth": 4,
+        "tag": "a",
+        "cls": "font-medium hover:underline text-blue-600",
+        "role": null,
+        "aria": {},
+        "text": "hello@example.com",
+        "box": {
+          "x": 577,
+          "y": 344,
+          "w": 163,
+          "h": 19
+        }
+      },
+      {
+        "i": 13,
+        "depth": 1,
+        "tag": "div",
+        "cls": "bg-white border p-6 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 423,
+          "w": 704,
+          "h": 128
+        }
+      },
+      {
+        "i": 14,
+        "depth": 2,
+        "tag": "h2",
+        "cls": "font-semibold mb-4 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Follow us",
+        "box": {
+          "x": 521,
+          "y": 448,
+          "w": 654,
+          "h": 24
+        }
+      },
+      {
+        "i": 15,
+        "depth": 2,
+        "tag": "div",
+        "cls": "flex flex-wrap gap-3",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 521,
+          "y": 488,
+          "w": 654,
+          "h": 38
+        }
+      },
+      {
+        "i": 16,
+        "depth": 3,
+        "tag": "a",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "LinkedIn",
+        "box": {
+          "x": 521,
+          "y": 488,
+          "w": 117,
+          "h": 38
+        }
+      },
+      {
+        "i": 17,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-4 lucide lucide-linkedin w-4",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 538,
+          "y": 499,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 18,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 545,
+          "y": 504,
+          "w": 8,
+          "h": 9
+        }
+      },
+      {
+        "i": 19,
+        "depth": 5,
+        "tag": "rect",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 539,
+          "y": 505,
+          "w": 3,
+          "h": 8
+        }
+      },
+      {
+        "i": 20,
+        "depth": 5,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 539,
+          "y": 500,
+          "w": 3,
+          "h": 3
+        }
+      },
+      {
+        "i": 21,
+        "depth": 3,
+        "tag": "a",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "X",
+        "box": {
+          "x": 650,
+          "y": 488,
+          "w": 68,
+          "h": 38
+        }
+      },
+      {
+        "i": 22,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-4 lucide lucide-twitter w-4",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 667,
+          "y": 499,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 23,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 668,
+          "y": 502,
+          "w": 13,
+          "h": 11
+        }
+      },
+      {
+        "i": 24,
+        "depth": 3,
+        "tag": "a",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "GitHub",
+        "box": {
+          "x": 729,
+          "y": 488,
+          "w": 107,
+          "h": 38
+        }
+      },
+      {
+        "i": 25,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-4 lucide lucide-github w-4",
+        "role": null,
+        "aria": {
+          "aria-hidden": "true"
+        },
+        "text": "",
+        "box": {
+          "x": 746,
+          "y": 499,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 26,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 749,
+          "y": 500,
+          "w": 11,
+          "h": 13
+        }
+      },
+      {
+        "i": 27,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 748,
+          "y": 510,
+          "w": 5,
+          "h": 2
+        }
+      }
+    ],
+    "h1": {
+      "text": "Contact Us",
+      "box": "496,117 704x40",
+      "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(17, 24, 39)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+        "fontWeight": "700"
+      }
+    },
+    "h2s": [
+      "Email",
+      "Follow us"
+    ],
+    "anchors": [
+      {
+        "text": "hello@example.com",
+        "href": "mailto:hello@example.com",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "font-medium hover:underline text-blue-600",
+        "box": "577,344 163x19",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(37, 99, 235)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://www.linkedin.com",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "box": "521,488 117x38",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(55, 65, 81)",
+          "border": "1px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "8px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "X",
+        "href": "https://x.com",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "box": "650,488 68x38",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(55, 65, 81)",
+          "border": "1px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "8px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "GitHub",
+        "href": "https://github.com",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "box": "729,488 107x38",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(55, 65, 81)",
+          "border": "1px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "8px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "About",
+        "href": "/About",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "433,986 41x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "400"
+        }
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "494,986 54x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+          "fontWeight": "400"
+        }
+      }
+    ],
+    "footerLinks": [
+      {
+        "text": "About",
+        "href": "/About",
+        "box": "433,986 41x20"
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "box": "494,986 54x20"
+      }
+    ],
+    "navLinks": [
+      "Dashboard",
+      "Accounts",
+      "Contacts",
+      "Leads",
+      "Calendar",
+      "Activities",
+      "Reports",
+      "Settings"
+    ]
+  },
+  "oursTab": {
+    "stops": [
+      "a \"Dashboard\" @12,88 232x48",
+      "a \"Accounts\" @12,140 232x48",
+      "a \"Contacts\" @12,192 232x48",
+      "a \"Leads\" @12,244 232x48",
+      "a \"Calendar\" @12,296 232x48",
+      "a \"Activities\" @12,348 232x48",
+      "a \"Reports\" @12,400 232x48",
+      "a \"Settings\" @12,469 232x48",
+      "input \"Search accounts, contacts and leads\" @288,16 576x36",
+      "button \"Messages\" @1080,16 36x36",
+      "button \"Notifications\" @1132,16 36x36",
+      "button \"Account menu\" @1184,16 224x36",
+      "a \"Get in touch with us →\" @496,777 180x19",
+      "a \"About\" @433,864 41x20",
+      "a \"Contact\" @494,864 54x20",
+      "(body — chain end)"
+    ],
+    "sidebar1": {
+      "label": "Dashboard",
+      "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.999994 0.0000455678 0.0000200868 / 0.5) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outline": "1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "searchInput": {
+      "label": "Search accounts, contacts and leads",
+      "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+      "outline": "1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+      "bg": "rgb(249, 250, 251)"
+    },
+    "messagesStub": {
+      "label": "Messages",
+      "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outline": "1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "accountTrigger": {
+      "label": "Account menu",
+      "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outline": "1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "inpage1": {
+      "label": "Get in touch with us →",
+      "shadow": "none",
+      "outline": "1px auto oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "footer1": {
+      "label": "About",
+      "shadow": "none",
+      "outline": "1px auto oklab(0.144787 0.00000661612 0.00000289828 / 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    }
+  },
+  "oursRide": {
+    "getInTouchLanded": "/Contact",
+    "h1AfterRide": "Contact Us",
+    "footerRideLanded": "/Contact",
+    "h1AfterFooterRide": "Contact Us",
+    "backLanded": "/About"
+  },
+  "ref/about": {
+    "found": true,
+    "path": "/about",
+    "mainBox": "256,69 1184x831",
+    "mainCls": "bg-gray-50 flex-1 overflow-auto",
+    "mainH": 831,
+    "els": 46,
+    "ledger": [
+      {
+        "i": 0,
+        "depth": 0,
+        "tag": "div",
+        "cls": "max-w-3xl mx-auto px-4 py-12 sm:px-8",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 464,
+          "y": 69,
+          "w": 768,
+          "h": 994
+        }
+      },
+      {
+        "i": 1,
+        "depth": 1,
+        "tag": "h1",
+        "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "About NEO CRM",
+        "box": {
+          "x": 496,
+          "y": 117,
+          "w": 704,
+          "h": 40
+        }
+      },
+      {
+        "i": 2,
+        "depth": 1,
+        "tag": "div",
+        "cls": "leading-relaxed space-y-4 text-gray-700",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 181,
+          "w": 704,
+          "h": 422
+        }
+      },
+      {
+        "i": 3,
+        "depth": 2,
+        "tag": "p",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "NEO CRM is a clean, intuitive customer r",
+        "box": {
+          "x": 496,
+          "y": 181,
+          "w": 704,
+          "h": 130
+        }
+      },
+      {
+        "i": 4,
+        "depth": 2,
+        "tag": "p",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "With NEO CRM you can track companies and",
+        "box": {
+          "x": 496,
+          "y": 327,
+          "w": 704,
+          "h": 156
+        }
+      },
+      {
+        "i": 5,
+        "depth": 2,
+        "tag": "p",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "NEO CRM is designed for individuals, fre",
+        "box": {
+          "x": 496,
+          "y": 499,
+          "w": 704,
+          "h": 104
+        }
+      },
+      {
+        "i": 6,
+        "depth": 1,
+        "tag": "div",
+        "cls": "gap-4 grid grid-cols-1 mt-10 sm:grid-cols-2",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 643,
+          "w": 704,
+          "h": 308
+        }
+      },
+      {
+        "i": 7,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 643,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 8,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-users mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 517,
+          "y": 664,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 9,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 519,
+          "y": 679,
+          "w": 14,
+          "h": 6
+        }
+      },
+      {
+        "i": 10,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 522,
+          "y": 667,
+          "w": 8,
+          "h": 8
+        }
+      },
+      {
+        "i": 11,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 536,
+          "y": 679,
+          "w": 3,
+          "h": 6
+        }
+      },
+      {
+        "i": 12,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 667,
+          "w": 3,
+          "h": 8
+        }
+      },
+      {
+        "i": 13,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Accounts & Contacts",
+        "box": {
+          "x": 517,
+          "y": 700,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 14,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Keep every company and person you work w",
+        "box": {
+          "x": 517,
+          "y": 728,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 15,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 856,
+          "y": 643,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 16,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-target mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 877,
+          "y": 664,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 17,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 879,
+          "y": 666,
+          "w": 20,
+          "h": 20
+        }
+      },
+      {
+        "i": 18,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 883,
+          "y": 670,
+          "w": 12,
+          "h": 12
+        }
+      },
+      {
+        "i": 19,
+        "depth": 4,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 887,
+          "y": 674,
+          "w": 4,
+          "h": 4
+        }
+      },
+      {
+        "i": 20,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Leads & Pipeline",
+        "box": {
+          "x": 877,
+          "y": 700,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 21,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Track prospects from first contact all t",
+        "box": {
+          "x": 877,
+          "y": 728,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 22,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 805,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 23,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-calendar-check mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 517,
+          "y": 826,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 24,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 525,
+          "y": 828,
+          "w": 0,
+          "h": 4
+        }
+      },
+      {
+        "i": 25,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 828,
+          "w": 0,
+          "h": 4
+        }
+      },
+      {
+        "i": 26,
+        "depth": 4,
+        "tag": "rect",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 520,
+          "y": 830,
+          "w": 18,
+          "h": 18
+        }
+      },
+      {
+        "i": 27,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 520,
+          "y": 836,
+          "w": 18,
+          "h": 0
+        }
+      },
+      {
+        "i": 28,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 526,
+          "y": 840,
+          "w": 6,
+          "h": 4
+        }
+      },
+      {
+        "i": 29,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Activities & Calendar",
+        "box": {
+          "x": 517,
+          "y": 862,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 30,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Log calls, emails and meetings, and neve",
+        "box": {
+          "x": 517,
+          "y": 890,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 31,
+        "depth": 2,
+        "tag": "div",
+        "cls": "bg-white border p-5 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 856,
+          "y": 805,
+          "w": 344,
+          "h": 146
+        }
+      },
+      {
+        "i": 32,
+        "depth": 3,
+        "tag": "svg",
+        "cls": "h-6 lucide lucide-chart-column mb-3 text-blue-600 w-6",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 877,
+          "y": 826,
+          "w": 24,
+          "h": 24
+        }
+      },
+      {
+        "i": 33,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 880,
+          "y": 829,
+          "w": 18,
+          "h": 18
+        }
+      },
+      {
+        "i": 34,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 895,
+          "y": 835,
+          "w": 0,
+          "h": 8
+        }
+      },
+      {
+        "i": 35,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 890,
+          "y": 831,
+          "w": 0,
+          "h": 12
+        }
+      },
+      {
+        "i": 36,
+        "depth": 4,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 885,
+          "y": 840,
+          "w": 0,
+          "h": 3
+        }
+      },
+      {
+        "i": 37,
+        "depth": 3,
+        "tag": "h2",
+        "cls": "font-semibold mb-1 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Reports",
+        "box": {
+          "x": 877,
+          "y": 862,
+          "w": 302,
+          "h": 24
+        }
+      },
+      {
+        "i": 38,
+        "depth": 3,
+        "tag": "p",
+        "cls": "text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Understand your performance with clear, ",
+        "box": {
+          "x": 877,
+          "y": 890,
+          "w": 302,
+          "h": 40
+        }
+      },
+      {
+        "i": 39,
+        "depth": 1,
+        "tag": "div",
+        "cls": "mt-10",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 991,
+          "w": 704,
+          "h": 24
+        }
+      },
+      {
+        "i": 40,
+        "depth": 2,
+        "tag": "a",
+        "cls": "font-medium hover:underline text-blue-600",
+        "role": null,
+        "aria": {},
+        "text": "Get in touch with us →",
+        "box": {
+          "x": 496,
+          "y": 993,
+          "w": 180,
+          "h": 19
+        }
+      }
+    ],
+    "h1": {
+      "text": "About NEO CRM",
+      "box": "496,117 704x40",
+      "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(17, 24, 39)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none rgba(10, 10, 10, 0.5)",
+        "fontWeight": "700"
+      }
+    },
+    "h2s": [
+      "Accounts & Contacts",
+      "Leads & Pipeline",
+      "Activities & Calendar",
+      "Reports"
+    ],
+    "anchors": [
+      {
+        "text": "Get in touch with us →",
+        "href": "/Contact",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "font-medium hover:underline text-blue-600",
+        "box": "496,993 180x19",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(37, 99, 235)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "About",
+        "href": "/About",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "433,1080 41x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "400"
+        }
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "494,1080 54x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "400"
+        }
+      }
+    ],
+    "footerLinks": [
+      {
+        "text": "About",
+        "href": "/About",
+        "box": "433,1080 41x20"
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "box": "494,1080 54x20"
+      }
+    ],
+    "navLinks": [
+      "Dashboard",
+      "Accounts",
+      "Contacts",
+      "Leads",
+      "Calendar",
+      "Activities",
+      "Reports",
+      "Settings"
+    ]
+  },
+  "ref/contact": {
+    "found": true,
+    "path": "/contact",
+    "mainBox": "256,69 1184x831",
+    "mainCls": "bg-gray-50 flex-1 overflow-auto",
+    "mainH": 831,
+    "els": 33,
+    "ledger": [
+      {
+        "i": 0,
+        "depth": 0,
+        "tag": "div",
+        "cls": "max-w-3xl mx-auto px-4 py-12 sm:px-8",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 464,
+          "y": 69,
+          "w": 768,
+          "h": 530
+        }
+      },
+      {
+        "i": 1,
+        "depth": 1,
+        "tag": "h1",
+        "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Contact Us",
+        "box": {
+          "x": 496,
+          "y": 117,
+          "w": 704,
+          "h": 40
+        }
+      },
+      {
+        "i": 2,
+        "depth": 1,
+        "tag": "p",
+        "cls": "leading-relaxed mb-8 text-gray-700",
+        "role": null,
+        "aria": {},
+        "text": "Have a question about NEO CRM, need a ha",
+        "box": {
+          "x": 496,
+          "y": 181,
+          "w": 704,
+          "h": 52
+        }
+      },
+      {
+        "i": 3,
+        "depth": 1,
+        "tag": "div",
+        "cls": "bg-white border mb-8 p-6 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 265,
+          "w": 704,
+          "h": 126
+        }
+      },
+      {
+        "i": 4,
+        "depth": 2,
+        "tag": "div",
+        "cls": "flex gap-4 items-start",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 521,
+          "y": 290,
+          "w": 654,
+          "h": 76
+        }
+      },
+      {
+        "i": 5,
+        "depth": 3,
+        "tag": "div",
+        "cls": "bg-blue-50 flex h-10 items-center justify-center rounded-full shrink-0 w-10",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 521,
+          "y": 290,
+          "w": 40,
+          "h": 40
+        }
+      },
+      {
+        "i": 6,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-5 lucide lucide-mail text-blue-600 w-5",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 531,
+          "y": 300,
+          "w": 20,
+          "h": 20
+        }
+      },
+      {
+        "i": 7,
+        "depth": 5,
+        "tag": "rect",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 303,
+          "w": 17,
+          "h": 13
+        }
+      },
+      {
+        "i": 8,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 533,
+          "y": 306,
+          "w": 17,
+          "h": 5
+        }
+      },
+      {
+        "i": 9,
+        "depth": 3,
+        "tag": "div",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 577,
+          "y": 290,
+          "w": 298,
+          "h": 76
+        }
+      },
+      {
+        "i": 10,
+        "depth": 4,
+        "tag": "h2",
+        "cls": "font-semibold text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Email",
+        "box": {
+          "x": 577,
+          "y": 290,
+          "w": 298,
+          "h": 24
+        }
+      },
+      {
+        "i": 11,
+        "depth": 4,
+        "tag": "p",
+        "cls": "mb-2 text-gray-600 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "Drop us a line and we will get back to y",
+        "box": {
+          "x": 577,
+          "y": 314,
+          "w": 298,
+          "h": 20
+        }
+      },
+      {
+        "i": 12,
+        "depth": 4,
+        "tag": "a",
+        "cls": "font-medium hover:underline text-blue-600",
+        "role": null,
+        "aria": {},
+        "text": "hello@example.com",
+        "box": {
+          "x": 577,
+          "y": 344,
+          "w": 163,
+          "h": 19
+        }
+      },
+      {
+        "i": 13,
+        "depth": 1,
+        "tag": "div",
+        "cls": "bg-white border p-6 rounded-xl",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 496,
+          "y": 423,
+          "w": 704,
+          "h": 128
+        }
+      },
+      {
+        "i": 14,
+        "depth": 2,
+        "tag": "h2",
+        "cls": "font-semibold mb-4 text-gray-900",
+        "role": null,
+        "aria": {},
+        "text": "Follow us",
+        "box": {
+          "x": 521,
+          "y": 448,
+          "w": 654,
+          "h": 24
+        }
+      },
+      {
+        "i": 15,
+        "depth": 2,
+        "tag": "div",
+        "cls": "flex flex-wrap gap-3",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 521,
+          "y": 488,
+          "w": 654,
+          "h": 38
+        }
+      },
+      {
+        "i": 16,
+        "depth": 3,
+        "tag": "a",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "LinkedIn",
+        "box": {
+          "x": 521,
+          "y": 488,
+          "w": 117,
+          "h": 38
+        }
+      },
+      {
+        "i": 17,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-4 lucide lucide-linkedin w-4",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 538,
+          "y": 499,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 18,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 545,
+          "y": 504,
+          "w": 8,
+          "h": 9
+        }
+      },
+      {
+        "i": 19,
+        "depth": 5,
+        "tag": "rect",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 539,
+          "y": 505,
+          "w": 3,
+          "h": 8
+        }
+      },
+      {
+        "i": 20,
+        "depth": 5,
+        "tag": "circle",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 539,
+          "y": 500,
+          "w": 3,
+          "h": 3
+        }
+      },
+      {
+        "i": 21,
+        "depth": 3,
+        "tag": "a",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "X",
+        "box": {
+          "x": 650,
+          "y": 488,
+          "w": 68,
+          "h": 38
+        }
+      },
+      {
+        "i": 22,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-4 lucide lucide-twitter w-4",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 667,
+          "y": 499,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 23,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 668,
+          "y": 502,
+          "w": 13,
+          "h": 11
+        }
+      },
+      {
+        "i": 24,
+        "depth": 3,
+        "tag": "a",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "role": null,
+        "aria": {},
+        "text": "GitHub",
+        "box": {
+          "x": 729,
+          "y": 488,
+          "w": 107,
+          "h": 38
+        }
+      },
+      {
+        "i": 25,
+        "depth": 4,
+        "tag": "svg",
+        "cls": "h-4 lucide lucide-github w-4",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 746,
+          "y": 499,
+          "w": 16,
+          "h": 16
+        }
+      },
+      {
+        "i": 26,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 749,
+          "y": 500,
+          "w": 11,
+          "h": 13
+        }
+      },
+      {
+        "i": 27,
+        "depth": 5,
+        "tag": "path",
+        "cls": "",
+        "role": null,
+        "aria": {},
+        "text": "",
+        "box": {
+          "x": 748,
+          "y": 510,
+          "w": 5,
+          "h": 2
+        }
+      }
+    ],
+    "h1": {
+      "text": "Contact Us",
+      "box": "496,117 704x40",
+      "cls": "font-bold mb-6 sm:text-4xl text-3xl text-gray-900",
+      "face": {
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(17, 24, 39)",
+        "border": "0px solid rgb(229, 229, 229)",
+        "boxShadow": "none",
+        "borderRadius": "0px",
+        "outline": "3px none rgba(10, 10, 10, 0.5)",
+        "fontWeight": "700"
+      }
+    },
+    "h2s": [
+      "Email",
+      "Follow us"
+    ],
+    "anchors": [
+      {
+        "text": "hello@example.com",
+        "href": "mailto:hello@example.com",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "font-medium hover:underline text-blue-600",
+        "box": "577,344 163x19",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(37, 99, 235)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://www.linkedin.com",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "box": "521,488 117x38",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(55, 65, 81)",
+          "border": "1px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "8px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "X",
+        "href": "https://x.com",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "box": "650,488 68x38",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(55, 65, 81)",
+          "border": "1px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "8px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "GitHub",
+        "href": "https://github.com",
+        "target": "_blank",
+        "rel": "noopener noreferrer",
+        "cls": "border font-medium gap-2 hover:bg-gray-50 inline-flex items-center px-4 py-2 rounded-lg text-gray-700 text-sm",
+        "box": "729,488 107x38",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(55, 65, 81)",
+          "border": "1px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "8px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "500"
+        }
+      },
+      {
+        "text": "About",
+        "href": "/About",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "433,986 41x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "400"
+        }
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "target": "(none)",
+        "rel": "(none)",
+        "cls": "hover:text-gray-800 transition-colors",
+        "box": "494,986 54x20",
+        "face": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(107, 114, 128)",
+          "border": "0px solid rgb(229, 229, 229)",
+          "boxShadow": "none",
+          "borderRadius": "0px",
+          "outline": "3px none rgba(10, 10, 10, 0.5)",
+          "fontWeight": "400"
+        }
+      }
+    ],
+    "footerLinks": [
+      {
+        "text": "About",
+        "href": "/About",
+        "box": "433,986 41x20"
+      },
+      {
+        "text": "Contact",
+        "href": "/Contact",
+        "box": "494,986 54x20"
+      }
+    ],
+    "navLinks": [
+      "Dashboard",
+      "Accounts",
+      "Contacts",
+      "Leads",
+      "Calendar",
+      "Activities",
+      "Reports",
+      "Settings"
+    ]
+  },
+  "refTab": {
+    "stops": [
+      "a \"Dashboard\" @12,88 232x48",
+      "a \"Accounts\" @12,140 232x48",
+      "a \"Contacts\" @12,192 232x48",
+      "a \"Leads\" @12,244 232x48",
+      "a \"Calendar\" @12,296 232x48",
+      "a \"Activities\" @12,348 232x48",
+      "a \"Reports\" @12,400 232x48",
+      "a \"Settings\" @12,469 232x48",
+      "input \"input\" @288,16 576x36",
+      "button \"button\" @1080,16 36x36",
+      "button \"button\" @1132,16 36x36",
+      "button \"Hi, sepnetflix2023S\" @1184,16 224x36",
+      "a \"Get in touch with us →\" @496,777 180x19",
+      "a \"About\" @433,864 41x20",
+      "a \"Contact\" @494,864 54x20",
+      "button \"Close badge\" @1393,856 18x18",
+      "(body — chain end)"
+    ],
+    "sidebar1": {
+      "label": "Dashboard",
+      "shadow": "none",
+      "outline": "1px auto rgba(10, 10, 10, 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "searchInput": {
+      "label": "input",
+      "shadow": "rgb(255, 255, 255) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+      "outline": "2px solid rgba(0, 0, 0, 0)",
+      "bg": "rgb(249, 250, 251)"
+    },
+    "messagesStub": {
+      "label": "button",
+      "shadow": "rgb(255, 255, 255) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outline": "2px solid rgba(0, 0, 0, 0)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "accountTrigger": {
+      "label": "Hi, sepnetflix2023S",
+      "shadow": "rgb(255, 255, 255) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outline": "2px solid rgba(0, 0, 0, 0)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "inpage1": {
+      "label": "Get in touch with us →",
+      "shadow": "none",
+      "outline": "1px auto rgba(10, 10, 10, 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "footer1": {
+      "label": "About",
+      "shadow": "none",
+      "outline": "1px auto rgba(10, 10, 10, 0.5)",
+      "bg": "rgba(0, 0, 0, 0)"
+    }
+  },
+  "refRide": {
+    "getInTouchLanded": "/Contact",
+    "h1AfterRide": "Contact Us",
+    "footerRideLanded": "/Contact",
+    "h1AfterFooterRide": "Contact Us",
+    "backLanded": "/About"
+  },
+  "ours/aboutPhone": {
+    "found": true,
+    "path": "/about",
+    "mainBox": "0,69 390x775",
+    "h1Box": "16,117 358x36",
+    "firstAnchor": {
+      "text": "Get in touch with us →",
+      "href": "/Contact",
+      "box": "16,1677 180x19"
+    },
+    "drawerTrigger": {
+      "found": true,
+      "box": "16,16 36x36",
+      "ariaLabel": "Open navigation"
+    },
+    "footerBox": "0,1747 390x53"
+  },
+  "ours/contactPhone": {
+    "found": true,
+    "path": "/contact",
+    "mainBox": "0,69 390x775",
+    "h1Box": "16,117 358x36",
+    "firstAnchor": {
+      "text": "hello@example.com",
+      "href": "mailto:hello@example.com",
+      "box": "97,386 163x19"
+    },
+    "drawerTrigger": {
+      "found": true,
+      "box": "16,16 36x36",
+      "ariaLabel": "Open navigation"
+    },
+    "footerBox": "0,913 390x53"
+  },
+  "ref/aboutPhone": {
+    "found": true,
+    "path": "/about",
+    "mainBox": "0,69 390x775",
+    "h1Box": "16,117 358x36",
+    "firstAnchor": {
+      "text": "Get in touch with us →",
+      "href": "/Contact",
+      "box": "16,1677 180x19"
+    },
+    "drawerTrigger": {
+      "found": true,
+      "box": "16,16 36x36",
+      "ariaLabel": "Open navigation"
+    },
+    "footerBox": "0,1747 390x53"
+  },
+  "ref/contactPhone": {
+    "found": true,
+    "path": "/contact",
+    "mainBox": "0,69 390x775",
+    "h1Box": "16,117 358x36",
+    "firstAnchor": {
+      "text": "hello@example.com",
+      "href": "mailto:hello@example.com",
+      "box": "97,386 163x19"
+    },
+    "drawerTrigger": {
+      "found": true,
+      "box": "16,16 36x36",
+      "ariaLabel": "Open navigation"
+    },
+    "footerBox": "0,913 390x53"
+  }
+}

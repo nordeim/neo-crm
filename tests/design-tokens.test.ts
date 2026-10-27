@@ -189,3 +189,38 @@ describe("design tokens: Session 119 primary-foreground re-pin (D-119a1)", () =>
     expect(themeToken("color-primary-foreground")).toBe("#fafafa");
   });
 });
+
+// Session-193 (D-193a1): the base layer's universal OUTLINE-COLOR rule.
+// The walk66 focus faces found the alpha-color carrier family's PAINTING
+// member on the marketing anchors (1px auto outline: OURS the engine's
+// adaptive near-black OPAQUE rgb(16,16,16)-family vs the reference's
+// authored rgba(10,10,10,0.5)); the micro-probe-193 CSSOM walk
+// root-caused it — the reference's compiled base layer carries the
+// shadcn base template's universal line:
+//   * { border-color: hsl(var(--border)); outline-color: hsl(var(--ring) / .5); }
+// OURS carried only the border-color half (session-7's base import);
+// every UA-outline-painting surface (any element without an authored
+// focus-visible utility — the marketing pages' anchors, stock links)
+// resolved the ENGINE default instead of the reference's authored 50%
+// ring. The cure: the outline-color half added at the same * rule, in
+// the v4 idiom (color-mix over the --color-ring token — the same
+// resolved 50% near-black: #0a0a0a, the reference's own --ring value).
+// The authored focus faces (outline-none + the box-shadow rings) are
+// UNAFFECTED — their outline-style is none on both apps (the s178
+// VERSION FORM genus documented the twin; this pin holds the carrier).
+describe("design tokens: the base layer's universal outline-color rule (D-193a1)", () => {
+  it("the * base rule carries the outline-color half of the shadcn base template — color-mix over the --color-ring token at 50% (the reference's compiled hsl(var(--ring) / .5); the walk66 re-walk proves the marketing anchors' focus outline-color lands the reference's family)", () => {
+    // the @layer base * rule carries BOTH halves of the shadcn base line
+    // (a windowed slice — the rule's own comment quotes the reference's
+    // closing brace, so a [^}]+ rule-body regex would stop inside it)
+    const baseIdx = css.indexOf("@layer base");
+    expect(baseIdx).toBeGreaterThanOrEqual(0);
+    const baseStar = css.slice(baseIdx, baseIdx + 2200);
+    expect(baseStar).toContain("border-color: var(--color-line);");
+    expect(baseStar).toContain(
+      "outline-color: color-mix(in oklab, var(--color-ring) 50%, transparent);",
+    );
+    // the token the rule rides — the reference's own --ring #0a0a0a
+    expect(themeToken("color-ring")).toBe("#0a0a0a");
+  });
+});

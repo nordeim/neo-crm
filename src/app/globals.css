@@ -316,6 +316,18 @@
 @layer base {
   * {
     border-color: var(--color-line);
+    /* Session-193 (D-193a1): the outline-color half of the shadcn base
+       template's universal line — the reference's compiled base ships
+       `* { border-color: hsl(var(--border)); outline-color: hsl(var(--ring) / .5); }`
+       (live-probed via the micro-probe-193 CSSOM walk); ours carried only
+       the border-color half, so every UA-outline-painting surface (the
+       marketing anchors' REAL focus faces, any element without an
+       authored focus-visible utility) resolved the ENGINE default
+       (currentColor at rest, the adaptive near-black OPAQUE ring at
+       focus) instead of the reference's authored 50% ring. The v4
+       color-mix idiom over the --color-ring token resolves to the same
+       50% near-black (#0a0a0a — the reference's own --ring value). */
+    outline-color: color-mix(in oklab, var(--color-ring) 50%, transparent);
   }
 
   /* Session-10 (S10-1): the reference's global stylesheet ships

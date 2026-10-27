@@ -4742,3 +4742,99 @@ describe("session-192: the login anon-surface + landing marketing-arms walk (wal
     expect(lr).toContain("focus:ring-2 focus:ring-slate-400 focus:ring-offset-2");
   });
 });
+
+// Session-193 (walk66): THE MARKETING-INTERIOR ARMS — the /About +
+// /Contact AUTHENTICATED INTERIORS' interactive arms, the s406 close's
+// own naming, walked two-app at the OPEN-LEDGER level (the family 48
+// sessions stale: the pages censused at s142, the guest funnel at
+// s144, the 156-c interior-census legs hold the mainH geometry, the
+// sweep holds the pixels — never the DFS ledger, the anchor inventory,
+// the REAL Tab chain, the REAL focus faces, or the link rides).
+// [D-193a1 the base layer's universal outline-color rule CURED — the
+// alpha-color carrier family's PAINTING member: the walk53/61/66
+// resting faces decoded OURS currentColor/adaptive near-black vs the
+// reference's fixed rgba(10,10,10,0.5) with style:none (zero pixels —
+// the documented genus); the walk66 FOCUS faces found the same carrier
+// PAINTING (1px auto) on the marketing anchors — near-black OPAQUE vs
+// the reference's authored 50% ring — and the micro-probe-193 CSSOM
+// walk root-caused it: the reference's compiled base carries
+// `* { border-color: hsl(var(--border)); outline-color: hsl(var(--ring) / .5); }`
+// (the shadcn base template's universal line); OURS carried only the
+// border-color half. THE CURE: the outline-color half added at the
+// same * rule (the v4 color-mix idiom over our --color-ring #0a0a0a —
+// the same resolved 50% near-black the reference authors)].
+// [D-193a2 the sidebar links' REAL focus-visible ring — the KEPT
+// SUPERSET, PINNED: OURS paints focus-visible:ring-2 ring-white/50
+// (the s7 "deliberate a11y superset", re-verified invisible at the
+// s177 walk50 resting face — never before walk-proven at the REAL
+// keyboard face, and carrying ZERO test teeth); the reference ships
+// NO authored focus face on its sidebar links — the bare UA outline,
+// its own keyboard-focus-gap family (the D-112a2 doctrine), never
+// mirrored]. Every other walk66 delta a documented genus or kept
+// superset: the token-selection bg-background/bg-gray-50 pair
+// (computed-equal #f9fafb — the M-81c2 family) · the box-shadow
+// SLOT-COUNT (every VISIBLE layer byte-equal) · the outline VERSION
+// FORM + both sub-forms (1px none vs 2px solid transparent — zero
+// visible pixels on both) · OUR aria-hidden svg superset (the s19
+// family, KEPT) · OUR aria-label superset on the topbar arms (the
+// s88-c9 family, KEPT) · the reference's platform badge-close 16th
+// Tab stop (the s149 genus, never mirrored).
+describe("session-193: the marketing-interior arms walk (walk66 — the /About + /Contact authenticated interiors' interactive arms [D-193a1 the universal outline-color base rule cured; D-193a2 the sidebar ring the KEPT SUPERSET, pinned]; the Tab chains structurally identical at 15 stops both, the link rides + the phone axes byte-equal)", () => {
+  it("the walk66 decode freeze — the two-page OPEN ledgers + the REAL Tab chains with the geometry-keyed focus captures + the write-free link rides + the phone axes (the tool's own contract; the AUTHENTICATED battery — the sweep-state pair, the pages render only inside the login-walled chrome)", () => {
+    const src = read("scripts/walk66-marketing-interior-arms.ts");
+    // the authenticated battery form (the s162 pair-state doctrine)
+    expect(src).toContain("preflightPairState");
+    expect(src).toContain('const REF_URL = process.env.REF_URL ?? "https://neo-crm-8ab2c17c.base44.app"');
+    // Phase A per page the OPEN census — the main root + the DFS ledger +
+    // the h1 face + the h2 vocabulary + the FULL anchor inventory + the
+    // footer pair + the nav census
+    expect(src).toContain("pageCensus");
+    expect(src).toContain("LEDGER_JS");
+    expect(src).toContain("ANCHORS_JS");
+    // Phase B the REAL keyboard Tab drive — the chain's stop inventory +
+    // the REAL :focus-visible faces at the six decoded stops; the stub/
+    // trigger captures keyed by GEOMETRY (the REF carries no aria-labels
+    // — its labels are the visible text, so text-matching would miss)
+    expect(src).toContain("tabDrive");
+    expect(src).toContain('await page.keyboard.press("Tab")');
+    expect(src).toContain("stop.x >= 1070");
+    expect(src).toContain("stop.x >= 1180");
+    // Phase C the link rides (write-free client nav) + Phase D the phone axis
+    expect(src).toContain("ridePhase");
+    expect(src).toContain("phoneCensus");
+    expect(src).toContain("{ width: 1440, height: 900 }");
+    expect(src).toContain("{ width: 390, height: 844 }");
+    // the destructive-arm discipline: the EXTERNAL navigations NEVER
+    // fired (the mailto/social rides stay census-only)
+    expect(src).toContain("the EXTERNAL navigations are NEVER fired");
+    // the decode machinery: the anchor + focus-face deltas
+    expect(src).toContain("anchorsDelta");
+    expect(src).toContain("focusDelta");
+  });
+
+  it("the MARKETING open-interior construction freeze — the about page's h1 + the Get-in-touch anchor chain + the contact page's h1 + the mailto + the three social anchors (the genuine battery gap: the s142 landing-page pins hold the LANDING page's strings, never the about/contact call-site chains; the walk proves every anchor href/target/rel byte-equal on both apps, the rides byte-equal, the phone axes byte-equal)", () => {
+    const about = read("src/app/(marketing)/about/page.tsx");
+    const contact = read("src/app/(marketing)/contact/page.tsx");
+    // the about page chains
+    expect(about).toContain('<h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">About NEO CRM</h1>');
+    expect(about).toContain('className="text-blue-600 font-medium hover:underline" href="/Contact"');
+    expect(about).toContain("Get in touch with us →");
+    // the contact page chains — the mailto + the three social anchors
+    // (the walk66 Phase E census: href/target/rel byte-equal both apps)
+    expect(contact).toContain('<h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Contact Us</h1>');
+    expect(contact).toContain('href="mailto:hello@example.com"');
+    expect(contact).toContain('href="https://www.linkedin.com"');
+    expect(contact).toContain('href="https://x.com"');
+    expect(contact).toContain('href="https://github.com"');
+    expect(contact).toContain('target="_blank"');
+    expect(contact).toContain('rel="noopener noreferrer"');
+  });
+
+  it("D-193a2 the SIDEBAR links' focus-visible ring — the KEPT SUPERSET, pinned (OURS paints focus-visible:ring-2 ring-white/50 at every sidebar stop, walk-proven at the REAL keyboard face: the oklab white/50 2px shadow carrier vs the reference's bare UA outline 1px auto rgba(10,10,10,0.5); the reference ships NO authored focus face on its sidebar links — its own keyboard-focus-gap family, the D-112a2 doctrine, never mirrored; the construction dates to session-7, re-verified invisible at the s177 walk50 RESTING face, and carried ZERO test teeth until this pin — both navs stay in lockstep)", () => {
+    const sidebar = read("src/components/layout/sidebar.tsx");
+    const mobileNav = read("src/components/layout/mobile-nav.tsx");
+    // the desktop sidebar + the drawer's nav — the same construction
+    expect(sidebar).toContain('"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"');
+    expect(mobileNav).toContain('"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"');
+  });
+});

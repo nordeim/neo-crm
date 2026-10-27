@@ -1,0 +1,45 @@
+about.mainCls: OURS=[bg-background flex-1 overflow-auto] REF=[bg-gray-50 flex-1 overflow-auto]
+about.h1.outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+about.anchors[0]"Get in touch with us →".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+about.anchors[1]"About".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+about.anchors[2]"Contact".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+about.ledger[8].ariaKeys: OURS=[aria-hidden] REF=[]
+about.ledger[8].aria.aria-hidden: OURS=true REF=undefined
+about.ledger[16].ariaKeys: OURS=[aria-hidden] REF=[]
+about.ledger[16].aria.aria-hidden: OURS=true REF=undefined
+about.ledger[23].ariaKeys: OURS=[aria-hidden] REF=[]
+about.ledger[23].aria.aria-hidden: OURS=true REF=undefined
+about.ledger[32].ariaKeys: OURS=[aria-hidden] REF=[]
+about.ledger[32].aria.aria-hidden: OURS=true REF=undefined
+contact.mainCls: OURS=[bg-background flex-1 overflow-auto] REF=[bg-gray-50 flex-1 overflow-auto]
+contact.h1.outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+contact.anchors[0]"hello@example.com".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+contact.anchors[1]"LinkedIn".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+contact.anchors[2]"X".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+contact.anchors[3]"GitHub".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+contact.anchors[4]"About".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+contact.anchors[5]"Contact".outline: OURS=[3px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[3px none rgba(10, 10, 10, 0.5)]
+contact.ledger[6].ariaKeys: OURS=[aria-hidden] REF=[]
+contact.ledger[6].aria.aria-hidden: OURS=true REF=undefined
+contact.ledger[17].ariaKeys: OURS=[aria-hidden] REF=[]
+contact.ledger[17].aria.aria-hidden: OURS=true REF=undefined
+contact.ledger[22].ariaKeys: OURS=[aria-hidden] REF=[]
+contact.ledger[22].aria.aria-hidden: OURS=true REF=undefined
+contact.ledger[25].ariaKeys: OURS=[aria-hidden] REF=[]
+contact.ledger[25].aria.aria-hidden: OURS=true REF=undefined
+tab.stops: OURS=16 REF=17
+tab.stops[8]: OURS=input "Search accounts, contacts and leads" @288,16 576x36 REF=input "input" @288,16 576x36
+tab.stops[9]: OURS=button "Messages" @1080,16 36x36 REF=button "button" @1080,16 36x36
+tab.stops[10]: OURS=button "Notifications" @1132,16 36x36 REF=button "button" @1132,16 36x36
+tab.stops[11]: OURS=button "Account menu" @1184,16 224x36 REF=button "Hi, sepnetflix2023S" @1184,16 224x36
+tab.stops[15]: OURS=(body — chain end) REF=button "Close badge" @1393,856 18x18
+focus.sidebar1.shadow: OURS=[rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.999994 0.0000455678 0.0000200868 / 0.5) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px] REF=[none]
+focus.sidebar1.outline: OURS=[1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[1px auto rgba(10, 10, 10, 0.5)]
+focus.searchInput.shadow: OURS=[rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px] REF=[rgb(255, 255, 255) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px]
+focus.searchInput.outline: OURS=[1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[2px solid rgba(0, 0, 0, 0)]
+focus.messagesStub.shadow: OURS=[rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px] REF=[rgb(255, 255, 255) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px]
+focus.messagesStub.outline: OURS=[1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[2px solid rgba(0, 0, 0, 0)]
+focus.accountTrigger.shadow: OURS=[rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px] REF=[rgb(255, 255, 255) 0px 0px 0px 0px, rgb(10, 10, 10) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px]
+focus.accountTrigger.outline: OURS=[1px none oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[2px solid rgba(0, 0, 0, 0)]
+focus.inpage1.outline: OURS=[1px auto oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[1px auto rgba(10, 10, 10, 0.5)]
+focus.footer1.outline: OURS=[1px auto oklab(0.144787 0.00000661612 0.00000289828 / 0.5)] REF=[1px auto rgba(10, 10, 10, 0.5)]

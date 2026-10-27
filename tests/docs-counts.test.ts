@@ -897,7 +897,7 @@ const SUITES = 138;
 // E2E 192 re-verified (the round: ZERO product-code touches — the
 // s134/s188-precedent zero-fix freeze-pin round; the MODULE line
 // count 1718 HELD).
-const UNIT = 2801;
+const UNIT = 2805;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1362,13 +1362,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-192 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-193 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s191 layer now beneath the s192 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s192 layer now beneath the s193 head)",
     ).toContain(
-      "+ beneath it 2795 unit checks + 192 e2e checks green; the session-191 layer (THE THREE CREATE DIALOGS' OPEN FACES",
+      "+ beneath it 2801 unit checks + 192 e2e checks green; the session-192 layer (THE LOGIN ANON-SURFACE INTERIORS",
     );
   });
 
@@ -1496,6 +1496,24 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     );
     expect(skill188).not.toContain(
       "project_state: 2801 unit checks + 192 e2e checks green; the session-191 layer (THE THREE CREATE DIALOGS",
+    );
+    // THE DOCTRINE'S NEXT MEMBER (the s193 head surgery's own demotion):
+    // the retired session-192 block carries its OWN ship form too
+    // (2801 + the LOGIN ANON-SURFACE title) — the s171-fix doctrine
+    // extends to every demoted layer; this assertion makes a future
+    // ladder/head-surgery interaction that corrupts it FAIL the suite
+    // the same way.
+    const retired192Start = skill188.indexOf("<!-- retired session-192 layer");
+    expect(retired192Start, "the retired s192 block must exist").toBeGreaterThan(0);
+    const retired192Block = skill188.slice(retired192Start, skill188.indexOf("-->", retired192Start));
+    expect(
+      retired192Block,
+      "the retired s192 block's ship line must be the s192 SHIP form (2801 + its own layer name)",
+    ).toContain(
+      "project_state: 2801 unit checks + 192 e2e checks green; the session-192 layer (THE LOGIN ANON-SURFACE INTERIORS",
+    );
+    expect(skill188).not.toContain(
+      "project_state: 2805 unit checks + 192 e2e checks green; the session-192 layer (THE LOGIN ANON-SURFACE",
     );
   });
 
@@ -1895,8 +1913,18 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     // count 1718 HELD — page-layout.ts untouched, the round's
     // product-code touch entity-dialogs.tsx 1226->1250).
     expect(skill).not.toContain("`tests/page-layout.test.ts`, 259 checks");
+    // Session-193: the retired 274 form joins the negatives ladder (the
+    // walk66 marketing-interior arms round: the session-193 battery +3
+    // born-green pins in page-layout [the walk66 decode freeze + the
+    // MARKETING open-interior construction freeze + the SIDEBAR ring
+    // construction freeze — the D-193a2 KEPT-SUPERSET pin], the checks
+    // 274->277; the +1 D-193a1 cure pin lands in design-tokens; the
+    // MODULE line count 1718 HELD — the outline-color base-rule cure
+    // round, globals.css +12 lines [the PAD/SKILL line-census rows
+    // re-anchored 430->442], page-layout.ts untouched).
+    expect(skill).not.toContain("`tests/page-layout.test.ts`, 274 checks");
     expect(skill, "the §5.6 line must carry the live line + check counts").toContain(
-      "test-pinned module (1718 lines; `tests/page-layout.test.ts`, 274 checks",
+      "test-pinned module (1718 lines; `tests/page-layout.test.ts`, 277 checks",
     );
     const pad = read("Project_Architecture_Document.md");
     expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1653 |");
