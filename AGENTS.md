@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2813 checks)      | `bun run test`                         |
+|  Unit tests (2817 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (195 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2813) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2817) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (195) — or the one-command `bun run gate` (session-38:
@@ -53,7 +53,9 @@ adds the skill §14 pre-ship step: run `bun audit` periodically (NOT
 inside the gate — it is a network dependency and the gate must stay
 offline-runnable, the probe doctrine); the current state is triaged in
 the PAD known-issues ledger (9 advisories, all dev-toolchain transitive,
-zero runtime request-path exposure).
+zero runtime request-path exposure — re-triaged session-198: the runtime
+jspdf›dompurify chain's critical cured by the 3.4.17 transitive
+override, lockfile-pinned + dormancy-pinned + ledger-pinned).
 
 First-run setup: `bun install && cp .env.example .env && bun run db:push &&
 bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
@@ -12624,3 +12626,106 @@ not-found sweep leg GREEN at all four bands (`--fail-on-drift`: 0.01
 desktop · 0.03 phone · 0.02 tablet · 0.02 landscape) · db census
 MATCH · probe:ref STABLE · the captures: the round's 404 pair (ours +
 the reference) + the dev-server set under `docs/screenshots/`.
+
+### Session-198 — THE ADVISORIES RE-TRIAGE (the runtime-chain critical cured + the security-ledger lockstep) (2026-10-29)
+
+The post-197 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`ba30355` — the session_417 transcript, the s197 round's own
+execution record). The round is THE STANDING PRE-SHIP DUTY'S OWN
+CATCH — the s164 `bun audit` doctrine ("re-run each pre-ship")
+re-run live by `scripts/discover-198.ts` BEFORE the plan found the
+advisories census DRIFTED: 9 → **12 (1 critical / 5 high / 4 moderate /
+2 low)** — the repo's first CRITICAL on a RUNTIME dependency chain
+(`jspdf@4.2.1`, the direct runtime dep behind the reports PDF export,
+ships the optional `dompurify` at **3.4.16**, INSIDE the vulnerable
+range `>=3.4.4 <=3.4.16` — critical GHSA-cg2g-xh64-v4q7 + high
+GHSA-mrv2-3pqr-j5jr + low GHSA-c6gr-qvv4-5v3f). The
+security-and-hardening triage ladder applied: "Is the vulnerable
+function actually called in your code path?" — **NO** — dompurify
+executes only inside jsPDF's `html()` plugin and `pdf-export.ts` never
+calls `.html(` (grep-verified: DORMANT, shipped). The other discovery
+legs: the standing data-gated re-checks ALL KILLED at the reference's
+unchanged zero-data state (probe:ref STABLE at `46bc2d9c` — the demo
+data still ZERO; the Edit-family census rows=1 empty-state rows,
+rowMenus=0, the topbar-search populated=0 — the discover-184..198
+standing census) · the conditional gates KILLED (probe:ref STABLE
+kills the fresh-bundle re-derivation; the registry's latest recharts
+3.10.1 kills the 4.0 gate) · the s120-era re-walk kill STANDING (the
+leads family source-frozen since s113 — 85 sessions; the deps locked
+at the s196 census; the bundle STABLE — the kill condition unmoved).
+
+**TWO CURES — the security-ledger round** (the round's material was
+the ADVISORIES LEDGER, not the pixels):
+
+- **D-198a1 — THE RUNTIME CHAIN'S CRITICAL.** THE CURE: the 3.4.17
+  transitive override (`overrides.dompurify` in package.json — the
+  first update attempt's live catch: `bun update dompurify` hoisted
+  the root while a NESTED `jspdf/dompurify@3.4.16` SURVIVED on disk,
+  the failure mode that hardened the pin to scan EVERY resolution) +
+  THE PINS (both in the pdf-export suite, the one-suite doctrine):
+  the exhaustive lockfile pin (every `dompurify@x.y.z` resolution
+  asserted outside the vulnerable range — RED-first at birth against
+  the shipping 3.4.16 → the cure → GREEN) + the dormancy freeze
+  (`pdf-export.ts` NEVER calls `.html(` — adopting jsPDF's html()
+  plugin becomes a conscious act that trips the pin). MUTATION-PROVEN
+  ×2: the lockfile flip → exactly 1 RED → restored → GREEN; the
+  planted `.html(` call → exactly 1 RED → restored → GREEN. The
+  post-cure audit: **9 advisories (4 high / 4 moderate / 1 low)** —
+  the critical GONE, zero runtime chains, the documented posture
+  restored at the tree level.
+- **D-198a2 — THE SECURITY LEDGER'S OWN STALE CENSUS.** The PAD §10
+  ledger row + the AGENTS gate-order note both carried the s164
+  census verbatim — ZERO test teeth on either claim (the census went
+  stale silently for 33 sessions). THE CURE: the PAD row rewritten at
+  the live post-cure census (9: 4h/4m/1l — ALL dev-toolchain again:
+  zod via eslint-config-next›eslint-plugin-react-hooks · deepmerge-ts
+  via the prisma CLI · vite + launch-editor via vitest · source-map-js
+  via postcss) + the dormancy decode carried in the row + the s198
+  re-triage clause + the AGENTS note re-anchored + THE PINS (both in
+  the docs-counts suite): the PAD-ledger pin (the live census + the
+  re-triage record + the retired braces-composition negative) + the
+  AGENTS-note pin (whitespace-normalized — the pin holds the content,
+  never the wrap). MUTATION-PROVEN ×2: the stale re-plant → 1 RED
+  each → restored → GREEN.
+
+**DECLINED** (recorded considered-and-declined in the plan): the
+dev-toolchain members' bumps (deepmerge-ts 8 · vite 8.3.3 · the
+eslint-zod floor · source-map-js 1.2.2 — the s164 no-mid-rotation
+TOOLCHAIN posture stands: every member build/lint/CLI-only, zero
+runtime request-path) · the registry majors (lucide-react 1.63.0 vs
+our 0.525 PARITY pin — the reference's own bundle-decoded version,
+probe:ref STABLE re-verified; prisma 7.10.1 vs our 6.19.3; next 16.4.3
+vs our 16.4.2; zustand 5.0.16 vs our 5.0.15 — their own rotations,
+never mid-rotation, none carries an audit advisory on our locked
+versions) · the e2e/a11y extensions for the advisories axis (no page
+surface changed — the battery 195/195 + the four-band sweep are the
+cure's inertness proof, not new coverage).
+
+**THE COUNT LADDER + THE LOCKSTEP**: UNIT 2813 → **2817** (+4: the
+lockfile pin + the dormancy pin in pdf-export · the PAD-ledger pin +
+the AGENTS-note pin in docs-counts) · SUITES **138 HELD** (the
+one-suite doctrine — both pin pairs ride EXISTING suites) · E2E 195
+HELD · badge 3008 → **3012** (the unit+e2e arithmetic: 2817+195).
+skill-head-198.py ran FIRST (the SKILL v1.195.0, the s197 layer
+comment-demoted at its ship counts 2813/195, the s198 layer live at
+2817/195 + the beneath-it tail, idempotent, the s197 exact-H1 guard
+form); count-ladder-198.py (assert-first, idempotent, unique-anchor —
+18 doc flips + the test-side re-anchors in the same stroke: the
+docs-counts UNIT constant + the layer-axis [first = s198 at 2817/195,
+second = s197 at its ship 2813/195] + the 2813 negatives joining the
+s166 block + the dialog-geometry-parity F-92a3 ladder [the four CLAUDE
+live positives re-anchored 2817 + the 2813 forms join the negatives]).
+The docs lockstep: this AGENTS Session-198 section ·
+`docs/session_418.md` · the PAD §7.1 s198 inventory row + the §10
+ledger row (the D-198a2 cure site) · the README walk-contracts
+paragraph's s198 clause · the plan's execution record · the worklog
+entry {Task ID 198}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2817** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **195/195** · the
+four-band sweep GREEN (the cure's baseline-inertness proof — no
+pixel-bearing surface touched) · `bun audit` post-cure (9, all
+dev-toolchain, the documented posture restored) · db census MATCH ·
+probe:ref STABLE · the captures: the reports pair (ours + the
+reference — the PDF-export surface whose dependency chain carried
+the critical) + the dev-server set under `docs/screenshots/`.

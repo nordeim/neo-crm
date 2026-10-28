@@ -173,3 +173,53 @@ describe("session-123: the per-table PDF geometry (the 123-c live walk)", () => 
     expect(code).toMatch(/text\.length > 28 \? `\$\{text\.slice\(0, 27\)\}…` : text/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-198 (D-198a1): the advisories re-triage — the runtime chain's
+// critical. bun audit drifted 9 → 12 since the s164 triage: jspdf@4.2.1
+// (the DIRECT runtime dep behind this seam) ships the optional dompurify
+// at 3.4.16, INSIDE the vulnerable range >=3.4.4 <=3.4.16 (critical
+// GHSA-cg2g-xh64-v4q7 + high GHSA-mrv2-3pqr-j5jr + low GHSA-c6gr-qvv4-5v3f).
+// The security-and-hardening triage ladder: "Is the vulnerable function
+// actually called in your code path?" — NO (dompurify executes only
+// inside jsPDF's html() plugin; both export paths ride html2canvas
+// image-slicing + the text-mm API). The cure: the 3.4.16 → 3.4.17
+// transitive refresh (semver-safe under jspdf's own ^3.3.1 floor,
+// baseline-inert by decode — the four-band sweep + the full gate the
+// proof). These pins hold the cure's two faces.
+// ---------------------------------------------------------------------------
+
+describe("session-198: the runtime chain's critical (the D-198a1 cure pins)", () => {
+  it("the lockfile's EVERY dompurify resolution sits OUTSIDE the vulnerable range (>= 3.4.17) — a re-resolution or a nested copy regressing it goes RED", () => {
+    const lock = read("bun.lock");
+    expect(lock).not.toBeNull();
+    // the bun.lock entry form: "dompurify": ["dompurify@3.4.17", …] — and
+    // "jspdf/dompurify": ["dompurify@…" for any NESTED resolution (the
+    // s198 live find: the first update attempt hoisted the root to
+    // 3.4.17 while a nested jspdf/dompurify@3.4.16 SURVIVED on disk —
+    // the first-match pin would have passed it. The pin scans EVERY
+    // resolution).
+    const resolutions = Array.from(lock!.matchAll(/dompurify@(\d+)\.(\d+)\.(\d+)/g)).map((m) => [
+      Number(m[1]),
+      Number(m[2]),
+      Number(m[3]),
+    ]);
+    expect(resolutions.length).toBeGreaterThan(0);
+    for (const [major, minor, patch] of resolutions) {
+      const ok = major > 3 || (major === 3 && (minor > 4 || (minor === 4 && patch >= 17)));
+      expect(
+        ok,
+        `a dompurify@${major}.${minor}.${patch} resolution sits inside the GHSA-cg2g-xh64-v4q7 vulnerable range (>=3.4.4 <=3.4.16) — the override pins the fix: overrides.dompurify = 3.4.17`,
+      ).toBe(true);
+    }
+  });
+
+  it("the dormancy freeze: pdf-export.ts NEVER calls .html( — dompurify's only jsPDF activation site stays dormant", () => {
+    const src = read("src/lib/pdf-export.ts");
+    expect(src).not.toBeNull();
+    // Adopting pdf.html() would activate jsPDF's dompurify import (the
+    // sanitization plugin) — a conscious act that must re-triage the
+    // advisories ledger in the same commit. This pin makes it one.
+    expect((src!.match(/\.html\(/g) ?? []).length).toBe(0);
+  });
+});

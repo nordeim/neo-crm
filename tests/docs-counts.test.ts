@@ -911,7 +911,7 @@ const SUITES = 138;
 // page-layout.ts +7 lines [the PAD §11 row + the SKILL §5.6 census
 // site re-anchored 1718 -> 1725 / 277 -> 283 checks, the s168
 // line-census doctrine]). SUITES 138 HELD · E2E 192 re-verified.
-const UNIT = 2813;
+const UNIT = 2817;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1357,6 +1357,20 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(claude).not.toContain("Vitest unit suites (2811 checks)");
     expect(claude).not.toContain("`bun run test` (2811)");
     expect(agents).not.toContain("|  Unit tests (2811 checks)");
+    // Session-198 (D-198a1/a2): the retired 2813 site-forms join the
+    // negatives (the s192 doctrine: the OLD live form joins the negatives)
+    expect(readme).not.toMatch(/# 2813 Vitest unit checks/);
+    expect(readme).not.toMatch(/# 138 Vitest suites \(2813 checks\)/);
+    expect(readme).not.toMatch(/\| 🧪 Tested \| 2813 Vitest unit checks/);
+    expect(pad).not.toMatch(/# 138 Vitest suites — 2813 checks/);
+    expect(pad).not.toMatch(/— 2813\/2813/);
+    expect(pad).not.toMatch(/\| \*\*Total\*\* \| \*\*138\*\* \| \*\*2813 unit/);
+    expect(claude).not.toContain("Unit (Vitest, 2813 checks)");
+    expect(claude).not.toContain("(currently 2813)");
+    expect(claude).not.toContain("Vitest unit suites (2813 checks)");
+    expect(claude).not.toContain("`bun run test` (2813)");
+    expect(agents).not.toContain("|  Unit tests (2813 checks)");
+    expect(skill).not.toContain("| **unit total** | 138 files | **2813**");
     expect(skill).not.toContain("| **unit total** | 138 files | **2811**");
   });
 
@@ -1400,13 +1414,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-197 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-198 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s196 layer now beneath the s197 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s197 layer now beneath the s198 head)",
     ).toContain(
-      "+ beneath it 2811 unit checks + 195 e2e checks green; the session-196 layer (THE DRAWER-OPEN SPINE FREEZE",
+      "+ beneath it 2813 unit checks + 195 e2e checks green; the session-197 layer (THE SWEEP-STATE COVERAGE AUDIT",
     );
   });
 
@@ -2273,5 +2287,43 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     // the retired 7-check doctrine line never returns (an inventory row
     // may QUOTE its era; the §7.3 doctrine line is live-tense)
     expect(pad).not.toContain("all 7 regression checks");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-198 (D-198a2): the advisories-ledger live census — the s164
+// `bun audit` pre-ship duty re-run caught the census drift (9 → 12, the
+// repo's first CRITICAL on a RUNTIME chain: jspdf › dompurify 3.4.16,
+// GHSA-cg2g-xh64-v4q7). The cure: the 3.4.17 transitive override +
+// the dormancy decode. These pins hold the ledger's live-tense claims —
+// the census went stale silently for 33 sessions because NOTHING pinned
+// it; never again.
+// ---------------------------------------------------------------------------
+
+describe("session-198: the security ledger's live census (the D-198a2 pins)", () => {
+  it("the PAD §10 ledger row carries the live post-cure census + the s198 re-triage clause", () => {
+    const pad = read("Project_Architecture_Document.md");
+    // the live post-cure census — 9 again once the dompurify block's
+    // critical + high + low are cured, and the composition re-derived:
+    expect(pad).toContain(
+      "`bun audit` reports 9 advisories (4 high / 4 moderate / 1 low) — ALL dev-toolchain transitive (zod via eslint-config-next›eslint-plugin-react-hooks",
+    );
+    // the re-triage record — the drift + the critical + the dormancy
+    // decode + the cure, carried in the row itself:
+    expect(pad).toContain("RE-TRIAGED session-198");
+    expect(pad).toContain("the CRITICAL GHSA-cg2g-xh64-v4q7");
+    expect(pad).toContain("pdf-export.ts never calls pdf.html()");
+    expect(pad).toContain("overrides.dompurify");
+    // the retired s164 composition (braces) never returns to the live row
+    expect(pad).not.toContain("braces via eslint-config-next · deepmerge-ts via the prisma CLI config · vite via vitest · source-map-js via postcss");
+  });
+
+  it("the AGENTS gate-order note carries the re-anchored audit clause (the s198 tail)", () => {
+    // the AGENTS head is hard-wrapped at ~76 cols — normalize whitespace
+    // so the pin holds the CONTENT, never the wrap:
+    const agents = read("AGENTS.md").replace(/\s+/g, " ");
+    expect(agents).toContain(
+      "re-triaged session-198: the runtime jspdf›dompurify chain's critical cured by the 3.4.17 transitive override, lockfile-pinned + dormancy-pinned + ledger-pinned",
+    );
   });
 });
