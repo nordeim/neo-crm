@@ -403,8 +403,12 @@ describe("session-79: the CLAUDE.md e2e count carriers (N-79b1)", () => {
     // 404 registrations — the desktop + phone scans of the one
     // anon-reachable surface the register never adjudicated; the retired
     // form joins its negatives, the doctrine unchanged).
-    expect(src).not.toContain("**E2E (Playwright, 192 checks)**");
-    expect(src).toContain("**E2E (Playwright, 194 checks)**");
+    // session-196 lockstep carry-forward: 194 -> 195 (the D-196a1
+    // drawer-open spine registration — the rendered interior-geometry
+    // freeze, the walk50 re-walk's genuine battery gap; the retired
+    // form joins its negatives, the doctrine unchanged).
+    expect(src).not.toContain("**E2E (Playwright, 194 checks)**");
+    expect(src).toContain("**E2E (Playwright, 195 checks)**");
   });
 });
 

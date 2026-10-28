@@ -19,7 +19,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Type check                      | `bun run typecheck`                    |
 |  Unit tests (2811 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
-|  Browser E2E (194 checks)        | `bun run test:e2e` (needs build first) |
+|  Browser E2E (195 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -36,7 +36,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 `bun run test` (2811) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
-`bun run test:e2e` (194) — or the one-command `bun run gate` (session-38:
+`bun run test:e2e` (195) — or the one-command `bun run gate` (session-38:
 the same chain as a package script, so the build always precedes the e2e
 boot; session-39: the e2e step runs under `CI=1`, so
 `reuseExistingServer` evaluates false and the gate ALWAYS boots the
@@ -211,7 +211,7 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   hidden` element SILENTLY NO-OPS (keyboard users Tabbed through the
   background behind the aria-modal dialog). The panel also uses
   `h-dvh` (not `h-full`) so it tracks the dynamic viewport on mobile
-  browsers. `tests/e2e/mobile-navigation.spec.ts` (10 checks, 390/700px
+  browsers. `tests/e2e/mobile-navigation.spec.ts` (11 checks, 390/700px
   viewports — the focus-entry test + the ten-route zero-overflow sweep
   included) is the
   regression suite — do not weaken it.
@@ -12414,3 +12414,104 @@ mobile-nav battery 10/10 · the a11y two-gate 33/33 · the VLM parity
 battery 3/3 "Structural Differences: None" · the captures: the
 round's ours-vs-ref dashboard pairs (desktop + 390 + the menu-open
 state) + the dev-server set under `docs/screenshots/`.
+
+### Session-196 — THE DRAWER-OPEN SPINE FREEZE (the re-walk staleness round) (2026-10-28)
+
+The post-195 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`a3ac674` — the session_413 transcript, the s195 round's own
+execution record). The round is the RE-WALK STALENESS LADDER — the
+session_412 close's own naming ("the re-walk staleness ladder [the
+walk50 drawer + the s144-era marketing exteriors] or the sweep-state's
+own coverage audit"), adjudicated by `scripts/discover-196.ts` BEFORE
+the plan: the standing data-gated re-checks ALL KILLED at the
+reference's unchanged zero-data state (the Edit-family census rows=1
+empty-state rows, rowMenus=0, the topbar-search populated=0 on both,
+the dashboard checkbox arms + the activities Completed-tab empty —
+the discover-184..196 standing census) · the conditional gates KILLED
+(probe:ref STABLE at `46bc2d9c` kills the fresh-bundle re-derivation;
+the registry's latest recharts 3.10.1 kills the 4.0 gate) · the
+s144-era marketing exteriors posture byte-equal STANDING (the guest
+/about + /About + /contact + /Contact login-wall on BOTH apps with the
+identical from_url round-trip form, the landing funnel anchors +
+rides identical — the s147 F-147c2 contract, 49 sessions later, no
+walk material there).
+
+THE RE-WALK (the walk50 re-run at the current tree, 19 sessions after
+the s177 original): the verdict **STABLE — ZERO NEW DELTAS**. OURS 61
+rows vs REF 53 (the 8 `span.truncate` label wrappers — the
+s177-adjudicated KEPT superset, the row-count difference's own root
+cause, standing); after spine alignment every disagreement maps to
+the s177 adjudications: the s173/s177 **mb-0 cure holding** (the
+header 80/80 · the h2 24,24 240×32 both · the nav 0,80 288×332 both ·
+the footer 0,428 288×61 both — the post-cure spine byte-equal two-app)
+· the genera standing (the `bg-sidebar` token vs the reference's
+`bg-[#2563eb]` literal — computed-equal rgb(37,99,235) · the Close
+button's stock-version class drift — both dead variants · lucide's
+`aria-hidden` — the version genus · the React 19 `useId` format ·
+the icon class order `h-5 w-5 shrink-0` · the nav `aria-label`s +
+`aria-current` + the focus-visible ring — the KEPT supersets · the
+lucide-users icon's internal child order — the same shapes in a
+different DOM order, zero visual delta, lucide-react 0.525.0
+unchanged since before s177 · the sr-only `<p>`'s y-delta 23-vs-32 —
+the mb-0 cure's own mechanism fingerprint, zero visible pixels). The
+19 sessions of changes since s177 — the s193a1 outline-color
+base-layer rule included — introduced zero drift.
+
+**ONE CURE — D-196a1 THE DRAWER-OPEN SPINE FREEZE** (the genuine
+battery gap): the s177 spine cure + decode carried only SOURCE-STRING
+pins (`MOBILE_NAV_SHEET.title`'s `mb-0` + the header literal in
+`tests/page-layout.test.ts`), the 10-check e2e battery pinned
+BEHAVIOR (the locks, the focus, the rides, the overflow), the a11y
+gate violations, the sweeps the CLOSED pixels (the interior census
+carries zero drawer-open runs — the s177 coverage-gap finding,
+standing). The s177 defect's own shape — a computed-margin regression
+(a Tailwind upgrade's space-y semantics, a base-layer margin rule, an
+h2 line-height change) shifting the header 80→88 and cascading to
+every link + the footer — would keep every gate green while
+falsifying the walk50-verified contract. THE CURE: the born-green
+e2e registration — the s195a1 wire-freeze doctrine's next member —
+pinning the rendered drawer-open spine at the walk50 ledger's own
+boxes at TRUE 390×844: the content 288×844 · the header 0,0 288×80
+(the cure's own face) · the h2 24,24 240×32 · the nav 0,80 288×332 ·
+the 7-link 12,80 264×44 with the 48px pitch · the footer 0,428
+288×61 · the Close 256,16 16×16 — the expect.poll starved-read idiom
+(s164 → s195a4) on the box reads. MUTATION-PROVEN: the planted `mb-2`
+regression (the s177 defect's exact shape — the h2's `:where()`
+margin re-entering the flex-column layout) → build → the pin RED
+exactly at the header box (Expected 80 / Received 88) → restored →
+GREEN, the tree clean.
+
+**THE COUNT LADDER + THE LOCKSTEP**: E2E 194 → **195** (+1: the spine
+registration) · the mobile-nav spec census 10 → **11**
+(MOBILE_NAV_E2E re-anchored, the live-census pin) · SUITES 138 HELD ·
+UNIT 2811 HELD · badge 3005 → **3006** (the unit+e2e arithmetic:
+2811+195). skill-head-196.py ran FIRST (the SKILL v1.193.0, the s195
+layer comment-demoted at its ship counts 2811/194, the s196 layer
+live at 2811/195, idempotent); count-ladder-196.py (assert-first,
+idempotent, unique-anchor — 28 flips: the docs-counts E2E + the
+MOBILE_NAV_E2E constants · the README badge + Tested row + tree +
+commands + the two 10-check mobile-nav sites · the AGENTS commands +
+gate-order + the architecture-facts mobile-nav line · the CLAUDE
+gate-order + commands + pyramid + the mobile-nav suite line · the PAD
+tree + Total + HEAD + checklist + commands + the mobile-nav spec line
++ the §11 census-table row · the SKILL commands + Appendix B e2e
+total + wall-clock + the mobile-nav spec line + the Bug #1 line + the
+Appendix B mobile-nav row). The test-side re-anchors in the same
+stroke: the docs-counts layer-axis (first = s196, second = s195 at
+its ship 194) · the login-family negatives ladder (the retired
+`**E2E (Playwright, 194 checks)**` joins its negatives, the live
+positive re-anchored 195) · the s147-miscount 11-negatives RETIRED
+(the 11-form is the live census now — the 10-check forms join the
+negatives on both the docs-counts s165 block and the Appendix B row
+negative, the s192 re-anchor doctrine) · the inventory-census
+Bug #1 checks pin 10 → 11 + the PAD §11 line-census row 284 → 364.
+The docs lockstep: this AGENTS Session-196 section · session_414.md ·
+the PAD §7.1 s196 inventory row · the README walk-contracts
+paragraph's s196 clause · the plan's execution record · the worklog
+entry {Task ID 196}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2811** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **195/195** · db
+census MATCH · probe:ref STABLE · the mobile-nav battery 11/11 · the
+captures: the round's drawer-open set (ours + the reference pair) +
+the dev-server set under `docs/screenshots/`.

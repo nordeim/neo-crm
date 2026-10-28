@@ -37,7 +37,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (2811) → `bun run build` → `bun run test:e2e` (194) — or the
+   `bun run test` (2811) → `bun run build` → `bun run test:e2e` (195) — or the
    one-command `bun run gate` (session-38: the chain as a package script,
    so the build always precedes the e2e boot; session-39: the e2e step
    runs under `CI=1`, forcing a fresh server — a leftover :3100 listener
@@ -132,7 +132,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run test`      | Vitest unit suites (2811 checks)            |
 | `bun run test:watch`| Vitest in watch mode                          |
 | `bun run smoke`     | Smoke the standalone artifact (14 checks, needs build first) |
-| `bun run test:e2e`  | Playwright E2E (194 checks, needs build first) |
+| `bun run test:e2e`  | Playwright E2E (195 checks, needs build first) |
 | `bun run gate`      | The full gate in one command (lint → typecheck → test → build → smoke → e2e) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
@@ -609,7 +609,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   + fail()'s verbatim error arm, driven through the real helpers —
   the wire contracts the crud-zod-seam READ-half source pins freeze
   at the route side])
-- **E2E (Playwright, 194 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 195 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -631,7 +631,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   session-10 per-page-titles and reports tab 2-4 structure tests, plus
   session-13's account-menu role=menu, reports-funnel bar-chart and
   by-type card structure tests),
-  `mobile-navigation.spec.ts` (10-check regression suite for the drawer —
+  `mobile-navigation.spec.ts` (11-check regression suite for the drawer —
   pinned because the reference app ships NO mobile navigation; includes the
   resize-past-md lock-release regression, the session-12 focus-entry test,
   the s104 ten-route zero-390px-overflow sweep + the s104 drawer-OPEN

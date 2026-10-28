@@ -155,7 +155,7 @@ describe("session-168 (WP-1b): the SKILL inventory live-census — the tree read
   it("§9's Bug #1 carries the LIVE mobile-nav spec check count (F-168g)", () => {
     const spec = read("tests/e2e/mobile-navigation.spec.ts");
     const checks = (spec.match(/\btest\(/g) ?? []).length;
-    expect(checks).toBe(10); // the spec census
+    expect(checks).toBe(11); // the spec census (s196: +1 the spine registration)
     expect(skill).toContain(`drawer + ${checks}-check e2e suite.`);
     expect(skill).not.toContain("drawer + 7-check e2e suite.");
   });

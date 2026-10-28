@@ -143,7 +143,7 @@ const listFiles = (rel: string): string[] => {
 // Session-171: E2E 153 lineage 161 -> 186 (+25 — the a11y two-gate spec:
 // the nine CRM pages × both widths + the three anon surfaces × both
 // widths + the drawer-open state — the §8.3 axe battery).
-const E2E = 194;
+const E2E = 195;
 // Session-152: SUITES 118 -> 119 (the interior-census-tool file — the
 // standing sixth gate's pin suite).
 // Session-159: SUITES 119 -> 120 (the settings-rhythm-tool file — the
@@ -919,7 +919,7 @@ const UNIT = 2811;
 // constant got the bump; the spec has carried 10 test() declarations
 // since s104). The LIVE-CENSUS pin above now reads the spec file, so
 // the constant can never again drift from the census it claims.
-const MOBILE_NAV_E2E = 10;
+const MOBILE_NAV_E2E = 11;
 
 describe("session-102 (S102-P1): the secondary-sites lockstep — every live-tense count site pinned", () => {
   it("README badge carries the unit + e2e arithmetic (1942 + 137 = 2079)", () => {
@@ -1306,13 +1306,17 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(pad).not.toMatch(/9-check mobile drawer regression suite/);
     expect(agents).not.toMatch(/\(9 checks, 390\/700px/);
     expect(skill).not.toMatch(/\(9 checks, 390\/700px/);
-    // Session-165: the retired s147-miscount forms (11 for a 10-test
-    // spec) join the negatives ladder — the miscount can never return.
-    expect(readme).not.toMatch(/a 11-check mobile-nav regression suite/);
-    expect(claude).not.toMatch(/11-check regression suite for the drawer/);
-    expect(pad).not.toMatch(/11-check mobile drawer regression suite/);
-    expect(agents).not.toMatch(/\(11 checks, 390\/700px/);
-    expect(skill).not.toMatch(/\(11 checks, 390\/700px/);
+    // Session-196: the spec's census is now ELEVEN (the D-196a1 spine
+    // registration) — the s147-miscount 11-negatives are RETIRED (11
+    // is the live form) and the retired 10-check forms join the
+    // negatives ladder in their place (the s192 negatives re-anchor
+    // doctrine: the count a ladder retired can become live again; the
+    // OLD live form joins the negatives).
+    expect(readme).not.toMatch(/a 10-check mobile-nav regression suite/);
+    expect(claude).not.toMatch(/10-check regression suite for the drawer/);
+    expect(pad).not.toMatch(/10-check mobile drawer regression suite/);
+    expect(agents).not.toMatch(/\(10 checks, 390\/700px/);
+    expect(skill).not.toMatch(/\(10 checks, 390\/700px/);
     // -----------------------------------------------------------------
     // Session-166: the retired 2382/125/2543 site-forms join the
     // ladder — the count-ladder lockstep's own retired forms (the same
@@ -1376,13 +1380,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-195 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-196 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s194 layer now beneath the s195 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s195 layer now beneath the s196 head)",
     ).toContain(
-      "+ beneath it 2811 unit checks + 192 e2e checks green; the session-194 layer (THE 404 INTERIOR'S INTERACTIVE ARMS",
+      "+ beneath it 2811 unit checks + 194 e2e checks green; the session-195 layer (THE 404 GATE-COVERAGE PINS",
     );
   });
 
@@ -1684,10 +1688,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       expect(sum, "the e2e rows + setup must sum to the E2E constant").toBe(E2E);
     }
     // the retired s147-vintage row forms never return (SITE-FORM
-    // anchors — the table's own row constructions)
+    // anchors — the table's own row constructions). Session-196: the
+    // mobile-nav census is now ELEVEN (the spine registration), so the
+    // s147-miscount 11-negative is RETIRED and the 10-form joins the
+    // negatives in its place (the s192 re-anchor doctrine).
     expect(appendix).not.toMatch(/\| e2e landing [^|]*\| `tests\/e2e\/landing\.spec\.ts` \| 12 \|/);
     expect(appendix).not.toMatch(/\| e2e golden path [^|]*\| `tests\/e2e\/crm\.spec\.ts` \| 111 \|/);
-    expect(appendix).not.toMatch(/\| e2e mobile nav regression [^|]*\| `tests\/e2e\/mobile-navigation\.spec\.ts` \| 11 \|/);
+    expect(appendix).not.toMatch(/\| e2e mobile nav regression [^|]*\| `tests\/e2e\/mobile-navigation\.spec\.ts` \| 10 \|/);
   });
 
   // ------------------------------------------------------------------

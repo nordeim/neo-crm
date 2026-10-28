@@ -281,4 +281,84 @@ test.describe("mobile navigation sheet", () => {
     expect(openProbe.panelRectW, "the sheet left its w-72 budget (288px at 390)").toBe(288);
     expect(openProbe.linkCount, "the open sheet must expose every destination").toBe(8);
   });
+
+  test("the open drawer's interior spine holds the reference geometry (the walk50 freeze, S196-P1)", async ({ page }) => {
+    // Session-196 (the walk50 re-run): the re-walk found the s177 state
+    // STANDING — every ledger delta an adjudicated genus, the post-cure
+    // spine byte-equal two-app (header 80/80 · nav 80/80 · footer
+    // 428/428). But the spine contract carried ZERO gate teeth: the
+    // s177 pins are SOURCE-STRING only (MOBILE_NAV_SHEET.title's mb-0 +
+    // the header literal, both in tests/page-layout.test.ts), the
+    // battery's other ten checks pin BEHAVIOR (locks, focus, rides,
+    // overflow), the a11y gate violations, the sweeps the CLOSED
+    // pixels. The s177 defect's own shape — a computed-margin
+    // regression shifting the header 80 -> 88 and cascading to every
+    // link + the footer — would keep every gate green. THE FREEZE: the
+    // rendered drawer-open spine at the walk50 ledger's own boxes (the
+    // s195a1 wire-freeze doctrine's next member: the shipped contract,
+    // finally carrying teeth).
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/dashboard");
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.getByRole("button", { name: "Open navigation" }).click();
+    const dialog = page.getByRole("dialog", { name: "CRM" });
+    await expect(dialog).toBeVisible();
+    // the 500ms slide-in + settle (the drawer battery's own wait form)
+    await page.waitForTimeout(700);
+
+    // The starved-read doctrine (s164 -> s195a4): a bare boundingBox()
+    // read measures whatever the layout holds at that instant — the
+    // geometry poll retries until EVERY box resolves in the spine's
+    // vertical order, then the exact asserts read the settled face.
+    const content = page.locator('[role="dialog"][data-state="open"]');
+    const header = content.locator(".p-6");
+    const mainNav = content.locator('nav[aria-label="Main navigation"]');
+    const footerNav = content.locator('nav[aria-label="Settings"]');
+    await expect
+      .poll(async () => {
+        const h = await header.boundingBox();
+        const n = await mainNav.boundingBox();
+        const f = await footerNav.boundingBox();
+        return Boolean(h && n && f && n.y > h.y && f.y > n.y);
+      })
+      .toBe(true);
+
+    const box = (b: { x: number; y: number; width: number; height: number } | null) =>
+      [b?.x ?? 0, b?.y ?? 0, b?.width ?? 0, b?.height ?? 0].map(Math.round);
+
+    // The sheet content: the w-72 column (288px) filling the frame.
+    expect(box(await content.boundingBox())).toEqual([0, 0, 288, 844]);
+
+    // The header: 24 (p-6) + 32 (the h2 line box) + 24 (p-6) = 80 — the
+    // s177 mb-0 cure's own face. The s177 defect's shape reads 88 here
+    // (the h2's :where() mb-2 re-entering the flex-column layout).
+    expect(box(await header.boundingBox())).toEqual([0, 0, 288, 80]);
+
+    // The h2 title: the padded line box.
+    expect(
+      box(await dialog.getByRole("heading", { name: "CRM" }).boundingBox()),
+    ).toEqual([24, 24, 240, 32]);
+
+    // The main nav starts at the header's bottom edge (the 8px cascade
+    // the s177 cure killed lived here: nav y 88 vs 80).
+    expect(box(await mainNav.boundingBox())).toEqual([0, 80, 288, 332]);
+
+    // The 7 links: the 264px row inset, the 44px row height, the 48px
+    // pitch (44 + the gap-1). The first row starts AT the nav's top
+    // (px-3 carries no py), the last lands at 368.
+    const links = mainNav.locator("a");
+    await expect(links).toHaveCount(7);
+    expect(box(await links.nth(0).boundingBox())).toEqual([12, 80, 264, 44]);
+    expect(box(await links.nth(6).boundingBox())).toEqual([12, 368, 264, 44]);
+
+    // The footer group: mt-4 past the main nav's bottom (412 + 16 = 428)
+    // — the s177 decode's own tail box.
+    expect(box(await footerNav.boundingBox())).toEqual([0, 428, 288, 61]);
+
+    // The Close button: the absolute right-4 top-4 stock face.
+    expect(
+      box(await dialog.getByRole("button", { name: "Close" }).boundingBox()),
+    ).toEqual([256, 16, 16, 16]);
+  });
 });
