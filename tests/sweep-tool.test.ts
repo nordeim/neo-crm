@@ -7,7 +7,7 @@
 // The contract: `bun run sweep` boots (or reuses) the dev server on
 // :3000, drives OUR app to the zero-data state (the reference's own
 // standing state — its workspace has been empty for 13 censuses), logs
-// into BOTH apps, captures the ten pages per app at 1440x900, pairwise
+// into BOTH apps, captures the PAGES list per app at 1440x900, pairwise
 // pixel-diffs them (per-channel tolerance 12 — the s91 value), prints
 // the % table, and restores the seed. ZERO new dependencies: the
 // capture rides the existing @playwright/test chromium; the pixel diff
@@ -28,7 +28,7 @@ const read = (p: string) => readFileSync(path.join(root, p), "utf8");
 const sweep = () => import("../scripts/sweep");
 
 describe("session-92 (S92-P5): the sweep tool — the one-command regression", () => {
-  it("exports the 13-page sweep list (the s91 set + the s96 login + the s142 landing/route-move + the s144 marketing pair)", async () => {
+  it("exports the 14-page sweep list (the s91 set + the s96 login + the s142 landing/route-move + the s144 marketing pair + the s197 not-found)", async () => {
     const { PAGES } = await sweep();
     expect(PAGES).toEqual([
       // Session-142 (D-142a6): the dashboard re-anchored to /dashboard
@@ -57,7 +57,32 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
       // (the form-family walk found the v4 space-y genus living there
       // precisely because /login was never swept).
       { name: "login", path: "/login" },
+      // Session-197 (D-197a1): the 404 joins the sweep — the sweep-state's
+      // own coverage audit's genuine find (the only two-app-renderable
+      // surface with zero drift-gate coverage; the bare 404 carries NO
+      // main, so the capture-wait rides the h1 "404" instead).
+      { name: "not-found", path: "/no-such-sweep-route", waitFor: "heading-404" },
     ]);
+  });
+
+  it("the not-found entry carries the heading-404 capture override — the bare 404 renders with NO main, so the sweep's shell-wait would soft-fall a full 15s burn per capture (D-197a1)", async () => {
+    const { PAGES } = await sweep();
+    const nf = PAGES.find((p) => p.name === "not-found");
+    expect(nf).toBeDefined();
+    expect(nf?.path).toBe("/no-such-sweep-route");
+    expect(nf?.waitFor).toBe("heading-404");
+    // every other page waits on the shell's main — the default face
+    for (const p of PAGES) {
+      if (p.name !== "not-found") expect(p.waitFor).toBeUndefined();
+    }
+  });
+
+  it("standingBaseline: the not-found surface rides the 0.1 family floor at ALL FOUR bands (the D-197a1 maiden measured 0.01/0.04/0.01/0.01 — byte-identical two-app after the badge-close, no genus)", async () => {
+    const { standingBaseline } = await sweep();
+    expect(standingBaseline(1440)["not-found"]).toBe(0.1);
+    expect(standingBaseline(390)["not-found"]).toBe(0.1);
+    expect(standingBaseline(768)["not-found"]).toBe(0.1);
+    expect(standingBaseline(1024)["not-found"]).toBe(0.1);
   });
 
   it("the per-channel tolerance is 12 (the s91 value — anti-aliasing-safe)", async () => {
@@ -134,7 +159,7 @@ describe("session-92 (S92-P5): the sweep tool — the one-command regression", (
   // phone-width page-sweep mode — the rotation method productized").
   // The dialog (s92), popover/menu (s93) and tabs (s94) families were
   // walked MANUALLY at TRUE 390x844 across three sessions; the sweep
-  // now runs the same ten-page zero-data pairwise diff at ANY viewport:
+  // now runs the same PAGES zero-data pairwise diff at ANY viewport:
   // `bun run sweep -- --width 390 --height 844`.
   it("parses --width/--height (defaults 1440x900) and feeds the capture viewport", () => {
     const src = read("scripts/sweep.ts");
@@ -445,8 +470,11 @@ describe("session-97 (S97-P1): the numeric-arg fail-fast (B-97a2)", () => {
     // the sweep.ts half.
     const src = read("scripts/sweep.ts");
     expect(src).not.toMatch(new RegExp("the (full |same )?9" + "-page sweep"));
-    // the corrected phrasing present
-    expect(src).toMatch(/ten-page|10-page/);
+    // Session-197 (D-197a2): the corrected-phrasing live face moves with
+    // the header cure — the count-anchored form is retired in BOTH files
+    // (the s98 WIDENED guard's negatives carry the ten-forms); the
+    // NAME-anchored PAGES form is the corrected phrasing now.
+    expect(src).toMatch(/the PAGES list|the full PAGES sweep/);
   });
 });
 
@@ -457,12 +485,20 @@ describe("session-98 (F-98a1/B-98a1/N-98a1): the sweep docs + the per-class prin
     // in BOTH this file's header and the phone-mode comment. The guard
     // now reads both files. The pattern is string-concatenated so this
     // pin cannot match its own guard text.
-    const stale = new RegExp("\\b9" + "-page\\b|the 9\\s+pages");
+    // Session-197 (D-197a2): the header's count-anchored phrasings are
+    // RETIRED — a count comment goes stale every time a page joins (the
+    // s98 live face itself went stale at s142/s144: three additions
+    // shipped with the old count intact); the header now rides the
+    // NAME-anchored PAGES form, which never goes stale. The negatives
+    // grow by the retired ten-forms (the s192 doctrine: the OLD live
+    // form joins the negatives; the live census pin's own count form is
+    // never a negative), the live face moves to the count-proof form.
+    const stale = new RegExp("\\b(?:9|ten)" + "-page\\b|the (?:9|ten)\\s+pages");
     const sweepSrc = read("scripts/sweep.ts");
     const self = readFileSync(path.resolve(import.meta.dirname, "sweep-tool.test.ts"), "utf8");
     expect(sweepSrc, "scripts/sweep.ts").not.toMatch(stale);
     expect(self, "sweep-tool.test.ts").not.toMatch(stale);
-    expect(sweepSrc).toMatch(/ten pages|ten-page/);
+    expect(sweepSrc).toMatch(/the PAGES list|the full PAGES sweep/);
   });
 
   it("the STANDING_BASELINES doc comment describes the 4-way class split (the B-98a1 pin re-anchored at s99 — no more three-way wording)", () => {

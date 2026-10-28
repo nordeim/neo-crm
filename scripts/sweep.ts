@@ -12,9 +12,10 @@
 //      (scripts/sweep-state.ts — the 162-c login consolidation: the
 //      first invocation pays the login pair and writes the state file,
 //      the next invocations reuse it while fresh; ZERO logins on a
-//      reuse), captures the ten pages per app at the given viewport
+//      reuse), captures the PAGES list per app at the given viewport
 //      (default 1440x900; the reference's Base44 badge closed,
-//      content-waits per page)
+//      content-waits per page — the shell's main, or the not-found
+//      entry's h1-404 override since session-197)
 //   4. pairwise pixel-diffs each page (per-channel tolerance 12, the
 //      s91 value) — the PNGs decode in a browser canvas (getImageData);
 //      the PURE diffPixels seam is the same function the unit pins
@@ -56,7 +57,7 @@
 //   desktop shots; the diff table is computed fresh per run either way.
 //   Targeted runs (session-95, the s94 suggested next): add
 //   --pages leads,settings to sweep a comma-separated SUBSET of the
-//   ten pages (both the captures and the diffs); unknown names fail
+//   PAGES list (both the captures and the diffs); unknown names fail
 //   fast listing the valid names.
 //   Threshold gate: --max-diff <pct> (space-separated — the parsed
 //   form; exit 1 when any page exceeds it).
@@ -119,7 +120,21 @@ import { chromium } from "@playwright/test";
 
 import { preflightPairState } from "./sweep-state";
 
-export const PAGES = [
+// Session-197 (D-197a1): the per-page capture-wait override. The
+// not-found entry is the first PAGES member that does NOT render
+// inside the app shell (no `main`), so its content-wait rides the
+// h1 "404" heading; every other page keeps the shell's main-wait
+// (the default face, `waitFor` absent).
+export interface PageEntry {
+  readonly name: string;
+  readonly path: string;
+  readonly waitFor?: "main" | "heading-404";
+}
+
+// The explicit annotation (not the bare `as const` literal union)
+// keeps `p.waitFor` accessible on every element for captureAll +
+// the unit pins.
+export const PAGES: readonly PageEntry[] = [
   // Session-142 (D-142a6): the dashboard entry re-anchored to /dashboard
   // (the root `/` became the PUBLIC landing page — the reference's
   // marketing-layer parity event) + the NEW landing entry below it.
@@ -152,9 +167,25 @@ export const PAGES = [
   // walk found the v4 space-y genus living there precisely because
   // /login was never swept.
   { name: "login", path: "/login" },
-] as const;
-
-export type PageEntry = (typeof PAGES)[number];
+  // Session-197 (D-197a1): the 404 joins the standing sweep — the
+  // sweep-state's own coverage audit's genuine find. The designed 404
+  // is the only two-app-renderable surface the drift-gate family did
+  // not carry: the s194 walk67 decoded its faces, the s195 pins hold
+  // its render + its TRUE-404 status + its a11y registrations — no
+  // gate held its PIXELS. The path is unknown on BOTH apps by
+  // construction: OURS renders the designed 404 with the true HTTP
+  // 404 (session-independent, the D-194a5 construction), the REF
+  // renders its own designed 404 PAST its auth guard (http 200, its
+  // platform badge — closed by the closeBadge idiom before the
+  // capture). The waitFor override: the 404 renders BARE (the root
+  // not-found carries no shell — NO main element on either app), so
+  // the content-wait rides the h1 "404" heading instead (the walk67
+  // decode's own anchor), curing the 15s soft-fall burn the
+  // shell-wait would pay per capture. The D-197a1 maiden measured
+  // 0.01/0.04/0.01/0.01 at the four bands (badge-closed) — the 0.1
+  // family floor at every band, no genus.
+  { name: "not-found", path: "/no-such-sweep-route", waitFor: "heading-404" },
+];
 
 /** Session-95 (S95-P0): the --pages filter — `bun run sweep --
  *  --pages leads,settings` restricts the run to the named pages for
@@ -269,6 +300,10 @@ export const STANDING_BASELINES = {
     // genus (the reference hotlinks a screenshot; ours draws the
     // white-circle/blue-dot shape — the s7 note)
     login: 0.3,
+    // Session-197 (D-197a1): the 404 joins the sweep — the maiden
+    // desktop run measured 0.01% (badge-closed, the byte-identical
+    // family floor; no genus at any band)
+    "not-found": 0.1,
   },
   phone: {
     // session-148 (the F-147c3 mirror): the chips family collapsed at
@@ -330,6 +365,9 @@ export const STANDING_BASELINES = {
     // loosening to ~1.9 — a real login regression stacks pixels ON TOP
     // of the constant genus and still trips.
     login: 1.4,
+    // Session-197 (D-197a1): the 404 at phone — the maiden 390x844 run
+    // measured 0.04% (the family floor, no genus)
+    "not-found": 0.1,
   },
   // Session-97 (S97-P0): the TABLET class — the md..lg band (768 <= w <
   // 1024) walked by the maiden 768x1024 run. The desktop layout family
@@ -370,6 +408,9 @@ export const STANDING_BASELINES = {
     // the maiden tablet run measured 0.44% — the logo genus at the
     // tablet share
     login: 0.5,
+    // Session-197 (D-197a1): the 404 at tablet — the maiden 768x1024 run
+    // measured 0.01% (the family floor, no genus)
+    "not-found": 0.1,
   },
   // Session-99 (S99-P0): the LANDSCAPE class — the lg..xl band
   // (1024 <= w < 1280) walked by the maiden 1024x768 run. The desktop
@@ -415,6 +456,9 @@ export const STANDING_BASELINES = {
     // the maiden landscape run measured 0.44% — the logo genus at
     // the landscape share
     login: 0.5,
+    // Session-197 (D-197a1): the 404 at landscape — the maiden
+    // 1024x768 run measured 0.01% (the family floor, no genus)
+    "not-found": 0.1,
   },
 } as const;
 
@@ -761,11 +805,24 @@ async function captureAll(
     // burns its full 15s timeout on every page at phone width. main
     // paints at every width; the 2500ms settle below covers the
     // shell's data fetch.
-    await page
-      .locator("main")
-      .first()
-      .waitFor({ state: "visible", timeout: 15000 })
-      .catch(() => undefined);
+    // Session-197 (D-197a1): the not-found override — the bare root
+    // 404 carries NO main (the sweep's shell-wait soft-falls its full
+    // 15s burn per capture); the h1 "404" heading is the content-wait
+    // anchor instead (the walk67 decode's own face, present on BOTH
+    // apps' designed 404s).
+    if (p.waitFor === "heading-404") {
+      await page
+        .getByRole("heading", { name: "404", exact: true })
+        .first()
+        .waitFor({ state: "visible", timeout: 15000 })
+        .catch(() => undefined);
+    } else {
+      await page
+        .locator("main")
+        .first()
+        .waitFor({ state: "visible", timeout: 15000 })
+        .catch(() => undefined);
+    }
     await page.waitForTimeout(2500);
     await closeBadge(page);
     await page.waitForTimeout(300);
@@ -955,11 +1012,11 @@ async function main() {
   // Session-95 (S95-P0): the --pages filter — restricts BOTH the capture
   // and the diff loops to the named pages for targeted rotation runs
   // (`bun run sweep -- --pages leads,settings`). The default (no flag) is
-  // the full ten-page sweep, unchanged; unknown names fail fast.
+  // the full PAGES sweep, unchanged; unknown names fail fast.
   const pages = parsePagesArg(process.argv, PAGES);
 
   // Session-94 (S94-P0): the phone-width mode — `bun run sweep --
-  // --width 390 --height 844` runs the same ten-page zero-data diff at
+  // --width 390 --height 844` runs the same PAGES zero-data diff at
   // phone width (the s93 suggested next: the 390px rotation method
   // productized — the dialog/popover/tabs families were walked
   // manually at TRUE 390x844 for three sessions before this). The

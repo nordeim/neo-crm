@@ -911,7 +911,7 @@ const SUITES = 138;
 // page-layout.ts +7 lines [the PAD §11 row + the SKILL §5.6 census
 // site re-anchored 1718 -> 1725 / 277 -> 283 checks, the s168
 // line-census doctrine]). SUITES 138 HELD · E2E 192 re-verified.
-const UNIT = 2811;
+const UNIT = 2813;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1338,6 +1338,26 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(agents).not.toContain("|  Unit tests (2382 checks)");
     expect(skill).not.toContain("| **unit total** | 125 files | **2382**");
     expect(skill).not.toContain("| **unit total** | 127 files | **2454**");
+    // -----------------------------------------------------------------
+    // Session-197 (D-197a1): the retired 2811 site-forms join the
+    // ladder (the s166 form — SITE-FORM anchors: history rows quote
+    // the counts in arrow/gate phrasing only, never the bare site
+    // constructions; the demoted SKILL s196 block keeps its ship
+    // line under the unit gate, untouched by design).
+    // -----------------------------------------------------------------
+    expect(readme).not.toMatch(/# 2811 Vitest unit checks/);
+    expect(readme).not.toMatch(/# 138 Vitest suites \(2811 checks\)/);
+    expect(readme).not.toMatch(/\| 🧪 Tested \| 2811 Vitest unit checks/);
+    expect(readme).not.toMatch(/tests-3006%20checks/);
+    expect(pad).not.toMatch(/# 138 Vitest suites — 2811 checks/);
+    expect(pad).not.toMatch(/— 2811\/2811/);
+    expect(pad).not.toMatch(/\| \*\*Total\*\* \| \*\*138\*\* \| \*\*2811 unit/);
+    expect(claude).not.toContain("Unit (Vitest, 2811 checks)");
+    expect(claude).not.toContain("(currently 2811)");
+    expect(claude).not.toContain("Vitest unit suites (2811 checks)");
+    expect(claude).not.toContain("`bun run test` (2811)");
+    expect(agents).not.toContain("|  Unit tests (2811 checks)");
+    expect(skill).not.toContain("| **unit total** | 138 files | **2811**");
   });
 
   // ------------------------------------------------------------------
@@ -1380,13 +1400,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-196 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-197 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s195 layer now beneath the s196 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s196 layer now beneath the s197 head)",
     ).toContain(
-      "+ beneath it 2811 unit checks + 194 e2e checks green; the session-195 layer (THE 404 GATE-COVERAGE PINS",
+      "+ beneath it 2811 unit checks + 195 e2e checks green; the session-196 layer (THE DRAWER-OPEN SPINE FREEZE",
     );
   });
 

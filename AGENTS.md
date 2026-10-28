@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2811 checks)      | `bun run test`                         |
+|  Unit tests (2813 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (195 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2811) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2813) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (195) — or the one-command `bun run gate` (session-38:
@@ -12515,3 +12515,112 @@ entry {Task ID 196}.
 census MATCH · probe:ref STABLE · the mobile-nav battery 11/11 · the
 captures: the round's drawer-open set (ours + the reference pair) +
 the dev-server set under `docs/screenshots/`.
+
+### Session-197 — THE SWEEP-STATE COVERAGE AUDIT (the 404 drift-gate registration) (2026-10-28)
+
+The post-196 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`769ba13` — the session_415 transcript, the s196 round's own
+execution record). The round is THE SWEEP-STATE'S OWN COVERAGE AUDIT —
+the s412 close's OTHER named standing material ("the re-walk staleness
+ladder … or the sweep-state's own coverage audit" — the drawer member
+walked at s196, this round takes the other naming), adjudicated by
+`scripts/discover-197.ts` BEFORE the plan with the s120-era
+interactive-table candidate adjudicated in the same pass: the standing
+data-gated re-checks ALL KILLED at the reference's unchanged zero-data
+state (the Edit-family census rows=1 empty-state rows, rowMenus=0, the
+topbar-search populated=0 on both, the dashboard checkbox arms + the
+activities Completed-tab empty — the discover-184..197 standing
+census) · the conditional gates KILLED (probe:ref STABLE at `46bc2d9c`
+kills the fresh-bundle re-derivation; the registry's latest recharts
+3.10.1 kills the 4.0 gate) · the s120-era interactive-table candidate
+KILLED by evidence (the leads family source-frozen since s113 — 84
+sessions; the deps frozen; the family's only computed-style change
+vector since s120 the s193a1 outline-color rule, decoded + gated — a
+re-walk re-derives the s196 verdict). THE COVERAGE AUDIT: the app's
+renderable routes vs. the drift-gate inventories (the sweep PAGES 13 ·
+the census 12+1 · the fullpage 1 = the landing only) — /signup +
+/reset-password OURS-ONLY supersets outside the two-app sweep (the REF
+has no such routes: its /signup renders its own 404, its
+/reset-password a blank shell), THE 404 the only two-app-renderable
+surface with ZERO drift-gate coverage, the D-197a1 maiden measuring
+the pair byte-identical at all four bands (0.01/0.04/0.01/0.01
+badge-closed — no genus at any band; the anon posture re-verified
+STANDING: OURS the 404 at the unknown URL with the true 404, the REF
+the wall redirect with the from_url round-trip).
+
+**TWO CURES — the coverage round** (the round's material was the GATE
+TEETH, not the product):
+
+- **D-197a1 — THE 404 SWEEP REGISTRATION.** The designed 404 is the
+  only two-app-renderable surface the drift-gate family did not carry:
+  the s194 walk67 decoded its faces, the s195 pins hold its render +
+  its TRUE-404 status + its a11y registrations — no gate held its
+  PIXELS (a future pixel regression on the surface would have kept
+  every gate green). THE CURE: the 404 joins the standing sweep — the
+  14th PAGES entry `{ name: "not-found", path:
+  "/no-such-sweep-route", waitFor: "heading-404" }` with the per-page
+  capture-wait override (the bare 404 renders with NO main — the
+  sweep's shell-wait soft-falls its full 15s burn per capture; the h1
+  "404" heading is the content-wait anchor instead, present on BOTH
+  apps' designed 404s) + the STANDING_BASELINES entries at all four
+  bands (0.1 the family floor — the maiden measured
+  0.01/0.04/0.01/0.01) + the sweep-tool pins (the PAGES census
+  re-anchored 13 → 14 + the waitFor override pin + the not-found
+  baselines pin). Born-green at all four bands (0.01-0.03% clean, the
+  seed restored after every run). MUTATION-PROVEN ×2: the planted
+  `text-8xl` h1 regression (the D-194a4 palette's own face) → the
+  sweep DRIFT trip exactly at not-found (1.12% > baseline 0.1 +
+  margin 0.5 = allowed 0.60%, exit 1) → restored → 0.01% clean; the
+  removed desktop baseline → exactly 2 unit REDs (the new baselines
+  pin + the standing coverage-loop pin), zero collateral → restored →
+  GREEN.
+- **D-197a2 — THE SWEEP HEADER'S OWN STALE PAGE CENSUS.** The
+  s91-era count-anchored comments ("the ten pages") survived three
+  page additions (s96/s142/s144) — and the s98 F-98a1 guard's own live
+  face went stale WITH them, pinning the stale count as "the corrected
+  phrasing" (the `toMatch(/ten pages|ten-page/)` assertion — the
+  guard's teeth had been pointing at a corpse since s144). THE CURE:
+  the sweep header + the suite's own two comments re-anchored to the
+  count-proof NAME form ("the PAGES list" / "the full PAGES sweep" —
+  a name never goes stale when a page joins); the F-98a1/N-97a1 guards
+  re-anchored — the negatives grow the retired ten-forms (the s192
+  doctrine: the OLD live form joins the negatives), the live faces
+  move to the NAME form.
+
+**DECLINED** (recorded considered-and-declined in the plan): the
+census 404 registration (a third collector for one page — speculative
+scaffolding; the element ledger walk-frozen + source-pinned) ·
+/signup + /reset-password in the sweep (OURS-ONLY, e2e-pinned
+already) · the s120-era re-walk (KILLED by the discovery evidence).
+
+**THE COUNT LADDER + THE LOCKSTEP**: UNIT 2811 → **2813** (+2: the
+waitFor pin + the baselines pin, the sweep-tool suite) · SUITES 138
+HELD · E2E 195 HELD · badge 3006 → **3008** (the unit+e2e arithmetic:
+2813+195). skill-head-197.py ran FIRST (the SKILL v1.194.0, the s196
+layer comment-demoted at its ship counts 2811/195, the s197 layer
+live at 2813/195 + the beneath-it tail, idempotent; the surgery's own
+live catch: the H1 flip's bare-substring guard was fooled by the new
+layer text mentioning "the SKILL v1.194.0" — the H1 flipped directly
++ the script hardened to the exact-H1 form); count-ladder-197.py
+(assert-first, idempotent, unique-anchor — 18 flips: the docs-counts
+UNIT constant · the README badge + Tested row + tree + commands ·
+the AGENTS commands + gate-order · the CLAUDE gate-order + commands
++ pyramid + the coverage seam · the PAD tree + Total + HEAD +
+checklist + commands · the SKILL commands + Appendix B unit total).
+The test-side re-anchors in the same stroke: the docs-counts
+layer-axis (first = s197 at 2813/195, second = s196 at its ship
+2811/195) · the unit negatives ladder (the retired 2811 site-forms
+join the negatives on the docs-counts s166 block) · the
+dialog-geometry-parity F-92a3 ladder (the four CLAUDE live positives
+re-anchored 2813 + the 2811 forms join the negatives). The docs
+lockstep: this AGENTS Session-197 section · `docs/session_416.md` ·
+the PAD §7.1 s197 inventory row · the README walk-contracts
+paragraph's s197 clause · the plan's execution record · the worklog
+entry {Task ID 197}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2813** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **195/195** · the
+not-found sweep leg GREEN at all four bands (`--fail-on-drift`: 0.01
+desktop · 0.03 phone · 0.02 tablet · 0.02 landscape) · db census
+MATCH · probe:ref STABLE · the captures: the round's 404 pair (ours +
+the reference) + the dev-server set under `docs/screenshots/`.
