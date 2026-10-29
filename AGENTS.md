@@ -17,9 +17,9 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2817 checks)      | `bun run test`                         |
+|  Unit tests (2822 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
-|  Browser E2E (195 checks)        | `bun run test:e2e` (needs build first) |
+|  Browser E2E (200 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -33,10 +33,10 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2817) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2822) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
-`bun run test:e2e` (195) — or the one-command `bun run gate` (session-38:
+`bun run test:e2e` (200) — or the one-command `bun run gate` (session-38:
 the same chain as a package script, so the build always precedes the e2e
 boot; session-39: the e2e step runs under `CI=1`, so
 `reuseExistingServer` evaluates false and the gate ALWAYS boots the
@@ -12729,3 +12729,117 @@ dev-toolchain, the documented posture restored) · db census MATCH ·
 probe:ref STABLE · the captures: the reports pair (ours + the
 reference — the PDF-export surface whose dependency chain carried
 the critical) + the dev-server set under `docs/screenshots/`.
+
+### Session-199 — THE A11Y REGISTER'S DIALOG-OPEN COVERAGE AUDIT (the five un-registered open states + the spec's own stale census claim) (2026-10-29)
+
+The post-198 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`a8a761d` — the session_419 transcript, the s198 round's own
+execution record). The round is THE S197 PATTERN APPLIED TO THE OTHER
+DRIFT-GATE INVENTORY — the a11y two-gate register's own F-172c
+criterion (a Radix Dialog's content is ABSENT from the DOM while
+closed, so every dialog-open state deserves its own two-gate
+registration) re-applied by `scripts/discover-199.ts` against the
+app's RUNTIME dialog census: the register held the five CREATE
+dialogs + ONE member of the five-member edit family + neither of the
+three standalone dialogs — FIVE dialog-open states carried ZERO
+open-surface a11y teeth (Edit Lead · Edit Account — the Mke/wce
+configs, a SEPARATE component from the registered Edit Contact ·
+Import Contacts · Account Insights · Save Custom Report View — never
+in the s172 audit's scope), and the spec's own head comment still
+claimed the s171 ship count ("The 25 registrations are EXPLICIT" —
+the register is 33; the s197a2 stale-census pattern INSIDE the spec
+file). The other discovery legs: the standing data-gated re-checks
+ALL KILLED at the reference's unchanged zero-data state (probe:ref
+STABLE at `46bc2d9c` — the discover-184..199 standing census) · the
+conditional gates KILLED (the registry's latest recharts 3.10.1) ·
+the s120-era re-walk kill STANDING (the leads family source-frozen
+since s113 — 86 sessions; the deps locked; the bundle STABLE) · the
+pre-ship audit duty CLEAN against the s198 triple pins (bun audit 9:
+4h/4m/1l exactly — no drift; the overrides.dompurify 3.4.17 posture
+verified; the dormancy re-check `.html(` call sites = 0).
+
+**TWO CURES — the register-coverage round** (the round's material was
+the A11Y BATTERY, not the pixels):
+
+- **D-199a1 — THE REGISTER'S DIALOG-OPEN COVERAGE.** THE CURE: +5 e2e
+  registrations in `tests/e2e/a11y.spec.ts` (the s195a2 form: open →
+  scanTwoGate → Escape, one explicit test() per open state — the Edit
+  Lead + Edit Account siblings via the row ⋮ menu → the Edit item;
+  the Import Contacts via the outline Import trigger; the Account
+  Insights via the accounts row click; the Save Custom Report View
+  via the Saved Reports (N) trigger), each carrying the VISIBLE-DIALOG
+  open-wait guard (the L-164c2 vacuous-green cure: a silently-failed
+  open would otherwise scan the page behind the label). THE PINS (in
+  the dialog-controls suite, the one-suite doctrine): the containment
+  pair + the dialog-open register census pin (eleven open-state
+  registrations, the live-read label census) — RED-first at birth
+  (5 RED, zero collateral) → the registrations → born-green (5/5 the
+  first run; the full spec 39 passed). MUTATION-PROVEN: the planted
+  `aria-label` removal on the config-driven SelectTrigger (the F-172b
+  regression's exact shape) → BOTH new edit-sibling registrations RED
+  exactly at the structural gate (aria-input-field-name — the class
+  no source pin can see) → restored → GREEN. THE LIVE CATCH: the
+  first mutation attempt (the `id="reportName"` removal) did NOT trip
+  — axe's label rule carries `non-empty-placeholder` as a sanctioned
+  fallback, so the label association break alone stays green — the
+  decode moved the mutation to the combobox-name axis where no
+  content fallback exists (the walk lesson recorded in the plan).
+- **D-199a2 — THE SPEC'S OWN STALE REGISTRATION-COUNT CLAIM.** The
+  head comment re-anchored to the count-proof NAME form ("The
+  register is EXPLICIT" — a name never goes stale when a
+  registration joins; the s197a2 doctrine) + THE PINS: the negative
+  pair (the retired count-anchored form never returns + the NAME
+  form is the live face) — RED-first at birth → the comment cure →
+  GREEN. MUTATION-PROVEN: the stale re-plant trips BOTH arms of the
+  pin pair → restored → GREEN.
+
+**DECLINED** (recorded considered-and-declined in the plan): the Edit
+Event + Edit Activity edit-mode registrations (the same-component
+adjudication — the create registrations already scan their shared
+EntityDialog DOM; the edit-mode delta is prefilled values + the
+title text only) · the popover/menu-open a11y registrations (the
+walk53/56/57/62 contract-freeze pins hold the open-interior
+constructions FULL-STRING — the aria forms included; the register's
+family criterion since s172 is the Radix Dialog genus) · the registry
+majors (the s198 declined-posture stands — none carries an advisory
+on our locked versions).
+
+**THE COUNT LADDER + THE LOCKSTEP**: UNIT 2817 → **2822** (+5: the
+dialog-controls session-199 describes — the containment pair + the
+census pin + the count-proof negative pair) · SUITES **138 HELD**
+(the one-suite doctrine) · E2E 195 → **200** (+5: the five
+registrations; the Appendix B a11y row re-anchored 33 → 38) · badge
+3012 → **3022** (the unit+e2e arithmetic: 2822+200).
+skill-head-199.py ran FIRST (the SKILL v1.196.0, the s198 layer
+comment-demoted at its ship counts 2817/195, the s199 layer live at
+2822/200, idempotent) · count-ladder-199.py (assert-first, idempotent
+— the docs-counts UNIT + E2E constants · the README badge + Tested
+row + tree + commands + the two s102-P1 e2e tree/commands sites ·
+the AGENTS commands + gate-order (unit + e2e) · the CLAUDE gate-order
++ commands + pyramid (unit + e2e) + the coverage seam + the a11y
+family description's s199 closure · the PAD tree + Total + HEAD +
+checklist + commands + the s102-P1 e2e tree site + the §11 a11y row
+(436 → 526) + the §11 dialog-controls row (175 → 236) · the SKILL
+commands (unit + e2e) + the Appendix B unit total + the a11y row +
+the e2e total) + the test-side re-anchors in the same stroke (the
+docs-counts layer-axis [first = s199, second = s198 at its ship
+2817/195] + the unit negatives ladder [the retired 2817 site-forms
+join the negatives] + the login-family negatives ladder [the retired
+E2E 195 form joins its negatives, the live positive re-anchored 200]
++ the dialog-geometry-parity F-92a3 ladder [the four CLAUDE live
+positives re-anchored 2822 + the 2817 forms join the negatives]).
+The docs lockstep: this AGENTS Session-199 section ·
+`docs/session_420.md` · the PAD §7.1 s199 inventory row + the §11
+rows (the D-199a2 cure sites) · the README walk-contracts
+paragraph's s199 clause · the plan's execution record · the worklog
+entry {Task ID 199}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2822** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **200/200** · the
+four-band sweep GREEN (the cure's baseline-inertness proof — zero
+pixel-bearing surface touched) · `bun audit` (9, all dev-toolchain,
+the triple-pinned posture) · db census MATCH · probe:ref STABLE ·
+the captures: the save-report pair (ours + the reference — the
+two-app-openable registered surface) + the dev-server set of the
+five newly-registered dialogs OPEN + the mobile drawer-open face
+under `docs/screenshots/`.

@@ -37,7 +37,7 @@ store for all server state, and Tailwind CSS v4 configured CSS-first
 4. **IMPLEMENT** — Incremental, testable components. Extend the pure seams in
    `src/lib/` rather than inlining logic. Keep lint green as you go.
 5. **VERIFY** — Run the full gate: `bun run lint` → `bun run typecheck` →
-   `bun run test` (2817) → `bun run build` → `bun run test:e2e` (195) — or the
+   `bun run test` (2822) → `bun run build` → `bun run test:e2e` (200) — or the
    one-command `bun run gate` (session-38: the chain as a package script,
    so the build always precedes the e2e boot; session-39: the e2e step
    runs under `CI=1`, forcing a fresh server — a leftover :3100 listener
@@ -129,10 +129,10 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 | `bun run start`     | Boot the standalone production server         |
 | `bun run lint`      | ESLint (flat config) — must be 0/0            |
 | `bun run typecheck` | `tsc --noEmit` — the real type gate           |
-| `bun run test`      | Vitest unit suites (2817 checks)            |
+| `bun run test`      | Vitest unit suites (2822 checks)            |
 | `bun run test:watch`| Vitest in watch mode                          |
 | `bun run smoke`     | Smoke the standalone artifact (14 checks, needs build first) |
-| `bun run test:e2e`  | Playwright E2E (195 checks, needs build first) |
+| `bun run test:e2e`  | Playwright E2E (200 checks, needs build first) |
 | `bun run gate`      | The full gate in one command (lint → typecheck → test → build → smoke → e2e) |
 | `bun run db:push`   | Push Prisma schema (no migrations folder)     |
 | `bun run db:seed`   | Reseed demo data in place                     |
@@ -142,7 +142,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
 
 ### Test Pyramid
 
-- **Unit (Vitest, 2817 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
+- **Unit (Vitest, 2822 checks)** — pure seams: `tests/db-path.test.ts`, `tests/nav-config.test.ts` (s147),
   `tests/auth.test.ts`, `tests/format.test.ts`, `tests/csv.test.ts`,
   `tests/rate-limit.test.ts`, `tests/avatar.test.ts`,
   `tests/constants.test.ts` (the DOM-pinned chart palette + session-10's
@@ -609,7 +609,7 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   + fail()'s verbatim error arm, driven through the real helpers —
   the wire contracts the crud-zod-seam READ-half source pins freeze
   at the route side])
-- **E2E (Playwright, 195 checks)** — `tests/e2e/`: `auth.spec.ts`
+- **E2E (Playwright, 200 checks)** — `tests/e2e/`: `auth.spec.ts`
   (logged-out surface + session-11's login reset-password flow +
   session-21's in-place funnel: the Callout banner with zero toasts,
   the signup view swap + mismatch guard, the verify-email ladder +
@@ -618,7 +618,10 @@ Demo login: `sepnetflix2023@outlook.com` / `$Abcd1234`.
   pages × desktop + phone + the three anon surfaces × both widths +
   the drawer-open state + session-172's dialog-open family (the five
   create dialogs + the contact edit dialog — the closed-by-default
-  genus a page scan never sees); structural violations must be ZERO
+  genus a page scan never sees; session-199's register-coverage closure
+  added the Edit Lead + Edit Account siblings + the Import/Insights/
+  Save-Report standalone dialogs — every Radix Dialog's open state now
+  registered); structural violations must be ZERO
   (every interactive control carries an accessible name —
   `role="combobox"` names come from aria-label, never the visible span
   text; dialog labels wire htmlFor/id, never bare siblings) and
@@ -724,7 +727,7 @@ server keeps reading the deleted inode and sees stale data.
 
 Unit coverage of the pure seams (`src/lib/*`) is the gate — every new pure
 helper ships with tests. No hard percentage threshold; the count grows with
-the seam (currently 2817).
+the seam (currently 2822).
 
 ## Code Quality Standards
 

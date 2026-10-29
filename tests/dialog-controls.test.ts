@@ -173,3 +173,64 @@ describe("session-172 (d): fast-check is a DECLARED devDependency (F-172d)", () 
     expect(battery).toContain('from "fast-check"');
   });
 });
+
+// ---------------------------------------------------------------------------
+// (e) The session-199 register-coverage closure — the five un-registered
+// dialog-open states. The register's own F-172c criterion re-applied: the
+// s172 audit covered the five CREATE dialogs + ONE edit member (Contact);
+// the Edit Lead / Edit Account siblings (the Mke/wce configs — a
+// SEPARATE component from the registered Edit Contact) + the three
+// standalone dialogs (Import Contacts · Account Insights · Save Custom
+// Report View — never in the s172 audit's scope) carried ZERO
+// open-surface a11y teeth. The discovery's live axe probes (s199,
+// discover-199 LEG-5c) pre-verified every open state (GATE 1
+// structural=0 · GATE 2 all-cited-sanctioned) — the registrations are
+// born-green; these spec-contract pins hold them (a future silent
+// removal trips the census arm + the containment arms by name).
+// ---------------------------------------------------------------------------
+describe("session-199 (e): the register's dialog-open coverage closure — the five un-registered open states ride the two-gate", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the Edit Lead + Edit Account siblings ride the two-gate (the Mke/wce configs — the separate EntityEditDialog members)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain("with the Edit Lead dialog OPEN");
+    expect(spec).toContain("with the Edit Account dialog OPEN");
+  });
+
+  it("the three standalone dialogs ride the two-gate (the Import · the Insights · the Save-Report)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain("with the Import Contacts dialog OPEN");
+    expect(spec).toContain("with the Account Insights dialog OPEN");
+    expect(spec).toContain("with the Save Custom Report View dialog OPEN");
+  });
+
+  it("the dialog-open register census: eleven open-state registrations (five create + the contact edit + the five new)", () => {
+    const spec = read(SPEC);
+    const labels = spec.match(/\([^)]*dialog OPEN\)/g) ?? [];
+    expect(
+      labels,
+      `the dialog-open scan labels (found ${labels.length}: ${labels.map((l) => l.slice(1, -1)).join(" · ")})`,
+    ).toHaveLength(11);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// (f) The spec's own register claim is count-proof — the s197a2 doctrine.
+// The head comment shipped at s171 as "The 25 registrations are EXPLICIT"
+// and went STALE through the s172 +6 and the s195 +2 (the register is 33)
+// — exactly the silent-staleness failure the count-proof NAME form
+// exists to prevent: a name never goes stale when a registration joins.
+// ---------------------------------------------------------------------------
+describe("session-199 (f): the spec's register claim is count-proof (the s197a2 doctrine)", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the head claim never re-anchors to a count (the retired 25-form joins the negatives)", () => {
+    const spec = read(SPEC);
+    expect(spec).not.toMatch(/The \d+ registrations are EXPLICIT/);
+  });
+
+  it("the count-proof NAME form is the live face", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain("The register is EXPLICIT");
+  });
+});

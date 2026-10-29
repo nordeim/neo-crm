@@ -26,8 +26,8 @@ import { expect, test } from "@playwright/test";
 // ^4.13.0 — F-171e: the gate must not stand on an undeclared
 // transitive).
 //
-// The 25 registrations are EXPLICIT (one test() per surface × width —
-// the Appendix B per-spec census counts source test() calls, and the
+// The register is EXPLICIT (one test() per surface × width — the
+// Appendix B per-spec census counts source test() calls, and the
 // granular names name the failing surface directly).
 
 const AXE_PATH = "node_modules/axe-core/axe.min.js";
@@ -431,6 +431,96 @@ test.describe("the dialog-open two-gate: the contact edit dialog", () => {
     await page.getByRole("menuitem", { name: /^edit/i }).first().click();
     await page.waitForTimeout(600);
     await scanTwoGate(page, "/contacts (Edit Contact dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The dialog-open two-gate: the session-199 register-coverage closure.
+// The register's own closed-by-default criterion (F-172c) re-applied at
+// s199 against the app's full runtime dialog census: the s172 audit
+// covered the five CREATE dialogs + ONE edit member; the five open
+// states below carried ZERO open-surface a11y teeth — the Edit Lead +
+// Edit Account siblings (the Mke/wce configs — a SEPARATE component
+// from the registered Edit Contact) + the three standalone dialogs
+// (Import Contacts · Account Insights · Save Custom Report View —
+// never in the s172 audit's scope). The discovery's live axe probes
+// (discover-199 LEG-5c) pre-verified every open state (GATE 1
+// structural=0 · GATE 2 all-cited-sanctioned) — born-green
+// registrations. Each walk WAITS ON THE VISIBLE DIALOG before scanning
+// (the L-164c2 vacuous-green cure: a silently-failed open would
+// otherwise scan the page behind the label — the open-wait guard).
+// The Edit Event + Edit Activity edit modes are ADJUDICATED
+// same-component (declined): the create registrations already scan
+// their shared EntityDialog DOM — the edit-mode delta is the prefilled
+// values + the title text only.
+// ---------------------------------------------------------------------------
+test.describe("the dialog-open two-gate: the entity-edit siblings", () => {
+  test("desktop /leads with the Edit Lead dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/leads");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the row ⋮ menu → the Edit item (the Mke config — the separate
+    // EntityEditDialog member, never scanned before s199)
+    await page.locator("table tbody button[aria-haspopup='menu']").first().click();
+    await page.waitForTimeout(600);
+    await page.getByRole("menuitem", { name: /^edit/i }).first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "/leads (Edit Lead dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("desktop /accounts with the Edit Account dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/accounts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the row ⋮ menu → the Edit item (the wce config)
+    await page.locator("table tbody button[aria-haspopup='menu']").first().click();
+    await page.waitForTimeout(600);
+    await page.getByRole("menuitem", { name: /^edit/i }).first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "/accounts (Edit Account dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+});
+
+test.describe("the dialog-open two-gate: the standalone dialogs (session-199)", () => {
+  test("desktop /contacts with the Import Contacts dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/contacts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the outline Import trigger (the s26 reference-decoded dialog)
+    await page.getByRole("button", { name: "Import" }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "/contacts (Import Contacts dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("desktop /accounts with the Account Insights dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/accounts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the accounts ROW CLICK opens the Ece insights dialog (the s28
+    // reference-decoded surface — the row click / the ⋮ View Insights)
+    await page.locator("table tbody tr").first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "/accounts (Account Insights dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("desktop /reports with the Save Custom Report View dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/reports");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the Saved Reports (N) outline trigger (the s25/walk63 surface)
+    await page.getByRole("button", { name: /Saved Reports \(\d+\)/ }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "/reports (Save Custom Report View dialog OPEN)");
     await page.keyboard.press("Escape");
   });
 });

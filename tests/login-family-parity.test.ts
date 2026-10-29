@@ -408,7 +408,12 @@ describe("session-79: the CLAUDE.md e2e count carriers (N-79b1)", () => {
     // freeze, the walk50 re-walk's genuine battery gap; the retired
     // form joins its negatives, the doctrine unchanged).
     expect(src).not.toContain("**E2E (Playwright, 194 checks)**");
-    expect(src).toContain("**E2E (Playwright, 195 checks)**");
+    // session-199 lockstep carry-forward: 195 -> 200 (the D-199a1
+    // register-coverage registrations — the five un-registered dialog
+    // open states; the retired form joins its negatives, the doctrine
+    // unchanged).
+    expect(src).not.toContain("**E2E (Playwright, 195 checks)**");
+    expect(src).toContain("**E2E (Playwright, 200 checks)**");
   });
 });
 
