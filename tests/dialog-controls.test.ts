@@ -234,3 +234,73 @@ describe("session-199 (f): the spec's register claim is count-proof (the s197a2 
     expect(spec).toContain("The register is EXPLICIT");
   });
 });
+
+// ---------------------------------------------------------------------------
+// (g) The session-200 register-coverage closure — the three un-registered
+// PAGE surfaces. The register's own criterion re-applied to the page
+// family (the s199 round closed the dialog-open family; the page family
+// is the other arm): the app's renderable route inventory is 16 surfaces,
+// the register held 13 — the /about + /contact authenticated marketing
+// interiors (two-app-renderable, login-walled per the s147 reference
+// posture, walked at s193/walk66 but never axe-scanned) + the
+// /reset-password anon surface (OURS-ONLY, the /signup registration
+// precedent; the s163 digma port) carried ZERO a11y teeth at any width.
+// The discovery's live axe probes (s200, discover-200 LEG-5c)
+// pre-verified every surface at both widths (GATE 1 structural=0 · GATE 2
+// zero contrast flags) — the registrations are born-green; these
+// spec-contract pins hold them (a future silent removal trips the census
+// arm + the containment arms by name).
+// ---------------------------------------------------------------------------
+describe("session-200 (g): the register's page-surface coverage closure — the three un-registered surfaces ride the two-gate", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the marketing interiors ride the two-gate at BOTH widths (the s147 login-walled posture — the authed form)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("desktop /about');
+    expect(spec).toContain('test("phone /about');
+    expect(spec).toContain('test("desktop /contact');
+    expect(spec).toContain('test("phone /contact');
+  });
+
+  it("the reset-password surface rides the two-gate at both widths (the anon form — the /signup precedent, the set-password form state)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("desktop /reset-password');
+    expect(spec).toContain('test("phone /reset-password');
+  });
+
+  it("the page-surface register census: thirty-three page-family registrations (the 9 CRM pages × 2 + the drawer + the anon family + the marketing pair + the reset surface)", () => {
+    const spec = read(SPEC);
+    const total = (spec.match(/^\s*test\(/gm) ?? []).length;
+    const dialogs = (spec.match(/\([^)]*dialog OPEN\)/g) ?? []).length;
+    expect(
+      total - dialogs,
+      `the page-family count (total test()=${total} minus dialog-open=${dialogs})`,
+    ).toBe(33);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// (h) The spec's own anon-family claim is count-proof — the s197a2/s199a2
+// doctrine. The anon describe head shipped at s171 as "The three anon
+// surfaces (login/signup/landing)" and went STALE at s195 — the 404 ×2
+// joined that very describe without the count moving (the family is four
+// surfaces today, five after the s200 cure) — exactly the silent-
+// staleness failure the count-proof NAME form exists to prevent: a name
+// never goes stale when a surface joins.
+// ---------------------------------------------------------------------------
+describe("session-200 (h): the spec's anon-family claim is count-proof (the s197a2/s199a2 doctrine)", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the anon-family head claim never re-anchors to a count (the retired three-form joins the negatives)", () => {
+    const spec = read(SPEC);
+    // the count word may be spelled out ("three") or a digit ("3") — the
+    // s200 live catch: the first draft's bare \d+ was fooled by the WORD
+    // form the s171 head actually carries; \w+ catches both spellings
+    expect(spec).not.toMatch(/The \w+ anon surfaces/);
+  });
+
+  it("the count-proof NAME form is the live face", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain("The anon family");
+  });
+});

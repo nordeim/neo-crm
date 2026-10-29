@@ -272,8 +272,54 @@ test.describe("the a11y two-gate: the CRM pages at phone", () => {
 });
 
 // ---------------------------------------------------------------------------
-// The three anon surfaces (login/signup/landing), both widths — the
-// logged-out state (no storage state; an authed visit redirects away).
+// The marketing interiors (session-200) — the register's page-surface
+// coverage closure's authenticated pair. The /about + /contact pages are
+// two-app-renderable surfaces login-walled per the s147 reference
+// posture (F-147c2 — its parity-event bundle re-walled its marketing
+// pages; ours mirrors): they render for logged-in users with the full
+// app chrome, so the registrations ride the same authenticated form as
+// the nine CRM pages. Their interactive arms were focus-walked at
+// s193/walk66 but NEVER axe-scanned (the s171 register's page family
+// was enumerated before the marketing pair existed); the discovery's
+// live probes pre-verified both surfaces at both widths (structural
+// zero — OURS renders the topbar's Messages/Notifications arms NAMED
+// where the reference's own marketing pages carry them nameless: the
+// drawer-precedent direction, the reference's own defect, never
+// mirrored).
+// ---------------------------------------------------------------------------
+test.describe("the a11y two-gate: the marketing interiors (session-200)", () => {
+  test("desktop /about — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/about");
+    await scanTwoGate(page, "desktop /about");
+  });
+
+  test("phone /about — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/about");
+    await scanTwoGate(page, "phone /about");
+  });
+
+  test("desktop /contact — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/contact");
+    await scanTwoGate(page, "desktop /contact");
+  });
+
+  test("phone /contact — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/contact");
+    await scanTwoGate(page, "phone /contact");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The anon family, both widths — the logged-out state (no storage
+// state; an authed visit redirects away). (The s200 count-proof cure:
+// this head shipped at s171 counting the anon family at three —
+// login/signup/landing — and went stale at s195 when the 404 joined
+// the describe without the count moving; a name never goes stale when
+// a surface joins.)
 // ---------------------------------------------------------------------------
 test.describe("the a11y two-gate: the anon surfaces", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -312,6 +358,27 @@ test.describe("the a11y two-gate: the anon surfaces", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
     await scanTwoGate(page, "phone / (landing, anon)");
+  });
+
+  // Session-200 (D-200a1): the reset-password surface — the OURS-ONLY
+  // anon member (the /signup registration precedent; the register's
+  // family criterion is renderable surfaces, not two-app parity). The
+  // s163 digma S46/RA-66 port; the set-password FORM state via the
+  // shape-probe token (any non-empty ?token= renders the form —
+  // validity is checked on submit only; the reset-password.spec's own
+  // idiom). The no-token invalid-link card is adjudicated
+  // same-component (the shared ResetPasswordScreen; the card's delta is
+  // the title + text + the Back button — the form is the richer face).
+  test("desktop /reset-password (anon, the set-password form) — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/reset-password?token=e2e-shape-probe");
+    await scanTwoGate(page, "desktop /reset-password (anon)");
+  });
+
+  test("phone /reset-password (anon, the set-password form) — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/reset-password?token=e2e-shape-probe");
+    await scanTwoGate(page, "phone /reset-password (anon)");
   });
 
   // Session-195 (D-195a2): the 404 surface — the one anon-reachable page
