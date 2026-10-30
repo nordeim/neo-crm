@@ -17,9 +17,9 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2827 checks)      | `bun run test`                         |
+|  Unit tests (2832 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
-|  Browser E2E (206 checks)        | `bun run test:e2e` (needs build first) |
+|  Browser E2E (217 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -33,10 +33,10 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2827) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2832) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
-`bun run test:e2e` (206) — or the one-command `bun run gate` (session-38:
+`bun run test:e2e` (217) — or the one-command `bun run gate` (session-38:
 the same chain as a package script, so the build always precedes the e2e
 boot; session-39: the e2e step runs under `CI=1`, so
 `reuseExistingServer` evaluates false and the gate ALWAYS boots the
@@ -12964,3 +12964,120 @@ captures: the /contact pair (ours + the reference — the
 two-app-renderable registered surface) + the dev-server set of the
 three newly-registered surfaces at both widths + the mobile
 drawer-open face under `docs/screenshots/`.
+
+### Session-201 — THE A11Y REGISTER'S PHONE-WIDTH DIALOG-OPEN COVERAGE AUDIT (the eleven phone states + the spec's own width-blind criterion claim) (2026-10-30)
+
+The post-200 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`0e78b16` — the session_423 transcript, the s200 round's own
+execution record). The round took THE S200 CLOSE'S BANKED STANDING
+CANDIDATE — the width-scope arm of the register's dialog-open family:
+the register's live census 44 registrations (33 page-family + 11
+dialog-open) with the dialog family DESKTOP-only (11 registrations, 0
+at phone) while the register's own head criterion claimed "one test()
+per surface × width" — THE WIDTH-BLIND GENUS (the s199a2 re-anchor
+WORDED a criterion the register never satisfied for the dialog family:
+born false at s199, held through s200, no pin holding it). The other
+discovery legs: the standing data-gated re-checks ALL KILLED at the
+reference's unchanged zero-data state (probe:ref STABLE at `46bc2d9c`
+— the discover-184..201 standing census) · the conditional gates
+KILLED (the registry's latest recharts 3.10.1) · the s120-era re-walk
+kill STANDING (the leads family source-frozen since s113 — 88
+sessions) · the pre-ship audit duty CLEAN against the s198 triple
+pins (bun audit 9: 4h/4m/1l — no drift; the dormancy re-verified).
+
+**TWO CURES — the width-scope round** (the round's material was the
+A11Y BATTERY, not the pixels):
+
+- **D-201a1 — THE REGISTER'S PHONE-WIDTH DIALOG-OPEN COVERAGE.** THE
+  CURE: +11 e2e registrations at 390×844 (the s199 open-state form:
+  open → the VISIBLE-DIALOG open-wait guard → scanTwoGate → Escape):
+  the five create dialogs (New Lead · New Account · New Contact · New
+  Event · Log Call) + the six edit/standalone states (Edit Contact ·
+  Edit Lead · Edit Account · Import Contacts · Account Insights ·
+  Save Custom Report View). THE PINS (the dialog-controls suite, the
+  one-suite doctrine): the containment pair + the phone-width census
+  pin (eleven, live-read) — RED-first at birth (exactly 5 RED incl.
+  the s199 (e) census re-anchor eleven → twenty-two, zero collateral)
+  → the registrations → born-green (11/11 the first run).
+  MUTATION-PROVEN: the planted `aria-label="Import"` removal on the
+  contacts Import trigger (the hidden-sm:inline genus — the phone-only
+  name-evaporation class, decoded live at the discovery: the span
+  computes display:none at 390, display:block at 1280) → the NEW phone
+  Import registration RED (the role-based opener — the nameless
+  trigger is UNFINDABLE by name at phone) + the standing phone
+  /contacts page registration RED (the axe button-name rule, citing
+  `.px-4.py-2.text-foreground:nth-child(3)`) → EVERY desktop
+  registration GREEN (the visible span carries the name at 1280 — the
+  desktop register's width-blindness, the round's own rationale) →
+  restored → GREEN.
+- **D-201a2 — THE SPEC'S OWN WIDTH-BLIND CRITERION CLAIM.** The head
+  criterion ("one test() per surface × width") was born FALSE at s199
+  — the dialog family carried one width — and no pin has ever held
+  it. THE CURE: the phone family registered (the criterion TRUE for
+  every family) + THE PIN PAIR: the width-pair census (every desktop
+  dialog registration carries its phone twin — the live read: the
+  desktop/phone label equality + the per-label twin containment; a
+  future width-scope regression trips the equality + the twin arms)
+  + the criterion-form pair (the ×width criterion is the live face +
+  the width-blind "per surface" form never returns) — RED-first at
+  birth → the registrations → GREEN. MUTATION-PROVEN: the planted
+  phone-twin removal trips the width-pair census + the containment +
+  the census pins (4 RED) → restored → GREEN.
+
+**THE LIVE CATCH (the mutation landscape decoded):** while a Radix
+Dialog is open, hideOthers aria-hides the app root — GATE 1
+(structural) sees ONLY the dialog content (the page furniture leaves
+the a11y tree), while GATE 2 (color-contrast) still cites the PAINTED
+page behind (the visual rule's applicability is on-screen visibility)
+— the open-dialog scan mechanics documented in the spec's s201 family
+comment (the s172-era "same page furniture behind the dialog" claim
+is the GATE 2 landscape only).
+
+**DECLINED** (recorded considered-and-declined in the plan): the Edit
+Event + Edit Activity edit modes at phone (the same-component
+adjudication carried to the width axis — the create registrations
+scan their shared EntityDialog DOM at both widths) · the login card's
+in-card view states at phone (the client-state genus — the s192
+walk65 cures + the login-views/login-reset batteries hold the wiring)
+· the drawer-open state at desktop (the width-inverse — the drawer
+renders at PHONE only; the standing registration is the phone one).
+
+**THE COUNT LADDER + THE LOCKSTEP**: UNIT 2827 → **2832** (+5: the
+dialog-controls session-201 describes — the containment pair + the
+phone census + the width-pair census + the criterion pair) · SUITES
+**138 HELD** (the one-suite doctrine) · E2E 206 → **217** (+11: the
+eleven phone registrations; the Appendix B a11y row re-anchored 44 →
+55) · badge 3033 → **3049** (the unit+e2e arithmetic: 2832+217).
+skill-head-201.py ran FIRST (the SKILL v1.198.0, the s200 layer
+comment-demoted at its ship counts 2827/206, the s201 layer live at
+2832/217, idempotent) · count-ladder-201.py (assert-first, idempotent,
+unique-anchor — the docs-counts UNIT + E2E constants · the README
+badge + Tested row + tree + commands + the two s102-P1 e2e
+tree/commands sites · the AGENTS commands + gate-order (unit + e2e) ·
+the CLAUDE gate-order + commands + pyramid (unit + e2e) + the coverage
+seam + the a11y family description's s201 closure (every Radix
+Dialog's open state registered at BOTH widths) · the PAD tree + Total
++ HEAD + checklist + commands + the §11 a11y row (the line census 593
+→ 764 + the family) + the §11 dialog-controls row (306 → 391 + the
+s201 pins) · the SKILL commands + Appendix B unit + e2e totals + the
+a11y row 44 → 55) + the test-side re-anchors in the same stroke (the
+docs-counts layer-axis [first = s201, second = s200 at its ship
+2827/206] + the unit negatives ladder [the retired 2827 site-forms
+join the negatives] + the login-family E2E ladder [the retired E2E
+206 form joins its negatives, the live positive re-anchored 217] + the
+dialog-geometry-parity F-92a3 ladder [the four CLAUDE live positives
+re-anchored 2832 + the 2827 forms join the negatives]). The docs
+lockstep: this AGENTS Session-201 section · `docs/session_424.md` ·
+the PAD §7.1 s201 inventory row + the §11 rows · the README
+walk-contracts paragraph's s201 clause · the plan's execution record
+· the worklog entry {Task ID: 201}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2832** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **217/217** · the
+four-band sweep GREEN (the cure's baseline-inertness proof — zero
+pixel-bearing surface touched) · `bun audit` (9, all dev-toolchain,
+the triple-pinned posture) · db census MATCH · probe:ref STABLE · the
+captures: the phone dialog-open pair (ours + the reference — the
+round's own 390×844 axis) + the dev-server set of the eleven phone
+dialog-open states + the mobile drawer-open face under
+`docs/screenshots/`.

@@ -417,7 +417,12 @@ describe("session-79: the CLAUDE.md e2e count carriers (N-79b1)", () => {
     // page-surface registrations — the three un-registered surfaces;
     // the retired form joins its negatives, the doctrine unchanged).
     expect(src).not.toContain("**E2E (Playwright, 200 checks)**");
-    expect(src).toContain("**E2E (Playwright, 206 checks)**");
+    // session-201 lockstep carry-forward: 206 -> 217 (the D-201a1
+    // phone-width dialog registrations — the eleven phone twins, the
+    // width-scope arm; the retired form joins its negatives, the
+    // doctrine unchanged).
+    expect(src).not.toContain("**E2E (Playwright, 206 checks)**");
+    expect(src).toContain("**E2E (Playwright, 217 checks)**");
   });
 });
 

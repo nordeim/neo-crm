@@ -204,13 +204,13 @@ describe("session-199 (e): the register's dialog-open coverage closure — the f
     expect(spec).toContain("with the Save Custom Report View dialog OPEN");
   });
 
-  it("the dialog-open register census: eleven open-state registrations (five create + the contact edit + the five new)", () => {
+  it("the dialog-open register census: twenty-two open-state registrations (eleven at desktop + the eleven phone twins — the s201 width-scope closure)", () => {
     const spec = read(SPEC);
     const labels = spec.match(/\([^)]*dialog OPEN\)/g) ?? [];
     expect(
       labels,
       `the dialog-open scan labels (found ${labels.length}: ${labels.map((l) => l.slice(1, -1)).join(" · ")})`,
-    ).toHaveLength(11);
+    ).toHaveLength(22);
   });
 });
 
@@ -302,5 +302,90 @@ describe("session-200 (h): the spec's anon-family claim is count-proof (the s197
   it("the count-proof NAME form is the live face", () => {
     const spec = read(SPEC);
     expect(spec).toContain("The anon family");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// (i) The session-201 width-scope closure — the phone-width dialog-open
+// family. The register's head criterion ("one test() per surface ×
+// width") was VIOLATED by the dialog family since s172: the 11 open
+// states carried ONE width (desktop-only) while the page family
+// carried both — the s199a2 re-anchor WORDED a criterion the register
+// never satisfied for this family (the width-blind genus, born false
+// at s199 and held through s200). The s200 close banked the family as
+// the standing candidate; the discovery (discover-201 LEG-5b)
+// re-probed every phone state live (structural=0 on all 11; every
+// contrast flag citing an existing sanctioned matcher — the quick-log
+// bg-emerald-600 · the accounts badge/border family · the calendar
+// text-gray-400 · the -trigger- segmented pair) — the registrations
+// are born-green; these spec-contract pins hold them (a future silent
+// removal trips the census arm + the containment arms by name).
+// ---------------------------------------------------------------------------
+describe("session-201 (i): the register's phone-width dialog-open closure — the eleven phone states ride the two-gate", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the create family rides the two-gate at phone width (the five create dialogs)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("phone /leads with the New Lead dialog OPEN');
+    expect(spec).toContain('test("phone /accounts with the New Account dialog OPEN');
+    expect(spec).toContain('test("phone /contacts with the New Contact dialog OPEN');
+    expect(spec).toContain('test("phone /calendar with the New Event dialog OPEN');
+    expect(spec).toContain('test("phone /activities with the Log Call dialog OPEN');
+  });
+
+  it("the edit + standalone family rides the two-gate at phone width (the six remaining states)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("phone /contacts with the Edit Contact dialog OPEN');
+    expect(spec).toContain('test("phone /leads with the Edit Lead dialog OPEN');
+    expect(spec).toContain('test("phone /accounts with the Edit Account dialog OPEN');
+    expect(spec).toContain('test("phone /contacts with the Import Contacts dialog OPEN');
+    expect(spec).toContain('test("phone /accounts with the Account Insights dialog OPEN');
+    expect(spec).toContain('test("phone /reports with the Save Custom Report View dialog OPEN');
+  });
+
+  it("the phone-width census: eleven phone-width open-state registrations (the live read)", () => {
+    const spec = read(SPEC);
+    const labels = spec.match(/test\("phone [^"]*dialog OPEN[^"]*"/g) ?? [];
+    expect(
+      labels,
+      `the phone dialog-open registration names (found ${labels.length})`,
+    ).toHaveLength(11);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// (j) The spec's own head criterion is width-TRUE — the width axis of
+// the s197a2/s199a2/s200a2 count-proof doctrine. The criterion ("one
+// test() per surface × width") was born FALSE at s199 — the dialog
+// family carried one width — and no pin has ever held it. The cure:
+// the phone family registered (the criterion TRUE for every family)
+// + this width-pair census holding it (a future width-scope
+// regression trips the equality + the twin arms by name).
+// ---------------------------------------------------------------------------
+describe("session-201 (j): the register's head criterion is width-true (one test() per surface × width)", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the width-pair census: every desktop dialog registration carries its phone twin (the criterion held, live-read)", () => {
+    const spec = read(SPEC);
+    const labels = spec.match(/test\("([^"]*dialog OPEN[^"]*)"/g)?.map((s) => s.slice(6, -1)) ?? [];
+    const desktop = labels.filter((l) => l.startsWith("desktop"));
+    const phone = labels.filter((l) => l.startsWith("phone"));
+    expect(
+      desktop.length,
+      `the width split (desktop=${desktop.length} phone=${phone.length})`,
+    ).toBe(phone.length);
+    for (const d of desktop) {
+      const twin = `test("${d.replace(/^desktop/, "phone")}`;
+      expect(spec, `the phone twin of "${d}"`).toContain(twin);
+    }
+  });
+
+  it("the criterion's NAME form is the live face (the width-blind form never returns)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain("one test() per surface × width");
+    // the width-blind form — the criterion claimed WITHOUT the × width
+    // axis — never re-anchors (a future edit dropping the axis trips
+    // this arm: "per surface" must always carry the " × width" tail)
+    expect(spec).not.toMatch(/per surface(?! × width)/);
   });
 });

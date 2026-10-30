@@ -591,3 +591,174 @@ test.describe("the dialog-open two-gate: the standalone dialogs (session-199)", 
     await page.keyboard.press("Escape");
   });
 });
+
+// ---------------------------------------------------------------------------
+// The dialog-open two-gate: the session-201 width-scope closure. The
+// register's own head criterion ("one test() per surface × width") was
+// VIOLATED by this family since s172 — the 11 open states carried ONE
+// width (desktop-only) while the page family carried both. The s200
+// close banked the phone family as the standing candidate with its
+// born-green pre-verification (discover-200 LEG-5d); this round's
+// discovery (discover-201 LEG-5b) re-probed every state live:
+// structural=0 on all 11, every contrast flag citing an existing
+// sanctioned matcher (the phone landscape is the desktop landscape
+// minus the sidebar arms — hidden below lg at phone). Each walk WAITS
+// ON THE VISIBLE DIALOG before scanning (the L-164c2 vacuous-green
+// cure: a silently-failed open would otherwise scan the page behind
+// the label) and closes it (the Escape form). The Edit Event + Edit
+// Activity edit modes are ADJUDICATED same-component at BOTH widths
+// (the s199 desktop precedent carried to the width axis: the create
+// registrations scan their shared EntityDialog DOM).
+//
+// THE OPEN-DIALOG SCAN MECHANICS (decoded live at s201, the mutation
+// landscape probe): while a Radix Dialog is open, hideOthers
+// aria-hides the app root — GATE 1 (structural) therefore sees ONLY
+// the dialog content (the page furniture leaves the a11y tree), while
+// GATE 2 (color-contrast) still cites the PAINTED page behind (the
+// visual rule's applicability is on-screen visibility). The role-based
+// openers are part of the register's teeth: a name that evaporates at
+// phone width (the hidden-sm:inline genus) renders the trigger
+// UNFINDABLE by name — the opener times out (the phone Import
+// registration's own mutation proof) and the flat-page scan cites
+// button-name (the page family's teeth on the same genus).
+// ---------------------------------------------------------------------------
+test.describe("the dialog-open two-gate: the create dialogs at phone (session-201)", () => {
+  test("phone /leads with the New Lead dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/leads");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "New Lead" }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /leads (New Lead dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /accounts with the New Account dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/accounts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "New Account" }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /accounts (New Account dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /contacts with the New Contact dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/contacts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "New Contact" }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /contacts (New Contact dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /calendar with the New Event dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/calendar");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "New Event" }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /calendar (New Event dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /activities with the Log Call dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/activities");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "Log Call" }).first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /activities (Log Call dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+});
+
+test.describe("the dialog-open two-gate: the edit + standalone dialogs at phone (session-201)", () => {
+  test("phone /contacts with the Edit Contact dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/contacts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the row ⋮ menu → the Edit item (the W7 entity-edit-dialog walk)
+    await page.locator("table tbody button[aria-haspopup='menu']").first().click();
+    await page.waitForTimeout(600);
+    await page.getByRole("menuitem", { name: /^edit/i }).first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /contacts (Edit Contact dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /leads with the Edit Lead dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/leads");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the row ⋮ menu → the Edit item (the Mke config)
+    await page.locator("table tbody button[aria-haspopup='menu']").first().click();
+    await page.waitForTimeout(600);
+    await page.getByRole("menuitem", { name: /^edit/i }).first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /leads (Edit Lead dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /accounts with the Edit Account dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/accounts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the row ⋮ menu → the Edit item (the wce config)
+    await page.locator("table tbody button[aria-haspopup='menu']").first().click();
+    await page.waitForTimeout(600);
+    await page.getByRole("menuitem", { name: /^edit/i }).first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /accounts (Edit Account dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /contacts with the Import Contacts dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/contacts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the outline Import trigger (the s26 reference-decoded dialog) —
+    // at phone the hidden-sm:inline label evaporates and the
+    // aria-label="Import" is the ONLY accessible name (the s171
+    // doctrine, decoded live at discover-201 LEG-5c)
+    await page.getByRole("button", { name: "Import" }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /contacts (Import Contacts dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /accounts with the Account Insights dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/accounts");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the accounts ROW CLICK opens the Ece insights dialog (the s28
+    // reference-decoded surface — the row click / the ⋮ View Insights)
+    await page.locator("table tbody tr").first().click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /accounts (Account Insights dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+
+  test("phone /reports with the Save Custom Report View dialog OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/reports");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    // the Saved Reports (N) outline trigger (the s25/walk63 surface)
+    await page.getByRole("button", { name: /Saved Reports \(\d+\)/ }).click();
+    await page.getByRole("dialog").waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /reports (Save Custom Report View dialog OPEN)");
+    await page.keyboard.press("Escape");
+  });
+});
