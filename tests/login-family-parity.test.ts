@@ -422,7 +422,12 @@ describe("session-79: the CLAUDE.md e2e count carriers (N-79b1)", () => {
     // width-scope arm; the retired form joins its negatives, the
     // doctrine unchanged).
     expect(src).not.toContain("**E2E (Playwright, 206 checks)**");
-    expect(src).toContain("**E2E (Playwright, 217 checks)**");
+    // session-202 lockstep carry-forward: 217 -> 223 (the D-202a1
+    // client-state registrations — the login card's three view states
+    // at both widths, the client-state arm; the retired form joins its
+    // negatives, the doctrine unchanged).
+    expect(src).not.toContain("**E2E (Playwright, 217 checks)**");
+    expect(src).toContain("**E2E (Playwright, 223 checks)**");
   });
 });
 

@@ -272,9 +272,14 @@ describe("session-200 (g): the register's page-surface coverage closure — the 
     const spec = read(SPEC);
     const total = (spec.match(/^\s*test\(/gm) ?? []).length;
     const dialogs = (spec.match(/\([^)]*dialog OPEN\)/g) ?? []).length;
+    // session-202: the client-state view family (+6) joined the register —
+    // the census subtracts BOTH non-page families (the s201 (e) re-anchor
+    // precedent: the live read moves with the register, the page-family
+    // count stays the page family's own)
+    const views = (spec.match(/\([^)]*view OPEN\)/g) ?? []).length;
     expect(
-      total - dialogs,
-      `the page-family count (total test()=${total} minus dialog-open=${dialogs})`,
+      total - dialogs - views,
+      `the page-family count (total test()=${total} minus dialog-open=${dialogs} minus view-state=${views})`,
     ).toBe(33);
   });
 });
@@ -389,3 +394,121 @@ describe("session-201 (j): the register's head criterion is width-true (one test
     expect(spec).not.toMatch(/per surface(?! × width)/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// (k) The session-202 client-state closure — the login card's in-card
+// view states. The register's families were URL-addressable (page
+// routes + click-opened dialogs) while the login card's view machine
+// (src/lib/login-reset.ts: signin | reset | sent | signup | verify)
+// renders WHOLE-CARD DOM surfaces no resting scan ever sees — the
+// s172 closed-by-default genus's client-state sibling (the view swaps
+// REPLACE the card's column entirely). The register carried ZERO
+// view-state registrations at ANY width (the surface-blind genus);
+// the s201 close banked the family as the standing candidate and the
+// discovery (discover-202 LEG-5b) probed every state live at BOTH
+// widths — 6/6 structural=0, zero contrast flags (born-green; these
+// spec-contract pins hold them — a future silent removal trips the
+// census arm + the containment arms by name).
+// ---------------------------------------------------------------------------
+describe("session-202 (k): the register's client-state closure — the login card's three view states ride the two-gate", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the reset + sent views ride the two-gate at both widths (the forgot-password ladder)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("desktop /login with the reset view OPEN');
+    expect(spec).toContain('test("phone /login with the reset view OPEN');
+    expect(spec).toContain('test("desktop /login with the sent view OPEN');
+    expect(spec).toContain('test("phone /login with the sent view OPEN');
+  });
+
+  it("the verify view rides the two-gate at both widths (the in-card signup ladder)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("desktop /login with the verify view OPEN');
+    expect(spec).toContain('test("phone /login with the verify view OPEN');
+  });
+
+  it("the client-state census: six view-state registrations (the live read)", () => {
+    const spec = read(SPEC);
+    const labels = spec.match(/test\("(?:desktop|phone) [^"]*view OPEN[^"]*"/g) ?? [];
+    expect(
+      labels,
+      `the view-state registration names (found ${labels.length})`,
+    ).toHaveLength(6);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// (l) The spec's own head criterion is state-TRUE — the state axis of
+// the s197a2/s199a2/s200a2/s201a2 count-proof doctrine. The criterion
+// ("one test() per surface × width") has been SURFACE-BLIND since the
+// register's s171 birth for the client-state genus: the view machine
+// renders whole-card surfaces no resting scan sees, the criterion's
+// STATE axis was never adjudicated against the machine's inventory,
+// and no pin ever held it (the s201 width-pair pin holds the WIDTH
+// axis only). The cure: the client-state family registered (the
+// criterion TRUE on the state axis for every family) + this pin pair
+// holding it — the state-machine census cross-reads the machine's own
+// union against the register (a future view state added to the
+// machine without its registration trips it), the state-pair census
+// holds the width twins (a future width-scope regression trips the
+// equality + the twin arms).
+// ---------------------------------------------------------------------------
+describe("session-202 (l): the register's head criterion is state-true (every LoginView state rides the two-gate)", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+  const MACHINE = "src/lib/login-reset.ts";
+
+  /** The machine's live union — read from the source (a state added
+   * to the machine raises the expectation without a pin edit). */
+  function loginViewStates(): string[] {
+    const src = read(MACHINE);
+    const union = src.match(/export type LoginView = ([^;]+);/)?.[1] ?? "";
+    return union.match(/"(\w+)"/g)?.map((s) => s.slice(1, -1)) ?? [];
+  }
+
+  it("the state-machine census: every LoginView state rides the two-gate somewhere in the register (the live cross-read)", () => {
+    const spec = read(SPEC);
+    const states = loginViewStates();
+    expect(states.length, "the machine's union is non-empty").toBeGreaterThan(0);
+    // the page-registered states (the /login + /signup surfaces)
+    const pageRegistered = new Set(["signin", "signup"]);
+    for (const state of states) {
+      if (pageRegistered.has(state)) {
+        expect(
+          spec,
+          `the ${state} state's page registration (the /${state === "signin" ? "login" : "signup"} surface)`,
+        ).toContain(`test("desktop /${state === "signin" ? "login" : "signup"} (anon)`);
+      } else {
+        expect(
+          spec,
+          `the ${state} view state's two-gate registration`,
+        ).toContain(`with the ${state} view OPEN`);
+      }
+    }
+  });
+
+  it("the state-pair census: every view-state registration carries its width twin + the family covers the machine's un-page-registered states (the live read)", () => {
+    const spec = read(SPEC);
+    const labels = spec.match(/test\("([^"]*view OPEN[^"]*)"/g)?.map((s) => s.slice(6, -1)) ?? [];
+    const desktop = labels.filter((l) => l.startsWith("desktop"));
+    const phone = labels.filter((l) => l.startsWith("phone"));
+    expect(
+      desktop.length,
+      `the width split (desktop=${desktop.length} phone=${phone.length})`,
+    ).toBe(phone.length);
+    for (const d of desktop) {
+      const twin = `test("${d.replace(/^desktop/, "phone")}`;
+      expect(spec, `the phone twin of "${d}"`).toContain(twin);
+    }
+    // the family's live count equals the machine's un-page-registered
+    // state count (the surface-blind register's own proof: every
+    // whole-card view state the machine names is registered)
+    const states = loginViewStates();
+    const pageRegistered = new Set(["signin", "signup"]);
+    const expected = states.filter((s) => !pageRegistered.has(s)).length;
+    expect(
+      desktop.length,
+      `the family covers the machine's un-page-registered states (${expected})`,
+    ).toBe(expected);
+  });
+});
+

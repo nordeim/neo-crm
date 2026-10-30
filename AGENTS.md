@@ -17,9 +17,9 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2832 checks)      | `bun run test`                         |
+|  Unit tests (2837 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
-|  Browser E2E (217 checks)        | `bun run test:e2e` (needs build first) |
+|  Browser E2E (223 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -33,10 +33,10 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2832) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2837) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
-`bun run test:e2e` (217) — or the one-command `bun run gate` (session-38:
+`bun run test:e2e` (223) — or the one-command `bun run gate` (session-38:
 the same chain as a package script, so the build always precedes the e2e
 boot; session-39: the e2e step runs under `CI=1`, so
 `reuseExistingServer` evaluates false and the gate ALWAYS boots the
@@ -13080,4 +13080,133 @@ the triple-pinned posture) · db census MATCH · probe:ref STABLE · the
 captures: the phone dialog-open pair (ours + the reference — the
 round's own 390×844 axis) + the dev-server set of the eleven phone
 dialog-open states + the mobile drawer-open face under
+`docs/screenshots/`.
+
+### Session-202 — THE A11Y REGISTER'S LOGIN-CARD CLIENT-STATE COVERAGE AUDIT (the three view states + the spec's own surface-blind criterion claim) (2026-10-30)
+
+The post-201 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`35b2c97` — the session_425 transcript, the s201 round's own
+execution record). The round took THE S201 CLOSE'S BANKED STANDING
+CANDIDATE — the register's client-state arms: the login card's in-card
+view states. The register's live census 55 registrations (33
+page-family + 22 dialog-open + ZERO client-state view) while the
+login card's view machine (`src/lib/login-reset.ts`: `signin | reset |
+sent | signup | verify`) renders WHOLE-CARD DOM surfaces no resting
+scan ever sees — THE SURFACE-BLIND GENUS (the register's own head
+criterion claims "one test() per surface × width" but its STATE axis
+was never adjudicated against the machine's inventory: 3 whole-card
+view states carrying zero registrations at ANY width, no pin
+cross-reading the union). The other discovery legs: the standing
+data-gated re-checks ALL KILLED at the reference's unchanged
+zero-data state (probe:ref STABLE at `46bc2d9c` — the
+discover-184..202 standing census) · the conditional gates KILLED
+(the registry's latest recharts 3.10.1) · the s120-era re-walk kill
+STANDING (the leads family source-frozen since s113 — 89 sessions) ·
+the pre-ship audit duty CLEAN against the s198 triple pins (bun
+audit 9: 4h/4m/1l — no drift; the dormancy re-verified).
+
+**TWO CURES — the client-state round** (the round's material was the
+A11Y BATTERY, not the pixels):
+
+- **D-202a1 — THE REGISTER'S CLIENT-STATE COVERAGE.** THE CURE: +6
+  e2e registrations at BOTH widths (the open-state form with the
+  VIEW-SENTINEL h2 open-wait guards — the L-164c2 vacuous-green
+  cure): the reset view (the "Forgot password?" swap) ×2 · the sent
+  view (the demo-email "Send reset link" POST — the no-enumeration
+  200 + the resetUrl anchor, the RICHER face) ×2 · the verify view
+  (the in-card "Need an account?" signup ladder on a throwaway email
+  — the s163 in-app OTP delivery) ×2. THE PINS (the dialog-controls
+  suite, the one-suite doctrine): the containment pair + the
+  client-state census pin (six, live-read) — RED-first at birth
+  (exactly 5 RED, zero collateral) → the registrations → born-green
+  (6/6 the first run; the full spec 62 passed). MUTATION-PROVEN: the
+  planted `aria-label={`Digit ${idx + 1}`}` removal on the verify
+  view's six code inputs (the client-state name-evaporation genus
+  decoded live at the discovery: the aria-label the ONLY accessible
+  name — no wired label, no placeholder, no title) → BOTH verify-view
+  registrations RED exactly at the axe `label` rule (the six nameless
+  inputs; the rides still complete — the sentinel is the heading, the
+  SCAN catches the genus) → EVERY other registration GREEN (the
+  /login page registrations scan the signin view; the dialog families
+  never reach the login card — the register's surface-blindness, the
+  round's own rationale) → restored → GREEN.
+- **D-202a2 — THE SPEC'S OWN SURFACE-BLIND CRITERION CLAIM.** The
+  head criterion ("one test() per surface × width") has been
+  surface-blind since the register's s171 birth for the client-state
+  genus: the view machine renders whole-card surfaces no resting scan
+  sees, the criterion's STATE axis was never adjudicated against the
+  machine's inventory, and no pin has ever held it (the s201
+  width-pair pin holds the WIDTH axis only). THE CURE: the
+  client-state family registered (the criterion TRUE on the state
+  axis for every family — a1) + THE PIN PAIR: the state-machine
+  census (every `LoginView` state the machine names rides the
+  two-gate somewhere — the live cross-read of the
+  `src/lib/login-reset.ts` union against the register's labels: a
+  future view state added to the machine without its registration
+  trips it) + the state-pair census (every view-state registration
+  carries its width twin + the family's live count equals the
+  machine's un-page-registered state count) — RED-first at birth →
+  the registrations → GREEN. MUTATION-PROVEN: the planted phone
+  verify-twin removal trips the state-pair census + the
+  containment-b + the client-state census (exactly 3 RED; the
+  state-machine census stays GREEN by design — the state axis holds
+  via the desktop twin, the correct state/width division of labor) →
+  restored → GREEN.
+
+**THE REQUIRED TEST-SIDE RE-ANCHOR:** the s200 (g) page-family census
+pin re-anchored to subtract BOTH non-page families (total minus
+dialog-open minus view-state = 33 — the s201 (e) re-anchor precedent,
+the live read moving with the register).
+
+**DECLINED** (recorded considered-and-declined in the plan): the
+reset-password no-token card state (the same-component adjudication —
+the s200 posture stands) · the landing page's client-state arms (the
+FAQ open-item switch + the mobile disclosure menu — the marketing
+batteries hold the wiring; the round's genus is the login card's
+whole-column view swaps) · the signup view's in-card registration at
+/login (the same-component adjudication — the /signup page
+registration scans the identical DOM, the s199 Edit Event/Activity
+precedent).
+
+**THE COUNT LADDER + THE LOCKSTEP**: UNIT 2832 → **2837** (+5: the
+dialog-controls session-202 describes — the containment pair + the
+client-state census + the state-machine census + the state-pair
+census) · SUITES **138 HELD** (the one-suite doctrine) · E2E 217 →
+**223** (+6: the six view-state registrations; the Appendix B a11y
+row re-anchored 55 → 61) · badge 3049 → **3060** (the unit+e2e
+arithmetic: 2837+223). skill-head-202.py ran FIRST (the SKILL
+v1.199.0, the s201 layer comment-demoted at its ship counts
+2832/217, the s202 layer live at 2837/223, idempotent) ·
+count-ladder-202.py (assert-first, idempotent, unique-anchor — the
+docs-counts UNIT + E2E constants · the README badge + Tested row +
+tree + commands + the two s102-P1 e2e tree/commands sites · the
+AGENTS commands + gate-order (unit + e2e) · the CLAUDE gate-order +
+commands + pyramid (unit + e2e) + the coverage seam + the a11y family
+description's s202 closure (the login card's three in-card view
+states registered at both widths — every LoginView state the machine
+names rides the two-gate) · the PAD tree + Total + HEAD + checklist +
+commands + the §11 a11y row (the line census 764 → 881 + the family)
++ the §11 dialog-controls row (391 → 514 + the s202 pins — the
+F-168c live-census pin catching the first-draft 510 claim mid-flight)
+· the SKILL commands + Appendix B unit + e2e totals + the a11y row 55
+→ 61) + the test-side re-anchors in the same stroke (the docs-counts
+layer-axis [first = s202, second = s201 at its ship 2832/217] + the
+unit negatives ladder [the retired 2832 site-forms join the
+negatives] + the login-family E2E ladder [the retired E2E 217 form
+joins its negatives, the live positive re-anchored 223] + the
+dialog-geometry-parity F-92a3 ladder [the four CLAUDE live positives
+re-anchored 2837 + the 2832 forms join the negatives]). The docs
+lockstep: this AGENTS Session-202 section · `docs/session_426.md` ·
+the PAD §7.1 s202 inventory row + the §11 rows · the README
+walk-contracts paragraph's s202 clause · the plan's execution record
+· the worklog entry {Task ID: 202}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2837** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **223/223** · the
+four-band sweep GREEN (the cure's baseline-inertness proof — zero
+pixel-bearing surface touched) · `bun audit` (9, all dev-toolchain,
+the triple-pinned posture) · db census MATCH · probe:ref STABLE ·
+the captures: the client-state pair (ours + the reference — the
+round's own reset-view axis) + the dev-server set of the three view
+states at both widths + the mobile drawer-open face under
 `docs/screenshots/`.

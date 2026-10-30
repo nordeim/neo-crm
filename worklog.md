@@ -6505,3 +6505,66 @@ Stage Summary:
 - THE DECLINED (recorded considered-and-declined in the plan): the Edit Event + Edit Activity edit modes at phone (the same-component adjudication carried to the width axis) · the login card's in-card view states at phone (the client-state genus) · the drawer-open state at desktop (the width-inverse — the drawer renders at PHONE only)
 - THE VERIFICATION: lint 0/0 · tsc 0 · 138/2832 unit · build (the type-gate artifact) · smoke 14/14 · e2e 217/217 · the four-band sweep GREEN (--fail-on-drift at desktop + 390 + 768x1024 + 1024x768 — the cure's baseline-inertness sweep-proven; the seed restored after every run) · bun audit 9 (4h/4m/1l — the triple-pinned posture) · db census MATCH · probe:ref STABLE
 - SHIPPED: the remediated codebase committed to main and pushed via docs/ssh_git_wrapper_v3.py (the remote verified; no new branches)
+
+
+---
+
+## Task ID 202 — THE A11Y REGISTER'S LOGIN-CARD CLIENT-STATE COVERAGE AUDIT (the session-202 round)
+
+- **WP-1 (the audit + the cures)**: the post-201 rotation (trigger
+  `35b2c97` — the session_425 transcript). The baseline GREEN at the
+  s201 ship state (lint 0/0 · tsc 0 · 138/2832 · db census MATCH).
+  The discovery (scripts/discover-202.ts): the standing legs
+  KILLED/CLEAN (probe:ref STABLE at 46bc2d9c · bun audit 9 =
+  the s198 pins · the leads freeze standing · recharts 3.10.1) ·
+  THE MATERIAL: the register's 55 registrations carried ZERO
+  client-state view entries while the login card's view machine
+  renders whole-card surfaces no resting scan sees (the
+  surface-blind genus; 3 unregistered states; no state-axis pin) ·
+  the live probes 6/6 born-green at both widths · the mutation
+  candidate decoded (the verify view's six code inputs — the
+  aria-label the ONLY name). TWO CURES: D-202a1 +6 e2e registrations
+  (the reset/sent/verify views × both widths, the view-sentinel h2
+  guards; RED-first 5 → born-green 6/6; MUTATION-PROVEN: the
+  aria-label plant → exactly the 2 verify registrations RED at the
+  axe label rule, every other registration GREEN) · D-202a2 the
+  state-axis pin pair (the state-machine census [the live cross-read
+  of the LoginView union] + the state-pair census; MUTATION-PROVEN:
+  the twin removal → exactly 3 RED) · the s200 (g) census re-anchor
+  (the live read subtracting BOTH non-page families).
+- **WP-2**: skill-head-202.py ran FIRST (the SKILL v1.199.0, the
+  s201 layer comment-demoted at its ship counts 2832/217, the s202
+  layer live at 2837/223, idempotent) · count-ladder-202.py (UNIT
+  2832 -> 2837 [+5: the dialog-controls session-202 describes] · E2E
+  217 -> 223 [+6: the six view-state registrations] · badge 3049 ->
+  3060 [the unit+e2e arithmetic: 2837+223]; assert-first, idempotent
+  — 46 flips incl. the CLAUDE a11y family description's s202
+  closure [every LoginView state the machine names rides the
+  two-gate] · the PAD tree + Total + HEAD + checklist + commands +
+  the §11 a11y row [764 -> 881 + the family] + the §11
+  dialog-controls row [391 -> 514 + the s202 pins — the F-168c
+  live-census pin catching the first-draft 510 claim mid-flight] ·
+  the SKILL commands + the Appendix B unit total + the a11y row
+  [55 -> 61] + the e2e total) + the test-side re-anchors in the same
+  stroke (the docs-counts layer-axis [first = s202, second = s201 at
+  its ship 2832/217] + the unit negatives ladder [the retired 2832
+  site-forms join the negatives] + the login-family E2E ladder [the
+  retired E2E 217 form joins its negatives, the live positive
+  re-anchored 223] + the dialog-geometry-parity F-92a3 ladder [the
+  four CLAUDE live positives re-anchored 2837 + the 2832 forms join
+  the negatives]) · the docs lockstep (the AGENTS Session-202
+  section · session_426.md · the PAD §7.1 s202 inventory row
+  [inserted BEFORE the Total row] + the §11 rows · the README
+  walk-contracts paragraph's s202 clause · the plan's execution
+  record · this worklog entry [Task ID 202])
+- **WP-3 (the captures + the verification)**: the captures 660-669
+  (the round's client-state pair ours+ref at the desktop axis — the
+  reset view, the VLM battery: "structurally identical in styling
+  and layout" [the sole structural note the reference's own Base44
+  FAB — the s149 platform genus, never mirrored] — + the dev-server
+  set: the three view states at both widths + the mobile drawer-open
+  face + the dashboard) · THE FINAL GATE FULLY GREEN: lint 0/0 · tsc
+  0 · 138/2837 unit · build · smoke 14/14 · e2e 223/223 · the
+  four-band sweep GREEN (--fail-on-drift at desktop + 390 + 768×1024
+  + 1024×768) · bun audit 9 (all dev-toolchain, the triple-pinned
+  posture) · db census MATCH · probe:ref STABLE

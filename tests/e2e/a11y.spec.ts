@@ -762,3 +762,120 @@ test.describe("the dialog-open two-gate: the edit + standalone dialogs at phone 
     await page.keyboard.press("Escape");
   });
 });
+
+// ---------------------------------------------------------------------------
+// The client-state two-gate: the session-202 login-card view states.
+// The register's families were URL-addressable (page routes +
+// click-opened dialogs) while the login card's view machine
+// (src/lib/login-reset.ts: signin | reset | sent | signup | verify)
+// renders WHOLE-CARD DOM surfaces no resting scan ever sees — the
+// s172 closed-by-default genus's client-state sibling (the view swaps
+// REPLACE the card's column entirely: no logo, no Google button, no
+// divider). The register carried ZERO view-state registrations at ANY
+// width (the surface-blind genus — the s201 close's banked standing
+// candidate); the discovery (discover-202 LEG-5b) probed every state
+// live at BOTH widths: 6/6 structural=0, zero contrast flags.
+//
+// THE RIDES: each registration swaps the card to its view and WAITS
+// ON THE VIEW'S h2 SENTINEL before scanning (the L-164c2
+// vacuous-green cure — a silently-failed swap would otherwise scan
+// the signin view behind the label). The sent view rides the DEMO
+// email's forgot-password POST (the no-enumeration 200; the in-app
+// delivery answers the resetUrl anchor — the RICHER face, the s200
+// reset-password precedent; the token row is census-inert and the
+// e2e db is the scratch reseeded context). The verify view rides the
+// in-card "Need an account?" signup ladder on a throwaway email (the
+// s163 in-app OTP delivery; a write the auth.spec/reset-password
+// batteries already sanction — the signup budget: 9/10 per IP/15min
+// with retries 0).
+//
+// THE MUTATION LANDSCAPE (decoded live at LEG-5c): the verify view's
+// six code inputs carry `aria-label="Digit N"` as their ONLY
+// accessible name (no wired <label>, no placeholder, no title) — the
+// client-state name-evaporation genus. The getByLabel-driven rides
+// still complete under a dropped aria-label (the sentinel is the
+// heading), but the SCAN catches the six nameless inputs at the axe
+// `label` rule — no other registration ever scans this DOM (the
+// register's surface-blindness was the round's own rationale).
+// ---------------------------------------------------------------------------
+test.describe("the a11y two-gate: the login card's client-state views (session-202)", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test("desktop /login with the reset view OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/login");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "Forgot password?" }).click();
+    await page.getByRole("heading", { name: "Reset your password" }).waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "desktop /login (reset view OPEN)");
+  });
+
+  test("phone /login with the reset view OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/login");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "Forgot password?" }).click();
+    await page.getByRole("heading", { name: "Reset your password" }).waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /login (reset view OPEN)");
+  });
+
+  test("desktop /login with the sent view OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/login");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "Forgot password?" }).click();
+    await page.getByRole("heading", { name: "Reset your password" }).waitFor({ state: "visible", timeout: 10000 });
+    await page.getByLabel("Email").fill("sepnetflix2023@outlook.com");
+    await page.getByRole("button", { name: "Send reset link" }).click();
+    await page.getByRole("heading", { name: "Check your email" }).waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "desktop /login (sent view OPEN)");
+  });
+
+  test("phone /login with the sent view OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/login");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "Forgot password?" }).click();
+    await page.getByRole("heading", { name: "Reset your password" }).waitFor({ state: "visible", timeout: 10000 });
+    await page.getByLabel("Email").fill("sepnetflix2023@outlook.com");
+    await page.getByRole("button", { name: "Send reset link" }).click();
+    await page.getByRole("heading", { name: "Check your email" }).waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /login (sent view OPEN)");
+  });
+
+  test("desktop /login with the verify view OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/login");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: /Need an account\?/ }).click();
+    await page.getByRole("heading", { name: "Create your account" }).waitFor({ state: "visible", timeout: 10000 });
+    await page.getByLabel("Email").fill(`a11y-verify-${Date.now()}@example.com`);
+    // exact: the "Password" label substring-matches "Confirm Password"
+    // (auth.spec's own strict-mode idiom)
+    await page.getByLabel("Password", { exact: true }).fill("A11yThrowaway1!");
+    await page.getByLabel("Confirm Password").fill("A11yThrowaway1!");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByRole("heading", { name: "Verify your email" }).waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "desktop /login (verify view OPEN)");
+  });
+
+  test("phone /login with the verify view OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/login");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: /Need an account\?/ }).click();
+    await page.getByRole("heading", { name: "Create your account" }).waitFor({ state: "visible", timeout: 10000 });
+    await page.getByLabel("Email").fill(`a11y-verify-phone-${Date.now()}@example.com`);
+    await page.getByLabel("Password", { exact: true }).fill("A11yThrowaway1!");
+    await page.getByLabel("Confirm Password").fill("A11yThrowaway1!");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByRole("heading", { name: "Verify your email" }).waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone /login (verify view OPEN)");
+  });
+});
