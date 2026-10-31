@@ -17,9 +17,9 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2837 checks)      | `bun run test`                         |
+|  Unit tests (2841 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
-|  Browser E2E (223 checks)        | `bun run test:e2e` (needs build first) |
+|  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
 | DB census (path + counts)       | `bun run db:census`                    |
 | The full gate in one command    | `bun run gate`                         |
@@ -33,10 +33,10 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2837) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2841) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
-`bun run test:e2e` (223) — or the one-command `bun run gate` (session-38:
+`bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
 the same chain as a package script, so the build always precedes the e2e
 boot; session-39: the e2e step runs under `CI=1`, so
 `reuseExistingServer` evaluates false and the gate ALWAYS boots the
@@ -52,10 +52,14 @@ the FASTER signal; never skip it. Session-164
 adds the skill §14 pre-ship step: run `bun audit` periodically (NOT
 inside the gate — it is a network dependency and the gate must stay
 offline-runnable, the probe doctrine); the current state is triaged in
-the PAD known-issues ledger (9 advisories, all dev-toolchain transitive,
+the PAD known-issues ledger (10 advisories, all dev-toolchain transitive,
 zero runtime request-path exposure — re-triaged session-198: the runtime
 jspdf›dompurify chain's critical cured by the 3.4.17 transitive
-override, lockfile-pinned + dormancy-pinned + ledger-pinned).
+override, lockfile-pinned + dormancy-pinned + ledger-pinned;
+re-triaged session-203: the standing duty caught the census drift 9 → 10
+— the new moderate GHSA-g3hv-75wg-m249 on minimatch, dev-toolchain via
+the eslint family, lint-time only, no mid-rotation bump — the posture
+held, the pins re-anchored at the live census).
 
 First-run setup: `bun install && cp .env.example .env && bun run db:push &&
 bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
@@ -13210,3 +13214,158 @@ the captures: the client-state pair (ours + the reference — the
 round's own reset-view axis) + the dev-server set of the three view
 states at both widths + the mobile drawer-open face under
 `docs/screenshots/`.
+
+### Session-203 — THE A11Y REGISTER'S LANDING-PAGE CLIENT-STATE COVERAGE AUDIT + THE STANDING DUTY'S AUDIT-CENSUS DRIFT (the marketing-state arms + the minimatch re-triage) (2026-10-31)
+
+The post-202 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`549e5d2` — the session_427 transcript, the s202 round's own
+execution record). The round took THE S202 CLOSE'S BANKED STANDING
+CANDIDATE — the register's marketing client-state arms: the landing
+page's client-state machines. The register's live census was 61
+registrations (33 page-family + 22 dialog-open + 6 client-state view +
+ZERO marketing client-state) while the PUBLIC landing surface carries
+exactly TWO client-state machines (the source census:
+`LandingHeader`'s `menuOpen` + `Faq`'s `openIndex` — the /About +
+/Contact interiors carry NONE) whose non-resting states render DOM the
+resting `/` registration never sees — THE MARKETING-STATE GENUS (the
+register's own head criterion claims "one test() per surface × width"
+but the landing's machines were never adjudicated against the register
+and no pin cross-reads them — the s202a2 state-axis doctrine's
+marketing arm; the s202 DECLINED posture "the batteries hold the
+wiring" carried without a single two-gate tooth on the arms):
+the mobile disclosure menu's OPEN panel (a whole-panel MOUNT of 6
+link controls [Features · Preview · Pricing · FAQ · Contact · Open
+dashboard] at phone width only — the `md:hidden` width-inverse, the
+drawer-genus sibling on the marketing surface; the header div count
+2 → 3 on open, the mount/unmount construction) + the FAQ's
+non-default open-item states (the answer `<p>` of an item whose
+resting state is closed, mounted while the resting Q1 answer
+unmounts). The round's SECOND material caught by the standing
+pre-ship duty: `bun audit` 9 → 10 (4 high / 5 moderate / 1 low) —
+the NEW moderate GHSA-g3hv-75wg-m249 on minimatch <11.0.1 ("potential
+denial of service via globparts amplification") via the DEV-TOOLCHAIN
+eslint family (`eslint › @eslint/eslintrc › minimatch` +
+`eslint-config-next › typescript-eslint › typescript-estree ›
+minimatch`) — lint-time transitive only, zero runtime exposure, the
+exact genus of the other nine.
+
+**THE DISCOVERY** (`scripts/discover-203.ts`): the standing
+data-gated re-checks ALL KILLED at the reference's unchanged
+zero-data state (the discover-184..203 standing census) · the
+conditional gates KILLED (probe:ref STABLE at `46bc2d9c`; the
+registry's latest recharts 3.10.1) · the s120-era re-walk kill
+STANDING (the leads family source-frozen since s113 — 90 sessions)
+· the pre-ship audit duty DRIFT (the census 9 → 10 above; the
+dormancy `.html(`= 0 re-verified) · the live axe probes verified
+every marketing arm (3/3 structural=0 — the FAQ non-default state at
+BOTH widths + the menu-open state at phone; every contrast flag
+citing a sanctioned matcher) · the mutation-candidate decoded live
+(the mobile menu toggle's `aria-label="Toggle navigation"` the ONLY
+accessible name — an ICON-ONLY `md:hidden` button: the Menu/X svg, no
+text, no wired label, no title; the s201 contacts Import trigger
+genus's md:hidden sibling) · the panel-mount decode (the header div
+count 2 → 3; the mounted panel's 6 link controls) · the FAQ state
+decode (the open-answer TEXT-ONLY, controls=0; the non-default
+state's unique surfaces the Q6 answer mounted + the Q1 face closed).
+
+**THE CURES (the TDD ledger)**:
+
+- **D-203a1 — THE REGISTER'S MARKETING CLIENT-STATE COVERAGE.** +3
+  e2e registrations (the anon-family form): the FAQ non-default open
+  state at BOTH widths (the Q6 ride with the L-164c2 SENTINEL PAIR:
+  `#faq-answer-5` visible + `#faq-answer-0` hidden — the single-open
+  invariant, the state the registration claims to scan) + the mobile
+  menu OPEN at phone (the toggle ride → the `div.md\:hidden.border-t`
+  panel mount + its unique "Preview" link — the only Preview link
+  visible at 390). + THE PINS (the dialog-controls session-203 (m)
+  describe, the one-suite doctrine): the containment pair + the
+  marketing client-state census (three, live-read) + the FAQ
+  width-pair census + the menu arm's phone-only NEGATIVE. RED-first
+  at birth (exactly 4 RED, zero collateral) → the registrations →
+  born-green (3/3 the first run; the full scoped spec 65 passed).
+  MUTATION-PROVEN: the planted `aria-label="Toggle navigation"`
+  removal on the landing menu toggle → the NEW menu-open registration
+  RED at its role-based opener (the nameless trigger unfindable by
+  name — the s201 Import-opener form) + the NEW phone FAQ
+  registration RED + the STANDING phone / landing registration RED
+  exactly at the axe button-name rule (`.md\:hidden`) → EVERY desktop
+  registration GREEN (the toggle computes display:none at ≥md — the
+  width-blindness proof, the round's own rationale) → restored →
+  GREEN.
+- **D-203a2 — THE CRITERION'S MARKETING-STATE PIN PAIR.** No pin
+  cross-read the landing surface's machines against the register (the
+  s202a2 state-machine census holds the LOGIN machine only). THE
+  CURE: the marketing family registered + the (m) pin pair.
+  MUTATION-PROVEN: the planted phone FAQ-twin removal trips the
+  width-pair census + the containment-a + the census (exactly 3 RED;
+  the (g) census GREEN by design — the total and the family count
+  drop together) → restored → GREEN (38/38).
+- **D-203a3 — THE STANDING DUTY'S AUDIT-CENSUS DRIFT (the s198
+  D-198a2 doctrine re-applied).** The PAD §10 ledger row + the AGENTS
+  gate-order note + the docs-counts pin triplex carried the
+  s198-pinned census 9 while the live audit reads 10. Re-anchored at
+  the live 10 (4 high / 5 moderate / 1 low) + the minimatch chain +
+  the RE-TRIAGED session-203 clause (the drift 9 → 10 ·
+  GHSA-g3hv-75wg-m249 · zero runtime exposure · no mid-rotation
+  toolchain bump — the standing posture: a toolchain bump forces the
+  standing pixel baselines' re-derivation, its own rotation); the
+  AGENTS note keeps the s198 clause verbatim beneath the s203 tail.
+  MUTATION-PROVEN: the planted stale-9 row reversion trips the
+  re-anchored pin exactly once → restored → GREEN.
+- **THE REQUIRED TEST-SIDE RE-ANCHOR**: the s200 (g) page-family
+  census pin re-anchored to subtract ALL THREE non-page families
+  (total minus dialog-open minus view-state minus
+  marketing-client-state = 33 — the s202 (g) re-anchor precedent).
+
+**DECLINED** (recorded considered-and-declined in the plan): the FAQ
+all-closed state (the minus-construction — the richer-face
+adjudication: the has-open family is the registered face) · the FAQ
+non-default members Q2..Q5 individually (the same-construction family
+— Q6 the registered representative, the maximal-distance scan) · the
+desktop mobile-menu twin (the width-inverse — the s201
+drawer-at-desktop doctrine) · the marketing interiors' client-state
+arms (none exist — the source census found exactly two useState
+machines on the landing, zero on the interiors) · a mid-rotation
+eslint-family bump to cure minimatch (the standing
+no-mid-rotation-bump posture).
+
+**THE COUNT LADDER**: UNIT 2837 → **2841** (+4: the dialog-controls
+session-203 (m) describes) · SUITES **138 HELD** · E2E 223 → **226**
+(+3: the three marketing client-state registrations; the Appendix B
+a11y row re-anchored 61 → 64) · badge 3060 → **3067** (the unit+e2e
+arithmetic: 2841+226). The head surgery first (skill-head-203.py —
+the SKILL v1.200.0, the s202 layer comment-demoted at its ship counts
+2837/223, the s203 layer live at 2841/226, idempotent), then
+count-ladder-203.py (assert-first, idempotent, unique-anchor — the
+doc flips + the test-side re-anchors: the docs-counts layer-axis +
+the 2837 unit negatives + the login-family E2E ladder + the
+dialog-geometry-parity F-92a3 ladder; the live-census F-168c pin
+caught the mid-flight Appendix B row, the §11 rows re-anchored by
+the line-prefix form). The docs lockstep: this AGENTS Session-203
+section · `docs/session_428.md` · the PAD §7.1 s203 inventory row +
+the §11 a11y + dialog-controls rows · the README walk-contracts
+paragraph's s203 clause · the plan's execution record · the worklog
+entry {Task ID: 203}.
+
+**THE VERIFICATION**: lint 0/0 · tsc 0 · **138/2841** unit · build
+(the type-gate artifact) · smoke **14/14** · e2e **226/226** · the
+four-band sweep GREEN (the cure's baseline-inertness proof — zero
+pixel-bearing surface touched) · `bun audit` (10: 4 high / 5
+moderate / 1 low — the RE-PINNED census, the triplex re-anchored) ·
+db census MATCH · probe:ref STABLE · the captures: the marketing
+client-state pair (ours + the reference — the round's own
+menu-open axis at the 390×844 phone band) + the dev-server set of
+the FAQ non-default state at both widths + the menu-open dev face +
+the mobile drawer-open face + the dashboard under
+`docs/screenshots/`. THE FULL-GATE RIDE'S LIVE CATCHES (both
+test-side, zero product-code motion): the calendar month-boundary
+test's DATE-QUIRK (October 31 — the trigger date: the raw
+`setMonth(+1)` overflows on the month's last day, so the cursor
+read December already and hopped onto the November view — the
+L-164c1 family's date sibling; cured with the DAY-1-ANCHORED
+constructor form the rest of the calendar family already uses,
+green isolated ON THE TRIGGER DATE + green in the full re-run, the
+count held) · the settings-defaults focus contract's under-load
+flake (the S72-P2 spec tripped once in three full runs, passing
+isolated + on the final green run — the KNOWN s164 starved-read
+lineage; the lineage stands recorded for the next recurrence).

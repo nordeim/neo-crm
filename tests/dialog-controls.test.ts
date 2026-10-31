@@ -277,9 +277,14 @@ describe("session-200 (g): the register's page-surface coverage closure — the 
     // precedent: the live read moves with the register, the page-family
     // count stays the page family's own)
     const views = (spec.match(/\([^)]*view OPEN\)/g) ?? []).length;
+    // session-203: the marketing client-state family (+3 — the FAQ pair +
+    // the menu arm) joined the register — the census subtracts ALL THREE
+    // non-page families (the s202 (g) re-anchor precedent carried one
+    // step further; the page-family count stays the page family's own)
+    const marketing = (spec.match(/\([^)]*(?:FAQ item|menu) OPEN\)/g) ?? []).length;
     expect(
-      total - dialogs - views,
-      `the page-family count (total test()=${total} minus dialog-open=${dialogs} minus view-state=${views})`,
+      total - dialogs - views - marketing,
+      `the page-family count (total test()=${total} minus dialog-open=${dialogs} minus view-state=${views} minus marketing-client-state=${marketing})`,
     ).toBe(33);
   });
 });
@@ -509,6 +514,68 @@ describe("session-202 (l): the register's head criterion is state-true (every Lo
       desktop.length,
       `the family covers the machine's un-page-registered states (${expected})`,
     ).toBe(expected);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// (m) The session-203 marketing client-state closure — the landing
+// page's client-state arms. The register's families covered the CRM
+// pages, the dialogs, and the login card's view machine — while the
+// PUBLIC landing surface carries exactly two client-state machines
+// (LandingHeader's menuOpen + Faq's openIndex) whose non-resting
+// states render DOM the resting page-family scan never sees: the
+// mobile disclosure menu's OPEN panel (a whole-panel MOUNT of 6 link
+// controls at phone width only — the md:hidden width-inverse, the
+// drawer-genus sibling on the marketing surface) + the FAQ's
+// non-default open-item states (the answer <p> of an item whose
+// resting state is closed, mounted while the resting Q1 answer
+// unmounts). The register carried ZERO marketing client-state
+// registrations at ANY width (the s202 close's banked standing
+// candidate); the discovery (discover-203 LEG-5b) probed every arm
+// live — 3/3 structural=0, every contrast flag citing a sanctioned
+// matcher — the registrations are born-green; these spec-contract
+// pins hold them (a future silent removal trips the census arm + the
+// containment arms by name).
+// ---------------------------------------------------------------------------
+describe("session-203 (m): the register's marketing client-state closure — the landing page's client-state arms ride the two-gate", () => {
+  const SPEC = "tests/e2e/a11y.spec.ts";
+
+  it("the FAQ open-item family rides the two-gate at both widths (the non-default item's answer mounted — the client-state toggle face)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("desktop / (landing, anon) with a non-default FAQ item OPEN');
+    expect(spec).toContain('test("phone / (landing, anon) with a non-default FAQ item OPEN');
+  });
+
+  it("the mobile disclosure menu rides the two-gate at phone width (the drawer-genus sibling — the md:hidden width-inverse)", () => {
+    const spec = read(SPEC);
+    expect(spec).toContain('test("phone / (landing, anon) with the mobile disclosure menu OPEN');
+    // the phone-only doctrine pinned as a NEGATIVE: the md:hidden
+    // toggle renders at no >=768 band, so the family carries NO
+    // desktop twin (the s201 declined drawer-at-desktop doctrine — a
+    // future width-scope overreach never lands silently)
+    expect(spec).not.toContain('test("desktop / (landing, anon) with the mobile disclosure menu OPEN');
+  });
+
+  it("the marketing client-state census: three registrations (the FAQ pair + the menu arm — the live read)", () => {
+    const spec = read(SPEC);
+    const labels = spec.match(/test\("(?:desktop|phone) [^"]*(?:FAQ item|menu) OPEN[^"]*"/g) ?? [];
+    expect(
+      labels,
+      `the marketing client-state registration names (found ${labels.length})`,
+    ).toHaveLength(3);
+  });
+
+  it("the FAQ width-pair census: every FAQ registration carries its width twin (the live read)", () => {
+    const spec = read(SPEC);
+    const labels = spec.match(/test\("(desktop [^"]*FAQ item OPEN[^"]*)"/g)?.map((s) => s.slice(6, -1)) ?? [];
+    expect(
+      labels.length,
+      "the desktop FAQ registration count",
+    ).toBe(1);
+    for (const d of labels) {
+      const twin = `test("${d.replace(/^desktop/, "phone")}`;
+      expect(spec, `the phone twin of "${d}"`).toContain(twin);
+    }
   });
 });
 

@@ -1,0 +1,306 @@
+#!/usr/bin/env python3
+"""count-ladder-203.py — the UNIT 2837 -> 2841 + E2E 223 -> 226 + badge
+3060 -> 3067 lockstep.
+
+The s165 assert-first form: every flip asserts the OLD form is UNIQUE
+before replacing; a re-run is a verified no-op (the new form present ->
+skip). The historical record sites (the AGENTS Session-202 section, the
+PAD s202 inventory row, the SKILL's demoted s202 layer) keep their
+ship-time counts by doctrine — only the LIVE-tense sites flip.
+
+Sites (the doc flips + the test-side re-anchors in the same stroke):
+  README  badge + Tested row + tree + commands + the e2e tree/commands
+  AGENTS  commands (unit + e2e) + gate-order (unit + e2e)
+  CLAUDE  gate-order + commands (unit + e2e) + pyramid (unit + e2e)
+          + the coverage seam + the a11y family description (the s203
+          closure: the landing page's client-state arms — the FAQ
+          non-default open state at both widths + the mobile disclosure
+          menu open at phone, the md:hidden width-inverse)
+  PAD     tree (unit + e2e) + Total + HEAD + checklist (unit + e2e)
+          + commands (unit + e2e) + the section-11 a11y row (the line
+          census 881 -> 967 + the family) + the section-11
+          dialog-controls row (514 -> 581 + the s203 pins)
+  SKILL   commands (unit + e2e) + Appendix B (unit total + the a11y row
+          61 -> 64 + the e2e total)
+  tests/docs-counts.test.ts        the UNIT + E2E constants + the
+                                   layer-axis pair + the 2837 negatives
+  tests/dialog-geometry-parity    the four F-92a3 live positives + the
+                                   2837 negatives (4 assertions join)
+  tests/login-family-parity        the E2E 223 negative joins + the live
+                                   positive re-anchored 226
+"""
+
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def flip(path: str, old: str, new: str, label: str) -> None:
+    p = ROOT / path
+    t = p.read_text(encoding="utf8")
+    if new in t and old not in t:
+        print(f"  no-op  [{path}] {label}")
+        return
+    n = t.count(old)
+    assert n == 1, f"[{path}] {label}: the old form found {n} times (expected 1)"
+    p.write_text(t.replace(old, new, 1), encoding="utf8")
+    print(f"  flip   [{path}] {label}")
+
+
+def flip_line(path: str, prefix: str, must_contain: list[str], new_line: str, label: str) -> None:
+    """Replace ONE table row identified by its unique line prefix — the
+    s180 table-termination doctrine. The long section-11 rows carry
+    unicode the shell transcripts mangle; matching by prefix + asserted
+    substrings is the robust form (the F-168c live-census doctrine: the
+    row's COUNT is the pinned face, the prose moves with the round)."""
+    p = ROOT / path
+    lines = p.read_text(encoding="utf8").split("\n")
+    hits = [i for i, l in enumerate(lines) if l.startswith(prefix)]
+    if not hits and any(new_line in l for l in lines):
+        print(f"  no-op  [{path}] {label}")
+        return
+    assert len(hits) == 1, f"[{path}] {label}: the row prefix found {len(hits)} times"
+    old_row = lines[hits[0]]
+    for needle in must_contain:
+        assert needle in old_row, f"[{path}] {label}: the row lacks {needle!r}"
+    lines[hits[0]] = new_line
+    p.write_text("\n".join(lines), encoding="utf8")
+    print(f"  flip   [{path}] {label}")
+
+
+# --- README ------------------------------------------------------------------
+flip("README.md", "tests-3060%20checks", "tests-3067%20checks", "the badge (2841+226)")
+flip("README.md",
+     "| 🧪 Tested | 2837 Vitest unit checks + 223 Playwright E2E checks,",
+     "| 🧪 Tested | 2841 Vitest unit checks + 226 Playwright E2E checks,",
+     "the Tested row")
+flip("README.md",
+     "# 138 Vitest suites (2837 checks)",
+     "# 138 Vitest suites (2841 checks)",
+     "the tree")
+flip("README.md",
+     "# 2837 Vitest unit checks",
+     "# 2841 Vitest unit checks",
+     "the commands")
+# the s102-P1 lockstep tree/commands sites (flipped only when E2E moves):
+flip("README.md",
+     "│   └── 📂 e2e/                       # Playwright (223 checks)",
+     "│   └── 📂 e2e/                       # Playwright (226 checks)",
+     "the file tree (e2e)")
+flip("README.md",
+     "bun run test:e2e      # 223 Playwright checks on :3100 with its own db/e2e.db",
+     "bun run test:e2e      # 226 Playwright checks on :3100 with its own db/e2e.db",
+     "the commands comment (e2e)")
+
+# --- AGENTS (the live command/gate sites only — the Session-202 section is
+#     the historical record, its ship counts stay) -----------------------------
+flip("AGENTS.md",
+     "|  Unit tests (2837 checks)      | `bun run test`",
+     "|  Unit tests (2841 checks)      | `bun run test`",
+     "the commands table (unit)")
+flip("AGENTS.md",
+     "|  Browser E2E (223 checks)        | `bun run test:e2e`",
+     "|  Browser E2E (226 checks)        | `bun run test:e2e`",
+     "the commands table (e2e)")
+flip("AGENTS.md",
+     "`bun run test` (2837) → `bun run build`",
+     "`bun run test` (2841) → `bun run build`",
+     "the gate-order (unit)")
+flip("AGENTS.md",
+     "`bun run test:e2e` (223) — or the one-command `bun run gate`",
+     "`bun run test:e2e` (226) — or the one-command `bun run gate`",
+     "the gate-order (e2e)")
+
+# --- CLAUDE -------------------------------------------------------------------
+flip("CLAUDE.md",
+     "`bun run test` (2837) → `bun run build` → `bun run test:e2e` (223)",
+     "`bun run test` (2841) → `bun run build` → `bun run test:e2e` (226)",
+     "the gate-order")
+flip("CLAUDE.md",
+     "| `bun run test`      | Vitest unit suites (2837 checks)",
+     "| `bun run test`      | Vitest unit suites (2841 checks)",
+     "the commands table (unit)")
+flip("CLAUDE.md",
+     "| `bun run test:e2e`  | Playwright E2E (223 checks, needs build first) |",
+     "| `bun run test:e2e`  | Playwright E2E (226 checks, needs build first) |",
+     "the commands table (e2e)")
+flip("CLAUDE.md",
+     "Unit (Vitest, 2837 checks)",
+     "Unit (Vitest, 2841 checks)",
+     "the pyramid (unit)")
+flip("CLAUDE.md",
+     "**E2E (Playwright, 223 checks)**",
+     "**E2E (Playwright, 226 checks)**",
+     "the pyramid (e2e)")
+flip("CLAUDE.md",
+     "the seam (currently 2837).",
+     "the seam (currently 2841).",
+     "the coverage seam")
+flip("CLAUDE.md",
+     "  machine names rides the two-gate, the criterion's state axis held by\n"
+     "  its state-machine census pin); structural",
+     "  machine names rides the two-gate, the criterion's state axis held by\n"
+     "  its state-machine census pin; session-203's marketing-state closure\n"
+     "  registered the landing page's client-state arms — the FAQ non-default\n"
+     "  open state at both widths + the mobile disclosure menu open at phone\n"
+     "  (the md:hidden width-inverse, phone-only by construction); structural",
+     "the a11y family description (the s203 closure)")
+
+# --- PAD ----------------------------------------------------------------------
+flip("Project_Architecture_Document.md",
+     "│   └── e2e/                     # global-setup, auth.setup, 11 spec files + setup project — 223 checks",
+     "│   └── e2e/                     # global-setup, auth.setup, 11 spec files + setup project — 226 checks",
+     "the file tree (e2e)")
+flip("Project_Architecture_Document.md",
+     "# 138 Vitest suites — 2837 checks",
+     "# 138 Vitest suites — 2841 checks",
+     "the tree")
+flip("Project_Architecture_Document.md",
+     "| **Total** | **138** | **2837 unit + 223 e2e** | | |",
+     "| **Total** | **138** | **2841 unit + 226 e2e** | | |",
+     "the Total row")
+flip("Project_Architecture_Document.md",
+     "> HEAD: 138 Vitest suites with 2837 checks + 223 e2e checks in 11 spec",
+     "> HEAD: 138 Vitest suites with 2841 checks + 226 e2e checks in 11 spec",
+     "the HEAD line")
+flip("Project_Architecture_Document.md",
+     "- [ ] `bun run test` — 2837/2837",
+     "- [ ] `bun run test` — 2841/2841",
+     "the checklist (unit)")
+flip("Project_Architecture_Document.md",
+     "- [ ] `bun run test:e2e` — 223/223",
+     "- [ ] `bun run test:e2e` — 226/226",
+     "the checklist (e2e)")
+flip("Project_Architecture_Document.md",
+     "| `bun run test` | root | 2837 unit checks |",
+     "| `bun run test` | root | 2841 unit checks |",
+     "the commands table (unit)")
+flip("Project_Architecture_Document.md",
+     "| `bun run test:e2e` | root | 223 browser checks (build first) |",
+     "| `bun run test:e2e` | root | 226 browser checks (build first) |",
+     "the commands table (e2e)")
+flip_line("Project_Architecture_Document.md",
+         "| `tests/e2e/a11y.spec.ts` | 881 |",
+         ["the s202 client-state closure", "structural zero + the sanctioned citations) |"],
+         "| `tests/e2e/a11y.spec.ts` | 967 | the s171 a11y two-gate e2e battery + the s172 dialog-open family + the s195 404 pair + the s199 register-coverage closure + the s200 page-surface closure + the s201 width-scope closure + the s202 client-state closure + the s203 marketing-state closure (the §8.3 axe engine: 9 CRM pages × 2 widths + the anon family × 2 + the drawer-open state + the five create dialogs + the contact edit dialog + the 404 surface at both widths + the Edit Lead + Edit Account siblings + the Import Contacts + Account Insights + Save Custom Report View dialogs + the /about + /contact marketing interiors + the /reset-password anon surface at both widths + the eleven phone dialog-open twins at 390×844 — every Radix Dialog's open state registered at BOTH widths + the login card's three in-card view states (reset/sent/verify) at both widths — every LoginView state the machine names rides the two-gate, the register's head criterion held on the state axis by its state-machine census pin + the landing page's client-state arms (the FAQ non-default open state at both widths + the mobile disclosure menu open at phone — the md:hidden width-inverse, the drawer-genus sibling on the marketing surface); the open-dialog scan mechanics decoded: GATE 1 sees the dialog content only [hideOthers aria-hides the app root], GATE 2 cites the painted page behind; the view rides: the sent view's demo-email forgot-password POST renders the resetUrl anchor [the in-app delivery, the richer face], the verify view's in-card signup ladder on a throwaway email; the marketing rides: the Q6 toggle with the single-open sentinel pair + the toggle-ride panel mount; structural zero + the sanctioned citations) |",
+         "the section-11 a11y row (the line census + the family)")
+flip_line("Project_Architecture_Document.md",
+         "| `tests/dialog-controls.test.ts` | 514 |",
+         ["the session-202 client-state closure pins", "ALL THREE" if False else "subtract BOTH non-page families"],
+         "| `tests/dialog-controls.test.ts` | 581 | the s172 dialog-surface named-control battery (the 136th suite — the create-dialog trigger census + the edit-dialog htmlFor/id wiring pins + the dialog-scan spec contract + the declared fast-check pin + the session-199 register-coverage closure pins + the session-200 page-surface closure pins + the session-201 width-scope closure pins [the containment pair + the phone census + the width-pair census + the criterion pair] + the session-202 client-state closure pins [the containment pair + the client-state census + the state-machine census + the state-pair census] + the session-203 marketing-state closure pins [the containment pair + the marketing client-state census + the FAQ width-pair census + the phone-only negative; the s200 (g) page-family census re-anchored to subtract ALL THREE non-page families]) |",
+         "the section-11 dialog-controls row (the line census + the s203 pins)")
+
+# --- SKILL (the live command/appendix sites only — the demoted s202 layer
+#     keeps its ship counts) ----------------------------------------------------
+flip("neo-crm_SKILL.md",
+     "bun run test         # 2837/2837",
+     "bun run test         # 2841/2841",
+     "the commands block (unit)")
+flip("neo-crm_SKILL.md",
+     "bun run test:e2e     # 223/223 (build first; boots :3100 with db/e2e.db)",
+     "bun run test:e2e     # 226/226 (build first; boots :3100 with db/e2e.db)",
+     "the commands block (e2e)")
+flip("neo-crm_SKILL.md",
+     "| **unit total** | 138 files | **2837** |",
+     "| **unit total** | 138 files | **2841** |",
+     "the Appendix B unit total")
+flip("neo-crm_SKILL.md",
+     "| e2e a11y two-gate (the s171 §8.3 axe battery: 9 CRM pages × 2 widths + the anon family × 2 + the drawer-open + the s172 dialog-open family: the five create dialogs + the contact edit dialog + the s195 404 pair + the s199 register-coverage closure: the Edit Lead + Edit Account siblings + the Import/Insights/Save-Report standalone dialogs + the s200 page-surface closure: the /about + /contact marketing interiors + the /reset-password anon surface + the s201 width-scope closure: the eleven phone dialog-open twins — every Radix Dialog's open state registered at both widths + the s202 client-state closure: the login card's three in-card view states (reset/sent/verify) at both widths — every LoginView state the machine names rides the two-gate) | `tests/e2e/a11y.spec.ts` | 61 | — |",
+     "| e2e a11y two-gate (the s171 §8.3 axe battery: 9 CRM pages × 2 widths + the anon family × 2 + the drawer-open + the s172 dialog-open family: the five create dialogs + the contact edit dialog + the s195 404 pair + the s199 register-coverage closure: the Edit Lead + Edit Account siblings + the Import/Insights/Save-Report standalone dialogs + the s200 page-surface closure: the /about + /contact marketing interiors + the /reset-password anon surface + the s201 width-scope closure: the eleven phone dialog-open twins — every Radix Dialog's open state registered at both widths + the s202 client-state closure: the login card's three in-card view states (reset/sent/verify) at both widths — every LoginView state the machine names rides the two-gate + the s203 marketing-state closure: the landing page's client-state arms — the FAQ non-default open state at both widths + the mobile disclosure menu open at phone, the md:hidden width-inverse) | `tests/e2e/a11y.spec.ts` | 64 | — |",
+     "the Appendix B a11y row (the census + the family)")
+flip("neo-crm_SKILL.md",
+     "| **e2e total** | 11 spec files + the setup project | **223** |",
+     "| **e2e total** | 11 spec files + the setup project | **226** |",
+     "the Appendix B e2e total")
+
+# --- tests/docs-counts.test.ts: the constants + the layer-axis -------------
+flip("tests/docs-counts.test.ts",
+     "const UNIT = 2837;",
+     "const UNIT = 2841;",
+     "the UNIT constant")
+flip("tests/docs-counts.test.ts",
+     "const E2E = 223;",
+     "const E2E = 226;",
+     "the E2E constant")
+flip("tests/docs-counts.test.ts",
+     "green; the session-202 layer`,",
+     "green; the session-203 layer`,",
+     "the layer-axis first (the ${UNIT}/${E2E} templates carry 2841/226)")
+flip("tests/docs-counts.test.ts",
+     '"the head\'s SECOND layer must be the previous session\'s — the F-108a1 face (the s201 layer now beneath the s202 head)",\n    ).toContain(\n      "+ beneath it 2832 unit checks + 217 e2e checks green; the session-201 layer (THE A11Y REGISTER\'S PHONE-WIDTH",',
+     '"the head\'s SECOND layer must be the previous session\'s — the F-108a1 face (the s202 layer now beneath the s203 head)",\n    ).toContain(\n      "+ beneath it 2837 unit checks + 223 e2e checks green; the session-202 layer (THE A11Y REGISTER\'S LOGIN-CARD CLIENT-STATE",',
+     "the layer-axis second (the s202 layer at its ship 2837/223)")
+
+# --- tests/docs-counts.test.ts: the 2837 negatives join the block ---------
+NEG_ANCHOR = '    expect(skill).not.toContain("| **unit total** | 138 files | **2832**");'
+NEG_ADDITION = '''    expect(skill).not.toContain("| **unit total** | 138 files | **2832**");
+    // Session-203 (D-203a1/a2/a3): the retired 2837 site-forms join the
+    // negatives (the s192 doctrine: the OLD live form joins the negatives)
+    expect(readme).not.toMatch(/# 2837 Vitest unit checks/);
+    expect(readme).not.toMatch(/# 138 Vitest suites \\(2837 checks\\)/);
+    expect(readme).not.toMatch(/\\| 🧪 Tested \\| 2837 Vitest unit checks/);
+    expect(pad).not.toMatch(/# 138 Vitest suites — 2837 checks/);
+    expect(pad).not.toMatch(/— 2837\\/2837/);
+    expect(pad).not.toMatch(/\\| \\*\\*Total\\*\\* \\| \\*\\*138\\*\\* \\| \\*\\*2837 unit/);
+    expect(claude).not.toContain("Unit (Vitest, 2837 checks)");
+    expect(claude).not.toContain("(currently 2837)");
+    expect(claude).not.toContain("Vitest unit suites (2837 checks)");
+    expect(claude).not.toContain("`bun run test` (2837)");
+    expect(agents).not.toContain("|  Unit tests (2837 checks)");
+    expect(skill).not.toContain("| **unit total** | 138 files | **2837**");'''
+p = ROOT / "tests/docs-counts.test.ts"
+t = p.read_text(encoding="utf8")
+if "the retired 2837 site-forms join the" in t:
+    print("  no-op  [tests/docs-counts.test.ts] the 2837 negatives")
+else:
+    n = t.count(NEG_ANCHOR)
+    assert n == 1, f"the negatives anchor found {n} times"
+    t = t.replace(NEG_ANCHOR, NEG_ADDITION, 1)
+    p.write_text(t, encoding="utf8")
+    print("  flip   [tests/docs-counts.test.ts] the 2837 negatives join the block")
+
+# --- tests/dialog-geometry-parity.test.ts: the F-92a3 ladder -------------------
+# (the negatives' no-op check uses the unique +4 marker — the new form
+#  CONTAINS the old as a prefix, so the generic substring no-op would
+#  re-flip forever; the marker check is the true idempotent guard)
+_dg = ROOT / "tests/dialog-geometry-parity.test.ts"
+_dt = _dg.read_text(encoding="utf8")
+_DG203_DONE = "the retired form joins the negatives (the D-203a1/a2/a3 dialog-controls +4)" in _dt and "the retired form joins the negatives ladder (the D-203a1/a2/a3 dialog-controls +4)" in _dt
+for old, new, label in [
+    ('expect(claude).toContain("Unit (Vitest, 2837 checks)")',
+     'expect(claude).toContain("Unit (Vitest, 2841 checks)")',
+     "the F-92a3 pyramid positive"),
+    ('expect(claude).toContain("(currently 2837)")',
+     'expect(claude).toContain("(currently 2841)")',
+     "the F-92a3 coverage-seam positive"),
+    ('expect(claude).toContain("Vitest unit suites (2837 checks)")',
+     'expect(claude).toContain("Vitest unit suites (2841 checks)")',
+     "the F-92a3 commands positive"),
+    ('expect(claude).toContain("`bun run test` (2837)")',
+     'expect(claude).toContain("`bun run test` (2841)")',
+     "the F-92a3 gate-order positive"),
+    ('expect(claude).not.toContain("Unit (Vitest, 2832 checks)"); // session-202: the retired form joins the negatives (the D-202a1/a2 dialog-controls +5)',
+     'expect(claude).not.toContain("Unit (Vitest, 2832 checks)"); // session-202: the retired form joins the negatives (the D-202a1/a2 dialog-controls +5)\n    expect(claude).not.toContain("Unit (Vitest, 2837 checks)"); // session-203: the retired form joins the negatives (the D-203a1/a2/a3 dialog-controls +4)',
+     "the F-92a3 pyramid negative"),
+    ('expect(claude).not.toContain("(currently 2832)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)',
+     'expect(claude).not.toContain("(currently 2832)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)\n    expect(claude).not.toContain("(currently 2837)"); // session-203: the retired form joins the negatives ladder (the D-203a1/a2/a3 dialog-controls +4)',
+     "the F-92a3 coverage-seam negative"),
+    ('expect(claude).not.toContain("Vitest unit suites (2832 checks)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)',
+     'expect(claude).not.toContain("Vitest unit suites (2832 checks)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)\n    expect(claude).not.toContain("Vitest unit suites (2837 checks)"); // session-203: the retired form joins the negatives ladder (the D-203a1/a2/a3 dialog-controls +4)',
+     "the F-92a3 commands negative"),
+    ('expect(claude).not.toContain("`bun run test` (2832)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)',
+     'expect(claude).not.toContain("`bun run test` (2832)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)\n    expect(claude).not.toContain("`bun run test` (2837)"); // session-203: the retired form joins the negatives ladder (the D-203a1/a2/a3 dialog-controls +4)',
+     "the F-92a3 gate-order negative"),
+]:
+    if _DG203_DONE and "(the D-203a1/a2/a3 dialog-controls +4)" in new:
+        print(f"  no-op  [tests/dialog-geometry-parity.test.ts] {label} (the +4 marker present)")
+        continue
+    flip("tests/dialog-geometry-parity.test.ts", old, new, label)
+
+# --- tests/login-family-parity.test.ts: the E2E negatives ladder --------------
+flip("tests/login-family-parity.test.ts",
+     '    expect(src).not.toContain("**E2E (Playwright, 217 checks)**");\n    expect(src).toContain("**E2E (Playwright, 223 checks)**");',
+     '    expect(src).not.toContain("**E2E (Playwright, 217 checks)**");\n    // session-203 lockstep carry-forward: 223 -> 226 (the D-203a1\n    // marketing client-state registrations — the landing page\'s\n    // client-state arms, the marketing-state arm; the retired form joins\n    // its negatives, the doctrine unchanged).\n    expect(src).not.toContain("**E2E (Playwright, 223 checks)**");\n    expect(src).toContain("**E2E (Playwright, 226 checks)**");',
+     "the login-family E2E ladder")
+
+print("count-ladder-203.py done")

@@ -6568,3 +6568,81 @@ Stage Summary:
   four-band sweep GREEN (--fail-on-drift at desktop + 390 + 768×1024
   + 1024×768) · bun audit 9 (all dev-toolchain, the triple-pinned
   posture) · db census MATCH · probe:ref STABLE
+
+## Task ID 203 — THE A11Y REGISTER'S LANDING-PAGE CLIENT-STATE COVERAGE AUDIT + THE STANDING DUTY'S AUDIT-CENSUS DRIFT (the session-203 round)
+
+- **WP-1 (the audit + the cures)**: the post-202 rotation (trigger
+  `549e5d2` — the session_427 transcript). The baseline GREEN at the
+  s202 ship state (lint 0/0 · tsc 0 · 138/2837 · db census MATCH). The
+  discovery (scripts/discover-203.ts): the standing legs
+  KILLED/CLEAN/STANDING (probe:ref STABLE at 46bc2d9c · the recharts
+  4.0 gate killed at 3.10.1 · the leads freeze standing at 90
+  sessions) · THE SECOND MATERIAL: the pre-ship audit duty DRIFT (bun
+  audit 10: 4h/5m/1l vs the s198-pinned 9 — the NEW moderate
+  GHSA-g3hv-75wg-m249 on minimatch via the dev-toolchain eslint
+  family; the dormancy .html(=0 held) · THE PRIMARY MATERIAL: the
+  register's 61 registrations carried ZERO marketing client-state
+  entries while the landing's two client-state machines (menuOpen +
+  openIndex) render DOM the resting / scan never sees (the
+  marketing-state genus) · the live probes 3/3 born-green · the
+  mutation candidate decoded (the toggle's aria-label the ONLY name —
+  icon-only md:hidden). THREE CURES: D-203a1 +3 e2e registrations
+  (the FAQ non-default state at both widths with the single-open
+  sentinel pair + the mobile menu OPEN at phone with the panel-mount
+  sentinel; RED-first 4 → born-green 3/3; MUTATION-PROVEN: the
+  aria-label plant → exactly 3 RED [the new menu-open at its
+  role-based opener + the new phone FAQ + the standing phone landing
+  at button-name] + every desktop registration GREEN [the md:hidden
+  width-blindness]) · D-203a2 the (m) pin pair (the containment pair
+  + the census + the FAQ width-pair + the phone-only negative;
+  MUTATION-PROVEN: the twin removal → exactly 3 RED) · D-203a3 the
+  audit census re-pin (the PAD §10 row + the AGENTS note + the
+  docs-counts triplex re-anchored at the live 10: 4h/5m/1l + the
+  RE-TRIAGED session-203 clause; MUTATION-PROVEN: the stale-9 plant
+  → exactly 1 RED) · the s200 (g) census re-anchor (the live read
+  subtracting ALL THREE non-page families = 33).
+- **WP-2**: skill-head-203.py ran FIRST (the SKILL v1.200.0, the s202
+  layer comment-demoted at its ship counts 2837/223, the s203 layer
+  live at 2841/226, idempotent) · count-ladder-203.py (UNIT
+  2837 -> 2841 [+4: the dialog-controls session-203 (m) describes] ·
+  E2E 223 -> 226 [+3: the three marketing client-state registrations]
+  · badge 3060 -> 3067 [the unit+e2e arithmetic: 2841+226 — the
+  first draft's 3071 tripped the badge-arithmetic pin mid-flight, the
+  pin doing its exact job]; assert-first, idempotent, unique-anchor —
+  46 verified flips incl. the CLAUDE a11y family description's s203
+  closure · the PAD §7.1 s203 inventory row [BEFORE the Total row] +
+  the §11 a11y row [881 -> 967 by the line-prefix form; the shipped
+  "ideOthers" typo cured to "[hideOthers"] + the §11 dialog-controls
+  row [514 -> 581 + the s203 pins] · the SKILL Appendix B unit total
+  + the a11y row [61 -> 64] + the e2e total) + the test-side
+  re-anchors in the same stroke (the docs-counts layer-axis [first =
+  s203, second = s202 at its ship 2837/223] + the unit negatives
+  ladder [the retired 2837 site-forms join the negatives] + the
+  login-family E2E ladder [the retired E2E 223 form joins its
+  negatives, the live positive re-anchored 226] + the
+  dialog-geometry-parity F-92a3 ladder [the four CLAUDE live
+  positives re-anchored 2841 + the 2837 forms join the negatives]) ·
+  the docs lockstep (the AGENTS Session-203 section · session_428.md
+  · the README walk-contracts paragraph's s203 clause · the plan's
+  execution record · this worklog entry [Task ID 203])
+- **WP-3 (the captures + the verification)**: the captures 670-676
+  (the round's marketing client-state pair ours+ref at the 390×844
+  phone axis — the mobile disclosure menu OPEN, the walk65-walked
+  member — + the dev-server set: the FAQ non-default state at both
+  widths + the menu-open dev face + the mobile drawer-open face [the
+  operator's standing mobile-nav ask] + the dashboard) · THE FINAL
+  GATE FULLY GREEN: lint 0/0 · tsc 0 · 138/2841 unit · build · smoke
+  14/14 · e2e 226/226 · the four-band sweep GREEN (--fail-on-drift
+  at desktop + 390 + 768×1024 + 1024×768) · bun audit 10 (4 high /
+  5 moderate / 1 low — the RE-PINNED census, the triplex re-anchored)
+  · db census MATCH · probe:ref STABLE · THE FULL-GATE RIDE'S LIVE
+  CATCHES (both test-side, zero product-code motion): the calendar
+  month-boundary test's DATE-QUIRK (the s54-era raw setMonth(+1)
+  overflows on the month's last day — Oct 31 → "Nov 31" → Dec 1 — a
+  date-dependent ambient leak tripping the first full run; cured with
+  the DAY-1-ANCHORED constructor form the calendar family already
+  uses, green isolated ON THE TRIGGER DATE + green in the full
+  re-run, the count held) · the settings-defaults focus contract's
+  under-load flake (the S72-P2 spec tripped once in three full runs,
+  passing isolated + on the final green run — the KNOWN s164
+  starved-read lineage, recorded for the next recurrence)

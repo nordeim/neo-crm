@@ -879,3 +879,89 @@ test.describe("the a11y two-gate: the login card's client-state views (session-2
     await scanTwoGate(page, "phone /login (verify view OPEN)");
   });
 });
+
+// ---------------------------------------------------------------------------
+// The marketing client-state two-gate: the session-203 landing-page
+// arms. The register's families covered the CRM pages, the dialogs,
+// and the login card's view machine — while the PUBLIC landing
+// surface carries exactly two client-state machines whose non-resting
+// states render DOM the resting / registration never sees: the mobile
+// disclosure menu's OPEN panel (a whole-panel MOUNT of 6 link
+// controls at phone width only — the md:hidden width-inverse, the
+// drawer-genus sibling on the marketing surface) + the FAQ's
+// non-default open-item states (the answer <p> of an item whose
+// resting state is closed, mounted while the resting Q1 answer
+// unmounts). The register carried ZERO marketing client-state
+// registrations at ANY width (the s202 close's banked standing
+// candidate); the discovery (discover-203 LEG-5b) probed every arm
+// live: 3/3 structural=0, every contrast flag citing a sanctioned
+// matcher.
+//
+// THE RIDES: each registration drives the arm's toggle and WAITS ON
+// THE STATE'S OWN SENTINEL before scanning (the L-164c2
+// vacuous-green cure — a silently-failed toggle would otherwise scan
+// the resting face behind the label). The FAQ ride's sentinel is the
+// PAIR: the Q6 answer mounted (#faq-answer-5 — our aria-controls
+// superset id) AND the resting Q1 answer GONE (#faq-answer-0 hidden
+// — the single-open invariant, the state the registration claims to
+// scan). The menu ride's sentinel is the panel mount itself
+// (div.md\:hidden.border-t — the landing.spec:105 house form) + its
+// unique "Preview" link (the only Preview link visible at 390: the
+// desktop nav computes display:none below md, the footer carries no
+// Preview).
+//
+// THE MUTATION LANDSCAPE (decoded live at LEG-5c): the mobile menu
+// toggle carries `aria-label="Toggle navigation"` as its ONLY
+// accessible name (an ICON-ONLY md:hidden button — the Menu/X svg,
+// no text, no wired label, no title) — the s201 contacts Import
+// trigger genus's md:hidden sibling. A dropped aria-label ships a
+// nameless trigger the resting phone / registration sees at rest —
+// and the OPEN registration's role-based ride goes unfindable by
+// name (the s201 Import-opener form). The phone-width division: the
+// toggle computes display:none at ≥md, so a desktop scan never sees
+// it — the round's own width-blindness rationale.
+// ---------------------------------------------------------------------------
+test.describe("the a11y two-gate: the landing page's client-state arms (session-203)", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test("desktop / (landing, anon) with a non-default FAQ item OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    const faq = page.locator("#faq");
+    await faq.getByRole("button", { name: "Which tier do I need?" }).click();
+    // the L-164c2 sentinel pair: Q6's answer mounted + the resting
+    // Q1 answer GONE (the single-open invariant — the non-default
+    // open state, never the resting face behind the label)
+    await page.locator("#faq-answer-5").waitFor({ state: "visible", timeout: 10000 });
+    await expect(page.locator("#faq-answer-0")).toBeHidden();
+    await scanTwoGate(page, "desktop / (landing, a non-default FAQ item OPEN)");
+  });
+
+  test("phone / (landing, anon) with a non-default FAQ item OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    const faq = page.locator("#faq");
+    await faq.getByRole("button", { name: "Which tier do I need?" }).click();
+    await page.locator("#faq-answer-5").waitFor({ state: "visible", timeout: 10000 });
+    await expect(page.locator("#faq-answer-0")).toBeHidden();
+    await scanTwoGate(page, "phone / (landing, a non-default FAQ item OPEN)");
+  });
+
+  test("phone / (landing, anon) with the mobile disclosure menu OPEN — structural zero + sanctioned citations", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: "Toggle navigation" }).click();
+    // the panel-mount sentinel (the landing.spec:105 house form) +
+    // its unique Preview link (the only one visible at 390)
+    const panel = page.locator("div.md\\:hidden.border-t");
+    await panel.waitFor({ state: "visible", timeout: 10000 });
+    await panel.getByRole("link", { name: "Preview" }).waitFor({ state: "visible", timeout: 10000 });
+    await scanTwoGate(page, "phone / (landing, the mobile disclosure menu OPEN)");
+  });
+});

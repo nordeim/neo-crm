@@ -143,7 +143,7 @@ const listFiles = (rel: string): string[] => {
 // Session-171: E2E 153 lineage 161 -> 186 (+25 — the a11y two-gate spec:
 // the nine CRM pages × both widths + the three anon surfaces × both
 // widths + the drawer-open state — the §8.3 axe battery).
-const E2E = 223;
+const E2E = 226;
 // Session-152: SUITES 118 -> 119 (the interior-census-tool file — the
 // standing sixth gate's pin suite).
 // Session-159: SUITES 119 -> 120 (the settings-rhythm-tool file — the
@@ -911,7 +911,7 @@ const SUITES = 138;
 // page-layout.ts +7 lines [the PAD §11 row + the SKILL §5.6 census
 // site re-anchored 1718 -> 1725 / 277 -> 283 checks, the s168
 // line-census doctrine]). SUITES 138 HELD · E2E 192 re-verified.
-const UNIT = 2837;
+const UNIT = 2841;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1425,6 +1425,20 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(claude).not.toContain("`bun run test` (2832)");
     expect(agents).not.toContain("|  Unit tests (2832 checks)");
     expect(skill).not.toContain("| **unit total** | 138 files | **2832**");
+    // Session-203 (D-203a1/a2/a3): the retired 2837 site-forms join the
+    // negatives (the s192 doctrine: the OLD live form joins the negatives)
+    expect(readme).not.toMatch(/# 2837 Vitest unit checks/);
+    expect(readme).not.toMatch(/# 138 Vitest suites \(2837 checks\)/);
+    expect(readme).not.toMatch(/\| 🧪 Tested \| 2837 Vitest unit checks/);
+    expect(pad).not.toMatch(/# 138 Vitest suites — 2837 checks/);
+    expect(pad).not.toMatch(/— 2837\/2837/);
+    expect(pad).not.toMatch(/\| \*\*Total\*\* \| \*\*138\*\* \| \*\*2837 unit/);
+    expect(claude).not.toContain("Unit (Vitest, 2837 checks)");
+    expect(claude).not.toContain("(currently 2837)");
+    expect(claude).not.toContain("Vitest unit suites (2837 checks)");
+    expect(claude).not.toContain("`bun run test` (2837)");
+    expect(agents).not.toContain("|  Unit tests (2837 checks)");
+    expect(skill).not.toContain("| **unit total** | 138 files | **2837**");
     expect(skill).not.toContain("| **unit total** | 138 files | **2813**");
     expect(skill).not.toContain("| **unit total** | 138 files | **2811**");
   });
@@ -1469,13 +1483,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-202 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-203 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s201 layer now beneath the s202 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s202 layer now beneath the s203 head)",
     ).toContain(
-      "+ beneath it 2832 unit checks + 217 e2e checks green; the session-201 layer (THE A11Y REGISTER'S PHONE-WIDTH",
+      "+ beneath it 2837 unit checks + 223 e2e checks green; the session-202 layer (THE A11Y REGISTER'S LOGIN-CARD CLIENT-STATE",
     );
   });
 
@@ -2358,13 +2372,20 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
 describe("session-198: the security ledger's live census (the D-198a2 pins)", () => {
   it("the PAD §10 ledger row carries the live post-cure census + the s198 re-triage clause", () => {
     const pad = read("Project_Architecture_Document.md");
-    // the live post-cure census — 9 again once the dompurify block's
-    // critical + high + low are cured, and the composition re-derived:
+    // session-203 (D-203a3) re-anchor: the live census moved 9 -> 10 (the
+    // new moderate GHSA-g3hv-75wg-m249 on minimatch, dev-toolchain via
+    // the eslint family) — the pin moves with the ledger row (the s202
+    // (g) re-anchor precedent: the live read, never a stale count)
     expect(pad).toContain(
-      "`bun audit` reports 9 advisories (4 high / 4 moderate / 1 low) — ALL dev-toolchain transitive (zod via eslint-config-next›eslint-plugin-react-hooks",
+      "`bun audit` reports 10 advisories (4 high / 5 moderate / 1 low) — ALL dev-toolchain transitive (zod via eslint-config-next›eslint-plugin-react-hooks",
     );
+    // the s203 re-triage record — the drift + the advisory + the genus
+    // + the no-mid-rotation-bump posture, carried in the row itself:
+    expect(pad).toContain("RE-TRIAGED session-203");
+    expect(pad).toContain("GHSA-g3hv-75wg-m249");
+    expect(pad).toContain("minimatch via the eslint family");
     // the re-triage record — the drift + the critical + the dormancy
-    // decode + the cure, carried in the row itself:
+    // decode + the cure, carried in the row itself (session-198):
     expect(pad).toContain("RE-TRIAGED session-198");
     expect(pad).toContain("the CRITICAL GHSA-cg2g-xh64-v4q7");
     expect(pad).toContain("pdf-export.ts never calls pdf.html()");
@@ -2373,12 +2394,15 @@ describe("session-198: the security ledger's live census (the D-198a2 pins)", ()
     expect(pad).not.toContain("braces via eslint-config-next · deepmerge-ts via the prisma CLI config · vite via vitest · source-map-js via postcss");
   });
 
-  it("the AGENTS gate-order note carries the re-anchored audit clause (the s198 tail)", () => {
+  it("the AGENTS gate-order note carries the re-anchored audit clause (the s198 tail + the s203 drift catch)", () => {
     // the AGENTS head is hard-wrapped at ~76 cols — normalize whitespace
     // so the pin holds the CONTENT, never the wrap:
     const agents = read("AGENTS.md").replace(/\s+/g, " ");
     expect(agents).toContain(
       "re-triaged session-198: the runtime jspdf›dompurify chain's critical cured by the 3.4.17 transitive override, lockfile-pinned + dormancy-pinned + ledger-pinned",
     );
+    // the session-203 tail — the live census 10 + the minimatch drift:
+    expect(agents).toContain("re-triaged session-203: the standing duty caught the census drift 9 → 10");
+    expect(agents).toContain("(10 advisories, all dev-toolchain transitive");
   });
 });

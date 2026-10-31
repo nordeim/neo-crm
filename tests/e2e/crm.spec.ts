@@ -3230,14 +3230,23 @@ test("the calendar month-boundary math: the December-January rollover increments
   // asserting the MONTH YYYY title at each hop (the s54 trailing-cell
   // round-trip covers the fetch window; this pins the boundary math
   // itself).
+  // Session-203 (the date-quirk catch, the s203 full-gate ride): the
+  // cursor math is DAY-1 ANCHORED — the retired raw setMonth(+1)
+  // overflowed on the month's last day (Oct 31 -> "Nov 31" -> Dec 1:
+  // the while loop then read the cursor as December already, hopped
+  // once, and expected December on the November view — the test failed
+  // ONLY on overflow days, a date-dependent ambient leak in the
+  // L-164c1 family). The constructor form the rest of the calendar
+  // family already uses (the :2839 hop cursor + calendar-mobile:128)
+  // is overflow-proof by construction.
   const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const next = new Date();
-  next.setMonth(next.getMonth() + 1);
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1); // day-1 anchored
   // Hop until the NEXT hop crosses December -> January (at most 12 hops).
   let cursor = new Date(next);
   let hops = 0;
   while (cursor.getMonth() !== 11 && hops < 12) {
-    cursor.setMonth(cursor.getMonth() + 1);
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
     hops++;
   }
   await page.goto("/calendar");
