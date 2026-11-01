@@ -603,3 +603,123 @@ describe("session-204 (D-204b2): the title-attribute source census (the span[tit
     expect(spec).toContain("THE CALENDAR TODAY-CHIP ARM (session-204, D-204b1)");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-205 (D-205a1) — THE .ENV.EXAMPLE E2E-PORT + HEADLESS KNOBS (the
+// F-167e genus on the TOOLING axis, the D-204a1 continuation): the s204
+// round documented the four drift-gate knobs the sweep consumes, but the
+// repo's own tooling reads TWO MORE env vars with no documented face —
+//   E2E_PORT  — the e2e boot port (single source: tests/e2e/e2e-port.ts,
+//               consumed by playwright.config.ts + the crm.spec 401 probe;
+//               an operator with a :3100 conflict has no knob)
+//   HEADLESS  — the drift scripts' watch mode (HEADLESS=0 to watch the
+//               captures — sweep.ts / drift-probe.ts / interior-census.ts,
+//               documented only in the scripts' own header comments)
+// The LIVE-CENSUS doctrine (F-109a1): the E2E_PORT default is read from
+// the e2e-port module's OWN source, so a default change in the tool fails
+// this pin until the doc face follows.
+// ---------------------------------------------------------------------------
+describe("session-205 (D-205a1): the .env.example e2e-port + headless knobs (the tooling axis, the D-204a1 continuation)", () => {
+  it(".env.example documents the E2E_PORT + HEADLESS tooling vars", () => {
+    const envExample = read(".env.example");
+    expect(envExample, "the E2E_PORT knob must appear in .env.example").toContain("E2E_PORT");
+    expect(envExample, "the HEADLESS knob must appear in .env.example").toContain("HEADLESS");
+  });
+
+  it("the documented E2E_PORT default matches the e2e-port module's own source (the live-census doctrine)", () => {
+    // the tool's default, read live from tests/e2e/e2e-port.ts — the pin
+    // fails if the tool's default moves without the doc face following
+    const source = read("tests/e2e/e2e-port.ts");
+    const m = /export const E2E_PORT_DEFAULT = "(\d+)";/.exec(source);
+    expect(m, "the E2E_PORT_DEFAULT literal must exist in tests/e2e/e2e-port.ts").not.toBeNull();
+    const liveDefault = m![1];
+    // .env.example carries the default verbatim in the commented block
+    const envExample = read(".env.example");
+    expect(
+      envExample,
+      "the E2E_PORT default cell",
+    ).toContain(`# E2E_PORT=${liveDefault}`);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-205 (D-205a2) — THE ENV-FACE TOTALITY CENSUS (the F-167e genus
+// CLOSES): D-204a1 pinned the four knobs that round's audit found; this
+// round's audit found TWO MORE the per-knob pin never saw — the instance
+// cure cannot close the genus. THE CURE: walk src/ + scripts/ + tests/
+// (the skills/ folder is excluded from code checking per the standing
+// rule) for every process.env.* consumer on comment-stripped source,
+// subtract the framework/convention exclusion set (NODE_ENV · CI ·
+// NEXT_RUNTIME · NEXT_PHASE — framework-owned knobs never belong in the
+// app's env face), and assert EVERY remaining knob appears in
+// .env.example. Any future env var added to the code without a doc face
+// trips this census RED at the unit gate. The REVERSE arm: every env var
+// NAME .env.example offers must be a real consumer — a stale/phantom knob
+// in the doc face (a rename leaves the old name behind) trips it too.
+// ---------------------------------------------------------------------------
+describe("session-205 (D-205a2): the env-face totality census (the F-167e genus closes)", () => {
+  // framework/convention-owned knobs — never documented in .env.example
+  // (the D-195a1 scrubbing precedent runs the other way: the e2e child
+  // env is PINNED, not documented)
+  const FRAMEWORK_SET = new Set(["NODE_ENV", "CI", "NEXT_RUNTIME", "NEXT_PHASE"]);
+
+  const consumerCensus = (): Set<string> => {
+    const found = new Set<string>();
+    for (const dir of ["src", "scripts", "tests"]) {
+      for (const f of walk(dir)) {
+        if (!/\.(tsx|ts)$/.test(f)) continue;
+        // comment-stripped: header-comment mentions (the scripts' own
+        // "Env:" banners) must not mask a real consumer's absence
+        const text = noComments(read(f));
+        const re = /process\.env\.([A-Z_0-9]+)/g;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(text)) !== null) {
+          if (!FRAMEWORK_SET.has(m[1])) found.add(m[1]);
+        }
+      }
+    }
+    return found;
+  };
+
+  it("every non-framework process.env consumer in src/ + scripts/ + tests/ is documented in .env.example", () => {
+    const envExample = read(".env.example");
+    const consumers = consumerCensus();
+    // the standing face: the six app knobs + the four s204 parity knobs
+    // + this round's E2E_PORT + HEADLESS — the totality
+    expect(consumers).toEqual(
+      new Set([
+        "DATABASE_URL",
+        "AUTH_SECRET",
+        "NEXT_PUBLIC_SITE_URL",
+        "NEO_PROXY_HOPS",
+        "NEO_DISABLE_IN_APP_OTP",
+        "NEO_DISABLE_IN_APP_RESET",
+        "OUR_URL",
+        "REF_URL",
+        "REF_EMAIL",
+        "REF_PASSWORD",
+        "E2E_PORT",
+        "HEADLESS",
+      ]),
+    );
+    for (const knob of consumers) {
+      expect(envExample, `the ${knob} knob must appear in .env.example`).toContain(knob);
+    }
+  });
+
+  it("every env var .env.example offers is a real consumer (no phantom knobs in the doc face)", () => {
+    const envExample = read(".env.example");
+    // every VAR= line (commented or live) — the PostgreSQL example line
+    // carries the same DATABASE_URL name, the only duplicate
+    const offered = new Set<string>();
+    for (const m of envExample.matchAll(/^(# )?([A-Z_0-9]+)=/gm)) {
+      offered.add(m[2]);
+    }
+    const consumers = consumerCensus();
+    const phantoms = [...offered].filter((k) => !consumers.has(k));
+    expect(
+      phantoms,
+      "every .env.example knob must be a real code consumer (a phantom means a rename left the doc face behind)",
+    ).toEqual([]);
+  });
+});

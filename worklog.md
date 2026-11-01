@@ -6723,3 +6723,75 @@ Stage Summary:
   entry) + the captures 677-681 (the dev-server set: the dashboard at
   1280 + 390 · the drawer OPEN at phone · the landing mobile menu
   OPEN at phone · the login card).
+
+## Task ID 205 — THE OPERATOR'S STANDING VERIFICATION ROUND + THE ENV-FACE TOTALITY CONTRACT (the session-205 round)
+
+- **WP-1 (the audit + the parity re-verification)**: the post-204
+  rotation (trigger `881dc50` — the session_431 transcript). The
+  round = the operator's standing instruction set (audit + validate +
+  parity-verify + remediate + capture + docs + push). The baseline
+  GREEN at the s204 ship state: lint 0/0 · tsc 0 · 138/2845 unit ·
+  build · smoke 14/14 · e2e 226/226 clean first run · db census MATCH
+  (15/24/10/23/12 + 4 users at `<repo>/db/custom.db` — the operator's
+  standing `.env` contract: `DATABASE_URL="file:../db/custom.db"`
+  with `db/` at the repo root). THE SIX DRIFT GATES CLEAN: the
+  four-band sweep at `--fail-on-drift` (1280 · 390×844 · 768×1024 ·
+  1024×768) + the fullpage sweep CLEAN (desktop 0.093% / phone
+  0.316%) + the interior census BYTE-PARITY + probe:ref STABLE at
+  `46bc2d9c` (demo data ZERO; the conditional gates killed; the
+  s120-era re-walk kill STANDING). THE NAMED PARITY FOCUS verified
+  live with agent-browser against BOTH apps logged in: the mobile
+  navigation BOTH SURFACES WORKING (the app drawer: open/close/
+  Escape/link-ride/auto-close/dual scroll-lock release, the overlay
+  at `oklab(0 0 0 / 0.8)`; the landing disclosure menu: mount/
+  aria-expanded/link-close + section landing) + the VLM drawer-pair
+  comparison: IDENTICAL in structure, layout, and styling (the
+  reference's Base44 badge the sole note, never mirrored) + the
+  Tailwind v4 state CLEAN + the SEO/sitemap legs live-verified
+  (11-route sitemap · robots · manifest · per-route OG/Twitter/
+  canonical) + the hygiene greps clean + `bun audit` at the pinned
+  census 10 (4h/5m/1l, all dev-toolchain, zero runtime exposure) +
+  THE RECENT-CHANGES AUDIT (src/ unchanged since the s203 ship —
+  `git diff 257cf15..HEAD -- src/` empty; the owner's newest commit
+  docs + skills/ only) + the scandihaven patterns re-reviewed.
+- **WP-2 (the round's material — the env-face totality contract)**:
+  the F-167e genus on the TOOLING axis, the D-204a1 continuation —
+  the full env-consumer census found TWO MORE undocumented tooling
+  knobs: `E2E_PORT` (the e2e boot port; single source
+  `tests/e2e/e2e-port.ts`, consumed by playwright.config.ts + the
+  crm.spec 401 probe; a `:3100` conflict left the operator no knob)
+  + `HEADLESS` (the drift scripts' watch mode, consumed by all three
+  drift-gate scripts, documented only in their header comments).
+  D-205a1 (TDD): the new describe in `tests/facts-census.test.ts`
+  (the D-204a1 home) — both knobs documented + the E2E_PORT default
+  read LIVE from the e2e-port module's own source. RED-first at
+  birth (exactly 3 RED + 1 born-green reverse arm, zero collateral)
+  → the two knobs appended to the `.env.example` parity-tools block
+  (commented — documentation, not configuration) → born-green 44/44.
+  MUTATION-PROVEN ×3 (the planted E2E_PORT_DEFAULT mutation → 1 RED;
+  the planted new process.env consumer in src/ → 1 RED; the planted
+  phantom knob line in .env.example → 1 RED; each restored → GREEN).
+  D-205a2 (the genus-closing pin): THE ENV-FACE TOTALITY CENSUS —
+  walks src/ + scripts/ + tests/ (skills/ excluded per the standing
+  rule) for every `process.env.*` consumer on comment-stripped
+  source, subtracts the framework set (NODE_ENV · CI · NEXT_RUNTIME
+  · NEXT_PHASE), asserts EVERY remaining knob appears in
+  `.env.example`; + the REVERSE arm (every offered knob is a real
+  consumer — a rename leaving the doc face behind trips it). The
+  standing face reaches TOTALITY. Born-green at the cured tree. The
+  `.env` bidirectionality re-verified (rebuilt from `.env.example`,
+  the AUTH_SECRET preserved, the live lines identical, db census
+  MATCH).
+- **WP-3 (the ladder + the docs lockstep)**: UNIT 2845 → 2849 (+4) ·
+  SUITES 138 HELD · E2E 226 HELD · badge 3071 → 3075 (clean first
+  pass — no in-flight corrections). `skill-head-205.py` (SKILL
+  v1.202.0 · the s204 layer demoted at its ship 2845/226 · the s205
+  layer live · idempotent) + `count-ladder-205.py` (assert-first,
+  idempotent — 26 flips, the re-run 26 no-ops) + the test-side
+  re-anchors (the docs-counts layer-axis pair · the 2845 negatives ·
+  the dialog-geometry-parity F-92a3 ladder) + the docs lockstep (the
+  AGENTS Session-205 section · docs/session_432.md · the PAD s205
+  inventory row · the plan's execution record · this entry) + the
+  captures 682-686 (the dev-server set, VLM-verified: the dashboard
+  at 1280 + 390 · the drawer OPEN at phone · the landing mobile menu
+  OPEN at phone · the login card).

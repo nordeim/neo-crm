@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2845 checks)      | `bun run test`                         |
+|  Unit tests (2849 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2845) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2849) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -13528,3 +13528,151 @@ re-verified; no new walk material exists at the zero-data reference
 state) · unit-count live-census machinery (the vitest total includes
 generated tests — for-loop/.each — a live counter would need runner
 internals; the doc-lockstep pins remain the contract).
+
+### Session-205 — THE OPERATOR'S STANDING VERIFICATION ROUND + THE ENV-FACE TOTALITY CONTRACT (the e2e-port + headless knobs join the documented env face, and the genus closes with a census) (2026-11-01)
+
+The post-204 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`881dc50` — the session_431 transcript, the s204 round's own
+execution record). The round = the operator's standing instruction
+set: audit + validate the shipped s204 state, re-verify visual +
+functional parity with the live reference (the named focus: the
+mobile navigation), re-run the standing gates, remediate the
+identified gaps, capture the round's screenshots, update the docs,
+push to `main`.
+
+THE AUDIT (all legs live at the pulled s204 ship state, the env
+standing: `DATABASE_URL="file:../db/custom.db"` + the operator's
+`AUTH_SECRET`): lint 0/0 · tsc 0 · 138/2845 unit · build · smoke
+14/14 · e2e 226/226 clean first run · db census MATCH (15/24/10/23/12
++ 4 users at `<repo>/db/custom.db`) · THE SIX DRIFT GATES CLEAN — the
+four-band sweep at `--fail-on-drift` (desktop 1280 · phone 390×844 ·
+tablet 768×1024 · landscape 1024×768) + the fullpage sweep CLEAN
+(desktop 0.093% / phone 0.316%, both inside the standing margins) +
+the interior census BYTE-PARITY (zero unexplained deltas at all four
+axes) + probe:ref STABLE at `46bc2d9c` (the demo data still ZERO; the
+conditional gates stay killed; the s120-era re-walk kill STANDING).
+
+THE PARITY RE-VERIFICATION (the operator's named focus, probed live
+with the agent-browser CLI against BOTH apps logged in): THE MOBILE
+NAVIGATION — BOTH SURFACES WORKING. The app drawer: open at
+390×844 — the Close button + the "CRM" h2 + the 8 destinations;
+Escape closes; a link ride navigates (`/Dashboard` → `/Leads`) AND
+auto-closes AND releases BOTH scroll locks (body `visible` · main
+`auto`); the overlay computing `oklab(0 0 0 / 0.8)` (the
+`bg-black/80` contract). The landing disclosure menu: the toggle
+mounts the `div.md:hidden.border-t` panel (6 links, `aria-expanded`
+rides), an in-panel link click closes it and lands on the section
+(`/#faq`). The VLM comparison of the drawer-open pair (ours vs the
+reference): IDENTICAL in structure, layout, and styling — the sole
+note the reference's own Base44 platform badge (never mirrored, the
+standing doctrine). TAILWIND V4 STATE CLEAN (no config file — the
+CSS-first `@theme` with literal hex · the vendored tw-animate.css ·
+the documented v4 pitfalls avoided in source — the four-band pixel
+sweep + interior census proving the rendered output identical).
+SEO/SITEMAP live-verified (the 11-route `/sitemap.xml` byte-format
+contract · `/robots.txt` · `/manifest.json` · the landing head's
+description + OG/Twitter cards + canonical + og-image, curl-verified
+on the dev server). The hygiene legs: no TODO/FIXME · no
+`console.log` · no `any` (the one grep hit is a JSDoc comment word) ·
+`.env` + `db/*.db` git-ignored · `bun audit` at the s204-pinned
+census 10 (4h/5m/1l — all dev-toolchain transitive, zero runtime
+exposure; the standing no-mid-rotation-bump posture holds). THE
+RECENT-CHANGES AUDIT: src/ UNCHANGED since the s203 ship
+(`git diff 257cf15..HEAD -- src/` = empty — the s204 round was
+test-side + docs only, exactly as its record claims); the owner's
+newest commit adds docs + skills/ only (excluded from code checking
+per the standing rule). The scandihaven reference repo refreshed +
+reviewed for the tech-stack patterns (the highest-leverage borrows
+already embodied).
+
+THE ROUND'S MATERIAL — THE ENV-FACE TOTALITY CONTRACT (the F-167e
+genus on the TOOLING axis, the D-204a1 continuation): the full
+env-consumer census (every `process.env.*` read in src/ + scripts/ +
+tests/, comment-stripped) found TWO MORE undocumented tooling knobs
+beyond the s204 four — `E2E_PORT` (the e2e boot port; single source
+`tests/e2e/e2e-port.ts` (`E2E_PORT_DEFAULT = "3100"`), consumed by
+`playwright.config.ts:23` + the crm.spec 401 probe; an operator with
+a `:3100` conflict had NO documented knob — the README documents the
+port as a fact, never the override) + `HEADLESS` (the drift scripts'
+watch mode, `HEADLESS=0` to watch the captures; consumed by all three
+drift-gate scripts — `scripts/sweep.ts:1081` ·
+`scripts/drift-probe.ts:212` · `scripts/interior-census.ts:1986` —
+documented ONLY in the scripts' own header comments, invisible to an
+operator who reads the env face).
+
+D-205a1 THE E2E-PORT + HEADLESS PINS (TDD): a new describe in
+`tests/facts-census.test.ts` (the .env.example content battery's own
+home — the D-204a1 precedent): both knobs documented + the E2E_PORT
+default read LIVE from the e2e-port module's own source (the F-109a1
+live-census doctrine — a default change in the tool fails the pin
+until the doc face follows). RED-first at birth: exactly 3 RED (the
+two D-205a1 its + the D-205a2 totality census, all asserting the new
+doc face) + 1 born-green (the D-205a2 REVERSE arm — .env.example
+currently offers only real consumers), 41 standing GREEN, zero
+collateral. The cure: the two knobs appended to the `.env.example`
+parity-tools block (commented out — the defaults remain
+authoritative; the block is documentation, not configuration) →
+born-green 44/44. MUTATION-PROVEN ×3: the planted
+`E2E_PORT_DEFAULT` mutation → exactly 1 RED (the live-defaults pin)
+· the planted new `process.env.NEO_FUTURE_KNOB` consumer in src/ →
+exactly 1 RED (the totality census) · the planted phantom
+`# NEO_PHANTOM_KNOB=1` line in .env.example → exactly 1 RED (the
+reverse arm) — each restored → GREEN. The six-knob + D-204a1
+contract pins held through the append (the full unit layer).
+
+D-205a2 THE ENV-FACE TOTALITY CENSUS (the genus-closing pin): the
+per-knob D-204a1 form fixed the instance, not the genus — this
+round's audit found two knobs that pin never saw. THE CURE: a census
+that walks src/ + scripts/ + tests/ (skills/ excluded per the
+standing rule) for every `process.env.*` consumer on comment-stripped
+source, subtracts the framework/convention exclusion set (`NODE_ENV`
+· `CI` · `NEXT_RUNTIME` · `NEXT_PHASE` — framework-owned knobs never
+belong in the app's env face), and asserts EVERY remaining knob
+appears in `.env.example` — any future env var added to the code
+without a doc face trips the census RED at the unit gate. Plus the
+REVERSE arm: every env var NAME `.env.example` offers must be a real
+consumer — a rename leaving the doc face behind trips it. The
+standing face reaches TOTALITY: the six app knobs + the four s204
+parity knobs + E2E_PORT + HEADLESS = every non-framework env var the
+repo's own code consumes. Born-green at the cured tree.
+
+THE .ENV BIDIRECTIONALITY re-verified with the extended block: the
+`.env` rebuilt from `.env.example` (the AUTH_SECRET preserved) — the
+live (uncommented) lines identical, the app boots, db census MATCH.
+
+THE COUNT LADDER: UNIT 2845 → 2849 (+4 — the two D-205a1 its + the
+two D-205a2 its) · SUITES 138 HELD (the pins land in an existing
+file) · E2E 226 HELD · badge 3071 → 3075 (the unit+e2e arithmetic:
+2849+226 — clean first pass, no in-flight corrections this round).
+`skill-head-205.py` (the SKILL v1.202.0 — the s204 layer
+comment-demoted at its ship counts 2845/226, the s205 layer live at
+2849/226, idempotent — the re-run a verified no-op) +
+`count-ladder-205.py` (assert-first, idempotent, unique-anchor — 26
+flips, the re-run 26 no-ops) + the test-side re-anchors in the same
+stroke (the docs-counts layer-axis: first = s205, second = s204 at
+its ship 2845/226 · the unit negatives ladder: the retired 2845
+site-forms join the negatives · the dialog-geometry-parity F-92a3
+ladder: the four CLAUDE live positives re-anchored 2849 + the 2845
+forms join the negatives) + the docs lockstep (this section ·
+`docs/session_432.md` · the PAD s205 inventory row · the plan's
+execution record · the worklog entry [Task ID 205]) + the captures
+682-686 (the round's dev-server set, VLM-verified: the dashboard at
+desktop + at 390×844 + the mobile drawer OPEN at phone [the
+operator's standing mobile-nav ask] + the landing mobile disclosure
+menu OPEN at phone + the login card) under `docs/screenshots/`.
+
+The final gate rode the full chain at the cured tree (see the
+session_432.md transcript close). DECLINED (recorded
+considered-and-declined in the plan): a mid-rotation
+eslint/vite-family bump to cure the advisories (the standing
+no-mid-rotation-bump posture — a toolchain bump forces the pixel
+baselines' re-derivation, its own rotation) · documenting the
+framework/convention set in `.env.example` (framework-owned knobs
+never belong in the app's env face — the D-195a1 scrubbing precedent
+runs the other way: the e2e child env is PINNED, not documented) ·
+the s120-era interactive-table re-walk kill adjudication (the
+standing kill re-verified; no new walk material exists at the
+zero-data reference state) · the `.env` working-tree refresh as a
+repo change (`.env` is operator-local and untracked; the block is
+inert comments; the bidirectional rebuild ritual covers the
+verification).

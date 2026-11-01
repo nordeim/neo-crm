@@ -655,7 +655,8 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toContain("Unit (Vitest, 2832 checks)"); // session-202: the retired form joins the negatives (the D-202a1/a2 dialog-controls +5)
     expect(claude).not.toContain("Unit (Vitest, 2837 checks)"); // session-203: the retired form joins the negatives (the D-203a1/a2/a3 dialog-controls +4)
     expect(claude).not.toContain("Unit (Vitest, 2841 checks)"); // session-204: the retired form joins the negatives (the D-204a1 parity-tools pins +2)
-    expect(claude).toContain("Unit (Vitest, 2845 checks)");
+    expect(claude).not.toContain("Unit (Vitest, 2845 checks)"); // session-205: the retired form joins the negatives ladder (the D-205a1/a2 env-face totality pins +4)
+    expect(claude).toContain("Unit (Vitest, 2849 checks)");
     // session-145 lockstep carry-forward: the coverage line 2108 ->
     // 2112 (the walk35 transition pins); s146: 2112 -> 2115.
     expect(claude).not.toContain("(currently 2108)");
@@ -704,7 +705,8 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toContain("(currently 2832)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)
     expect(claude).not.toContain("(currently 2837)"); // session-203: the retired form joins the negatives ladder (the D-203a1/a2/a3 dialog-controls +4)
     expect(claude).not.toContain("(currently 2841)"); // session-204: the retired form joins the negatives ladder (the D-204a1 parity-tools pins +2)
-    expect(claude).toContain("(currently 2845)");
+    expect(claude).not.toContain("(currently 2845)"); // session-205: the retired form joins the negatives ladder (the D-205a1/a2 env-face totality pins +4)
+    expect(claude).toContain("(currently 2849)");
     expect(claude).not.toContain("Vitest unit suites (2108 checks)");
     expect(claude).not.toContain("Vitest unit suites (2112 checks)");
     expect(claude).not.toContain("Vitest unit suites (2167 checks)");
@@ -754,7 +756,8 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toContain("Vitest unit suites (2832 checks)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)
     expect(claude).not.toContain("Vitest unit suites (2837 checks)"); // session-203: the retired form joins the negatives ladder (the D-203a1/a2/a3 dialog-controls +4)
     expect(claude).not.toContain("Vitest unit suites (2841 checks)"); // session-204: the retired form joins the negatives ladder (the D-204a1 parity-tools pins +2)
-    expect(claude).toContain("Vitest unit suites (2845 checks)");
+    expect(claude).not.toContain("Vitest unit suites (2845 checks)"); // session-205: the retired form joins the negatives ladder (the D-205a1/a2 env-face totality pins +4)
+    expect(claude).toContain("Vitest unit suites (2849 checks)");
     expect(claude).not.toContain("`bun run test` (2108)");
     expect(claude).not.toContain("`bun run test` (2112)");
     expect(claude).not.toContain("`bun run test` (2115)");
@@ -809,7 +812,8 @@ describe("session-92 (F-92a2 + B-92a5 + B-92a4): the audit nanos", () => {
     expect(claude).not.toContain("`bun run test` (2832)"); // session-202: the retired form joins the negatives ladder (the D-202a1/a2 dialog-controls +5)
     expect(claude).not.toContain("`bun run test` (2837)"); // session-203: the retired form joins the negatives ladder (the D-203a1/a2/a3 dialog-controls +4)
     expect(claude).not.toContain("`bun run test` (2841)"); // session-204: the retired form joins the negatives ladder (the D-204a1 parity-tools pins +2)
-    expect(claude).toContain("`bun run test` (2845)");
+    expect(claude).not.toContain("`bun run test` (2845)"); // session-205: the retired form joins the negatives ladder (the D-205a1/a2 env-face totality pins +4)
+    expect(claude).toContain("`bun run test` (2849)");
     expect(claude).not.toContain("Unit (Vitest, 2060 checks)");
     expect(claude).not.toContain("Vitest unit suites (2060 checks)");
     expect(claude).not.toContain("(currently 2101)");
