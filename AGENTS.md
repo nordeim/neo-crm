@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2841 checks)      | `bun run test`                         |
+|  Unit tests (2845 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2841) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2845) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -13369,3 +13369,162 @@ count held) · the settings-defaults focus contract's under-load
 flake (the S72-P2 spec tripped once in three full runs, passing
 isolated + on the final green run — the KNOWN s164 starved-read
 lineage; the lineage stands recorded for the next recurrence).
+
+### Session-204 — THE OPERATOR'S STANDING VERIFICATION ROUND + THE .ENV.EXAMPLE PARITY-TOOLS CONTRACT (the drift-gate knobs join the documented env face) (2026-11-01)
+
+The post-203 audit rotation. Its rotation trigger THE OWNER'S NEWEST
+COMMIT (`257cf15` — the session_429 transcript, the s203 round's own
+execution record). The round = the operator's standing instruction
+set: audit + validate the shipped s203 state, re-verify visual +
+functional parity with the live reference (the named focus: the
+mobile navigation), re-run the standing gates, remediate the
+identified gaps, capture the round's screenshots, update the docs,
+push to `main`.
+
+THE AUDIT (all legs live on a fresh clone at `257cf15`, the env
+rebuilt: `.env` from `.env.example` with
+`DATABASE_URL="file:../db/custom.db"` + a fresh `AUTH_SECRET`):
+lint 0/0 · tsc 0 · 138/2841 unit · build · smoke 14/14 · e2e 226/226
+clean first run (the s164-lineage settings-defaults focus flake did
+NOT recur) · db census MATCH (15/24/10/23/12 + 4 users at
+`<repo>/db/custom.db`) · THE SIX DRIFT GATES CLEAN — the four-band
+sweep at `--fail-on-drift` (desktop 1280 · phone 390×844 · tablet
+768×1024 · landscape 1024×768; every page at the 0.00–0.78 floor
+except the standing settings picklist-data genus 2.64/3.61% + the
+login logo genus 0.28/0.78%, both inside their standing margins) +
+the interior census BYTE-PARITY (zero unexplained deltas) ·
+probe:ref STABLE at `46bc2d9c` (the demo data still ZERO; the
+conditional gates stay killed; the s120-era re-walk kill STANDING —
+the leads family source frozen since s113).
+
+THE PARITY RE-VERIFICATION (the operator's named focus, probed live
+with the agent-browser CLI against BOTH apps logged in): THE MOBILE
+NAVIGATION — BOTH SURFACES WORKING. The app drawer (the s147
+Radix-sheet re-derivation): open at 390×844 — the Close button + the
+"CRM" h2 + the 8 destinations; Escape closes; a link ride navigates
+(`/Dashboard` → `/Leads`) AND auto-closes AND releases BOTH scroll
+locks (body `visible` · main `auto` — the MAIN-scroller superset);
+the overlay computing `oklab(0 0 0 / 0.8)` (the `bg-black/80`
+contract). The landing disclosure menu (the s203-registered
+marketing machine): the toggle mounts the `div.md:hidden.border-t`
+panel (6 links, `aria-expanded` rides), an in-panel link click closes
+it and lands on the section. The VLM comparison of the drawer-open
+pair (ours vs the reference): structurally identical — the sole note
+the reference's own Base44 platform badge (never mirrored, the
+standing doctrine). The dashboard + landing + login DOM censuses
+match at desktop + phone (our named-aria supersets aside — the
+documented a11y supersets). TAILWIND V4 STATE CLEAN: no config file
+(the CSS-first `@theme` with literal hex in globals.css), the vendored
+`src/app/vendor/tw-animate.css`, `postcss.config.mjs` on
+`@tailwindcss/postcss`, the documented v4 pitfalls (hidden-attr,
+space-y flip, shadow-sm, outline-none, var() chains) all avoided in
+source — and the four-band pixel sweep + interior census proving the
+rendered output identical. SEO/SITEMAP live-verified: the 11-route
+`/sitemap.xml` (the byte-format contract) · `/robots.txt` ·
+`/manifest.json` · the root `metadataBase` + the per-route
+OG/Twitter cards + canonical (curl-verified on the dev server). The
+hygiene legs: no TODO/FIXME · no `console.log` · no `any` · no
+`window.location.href` outside the sanctioned sites · `.env` +
+`db/*.db` git-ignored (the tracked face: `db/.gitkeep` +
+`.env.example`) · `bun audit` at the s203-pinned census 10 (4h/5m/1l
+— all dev-toolchain transitive, zero runtime exposure; the standing
+no-mid-rotation-bump posture holds).
+
+THE ROUND'S MATERIAL — THE .ENV.EXAMPLE PARITY-TOOLS CONTRACT (the
+F-167e genus on the TOOLING axis): `.env.example` documented the six
+app knobs (the F-167e six-knob contract, pinned at four carriers) but
+NOT the four env vars the repo's own drift-gate tooling consumes with
+baked-in defaults — `scripts/sweep.ts:741-744` (`OUR_URL` · `REF_URL`
+· `REF_EMAIL` · `REF_PASSWORD`; the drift-probe + interior-census
+family riding the same `REF_*` pair) — so an operator running
+`gate:full` against a different port or deployment had no knob.
+
+D-204a1 THE PARITY-TOOLS PIN (TDD): a new describe in
+`tests/facts-census.test.ts` (the .env.example content battery's own
+home — the F-169p precedent): the four knobs documented + the
+defaults read LIVE from the sweep's own source (the F-109a1
+live-census doctrine — a default change in the tool fails the pin
+until the doc face follows). RED-first at birth (exactly 2 RED, zero
+collateral, 36 standing GREEN) → the cure: the commented
+`# ---- Parity-gate tooling (optional) ----` block appended to
+`.env.example` (all four vars commented out — the defaults remain
+authoritative; the block is documentation, not configuration) →
+born-green 38/38. MUTATION-PROVEN: the planted `REF_EMAIL` default
+mutation → exactly 1 RED (the live-census pin trips) → restored →
+GREEN. The six-knob contract pins are toContain-form — the appended
+block cannot trip them (verified by the full unit layer).
+
+D-204b THE CALENDAR TODAY-CHIP TITLE-FORM ARM (TDD, the final-gate
+live catch): the final-gate e2e run tripped the /calendar a11y
+registrations — `color-contrast node "span[title=\"Call — Khalid
+(EGT)\"]" cites no sanctioned matcher` — persistent across four runs
+(NOT the s164 starved-read flake; the S72-P2 spec that tripped the
+same run passes isolated). THE ROOT CAUSE decoded live (agent-browser
++ the local axe 4.13.0 against the exact standalone/e2e-db
+environment, the selector algorithm read in the axe source): the
+today cell's event chips render `bg-white/20 text-white` on the
+`bg-sidebar` pill (3.63:1 — the reference's own palette, the s27
+bundle-extracted construction, the SAME white-wash genus as the
+drawer links / workspace chip / active-nav chip), and the axe TARGET
+FORM is COUNT-DEPENDENT — with exactly ONE `bg-white/20` node the
+class selector is unique and the target rides the class form (caught
+by the `bg-white\/` arm); with TWO OR MORE (the seeded today cell
+carries two events) no class is unique (live counts: block 12 ·
+cursor-pointer 20 · truncate 33 · bg-white/20 2 · text-white 5) and
+axe's getThreeLeastCommonFeatures falls to the unique `title`
+ATTRIBUTE form (`span[title=\"…\"]`), which carries NO class
+substring — the register goes blind exactly when the flag is real.
+THE CURE (the house doctrine — the reference's own palette is
+sanctioned with citations, not "fixed"; a chip color change would
+break the pixel parity the sweeps pin): the white-wash matcher gains
+the `span[title=` arm (scoped by D-204b2's census — see below), with
+the count-dependence documented in the matcher comment. D-204b2 THE
+TITLE-ATTRIBUTE SOURCE CENSUS (the arm's scoping guard): a new
+describe in tests/facts-census.test.ts pinning that the calendar
+event chip is the ONLY `title=` HTML-attribute construction in src/
+(the backward-tag-scan form — component prop passes like
+PageHeader's/MockDashboard's title render as text content, never an
+HTML attribute, and are excluded; both the `title={…}` and
+`title=\"…\"` forms counted) + the register-face pin (the arm +
+its comment present in the spec). Born-green (40/40);
+MUTATION-PROVEN: the planted `title=\"mutation\"` on a landing DOM
+span → exactly 1 RED (the census trips) → restored → GREEN; src/
+untouched (git diff --stat = 0 — the cure is test-side only).
+THE COLLATERAL RE-ANCHOR: the a11y.spec.ts line census 967 → 984
+(the PAD §11 row + its family clause — the inventory-census live
+pin caught the drift at the full-suite run, exactly its design).
+
+THE COUNT LADDER: UNIT 2841 → 2845 (+4 — the two D-204a1
+parity-tools its + the two D-204b2 census its) · SUITES 138 HELD (the
+pins land in an existing file) · E2E 226 HELD · badge 3067 → 3071
+(the unit+e2e arithmetic: 2845+226). Two in-flight arithmetic errors —
+2842/3068 then 2843/3069 — were caught by the live unit run and
+corrected in the same stroke (the s103 precedent; nothing entered any
+commit).
+`skill-head-204.py` (the SKILL v1.201.0 — the s203 layer
+comment-demoted at its ship counts 2841/226, the s204 layer live at
+2845/226, idempotent) + `count-ladder-204.py` (assert-first,
+idempotent, unique-anchor) + the test-side re-anchors in the same
+stroke (the docs-counts layer-axis: first = s204, second = s203 at
+its ship 2841/226 · the unit negatives ladder: the retired 2841
+site-forms join the negatives · the dialog-geometry-parity F-92a3
+ladder: the four CLAUDE live positives re-anchored 2845 + the 2841
+forms join the negatives) + the docs lockstep (this section ·
+`docs/session_430.md` · the PAD s204 inventory row · the plan's
+execution record · the worklog entry [Task ID 204]) + the captures
+677-681 (the round's dev-server set: the dashboard at desktop + at
+390×844 + the mobile drawer OPEN at phone [the operator's standing
+mobile-nav ask] + the landing mobile disclosure menu OPEN at phone +
+the login card) under `docs/screenshots/`.
+
+The final gate rode the full chain at the cured tree (see the
+session_430.md transcript close). DECLINED (recorded
+considered-and-declined in the plan): a mid-rotation eslint/vite-family
+bump to cure the minimatch/source-map-js/vite advisories (the standing
+no-mid-rotation-bump posture — a toolchain bump forces the pixel
+baselines' re-derivation, its own rotation) · the s120-era
+interactive-table re-walk kill adjudication (the standing kill
+re-verified; no new walk material exists at the zero-data reference
+state) · unit-count live-census machinery (the vitest total includes
+generated tests — for-loop/.each — a live counter would need runner
+internals; the doc-lockstep pins remain the contract).

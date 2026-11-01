@@ -6646,3 +6646,80 @@ Stage Summary:
   under-load flake (the S72-P2 spec tripped once in three full runs,
   passing isolated + on the final green run — the KNOWN s164
   starved-read lineage, recorded for the next recurrence)
+
+## Task ID 204 — THE OPERATOR'S STANDING VERIFICATION ROUND + THE .ENV.EXAMPLE PARITY-TOOLS CONTRACT (the session-204 round)
+
+- **WP-1 (the audit + the parity re-verification)**: the post-203
+  rotation (trigger `257cf15` — the session_429 transcript). The
+  round = the operator's standing instruction set (audit + validate +
+  parity-verify + remediate + capture + docs + push). The baseline
+  GREEN at the s203 ship state on a FRESH CLONE: lint 0/0 · tsc 0 ·
+  138/2841 unit · build · smoke 14/14 · e2e 226/226 clean first run
+  (the s164-lineage flake did NOT recur) · db census MATCH
+  (15/24/10/23/12 + 4 users at `<repo>/db/custom.db` — the operator's
+  standing `.env` contract: `DATABASE_URL="file:../db/custom.db"`
+  with `db/` at the repo root). THE SIX DRIFT GATES CLEAN: the
+  four-band sweep at `--fail-on-drift` (1280 · 390×844 · 768×1024 ·
+  1024×768 — every page at the 0.00–0.78 floor except the standing
+  settings picklist-data genus 2.64/3.61% + the login logo genus
+  0.28/0.78%) + the interior census BYTE-PARITY (zero unexplained) +
+  probe:ref STABLE at `46bc2d9c` (demo data ZERO; the conditional
+  gates killed; the s120-era re-walk kill STANDING). THE NAMED
+  PARITY FOCUS verified live with agent-browser against BOTH apps
+  logged in: the mobile navigation BOTH SURFACES WORKING (the app
+  drawer: open/close/Escape/link-ride/auto-close/dual scroll-lock
+  release, the overlay at `oklab(0 0 0 / 0.8)`; the landing
+  disclosure menu: mount/aria-expanded/link-close) + the VLM
+  drawer-pair comparison: structurally identical (the reference's
+  Base44 badge the sole note, never mirrored) + the Tailwind v4 state
+  CLEAN (CSS-first, no config file, the vendored tw-animate, the
+  documented pitfalls avoided — the sweeps proving the output
+  identical) + the SEO/sitemap legs live-verified (11-route sitemap ·
+  robots · manifest · per-route OG/Twitter/canonical) + the hygiene
+  greps clean (no TODO/console.log/any/stray href) + `bun audit` at
+  the pinned census 10 (4h/5m/1l, all dev-toolchain, zero runtime
+  exposure).
+- **WP-2 (the round's material — the .env.example parity-tools
+  contract)**: the F-167e genus on the TOOLING axis — the drift-gate
+  scripts consume OUR_URL/REF_URL/REF_EMAIL/REF_PASSWORD with baked-in
+  defaults (`scripts/sweep.ts:741-744`) while `.env.example`
+  documented only the six app knobs. D-204a1 (TDD): the new describe
+  in `tests/facts-census.test.ts` (the F-169p home) — the knob
+  documentation pin + the LIVE-defaults census pin (F-109a1 doctrine:
+  the defaults read from the sweep's own source). RED-first at birth
+  (exactly 2 RED, zero collateral) → the commented parity-tools block
+  appended to `.env.example` → born-green 38/38. MUTATION-PROVEN:
+  the planted REF_EMAIL default mutation → exactly 1 RED → restored
+  → GREEN. The six-knob toContain pins cannot trip on the appended
+  block (verified live).
+- **WP-2b (the final-gate live catch — the calendar today-chip
+  title-form arm)**: the final-gate e2e tripped the /calendar a11y
+  registrations persistently (4 runs — not the s164 flake; the S72-P2
+  spec that tripped once passes isolated). Root cause decoded live:
+  the today chips' `bg-white/20 text-white` (the reference's own
+  palette, 3.63:1) flag axe color-contrast, and the axe target form is
+  COUNT-DEPENDENT — with ≥2 `bg-white/20` nodes (the seeded today
+  cell carries two events) no class is unique and axe falls to the
+  `span[title=\"…\"]` attribute form, which the class-based
+  white-wash matcher cannot catch. D-204b1: the matcher gains the
+  `span[title=` arm (the count-dependence documented in the comment).
+  D-204b2: the title-attribute source census (the arm's scoping
+  guard — the calendar chip is the ONLY title= HTML-attribute
+  construction in src/; born-green 40/40; MUTATION-PROVEN: the
+  planted title= on a landing span → exactly 1 RED → restored;
+  src/ untouched). The a11y.spec.ts line census re-anchored 967 → 984
+  (the PAD §11 row — the inventory-census live pin caught it).
+- **WP-3 (the ladder + the docs lockstep)**: UNIT 2841 → 2845 (+4 —
+  the two D-204a1 its + the two D-204b2 its) · SUITES 138 HELD · E2E
+  226 HELD · badge 3067 → 3071 (two in-flight arithmetic errors —
+  2842/3068 then 2843/3069 — caught by the live unit run and corrected
+  in the same stroke, never shipped; the s103 precedent). `skill-head-204.py` (SKILL v1.201.0 · the s203
+  layer demoted at its ship 2841/226 · the s204 layer live ·
+  idempotent) + `count-ladder-204.py` (assert-first, idempotent) +
+  the test-side re-anchors (the docs-counts layer-axis pair · the
+  2841 negatives · the dialog-geometry-parity F-92a3 ladder) + the
+  docs lockstep (the AGENTS Session-204 section · docs/session_430.md
+  · the PAD s204 inventory row · the plan's execution record · this
+  entry) + the captures 677-681 (the dev-server set: the dashboard at
+  1280 + 390 · the drawer OPEN at phone · the landing mobile menu
+  OPEN at phone · the login card).

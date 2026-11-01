@@ -509,3 +509,97 @@ describe("session-169 (WP-1h): the production-secret doc posture (F-169p — the
     expect(pad).toContain("| `AUTH_SECRET` | Prod (≥16 chars — fails hard in production) |");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-204 (D-204a1) — the .env.example parity-tools contract (the
+// F-167e genus on the TOOLING axis): the drift-gate scripts consume
+// four env vars with baked-in defaults (scripts/sweep.ts:741-744 —
+// OUR_URL · REF_URL · REF_EMAIL · REF_PASSWORD; the drift-probe +
+// interior-census family rides the same REF_* pair) — .env.example
+// documents them or an operator running `gate:full` against a different
+// port/deployment has no knob. The LIVE-CENSUS doctrine (F-109a1): the
+// defaults are read from the sweep's OWN source, so a default change
+// in the tool fails this pin until the doc face follows.
+// ---------------------------------------------------------------------------
+describe("session-204 (D-204a1): the .env.example parity-tools contract (the drift-gate knobs)", () => {
+  it(".env.example documents the four parity-tool vars (the F-167e genus, tooling axis)", () => {
+    const envExample = read(".env.example");
+    for (const knob of ["OUR_URL", "REF_URL", "REF_EMAIL", "REF_PASSWORD"]) {
+      expect(envExample, `the ${knob} knob must appear in .env.example`).toContain(knob);
+    }
+  });
+
+  it("the documented defaults match the sweep's own source (the live-census doctrine)", () => {
+    // the tool's defaults, read live from scripts/sweep.ts — the pin
+    // fails if the tool's defaults move without the doc face following
+    const sweep = read("scripts/sweep.ts");
+    const liveDefaults: Record<string, string> = {};
+    for (const line of sweep.split("\n")) {
+      const m = /^const (OUR_URL|REF_URL|REF_EMAIL|REF_PASSWORD) = process\.env\.\1 \?\? "([^"]*)";$/.exec(line);
+      if (m) liveDefaults[m[1] as keyof typeof liveDefaults] = m[2];
+    }
+    expect(Object.keys(liveDefaults).sort()).toEqual(
+      ["OUR_URL", "REF_EMAIL", "REF_PASSWORD", "REF_URL"],
+    );
+    // .env.example carries each default verbatim in the commented block
+    const envExample = read(".env.example");
+    for (const [knob, dflt] of Object.entries(liveDefaults)) {
+      expect(envExample, `the ${knob} default cell`).toContain(`# ${knob}=${dflt}`);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-204 (D-204b2) — the TITLE-ATTRIBUTE SOURCE CENSUS: the scoping
+// guard for the a11y register's `span[title=` matcher arm (D-204b1). The
+// calendar event chip is the ONLY `title={` HTML-attribute construction in
+// src/ (the axe target form the arm sanctions); a future title= anywhere
+// else trips this census BEFORE the arm can silently widen — the F-109a1
+// live-census doctrine applied to a matcher's blast radius.
+// ---------------------------------------------------------------------------
+describe("session-204 (D-204b2): the title-attribute source census (the span[title= arm's scoping guard)", () => {
+  it("the calendar event chip is the ONLY title= attribute construction in src/", () => {
+    const hits: string[] = [];
+    for (const f of walk("src")) {
+      if (!/\.(tsx|ts)$/.test(f)) continue;
+      const text = read(f);
+      // The HTML-attribute forms (title={…} AND title="…") on a DOM
+      // (lowercase) tag — NOT a CAPITALIZED component's prop pass
+      // (PageHeader title="Accounts" / MockDashboard title={row.title}
+      // render as text content, never an HTML attribute — axe never
+      // sees them), not the <title> element, not the dialog Title
+      // components. Multiline JSX props are handled by scanning
+      // BACKWARD from each title= to its enclosing tag opener.
+      const tagOpeners: Array<{ pos: number; name: string }> = [];
+      const tagRe = /<([A-Za-z][\w.]*)/g;
+      let tm: RegExpExecArray | null;
+      while ((tm = tagRe.exec(text)) !== null) {
+        tagOpeners.push({ pos: tm.index, name: tm[1] });
+      }
+      const titleRe = /title=(?:\{|")/g;
+      let m: RegExpExecArray | null;
+      while ((m = titleRe.exec(text)) !== null) {
+        // the nearest tag opener at-or-before this attribute
+        let opener: string | undefined;
+        for (const t of tagOpeners) {
+          if (t.pos > m.index) break;
+          opener = t.name;
+        }
+        if (!opener || /^[A-Z]/.test(opener)) continue; // component prop
+        if (opener === "title") continue; // the <title> element
+        const line = text.slice(0, m.index).split("\n").length;
+        hits.push(`${f}:${line}`);
+      }
+    }
+    expect(
+      hits.sort(),
+      "exactly ONE title= construction may exist (the calendar chip) — more trips the census: the span[title= matcher arm must be re-adjudicated",
+    ).toEqual(["src/app/(app)/calendar/calendar-page.tsx:419"]);
+  });
+
+  it("the a11y register carries the span[title= arm inside the white-wash matcher (the D-204b1 face)", () => {
+    const spec = read("tests/e2e/a11y.spec.ts");
+    expect(spec).toContain('"span[title="');
+    expect(spec).toContain("THE CALENDAR TODAY-CHIP ARM (session-204, D-204b1)");
+  });
+});

@@ -50,7 +50,24 @@ const SANCTIONED: Record<string, Array<{ any: string[]; cite: string }>> = {
     {
       // the white-wash family on the navy surfaces (the drawer links, the
       // workspace chip, the landing preview's glass rows + micro-captions)
-      any: ["text-white\\/", "bg-white\\/", "text-[10px]", "text-[8px]", "text-[9px]"],
+      // + THE CALENDAR TODAY-CHIP ARM (session-204, D-204b1): the today
+      // cell's event chips render `bg-white/20 text-white` on the
+      // `bg-sidebar` today pill — the SAME white-wash genus, the
+      // reference's own palette (the s27 bundle-extracted construction;
+      // 3.63:1, the drawer-link family's own ratio). The axe target form
+      // is COUNT-DEPENDENT: with exactly ONE `bg-white/20` node the class
+      // selector is unique and the target rides the class form (caught by
+      // the `bg-white\/` arm); with TWO OR MORE — the seeded today cell
+      // carries two events — no class is unique and axe's
+      // getThreeLeastCommonFeatures falls to the unique `title`
+      // ATTRIBUTE form (`span[title="…"]`), which carries no class
+      // substring at all. The `span[title=` arm catches that form; it is
+      // scoped by the TITLE-ATTRIBUTE SOURCE CENSUS (the D-204b2 pin in
+      // tests/facts-census.test.ts: the calendar chip is the ONLY
+      // `title={` attribute construction in src/ — a future title=
+      // anywhere else trips the census before this arm can silently
+      // widen).
+      any: ["text-white\\/", "bg-white\\/", "text-[10px]", "text-[8px]", "text-[9px]", "span[title="],
       cite: "the white-wash + micro-caption families on the navy/marketing surfaces — the reference's own palette",
     },
     {
