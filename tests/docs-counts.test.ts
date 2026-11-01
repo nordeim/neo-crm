@@ -911,7 +911,7 @@ const SUITES = 138;
 // page-layout.ts +7 lines [the PAD §11 row + the SKILL §5.6 census
 // site re-anchored 1718 -> 1725 / 277 -> 283 checks, the s168
 // line-census doctrine]). SUITES 138 HELD · E2E 192 re-verified.
-const UNIT = 2851;
+const UNIT = 2853;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1483,6 +1483,20 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(claude).not.toContain("`bun run test` (2849)");
     expect(agents).not.toContain("|  Unit tests (2849 checks)");
     expect(skill).not.toContain("| **unit total** | 138 files | **2849**");
+    // Session-207 (D-207b1): the retired 2851 site-forms join the
+    // negatives (the s192 doctrine: the OLD live form joins the negatives)
+    expect(readme).not.toMatch(/# 2851 Vitest unit checks/);
+    expect(readme).not.toMatch(/# 138 Vitest suites \(2851 checks\)/);
+    expect(readme).not.toMatch(/\| 🧪 Tested \| 2851 Vitest unit checks/);
+    expect(pad).not.toMatch(/# 138 Vitest suites — 2851 checks/);
+    expect(pad).not.toMatch(/— 2851\/2851/);
+    expect(pad).not.toMatch(/\| \*\*Total\*\* \| \*\*138\*\* \| \*\*2851 unit/);
+    expect(claude).not.toContain("Unit (Vitest, 2851 checks)");
+    expect(claude).not.toContain("(currently 2851)");
+    expect(claude).not.toContain("Vitest unit suites (2851 checks)");
+    expect(claude).not.toContain("`bun run test` (2851)");
+    expect(agents).not.toContain("|  Unit tests (2851 checks)");
+    expect(skill).not.toContain("| **unit total** | 138 files | **2851**");
   });
 
   // ------------------------------------------------------------------
@@ -1525,13 +1539,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-206 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-207 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s205 layer now beneath the s206 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s206 layer now beneath the s207 head)",
     ).toContain(
-      "+ beneath it 2849 unit checks + 226 e2e checks green; the session-205 layer (THE OPERATOR'S STANDING VERIFICATION ROUND",
+      "+ beneath it 2851 unit checks + 226 e2e checks green; the session-206 layer (THE OPERATOR'S STANDING VERIFICATION ROUND",
     );
   });
 

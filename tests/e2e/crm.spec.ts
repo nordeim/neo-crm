@@ -2978,18 +2978,24 @@ test("the settings picklist add/rename/delete round-trip (S72-P1: the bordered-r
 });
 
 test("the settings defaults persist via the debounce WITHOUT losing focus (S72-P2: the M-72c1 contract)", async ({ page }) => {
+  // Session-119 (F-119a1) added the epoch gate; Session-207 (F-207a)
+  // found it VALUE-BLIND: the pending epoch's fallback values equal
+  // the seed values (AED/new/B/3/month/monday), so toHaveValue("AED")
+  // passed on BOTH epochs — the fill could still race the settings
+  // GET's store-set (the hydrate() 9-fetch wave), and the M-72c4
+  // pending→resolved remount (key={settings ? "resolved" : "pending"},
+  // the by-design epoch) then reset the input + dropped focus (caught
+  // once at the s207 baseline run, 225/226; isolated re-runs green —
+  // the intermittent signature). THE CURE: wait for the settings GET
+  // RESPONSE itself — the deterministic epoch boundary. The waiter is
+  // armed BEFORE the goto (the response can land during navigation);
+  // once awaited, the store-set has landed, the remount has happened,
+  // and the input is stable for the fill.
+  const settingsLoaded = page.waitForResponse((r) => r.url().includes("/api/settings"));
   await page.goto("/settings");
+  await settingsLoaded;
   await page.getByRole("tab", { name: "Defaults" }).click();
   const input = page.getByLabel("Default Currency");
-  // Session-119 (F-119a1, the 119-a audit's root-cause): the EPOCH
-  // GATE — the DefaultsEditor's pending→resolved remount (key=
-  // {settings ? "resolved" : "pending"}, the by-design M-72c4 epoch)
-  // races this fill whenever the settings GET's store-set lands after
-  // it (the hydrate() 9-fetch wave): the remount resets the input to
-  // the stored "AED" + drops focus, and the test flakes (reproduced
-  // 4/4 by the audit, incl. unloaded — NOT parallel workers, NOT
-  // wall-clock). Waiting for the RESOLVED value BEFORE the fill retires
-  // the 9-session flake lineage.
   await expect(input).toHaveValue("AED");
   await input.fill("USD");
 

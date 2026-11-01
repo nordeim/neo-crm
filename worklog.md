@@ -6877,3 +6877,90 @@ Stage Summary:
   the captures 687-691 (the dev-server set: the dashboard at 1280
   + 390 · the drawer OPEN at phone · the landing mobile menu OPEN
   at phone · the login card).
+
+## Task ID 207 — THE OPERATOR'S STANDING VERIFICATION ROUND + THE CHART-STACK DOC-CONTRACT + THE EPOCH GATE'S RESPONSE-WAIT (2026-11-01)
+
+- **WP-0 (the baseline + the audit)**: the round triggered by the
+  owner's newest commit `f990276` (the session_435 transcript — the
+  s206 execution record). The workspace reset mid-round; the first
+  half's verification ran the same tree pre-reset with identical
+  results, then a FRESH CLONE rebuilt it (bun install · the standing
+  `.env` from `.env.example` with a fresh AUTH_SECRET · db:push +
+  db:seed · db census MATCH 15/24/10/23/12 + 4 users at
+  `<repo>/db/custom.db` — the operator's standing contract,
+  `DATABASE_URL="file:../db/custom.db"`, `db/` at the repo root).
+  Baseline gate: lint 0/0 · tsc 0 · 138/2851 unit · build · smoke
+  14/14 · **e2e 225/226 — THE ONE LIVE CATCH (F-207a, decoded at
+  WP-2a)**; the six drift gates CLEAN (the four-band sweep at
+  `--fail-on-drift` ×4 · the fullpage sweep 0.093%/0.316% · the
+  interior census byte-parity · probe:ref STABLE at `46bc2d9c`, the
+  demo data still ZERO; the conditional gates killed).
+- **WP-1 (the parity re-verification + the audit)**: the operator's
+  named focus re-verified live with the agent-browser CLI against
+  BOTH apps logged in — **THE MOBILE NAVIGATION BOTH SURFACES
+  WORKING** (the app drawer at 390×844: the Close button + the "CRM"
+  h2 + the 8 destinations; the reference's overlay computing
+  `rgba(0, 0, 0, 0.8)`, ours `oklab(0 0 0 / 0.8)` — the same 80%
+  black, the v4 serialization; the reference locks the body scroll,
+  ours locks BOTH body + main — the documented superset; Escape
+  closes with every lock released; a link ride navigates
+  `/Dashboard` → `/Leads` AND auto-closes AND releases every lock;
+  the landing disclosure menu: the toggle mounts the `div.md:hidden
+  border-t` panel — 6 links byte-identical, ours carrying
+  aria-expanded — the accessible superset; an in-panel FAQ click
+  closes it + lands on `/#faq`, verified on both apps). The VLM
+  comparison of the drawer-open pair: **identical** (the sole note
+  the reference's own Base44 platform badge — never mirrored).
+  Tailwind v4 state CLEAN; SEO/sitemap live-verified (the 11-route
+  `/sitemap.xml` · `/robots.txt` · `/manifest.json` 200
+  `application/json` · the OG/Twitter/canonical head family); the
+  hygiene legs clean; `bun audit` at the pinned census 10 (4h/5m/1l,
+  all dev-toolchain, zero runtime exposure). The recent-changes
+  audit: src/ UNCHANGED since the s205 ship; the scandihaven
+  patterns re-reviewed (already embodied).
+- **WP-2a (the round's first material — the value-blind epoch gate)**:
+  F-207a — the s119 epoch gate (`toHaveValue("AED")`) is VALUE-BLIND:
+  the pending epoch's fallback values equal the seed values
+  (AED/new/B/3/month/monday), so the gate passes on BOTH epochs and
+  the fill could still race the settings GET's store-set (the
+  hydrate() 9-fetch wave); the M-72c4 pending→resolved remount then
+  reset the input + dropped focus (caught once at this round's
+  baseline run, 225/226; isolated re-runs green). 88 green sessions
+  were the race window simply not closing. D-207a1 (TDD,
+  test-side only — the M-72c4 epoch is by-design parity): the
+  `page.waitForResponse("/api/settings")` waiter armed BEFORE the
+  goto + awaited after — the deterministic epoch boundary. No count
+  change; E2E 226 HELD.
+- **WP-2b (the round's second material — the stale chart-stack rows)**:
+  F-207b — the s176 recharts major (2.15 → 3.10.1, ADR-021) updated
+  CLAUDE's charts row + the PAD's stack table (live-pinned by the
+  WP-1a STACK loop since s169) but THREE sites rode 31 sessions: the
+  SKILL §2 Charts row (BOTH cells stale — the `2.15.x` version + the
+  pre-s10 "Every chart has an empty-state fallback" doctrine note),
+  the SKILL §10 chart-blank row (the pre-s10 doctrine), and the
+  README stack table (`2.15`). D-207b1 (TDD): a new describe in
+  `tests/facts-census.test.ts` (the F-169f home) — it-1 the SKILL §2
+  instance (the version cell read LIVE from node_modules — the
+  F-109a1 doctrine — + the real-chart doctrine frozen + the stale
+  forms banned AT the §2 section, the s206 scoping doctrine) RED-first
+  at birth (exactly 1 RED) · it-2 the genus (README's row + SKILL
+  §10's note + the CLAUDE `2.15 → <live>` freeze arm) RED-first at
+  birth (exactly 1 RED, zero collateral, 44 standing GREEN) → the
+  cure: the three doc flips → **GREEN 46/46**. MUTATION-PROVEN ×3
+  (the stale SKILL §2 row re-planted → 1 RED; the stale README row
+  re-planted → 1 RED; the SKILL §10 note weakened → 1 RED; each
+  restored → GREEN). src/ untouched (docs + tests only).
+- **WP-3 (the ladder + the docs lockstep)**: UNIT 2851 → **2853**
+  (+2) · SUITES 138 HELD · E2E 226 HELD · badge 3077 → **3079**
+  (verified against the live unit run BEFORE any doc flip:
+  138/2853 GREEN). `skill-head-207.py` (SKILL v1.204.0 · the s206
+  layer demoted at its ship 2851/226 · the s207 layer live ·
+  idempotent — the re-run a verified no-op) + `count-ladder-207.py`
+  (assert-first, idempotent — 26 flips, the re-run 26 no-ops) + the
+  test-side re-anchors in the same stroke (the docs-counts
+  layer-axis pair · the 2851 negatives · the dialog-geometry-parity
+  F-92a3 ladder) + the docs lockstep (the AGENTS Session-207 section
+  · docs/session_436.md · the PAD §7.1 s207 inventory row · the
+  plan's execution record · this entry) + the captures 692-696 (the
+  dev-server set: the dashboard at 1280 + 390 · the drawer OPEN at
+  phone · the landing mobile menu OPEN at phone · the login card).

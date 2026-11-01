@@ -723,3 +723,76 @@ describe("session-205 (D-205a2): the env-face totality census (the F-167e genus 
     ).toEqual([]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-207 (D-207b1) — THE CHART-STACK DOC-FAMILY PIN (F-207b): the
+// s176 recharts major (2.15 → 3.10.1, ADR-021) updated CLAUDE's charts
+// row + the PAD's stack row (live-pinned by the WP-1a STACK loop since
+// s169) — but the SKILL §2 Charts row kept BOTH stale cells (the 2.15.x
+// version + the pre-s10 "empty-state fallback" doctrine note), the SKILL
+// §10 chart-blank row kept the pre-s10 doctrine, and the README stack
+// table kept the 2.15 version — 31 green sessions (s176 → s206). The
+// WP-1a SKILL pin covers only the next + playwright rows; no pin guarded
+// the Charts row anywhere. THE CURE: the three doc flips (the code-wins
+// rule) + this pin family — the version cells read LIVE from node_modules
+// (the F-109a1 live-census doctrine: a recharts bump fails the pin until
+// the doc face follows), the doctrine cells frozen to the s10/s176 live
+// forms, the stale fingerprints banned AT their claim sections (the s206
+// scoping doctrine — historical session records keep their ship-time
+// quotes; the pin bans the LIVE claim site).
+// ---------------------------------------------------------------------------
+describe("session-207 (D-207b1): the chart-stack doc-family live-census (F-207b — the recharts row joins the pin)", () => {
+  const section = (doc: string, from: string, to: string) => {
+    const s = doc.indexOf(from);
+    expect(s, `${from} must exist in the doc`).toBeGreaterThan(0);
+    const e = doc.indexOf(to, s);
+    return doc.slice(s, e > s ? e : undefined);
+  };
+  const recharts = installed("recharts");
+
+  it("SKILL §2's Charts row mirrors the LIVE recharts + the real-chart doctrine (the 31-session instance)", () => {
+    const sec2 = section(
+      read("neo-crm_SKILL.md"),
+      "## 2. Tech Stack & Environment",
+      "## 3. Bootstrapping & Configuration",
+    );
+    expect(
+      sec2,
+      "the §2 Charts row's version cell must mirror the installed recharts",
+    ).toContain(`| Charts | recharts | \`${majorMinor(recharts)}.x\` |`);
+    expect(sec2, "the §2 Charts row carries the s10 real-chart doctrine").toContain(
+      "the REAL chart renders at all-zero data",
+    );
+    expect(sec2, "the pre-176 version cell is retired at its claim section").not.toContain(
+      "| Charts | recharts | `2.15.x` |",
+    );
+    expect(sec2, "the pre-s10 empty-state-fallback note is retired at its claim section").not.toContain(
+      "Every chart has an empty-state fallback",
+    );
+  });
+
+  it("the chart-stack family lockstep: README's row + SKILL §10's blank-chart note + CLAUDE's migration form (the genus)", () => {
+    const readme = read("README.md");
+    expect(
+      readme,
+      "README's stack-table Charts row must mirror the installed recharts",
+    ).toContain(`| Charts | recharts | ${majorMinor(recharts)} |`);
+    expect(readme, "the pre-176 README row is retired").not.toContain(
+      "| Charts | recharts | 2.15 |",
+    );
+    const sec10 = section(
+      read("neo-crm_SKILL.md"),
+      "## 10. Debugging Guide",
+      "## 11. Pre-Ship Checklist",
+    );
+    expect(sec10, "the §10 chart-blank row carries the s10 zero-data doctrine").toContain(
+      "the REAL chart renders at zero",
+    );
+    expect(sec10, "the pre-s10 §10 doctrine is retired at its claim section").not.toContain(
+      "by design — empty-state fallback",
+    );
+    // the freeze arm: CLAUDE's charts row carries the live migration form
+    // (a future recharts bump fails here until CLAUDE's row follows)
+    expect(read("CLAUDE.md")).toContain(`2.15 → ${recharts}`);
+  });
+});
