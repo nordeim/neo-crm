@@ -118,4 +118,43 @@ describe("session-174: THE TYPE-GATE HARDENING (the build fails on type errors)"
     const gateFull = pkg().scripts?.["gate:full"] ?? "";
     expect(gateFull).toMatch(/lint.*typecheck.*test.*build/);
   });
+
+  it("the AGENTS conventions section carries the LIVE full-strict claim — the pre-174 exception form retired (F-206a, the 31-session straggler)", () => {
+    // Session-206 (D-206a1): the s174 flip updated CLAUDE/PAD/SKILL and
+    // AGENTS's own architecture-facts section, but the "Conventions that
+    // differ from defaults" bullet kept the pre-174 exception form for
+    // 31 sessions — every gate green, the doc contradicting the pinned
+    // tsconfig, ADR-019, and its own file. The code-wins rule ran late;
+    // this pin keeps it from running late again. The negative is scoped
+    // to the CONVENTIONS SECTION (the claim's home): historical session
+    // records keep their ship-time quotes by doctrine (the s188 form),
+    // so a file-wide ban would contradict the record convention — the
+    // stale fingerprint is the bolded "**except" form, no legitimate
+    // convention use exists.
+    const agents = read("AGENTS.md");
+    const sectionStart = agents.indexOf("## Conventions that differ from defaults");
+    const sectionEnd = agents.indexOf("\n## ", sectionStart + 1);
+    expect(sectionStart, "the conventions section header exists").toBeGreaterThan(-1);
+    expect(sectionEnd, "the conventions section is bounded by the next heading").toBeGreaterThan(sectionStart);
+    const conventions = agents.slice(sectionStart, sectionEnd);
+    expect(conventions).not.toMatch(/strict \*\*except/);
+    expect(conventions).toContain("TypeScript FULL strict (session-174:");
+  });
+
+  it("the strictness doc-family lockstep — CLAUDE + PAD + SKILL mirror the live tsconfig (the F-206a genus pin)", () => {
+    // Born-green freeze pin (the D-205a1 reverse-arm precedent): the
+    // other three doc sites already carry the full-strict claim — this
+    // holds them there. A future edit that weakens any stack-table row
+    // below the live tsconfig trips this at the unit gate, the same way
+    // a forgotten count trips docs-counts.
+    expect(read("CLAUDE.md")).toContain(
+      "**TypeScript** full strict (session-174: the `noImplicitAny: false`",
+    );
+    expect(read("Project_Architecture_Document.md")).toContain(
+      "Full strict mode (session-174: the `noImplicitAny: false` escape hatch retired",
+    );
+    expect(read("neo-crm_SKILL.md")).toContain(
+      "FULL strict (s174: the `noImplicitAny: false` escape hatch retired",
+    );
+  });
 });

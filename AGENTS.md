@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2849 checks)      | `bun run test`                         |
+|  Unit tests (2851 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2849) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2851) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -3119,7 +3119,8 @@ operations under env -u DATABASE_URL).
 
 ## Conventions that differ from defaults
 
-- TypeScript strict **except `noImplicitAny: false`** (sandbox default, kept).
+- TypeScript FULL strict (session-174: the `noImplicitAny: false`
+  escape hatch retired — the build fails on type errors; ADR-019).
 - Validation rides the Zod seam at every body boundary (zod ^4:
   `src/lib/schemas.ts` + `parseBody()` in `src/lib/api.ts` —
   the auth family since session-163, the CRUD family since session-166).
@@ -13676,3 +13677,104 @@ zero-data reference state) · the `.env` working-tree refresh as a
 repo change (`.env` is operator-local and untracked; the block is
 inert comments; the bidirectional rebuild ritual covers the
 verification).
+
+### Session-206 — THE OPERATOR'S STANDING VERIFICATION ROUND + THE STRICTNESS DOC-CONTRACT (the stale AGENTS convention retired, and the doc family joins the pin) (2026-11-01)
+
+The rotation trigger: the owner's newest commit `60d04e3` — the
+session_433 transcript, the s205 round's own execution record. The
+round executed the operator's standing instruction set on a FRESH
+CLONE (the workspace had been reset; `git clone` → `bun install` →
+the `.env` rebuilt from `.env.example` with a fresh `AUTH_SECRET` →
+`db:push` + `db:seed` → db census MATCH 15/24/10/23/12 + 4 users at
+`<repo>/db/custom.db` — the standing `.env` contract,
+`DATABASE_URL="file:../db/custom.db"` with `db/` at the repo root).
+
+THE BASELINE GATE GREEN at the exact s205 ship state: lint 0/0 ·
+tsc 0 · **138/2849** unit · build · smoke 14/14 · **e2e 226/226**
+(8.1m; one environment-only false start — the fresh sandbox lacked
+the Playwright browser binary, cured by `bunx playwright install
+chromium`, zero code involvement). THE SIX DRIFT GATES ALL CLEAN:
+the four-band sweep at `--fail-on-drift` (desktop 1280 · phone
+390×844 · tablet 768×1024 · landscape 1024×768) + the fullpage
+sweep CLEAN (desktop 0.093% / phone 0.316%, both inside the standing
+margins) + the interior census **byte-parity** + probe:ref STABLE at
+`46bc2d9c` (the demo data still ZERO; the conditional gates stay
+killed).
+
+THE PARITY RE-VERIFICATION (the operator's named focus) probed live
+with the agent-browser CLI against BOTH apps logged in — **THE MOBILE
+NAVIGATION BOTH SURFACES WORKING**: the app drawer at 390×844 (open:
+the Close button + the "CRM" h2 + the 8 destinations; the reference's
+overlay computes `rgba(0, 0, 0, 0.8)`, OURS `oklab(0 0 0 / 0.8)` —
+the same 80% black, the v4 serialization; the reference locks the
+body scroll while open, ours locks BOTH body + main — the documented
+superset; Escape closes on both; a link ride navigates `/Dashboard`
+→ `/Leads` AND auto-closes AND releases every lock) + the landing
+disclosure menu (the toggle mounts the `div.md:hidden` panel — 6
+links byte-identical: Features / Preview / Pricing / FAQ / Contact /
+Open dashboard; ours carries `aria-expanded`, the accessible
+superset; an in-panel FAQ click closes it + lands on `/#faq`). The
+VLM comparison of the drawer-open pair: **identical** in structure,
+layout, and styling (the sole note the reference's own Base44
+platform badge — never mirrored). TAILWIND V4 STATE CLEAN (no config
+file · the CSS-first `@theme` · the vendored tw-animate.css · the
+four-band pixel sweep + byte-parity census). SEO/SITEMAP
+live-verified (the 11-route `/sitemap.xml` · `/robots.txt` ·
+`/manifest.json` 200 `application/json` · the OG/Twitter/canonical
+head family, curl-verified on the dev server). The hygiene legs
+clean; `bun audit` at the pinned census 10 (4h/5m/1l — all
+dev-toolchain transitive; the standing no-mid-rotation-bump posture
+holds). The recent-changes audit: src/ UNCHANGED since the s205 ship
+(`git diff efe14e7..HEAD --stat -- src/` empty; the owner's newest
+commit adds `docs/session_433.md` only). The scandihaven reference
+repo re-reviewed (the highest-leverage borrows already embodied).
+
+**THE ROUND'S MATERIAL — THE STRICTNESS DOC-CONTRACT (F-206a).** The
+s174 full-strict flip (ADR-019) updated CLAUDE/PAD/SKILL + AGENTS's
+own architecture-facts section, but the AGENTS "Conventions that
+differ from defaults" bullet kept the PRE-174 exception form
+(`TypeScript strict **except `noImplicitAny: false`** (sandbox
+default, kept)`) for **31 sessions** — every gate green, the doc
+contradicting the pinned tsconfig, ADR-019, the other three docs,
+and its own file. The type-gate suite pinned the CODE side; no pin
+guarded the DOC claims — the exact genus D-205a2 closed for the env
+face. **D-206a1 (TDD)**: two its appended to `tests/type-gate.test.ts`
+(the F-174b home) — it-1 the instance (AGENTS carries the live
+full-strict claim + the stale fingerprint `strict **except`
+retired), RED-first at birth (exactly 1 RED, zero collateral, 5
+standing GREEN) → the cure: the AGENTS.md conventions bullet flipped
+to the `TypeScript FULL strict (session-174: …)` form → GREEN 7/7 ·
+it-2 the genus (the CLAUDE + PAD + SKILL stack-table rows mirror the
+live tsconfig — born-green freeze pins, the D-205a1 reverse-arm
+precedent). MUTATION-PROVEN ×2: the stale form re-planted in
+AGENTS.md → exactly 1 RED (it-1) · the CLAUDE stack row weakened →
+exactly 1 RED (it-2) — each restored → GREEN. src/ untouched (docs +
+tests only — the baseline-inert construction).
+
+THE COUNT LADDER: UNIT **2849 → 2851** (+2) · SUITES 138 HELD · E2E
+226 HELD · badge **3075 → 3077** — clean first pass (the arithmetic
+verified against the live unit run BEFORE any doc flip).
+`skill-head-206.py` (the SKILL v1.203.0, the s205 layer
+comment-demoted at its ship counts 2849/226, the s206 layer live at
+2851/226; idempotent) + `count-ladder-206.py` (assert-first,
+idempotent, unique-anchor — 26 flips, the re-run 26 no-ops) + the
+test-side re-anchors in the same stroke (the docs-counts layer-axis:
+first = s206, second = s205 at its ship 2849/226 · the unit negatives
+ladder: the retired 2849 site-forms join the negatives · the
+dialog-geometry-parity F-92a3 ladder: the four CLAUDE live positives
+re-anchored 2851 + the 2849 forms join the negatives). The docs
+lockstep: this section · `docs/session_434.md` · the PAD section-7.1
+s206 inventory row · the plan's execution record · the worklog entry
+{Task ID 206} + the captures 687-691 (the round's dev-server set:
+the dashboard at desktop + the dashboard at 390×844 + the mobile
+drawer OPEN at phone + the landing mobile disclosure menu OPEN at
+phone + the login card, VLM-verified).
+
+DECLINED (recorded in the plan): a mid-rotation eslint/vite-family
+bump (the standing posture) · a GENERAL doc-claim totality census
+(the genus one level up — the facts-census + docs-counts + type-gate
+families already pin the volatile axes; its own rotation's material)
+· re-walking the interactive-table families (the standing kill
+re-verified; no new walk material at the zero-data reference state) ·
+the `.env` working-tree refresh as a repo change (operator-local +
+untracked; the bidirectional rebuild ritual covers the verification).

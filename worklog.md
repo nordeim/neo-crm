@@ -6795,3 +6795,85 @@ Stage Summary:
   captures 682-686 (the dev-server set, VLM-verified: the dashboard
   at 1280 + 390 · the drawer OPEN at phone · the landing mobile menu
   OPEN at phone · the login card).
+
+## Task ID 206 — THE OPERATOR'S STANDING VERIFICATION ROUND + THE STRICTNESS DOC-CONTRACT (the session-206 round)
+
+- **WP-0 (the trigger + the fresh-clone baseline)**: the owner's
+  newest commit `60d04e3` (the session_433 transcript — the s205
+  round's own execution record) is the rotation trigger. The
+  workspace had been RESET; the round ran on a FRESH CLONE
+  (`git clone` → `bun install` → the `.env` rebuilt from
+  `.env.example` with a fresh `AUTH_SECRET` → `db:push` + `db:seed`
+  → db census MATCH 15/24/10/23/12 + 4 users at
+  `<repo>/db/custom.db` — the operator's standing `.env` contract,
+  `DATABASE_URL="file:../db/custom.db"` with `db/` at the repo
+  root). The baseline gate GREEN at the exact s205 ship state: lint
+  0/0 · tsc 0 · **138/2849** unit · build · smoke 14/14 ·
+  **e2e 226/226** (8.1m; one environment-only false start — the
+  fresh sandbox lacked the Playwright browser binary, cured by
+  `bunx playwright install chromium`, zero code involvement). THE
+  SIX DRIFT GATES ALL CLEAN: the four-band sweep at
+  `--fail-on-drift` (desktop 1280 · phone 390×844 · tablet
+  768×1024 · landscape 1024×768) + the fullpage sweep CLEAN
+  (desktop 0.093% / phone 0.316%) + the interior census
+  **byte-parity** + probe:ref STABLE at `46bc2d9c` (the demo data
+  still ZERO; the conditional gates stay killed).
+- **WP-1 (the parity re-verification + the audit)**: the operator's
+  named focus re-verified live with the agent-browser CLI against
+  BOTH apps logged in — **THE MOBILE NAVIGATION BOTH SURFACES
+  WORKING** (the app drawer at 390×844: the Close button + the
+  "CRM" h2 + the 8 destinations; the reference's overlay computing
+  `rgba(0, 0, 0, 0.8)`, ours `oklab(0 0 0 / 0.8)` — the same 80%
+  black, the v4 serialization; the reference locks the body scroll
+  while open, ours locks BOTH body + main — the documented
+  superset; Escape closes; a link ride navigates `/Dashboard` →
+  `/Leads` AND auto-closes AND releases every lock; the landing
+  disclosure menu: the toggle mounts the `div.md:hidden` panel — 6
+  links byte-identical, ours carrying `aria-expanded` — an in-panel
+  FAQ click closes it + lands on `/#faq`). The VLM comparison of
+  the drawer-open pair: **identical** (the sole note the
+  reference's own Base44 platform badge — never mirrored). Tailwind
+  v4 state CLEAN; SEO/sitemap live-verified (the 11-route
+  `/sitemap.xml` · `/robots.txt` · `/manifest.json` 200
+  `application/json` · the OG/Twitter/canonical head family); the
+  hygiene legs clean; `bun audit` at the pinned census 10
+  (4h/5m/1l, all dev-toolchain, zero runtime exposure). The
+  recent-changes audit: src/ UNCHANGED since the s205 ship
+  (`git diff efe14e7..HEAD --stat -- src/` empty; the owner's
+  newest commit adds docs only) + the scandihaven patterns
+  re-reviewed (already embodied).
+- **WP-2 (the round's material — the strictness doc-contract)**:
+  F-206a — the s174 full-strict flip (ADR-019) updated
+  CLAUDE/PAD/SKILL + AGENTS's own architecture-facts section, but
+  the AGENTS "Conventions that differ from defaults" bullet kept
+  the PRE-174 exception form for **31 sessions** — every gate
+  green, the doc contradicting the pinned tsconfig, ADR-019, the
+  other three docs, and its own file. The type-gate suite pinned
+  the CODE side; no pin guarded the DOC claims. D-206a1 (TDD): two
+  its appended to `tests/type-gate.test.ts` (the F-174b home) —
+  it-1 the instance (the AGENTS conventions section carries the
+  live full-strict claim + the stale fingerprint `strict
+  **except` retired; the negative scoped to the conventions
+  section — historical session records keep their ship-time quotes
+  by doctrine), RED-first at birth (exactly 1 RED, zero
+  collateral) → the cure: the AGENTS.md conventions bullet flipped
+  to the `TypeScript FULL strict (session-174: …)` form → GREEN
+  7/7 · it-2 the genus (the CLAUDE + PAD + SKILL stack-table rows
+  mirror the live tsconfig — born-green freeze pins). 
+  MUTATION-PROVEN ×2 (the stale form re-planted in AGENTS.md → 1
+  RED; the CLAUDE stack row weakened → 1 RED; each restored →
+  GREEN). src/ untouched (docs + tests only).
+- **WP-3 (the ladder + the docs lockstep)**: UNIT 2849 → **2851**
+  (+2) · SUITES 138 HELD · E2E 226 HELD · badge 3075 → **3077**
+  (clean first pass — the arithmetic verified against the live unit
+  run BEFORE any doc flip). `skill-head-206.py` (SKILL v1.203.0 ·
+  the s205 layer demoted at its ship 2849/226 · the s206 layer
+  live · idempotent) + `count-ladder-206.py` (assert-first,
+  idempotent — 26 flips, the re-run 26 no-ops) + the test-side
+  re-anchors (the docs-counts layer-axis pair · the 2849 negatives
+  · the dialog-geometry-parity F-92a3 ladder) + the docs lockstep
+  (the AGENTS Session-206 section · docs/session_434.md · the PAD
+  s206 inventory row · the plan's execution record · this entry) +
+  the captures 687-691 (the dev-server set: the dashboard at 1280
+  + 390 · the drawer OPEN at phone · the landing mobile menu OPEN
+  at phone · the login card).
