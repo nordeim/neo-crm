@@ -969,3 +969,115 @@ describe("session-208 (D-208a1/D-208a2): the doc-claim totality census (F-208a �
     }
   });
 });
+
+// Session-209 (D-209a1 + D-209a2) — THE PUSH-RITUAL REMOTE CONTRACT
+// (F-209a — the fresh-eyes walk's catch: the operational push-ritual
+// pair [docs/ssh_git_wrapper_v3.py + the how-to runbook] carried the
+// SIBLING REPO's remote [task-management] verbatim from the initial
+// scaffold — the wrapper's DEFAULT_REMOTE, its docstring claim, its
+// Options default, and the runbook's purpose · cd · expected-output ·
+// variants · troubleshooting · and the factually WRONG
+// AGENTS-corroboration claim [the live AGENTS.md:7 says neo-crm]).
+// The runbook's PRIMARY sequence invokes the wrapper with NO
+// --remote — it rides the stale default; every round pushed safely
+// only because AGENTS's git island + the operator's briefs carry the
+// explicit neo-crm remote [the F-206a/F-207b correct-and-lucky
+// genus]. The D-208a2 totality census never scoped this family (the
+// six core docs + .env.example only). THE CURE — the remote-contract
+// flips (D-209a1) + this pin (D-209a2, the genus closes):
+//   it-1  the wrapper arm — the canonical remote read LIVE from
+//         AGENTS.md's own head claim (the SSH transform), asserted
+//         equal to the wrapper's DEFAULT_REMOTE (read live from the
+//         code, the F-109a1 doctrine) + the freeze anchor + the
+//         wrapper's own doc faces + the AGENTS git-island
+//         invocation's explicit --remote (the cross-doc arm)
+//   it-2  the runbook arm — the canonical SSH remote at the claim
+//         sites (the purpose · the --remote variants · the
+//         ls-remote troubleshooting line) + the AGENTS-corroboration
+//         claim quoting the LIVE AGENTS clone remote + the STALE
+//         FORM BAN (neither operational file contains
+//         `task-management` — file-wide)
+// Either face drifting — a wrapper default change, an AGENTS remote
+// change, a lost invocation site, or a stale re-plant — fails with a
+// named message. MUTATION-PROVEN x4 at birth.
+// ---------------------------------------------------------------------------
+describe("session-209 (D-209a2): the push-ritual remote contract (F-209a — the operational docs carry the repo's own remote)", () => {
+  // the repo's canonical remote, read LIVE from AGENTS.md's own head
+  // claim (the s109 live-census doctrine): the https clone URL at
+  // the head, SSH-transformed — the same repo, both URL forms
+  const agentsText = read("AGENTS.md");
+  const agentsHead = agentsText.split("**Session-50**")[0] ?? "";
+  const cloneM = agentsHead.match(
+    /Clone remote: `https:\/\/github\.com\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)\.git`/,
+  );
+  expect(
+    cloneM,
+    "AGENTS.md's head must carry the `Clone remote:` claim (the pin derives the canonical remote from it)",
+  ).toBeTruthy();
+  const SSH_REMOTE = `git@github.com:${cloneM![1]}.git`;
+  const HTTPS_REMOTE = `https://github.com/${cloneM![1]}.git`;
+
+  it("D-209a2 (the wrapper arm): the wrapper's DEFAULT_REMOTE is the repo's own canonical SSH remote — the AGENTS contract, the docstring, and the Options default agree", () => {
+    const wrapper = read("docs/ssh_git_wrapper_v3.py");
+    // the live default, read from the code (the F-109a1 doctrine)
+    const def = wrapper.match(/DEFAULT_REMOTE = "([^"]+)"/);
+    expect(def, "the wrapper must define DEFAULT_REMOTE").toBeTruthy();
+    expect(
+      def![1],
+      "the wrapper's default must be the AGENTS clone remote's SSH form",
+    ).toBe(SSH_REMOTE);
+    // the freeze anchor — a drift on either face names both
+    expect(
+      SSH_REMOTE,
+      "the canonical SSH remote (the s209 freeze)",
+    ).toBe("git@github.com:nordeim/neo-crm.git");
+    // the wrapper's own doc faces carry the same remote (the
+    // docstring's canonical-remote claim + the Options default)
+    expect(
+      wrapper,
+      "the docstring's canonical-remote claim",
+    ).toContain(`(\`${SSH_REMOTE}\`)`);
+    expect(wrapper, "the Options default").toContain(`(default ${SSH_REMOTE})`);
+    // the cross-doc arm: AGENTS's git-island invocation passes the
+    // same remote explicitly (the living contract site that saved
+    // every round's push)
+    expect(
+      agentsText,
+      "the AGENTS git-island invocation's explicit --remote",
+    ).toContain(`--remote ${SSH_REMOTE}`);
+    // the STALE FORM BAN on the wrapper's own file — the sibling
+    // repo's remote must stay gone (file-wide; the historical
+    // field-test note names no repo — the historical-quote doctrine)
+    expect(
+      wrapper,
+      "the stale sibling-repo remote must stay gone from the wrapper (F-209a)",
+    ).not.toContain("task-management");
+  });
+
+  it("D-209a2 (the runbook arm): the push runbook carries the repo's own remote at every claim site — and the stale sibling-repo remote is banned file-wide", () => {
+    const runbook = read("docs/how-to-git-push-using-ssh-wrapper_SKILL.md");
+    // the purpose claim (the canonical SSH remote + the deploy-key form)
+    expect(
+      runbook,
+      "the purpose claim",
+    ).toContain(`${SSH_REMOTE}\` using a deploy key`);
+    // the variant + troubleshooting sites
+    expect(runbook, "the --remote variant sites").toContain(`--remote ${SSH_REMOTE}`);
+    expect(
+      runbook,
+      "the ls-remote troubleshooting line",
+    ).toContain(`git ls-remote ${SSH_REMOTE} refs/heads/main`);
+    // the AGENTS-corroboration claim must quote the LIVE AGENTS
+    // clone remote (F-209a's factually-wrong site)
+    expect(
+      runbook,
+      "the AGENTS-corroboration claim must quote the live AGENTS clone remote",
+    ).toContain(`AGENTS.md: clone remote is \`${HTTPS_REMOTE}\``);
+    // the STALE FORM BAN on the runbook's own file — the sibling
+    // repo's remote must stay gone (file-wide)
+    expect(
+      runbook,
+      "the stale sibling-repo remote must stay gone from the runbook (F-209a)",
+    ).not.toContain("task-management");
+  });
+});

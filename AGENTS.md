@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2856 checks)      | `bun run test`                         |
+|  Unit tests (2858 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2856) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2858) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -14055,3 +14055,111 @@ re-verified) · the `.env` working-tree refresh as a repo change
 the verification) · committing the round's one-shot census-walker
 scripts (the PIN is the permanent census; the method documented in
 the plan).
+
+### Session-209 — THE PUSH-RITUAL REMOTE CONTRACT (2026-11-02)
+
+The rotation trigger: the owner's newest commit `399bda3` — the
+session_439 transcript, the s208 round's own execution record. The
+round executed the operator's standing instruction set at the carried-
+over workspace (`git pull` fast-forward; the standing `.env` intact,
+db census MATCH 15/24/10/23/12 + 4 users at `<repo>/db/custom.db`).
+
+The baseline gate at the exact s208 ship state — **ALL GREEN, ZERO
+LIVE CATCHES**: lint 0/0 · tsc 0 · **138/2856** unit · build (the 2
+warnings the pre-existing Turbopack tracing heuristics) · smoke
+14/14 · **e2e 226/226 CLEAN FIRST RUN** (8.0m; one environment-only
+wrinkle — a `nohup`-backgrounded e2e launch died with its spawning
+shell, the sandbox reaps orphans; re-run in the foreground, clean).
+The six drift gates CLEAN (the four-band sweep at `--fail-on-drift`
+×4 · the fullpage sweep 0.093%/0.316% · the interior census CLEAN ·
+probe:ref STABLE at `46bc2d9c`, the demo data still ZERO) — every
+gate re-run with the dev server booted in-session (the sandbox reaps
+spawned processes between tool invocations; the standing
+environment-only precedent). The parity re-verification probed live
+with agent-browser against BOTH apps logged in — the mobile
+navigation both surfaces working (the drawer: the Close button + the
+CRM h2 + the 8 destinations; the overlay `rgba(0,0,0,0.8)` vs ours
+`oklab(0 0 0 / 0.8)` — the same 80% black; the dual-lock superset;
+Escape; the link ride `/Dashboard` → `/Leads` + auto-close + full
+release; the landing disclosure menu: the 6 links, ours the
+aria-expanded accessible superset, the FAQ ride → `/#faq`) + the VLM
+drawer-pair comparison IDENTICAL (the sole note the Base44 badge) +
+Tailwind v4 clean + SEO/sitemap live-verified (the 11-route
+`/sitemap.xml` · `/robots.txt` · `/manifest.json` · the OG/canonical
+head) + the hygiene legs clean (bun audit at the pinned census 10 —
+4h/5m/1l, all dev-toolchain transitive; the zod advisory's flagged
+face is the eslint-plugin-react-hooks chain, our direct zod ^4.6.7
+≥ the patched 4.6.6). The recent-changes audit: the owner's newest
+commit adds `docs/session_439.md` only; src/ UNCHANGED since the
+s205 ship. The scandihaven repo re-pulled — `61711c3`, unchanged
+since the s208 review.
+
+**The round's material — THE PUSH-RITUAL REMOTE CONTRACT (F-209a —
+the fresh-eyes walk's catch, a new genus the tree grew).** The
+operational push-ritual pair (`docs/ssh_git_wrapper_v3.py` + the
+`docs/how-to-git-push-using-ssh-wrapper_SKILL.md` runbook) carried
+the SIBLING REPO's remote — `task-management` — verbatim from the
+initial scaffold: the wrapper's `DEFAULT_REMOTE` + its docstring's
+canonical-remote claim + its Options default, and the runbook's
+purpose · `cd` · expected-output · variants · troubleshooting · and
+the factually WRONG AGENTS-corroboration claim (the live AGENTS.md:7
+says `neo-crm`). The runbook's PRIMARY sequence invokes the wrapper
+with NO `--remote` — it rode the stale default; every round pushed
+safely only because AGENTS's git island + the operator's briefs
+carry the explicit `git@github.com:nordeim/neo-crm.git` (the
+F-206a/F-207b correct-and-lucky genus). The D-208a2 totality census
+never scoped this family (the six core docs + `.env.example` only).
+
+**The cures**: D-209a1 the REMOTE-CONTRACT FLIPS — every stale site
+flipped to the repo's own canonical remote (the wrapper ×3 · the
+runbook ×9; the historical field-test note keeps its ship-time
+narration — it names no repo). D-209a2 the PUSH-RITUAL REMOTE
+CONTRACT PIN (the genus closes) — a new describe in
+`tests/facts-census.test.ts`: the wrapper arm (the canonical remote
+read LIVE from AGENTS.md's own head claim, SSH-transformed, asserted
+equal to the wrapper's `DEFAULT_REMOTE` + the freeze anchor + the
+wrapper's doc faces + the AGENTS git-island invocation's explicit
+`--remote` — the cross-doc arm — + the stale-form ban) + the runbook
+arm (the canonical SSH remote at the claim sites + the
+AGENTS-corroboration claim quoting the LIVE AGENTS clone remote +
+the stale-form ban). **RED-first at birth** (exactly 2 RED at the
+stale sites — the proof the pin catches the finding) → the flips →
+GREEN. One arm-ownership correction at birth (each arm's ban owns
+its own file — the first M1 run caught the 2-RED flaw). **MUTATION-
+PROVEN ×4**: the wrapper `DEFAULT_REMOTE` re-planted stale → exactly
+1 RED (the wrapper arm) · the runbook variant re-planted stale →
+exactly 1 RED (the runbook arm) · the AGENTS-corroboration line
+re-planted stale → exactly 1 RED (the runbook arm) · the AGENTS
+git-island invocation's remote flipped → exactly 1 RED (the wrapper
+arm, the cross-doc arm) — each restored → GREEN. src/ untouched
+(operational docs + tests only).
+
+The count ladder: UNIT **2856 → 2858** (+2) · SUITES 138 HELD ·
+E2E 226 HELD · badge **3082 → 3084** — verified against the live
+unit run (138/2858 GREEN, clean first pass). `skill-head-209.py`
+(the SKILL v1.206.0, the s208 layer comment-demoted at its ship
+counts 2856/226, the s209 layer live at 2858/226, `last_updated`
+stays 2026-11-02 — the same-day form; idempotent) +
+`count-ladder-209.py` (assert-first, idempotent, unique-anchor — 26
+flips, the re-run 26 no-ops) + the test-side re-anchors in the same
+stroke (the docs-counts layer-axis: first = s209, second = s208 at
+its ship 2856/226 · the 2856 negatives · the dialog-geometry-parity
+F-92a3 ladder re-anchored 2858).
+
+The docs lockstep: the AGENTS Session-209 section · the PAD §7.1
+s209 inventory row · `docs/session_440.md` · the worklog Task ID 209
+entry · the plan's execution record. The captures 702-706 (the
+dev-server set, VLM-verified). **The wrapper field-verification**:
+this round's own push runs through the CURED wrapper — the default
+now the repo's own remote, the explicit `--remote` still passed per
+the AGENTS:3151 form.
+
+DECLINED (recorded in the plan): the skills/ mirror flip
+(`skills/how-to-git-push-using-ssh-wrapper/` carries the same stale
+forms — the operator's own domain; skills/ is excluded from code
+checking per the standing brief, no session round has ever modified
+it) · a mid-rotation eslint/vite-family bump (the standing posture)
+· a semantic-prose-claim census (the fresh-eyes walk surfaced the
+operational family instead; the prose residue stays under the
+rotation audit's fresh-eyes walk) · the `.env` working-tree refresh
+as a repo change (operator-local + untracked).

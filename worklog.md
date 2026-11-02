@@ -7044,3 +7044,84 @@ Stage Summary:
   execution record · this entry) + the captures 697-701 (the
   dev-server set: the dashboard at 1280 + 390 · the drawer OPEN at
   phone · the landing mobile menu OPEN at phone · the login card).
+
+## Task ID 209 — THE PUSH-RITUAL REMOTE CONTRACT (2026-11-02)
+
+- **WP-0 (the baseline + the audit)**: the round triggered by the
+  owner's newest commit `399bda3` (the session_439 transcript — the
+  s208 execution record). The workspace carried over (`git pull`
+  fast-forward; the standing `.env` intact —
+  `DATABASE_URL="file:../db/custom.db"`, `db/` at the repo root; db
+  census MATCH 15/24/10/23/12 + 4 users). Baseline gate: lint 0/0 ·
+  tsc 0 · 138/2856 unit · build (the 2 pre-existing Turbopack
+  warnings) · smoke 14/14 · **e2e 226/226 CLEAN FIRST RUN** (8.0m;
+  one environment-only wrinkle — the nohup-backgrounded launch died
+  with its spawning shell, re-run in the foreground); the six drift
+  gates CLEAN (the four-band sweep ×4 · the fullpage 0.093%/0.316% ·
+  the interior census CLEAN · probe:ref STABLE at `46bc2d9c`, the
+  demo data still ZERO); the parity re-verification with
+  agent-browser against BOTH apps logged in — the mobile navigation
+  BOTH surfaces working (the drawer: Close + CRM h2 + 8 destinations,
+  the overlay rgba(0,0,0,0.8) vs our oklab(0 0 0 / 0.8), the
+  dual-lock superset, Escape, the link ride /Dashboard → /Leads +
+  auto-close + full release; the landing disclosure menu: the 6
+  links, aria-expanded the accessible superset, the FAQ ride →
+  /#faq) + the VLM drawer-pair comparison: IDENTICAL (the sole note
+  the Base44 badge); Tailwind v4 clean; SEO/sitemap live-verified;
+  the hygiene legs clean (bun audit at the pinned census 10 —
+  4h/5m/1l, all dev-toolchain transitive); the recent-changes audit
+  (src/ UNCHANGED since the s205 ship; the owner's newest commit
+  adds docs/session_439.md only); the scandihaven repo re-pulled
+  (unchanged since the s208 review).
+- **WP-2 (the round's material — the push-ritual remote contract)**:
+  F-209a — the fresh-eyes walk's catch: the operational push-ritual
+  pair (`docs/ssh_git_wrapper_v3.py` + the how-to runbook) carried
+  the SIBLING REPO's remote (`task-management`) verbatim from the
+  initial scaffold — the wrapper's DEFAULT_REMOTE + docstring +
+  Options default; the runbook's purpose · cd · expected-output ·
+  variants · troubleshooting · and the factually WRONG
+  AGENTS-corroboration claim (the live AGENTS.md:7 says neo-crm).
+  The runbook's PRIMARY sequence invokes the wrapper with NO
+  --remote — it rode the stale default; every round pushed safely
+  only because AGENTS's git island + the operator's briefs carry the
+  explicit neo-crm remote (the F-206a/F-207b correct-and-lucky
+  genus). The D-208a2 totality census never scoped this family. The
+  cures: D-209a1 the REMOTE-CONTRACT FLIPS (every stale site flipped
+  to the repo's own canonical remote — the wrapper ×3 · the runbook
+  ×9; the historical field-test note keeps its ship-time narration)
+  · D-209a2 the PUSH-RITUAL REMOTE CONTRACT PIN (the genus closes —
+  a new describe in tests/facts-census.test.ts: the wrapper arm [the
+  canonical remote read LIVE from AGENTS.md's own head claim,
+  SSH-transformed, asserted equal to the wrapper's DEFAULT_REMOTE +
+  the freeze anchor + the wrapper's doc faces + the AGENTS
+  git-island invocation's explicit --remote — the cross-doc arm — +
+  the stale-form ban] + the runbook arm [the canonical SSH remote at
+  the claim sites + the AGENTS-corroboration claim quoting the LIVE
+  AGENTS clone remote + the stale-form ban]). RED-first at birth
+  (exactly 2 RED at the stale sites) → the flips → GREEN. One
+  arm-ownership correction at birth (each arm's ban owns its own
+  file — the first M1 run caught the 2-RED flaw, cured in place).
+  MUTATION-PROVEN ×4 (the stale default → exactly 1 RED [the wrapper
+  arm] · the stale variant → exactly 1 RED [the runbook arm] · the
+  stale corroboration → exactly 1 RED [the runbook arm] · the AGENTS
+  invocation flipped → exactly 1 RED [the wrapper arm, the cross-doc
+  arm] — each restored → GREEN). src/ untouched (operational docs +
+  tests only).
+- **WP-3 (the ladder + the docs lockstep)**: UNIT 2856 → **2858**
+  (+2) · SUITES 138 HELD · E2E 226 HELD · badge 3082 → **3084**
+  (verified against the live unit run: 138/2858 GREEN, clean first
+  pass). `skill-head-209.py` (SKILL v1.206.0 · the s208 layer
+  demoted at its ship 2856/226 · the s209 layer live at 2858/226 ·
+  last_updated stays 2026-11-02 — the same-day form · idempotent —
+  the re-run a verified no-op) + `count-ladder-209.py` (assert-first,
+  idempotent, unique-anchor — 26 flips, the re-run 26 no-ops) + the
+  test-side re-anchors in the same stroke (the docs-counts layer-axis
+  pair · the 2856 negatives · the dialog-geometry-parity F-92a3
+  ladder re-anchored 2858) + the docs lockstep (the AGENTS
+  Session-209 section · docs/session_440.md · the PAD §7.1 s209
+  inventory row · the plan's execution record · this entry) + the
+  captures 702-706 (the dev-server set: the dashboard at 1280 + 390
+  · the drawer OPEN at phone [the operator's standing mobile-nav
+  ask] · the landing mobile menu OPEN at phone · the login card) +
+  THE WRAPPER FIELD-VERIFICATION (this round's own push runs through
+  the CURED wrapper — the default now the repo's own remote).
