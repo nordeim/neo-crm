@@ -947,12 +947,48 @@ describe("session-208 (D-208a1/D-208a2): the doc-claim totality census (F-208a �
       existsSync(join(root, p)) ||
       [".ts", ".tsx"].some((ext) => existsSync(join(root, p + ext)));
 
+    // the generated-artifact contract (F-210a — the checkout-portability
+    // cure, session-210): some live-section paths name RUNTIME ARTIFACTS —
+    // git-ignored files the tools themselves create (the e2e scratch db,
+    // the smoke scratch db, the persisted auth state). On a fresh clone
+    // none of them resolves, and their contexts correctly assert USAGE,
+    // not absence — the census must not require the artifact on disk,
+    // only the tracked GENERATOR that creates it. The map is frozen and
+    // live-pinned both ways: each generator must resolve (a deleted
+    // generator → the named RED — the census pins the generator contract
+    // the docs claim), and every entry must still be claimed in a live
+    // section (a retired claim leaves a dead entry → the named RED — the
+    // map can never rot). A path NOT in the map still needs the tree or
+    // the NEGATIVE context — the carve-out does not gut the census.
+    const GENERATED: Record<string, string> = {
+      "db/e2e.db": "tests/e2e/global-setup.ts",
+      "db/smoke.db": "scripts/smoke-test.sh",
+      "tests/e2e/.auth/user.json": "playwright.config.ts",
+    };
+    for (const [artifact, generator] of Object.entries(GENERATED)) {
+      expect(
+        existsSync(join(root, generator)),
+        `the generated-artifact contract: \`${artifact}\`'s generator \`${generator}\` must resolve in the tree`,
+      ).toBe(true);
+    }
+    const liveAll = (["README.md", "CLAUDE.md", "docs/DEPLOYMENT.md", "AGENTS.md", "neo-crm_SKILL.md", "Project_Architecture_Document.md"] as const)
+      .map((d) => liveText(d))
+      .join("\n");
+    for (const artifact of Object.keys(GENERATED)) {
+      expect(
+        liveAll.includes(`\`${artifact}\``),
+        `the generated-artifact contract: \`${artifact}\` is no longer claimed in any live section — retire the map entry`,
+      ).toBe(true);
+    }
+
     for (const doc of ["README.md", "CLAUDE.md", "docs/DEPLOYMENT.md", "AGENTS.md", "neo-crm_SKILL.md", "Project_Architecture_Document.md"]) {
       const lines = liveText(doc).split("\n");
       lines.forEach((line, i) => {
         for (const m of line.matchAll(/`((?:src|scripts|tests|prisma|db|docs)\/[A-Za-z0-9._/@()-]+)`/g)) {
           const path = m[1].replace(/\/+$/, "");
           if (pathOk(path)) continue;
+          // the runtime artifact — its tracked generator asserted above
+          if (GENERATED[path]) continue;
           const ctx = lines.slice(Math.max(0, i - 2), i + 3).join(" ");
           expect(
             NEGATIVE.test(ctx),

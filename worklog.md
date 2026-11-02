@@ -7125,3 +7125,88 @@ Stage Summary:
   ask] · the landing mobile menu OPEN at phone · the login card) +
   THE WRAPPER FIELD-VERIFICATION (this round's own push runs through
   the CURED wrapper — the default now the repo's own remote).
+
+## Task ID 210 — THE CENSUS CHECKOUT-PORTABILITY CONTRACT (2026-11-02)
+
+- **WP-0 (the baseline + the audit — the FIRST fresh-clone round)**:
+  the round triggered by the owner's newest commit `7bd4f3d` (the
+  session_441 transcript — the s209 execution record). The workspace
+  was RESET (the standing brief's own contingency ran `git clone`;
+  every prior round s204–s209 rode a carried-over workspace); the
+  standing `.env` contract re-created
+  (`DATABASE_URL="file:../db/custom.db"`, `db/` at the repo root;
+  `bun install` + `db:push` + `db:seed` → db census MATCH
+  15/24/10/23/12 + 4 users). Baseline gate ON THE FRESH CLONE: lint
+  0/0 · tsc 0 · **138/2857 unit — 1 RED, the round's own live
+  catch** · build (the 2 pre-existing Turbopack warnings) · smoke
+  14/14 · **e2e 226/226 CLEAN** (7.9m; one environment-only wrinkle
+  — the fresh sandbox lacked the Playwright browser binaries, `npx
+  playwright install chromium`, zero code involvement); the six
+  drift gates CLEAN (the four-band sweep ×4 · the fullpage
+  0.093%/0.316% — the exact standing margins, run as its two
+  `--width/--height` classes with the dev server booted in-session ·
+  the interior census byte-parity · probe:ref STABLE at `46bc2d9c`,
+  the demo data still ZERO); the parity re-verification with
+  agent-browser against BOTH apps logged in — **the mobile
+  navigation both surfaces working** (the drawer anatomy identical;
+  the overlay `rgba(0,0,0,0.8)` vs ours `oklab(0 0 0 / 0.8)`; the
+  dual-lock superset; Escape + the Leads ride + auto-close + full
+  release; the landing disclosure menu — ours the aria-expanded
+  accessible superset, the FAQ ride → `/#faq`) + **the VLM
+  drawer-pair comparison re-captured this round: IDENTICAL** +
+  Tailwind v4 clean + SEO/sitemap live-verified (the 11-route
+  sitemap · robots · manifest · the OG/canonical head) + the hygiene
+  legs clean (`bun audit` at the pinned census 10) + the
+  recent-changes audit (src/ UNCHANGED since the s205 ship; the
+  owner's newest commit adds `docs/session_441.md` only) + the
+  scandihaven repo re-pulled (`61711c3`, unchanged).
+- **WP-1 (the round's material — the census checkout-portability
+  blindness)**: F-210a — the fresh clone itself surfaced the genus:
+  the D-208a2 doc-claim totality census's path+ADR arm is RED on any
+  fresh checkout, before a single tool has run — 7 live-section path
+  claims name RUNTIME-GENERATED ARTIFACTS (`db/e2e.db` ×4 ·
+  `db/smoke.db` ×1 · `tests/e2e/.auth/user.json` ×2): git-ignored
+  files the tools themselves create; none resolves on a fresh clone
+  and their contexts correctly assert USAGE, not absence (the docs
+  are accurate — each names its generator:
+  `tests/e2e/global-setup.ts` · `scripts/smoke-test.sh` ·
+  `playwright.config.ts`). Every prior round ran GREEN only because
+  the carried-over workspace still held the artifacts on disk — the
+  F-206a/F-207b/F-209a correct-and-lucky genus, surfaced the moment
+  the standing brief's fresh-clone contingency actually ran.
+- **WP-2 (the cure — D-210a1, the generated-artifact contract)**:
+  the census's path arm learns the runtime-artifact form — an
+  explicit frozen artifact→generator map, live-pinned both ways:
+  each generator asserted to resolve (a deleted generator → the
+  named RED — the census pins the generator contract the docs
+  claim) + every map entry asserted still claimed in a live section
+  (a retired claim leaves a dead entry → the named RED — the map can
+  never rot) + a path NOT in the map still needs the tree or the
+  NEGATIVE context (the carve-out does not gut the census). **The
+  portability proof**: the three artifacts moved away (the
+  fresh-checkout state reconstructed on demand) → the full
+  facts-census file 51/51 GREEN → restored → GREEN again.
+  **MUTATION-PROVEN ×3** (the un-mapped `db/fake.db` claim planted
+  in AGENTS's live E2E block → exactly 1 RED at the path-claim
+  assert · the map's `db/e2e.db` entry pointed at a nonexistent
+  generator → 1 RED at the up-front generator assertion · the PAD's
+  `db/smoke.db` claim retired → 1 RED at the self-cleaning-map
+  assertion — each restored → GREEN). src/ untouched (test-side
+  only — the baseline-inert construction).
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder HELD —
+  UNIT **2858** · SUITES 138 · E2E 226 · badge **3084** (the cure
+  modifies the existing arm's logic, zero its; verified against the
+  live unit run: 138/2858 GREEN, clean first pass).
+  `skill-head-210.py` (SKILL v1.207.0 · the s209 layer demoted at
+  its ship 2858/226 · the s210 layer live at 2858/226 — the
+  held-count form · `last_updated` stays 2026-11-02 · idempotent —
+  the re-run a verified no-op) + the docs-counts layer-axis
+  re-anchor (first = s210 · second = s209 at its ship 2858/226) +
+  the docs lockstep (the AGENTS Session-210 section ·
+  docs/session_442.md · the PAD §7.1 s210 inventory row · the
+  plan's execution record · this entry) + the captures 707-711 (the
+  dev-server set: the dashboard at 1280 + 390 · the drawer OPEN at
+  phone [the operator's standing mobile-nav ask] · the landing
+  mobile menu OPEN at phone · the login card; the drawer pair
+  VLM-verified IDENTICAL against the reference re-captured this
+  round).
