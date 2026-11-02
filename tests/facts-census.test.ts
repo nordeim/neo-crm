@@ -60,7 +60,7 @@
 // WP-3 flips them. Mutation-proven at birth per the house doctrine.
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -794,5 +794,178 @@ describe("session-207 (D-207b1): the chart-stack doc-family live-census (F-207b 
     // the freeze arm: CLAUDE's charts row carries the live migration form
     // (a future recharts bump fails here until CLAUDE's row follows)
     expect(read("CLAUDE.md")).toContain(`2.15 → ${recharts}`);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-208 (D-208a1 + D-208a2) — THE DOC-CLAIM TOTALITY CENSUS (F-208a —
+// the genus the s206/s207 closes both named as "its own rotation's
+// material"). The census walk (executed before the plan landed): 1516+
+// claims verified across the mechanically-checkable families — the bun-run
+// command claims, the backticked repo-path claims, the ADR references, the
+// transcript references, the route counts, the line-count families, and
+// the SKILL §5.2 structural cluster — THE DOC FAMILY IS CLEAN at the s207
+// ship state (the three regex-flagged sites are doctrine-covered: the
+// negative `prisma/migrations/` claim, the PAD ADR's rejected-alternative
+// `prisma/.env` narration, and the SKILL §16p lesson with its inline s24
+// supersession). The census's structural finding: ONE unguarded cluster —
+// §5.2 "Inventory (verified counts)" carries the component/page/route-
+// gating census (28 .tsx / 22 "use client" / 15 pages / 29 routes /
+// 19 gated / 10 ungated) with NO pin anywhere reading it — the F-207b
+// exposure (correct-and-unpinned is one refactor away from a 31-session
+// stale ride). THE CURE — the two genus pins, born-green at the cured
+// tree (the doc family is clean; the round's material IS the pin — the
+// D-205a2 born-green-census precedent), MUTATION-PROVEN x5 at birth:
+//   D-208a1  the §5.2 structural live-census — every count read LIVE
+//            from the tree (the F-109a1 doctrine), asserted in the exact
+//            claim forms + the freeze anchors (either face drifts -> RED)
+//   D-208a2  the doc-claim totality census — the D-205a2 pattern on the
+//            doc-claim axes: every LIVE-section `bun run <script>` claim
+//            resolves in package.json scripts; every backticked repo path
+//            resolves in the tree (extension-less forms matched against
+//            .ts/.tsx siblings; a ±2-line negative-claim window — the doc
+//            itself asserting absence — is a verified-by-doc claim, not a
+//            phantom); every ADR-NNN reference resolves in the PAD. The
+//            live-section scoping is the s206 doctrine: historical
+//            session records keep their ship-time quotes; the pin bans
+//            the LIVE claim sites (README/CLAUDE/DEPLOYMENT whole-file —
+//            zero embedded session records; AGENTS head + Conventions/Git
+//            islands; SKILL TOC+§1-§16a + §17-Appendix B; PAD §1-§7 head
+//            + §7.2-§12 — the §7.1 inventory rows are session records).
+// ---------------------------------------------------------------------------
+describe("session-208 (D-208a1/D-208a2): the doc-claim totality census (F-208a — every live claim family joins the pin)", () => {
+  const section = (doc: string, from: string, to: string) => {
+    const s = doc.indexOf(from);
+    expect(s, `${from} must exist in the doc`).toBeGreaterThan(0);
+    const e = doc.indexOf(to, s);
+    return doc.slice(s, e > s ? e : undefined);
+  };
+
+  it("D-208a1: SKILL §5.2's inventory carries the LIVE structural census (the component/page/gating counts)", () => {
+    const sec52 = section(read("neo-crm_SKILL.md"), "### 5.2 Inventory", "### 5.3 ");
+    const tsx = walk("src/components").filter((f) => f.endsWith(".tsx"));
+    const useClient = tsx.filter((f) =>
+      /^["']use client["']/.test(read(f).split("\n")[0] ?? ""),
+    ).length;
+    const pages = walk("src/app").filter((f) => f.endsWith("/page.tsx"));
+    const routes = walk("src/app/api").filter((f) => f.endsWith("route.ts"));
+    const gated = routes.filter(
+      (f) => (noComments(read(f)).match(/requireSession\(/g) ?? []).length > 0,
+    ).length;
+
+    // the doc face must carry the LIVE numbers — the F-109a1 live-census
+    // doctrine: a tree change fails here until the doc face follows
+    expect(sec52, "the component census").toContain(
+      `- ${tsx.length} \`.tsx\` files under \`src/components/\``,
+    );
+    expect(sec52, "the use-client census").toContain(
+      `${useClient} start with \`"use client"\``,
+    );
+    expect(sec52, "the page census").toContain(
+      `- ${pages.length} pages (\`src/app/**/page.tsx\`)`,
+    );
+    expect(sec52, "the route census").toContain(`- ${routes.length} API route files`);
+    // the claim wraps across lines ("… — 19 gated via\n`requireSession()`…")
+    // — the single-line anchor is the count form
+    expect(sec52, "the gating census").toContain(`— ${gated} gated via`);
+    expect(sec52, "the ungated census").toContain(`the ${routes.length - gated} ungated`);
+
+    // the freeze anchors — the current census (a drift on EITHER face
+    // fails with a named message, the WP-1a form)
+    expect(tsx.length, "the live component census").toBe(28);
+    expect(useClient, "the live use-client census").toBe(22);
+    expect(pages.length, "the live page census").toBe(15);
+    expect(routes.length, "the live route census").toBe(29);
+    expect(gated, "the live gated census").toBe(19);
+  });
+
+  // the live-section map: [doc, startMarker (null = file start),
+  // endMarker (null = file end)] — every marker verified unique at birth
+  const LIVE_SEGMENTS: Array<[string, string | null, string | null]> = [
+    ["README.md", null, null],
+    ["CLAUDE.md", null, null],
+    ["docs/DEPLOYMENT.md", null, null],
+    // AGENTS: the live head (Commands + Architecture facts) up to the
+    // first session record; the Conventions/Git island up to the next
+    ["AGENTS.md", null, "**Session-50**"],
+    ["AGENTS.md", "## Conventions that differ from defaults", "**Session-73 (SKILL v1.70.0)**"],
+    // SKILL: the TOC + §1-§16a block; the §17-Appendix-B block (the
+    // §16b+ session layers + Appendix C/D are historical records)
+    ["neo-crm_SKILL.md", "## Table of Contents", "## 16b."],
+    ["neo-crm_SKILL.md", "## 17. Responsive Breakpoint Reference", "## Appendix C:"],
+    // PAD: §1-§7 head (the ADR sections live here); §7.2-§12 (the §7.1
+    // inventory rows are session records)
+    ["Project_Architecture_Document.md", null, "### 7.1 "],
+    ["Project_Architecture_Document.md", "### 7.2 ", null],
+  ];
+
+  const liveText = (rel: string): string => {
+    const doc = read(rel);
+    const segs = LIVE_SEGMENTS.filter(([d]) => d === rel);
+    expect(segs.length, `${rel} must have live segments defined`).toBeGreaterThan(0);
+    return segs
+      .map(([, from, to]) => {
+        const s = from === null ? 0 : doc.indexOf(from);
+        expect(s, `${rel}: the '${from}' live-section marker must exist`).toBeGreaterThanOrEqual(0);
+        const e = to === null ? doc.length : doc.indexOf(to, s);
+        return doc.slice(s, e > s ? e : doc.length);
+      })
+      .join("\n");
+  };
+
+  it("D-208a2 (the command arm): every live-section `bun run <script>` claim resolves in package.json", () => {
+    const scripts = new Set(
+      Object.keys(JSON.parse(read("package.json")).scripts as Record<string, string>),
+    );
+    // .env.example joins the command arm (its `bun run db:push` /
+    // `db:seed` claims are live) — the D-205a2 census owns its knob face
+    for (const doc of ["README.md", "CLAUDE.md", "docs/DEPLOYMENT.md", "AGENTS.md", "neo-crm_SKILL.md", "Project_Architecture_Document.md", ".env.example"]) {
+      const text = doc === ".env.example" ? read(doc) : liveText(doc);
+      for (const m of text.matchAll(/bun run ([a-z][a-z0-9:_-]{2,40})/g)) {
+        expect(
+          scripts.has(m[1]),
+          `${doc}: the 'bun run ${m[1]}' claim must resolve in package.json scripts`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("D-208a2 (the path + ADR arm): every live-section repo path resolves + every ADR reference is defined in the PAD", () => {
+    const pad = read("Project_Architecture_Document.md");
+    // the PAD's two definition forms: the bold `**ADR-NNN: Title**`
+    // (001-017) and the H3 `### ADR-NNN — Title` (018-022)
+    const adrs = new Set<string>();
+    for (const m of pad.matchAll(/\*\*ADR-(\d{3}):/g)) adrs.add(m[1]);
+    for (const m of pad.matchAll(/### ADR-(\d{3})/g)) adrs.add(m[1]);
+    expect(adrs.size, "the PAD must define its ADR inventory").toBeGreaterThan(0);
+    // the negative-claim window: a path claim whose ±2-line context
+    // asserts absence (the `prisma/migrations/` form) or rejects the
+    // alternative (the PAD ADR form) is a verified-by-doc claim
+    const NEGATIVE =
+      /does not exist|there is no|no longer|not exist|removed|retired|never|absent|reject/i;
+    const pathOk = (p: string) =>
+      existsSync(join(root, p)) ||
+      [".ts", ".tsx"].some((ext) => existsSync(join(root, p + ext)));
+
+    for (const doc of ["README.md", "CLAUDE.md", "docs/DEPLOYMENT.md", "AGENTS.md", "neo-crm_SKILL.md", "Project_Architecture_Document.md"]) {
+      const lines = liveText(doc).split("\n");
+      lines.forEach((line, i) => {
+        for (const m of line.matchAll(/`((?:src|scripts|tests|prisma|db|docs)\/[A-Za-z0-9._/@()-]+)`/g)) {
+          const path = m[1].replace(/\/+$/, "");
+          if (pathOk(path)) continue;
+          const ctx = lines.slice(Math.max(0, i - 2), i + 3).join(" ");
+          expect(
+            NEGATIVE.test(ctx),
+            `${doc}: the path claim \`${path}\` must resolve in the tree (or its context must assert absence)`,
+          ).toBe(true);
+        }
+        for (const m of line.matchAll(/\bADR-(\d{3})\b/g)) {
+          expect(
+            adrs.has(m[1]),
+            `${doc}: the ADR-${m[1]} reference must be defined in the PAD`,
+          ).toBe(true);
+        }
+      });
+    }
   });
 });

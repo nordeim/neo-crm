@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2853 checks)      | `bun run test`                         |
+|  Unit tests (2856 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2853) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2856) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -13913,3 +13913,145 @@ repo change (operator-local + untracked; the bidirectional rebuild
 ritual covers the verification) · a src-side DefaultsEditor change to
 kill the epoch remount (the M-72c4 epoch is by-design parity; the
 flake is the TEST's race, cured test-side).
+
+### Session-208 — THE DOC-CLAIM TOTALITY CENSUS (2026-11-02)
+
+The rotation trigger: the owner's newest commit `6372207` — the
+session_437 transcript, the s207 round's own execution record. The
+round executed the operator's standing instruction set on a FRESH
+CLONE (`git clone` → `bun install` → the `.env` rebuilt from
+`.env.example` with a fresh `AUTH_SECRET` → `db:push` + `db:seed` →
+db census MATCH 15/24/10/23/12 + 4 users at `<repo>/db/custom.db` —
+the standing `.env` contract, `DATABASE_URL="file:../db/custom.db"`
+with `db/` at the repo root).
+
+THE BASELINE GATE at the exact s207 ship state — ALL GREEN, ZERO
+LIVE CATCHES: lint 0/0 · tsc 0 · **138/2853** unit · build (the 2
+warnings the pre-existing Turbopack tracing heuristics) · smoke
+14/14 · **e2e 226/226 CLEAN FIRST RUN** (7.9m — the F-207a
+response-wait cure green in the exact full-suite context that caught
+the flake at the s207 baseline; the fresh sandbox needed
+`bunx playwright install chromium` first, the s206/s207
+environment-only precedent). THE SIX DRIFT GATES ALL CLEAN: the
+four-band sweep at `--fail-on-drift` (desktop 1280 · phone 390×844 ·
+tablet 768×1024 · landscape 1024×768) + the fullpage sweep CLEAN
+(desktop 0.093% / phone 0.316%) + the interior census byte-parity +
+probe:ref STABLE at `46bc2d9c` (the demo data still ZERO; the
+conditional gates stay killed).
+
+THE PARITY RE-VERIFICATION (the operator's named focus) probed live
+with the agent-browser CLI against BOTH apps logged in — THE MOBILE
+NAVIGATION BOTH SURFACES WORKING: the app drawer (the Close button +
+the "CRM" h2 + the 8 destinations; the reference's overlay
+`rgba(0, 0, 0, 0.8)` vs OURS `oklab(0 0 0 / 0.8)` — the same 80%
+black, the v4 serialization; the reference locks body, ours locks
+BOTH body + main — the documented superset; Escape closes with every
+lock released; a "Leads" link ride navigates `/Dashboard` → `/Leads`
+AND auto-closes AND releases every lock) + the landing disclosure
+menu (the 6-link panel; ours carrying `aria-expanded` through the
+ride — the accessible superset; the FAQ click closes it + lands on
+`/#faq`, verified on both apps) + the VLM comparison of the
+drawer-open pair: **IDENTICAL** (the sole note the reference's own
+Base44 platform badge — never mirrored). Tailwind v4 state clean;
+SEO/sitemap live-verified (the 11-route `/sitemap.xml` ·
+`/robots.txt` · `/manifest.json` 200 `application/json` · the
+OG/Twitter/canonical head); the hygiene legs clean (`bun audit` at
+the pinned census 10 — 4h/5m/1l, all dev-toolchain transitive); the
+recent-changes audit (src/ UNCHANGED since the s205 ship — the
+s206/s207/s208 rounds all test-side + docs only); the scandihaven
+reference repo re-reviewed (the highest-leverage borrows already
+embodied).
+
+**THE ROUND'S MATERIAL — THE DOC-CLAIM TOTALITY CENSUS (F-208a —
+the genus the s206/s207 closes both named as "its own rotation's
+material," taken).** The census walk executed BEFORE the plan landed:
+1516+ claims verified across the mechanically-checkable families —
+the `bun run` command claims · the backticked repo-path claims · the
+ADR references · the transcript references · the route counts (live
+29 files / 41 handlers, carried correct at every site) · the s109
+line-count families (all live-verified) · the SKILL §5.2 structural
+cluster (28 `.tsx` / 22 `"use client"` / 15 pages / 29 routes / 19
+gated / 10 ungated — all live-verified). **THE DOC FAMILY IS CLEAN
+at the s207 ship state** — zero stale claims; the three
+regex-flagged sites are doctrine-covered (the negative
+`prisma/migrations/` claim, the PAD ADR's rejected-alternative
+`prisma/.env` narration, the SKILL §16p lesson with its inline s24
+supersession). The census's structural finding: ONE unguarded
+cluster — the SKILL §5.2 "Inventory (verified counts)"
+component/page/route-gating census carried NO pin anywhere reading
+it — the F-207b exposure (correct-and-unpinned is one refactor away
+from a 31-session stale ride).
+
+**THE CURES (born-green genus pins, the D-205a2 precedent):**
+D-208a1 the §5.2 structural live-census — every count read LIVE from
+the tree (the components walk + the first-line `"use client"` count
++ the `page.tsx` walk [the `.jsx` render aliases excluded by
+extension, the s24 casing-alias doctrine] + the comment-stripped
+`requireSession()` gating census [auth/me's explanatory comment must
+not mask the live semantics]), asserted in the exact claim forms +
+the freeze anchors 28/22/15/29/19/10 — either face drifts RED. ·
+D-208a2 the doc-claim totality census — the D-205a2 genus-closing
+pattern on the doc-claim axes: the command arm (every LIVE-section
+`bun run <script>` claim resolves in package.json scripts —
+`.env.example` joins, its `db:push`/`db:seed` claims are live) + the
+path/ADR arm (every backticked repo path resolves, extension-less
+forms matched against `.ts`/`.tsx` siblings, a ±2-line
+negative-claim window marking verified-by-doc claims; every
+`ADR-NNN` reference resolves in the PAD — both definition forms: the
+bold `**ADR-001..017:**` + the H3 `### ADR-018..022`). The
+live-section scoping is the s206 doctrine: README/CLAUDE/DEPLOYMENT
+whole-file (zero embedded session records, verified); AGENTS head +
+Conventions/Git islands (the `**Session-50**` / `**Session-73 (SKILL
+v1.70.0)**` markers, verified unique); SKILL TOC+§1–§16a +
+§17–Appendix B (the §16b+ session layers + Appendix C/D excluded);
+PAD §1–§7 head + §7.2–§12 (the §7.1 inventory rows are session
+records). Born-green at the cured tree 49/49 (the two birth failures
+were the pin's own anchor-form flaws, cured in place: the §5.2
+gating claim wraps across lines — the single-line anchor is the
+count form — + the PAD's two ADR definition forms extracted).
+**MUTATION-PROVEN ×5**: the stale component count re-planted 28→27 →
+exactly 1 RED (D-208a1) · the phantom `bun run` claim planted →
+exactly 1 RED (the command arm) · the phantom path claim planted →
+exactly 1 RED (the path arm) · the undefined ADR-099 planted →
+exactly 1 RED (the ADR arm) · the gating count weakened 19→18 →
+exactly 1 RED (D-208a1) — each restored → GREEN. src/ untouched by
+the cures (tests only — the baseline-inert construction; no doc
+flips needed: the doc family is clean, the round's material IS the
+pin).
+
+**THE COUNT LADDER**: UNIT **2853 → 2856** (+3) · SUITES 138 HELD ·
+E2E 226 HELD · badge **3079 → 3082** (the unit+e2e arithmetic:
+2856+226 — verified against the live unit run BEFORE any doc flip:
+138/2856 GREEN, clean first pass) + `skill-head-208.py` (the SKILL
+v1.205.0, the s207 layer comment-demoted at its ship counts
+2853/226, the s208 layer live at 2856/226; `last_updated` flips
+2026-11-01 → 2026-11-02; idempotent — the re-run a verified no-op) +
+`count-ladder-208.py` (assert-first, idempotent, unique-anchor — 26
+flips, the re-run 26 no-ops) + the test-side re-anchors in the same
+stroke (the docs-counts layer-axis: first = s208, second = s207 at
+its ship 2853/226 · the unit negatives ladder: the retired 2853
+site-forms join the negatives · the dialog-geometry-parity F-92a3
+ladder: the four CLAUDE live positives re-anchored 2856 + the 2853
+forms join the negatives) + the docs lockstep (this section ·
+`docs/session_438.md` · the PAD §7.1 s208 inventory row · the plan's
+execution record + the worklog Task ID 208 entry) + the captures
+697-701 (the round's dev-server set, VLM-verified: the dashboard at
+desktop + at 390×844 + the mobile drawer OPEN at phone + the landing
+mobile disclosure menu OPEN at phone + the login card).
+
+THE FINAL GATE at the cured tree: lint 0/0 · tsc 0 · **138/2856**
+unit · build · smoke 14/14 · `CI=1 bun run test:e2e` 226/226 · the
+desktop + phone sweeps re-run CLEAN (the cures are baseline-inert by
+construction — test files never enter the build — but the house
+proves it) · db census MATCH · `git status` clean of secrets/dbs.
+
+DECLINED (recorded in the plan): a mid-rotation eslint/vite-family
+bump (the standing posture) · a semantic-prose-claim census (the
+mechanically-checkable families are now all pinned; the prose
+residue stays under the rotation audit's fresh-eyes walk) ·
+re-walking the interactive-table families (the standing kill
+re-verified) · the `.env` working-tree refresh as a repo change
+(operator-local + untracked; the bidirectional rebuild ritual covers
+the verification) · committing the round's one-shot census-walker
+scripts (the PIN is the permanent census; the method documented in
+the plan).
