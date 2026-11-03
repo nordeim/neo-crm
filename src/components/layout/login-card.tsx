@@ -645,8 +645,17 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
                 margin-bottom with the divider's my-6 — flex containers do
                 not collapse margins — 48px vs the reference's 24 at 390
                 (56 vs 24 at 1440). The google button's own wrap keeps the
-                reference's inert space-y-3 class. */}
+                reference's inert space-y-3 class.
+                Session-211 (F-211a — the login sem-island parity event):
+                the reference's platform re-wrapped [the google wrap + the
+                divider] in its design-system island (`data-ds="base44"
+                data-theme="light"`, DOM-verified live) — the island is a
+                classless BLOCK, so the S96-P0 margin math passes through
+                it unchanged (the divider's mb 24 still collapses to the
+                form's mt 0). The form stays the island's SIBLING, exactly
+                like the reference. */}
             <div className="w-full">
+              <div data-ds="base44" data-theme="light">
               <div className="space-y-3">
               <button
                 type="button"
@@ -667,12 +676,13 @@ export function LoginCard({ mode = "signin" }: { mode?: Mode }) {
 
             <div className={LOGIN_LAYOUT.divider} aria-hidden="true">
               <div className="absolute inset-0 flex items-center">
-                <div className={LOGIN_LAYOUT.dividerLine} />
+                <div data-orientation="horizontal" role="none" className={LOGIN_LAYOUT.dividerLine} />
               </div>
               <div className={LOGIN_LAYOUT.dividerLabel}>
                 <span className={LOGIN_LAYOUT.dividerLabelSpan}>or</span>
               </div>
             </div>
+              </div>
 
             <form onSubmit={onSigninSubmit} className={LOGIN_LAYOUT.form} noValidate>
               <div className={LOGIN_LAYOUT.fields}>
@@ -786,20 +796,27 @@ function InfoCallout({ message }: { message: string }) {
 }
 
 function GoogleIcon() {
+  // Session-211 (F-211a): the reference's EXACT classic Google brand svg
+  // (byte-extracted from its live DOM — the D-194a3 icon-identity
+  // doctrine; the s95-era hand-approximated paths retired). Our
+  // aria-hidden stays (the s19 superset doctrine).
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
       <path
         fill="#4285F4"
-        d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.3h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7c2-1.9 3.1-4.7 3.1-8.1v-.6z"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
       />
       <path
         fill="#34A853"
-        d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.8-2.9c-1 .7-2.4 1.2-4.1 1.2-3.1 0-5.8-2.1-6.8-5l-.1.1-3.6 2.8C3.5 21.3 7.4 24 12 24z"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
       />
-      <path fill="#FBBC05" d="M5.2 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4V9.5L1.3 6.7C.5 8.3 0 10.1 0 12s.5 3.7 1.3 5.3l3.9-2.9z" />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      />
       <path
         fill="#EA4335"
-        d="M12 4.7c2.2 0 3.7.9 4.5 1.7l3.3-3.2C17.9 1.2 15.2 0 12 0 7.4 0 3.5 2.7 1.3 6.7l3.9 3c1-2.9 3.7-5 6.8-5z"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
       />
     </svg>
   );

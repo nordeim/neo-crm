@@ -7210,3 +7210,73 @@ Stage Summary:
   mobile menu OPEN at phone · the login card; the drawer pair
   VLM-verified IDENTICAL against the reference re-captured this
   round).
+
+## Task ID 211 — THE LOGIN SEM-ISLAND PARITY EVENT (2026-11-03)
+
+- **Context**: the post-210 audit round (rotation trigger: the owner's
+  newest commit `839cce7` — the session_443 transcript). Second
+  consecutive fresh-clone round; the standing `.env` contract
+  re-created (DATABASE_URL=file:../db/custom.db, db/ at the repo root,
+  db census MATCH 15/24/10/23/12 + 4 users).
+- **WP-0 (the audit)**: the baseline gate GREEN at the exact s210 ship
+  state — **the s210 portability cure verified live** (the
+  facts-census path arm GREEN with all three runtime artifacts absent,
+  before any e2e/smoke ran): lint 0/0 · tsc 0 · 138/2858 unit · build
+  · smoke 14/14 · e2e 226/226 CLEAN (8.1m; the chromium-1248
+  environment-only wrinkle, zero code involvement) · probe:ref STABLE
+  at `46bc2d9c` · the four-band sweep CLEAN ×4 · the fullpage sweep
+  CLEAN (0.093%/0.316%) — **the interior census CAUGHT THE ROUND'S
+  MATERIAL: the login row RED at all four bands, 2 unexplained events
+  each (the s210 record: zero)** + the parity battery with
+  agent-browser against BOTH apps (the mobile nav both surfaces
+  working; the VLM drawer pair: IDENTICAL) + SEO/sitemap + hygiene +
+  `bun audit` at the pinned census 10 + the recent-changes audit +
+  the scandihaven re-clone (`61711c3`, unchanged).
+- **WP-1 (the round's material)**: F-211a — a live reference-side
+  parity event (the 2026-10 mobile-nav family): the Base44 platform
+  re-wrapped the login Google-auth block in its own design-system
+  island (`<div data-ds="base44" data-theme="light">` wrapping [the
+  google wrap + the or-divider], the form outside) — the sem-token
+  re-skin (text #0f0e0e · border #e9e6e0 · hover #f1eeea/#ddd8d2 ·
+  the inert group class) + **the island font — a LIVE webfont** (Wix
+  Madefor Text, the latin variable woff2 400–800; the button label
+  166px vs our 172px — decisively probed: both system stacks 172.5,
+  the Madefor stack 166, document.fonts loaded) + the divider re-token
+  (#5d5d5d) + the platform line attrs + the reference's EXACT classic
+  G svg (ours a hand-approximated variant) — the app bundle STABLE at
+  `46bc2d9c` (the platform runtime injected the island); the login
+  sweep diff moved 0.28% → 0.46%.
+- **WP-2 (the cure — D-211a1/D-211a2)**: construction-for-construction
+  — the woff2 self-hosted (20.3KB, fetched from the reference's
+  public static origin; the Wix-IP licensing note recorded, the file
+  swap-ready) + the globals.css island CSS (the @font-face + the
+  `[data-ds="base44"]` block: the six sem vars + --font-body + the
+  island's own font/color rule — the tight mirror) + the LOGIN_LAYOUT
+  sem flips (the reference's exact class string + order) + the island
+  wrapper at the call site + the exact G svg (aria-hidden kept — the
+  s19 superset). RED-first: exactly 6 RED at the stale tree (the
+  re-anchored S96-P0 pin + 3 login-views its + 2 design-tokens its,
+  zero collateral) → the cure → GREEN 138/2863. **MUTATION-PROVEN ×4**
+  (the sem var flip / the island attr drop / the G-path
+  re-approximation / the slate class re-plant — each exactly 1 RED at
+  its own pin → restored → GREEN). **The cure's live proofs**: the
+  interior census login row **unexplained 0** at `--fail-on-drift`
+  (els 44/44, the matches 21 → 26) · the login sweep diff
+  **0.46% → 0.27%** (below the standing baseline family) · the button
+  pixel-identical on the captures (border (233,230,224) both ·
+  near-black 301px both · the G-logo pixels 48/20/50/45 both) · the
+  span 166=166 · the hover #f1eeea/#ddd8d2 both · **the VLM login
+  pair: MATCH** (the sole delta the documented brand-mark logo genus).
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder UNIT
+  **2858 → 2863** (+5) · SUITES 138 HELD · E2E 226 HELD · badge
+  **3084 → 3089** + `skill-head-211.py` (SKILL v1.208.0, the s210
+  layer demoted at its ship 2858/226, the s211 layer live at 2863/226,
+  last_updated 2026-11-03; idempotent) + `count-ladder-211.py`
+  (assert-first, idempotent — 26 flips, the re-run 26 no-ops) + the
+  same-stroke line-census re-anchors (page-layout.ts 1725 → 1740 ·
+  globals.css 442 → 482 — the s168 doctrine) + the docs lockstep (the
+  AGENTS Session-211 section · the PAD §7.1 s211 inventory row + the
+  §6 typography row's island-exception clause · the SKILL §2
+  design-thesis row's island-exception clause · the typography
+  docstring's s211 supersession note · docs/session_444.md · the
+  plan's execution record · this entry) + the captures 712-716.

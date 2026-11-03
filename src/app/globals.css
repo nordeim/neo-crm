@@ -376,6 +376,46 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Session-211 (D-211a1 — F-211a, the login sem-island parity event):
+   the Base44 platform re-wrapped the reference's login Google-auth block
+   in its own design-system island (`<div data-ds="base44"
+   data-theme="light">`, DOM-verified live on 2026-11-03). The island's
+   stylesheet declares, at its wrapper: the sem vars its subtree consumes
+   + --font-body, and the platform loads the Wix Madefor Text latin
+   variable woff2 (400-800) — the button label renders 166px vs the
+   system stack's 172.5px (the census shift event; the webfont is LIVE on
+   the reference, not a fallback). The mirror is tight — only what the
+   island's own subtree consumes (the D-194a3 exact-construction
+   doctrine, NOT the platform's full token palette). The woff2 is
+   self-hosted at public/fonts/ (the platform's own latin subset fetched
+   from the reference's public static origin; Wix IP — swap for a
+   licensed copy freely, the @font-face names the family, not the file).
+   The app's own surfaces stay zero-webfont (the s22 base — the island
+   is the sole, scoped exception; the landing's document.fonts stays
+   empty).
+--------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Wix Madefor Text";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/wix-madefor-text-latin.woff2") format("woff2");
+}
+
+[data-ds="base44"] {
+  --sem-surface-interactive-white-default: #fff;
+  --sem-surface-interactive-white-hover: #f1eeea;
+  --sem-text-icon-primary: #0f0e0e;
+  --sem-text-icon-secondary: #5d5d5d;
+  --sem-border-light-default: #e9e6e0;
+  --sem-border-default-default: #ddd8d2;
+  --font-body: "Wix Madefor Text", system-ui, sans-serif;
+  font-family: var(--font-body);
+  color: var(--sem-text-icon-primary);
+}
+
+/* ---------------------------------------------------------------------------
    Custom utilities (v4 native @utility — NOT @layer utilities)
 --------------------------------------------------------------------------- */
 

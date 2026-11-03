@@ -343,13 +343,28 @@ export const LOGIN_LAYOUT = {
   logo: "relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg ring-4 ring-white/50 transition-all duration-300 group-hover:shadow-xl sm:h-24 sm:w-24",
   title: "text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight",
   subtitle: "text-slate-500 text-sm sm:text-base font-medium",
+  // Session-211 (F-211a — the login sem-island parity event): the
+  // reference's Google button flipped to the platform's semantic tokens
+  // (live-decoded on its own DOM): bg/border/hover ride the island's sem
+  // vars (globals.css carries their exact decoded hexes), the text is the
+  // platform's near-black --sem-text-icon-primary, and the inert `group`
+  // class rides along (construction parity — the reference's own class
+  // string, its exact order). The retired slate palette stays banned at
+  // the login-views pins.
   google:
-    "flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-5 py-3.5 font-medium text-slate-700 text-[16px] transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm",
-  googleIcon: "-ml-4 transition-transform duration-200",
+    "w-full flex items-center justify-center gap-3 bg-[var(--sem-surface-interactive-white-default)] text-[color:var(--sem-text-icon-primary)] px-5 py-3.5 rounded-xl border border-[var(--sem-border-light-default)] hover:bg-[var(--sem-surface-interactive-white-hover)] hover:border-[var(--sem-border-default-default)] hover:shadow-sm transition-all duration-200 font-medium text-[16px] group",
+  // the reference's exact class order (its DOM carries a leading-space
+  // artifact; the classes themselves are these, in this order)
+  googleIcon: "transition-transform duration-200 -ml-4",
   divider: "relative my-6",
   dividerLine: "shrink-0 h-[1px] w-full bg-slate-200",
   dividerLabel: "relative flex justify-center text-xs uppercase",
-  dividerLabelSpan: "bg-white px-3 font-medium tracking-wider text-slate-500",
+  // Session-211 (F-211a): the "or" label rides the island's sem tokens
+  // (bg the interactive-white default — #fff; text the platform's
+  // --sem-text-icon-secondary #5d5d5d, live-computed on the reference —
+  // its own warm neutral, not our retired slate-500)
+  dividerLabelSpan:
+    "bg-[var(--sem-surface-interactive-white-default)] px-3 text-[color:var(--sem-text-icon-secondary)] font-medium tracking-wider",
   form: "w-full space-y-4 sm:space-y-5",
   fields: "space-y-3 sm:space-y-4",
   // Session-96 (S96-P0, the 96-c form-family walk): the v3 class string

@@ -342,15 +342,18 @@ describe("session-96: the form-family walk remediation (the v4 space-y genus on 
     expect(L.label).not.toMatch(/\b(block|flex|inline-block)\b/);
   });
 
-  it("the signin column nests [google + divider + form] in ONE w-full block section (the reference's margin-collapsing wrap)", () => {
+  it("the signin column nests [google + divider] in the platform's data-ds island inside ONE w-full block section (the s211 re-anchor of the S96-P0 margin-collapsing wrap)", () => {
     const src = loginCardSrc();
-    // the section: ONE w-full div wrapping the google button's own
-    // space-y-3 wrap (the reference's inert class, DOM-verified), the
-    // divider, and the form — closed by the SAME div, so the adjacent
-    // margins collapse to 24/24 exactly like the reference's block
-    // section (measured m=[24/0] on its w-full wrap).
+    // the section: ONE w-full div wrapping the platform's design-system
+    // island (the 2026-11 reference parity event — the Base44 runtime
+    // wrapped the login Google-auth block in `<div data-ds="base44"
+    // data-theme="light">`), and the island wrapping the google button's
+    // own space-y-3 wrap + the divider; the form stays the island's
+    // SIBLING (DOM-verified on the reference) — the block section's
+    // adjacent margins still collapse to 24/24 (the island is a classless
+    // block; margins pass through it unchanged).
     expect(src).toMatch(
-      /<div className="w-full">\s*<div className="space-y-3">[\s\S]*?Continue with Google[\s\S]*?<\/div>\s*<div className=\{LOGIN_LAYOUT\.divider\}[\s\S]*?<form onSubmit=\{onSigninSubmit\} className=\{LOGIN_LAYOUT\.form\}[\s\S]*?<\/form>\s*<\/div>/,
+      /<div className="w-full">\s*<div data-ds="base44" data-theme="light">\s*<div className="space-y-3">[\s\S]*?Continue with Google[\s\S]*?<\/div>\s*<div className=\{LOGIN_LAYOUT\.divider\}[\s\S]*?<\/div>\s*<\/div>\s*<form onSubmit=\{onSigninSubmit\} className=\{LOGIN_LAYOUT\.form\}/,
     );
     // negative: the OLD flat shape is gone — the google button no longer
     // sits DIRECTLY inside a w-full wrap with the divider as its next
@@ -359,6 +362,93 @@ describe("session-96: the form-family walk remediation (the v4 space-y genus on 
     expect(src).not.toMatch(
       /<div className="w-full">\s*<button[\s\S]*?<\/button>\s*<\/div>\s*<div className=\{LOGIN_LAYOUT\.divider\}/,
     );
+    // negative: the s95-s210 pre-island shape is gone — the space-y-3
+    // google wrap no longer sits DIRECTLY inside the w-full section
+    // (the reference moved it inside its data-ds island on 2026-11)
+    expect(src).not.toMatch(
+      /<div className="w-full">\s*<div className="space-y-3">/,
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session 211 (F-211a — the login sem-island parity event): the Base44
+// platform re-wrapped the login Google-auth block in its own design-system
+// island (`<div data-ds="base44" data-theme="light">`), live-decoded on the
+// reference this round:
+//   - the button flipped from the app's slate palette to the platform's
+//     semantic tokens (bg --sem-surface-interactive-white-default #fff ·
+//     text --sem-text-icon-primary #0f0e0e · border
+//     --sem-border-light-default #e9e6e0 · hover #f1eeea / #ddd8d2) —
+//     pixel-verified on the sweep captures (the ref border renders
+//     (233,230,224) vs our slate-200 (226,232,240); the ref text
+//     near-black vs our slate-700);
+//   - the island sets --font-body: "Wix Madefor Text", system-ui,
+//     sans-serif and the platform LOADS the latin variable woff2 — the
+//     button label renders 166px vs our system-stack 172px (the census
+//     shift event; decisively probed: both system stacks measure 172.5,
+//     the Madefor stack 166 — the webfont is live on the reference);
+//   - the "or" divider's label flipped to the sem tokens
+//     (--sem-text-icon-secondary #5d5d5d) and its line carries the
+//     platform's data-orientation/role attrs;
+//   - the button's G icon is the classic EXACT Google brand svg
+//     (M22.56 12.25… — ours was a hand-approximated variant; the
+//     D-194a3 icon-identity doctrine);
+//   - the scope: the signin view ONLY (the signup view carries no google
+//     button on either app); the form stays OUTSIDE the island.
+// The pins freeze the mirrored construction so any drift REDs here.
+// ---------------------------------------------------------------------------
+
+describe("session-211: the login sem-island parity event (F-211a)", () => {
+  const loginLayout = async () => (await import("@/lib/page-layout")).LOGIN_LAYOUT;
+
+  it("the google button rides the island's EXACT sem class string + the reference's class order (the group class included)", async () => {
+    const L = await loginLayout();
+    expect(L.google).toBe(
+      "w-full flex items-center justify-center gap-3 bg-[var(--sem-surface-interactive-white-default)] text-[color:var(--sem-text-icon-primary)] px-5 py-3.5 rounded-xl border border-[var(--sem-border-light-default)] hover:bg-[var(--sem-surface-interactive-white-hover)] hover:border-[var(--sem-border-default-default)] hover:shadow-sm transition-all duration-200 font-medium text-[16px] group",
+    );
+    // the icon wrap: the reference's exact class order (its own DOM dump
+    // carries the leading-space noise; the classes themselves are these,
+    // in this order)
+    expect(L.googleIcon).toBe("transition-transform duration-200 -ml-4");
+    // negatives: the retired slate forms stay retired
+    expect(L.google).not.toContain("border-slate-200");
+    expect(L.google).not.toContain("text-slate-700");
+    expect(L.google).not.toContain("hover:bg-slate-50");
+  });
+
+  it("the GoogleIcon is the reference's EXACT classic Google G svg (the D-194a3 icon-identity doctrine; our aria-hidden kept — the s19 superset)", () => {
+    const src = loginCardSrc();
+    // the four brand paths, exact data + fills (byte-extracted from the
+    // reference's live DOM this round)
+    expect(src).toContain('d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"');
+    expect(src).toContain('fill="#4285F4"');
+    expect(src).toContain('d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"');
+    expect(src).toContain('fill="#34A853"');
+    expect(src).toContain('d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"');
+    expect(src).toContain('fill="#FBBC05"');
+    expect(src).toContain('d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"');
+    expect(src).toContain('fill="#EA4335"');
+    // negative: the retired hand-approximated blue path is gone
+    expect(src).not.toContain("M23.5 12.3c0-.9");
+    // the superset kept
+    expect(src).toMatch(/<svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">/);
+  });
+
+  it("the or-divider carries the island's sem tokens + the platform line attrs (our aria-hidden kept — the s19 superset)", async () => {
+    const L = await loginLayout();
+    expect(L.dividerLabelSpan).toBe(
+      "bg-[var(--sem-surface-interactive-white-default)] px-3 text-[color:var(--sem-text-icon-secondary)] font-medium tracking-wider",
+    );
+    // negative: the retired slate-500 label form stays retired
+    expect(L.dividerLabelSpan).not.toContain("text-slate-500");
+    // the line: the platform's Radix-style attrs at the call site
+    const src = loginCardSrc();
+    expect(src).toMatch(
+      /<div data-orientation="horizontal" role="none" className=\{LOGIN_LAYOUT\.dividerLine\}\s*\/>/,
+    );
+    // the line class itself stays the reference's slate-200 hairline
+    expect(L.dividerLine).toBe("shrink-0 h-[1px] w-full bg-slate-200");
   });
 });
 

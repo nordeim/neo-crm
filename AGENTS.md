@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2858 checks)      | `bun run test`                         |
+|  Unit tests (2863 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2858) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2863) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -14257,3 +14257,131 @@ map is the tight form) · the skills/ mirror (the operator's own
 domain, the standing exclusion) · a mid-rotation
 eslint/vite-family bump (the standing posture) · a
 semantic-prose-claim census (remains the named future candidate).
+
+### Session-211 — THE LOGIN SEM-ISLAND PARITY EVENT (2026-11-03)
+
+The rotation trigger: the owner's newest commit `839cce7` — the
+session_443 transcript, the s210 round's own execution record. The
+round executed the operator's standing instruction set at a second
+consecutive FRESH CLONE (the standing `.env` contract re-created:
+`DATABASE_URL="file:../db/custom.db"` with `db/` at the repo root; db
+census MATCH 15/24/10/23/12 + 4 users).
+
+**The s210 portability cure verified live at the fresh tree**: the
+facts-census path arm GREEN with all three runtime artifacts absent
+(db/e2e.db · db/smoke.db · tests/e2e/.auth/user.json — none created
+yet, before any e2e/smoke run) — the D-210a1 contract's own named
+proof, reproduced by this round's environment. The baseline gate:
+lint 0/0 · tsc 0 · 138/2858 unit · build (the 2 warnings the
+pre-existing Turbopack tracing heuristics) · smoke 14/14 · e2e
+226/226 CLEAN (8.1m; one environment-only wrinkle — the fresh
+sandbox's Playwright 1.64.1 wanted chromium-1248,
+`bunx playwright install chromium`, zero code involvement).
+
+**The round's material — F-211a, THE LOGIN SEM-ISLAND PARITY EVENT**
+(the same family as the 2026-10 mobile-nav event, probe #119). The
+interior census went RED on the login row at ALL FOUR BANDS — 2
+unexplained events each (the s210 record: zero). The decode,
+live-probed on the reference: the Base44 platform re-wrapped the
+login Google-auth block in its own design-system island — a bare
+`<div data-ds="base44" data-theme="light">` wrapping [the google wrap
++ the or-divider] inside `div.w-full` (the form outside) · the button
+re-skinned to the platform's semantic tokens (bg #fff · text #0f0e0e
+near-black vs our slate-700 · border #e9e6e0 warm gray vs our
+slate-200 · hover #f1eeea / #ddd8d2 · the inert `group` class) ·
+**the island font — a LIVE webfont** (`--font-body: "Wix Madefor
+Text", system-ui, sans-serif`; the platform loads the latin variable
+woff2 400–800 — the button label renders 166px vs our system-stack
+172px; decisively probed: both system stacks measure 172.5, the
+Madefor stack 166, `document.fonts` carries it loaded) · the "or"
+label re-tokened (#5d5d5d vs our slate-500) + the platform's
+`data-orientation`/`role` line attrs · the G icon is the reference's
+EXACT classic Google brand svg (ours a hand-approximated variant —
+the D-194a3 icon-identity doctrine). The scope: the signin view
+only; everything else on the card byte-equal; the app bundle STABLE
+at `46bc2d9c` (the platform runtime injected the island). The pixel
+face: the login sweep diff moved 0.28% → 0.46%.
+
+**The cure — D-211a1, THE LOGIN SEM-ISLAND MIRROR** (the 2026-10
+mobile-nav parity-event doctrine: construction-for-construction; the
+round's product-code touch — `login-card.tsx` + `page-layout.ts` +
+`globals.css` + `public/fonts/`): the woff2 self-hosted
+(20.3KB, magic-verified; fetched from the reference's public static
+origin — the Wix-IP licensing note recorded in the plan, the file
+swap-ready: the @font-face names the family, not the file) + the
+island CSS in globals.css (the @font-face 400–800 swap + the
+`[data-ds="base44"]` block: the six sem vars the island's subtree
+consumes + `--font-body` + the island's own font-family/color rule —
+the tight mirror, NOT the platform's full token palette) + the
+LOGIN_LAYOUT flips (the reference's exact sem class string, its
+exact order; the exact icon-wrap order; the sem divider label) + the
+island wrapper at the call site (the S96-P0 margin math passing
+through the classless block unchanged) + the GoogleIcon replaced
+with the reference's exact four brand paths (our `aria-hidden` kept
+— the s19 superset).
+
+**D-211a2, the cure pins** (RED-first at birth: exactly 6 RED at the
+stale tree — the re-anchored S96-P0 construction pin + 3 new
+login-views its + 2 new design-tokens its, zero collateral → the
+cure → GREEN) + the typography docstring's s211 supersession note
+(the zero-webfont claim scoped: the app's own surfaces stay
+zero-webfont; the island the sole documented exception) + the
+same-stroke line-census re-anchors (page-layout.ts 1725 → 1740 ·
+globals.css 442 → 482 — the s168 doctrine: the PAD §11 rows + the
+SKILL §5.2/§5.6 sites + their pins).
+
+**THE CURE'S LIVE PROOFS**: the interior census login row
+**unexplained 0** at `--fail-on-drift` (els 44/44, the matches 21 →
+26 — the sem faces now compute identical, no genera needed) · the
+login sweep diff **0.46% → 0.27%** (below the standing 0.28%
+baseline family — the drift gate CLEAN) · the button
+**pixel-identical** on the sweep captures (border (233,230,224) both
+· near-black text 301px both · the G-logo color pixels 48/20/50/45
+both) · the computed span **166 = 166** (the webfont live on both) ·
+the hover #f1eeea / #ddd8d2 both · **the VLM login-pair comparison:
+MATCH** (the sole delta the reference's own brand-mark logo — the
+documented standing genus, never mirrored).
+
+The parity battery re-verified live (agent-browser, BOTH apps logged
+in): the mobile navigation both surfaces working (the drawer: the
+Close button + the CRM h2 + the 8 destinations; the overlay
+`rgba(0,0,0,0.8)` vs ours `oklab(0 0 0 / 0.8)`; the dual-lock
+superset; Escape; the Leads ride + auto-close + full release) + the
+VLM drawer-pair comparison: IDENTICAL + Tailwind v4 clean +
+SEO/sitemap live-verified (the 11-route sitemap · robots · manifest
+· the OG/canonical head) + the hygiene legs clean (`bun audit` at
+the pinned census 10) + the recent-changes audit (src/ last touched
+at the s194 ship before this round; the owner's newest commit adds
+`docs/session_443.md` only) + the scandihaven repo re-cloned
+(`61711c3`, unchanged).
+
+THE COUNT LADDER: UNIT **2858 → 2863** (+5) · SUITES 138 HELD · E2E
+226 HELD · badge **3084 → 3089** (verified against the live unit
+run: 138/2863 GREEN) + `skill-head-211.py` (the SKILL v1.208.0, the
+s210 layer comment-demoted at its ship 2858/226, the s211 layer live
+at 2863/226, `last_updated` 2026-11-02 → 2026-11-03; idempotent —
+the re-run a verified no-op) + `count-ladder-211.py` (assert-first,
+idempotent, unique-anchor — 26 flips, the re-run 26 no-ops) + the
+docs-counts layer-axis re-anchor (first = s211 · second = s210 at
+its ship 2858/226 — the held-count form).
+
+The docs lockstep: the AGENTS Session-211 section · the PAD §7.1
+s211 inventory row + the §6 typography row's island-exception clause
+· the SKILL §2 design-thesis row's island-exception clause ·
+`docs/session_444.md` · the worklog Task ID 211 entry · the plan's
+execution record. The captures 712-716 (the round's dev-server set:
+the dashboard at 1280 + 390 · the drawer OPEN at phone · the landing
+mobile menu OPEN at phone · the login card — the cured Google button
+visible).
+
+DECLINED (recorded in the plan): mirroring the platform's FULL
+`[data-ds="base44"]` token palette (the tight mirror pins what the
+island's subtree consumes) · hotlinking the reference's font origin
+(a runtime dependency on the closed platform; the self-hosted copy
+is the self-contained form) · a doc-wide rewrite of every
+"zero webfont" mention (the claim scoped at its two LIVE census
+sites; the historical session layers keep their ship-time form) · a
+mid-rotation eslint/vite-family bump (the standing posture) · the
+semantic-prose-claim census (remains the named future candidate) ·
+the skills/ mirror (the operator's own domain, the standing
+exclusion).

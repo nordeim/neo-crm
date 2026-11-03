@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -222,5 +222,57 @@ describe("design tokens: the base layer's universal outline-color rule (D-193a1)
     );
     // the token the rule rides — the reference's own --ring #0a0a0a
     expect(themeToken("color-ring")).toBe("#0a0a0a");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session 211 (F-211a — the login sem-island parity event): the platform's
+// design-system island CSS. The Base44 runtime wrapped the login
+// Google-auth block in `<div data-ds="base44" data-theme="light">` and its
+// stylesheet declares, at the island: the six sem vars the block consumes
+// (live-computed on the reference: #fff · #f1eeea · #0f0e0e · #e9e6e0 ·
+// #ddd8d2 · #5d5d5d), the --font-body stack ("Wix Madefor Text", system-ui,
+// sans-serif), and the island's own
+//   [data-ds="base44"] { font-family: var(--font-body); color: var(--sem-text-icon-primary); }
+// The platform loads the latin variable woff2 (400–800) — the button label
+// renders 166px vs the system stack's 172.5px (decisively probed on the
+// reference: the webfont is LIVE, not a fallback). The mirror is tight: only
+// what the island's own subtree consumes (the D-194a3 exact-construction
+// doctrine — not the platform's full token palette). The woff2 is
+// self-hosted (public/fonts/) — the clone stays self-contained; the file is
+// the platform's own latin subset fetched from the reference's public
+// static origin (Wix IP — swap for a licensed copy freely; the @font-face
+// names the family, not the file).
+// ---------------------------------------------------------------------------
+describe("design tokens: the login sem-island (D-211a1, F-211a)", () => {
+  it("the island's @font-face loads the platform's Wix Madefor Text — the 400–800 variable latin subset, self-hosted, swap-ready", () => {
+    // the @font-face: the family, the variable weight range, swap, the woff2
+    expect(css).toMatch(
+      /@font-face\s*\{[^}]*font-family:\s*"Wix Madefor Text";[^}]*font-weight:\s*400 800;[^}]*font-display:\s*swap;[^}]*src:\s*url\("\/fonts\/wix-madefor-text-latin\.woff2"\) format\("woff2"\);[^}]*\}/,
+    );
+    // negative: no next/font / remote origin — the file is ours, in public/
+    expect(css).not.toMatch(/src:\s*url\("https?:/);
+    // the font file itself exists in the tree (public/ rides the build)
+    expect(existsSync(path.resolve(import.meta.dirname, "../public/fonts/wix-madefor-text-latin.woff2"))).toBe(true);
+  });
+
+  it("the [data-ds=\"base44\"] island block defines the six sem vars + the font-body stack + the island's own font/color rule (the reference's island declarations, exact)", () => {
+    const m = css.match(/\[data-ds="base44"\]\s*\{[^}]*\}/);
+    expect(m).not.toBeNull();
+    const block = m![0];
+    expect(block).toContain("--sem-surface-interactive-white-default: #fff;");
+    expect(block).toContain("--sem-surface-interactive-white-hover: #f1eeea;");
+    expect(block).toContain("--sem-text-icon-primary: #0f0e0e;");
+    expect(block).toContain("--sem-text-icon-secondary: #5d5d5d;");
+    expect(block).toContain("--sem-border-light-default: #e9e6e0;");
+    expect(block).toContain("--sem-border-default-default: #ddd8d2;");
+    expect(block).toContain('--font-body: "Wix Madefor Text", system-ui, sans-serif;');
+    expect(block).toContain("font-family: var(--font-body);");
+    expect(block).toContain("color: var(--sem-text-icon-primary);");
+    // negative: the island stays SCOPED — no bare element/universal
+    // selectors bleed the platform font onto the app's own surfaces
+    // (the s22 zero-webfont base holds everywhere outside the island)
+    expect(css).not.toMatch(/^body\s*\{[^}]*Wix Madefor/m);
+    expect(css).not.toMatch(/^\*\s*\{[^}]*Wix Madefor/m);
   });
 });

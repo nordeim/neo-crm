@@ -12,6 +12,16 @@ import { describe, expect, it } from "vitest";
 // smoothing (-webkit-font-smoothing: auto, no text-rendering override) and
 // NO ::selection rule — the browser defaults.
 //
+// Session-211 supersession note (the s24 inline-note doctrine): the
+// 2026-11 platform parity event added ONE documented exception — the
+// reference's login Google-auth block now renders inside the Base44
+// design-system island (`data-ds="base44"`), which loads the platform's
+// Wix Madefor Text webfont for its own subtree. The APP's own surfaces
+// (body, h1, labels, inputs, the app chrome) still compute the stock
+// system stack and the landing's document.fonts stays empty — every pin
+// below holds unchanged; the island's mirror is pinned separately in
+// tests/design-tokens.test.ts (D-211a1).
+//
 // Our clone shipped the scaffold-era shadcn trio of inventions: the Inter
 // webfont (next/font/google + the --font-inter variable + a v3-style
 // --font-sans override), DOUBLE antialiased smoothing (an html CSS rule +

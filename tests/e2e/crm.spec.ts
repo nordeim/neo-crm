@@ -1703,18 +1703,38 @@ test("the app ships ZERO webfonts and the stock system font stack (S22-P1)", asy
   expect(h1Family).not.toContain("Inter");
 });
 
-test("the login page computes the same stock stack — no webfont anywhere (S22-P1)", async ({ page }) => {
+test("the login page computes the same stock stack — the s211 island webfont the sole documented exception (S22-P1, re-anchored s211)", async ({ page }) => {
   await page.goto("/login");
   const family = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
   expect(family).toContain("ui-sans-serif");
   expect(family).not.toContain("Inter");
-  const loadedFonts = await page.evaluate(
-    () =>
-      [...document.fonts].filter(
-        (f) => !f.family.startsWith("__nextjs") && f.status === "loaded",
-      ).length,
+  // Session-211 (F-211a): the reference's platform re-wrapped the login
+  // Google-auth block in its `data-ds="base44"` design-system island,
+  // which loads the Wix Madefor Text webfont for its own subtree
+  // (mirrored self-hosted — the parity event decoded + cured this
+  // round). The APP's own surfaces stay the zero-webfont stock stack;
+  // the island's face is the ONE allowed loaded font on this page.
+  await page.evaluate(() => document.fonts.ready);
+  const loaded = await page.evaluate(() =>
+    [...document.fonts]
+      .filter((f) => !f.family.startsWith("__nextjs") && f.status === "loaded")
+      .map((f) => f.family),
   );
-  expect(loadedFonts).toBe(0);
+  expect(loaded).toEqual(["Wix Madefor Text"]);
+  // the island's own button computes the platform stack…
+  const btnFamily = await page.evaluate(() => {
+    const b = Array.from(document.querySelectorAll("button")).find((x) =>
+      (x.textContent || "").includes("Continue with Google"),
+    );
+    return b ? getComputedStyle(b).fontFamily : "";
+  });
+  expect(btnFamily).toContain("Wix Madefor Text");
+  // …while the app's own surfaces (the labels, the h1) stay stock
+  const labelFamily = await page.evaluate(() => {
+    const l = document.querySelector("label");
+    return l ? getComputedStyle(l).fontFamily : "";
+  });
+  expect(labelFamily).toContain("ui-sans-serif");
 });
 
 test("the body computes default auto font smoothing — no antialiased (S22-P2)", async ({ page }) => {

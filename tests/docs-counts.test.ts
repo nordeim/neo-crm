@@ -911,7 +911,7 @@ const SUITES = 138;
 // page-layout.ts +7 lines [the PAD §11 row + the SKILL §5.6 census
 // site re-anchored 1718 -> 1725 / 277 -> 283 checks, the s168
 // line-census doctrine]). SUITES 138 HELD · E2E 192 re-verified.
-const UNIT = 2858;
+const UNIT = 2863;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1525,6 +1525,20 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(claude).not.toContain("`bun run test` (2856)");
     expect(agents).not.toContain("|  Unit tests (2856 checks)");
     expect(skill).not.toContain("| **unit total** | 138 files | **2856**");
+    // Session-211 (D-211a1/D-211a2): the retired 2858 site-forms join the
+    // negatives (the s192 doctrine: the OLD live form joins the negatives)
+    expect(readme).not.toMatch(/# 2858 Vitest unit checks/);
+    expect(readme).not.toMatch(/# 138 Vitest suites \(2858 checks\)/);
+    expect(readme).not.toMatch(/\| 🧪 Tested \| 2858 Vitest unit checks/);
+    expect(pad).not.toMatch(/# 138 Vitest suites — 2858 checks/);
+    expect(pad).not.toMatch(/— 2858\/2858/);
+    expect(pad).not.toMatch(/\| \*\*Total\*\* \| \*\*138\*\* \| \*\*2858 unit/);
+    expect(claude).not.toContain("Unit (Vitest, 2858 checks)");
+    expect(claude).not.toContain("(currently 2858)");
+    expect(claude).not.toContain("Vitest unit suites (2858 checks)");
+    expect(claude).not.toContain("`bun run test` (2858)");
+    expect(agents).not.toContain("|  Unit tests (2858 checks)");
+    expect(skill).not.toContain("| **unit total** | 138 files | **2858**");
   });
 
   // ------------------------------------------------------------------
@@ -1567,13 +1581,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-210 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-211 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s209 layer now beneath the s210 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s210 layer now beneath the s211 head)",
     ).toContain(
-      "+ beneath it 2858 unit checks + 226 e2e checks green; the session-209 layer (THE PUSH-RITUAL REMOTE CONTRACT",
+      "+ beneath it 2858 unit checks + 226 e2e checks green; the session-210 layer (THE CENSUS CHECKOUT-PORTABILITY CONTRACT",
     );
   });
 
@@ -2158,8 +2172,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     // this §5.6 census site re-anchored 1718->1725, the s168 doctrine).
     expect(skill).not.toContain("`tests/page-layout.test.ts`, 277 checks");
     expect(skill).not.toContain("test-pinned module (1718 lines");
+    // Session-211: the retired 1725 form joins the negatives ladder (the
+    // login sem-island round: the F-211a cure's LOGIN_LAYOUT doc-comments
+    // + the sem class strings grew the module 1725->1740; the checks 283
+    // HELD — the round's pins land in login-views + design-tokens).
+    expect(skill).not.toContain("test-pinned module (1725 lines");
     expect(skill, "the §5.6 line must carry the live line + check counts").toContain(
-      "test-pinned module (1725 lines; `tests/page-layout.test.ts`, 283 checks",
+      "test-pinned module (1740 lines; `tests/page-layout.test.ts`, 283 checks",
     );
     const pad = read("Project_Architecture_Document.md");
     expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1653 |");
@@ -2169,7 +2188,11 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(
       pad,
       "the module-table page-layout row must carry the live line count (F-108a2's PAD face)",
-    ).toContain("| `src/lib/page-layout.ts` | 1725 |");
+    ).toContain("| `src/lib/page-layout.ts` | 1740 |");
+    // Session-211: the retired 1725 row form joins the negatives ladder
+    // (the login sem-island round: the F-211a cure's LOGIN_LAYOUT
+    // doc-comments + the sem class strings grew the module 1725->1740).
+    expect(pad).not.toContain("| `src/lib/page-layout.ts` | 1725 |");
     // Session-194: the retired 1718 row form joins the negatives ladder
     // (the walk67 404-interior round: the NOT_FOUND_LAYOUT doc-comment's
     // D-194 decode notes grew the module 1718->1725).
@@ -2338,6 +2361,10 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       "the globals.css header (:194 — stale since s90)",
     ).toContain(`\`src/app/globals.css\` (${live.globalsCss} lines)`);
     expect(skill).not.toContain("`src/app/globals.css` (171 lines)");
+    // Session-211: the retired 442 form joins the negatives ladder (the
+    // login sem-island round: the D-211a1 island block — the @font-face +
+    // the [data-ds="base44"] token/rule block — grew the file 442->482).
+    expect(skill).not.toContain("`src/app/globals.css` (442 lines)");
     expect(
       skill,
       "the entity-dialogs header (:325 — stale since s92)",
