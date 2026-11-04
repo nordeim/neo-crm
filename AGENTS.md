@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2867 checks)      | `bun run test`                         |
+|  Unit tests (2873 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2867) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2873) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -14511,3 +14511,126 @@ narration (the historical session layers keep their ship-time form)
 the semantic-prose-claim census (remains the named future candidate)
 · the skills/ mirror (the operator's own domain, the standing
 exclusion).
+
+### Session-213 — THE SEMANTIC-PROSE LAYOUT-CONTRACT CENSUS (2026-11-04)
+
+The rotation trigger: the owner's newest commit `b0bb8cd` — the
+session_447 transcript, the s212 round's own execution record. The
+continued-workspace round (the repo intact at `838db00`, the git pull
+fast-forwarding only that transcript); the standing `.env` contract
+verified in place (DATABASE_URL=file:../db/custom.db, db/ at the repo
+root; db census MATCH 15/24/10/23/12 + 4 users) — and the s212 lesson
+applied at the gate layer: the :3000 listener's DB anchor PROBED
+before the drift gates reused it (the dev server, cwd = the repo root,
+the correctly-anchored form; the parent-of-repo `db/` absent, the s212
+cleanup holding).
+
+The baseline gate at the exact s212 ship state: lint 0/0 · tsc 0 ·
+138/2867 unit · build · smoke 14/14 · e2e 226/226 CLEAN (8.2m) ·
+**the six drift gates ALL CLEAN** (probe:ref STABLE at `46bc2d9c` ·
+the four-band sweep at `--fail-on-drift` ×4 · the fullpage 0.093% /
+0.316% — the exact standing margins · the interior census byte-parity
+at `--fail-on-drift`). The parity re-verification probed live with
+agent-browser against BOTH apps logged in — **the mobile navigation
+both surfaces working** (the drawer: the Close button + the CRM h2 +
+the 8 destinations · the overlay `rgba(0,0,0,0.8)` vs ours
+`oklab(0 0 0 / 0.8)` — the same 80% black, the v4 serialization ·
+ours the body+main dual lock vs the reference's body-only, the
+documented superset · Escape + the Leads ride `/Dashboard` → `/Leads`
+with auto-close + full release — verified on BOTH apps) + the landing
+disclosure menu working on BOTH apps (the 6 links · ours the
+aria-expanded superset · the in-panel FAQ ride lands `/#faq` +
+collapses) + Tailwind v4 clean (no config file — the CSS-first
+`@theme`) + SEO/sitemap live-verified (the 11-route sitemap · robots ·
+manifest 200 application/json · the OG/Twitter/canonical head) + the
+hygiene legs clean (bun audit at the pinned census 10 — 4h/5m/1l, all
+dev-toolchain transitive) + the scandihaven repo re-checked
+(`61711c3`, unchanged).
+
+**The round's material — F-213a: THE SEMANTIC-PROSE RESIDUE (the s212
+close's named candidate, scoped to its first mechanically-checkable
+family).** The fresh-eyes walk found ZERO live defects (every prose
+sample verified live: the icon cascade · the z-scale inventory · the
+delta tokens · the validation seam · the eslint ignores) — so the
+round's material IS the genus-closing pin (the s208/s209 precedent).
+The genus: every mechanically-checkable doc-claim family is pinned,
+but the AGENTS **"Conventions that differ from defaults"** block — the
+F-206a HOME BLOCK (the stale strictness claim lived there 31 sessions)
+— still carried SIX semantic claims with no teeth: the validation
+seam · the icon cascade · the delta texts · the z-scale · the eslint
+ignores · the charts bullet (the one chart-doctrine face D-207b1
+never covered). Any of them could rot silently — a token flip, a new
+ad-hoc z-tier, an eslint-ignore trim — with every gate GREEN.
+
+**D-213a1 — the conventions-block semantic census pin**
+(tests/facts-census.test.ts, +6 its, src/ untouched): it-1 the
+VALIDATION-SEAM claim (zod ^4 read LIVE from node_modules ·
+schemas.ts a real module · parseBody/asString/asNumber/asDate
+exported — the `\b`-anchored forms) · it-2 the ICON-CASCADE claim
+(NAV_LAYOUT.icon + TOPBAR_LAYOUT.iconClass/searchIcon +
+MOBILE_NAV_TRIGGER.icon === `h-5 w-5` · the content tokens
+REPORTS_FILTER_BAR.selectIcon/barBtnIcon + TOPBAR_LAYOUT.userChevron
++ LOGIN_LAYOUT.inputIcon carry `h-4 w-4` · the sidebar's exactly-one
+`strokeWidth={2}` — the no-variation claim) · it-3 the DELTA-TEXT
+claim (DELTA_TEXT.good/bad === text-green-600/text-red-600 · the
+hand-inlined delta site carries the raw classes NOT the tokens ·
+toast.tsx keeps text-success/text-danger — the stay-on-badges split)
+· it-4 the Z-SCALE CENSUS (the D-205a2 census form: the
+comment-stripped src/ walk collects EVERY z-tier; the tier set
+asserted ⊆ {10,40,50,60,100} — any new tier trips the census — the
+four claimed tiers present · `z-[9999]` banned) · it-5 the
+ESLint-IGNORES claim (skills + the build output dirs, read live from
+eslint.config.mjs) · it-6 the charts bullet's AGENTS face (recharts
+DEFAULTS + the REAL chart at all-zero data + the fixed/row-derived
+forms). The doc-face arms read the WRAP-BLIND flattened section (the
+s208 birth lesson applied at birth).
+
+**Born-green after two anchor-form cures** (the REPORTS_FILTER_BAR
+token mis-anchor + the wrap-blind prose anchors — the D-208a1 birth
+precedent: the pin's own flaws, not live findings). **MUTATION-PROVEN
+×6**: M1 NAV_LAYOUT.icon → h-6 w-6 → exactly 1 RED (it-2) · M2 the
+AGENTS icons bullet `h-5 w-5` → `h-4 w-4` → exactly 1 RED (it-2) ·
+M3 a `z-[9999]` planted in toast.tsx → exactly 1 RED (it-4) · M4
+skills dropped from the eslint ignores → exactly 1 RED (it-5) · M5
+DELTA_TEXT.good → text-success → exactly 1 RED (it-3) · M6 parseBody
+renamed → **the FIRST RUN GREEN — the mutation caught the pin's own
+prefix-blind teeth** (the regex matched parseBodyRenamed) — the `\b`
+anchors added, the re-plant → exactly 1 RED (it-1) — each restored →
+GREEN. **STASH-PROOF**: the describe stashed → exactly 138/2867 (the
+s212 ship state, zero collateral) → restored → 138/2873.
+
+The count ladder: UNIT **2867 → 2873 (+6)** · SUITES 138 HELD · E2E
+226 HELD · badge **3093 → 3099** (the unit+e2e arithmetic: 2873+226
+— verified against the live unit run: 138/2873 GREEN, clean first
+pass) + `skill-head-213.py` (the SKILL v1.210.0, the s212 layer
+comment-demoted at its ship counts 2867/226, the s213 layer live at
+2873/226; `last_updated` stays 2026-11-04 — the same-day form;
+idempotent) + `count-ladder-213.py` (assert-first, idempotent,
+unique-anchor — 26 flips, the re-run 26 no-ops) + the test-side
+re-anchors in the same stroke (the docs-counts layer-axis: first =
+s213, second = s212 at its ship 2867/226 · the unit negatives ladder:
+the retired 2867 site-forms join the negatives · the
+dialog-geometry-parity F-92a3 ladder: the four CLAUDE live positives
+re-anchored 2873).
+
+The docs lockstep: the AGENTS Session-213 section · the PAD §7.1
+s213 inventory row · `docs/session_448.md` (the transcript) · the
+worklog Task ID 213 entry · the plan's execution record. The captures
+722-726 (the round's dev-server set: the dashboard at desktop +
+phone · the drawer OPEN at phone · the landing mobile menu OPEN at
+phone · the login card).
+
+The final gate at the cured tree: lint 0/0 · tsc 0 · **138/2873
+unit** · build · smoke 14/14 · `CI=1 bun run test:e2e` 226/226 · the
+six drift gates re-run CLEAN (the cures test-side only — no src
+touch, but the house proves it) · db census MATCH · `git status`
+clean of secrets/dbs.
+
+DECLINED (recorded in the plan): the FULL semantic-prose census (the
+conventions block is the first mechanically-checkable family; the
+remainder stays under the rotation audit's fresh-eyes walk, the s208
+scoping doctrine) · a mid-rotation eslint/vite-family bump (the
+standing posture) · the skills/ mirror (the operator's own domain)
+· pinning the AGENTS Git block (the push-ritual family already
+pinned at D-209a2; the branch/commit-convention claims are process,
+not code).

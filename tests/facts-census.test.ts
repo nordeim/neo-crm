@@ -63,6 +63,14 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  DELTA_TEXT,
+  LOGIN_LAYOUT,
+  MOBILE_NAV_TRIGGER,
+  NAV_LAYOUT,
+  REPORTS_FILTER_BAR,
+  TOPBAR_LAYOUT,
+} from "../src/lib/page-layout";
 
 const root = join(import.meta.dirname, "..");
 const read = (p: string) => readFileSync(join(root, p), "utf8");
@@ -1115,5 +1123,135 @@ describe("session-209 (D-209a2): the push-ritual remote contract (F-209a — the
       runbook,
       "the stale sibling-repo remote must stay gone from the runbook (F-209a)",
     ).not.toContain("task-management");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-213 (D-213a1): THE SEMANTIC-PROSE CONVENTIONS CENSUS — the
+// AGENTS "Conventions that differ from defaults" block's semantic claims
+// join the pin (F-213a: the F-206a home block, the last prose family
+// with no teeth; the s212 close's named candidate, scoped to its first
+// mechanically-checkable family). Every claim is read LIVE (the imported
+// page-layout tokens, the installed zod, the walked z-tier inventory)
+// and the DOC is asserted to carry it — EITHER face rotting (a token
+// flip OR a doc edit) fails `bun run test`.
+// ---------------------------------------------------------------------------
+describe("session-213 (D-213a1): the semantic-prose conventions census (F-213a — the AGENTS conventions block joins the pin)", () => {
+  const agents = read("AGENTS.md");
+  const start = agents.indexOf("## Conventions that differ from defaults");
+  const end = agents.indexOf("## Git", start);
+  expect(start, "the conventions section must exist in AGENTS.md").toBeGreaterThan(0);
+  const section = agents.slice(start, end > start ? end : undefined);
+  // the prose-claim anchor form: the section's whitespace flattened to
+  // single spaces (the s208 birth lesson — claims wrap across lines, the
+  // anchor must be wrap-blind)
+  const flat = section.replace(/\s+/g, " ");
+
+  it("the VALIDATION-SEAM claim mirrors the live seam (zod ^4 · schemas.ts · parseBody · the URL-param helpers)", () => {
+    // the doc face
+    expect(flat).toContain("zod ^4");
+    expect(flat).toContain("`src/lib/schemas.ts`");
+    expect(flat).toContain("`parseBody()` in `src/lib/api.ts`");
+    expect(flat).toContain("`asString`/`asNumber`/`asDate`");
+    // the live face (the F-109a1 doctrine — read from the tree itself)
+    expect(installed("zod").startsWith("4."), "the installed zod must be major 4").toBe(true);
+    const schemas = read("src/lib/schemas.ts");
+    expect(schemas.length, "schemas.ts must be a real module").toBeGreaterThan(100);
+    expect(schemas).toMatch(/^export /m);
+    const api = read("src/lib/api.ts");
+    // the \b anchors are load-bearing (the M6 mutation-proof caught the
+    // prefix-blind form: a parseBodyRenamed rename sailed through)
+    expect(api).toMatch(/export (async )?function parseBody\b/);
+    expect(api).toMatch(/export function asString\b/);
+    expect(api).toMatch(/export function asNumber\b/);
+    expect(api).toMatch(/export function asDate\b/);
+  });
+
+  it("the ICON-CASCADE claim mirrors the live tokens (nav+topbar h-5 w-5 · content h-4 w-4 · the uniform stroke-2)", () => {
+    // the doc face
+    expect(flat).toContain("`h-5 w-5` stroke-2");
+    expect(flat).toContain("content icons stay `h-4 w-4`");
+    // the live face — the layout tokens, read LIVE via the import
+    expect(NAV_LAYOUT.icon).toBe("h-5 w-5");
+    expect(TOPBAR_LAYOUT.iconClass).toBe("h-5 w-5");
+    expect(TOPBAR_LAYOUT.searchIcon).toContain("h-5 w-5");
+    expect(MOBILE_NAV_TRIGGER.icon).toBe("h-5 w-5");
+    // the content-surface tokens carry h-4 w-4
+    expect(REPORTS_FILTER_BAR.selectIcon).toContain("h-4 w-4");
+    expect(REPORTS_FILTER_BAR.barBtnIcon).toContain("h-4 w-4");
+    expect(TOPBAR_LAYOUT.userChevron).toContain("h-4 w-4");
+    expect(LOGIN_LAYOUT.inputIcon).toContain("h-4 w-4");
+    // the sidebar's uniform stroke — exactly ONE strokeWidth form, no
+    // active/inactive variation (the session-7 re-pin claim)
+    const sidebar = noComments(read("src/components/layout/sidebar.tsx"));
+    expect(sidebar).toContain("strokeWidth={2}");
+    expect(
+      sidebar.match(/strokeWidth/g)?.length,
+      "the sidebar must carry exactly one strokeWidth form (the no-variation claim)",
+    ).toBe(1);
+  });
+
+  it("the DELTA-TEXT claim mirrors the live split (green/red-600 on deltas · success/danger stay on badges)", () => {
+    // the doc face
+    expect(flat).toContain("`text-green-600` / `text-red-600`");
+    expect(flat).toContain("not the `success`/`danger` tokens (those stay on badges)");
+    // the live face — the DELTA_TEXT token (read LIVE via the import)
+    expect(DELTA_TEXT.good).toBe("text-green-600");
+    expect(DELTA_TEXT.bad).toBe("text-red-600");
+    // the hand-inlined delta site carries the raw classes, NOT the tokens
+    const pageParts = noComments(read("src/components/shared/page-parts.tsx"));
+    expect(pageParts).toContain("text-green-600");
+    expect(pageParts).not.toContain("text-success");
+    expect(pageParts).not.toContain("text-danger");
+    // ...and the badge family keeps the tokens (the "stay on badges" arm)
+    const toast = read("src/components/ui/toast.tsx");
+    expect(toast).toContain("text-success");
+    expect(toast).toContain("text-danger");
+  });
+
+  it("the Z-SCALE census — the live tier inventory stays on the flat scale (the D-205a2 census form)", () => {
+    // the doc face — the four named tiers + the explicit ban
+    expect(flat).toContain("topbar z-40, drawer/dialogs z-50, dropdown portals z-[60], toasts z-[100]");
+    expect(flat).toContain("No ad-hoc `z-[9999]`");
+    // the live face — walk comment-stripped src/ for EVERY z-tier
+    const tiers = new Set<number>();
+    for (const file of walk("src").filter((f) => /\.[jt]sx?$/.test(f))) {
+      for (const m of noComments(read(file)).matchAll(/\bz-\[?(\d+)\]?/g)) {
+        tiers.add(Number(m[1]));
+      }
+    }
+    const FLAT_SCALE = [10, 40, 50, 60, 100];
+    for (const tier of tiers) {
+      expect(
+        FLAT_SCALE.includes(tier),
+        `z-${tier} (${[...tiers].join(", ")}) is off the flat scale ${FLAT_SCALE.join("/")} — the AGENTS z-index convention forbids ad-hoc tiers`,
+      ).toBe(true);
+    }
+    for (const claimed of [40, 50, 60, 100]) {
+      expect(
+        tiers.has(claimed),
+        `the claimed tier z-${claimed} must actually exist in src/`,
+      ).toBe(true);
+    }
+    expect(tiers.has(9999), "z-[9999] is explicitly banned").toBe(false);
+  });
+
+  it("the ESLint-IGNORES claim mirrors the live config (skills/ + the build output dirs)", () => {
+    // the doc face
+    expect(flat).toContain("ESLint ignores `skills/`");
+    // the live face — the config's ignores array
+    const eslint = read("eslint.config.mjs");
+    const ignores = eslint.match(/ignores:\s*\[([^\]]*)\]/)?.[1] ?? "";
+    expect(ignores, "the ignores array must exist").not.toBe("");
+    expect(ignores).toContain('"skills"');
+    expect(ignores).toContain(".next");
+    expect(ignores).toContain('"build/**"');
+    expect(ignores).toContain("node_modules");
+  });
+
+  it("the CHARTS bullet (the AGENTS face D-207b1 never covered) carries the live chart doctrine", () => {
+    expect(flat).toContain("recharts DEFAULTS");
+    expect(flat).toContain("the REAL chart renders at all-zero data");
+    expect(flat).toContain("fixed lists render ticks at zero, row-derived series render empty");
   });
 });

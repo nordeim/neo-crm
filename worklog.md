@@ -7354,3 +7354,53 @@ Stage Summary:
   ADR-002 s212 clause · the README Deployment s212 scoping · the
   DEPLOYMENT.md §2 launch note · docs/session_446.md · the plan's
   execution record · this entry) + the captures 717-721.
+
+## Task ID 213 — THE SEMANTIC-PROSE LAYOUT-CONTRACT CENSUS (2026-11-04)
+
+- **Context**: the post-212 audit round (rotation trigger: the owner's
+  newest commit `b0bb8cd` — the session_447 transcript). The
+  continued-workspace round (the repo intact, the pull fast-forwarding
+  only the transcript); the standing `.env` contract verified (db
+  census MATCH 15/24/10/23/12 + 4 users); the s212 lesson applied at
+  the gate layer — the :3000 listener's DB anchor probed before the
+  drift gates reused it (the dev server, correctly anchored, the
+  parent-of-repo `db/` absent).
+- **WP-0 (the audit)**: the baseline gate GREEN at the exact s212 ship
+  state — lint 0/0 · tsc 0 · 138/2867 unit · build · smoke 14/14 ·
+  e2e 226/226 CLEAN (8.2m) · **the six drift gates ALL CLEAN**
+  (probe:ref STABLE at `46bc2d9c` · the four-band sweep ×4 · the
+  fullpage 0.093%/0.316% · the interior census byte-parity) + the
+  parity battery with agent-browser against BOTH apps (the mobile nav
+  both surfaces working — the drawer battery verified on BOTH apps;
+  the landing disclosure menu working on BOTH apps, the FAQ ride
+  landing `/#faq`) + Tailwind v4 clean + SEO/sitemap live-verified +
+  the hygiene legs clean + `bun audit` at the pinned census 10 + the
+  scandihaven re-check (`61711c3`, unchanged). The fresh-eyes walk
+  over the prose-claim families found ZERO live defects.
+- **WP-1 (the round's material)**: F-213a — the semantic-prose
+  residue, the s212 close's named candidate scoped to its first
+  mechanically-checkable family: the AGENTS "Conventions that differ
+  from defaults" block (the F-206a HOME BLOCK) carried six semantic
+  claims with no pin — the validation seam · the icon cascade · the
+  delta texts · the z-scale · the eslint ignores · the charts bullet
+  (the one chart-doctrine face D-207b1 never covered).
+- **WP-2 (the cure — D-213a1)**: the conventions-block semantic
+  census pin in `tests/facts-census.test.ts` (+6 its, src/ untouched)
+  — every claim read LIVE (the imported page-layout tokens, the
+  installed zod, the walked z-tier inventory, the eslint config) and
+  the doc asserted to carry it (the wrap-blind flattened section).
+  Born-green after two anchor-form cures (the pin's own flaws — the
+  D-208a1 birth precedent). **MUTATION-PROVEN ×6** — including M6's
+  first run catching the pin's own prefix-blind teeth (the regex
+  matched `parseBodyRenamed`; the `\b` anchors added, the re-plant →
+  exactly 1 RED). **STASH-PROOF**: the describe stashed → exactly
+  138/2867 (the s212 ship state) → restored → 138/2873.
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder UNIT
+  **2867 → 2873** (+6) · SUITES 138 HELD · E2E 226 HELD · badge
+  **3093 → 3099** + `skill-head-213.py` (SKILL v1.210.0, the s212
+  layer demoted at its ship 2867/226, the s213 layer live at 2873/226;
+  `last_updated` stays 2026-11-04 — the same-day form; idempotent) +
+  `count-ladder-213.py` (assert-first, idempotent — 26 flips, the
+  re-run 26 no-ops) + the docs lockstep (the AGENTS Session-213
+  section · the PAD §7.1 s213 inventory row · docs/session_448.md ·
+  the plan's execution record · this entry) + the captures 722-726.
