@@ -7404,3 +7404,60 @@ Stage Summary:
   re-run 26 no-ops) + the docs lockstep (the AGENTS Session-213
   section · the PAD §7.1 s213 inventory row · docs/session_448.md ·
   the plan's execution record · this entry) + the captures 722-726.
+## Task ID 214 — THE AUTH-BULLET SEMANTIC-PROSE CENSUS (2026-11-04)
+
+- **Context**: the post-213 audit round (rotation trigger: the owner's
+  newest commit `99edfe2` — the session_449 transcript). The
+  FRESH-CLONE round (the sandbox reset EMPTIED neo-crm/ — the round
+  cloned the repo + rebuilt the environment: bun install · the .env
+  contract re-created · db:push + db:seed · db census MATCH
+  15/24/10/23/12 + 4 users). TWO reset artifacts caught + cured at
+  the gate layer: the STALE PARENT-OF-REPO db/custom.db (restored by
+  the reset, mtime 2026-11-01) probed BEFORE the drift gates reused
+  the :3000 listener (the dev server, correctly anchored, the app on
+  the REPO db) then REMOVED (the s212 cleanup re-applied); the
+  PLAYWRIGHT BROWSER-BINARY MISMATCH (chromium-1248 expected, 1200
+  cached) cured with bunx playwright install chromium.
+- **WP-0 (the audit)**: the baseline gate GREEN at the exact s213 ship
+  state — lint 0/0 · tsc 0 · 138/2873 unit · build · smoke 14/14 ·
+  e2e 226/226 CLEAN (8.1m) · **the six drift gates ALL CLEAN**
+  (probe:ref STABLE at `46bc2d9c` · the four-band sweep ×4 · the
+  fullpage 0.093%/0.316% · the interior census byte-parity) + the
+  parity battery with agent-browser against BOTH apps (the mobile nav
+  both surfaces working — the drawer battery + the landing disclosure
+  menu + the FAQ ride, verified on BOTH apps) + Tailwind v4 clean +
+  SEO/sitemap live-verified + the hygiene legs clean + `bun audit`
+  at the pinned census 10 + the scandihaven re-clone (`61711c3`,
+  unchanged). The fresh-eyes walk over the prose-claim families
+  found ZERO live defects.
+- **WP-1 (the round's material)**: F-214a — the auth-bullet
+  semantic-prose residue, the s213 close's named candidate's next
+  family: the AGENTS "Architecture facts you would otherwise guess
+  wrong" section's FIRST bullet (the auth bullet — the section's
+  densest mechanically-checkable unpinned prose surface) carried five
+  semantic claim clusters with no pin — the rate-limit table · the
+  session contract · the reset funnel · the proxy-hops semantics ·
+  the guard claims.
+- **WP-2 (the cure — D-214a1)**: the auth-bullet semantic census pin
+  in `tests/facts-census.test.ts` (+5 its, src/ untouched) — every
+  claim read LIVE (the walked rate-limit call-site census · the
+  exported session constants · the reset-funnel constants · the
+  proxy-hops parse ladder · the guard exports + the middleware walk)
+  and the doc asserted to carry it (the wrap-blind flattened bullet).
+  **Born-green at the FIRST run** (62/62 at the file — the s213
+  wrap-blind lesson applied at birth, zero anchor-form cures).
+  **MUTATION-PROVEN ×6** (M1 the login limit flip [src-side] · M2
+  the AGENTS table edit [doc-side] · M3 the session TTL · M4 the
+  reset TTL · M5 the proxy-hops fails-open · M6 the planted
+  src/middleware.ts — each exactly 1 RED at its own pin, restored →
+  GREEN). **STASH-PROOF**: the describe stashed → exactly 138/2873
+  (the s213 ship state) → restored → 138/2878.
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder UNIT
+  **2873 → 2878** (+5) · SUITES 138 HELD · E2E 226 HELD · badge
+  **3099 → 3104** + `skill-head-214.py` (SKILL v1.211.0, the s213
+  layer demoted at its ship 2873/226, the s214 layer live at 2878/226;
+  `last_updated` stays 2026-11-04 — the same-day form; idempotent) +
+  `count-ladder-214.py` (assert-first, idempotent — 27 flips, the
+  re-run all no-ops) + the docs lockstep (the AGENTS Session-214
+  section · the PAD §7.1 s214 inventory row · docs/session_450.md ·
+  the plan's execution record · this entry) + the captures 727-731.

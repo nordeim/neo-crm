@@ -1255,3 +1255,123 @@ describe("session-213 (D-213a1): the semantic-prose conventions census (F-213a �
     expect(flat).toContain("fixed lists render ticks at zero, row-derived series render empty");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-214 (D-214a1): THE AUTH-BULLET SEMANTIC CENSUS — the AGENTS
+// "Architecture facts you would otherwise guess wrong" section's FIRST
+// bullet, the auth bullet, joins the pin (F-214a: the semantic-prose
+// census's next family, the s213 close's named candidate). Every claim
+// is read LIVE (the walked rate-limit call-site census, the exported
+// session constants, the reset-funnel constants, the proxy-hops ladder,
+// the guard exports) and the DOC is asserted to carry it — EITHER face
+// rotting (a limit flip OR a doc edit) fails `bun run test`.
+// ---------------------------------------------------------------------------
+describe("session-214 (D-214a1): the auth-bullet semantic census (F-214a — the AGENTS architecture-facts auth bullet joins the pin)", () => {
+  const agents = read("AGENTS.md");
+  const start = agents.indexOf("## Architecture facts you would otherwise guess wrong");
+  expect(start, "the architecture-facts section must exist in AGENTS.md").toBeGreaterThan(0);
+  const firstBulletEnd = agents.indexOf("\n- **API envelope", start);
+  expect(firstBulletEnd, "the auth bullet must end at the API-envelope bullet").toBeGreaterThan(start);
+  // the wrap-blind flattened form (the s208/s213 birth lesson)
+  const bullet = agents.slice(start, firstBulletEnd).replace(/\s+/g, " ");
+
+  it("the RATE-LIMIT TABLE claim mirrors the live call-site census (the seven-route table at the 15-min window)", () => {
+    // the doc face
+    expect(bullet).toContain("login 10, signup 10, resend 5, verify 20, forgot 10, reset 10");
+    expect(bullet).toContain("session-67 adds the sessioned upload route at 20");
+    expect(bullet).toContain("per IP/15 min");
+    // the live face — the CENSUS: every rateLimit call site's family,
+    // limit, and window (a new/changed/removed site trips the census)
+    const found = new Map<string, { limit: string; window: string }>();
+    for (const file of walk("src/app/api").filter((f) => f.endsWith("route.ts"))) {
+      for (const m of noComments(read(file)).matchAll(
+        /rateLimit\(`(\w+):\$\{clientKey\((?:req|request)\)\}`\s*,\s*(\d+)\s*,\s*([^)]+)\)/g,
+      )) {
+        found.set(m[1], { limit: m[2], window: m[3].replace(/\s+/g, "") });
+      }
+    }
+    const TABLE: Record<string, string> = {
+      login: "10",
+      signup: "10",
+      resend: "5",
+      verify: "20",
+      forgot: "10",
+      reset: "10",
+      upload: "20",
+    };
+    expect(
+      [...found.keys()].sort(),
+      "the live census must carry exactly the documented seven rate-limit families",
+    ).toEqual(Object.keys(TABLE).sort());
+    for (const [family, limit] of Object.entries(TABLE)) {
+      expect(found.get(family)?.limit, `the ${family} limit must stay at ${limit}`).toBe(limit);
+      expect(found.get(family)?.window, `the ${family} window must stay at 15 min`).toBe("15*60*1000");
+    }
+  });
+
+  it("the SESSION-CONTRACT claim mirrors the live seam (scrypt:salt:hash · HMAC-SHA256 · neo_session · 7-day TTL · uid,iat,exp,v)", () => {
+    // the doc face
+    expect(bullet).toContain("scrypt password hashes (`scrypt:salt:hash`)");
+    expect(bullet).toContain("HMAC-SHA256 signed stateless cookie `neo_session` (7-day TTL)");
+    expect(bullet).toContain("`uid,iat,exp,v`");
+    // the live face — the password format template
+    expect(read("src/lib/password.ts")).toContain("`scrypt:${salt}:${hash}`");
+    // the session constants + the payload field census + the HMAC pair
+    const auth = read("src/lib/auth.ts");
+    expect(auth).toContain('export const SESSION_COOKIE = "neo_session"');
+    expect(auth).toContain("export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000");
+    const payload = noComments(auth).match(/export interface SessionPayload \{([^}]*)\}/)?.[1] ?? "";
+    const fields = [...payload.matchAll(/^\s*(\w+):/gm)].map((m) => m[1]);
+    expect(fields, "the payload must carry exactly the four documented fields").toEqual([
+      "uid",
+      "iat",
+      "exp",
+      "v",
+    ]);
+    expect(auth.match(/createHmac\("sha256"/g)?.length, "the sign + verify HMAC pair").toBe(2);
+  });
+
+  it("the RESET-FUNNEL claim mirrors the live constants (32-byte token · 60-min TTL · P2024/P2028→503 · the eviction)", () => {
+    // the doc face
+    expect(bullet).toContain("32-byte crypto-random token, 60-min TTL");
+    expect(bullet).toContain("no-enumeration 200");
+    expect(bullet).toContain("P2024/P2028→503");
+    // the live face — the forgot route's constants
+    const forgot = read("src/app/api/auth/forgot-password/route.ts");
+    expect(forgot).toContain("randomBytes(32)");
+    expect(forgot).toContain("RESET_TOKEN_TTL_MS = 60 * 60 * 1000");
+    // the reset route's 503 mapping (the co-location arm) + the eviction
+    const reset = noComments(read("src/app/api/auth/reset-password/route.ts"));
+    expect(reset).toMatch(/error\.code === "P2024" \|\| error\.code === "P2028"[\s\S]{0,200}503/);
+    expect(reset).toContain("tokenVersion: { increment: 1 }");
+  });
+
+  it("the PROXY-HOPS claim mirrors the live ladder (unset=1 · unparsable/negative fails CLOSED · else the parsed depth)", () => {
+    // the doc face
+    expect(bullet).toContain("unset=1, 0=direct/unknown, N≥2=Nth-from-last, unparsable fails closed");
+    // the live face — the exact parse ladder in proxyHopDepth()
+    const ladder = read("src/lib/rate-limit.ts");
+    expect(ladder).toContain("export function proxyHopDepth()");
+    expect(ladder).toContain('if (raw === undefined || raw === "") return 1;');
+    expect(ladder).toContain("if (!Number.isFinite(parsed) || parsed < 0) return 1;");
+    expect(ladder).toContain("return parsed;");
+  });
+
+  it("the GUARD claims mirror the live tree (requireSession + isGuarded exported · no NextAuth · no middleware)", () => {
+    // the doc face
+    expect(bullet).toContain("`requireSession()` + the `isGuarded()` narrowing helper guard every route handler");
+    expect(bullet).toContain("No NextAuth, no JWTs, no middleware/proxy");
+    // the live face — the guard exports (the \b anchors, the s213 M6 lesson)
+    const api = read("src/lib/api.ts");
+    expect(api).toMatch(/export (async )?function requireSession\b/);
+    expect(api).toMatch(/export function isGuarded\b/);
+    // no NextAuth in the dependency manifest
+    const pkg = JSON.parse(read("package.json")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    expect({ ...pkg.dependencies, ...pkg.devDependencies }).not.toHaveProperty("next-auth");
+    // no middleware anywhere in src/ (the walk census)
+    expect(walk("src").filter((f) => f.endsWith("middleware.ts")), "the no-middleware claim").toEqual([]);
+  });
+});

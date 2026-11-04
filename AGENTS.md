@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2873 checks)      | `bun run test`                         |
+|  Unit tests (2878 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2873) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2878) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -14630,6 +14630,150 @@ DECLINED (recorded in the plan): the FULL semantic-prose census (the
 conventions block is the first mechanically-checkable family; the
 remainder stays under the rotation audit's fresh-eyes walk, the s208
 scoping doctrine) · a mid-rotation eslint/vite-family bump (the
+standing posture) · the skills/ mirror (the operator's own domain)
+· pinning the AGENTS Git block (the push-ritual family already
+pinned at D-209a2; the branch/commit-convention claims are process,
+not code).
+
+### Session-214 — THE AUTH-BULLET SEMANTIC-PROSE CENSUS (2026-11-04)
+
+The rotation trigger: the owner's newest commit `99edfe2` — the
+session_449 transcript, the s213 round's own execution record. The
+FRESH-CLONE round (the sandbox reset EMPTIED neo-crm/ — the bootstrap
+parent dir re-initialized at an unrelated Initial commit — so the
+round cloned the repo + rebuilt the environment: bun install 536
+packages · the standing .env contract re-created [DATABASE_URL=
+file:../db/custom.db + a fresh AUTH_SECRET] · db:push + db:seed ·
+db census MATCH 15/24/10/23/12 + 4 users, the repo-root anchor
+first-run verified). TWO reset artifacts caught + cured at the gate
+layer (the s212 lesson, fresh-clone face): (1) the STALE
+PARENT-OF-REPO db/custom.db RESTORED by the reset (mtime 2026-11-01,
+the pre-s212-cleanup era file, still carrying the old seed) — probed
+BEFORE the drift gates reused the :3000 listener (the listener's cwd =
+the repo root, the correctly-anchored dev-server form; the app
+resolving the REPO db, the dashboard API re-probed green AFTER the
+stale file's removal — the anchor proof) — then REMOVED, the s212
+cleanup re-applied; (2) the PLAYWRIGHT BROWSER-BINARY MISMATCH (the
+project's Playwright expects chromium_headless_shell-1248; the sandbox
+cache carried only the 1200 era) — the first e2e attempt's setup leg
+failed on the missing binary (1 failed / 225 did not run), cured with
+`bunx playwright install chromium`, the re-run CLEAN. The scandihaven
+reference re-cloned (the reset emptied it too) — `61711c3`, the
+standing commit, unchanged.
+
+The baseline gate at the exact s213 ship state: lint 0/0 · tsc 0 ·
+138/2873 unit · build (the 2 warnings the pre-existing Turbopack
+tracing heuristics) · smoke 14/14 · e2e 226/226 CLEAN (8.1m) · **the
+six drift gates ALL CLEAN** (probe:ref STABLE at `46bc2d9c` · the
+four-band sweep at `--fail-on-drift` ×4 · the fullpage 0.093%/0.316%
+— the exact standing margins · the interior census byte-parity at
+`--fail-on-drift`, unexplained 0). The parity re-verification probed
+live with agent-browser 0.41.1 against BOTH apps logged in — **the
+mobile navigation both surfaces working** (the drawer: the Close
+button + the CRM h2 + the 8 destinations · the overlay
+`rgba(0,0,0,0.8)` vs ours `oklab(0 0 0 / 0.8)` — the same 80% black,
+the v4 serialization · ours the body+main dual lock vs the reference's
+body-only, the documented superset · Escape + the Leads ride
+`/Dashboard` → `/Leads` with auto-close + full release — verified on
+BOTH apps) + the landing disclosure menu working on BOTH apps (the 6
+links · ours the aria-expanded superset · the in-panel FAQ ride lands
+`/#faq` + collapses — verified on BOTH apps) + Tailwind v4 clean (no
+config file — the CSS-first `@theme`; the postcss plugin in place) +
+SEO/sitemap live-verified (the 11-route sitemap · robots · manifest
+200 application/json · the OG/Twitter/canonical head tags) + the
+hygiene legs clean (bun audit at the pinned census 10 — 4h/5m/1l, all
+dev-toolchain transitive; no TODO/FIXME · no console.log).
+
+**The round's material — F-214a: THE AUTH-BULLET SEMANTIC-PROSE
+RESIDUE (the s213 close's named candidate's next family).** The
+fresh-eyes walk found ZERO live defects (every prose sample verified
+live: the rate-limit table · the session contract · the reset-funnel
+constants · the proxy-hops ladder · the guard claims · the envelope ·
+the store · the postcss plugin · the vendored tw-animate) — so the
+round's material IS the named candidate's next family, the
+genus-closing pin (the s208/s209/s213 precedent). The genus: every
+mechanically-checkable doc-claim family is pinned — but the AGENTS
+**"Architecture facts you would otherwise guess wrong"** section's
+FIRST bullet, the AUTH BULLET (the section's densest
+mechanically-checkable surface), still carried FIVE semantic claim
+clusters with no teeth: the rate-limit table (login 10, signup 10,
+resend 5, verify 20, forgot 10, reset 10 + the upload 20 clause) ·
+the session contract (scrypt:salt:hash · the HMAC-SHA256 neo_session
+cookie at the 7-day TTL · the uid,iat,exp,v payload) · the reset
+funnel (the 32-byte crypto-random token at 60-min · the
+no-enumeration 200 · P2024/P2028→503 · the tokenVersion eviction) ·
+the proxy-hops semantics (unset=1 · 0=direct/unknown · N≥2=
+Nth-from-last · unparsable fails closed) · the guard claims
+(requireSession + isGuarded · No NextAuth, no JWTs, no
+middleware/proxy). Any of them could rot silently — a limit tuned, a
+TTL change, a fails-open slip, a middleware.ts planted for a "quick
+fix" — with every gate GREEN.
+
+**D-214a1 — the auth-bullet semantic census pin**
+(tests/facts-census.test.ts, +5 its, src/ untouched): it-1 the
+RATE-LIMIT TABLE (the wrap-blind doc face + the live call-site
+CENSUS — every `rateLimit(family, limit, window)` triple walked from
+src/app/api; the exact seven-entry set at the 15-min window; any
+new/changed/removed site trips the census) · it-2 the
+SESSION-CONTRACT claim (the scrypt template · SESSION_COOKIE ===
+neo_session · SESSION_TTL_MS === the 7-day form · the SessionPayload
+field census exactly uid/iat/exp/v · the sign + verify
+createHmac("sha256") pair) · it-3 the RESET-FUNNEL claim
+(randomBytes(32) · RESET_TOKEN_TTL_MS === the 60-min form · the
+P2024/P2028→503 co-location arm · the tokenVersion increment: 1
+eviction) · it-4 the PROXY-HOPS claim (the exact proxyHopDepth parse
+ladder, all three arms) · it-5 the GUARD claims (requireSession +
+isGuarded exported with the `\b`-anchored forms — the s213 M6 lesson
+applied at birth · no next-auth in the manifest · NO middleware.ts
+anywhere in src/, the walk census).
+
+**Born-green at the FIRST run** — 62/62 at the file, zero
+anchor-form cures needed (the s213 wrap-blind lesson applied at
+birth: the flattened-bullet form from the start). **MUTATION-PROVEN
+×6**: M1 the login limit 10 → 5 → exactly 1 RED (it-1, the src-side
+arm) · M2 the AGENTS table `login 10, signup 10` → `login 5, signup
+10` → exactly 1 RED (it-1, the doc-side arm) · M3 SESSION_TTL_MS 7 →
+30 days → exactly 1 RED (it-2) · M4 RESET_TOKEN_TTL_MS 60 → 30 min →
+exactly 1 RED (it-3) · M5 the proxy-hops unparsable arm fails open
+(returns 0) → exactly 1 RED (it-4) · M6 a src/middleware.ts planted →
+exactly 1 RED (it-5) — each restored → GREEN. **STASH-PROOF**: the
+describe stashed → exactly 138/2873 (the s213 ship state, zero
+collateral) → restored → 138/2878.
+
+The count ladder: UNIT **2873 → 2878 (+5)** · SUITES 138 HELD · E2E
+226 HELD · badge **3099 → 3104** (the unit+e2e arithmetic: 2878+226
+— verified against the live unit run: 138/2878 GREEN) +
+`skill-head-214.py` (the SKILL v1.211.0, the s213 layer
+comment-demoted at its ship counts 2873/226, the s214 layer live at
+2878/226, `last_updated` stays 2026-11-04 — the same-day form;
+idempotent — the re-run a verified no-op) + `count-ladder-214.py`
+(assert-first, idempotent, unique-anchor — 27 flips, the re-run 26
+no-ops + the head no-op) + the test-side re-anchors in the same
+stroke (the docs-counts layer-axis pair: first = s214, second = s213
+at its ship 2873/226 · the 2873 negatives join the retired forms ·
+the dialog-geometry-parity F-92a3 ladder: the four CLAUDE live
+positives re-anchored 2878).
+
+The docs lockstep: the AGENTS Session-214 section · the PAD §7.1
+s214 inventory row · `docs/session_450.md` (the transcript) · the
+worklog Task ID 214 entry · the plan's execution record. The captures
+727-731 (the round's dev-server set: the dashboard at desktop +
+phone · the drawer OPEN at phone · the landing mobile menu OPEN at
+phone · the login card).
+
+The final gate at the cured tree: lint 0/0 · tsc 0 · **138/2878
+unit** · build · smoke 14/14 · `CI=1 bun run test:e2e` 226/226 · the
+six drift gates re-run CLEAN (the cures test-side only — no src
+touch, but the house proves it) · db census MATCH · `git status`
+clean of secrets/dbs.
+
+DECLINED (recorded in the plan): the FULL semantic-prose census of
+the architecture-facts section's REMAINDER (the auth bullet is the
+next mechanically-checkable family after the conventions block; the
+Tailwind-v4 bullet family and the rest stay under the rotation
+audit's fresh-eyes walk, the s208 scoping doctrine — several of the
+Tailwind claims already ride tests/design-tokens.test.ts, the
+named-pin form) · a mid-rotation eslint/vite-family bump (the
 standing posture) · the skills/ mirror (the operator's own domain)
 · pinning the AGENTS Git block (the push-ritual family already
 pinned at D-209a2; the branch/commit-convention claims are process,
