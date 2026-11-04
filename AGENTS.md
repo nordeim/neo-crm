@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2863 checks)      | `bun run test`                         |
+|  Unit tests (2867 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2863) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2867) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -14384,4 +14384,130 @@ sites; the historical session layers keep their ship-time form) · a
 mid-rotation eslint/vite-family bump (the standing posture) · the
 semantic-prose-claim census (remains the named future candidate) ·
 the skills/ mirror (the operator's own domain, the standing
+exclusion).
+
+### Session-212 — THE STANDALONE BUN-LAUNCH DB RE-ANCHOR (2026-11-04)
+
+The rotation trigger: the owner's newest commit `1b093de` — the
+session_445 transcript, the s211 round's own execution record. The
+round executed the operator's standing instruction set at a third
+consecutive FRESH CLONE (the standing `.env` contract re-created:
+`DATABASE_URL="file:../db/custom.db"` with `db/` at the repo root; db
+census MATCH 15/24/10/23/12 + 4 users).
+
+The baseline gate GREEN at the exact s211 ship state: lint 0/0 · tsc 0
+· 138/2863 unit · build (the 2 warnings the pre-existing Turbopack
+tracing heuristics) · smoke 14/14 · e2e 226/226 CLEAN (8.1m; the
+chromium-1248 environment-only wrinkle, zero code involvement) ·
+probe:ref STABLE at `46bc2d9c`.
+
+**The round's material — F-212a, THE STANDALONE BUN-LAUNCH DB
+MIS-ANCHORING** — surfaced as a PHANTOM drift: the first desktop
+`--fail-on-drift` sweep failed 7 data pages (dashboard 6.37% ·
+accounts 5.57% · contacts 5.22% · leads 3.78% · calendar 1.29% ·
+activities 3.51% · reports 6.21%) with the interior census at
+100-900 unexplained events and ours at ~2x the reference's element
+count — while the reference itself was STABLE. Decoded live at every
+step: the round had booted the standalone production server
+(`bun run start`) on :3000 and the drift gates reused it; the DB was
+zeroed yet the server's `/api/dashboard` still returned the seed —
+the server was reading a STALE SEEDED DATABASE OUTSIDE THE REPO (the
+parent-directory `db/custom.db`, persisted from an earlier sandbox
+era). The chain: bun auto-loads `<repo>/.env` and ABSOLUTIZES the
+relative `file:../db/custom.db` against the .env's own directory
+(the PARENT OF THE REPO) → the standalone `server.js`
+`process.chdir()`s into `.next/standalone` → `runtimeDatabaseUrl()`
+finds NO `.env` at the post-chdir cwd (the session-170 artifact
+hygiene removed the traced copy) → the session-34 launch-dir
+recovery — nested inside the `isRelativeFileUrl(envFileUrl)` guard —
+UNREACHABLE → bun's absolutized value mistaken for an intentional
+override → the engine opens the parent-of-repo file.
+
+**The timeline**: session-34 built the recovery for the traced-`.env`
+artifact shape; session-170's hygiene cure removed that `.env` — the
+recovery dead code for 42 sessions, MASKED because the smoke test
+boots with an explicit `DATABASE_URL` override via `node`, the e2e
+pins `file:../db/e2e.db`, the drift gates boot/reuse the DEV server,
+and the db-path unit fixture WRITES `.next/standalone/.env` itself —
+the test-blind-spot genus (the fixture no longer mirrored the
+artifact). **The exposure**: `bun run start` per README/DEPLOYMENT
+silently opens `<repo-parent>/db/custom.db` — fresh-created empty on
+clean machines, stale-served where such a file persists.
+
+**The cure — D-212a1, THE LAUNCH-DIR RECOVERY HOIST** (`src/lib/
+db-path.ts`): the session-34 recovery moves OUT of the envFileUrl
+guard and runs whenever the cwd is the validated standalone dir —
+INDEPENDENT of the artifact's `.env` presence. The order: the
+cwd-side bun signature (the dev server + the legacy traced-`.env`
+shape) → the hoisted launch-dir signature (the session-34 form, now
+shape-independent, the session-35 RELATIVE-only guard kept) → the
+`effectiveDatabaseUrl` passthrough (the intentional overrides
+unchanged).
+
+**D-212a2, the cure pins** (`tests/db-path.test.ts` — the
+session-170 ARTIFACT-SHAPE describe, the fixture WITHOUT
+`.next/standalone/.env`): RED-first at birth — exactly 2 RED at the
+stale tree (the re-anchor it + the no-junk it, both the defect's
+signature, zero collateral; the 22 standing tests + the two override
+keep-guards GREEN) → the cure → GREEN 24/24. **MUTATION-PROVEN ×3**:
+the hoist reverted (the recovery re-nested under the cwd-`.env`
+reachability) → exactly 2 RED · the session-35 relative-only guard
+dropped → exactly 1 RED (the absolute-launch-value it) · the
+`urlForRoot` re-anchor swapped for the raw launch absolutization →
+3 RED (every re-anchor-asserting pin) — each restored → GREEN.
+
+**THE LIVE PROOF**: a fresh `bun run build` + `bun run start` on the
+cured tree — the standalone server serves the REPO database live (the
+seeded dashboard before the zero · zeros after the zero · the seed
+back after the reseed — via the API) and the parent-of-repo `db/` is
+NEVER recreated.
+
+The baseline re-established after the decode (the standalone killed,
+the stale parent `db/` removed, the dev server booted): **all six
+drift gates CLEAN** — the four-band sweep at `--fail-on-drift` ×4 ·
+the fullpage sweep CLEAN (desktop 0.093% / phone 0.316% — the exact
+standing margins) · the interior census CLEAN at `--fail-on-drift`
+(byte-parity; the login row unexplained 0, els 44/44). The parity
+battery re-verified live (agent-browser, BOTH apps logged in): the
+mobile navigation both surfaces working (the drawer: the Close
+button + the CRM h2 + the 8 destinations; the overlay
+`rgba(0, 0, 0, 0.8)` vs ours `oklab(0 0 0 / 0.8)`; the
+main-scroller lock superset; Escape; the Leads ride + auto-close +
+full release — verified on BOTH apps this round) + Tailwind v4 clean
++ SEO/sitemap live-verified (the 11-route sitemap · robots ·
+manifest · the OG/canonical head) + the hygiene legs clean (`bun
+audit` at the pinned census 10) + the recent-changes audit (the
+owner's newest commit adds `docs/session_445.md` only) + the
+scandihaven repo re-cloned (`61711c3`, unchanged).
+
+THE COUNT LADDER: UNIT **2863 → 2867** (+4) · SUITES 138 HELD · E2E
+226 HELD · badge **3089 → 3093** (verified against the live unit
+run: 138/2867 GREEN) + `skill-head-212.py` (the SKILL v1.209.0, the
+s211 layer comment-demoted at its ship counts 2863/226, the s212
+layer live at 2867/226, `last_updated` 2026-11-03 → 2026-11-04;
+idempotent) + `count-ladder-212.py` (assert-first, idempotent,
+unique-anchor — 26 flips) + the same-stroke line-census re-anchor
+(`src/lib/db-path.ts` 227 → 240 — the s168 doctrine: the PAD §11 row
++ the ADR-002 rationale face) + the docs-counts layer-axis re-anchor
+(first = s212 · second = s211 at its ship 2863/226 — the held-count
+form).
+
+The docs lockstep: the AGENTS Session-212 section · the PAD §7.1
+s212 inventory row + the ADR-002 rationale's s212 clause + the §11
+line row · the README Deployment section's s212 scoping · the
+DEPLOYMENT.md §2 launch note · `docs/session_446.md` · the worklog
+Task ID 212 entry · the plan's execution record. The captures 717-721
+(the round's dev-server set: the dashboard at desktop + phone · the
+drawer OPEN at phone · the landing mobile menu OPEN at phone · the
+login card).
+
+DECLINED (recorded in the plan): a drift-gate hardening that verifies
+the :3000 listener's db anchor before reusing it (the gates' reuse
+becomes safe once the seam is cured) · re-adding a traced `.env` to
+the standalone artifact (would reintroduce the F-170a
+secret-shipping hazard) · a doc-wide rewrite of every session-34
+narration (the historical session layers keep their ship-time form)
+· a mid-rotation eslint/vite-family bump (the standing posture) ·
+the semantic-prose-claim census (remains the named future candidate)
+· the skills/ mirror (the operator's own domain, the standing
 exclusion).

@@ -7280,3 +7280,77 @@ Stage Summary:
   design-thesis row's island-exception clause · the typography
   docstring's s211 supersession note · docs/session_444.md · the
   plan's execution record · this entry) + the captures 712-716.
+
+## Task ID 212 — THE STANDALONE BUN-LAUNCH DB RE-ANCHOR (2026-11-04)
+
+- **Context**: the post-211 audit round (rotation trigger: the owner's
+  newest commit `1b093de` — the session_445 transcript). Third
+  consecutive fresh-clone round; the standing `.env` contract
+  re-created (DATABASE_URL=file:../db/custom.db, db/ at the repo root,
+  db census MATCH 15/24/10/23/12 + 4 users).
+- **WP-0 (the audit)**: the baseline gate GREEN at the exact s211 ship
+  state — lint 0/0 · tsc 0 · 138/2863 unit · build · smoke 14/14 ·
+  e2e 226/226 CLEAN (8.1m; the chromium-1248 wrinkle) · probe:ref
+  STABLE at `46bc2d9c` — **THE FIRST DRIFT-GATE RUN WENT RED (the
+  phantom drift)**: the desktop sweep failed 7 data pages (dashboard
+  6.37% · accounts 5.57% · contacts 5.22% · leads 3.78% · calendar
+  1.29% · activities 3.51% · reports 6.21%) with the interior census
+  at 100-900 unexplained events and ours at ~2x the reference's
+  element count, while the reference itself was STABLE. **Decoded
+  live**: the round had booted the standalone production server
+  (`bun run start`) on :3000, the drift gates reused it, the DB was
+  zeroed yet `/api/dashboard` still returned the seed — the server
+  read a STALE SEEDED DATABASE OUTSIDE THE REPO (the parent-directory
+  `db/custom.db`, persisted from an earlier sandbox era). The chain:
+  bun absolutizes the `.env` `file:../db/custom.db` against the .env's
+  own directory (the PARENT OF THE REPO) → `server.js` chdirs into
+  `.next/standalone` → no `.env` at the post-chdir cwd (the s170
+  artifact hygiene removed the traced copy) → the session-34
+  launch-dir recovery — nested inside the `isRelativeFileUrl(envFileUrl)`
+  guard — UNREACHABLE → the absolutized value mistaken for an
+  override → the engine opens the parent-of-repo file. Baseline
+  re-established after the decode (standalone killed · the stale
+  parent `db/` removed · the dev server booted): **all six drift
+  gates CLEAN** (the four-band sweep ×4 · the fullpage 0.093%/0.316%
+  · the interior census byte-parity, the login row unexplained 0) +
+  the parity battery with agent-browser against BOTH apps (the mobile
+  nav both surfaces working — the drawer battery verified on BOTH
+  apps this round) + SEO/sitemap + hygiene + `bun audit` at the
+  pinned census 10 + the scandihaven re-clone (`61711c3`, unchanged).
+- **WP-1 (the round's material)**: F-212a — the standalone bun-launch
+  DB mis-anchoring, shipped since session-170 (the artifact-hygiene
+  cure orphaned the session-34 recovery: the traced
+  `.next/standalone/.env` it depended on was removed), MASKED for 42
+  sessions (the smoke test's explicit-override `node` boot · the e2e
+  `file:../db/e2e.db` pin · the drift gates' dev server · the db-path
+  fixture writing the obsolete `.env` shape itself — the
+  test-blind-spot genus). The exposure: `bun run start` silently
+  opens `<repo-parent>/db/custom.db` — fresh-empty on clean machines,
+  stale-served where the file persists.
+- **WP-2 (the cure — D-212a1/D-212a2)**: the LAUNCH-DIR RECOVERY
+  HOIST — `runtimeDatabaseUrl()`'s session-34 recovery moves out of
+  the envFileUrl guard and runs whenever the cwd is the validated
+  standalone dir (shape-independent; the session-35 RELATIVE-only
+  guard kept; the intentional-override passthrough unchanged). The
+  pins: the session-170 ARTIFACT-SHAPE describe in
+  `tests/db-path.test.ts` (the fixture WITHOUT the standalone `.env`)
+  — RED-first at birth: exactly 2 RED at the stale tree (the
+  re-anchor it + the no-junk it), zero collateral → the cure → GREEN
+  24/24. **MUTATION-PROVEN ×3** (the hoist reverted → 2 RED · the
+  session-35 guard dropped → 1 RED · the urlForRoot swap → 3 RED —
+  each restored → GREEN). **The live proof**: a fresh build +
+  `bun run start` — the standalone server serves the REPO database
+  live (the seed before the zero · zeros after · the seed back after
+  the reseed) and the parent-of-repo `db/` is NEVER recreated.
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder UNIT
+  **2863 → 2867** (+4) · SUITES 138 HELD · E2E 226 HELD · badge
+  **3089 → 3093** + `skill-head-212.py` (SKILL v1.209.0, the s211
+  layer demoted at its ship 2863/226, the s212 layer live at 2867/226,
+  last_updated 2026-11-04; idempotent) + `count-ladder-212.py`
+  (assert-first, idempotent — 26 flips) + the same-stroke line-census
+  re-anchor (`src/lib/db-path.ts` 227 → 240 — the s168 doctrine: the
+  PAD §11 row + the ADR-002 rationale face) + the docs lockstep (the
+  AGENTS Session-212 section · the PAD §7.1 s212 inventory row + the
+  ADR-002 s212 clause · the README Deployment s212 scoping · the
+  DEPLOYMENT.md §2 launch note · docs/session_446.md · the plan's
+  execution record · this entry) + the captures 717-721.

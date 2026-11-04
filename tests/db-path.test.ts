@@ -230,6 +230,90 @@ describe("runtimeDatabaseUrl (standalone launch contexts — session-34)", () =>
   });
 });
 
+describe("runtimeDatabaseUrl (the session-170 artifact shape — session-212)", () => {
+  // The artifact every build has produced since session-170's hygiene
+  // cure (F-170a): the standalone dir carries NO .env — the trace
+  // excludes it and the build script's `rm -f .next/standalone/.env`
+  // removes Next's own copy. The session-34 fixture above preserves the
+  // LEGACY traced-.env shape; this fixture mirrors the REAL one.
+  function buildArtifactShapedStandaloneRepo(): { repo: string; standalone: string } {
+    const repo = mkdtempSync(join(tmpdir(), "neo-crm-standalone-170-"));
+    tempDirs.push(repo);
+    mkdirSync(join(repo, "prisma"), { recursive: true });
+    writeFileSync(join(repo, "prisma", "schema.prisma"), "// schema stub\n");
+    writeFileSync(join(repo, ".env"), 'DATABASE_URL="file:../db/custom.db"\n');
+    const standalone = join(repo, ".next", "standalone");
+    mkdirSync(standalone, { recursive: true });
+    return { repo, standalone };
+  }
+
+  function withEnv(value: string | undefined, fn: () => void) {
+    const prev = process.env.DATABASE_URL;
+    if (value === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = value;
+    try {
+      fn();
+    } finally {
+      if (prev === undefined) delete process.env.DATABASE_URL;
+      else process.env.DATABASE_URL = prev;
+    }
+  }
+
+  it("re-anchors a bun-absolutized env var when the artifact carries NO .env (the F-212a catch)", () => {
+    const { repo, standalone } = buildArtifactShapedStandaloneRepo();
+    // The `bun run start` shape since session-170: bun loaded <repo>/.env
+    // and absolutized file:../db/custom.db against the .env's own directory
+    // — the PARENT OF THE REPO — then server.js chdir'd into
+    // .next/standalone (no .env there) and the seam ran. The session-34
+    // launch-dir recovery must fire on the LAUNCH .env's signature alone,
+    // independent of the artifact's .env presence — or the engine silently
+    // opens <repo-parent>/db/custom.db (fresh-created empty on clean
+    // machines; stale-served where such a file persists — the s212
+    // phantom-drift catch).
+    const launchAbsolutized = `file:${join(repo, "..", "db", "custom.db")}`;
+    withEnv(launchAbsolutized, () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).toBe(`file:${join(repo, "db", "custom.db")}`);
+    });
+  });
+
+  it("keeps an intentional e2e-style override under the no-.env artifact shape", () => {
+    const { standalone } = buildArtifactShapedStandaloneRepo();
+    // The e2e child-env pin: a relative URL no .env signature can produce
+    // — honored as an intentional override (re-anchored through the schema
+    // rule, never passed through raw).
+    withEnv("file:../db/e2e.db", () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).not.toBe(process.env.DATABASE_URL);
+      expect(url).toContain("/db/e2e.db");
+    });
+  });
+
+  it("keeps an intentional ABSOLUTE override under the no-.env artifact shape", () => {
+    const { standalone } = buildArtifactShapedStandaloneRepo();
+    // The production absolute form (docs/DEPLOYMENT.md §4): passes through
+    // untouched — the re-anchor must never swallow intentional absolutes.
+    withEnv("file:/var/lib/neo-crm/custom.db", () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).toBe("file:/var/lib/neo-crm/custom.db");
+    });
+  });
+
+  it("never creates the parent-of-repo db/ on the bun-launch re-anchor", () => {
+    const { repo, standalone } = buildArtifactShapedStandaloneRepo();
+    // The no-junk property: urlForRoot's on-demand mkdir lands INSIDE the
+    // repo only — the parent-of-repo location the defect used to open is
+    // never even created by the cured seam.
+    const launchAbsolutized = `file:${join(repo, "..", "db", "custom.db")}`;
+    withEnv(launchAbsolutized, () => {
+      const url = runtimeDatabaseUrl(standalone);
+      expect(url).toBe(`file:${join(repo, "db", "custom.db")}`);
+    });
+    expect(existsSync(join(repo, "db"))).toBe(true);
+    expect(existsSync(join(repo, "..", "db", "custom.db"))).toBe(false);
+  });
+});
+
 describe("resolveDatabaseUrl", () => {
   it("passes through non-file URLs untouched", () => {
     expect(resolveDatabaseUrl("postgresql://u:p@localhost:5432/db")).toBe(

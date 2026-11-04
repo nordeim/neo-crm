@@ -180,43 +180,56 @@ function readDatabaseUrlFromEnvAt(dir: string): string | undefined {
  * `process.chdir(__dirname)` at boot — AFTER bun already absolutized a
  * relative `file:` DATABASE_URL against the LAUNCH directory's .env
  * (typically <repo>/.env via `bun run start` from the repo root). The
- * cwd-side bun signature (computed against the post-chdir cwd, whose .env
- * is the traced .next/standalone copy) then MISSES that value, and the
- * env var would be mistaken for an intentional override — handing the
- * engine a parent-of-repo path that cannot even be created. Before
- * accepting that, test the signature of the .env at the validated
- * standalone repo root (the launch directory). A caller-provided override
- * (e.g. the e2e suite's file:../db/e2e.db) matches neither signature and
- * is still honored exactly as before.
+ * cwd-side bun signature (computed against the post-chdir cwd) then
+ * MISSES that value, and the env var would be mistaken for an
+ * intentional override — handing the engine a parent-of-repo path that
+ * cannot even be created. Before accepting that, test the signature of
+ * the .env at the validated standalone repo root (the launch directory).
+ * A caller-provided override (e.g. the e2e suite's file:../db/e2e.db)
+ * matches neither signature and is still honored exactly as before.
+ *
+ * Session-212 (F-212a): the recovery is SHAPE-INDEPENDENT — it runs
+ * whenever the cwd is the standalone dir, NOT only when a traced
+ * .next/standalone/.env exists. Session-170's artifact hygiene removed
+ * that traced copy (the excludes + the build script's `rm -f
+ * .next/standalone/.env` — the secret-shipping cure), which silently
+ * orphaned the recovery for 42 sessions: with no .env at the post-chdir
+ * cwd the cwd-side guard was false, the nested recovery unreachable,
+ * and `bun run start` opened <repo-parent>/db/custom.db — silently
+ * created empty on clean machines, stale-served where such a file
+ * persists (the s212 phantom-drift catch: the drift gates compared our
+ * standalone server's stale seed against the reference's zero data).
  */
 export function runtimeDatabaseUrl(cwd: string = process.cwd()): string {
   const envUrl = process.env.DATABASE_URL;
   const envFileUrl = readDatabaseUrlFromEnvAt(cwd);
-  if (envUrl && isRelativeFileUrl(envFileUrl)) {
-    if (envUrl === bunAbsolutized(envFileUrl, cwd)) {
-      return resolveDatabaseUrl(envFileUrl);
-    }
-    const launchDir = repoRootFromStandaloneCwd(cwd);
-    if (launchDir && launchDir !== cwd) {
-      const launchEnvUrl = readDatabaseUrlFromEnvAt(launchDir);
-      // Session-35 guard: only a RELATIVE launch value can be a bun
-      // absolutization candidate. An absolute launch .env value (the
-      // documented production form, docs/DEPLOYMENT.md §4) passes through
-      // path.resolve unchanged inside bunAbsolutized(), so its signature
-      // would MATCH and the seam would re-anchor it into a corrupted
-      // <repo>/prisma/var/lib/… path. Absolute URLs are intentional
-      // overrides by this seam's own header contract.
-      if (
-        launchEnvUrl &&
-        isRelativeFileUrl(launchEnvUrl) &&
-        envUrl === bunAbsolutized(launchEnvUrl, launchDir)
-      ) {
-        // Re-anchor on the launch directory's own value through the
-        // ALREADY-VALIDATED standalone root (the schema rule — identical
-        // to resolveDatabaseUrl, but anchored exactly where bun loaded it).
-        const ref = launchEnvUrl.slice("file:".length);
-        return urlForRoot(launchDir, ref);
-      }
+  if (envUrl && isRelativeFileUrl(envFileUrl) && envUrl === bunAbsolutized(envFileUrl, cwd)) {
+    return resolveDatabaseUrl(envFileUrl);
+  }
+  // The launch-dir recovery (session-34, hoisted at session-212): the
+  // post-chdir cwd is the standalone dir; bun absolutized the LAUNCH
+  // .env's relative value against the repo root. Independent of the
+  // artifact's own .env presence (the session-170 shape carries none).
+  const launchDir = repoRootFromStandaloneCwd(cwd);
+  if (envUrl && launchDir && launchDir !== cwd) {
+    const launchEnvUrl = readDatabaseUrlFromEnvAt(launchDir);
+    // Session-35 guard: only a RELATIVE launch value can be a bun
+    // absolutization candidate. An absolute launch .env value (the
+    // documented production form, docs/DEPLOYMENT.md §4) passes through
+    // path.resolve unchanged inside bunAbsolutized(), so its signature
+    // would MATCH and the seam would re-anchor it into a corrupted
+    // <repo>/prisma/var/lib/… path. Absolute URLs are intentional
+    // overrides by this seam's own header contract.
+    if (
+      launchEnvUrl &&
+      isRelativeFileUrl(launchEnvUrl) &&
+      envUrl === bunAbsolutized(launchEnvUrl, launchDir)
+    ) {
+      // Re-anchor on the launch directory's own value through the
+      // ALREADY-VALIDATED standalone root (the schema rule — identical
+      // to resolveDatabaseUrl, but anchored exactly where bun loaded it).
+      const ref = launchEnvUrl.slice("file:".length);
+      return urlForRoot(launchDir, ref);
     }
   }
   return effectiveDatabaseUrl({
