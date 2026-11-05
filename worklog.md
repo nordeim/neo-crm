@@ -7624,3 +7624,73 @@ Stage Summary:
   [the 454 slot holds the s215 close's working log — this round's
   pair shifts one] · the plan's execution record · this entry) + the
   captures 737-741.
+
+## Task ID 217 — THE PAD NARRATIVE-BLOCK SEMANTIC-PROSE CENSUS (2026-11-05)
+
+- **WP-0 (the audit — the FRESH-CLONE round)**: the sandbox reset
+  emptied neo-crm/ — the round cloned the repo + rebuilt the
+  environment (bun install 536 packages · the .env contract
+  [DATABASE_URL=file:../db/custom.db + a fresh AUTH_SECRET] ·
+  db:push + db:seed · db census MATCH 15/24/10/23/12 + 4 users at
+  the repo-root anchor · NO parent-of-repo db mirror, the s212/s214
+  hazard probed clean BEFORE any listener reuse · the PLAYWRIGHT
+  chromium-1248 gap cured PROACTIVELY — bunx playwright install
+  chromium BEFORE the e2e leg, the first attempt ran clean 226/226
+  in 8.2m · the scandihaven reference re-cloned at 61711c3
+  unchanged). The baseline gate GREEN at the exact s216 ship state:
+  lint 0/0 · tsc 0 · 138/2894 unit · build · smoke 14/14 · e2e
+  226/226 CLEAN (8.2m) · db census MATCH · the dev server's DB
+  anchor probed green (login + dashboard API against the REPO db,
+  leads=24) · probe:ref STABLE at 46bc2d9c. The parity battery with
+  agent-browser 0.41.1 against BOTH apps logged in: the mobile
+  navigation both surfaces working (the reference drawer at 390×844
+  + OURS the same battery plus the dual-lock and resize-past-769px
+  supersets) · the landing disclosure menu on both (ours the
+  aria-expanded superset) · Tailwind v4 state CLEAN · SEO/sitemap
+  live-verified.
+- **WP-1 (the round's material)**: the s216 close's named candidate
+  (the architecture-facts sessions-10-49 DOM-parity bullets' doc
+  faces) sampled CLEAN — and the fresh-eyes walk's live findings
+  came from the PAD's own narrative blocks: **F-217a** the §7.3
+  stale drawer-count ("all 10 regression checks" vs the live 11
+  since the s196 walk50 freeze) AND its own stale pin (the s167
+  F-167i literal asserted the stale 10 — a PINNED-STALE face, every
+  gate GREEN while the doc face lied) · **F-217b** the §8.1
+  pre-s174 build-gate sentence (stale since session-174; the PAD
+  contradicted its own §7.4 checklist for 43 sessions) · **F-217c**
+  the §2 diagram boundary (Mobile <1024px, the pre-s8 era; the live
+  drawer covers <768px) + the header-date straggler (2026-10-23).
+- **WP-2 (the cure)**: D-217a1 the four-site PAD flip (the count →
+  11 · the sentence → the s174 form · the diagram → the 768
+  partition · the header → 2026-11-05) + D-217b1 the F-167i pin
+  re-anchor (the literal becomes the live-constant
+  `all ${MOBILE_NAV_E2E} regression checks` form — the L-165c1 root
+  cure applied to the pin family's own member) + D-217a2 the PAD
+  narrative-block semantic census pin (tests/facts-census.test.ts,
+  three its: the §8.1 build-gate correction with the §7.4
+  internal-consistency arm + the AGENTS claim · the §2 diagram
+  boundary with the autoCloseQuery co-face · the header-date
+  live-tense). **BORN-RED AT THE DOC ARM** — exactly 4 RED at the
+  stale tree → the flip → GREEN. The mutation battery caught ONE
+  birth defect: the first draft's fourth it (the spec-count live
+  census) tripped SIX pins at once at M1 — the arm already belongs
+  to docs-counts:1916 (the s147 root-cause cure); cured by REMOVING
+  the redundant it (the one-owner doctrine enforced by the battery
+  itself). **MUTATION-PROVEN ×8** (M1 the ghost-test plant → 6 RED
+  the birth-defect catch · M2-M5, M7, M8 each exactly 1 RED · M6
+  the src-side autoCloseQuery flip → 2 RED, the documented
+  co-pinned face — each restored → GREEN). **STASH-PROOF**: the
+  describe stashed → exactly 138/2894 → restored → 138/2897.
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder UNIT
+  **2894 → 2897 (+3)** · SUITES 138 HELD · E2E 226 HELD · badge
+  **3120 → 3123** (the first draft's 3121 arithmetic slip caught by
+  the docs-counts badge pin itself at the full-suite run — the pin
+  doing exactly its job) + skill-head-217.py (the SKILL v1.214.0,
+  the s216 layer comment-demoted at its ship 2894/226; idempotent)
+  + count-ladder-217.py (26 flips, idempotent — the re-run all
+  no-ops) + the docs lockstep (the AGENTS Session-217 section · the
+  PAD §7.1 s217 inventory row — its own first-draft self-trip cured
+  with the ban-safe paraphrase, the s216 doctrine ·
+  docs/session_458.md [the 457 slot holds the s216 close's working
+  log — this round's pair shifts one] · the plan's execution
+  record · this entry) + the captures 742-746.

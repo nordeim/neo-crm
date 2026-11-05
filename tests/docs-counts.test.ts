@@ -911,7 +911,7 @@ const SUITES = 138;
 // page-layout.ts +7 lines [the PAD §11 row + the SKILL §5.6 census
 // site re-anchored 1718 -> 1725 / 277 -> 283 checks, the s168
 // line-census doctrine]). SUITES 138 HELD · E2E 192 re-verified.
-const UNIT = 2894;
+const UNIT = 2897;
 // S104-P1: the mobile-nav spec's own census (the README Tested-row
 // phrase + the PAD suite line ride it) — 9 → 10 with the drawer-OPEN
 // seeded-state guard. Session-165 (S165-P1): 11 → 10 — the s147
@@ -1609,6 +1609,20 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     expect(claude).not.toContain("`bun run test` (2886)");
     expect(agents).not.toContain("|  Unit tests (2886 checks)");
     expect(skill).not.toContain("| **unit total** | 138 files | **2886**");
+    // Session-217 (D-217a2): the retired 2894 site-forms join the
+    // negatives (the s192 doctrine: the OLD live form joins the negatives)
+    expect(readme).not.toMatch(/# 2894 Vitest unit checks/);
+    expect(readme).not.toMatch(/# 138 Vitest suites \(2894 checks\)/);
+    expect(readme).not.toMatch(/\| 🧪 Tested \| 2894 Vitest unit checks/);
+    expect(pad).not.toMatch(/# 138 Vitest suites — 2894 checks/);
+    expect(pad).not.toMatch(/— 2894\/2894/);
+    expect(pad).not.toMatch(/\| \*\*Total\*\* \| \*\*138\*\* \| \*\*2894 unit/);
+    expect(claude).not.toContain("Unit (Vitest, 2894 checks)");
+    expect(claude).not.toContain("(currently 2894)");
+    expect(claude).not.toContain("Vitest unit suites (2894 checks)");
+    expect(claude).not.toContain("`bun run test` (2894)");
+    expect(agents).not.toContain("|  Unit tests (2894 checks)");
+    expect(skill).not.toContain("| **unit total** | 138 files | **2894**");
   });
 
   // ------------------------------------------------------------------
@@ -1651,13 +1665,13 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
       skill,
       "the project_state head's FIRST layer must be the current session's",
     ).toContain(
-      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-216 layer`,
+      `project_state: ${UNIT} unit checks + ${E2E} e2e checks green; the session-217 layer`,
     );
     expect(
       skill,
-      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s215 layer now beneath the s216 head)",
+      "the head's SECOND layer must be the previous session's — the F-108a1 face (the s216 layer now beneath the s217 head)",
     ).toContain(
-      "+ beneath it 2886 unit checks + 226 e2e checks green; the session-215 layer (THE TAILWIND-BULLET SEMANTIC-PROSE CENSUS",
+      "+ beneath it 2894 unit checks + 226 e2e checks green; the session-216 layer (THE INK-BULLET SEMANTIC-PROSE CENSUS",
     );
   });
 
@@ -2531,12 +2545,19 @@ describe("session-102 (S102-P1): the secondary-sites lockstep — every live-ten
     }
   });
 
-  it("PAD 7.3's drawer doctrine carries the live 10-check form (F-167i)", () => {
+  it("PAD 7.3's drawer doctrine carries the LIVE spec-count form (F-167i, re-anchored at s217 — the s167 literal froze the stale 10 through the s196 spec growth)", () => {
     const pad = read("Project_Architecture_Document.md");
-    expect(pad).toContain("all 10 regression checks");
-    // the retired 7-check doctrine line never returns (an inventory row
-    // may QUOTE its era; the §7.3 doctrine line is live-tense)
+    // the live-constant form (the L-165c1 root cure applied to the pin
+    // family's own member: the pin reads the MOBILE_NAV_E2E constant,
+    // never a frozen literal — the day the constant re-anchors, this
+    // face must follow or the gate trips)
+    expect(pad).toContain(`all ${MOBILE_NAV_E2E} regression checks`);
+    // the retired forms never return (an inventory row may QUOTE its
+    // era; the §7.3 doctrine line is live-tense): 7 = the s167 cure's
+    // era; 10 = the literal this pin itself kept GREEN through the
+    // s196 walk50 freeze (the spec grew to 11 while the PAD stayed 10)
     expect(pad).not.toContain("all 7 regression checks");
+    expect(pad).not.toContain("all 10 regression checks");
   });
 });
 

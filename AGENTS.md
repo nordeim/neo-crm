@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2894 checks)      | `bun run test`                         |
+|  Unit tests (2897 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2894) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2897) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -15073,3 +15073,135 @@ heuristics) · smoke 14/14 · `CI=1 bun run test:e2e` 226/226 · the
 six drift gates re-run CLEAN (the cures test-side + comment-side +
 docs only — no src code touch, but the house proves it) · db census
 MATCH at the repo-root anchor · `git status` clean of secrets/dbs.
+
+### Session-217 — THE PAD NARRATIVE-BLOCK SEMANTIC-PROSE CENSUS (2026-11-05)
+
+The rotation trigger: the owner's newest commit `dedd05d` — the
+session_457 transcript, the s216 close's polished working log. The
+FRESH-CLONE round (the sandbox reset emptied neo-crm/ — the round
+cloned the repo + rebuilt the environment: bun install 536 packages ·
+the standing `.env` contract re-created [DATABASE_URL=
+file:../db/custom.db, the operator's own instruction names the exact
+form, + a fresh AUTH_SECRET] · db:push + db:seed · db census MATCH
+15/24/10/23/12 + 4 users at the repo-root anchor — NO parent-of-repo
+db mirror, the s212/s214 hazard probed clean BEFORE any listener
+reuse). The PLAYWRIGHT chromium-1248 gap cured PROACTIVELY
+(`bunx playwright install chromium` BEFORE the e2e leg — the first
+attempt ran clean, 226/226 in 8.2m). The scandihaven reference
+re-cloned — `61711c3`, the standing commit, unchanged.
+
+The baseline gate at the exact s216 ship state: lint 0/0 · tsc 0 ·
+138/2894 unit · build (the 2 warnings the pre-existing Turbopack
+tracing heuristics) · smoke 14/14 · e2e 226/226 CLEAN (8.2m) · db
+census MATCH · the dev server's DB anchor probed green (login +
+dashboard API against the REPO db, leads=24 matching the census) ·
+probe:ref STABLE at `46bc2d9c`. The parity re-verification probed
+live with agent-browser 0.41.1 against BOTH apps logged in — **the
+mobile navigation both surfaces working** (the REFERENCE drawer at
+390×844: the "Open navigation" trigger 36px → the dialog "CRM" + the
+Close button + the "Navigate between your CRM pages" paragraph + the
+8 destinations · the body-only scroll lock `hidden` with main `auto` ·
+the "Leads" ride `/Dashboard` → `/Leads` with auto-close + release ·
+Escape closes AND releases — OURS the same battery PLUS the
+documented supersets: the body+main DUAL lock `hidden/hidden`
+released to `visible/auto` on every close path · the resize-past-md
+auto-close verified live at 769px with the trigger `display:none`)
++ the landing "Toggle navigation" disclosure menu working on BOTH
+apps (ours the aria-expanded superset, verified true→false→true with
+the panel unmounting; the reference's toggle carries NO
+aria-expanded — null; the 6-link panel on both) + Tailwind v4 state
+CLEAN + SEO/sitemap live-verified (the 11-route sitemap 200
+`application/xml` · robots 200 with the Sitemap line · manifest 200
+`application/json` · the OG/Twitter/canonical/description head tags ·
+the security headers on every path).
+
+**The round's material — the PAD NARRATIVE-BLOCK STALE TRIO** (the
+fresh-eyes walk's live findings; the s216 close's named candidate —
+the architecture-facts sessions-10-49 DOM-parity bullets — sampled
+CLEAN, every prose claim verified live):
+
+- **F-217a**: PAD §7.3 still said the drawer "must keep all 10
+  regression checks green unmodified" — the live spec has carried 11
+  since the s196 walk50 freeze, AND the s167 F-167i pin's own LITERAL
+  asserted the stale `all 10` (a PINNED-STALE face: the pin enforced
+  the lie, every gate GREEN while the doc face was wrong — the
+  F-216a genus's worst form, the pin family's own member).
+- **F-217b**: PAD §8.1 still said "TypeScript/ESLint build blocking
+  is intentionally off" — stale since session-174 retired
+  `ignoreBuildErrors`; the PAD contradicted its OWN §7.4 checklist
+  two sections later for 43 sessions.
+- **F-217c**: PAD §2's topology diagram still split "Desktop ≥768px"
+  from "Mobile <1024px" — overlapping ranges, the mobile arm the
+  pre-session-8 era (the live drawer covers `< md` = <768px).
+- (+) the header date straggler ("Last Updated: 2026-10-23", five
+  inventory-row rounds stale).
+
+**D-217a1 — the four-site PAD flip** (§7.3 → 11 · §8.1 → the s174
+form · §2 → the 768 partition · the header → 2026-11-05).
+**D-217b1 — the F-167i pin re-anchor** (docs-counts.test.ts: the
+literal becomes the live-constant form `all ${MOBILE_NAV_E2E}
+regression checks` — the L-165c1 root cure applied to the pin
+family's own member; the retired 10 joins the negatives).
+**D-217a2 — the PAD narrative-block semantic census pin** (a new
+describe in `tests/facts-census.test.ts`, three its: it-1 the §8.1
+BUILD-GATE correction [the stale ban + the corrected clauses + the
+INTERNAL-CONSISTENCY arm — the s174 doctrine clause must ride in BOTH
+§7.4 and §8.1 + the AGENTS build-gate claim, the doc face that rode
+on nothing + the type-gate existence arm] · it-2 the §2 DIAGRAM
+boundary [the <1024px ban scoped to the Client Layer block + the 768
+partition + the autoCloseQuery live co-face] · it-3 the HEADER-DATE
+live-tense).
+
+**BORN-RED AT THE DOC ARM** — exactly 4 RED at the stale tree (it-1 +
+it-2 + it-3 + the re-anchored F-167i) → the four-site flip → GREEN.
+The mutation battery caught ONE birth defect in the pin itself: the
+first draft's FOURTH it (the SPEC-COUNT live census) tripped SIX pins
+at once at M1 — the arm already belongs to docs-counts:1916 (the
+s147 miscount's root-cause cure) plus five line-census/Appendix-B/§9
+sites; cured by REMOVING the redundant it (the one-owner doctrine
+enforced by the battery itself — the s216 M11 lineage, a third
+consecutive round where the battery caught the pin's own birth
+defect). One assert calibration at birth: the AGENTS build-gate claim
+wraps across lines (the s167 whitespace-normalization lesson).
+**MUTATION-PROVEN ×8**: M1 the ghost 12th test planted → 6 RED, the
+birth-defect catch → the it removed · M2 the PAD §7.3 re-staled to
+"all 10" → exactly 1 RED (the re-anchored F-167i) · M3 the PAD §8.1
+re-staled → exactly 1 RED · M4 the AGENTS build-gate claim edited →
+exactly 1 RED · M5 the diagram re-staled to <1024px → exactly 1 RED
+· M6 the autoCloseQuery flipped src-side → 2 RED, the DOCUMENTED
+co-pinned face (it-2 + page-layout.test.ts:535 — both pins correctly
+trip the same live face) · M7 the header date re-staled → exactly
+1 RED · M8 the §7.4 checklist s174 clause removed → exactly 1 RED at
+the internal-consistency arm — each restored → GREEN. **STASH-PROOF**:
+the describe stashed → exactly 138/2894 (the s216 ship state, zero
+collateral) → restored → 138/2897.
+
+The count ladder: UNIT **2894 → 2897 (+3)** · SUITES 138 HELD · E2E
+226 HELD · badge **3120 → 3123** (the unit+e2e arithmetic: 2897+226 —
+verified against the live unit run: 138/2897 GREEN; the first
+draft's 3121 was an arithmetic slip caught by the docs-counts badge
+pin itself at the full-suite run — the pin doing exactly its job) +
+`skill-head-217.py` (the SKILL v1.214.0, the s216 layer
+comment-demoted at its ship counts 2894/226, the s217 layer live at
+2897/226, `last_updated` stays 2026-11-05 — the same-day form;
+idempotent — the re-run a verified no-op) + `count-ladder-217.py`
+(assert-first, idempotent, unique-anchor — 26 flips, the re-run all
+no-ops) + the test-side re-anchors in the same stroke (the
+docs-counts layer-axis pair: first = s217, second = s216 at its ship
+2894/226 · the 2894 negatives join the retired forms · the
+dialog-geometry-parity F-92a3 ladder: the four CLAUDE live positives
+re-anchored 2897).
+
+The docs lockstep: the AGENTS Session-217 section · the PAD §7.1
+s217 inventory row · `docs/session_458.md` (the polished transcript —
+the 457 slot holds the s216 close's working log, this round's pair
+shifts one) · the worklog Task ID 217 entry · the plan's execution
+record.
+
+The captures 742-746 (the round's dev-server set, pixel-signature
+verified). The final gate at the cured tree: lint 0/0 · tsc 0 ·
+**138/2897 unit** · build · smoke 14/14 · `CI=1 bun run test:e2e`
+226/226 · the six drift gates re-run CLEAN (the cures test-side +
+PAD-side only — no src code touch, but the house proves it) · db
+census MATCH at the repo-root anchor · `git status` clean of
+secrets/dbs.

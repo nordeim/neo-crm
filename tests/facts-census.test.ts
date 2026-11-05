@@ -67,6 +67,7 @@ import {
   DELTA_TEXT,
   INPUT_BASE,
   LOGIN_LAYOUT,
+  MOBILE_NAV_LAYOUT,
   MOBILE_NAV_TRIGGER,
   NAV_LAYOUT,
   PAGE_HEADER,
@@ -1775,5 +1776,106 @@ describe("session-216 (D-216a2): the ink/sqlite/store-bullet semantic census (F-
     );
     // … and the debounced search's yield
     expect(read("src/app/(app)/reports/reports-page.tsx")).toContain("await Promise.resolve()");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// session-217 (D-217a2) — THE PAD NARRATIVE-BLOCK SEMANTIC CENSUS
+//
+// The rotation trigger: the owner's newest commit `dedd05d` (the
+// session_457 polished transcript — the s216 close's working log). The
+// fresh-eyes walk's live findings: the s216 close's named candidate
+// (the architecture-facts sessions-10-49 DOM-parity bullets) sampled
+// CLEAN — but the PAD's own narrative blocks carried THREE stale doc
+// faces, one of them ENFORCED-STALE by its own pin:
+//
+//   F-217a  PAD §7.3's "all 10 regression checks" — the live spec
+//           carries 11 (the s196 walk50 freeze grew it); the s167
+//           F-167i pin's own LITERAL kept the stale 10 GREEN through
+//           the growth (a pinned-stale face, the F-216a genus's worst
+//           form). Cured by D-217a1's flip + D-217b1's re-anchor (the
+//           pin now reads the MOBILE_NAV_E2E constant, never a frozen
+//           literal — the L-165c1 root cure).
+//   F-217b  PAD §8.1's "TypeScript/ESLint build blocking is
+//           intentionally off" — stale since session-174 retired
+//           ignoreBuildErrors; the PAD contradicted its OWN §7.4
+//           checklist two sections later for 43 sessions.
+//   F-217c  PAD §2's diagram boundary "Mobile browser <1024px" — the
+//           pre-session-8 era; the live drawer covers <768px (md),
+//           the ranges now partition cleanly.
+//   (+)      the header date straggler (2026-10-23, five
+//           inventory-row rounds stale).
+//
+// The pin's arms follow the one-owner doctrine: the PAD §7.3 doc face
+// belongs to the re-anchored F-167i (docs-counts), the README/AGENTS
+// 11-check faces belong to docs-counts:1276-1300, and the SPEC↔constant
+// arm belongs to docs-counts:1916 (the s147 miscount's root-cause cure —
+// the mutation battery's M1 caught the first draft's redundant spec-count
+// it tripping SIX pins at once; the arm was already owned, the census
+// dropped it — the one-owner doctrine enforced by the battery itself).
+// This census owns the §8.1/§2/header faces and their live co-faces.
+// Mutation-proven at birth per the house doctrine.
+// ---------------------------------------------------------------------------
+describe("session-217 (D-217a2): the PAD narrative-block semantic census (F-217a/b/c — the blueprint's stale trio joins the pin: the 10-check doctrine line, the pre-s174 build-gate sentence, the <1024px diagram boundary)", () => {
+  const pad = read("Project_Architecture_Document.md");
+  const padNorm = pad.replace(/\s+/g, " ");
+
+  it("the §8.1 BUILD-GATE correction (the pre-s174 sentence retired · the s174 form live in BOTH §8.1 and §7.4 · the AGENTS claim pinned)", () => {
+    // the stale sentence ban (whitespace-normalized — the clause wraps)
+    expect(padNorm).not.toContain(
+      "TypeScript/ESLint build blocking is intentionally off",
+    );
+    // the corrected form's clauses (the s174 doctrine narrated live)
+    expect(padNorm).toContain("the build itself fails on type errors");
+    expect(padNorm).toContain(
+      "the planted-error proof lives in `tests/type-gate.test.ts`",
+    );
+    // the INTERNAL-CONSISTENCY arm: the s174 doctrine clause rides in
+    // BOTH §7.4 (the checklist) and §8.1 (the corrected sentence) —
+    // the self-contradiction that survived 43 sessions is banned
+    const doctrineCount = (
+      padNorm.match(/session-174 retired `ignoreBuildErrors`/g) ?? []
+    ).length;
+    expect(doctrineCount, "the s174 doctrine must appear in BOTH §7.4 and §8.1").toBe(2);
+    // the "pinned by" claim live — the type-gate suite exists and
+    // reads the config face
+    expect(existsSync(join(root, "tests/type-gate.test.ts"))).toBe(true);
+    expect(read("tests/type-gate.test.ts")).toContain("ignoreBuildErrors");
+    // the AGENTS architecture-facts build-gate claim (the doc face
+    // that rode on nothing before this pin — whitespace-normalized:
+    // the clause wraps across lines, the s167 lesson)
+    const agentsNorm = read("AGENTS.md").replace(/\s+/g, " ");
+    expect(agentsNorm).toContain("the build IS the type gate now");
+  });
+
+  it("the §2 DIAGRAM boundary correction (the <1024px era retired · the 768px partition live · the auto-close co-face)", () => {
+    // the Client Layer block (the diagram's subgraph — the ban is
+    // scoped so historical 1024 mentions elsewhere stay legal)
+    const clientStart = pad.indexOf('subgraph Client["Client Layer"]');
+    expect(clientStart, "the Client Layer subgraph exists").toBeGreaterThan(-1);
+    const clientEnd = pad.indexOf("end", clientStart);
+    expect(clientEnd).toBeGreaterThan(clientStart);
+    const clientBlock = pad.slice(clientStart, clientEnd);
+    // the stale pre-s8 boundary retired (the leftover-1024-listener
+    // era — s8 fixed the listener; the diagram kept the number)
+    expect(clientBlock).not.toContain("<1024px");
+    // the corrected partition (the md boundary both sides — the
+    // sidebar hidden md:flex visible FROM 768px, the drawer < md)
+    expect(clientBlock).toContain("≥768px");
+    expect(clientBlock).toContain("<768px");
+    // the live co-face — the auto-close query reads the md boundary
+    // (the page-layout live read, the s215 it-5 doctrine; the src-side
+    // flip is co-pinned by page-layout.test.ts:535 — the documented
+    // two-pin trip, both pins correctly owning the live face)
+    expect(MOBILE_NAV_LAYOUT.autoCloseQuery).toBe("(min-width: 768px)");
+  });
+
+  it("the HEADER-DATE live-tense (the PAD header tracks the file's prose edits)", () => {
+    // the round's flip (the s167 precedent: the header date moves when
+    // the round's material touches the PAD's prose — s217's cures do)
+    expect(pad).toContain("**Last Updated:** 2026-11-05");
+    // the pre-s212 straggler retired (five inventory-row rounds never
+    // flipped it; the prose-touching round now does)
+    expect(pad).not.toContain("**Last Updated:** 2026-10-23");
   });
 });
