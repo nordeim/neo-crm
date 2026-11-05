@@ -7461,3 +7461,75 @@ Stage Summary:
   re-run all no-ops) + the docs lockstep (the AGENTS Session-214
   section · the PAD §7.1 s214 inventory row · docs/session_450.md ·
   the plan's execution record · this entry) + the captures 727-731.
+
+## Task ID 215 — THE TAILWIND-BULLET SEMANTIC-PROSE CENSUS (2026-11-05)
+
+- **Context**: the rotation trigger — the owner's newest commit
+  `36aee3e` (the session_451 transcript, the s214 round's own
+  execution record). The standing instruction set: audit + validate
+  the shipped s214 state, re-verify visual + functional parity with
+  the live reference (the named focus: the mobile navigation),
+  re-run the standing gates, remediate the identified gaps, capture
+  the round's screenshots, update the docs, push to `main`.
+- **WP-0 (the audit)**: the FRESH-CLONE round again — the sandbox
+  reset emptied neo-crm/, so the round cloned fresh + rebuilt: bun
+  install 536 packages · the .env contract (DATABASE_URL=
+  file:../db/custom.db — the operator's own instruction this round
+  names the exact form — + a fresh AUTH_SECRET) · db:push + db:seed
+  · db census MATCH 15/24/10/23/12 + 4 users at the repo-root
+  anchor (NO parent-of-repo db mirror — the s212/s214 hazard probed
+  clean BEFORE any listener reuse). The Playwright chromium-1248
+  gap cured PROACTIVELY (bunx playwright install chromium BEFORE
+  the e2e leg — the first attempt ran clean). The scandihaven
+  reference re-cloned at 61711c3. The baseline gate at the exact
+  s214 ship state: lint 0/0 · tsc 0 · 138/2878 unit · build ·
+  smoke 14/14 · e2e 226/226 (7.9m) · probe:ref STABLE at
+  46bc2d9c. The parity battery with agent-browser 0.41.1 against
+  BOTH apps logged in: the mobile navigation both surfaces working
+  (the reference drawer battery + OURS the same battery PLUS the
+  documented supersets — the body+main dual lock, the resize-past-
+  md auto-close verified live at 769px) · the landing disclosure
+  menu on BOTH apps (ours the aria-expanded superset) · Tailwind v4
+  state CLEAN · SEO/sitemap live-verified · the test-suite configs
+  verified sound and green (the operator's add-vitest+playwright
+  instruction satisfied by verification — no modification
+  warranted, the smallest-safe-edit doctrine). ZERO live defects.
+- **WP-1 (the round's material)**: F-215a — THE TAILWIND-BULLET
+  SEMANTIC-PROSE RESIDUE, the s214 close's named candidate. The
+  AGENTS "Architecture facts" Tailwind-v4 bullet carried EIGHT
+  claim clusters with no doc-face teeth — TWO with no teeth
+  anywhere (the CSS-FIRST no-tailwind.config claim · the POSTCSS
+  plugin claim, the unstyled-page bug's own guard).
+- **WP-2 (the cure)**: D-215a1 — the tailwind-bullet semantic
+  census pin (tests/facts-census.test.ts, +8 its, src/ untouched;
+  the F-109a1 live-read doctrine: the @theme block, the postcss
+  plugins array, the re-pin values, the layout tokens via the
+  page-layout + login-reset imports, the vendored file, the tree
+  census). **Born-green at the FIRST run** (70/70 at the file) —
+  then the mutation battery caught TWO birth defects in the pin
+  itself, both cured in-round: the BOUNDARY-BLIND slice (the end
+  marker never matched — the slice ran to EOF and the doc face
+  went vacuous; cured with the exact (session-10) form + the
+  end>start guard) and the COMMENT-BLIND cursor match (the
+  explanatory comment carries the rule's own literal text; cured
+  with the noComments face — and the M7 script itself learned the
+  same lesson twice: the raw first-match removal deletes the
+  COMMENT, not the rule; the surgical form removes the LAST raw
+  match). **MUTATION-PROVEN ×9** (M1 the planted tailwind.config.js
+  · M2 the postcss plugin swap · M3 the AGENTS shadow edit
+  [doc-side] · M4 the globals blur flip [src-side] · M5 the
+  controlMt flip · M6 the AGENTS outline-none removal · M7 the
+  surgical cursor-rule removal · M8 the vendor-import npm switch ·
+  M9 the boundary rot → the suite-level throw, exit 1 — each
+  exactly 1 RED at its own pin, restored → GREEN). **STASH-PROOF**:
+  the describe stashed → exactly 138/2878 (the s214 ship state) →
+  restored → 138/2886.
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder UNIT
+  **2878 → 2886** (+8) · SUITES 138 HELD · E2E 226 HELD · badge
+  **3104 → 3112** + `skill-head-215.py` (SKILL v1.212.0, the s214
+  layer demoted at its ship 2878/226, the s215 layer live at
+  2886/226; `last_updated` 2026-11-04 → 2026-11-05; idempotent) +
+  `count-ladder-215.py` (assert-first, idempotent — 27 flips, the
+  re-run all no-ops) + the docs lockstep (the AGENTS Session-215
+  section · the PAD §7.1 s215 inventory row · docs/session_452.md ·
+  the plan's execution record · this entry) + the captures 732-736.

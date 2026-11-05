@@ -65,12 +65,16 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   DELTA_TEXT,
+  INPUT_BASE,
   LOGIN_LAYOUT,
   MOBILE_NAV_TRIGGER,
   NAV_LAYOUT,
   REPORTS_FILTER_BAR,
+  SETTINGS_DANGER,
+  SETTINGS_DEFAULTS,
   TOPBAR_LAYOUT,
 } from "../src/lib/page-layout";
+import { LOGIN_RESET_LAYOUT } from "../src/lib/login-reset";
 
 const root = join(import.meta.dirname, "..");
 const read = (p: string) => readFileSync(join(root, p), "utf8");
@@ -1373,5 +1377,170 @@ describe("session-214 (D-214a1): the auth-bullet semantic census (F-214a — the
     expect({ ...pkg.dependencies, ...pkg.devDependencies }).not.toHaveProperty("next-auth");
     // no middleware anywhere in src/ (the walk census)
     expect(walk("src").filter((f) => f.endsWith("middleware.ts")), "the no-middleware claim").toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Session-215 (D-215a1): THE TAILWIND-BULLET SEMANTIC CENSUS — the AGENTS
+// "Architecture facts you would otherwise guess wrong" section's SECOND
+// bullet, the TAILWIND-V4 BULLET (the s214 close's named candidate), joins
+// the pin (F-215a). Eight claim clusters, every one read LIVE (the @theme
+// block, the postcss plugin, the re-pin values, the layout tokens, the
+// vendor file, the tree census) and the DOC asserted to carry it — EITHER
+// face rotting (a re-pin edited OR a doc edit) fails `bun run test`.
+// TWO clusters had NO teeth anywhere before this pin: the postcss-plugin
+// claim (the unstyled-page bug's own guard — no test ever read
+// postcss.config.mjs) and the no-tailwind-config claim.
+// ---------------------------------------------------------------------------
+describe("session-215 (D-215a1): the tailwind-bullet semantic census (F-215a — the AGENTS architecture-facts Tailwind-v4 bullet joins the pin)", () => {
+  const agents = read("AGENTS.md");
+  const start = agents.indexOf("**Tailwind CSS v4 is CSS-first**");
+  const end = agents.indexOf("**Stock-primitive inks (session-10)**", start);
+  expect(start, "the Tailwind-v4 bullet must exist in AGENTS.md").toBeGreaterThan(0);
+  // the boundary guard (the M6 birth mutation's own lesson: an unanchored
+  // end marker slices to EOF and the doc face goes vacuous — the guard
+  // makes the rot loud)
+  expect(end, "the bullet's end boundary must exist after its start").toBeGreaterThan(start);
+  // the prose-claim anchor form: the bullet's whitespace flattened to
+  // single spaces (the s208/s214 wrap-blind birth lesson)
+  const bullet = agents.slice(start, end).replace(/\s+/g, " ");
+  const globals = read("src/app/globals.css");
+  // the comment-stripped live face (the M7 birth mutation's lesson: the
+  // explanatory comment above the cursor rule carries the rule's own
+  // literal text — an unstripped match stays green when the RULE is
+  // deleted and only the comment survives)
+  const css = noComments(globals);
+  // the @theme block: from the directive to the first column-0 close
+  // (nested @keyframes close indented — the boundary is unambiguous)
+  const themeStart = css.indexOf("@theme {");
+  const themeEnd = css.indexOf("\n}", themeStart);
+  expect(themeStart, "the @theme block must exist in globals.css").toBeGreaterThan(-1);
+  const theme = css.slice(themeStart, themeEnd);
+
+  it("the CSS-FIRST claim mirrors the live stylesheet (literal hex @theme · no tailwind.config.js · no var() chains)", () => {
+    // the doc face
+    expect(bullet).toContain("Tailwind CSS v4 is CSS-first");
+    expect(bullet).toContain(
+      "all tokens are literal hex in the `@theme` block of `src/app/globals.css`",
+    );
+    expect(bullet).toContain("No `tailwind.config.js` (it would be ignored)");
+    // the live face — the @theme block carries literal hex and NO var() chain
+    expect(theme).toMatch(/#[0-9a-fA-F]{6}/);
+    expect(theme, "no var() chains inside @theme (the literal-hex rule)").not.toContain("var(");
+    // no tailwind.config.* at the repo root (the v3-era habit would be
+    // silently ignored — the census keeps the tree honest) and none
+    // nested in src/ (skills/ is the operator's own domain, excluded
+    // from code checking per the standing rule)
+    expect(
+      readdirSync(root).filter((f) => /^tailwind\.config\.(js|ts|cjs|mjs)$/.test(f)),
+      "no tailwind.config.* at the repo root — v4 is CSS-first (a config file would be silently ignored)",
+    ).toEqual([]);
+    expect(
+      walk("src").filter((f) => /(^|\/)tailwind\.config\.(js|ts|cjs|mjs)$/.test(f)),
+      "no tailwind.config.* nested in src/",
+    ).toEqual([]);
+  });
+
+  it("the POSTCSS claim mirrors the live config (the @tailwindcss/postcss plugin — the unstyled-page guard)", () => {
+    // the doc face
+    expect(bullet).toContain(
+      "postcss.config.mjs` MUST keep the `@tailwindcss/postcss` plugin",
+    );
+    expect(bullet).toContain(
+      "without it `@theme`/`@utility` directives are never compiled and pages render unstyled",
+    );
+    // the live face — the plugins array carries EXACTLY the one plugin
+    const postcss = read("postcss.config.mjs");
+    const plugins = postcss.match(/plugins:\s*\[([^\]]*)\]/)?.[1] ?? "";
+    expect(plugins, "the postcss plugins array must exist").not.toBe("");
+    expect(
+      plugins,
+      "the plugins array must be EXACTLY [\"@tailwindcss/postcss\"] — the v4 rule (NOT \"tailwindcss\")",
+    ).toBe('"@tailwindcss/postcss"');
+  });
+
+  it("the SHADOW re-pin claim mirrors the live token (--shadow-sm re-pinned · bare shadow NOT overridden)", () => {
+    // the doc face
+    expect(bullet).toContain("`--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05)`");
+    expect(bullet).toContain(
+      "Bare `shadow` (the Card family) matches both sides and is NOT overridden",
+    );
+    // the live face — the exact re-pin line inside @theme …
+    expect(theme).toContain("--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);");
+    // … and the NOT-overridden arm: no bare --shadow: token anywhere
+    expect(css).not.toMatch(/^--shadow:\s/m);
+  });
+
+  it("the BLUR re-pin claim mirrors the live token (--blur-sm: 4px)", () => {
+    // the doc face
+    expect(bullet).toContain("`--blur-sm: 4px`");
+    // the live face — the exact re-pin line inside @theme
+    expect(theme).toContain("--blur-sm: 4px;");
+  });
+
+  it("the SPACE-Y FLIP family mirrors the live tokens (the computed-gap re-derivation · the controlMt fix)", () => {
+    // the doc face — the re-derivation doctrine + the named fix tokens
+    expect(bullet).toContain(
+      "re-derive the class from the reference's COMPUTED gap (`mb-4` there), never copy the class string",
+    );
+    expect(bullet).toContain("SETTINGS_DEFAULTS.controlMt` / `SETTINGS_DANGER.controlMt`");
+    // the live face — both settings tokens carry the explicit mt-2 fix
+    expect(SETTINGS_DEFAULTS.controlMt).toBe("mt-2");
+    expect(SETTINGS_DANGER.controlMt).toBe("mt-2");
+    // … and the login reset view's Back link carries the computed-gap
+    // ladder (the doc's own re-derivation rule applied: the reference's
+    // -mb-2 under v3 space-y ≡ our mb-2 sm:mb-4 — the s11/s79 re-pin,
+    // read LIVE via the login-reset seam)
+    expect(LOGIN_RESET_LAYOUT.back).toContain("mb-2 sm:mb-4");
+  });
+
+  it("the OUTLINE-NONE claim carries the fingerprint doctrine (style:none triplet · the visible face rides the ring)", () => {
+    // the doc face
+    expect(bullet).toContain("v4's `outline-none` is `outline-style: none`");
+    expect(bullet).toContain("the VISIBLE focus face rides the box-shadow ring");
+    // the live face — the shared Input's focus token is exactly the
+    // doctrine's carrier: outline-none + the 1px ring (the visible face)
+    expect(INPUT_BASE.focusRing).toContain("focus-visible:outline-none");
+    expect(INPUT_BASE.focusRing).toContain("focus-visible:ring-1");
+    expect(INPUT_BASE.focusRing).toContain("focus-visible:ring-ring");
+  });
+
+  it("the CURSOR claim mirrors the live base layer (button, [role=button] → pointer)", () => {
+    // the doc face
+    expect(bullet).toContain(
+      '`button, [role="button"] { cursor: pointer; }` — mirrored in our base layer',
+    );
+    // the live face — the base-layer rule itself (comment-stripped: the
+    // rule's explanatory comment carries the rule's own literal text)
+    expect(css).toMatch(/button,\s*\[role="button"\]\s*\{[^}]*cursor:\s*pointer/);
+  });
+
+  it("the TW-ANIMATE VENDORING claim mirrors the live tree (the vendored file · the local import · zero npm imports)", () => {
+    // the doc face — the tw-animate claim is its OWN bullet (the third
+    // of the family's section run), sliced and flattened the same way
+    const twStart = agents.indexOf("**`tw-animate-css` is vendored at");
+    const twEnd = agents.indexOf("**SQLite path normalization**", twStart);
+    expect(twStart, "the tw-animate bullet must exist in AGENTS.md").toBeGreaterThan(0);
+    expect(twEnd, "the tw-animate bullet's end boundary must exist").toBeGreaterThan(twStart);
+    const twBullet = agents.slice(twStart, twEnd).replace(/\s+/g, " ");
+    expect(twBullet).toContain(
+      "`tw-animate-css` is vendored at `src/app/vendor/tw-animate.css`",
+    );
+    expect(twBullet).toContain(
+      "the npm package exposes only the `style` export condition",
+    );
+    expect(twBullet).toContain("Import the local file; do not switch back");
+    // the live face — the vendored file exists …
+    expect(existsSync(join(root, "src/app/vendor/tw-animate.css")),
+      "the vendored tw-animate.css must exist").toBe(true);
+    // … globals.css imports the LOCAL file …
+    expect(css).toContain('@import "./vendor/tw-animate.css";');
+    // … and ZERO npm-package import forms anywhere in src/ (the
+    // comment-stripped census — the quoted specifier is the import form;
+    // the vendored ./vendor/tw-animate.css path does not match it)
+    const npmImports = walk("src")
+      .filter((f) => f.endsWith(".css") || /\.[jt]sx?$/.test(f))
+      .flatMap((f) => [...noComments(read(f)).matchAll(/["']tw-animate-css["']/g)]);
+    expect(npmImports, "no npm tw-animate-css import forms in src/ — the vendored file is the only carrier").toEqual([]);
   });
 });
