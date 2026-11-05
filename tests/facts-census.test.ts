@@ -69,7 +69,10 @@ import {
   LOGIN_LAYOUT,
   MOBILE_NAV_TRIGGER,
   NAV_LAYOUT,
+  PAGE_HEADER,
   REPORTS_FILTER_BAR,
+  SEARCH_INPUT,
+  SELECT_TRIGGER,
   SETTINGS_DANGER,
   SETTINGS_DEFAULTS,
   TOPBAR_LAYOUT,
@@ -1542,5 +1545,235 @@ describe("session-215 (D-215a1): the tailwind-bullet semantic census (F-215a —
       .filter((f) => f.endsWith(".css") || /\.[jt]sx?$/.test(f))
       .flatMap((f) => [...noComments(read(f)).matchAll(/["']tw-animate-css["']/g)]);
     expect(npmImports, "no npm tw-animate-css import forms in src/ — the vendored file is the only carrier").toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// session-216 (D-216a2) — THE INK/SQLITE/STORE-BULLET SEMANTIC CENSUS
+// (F-216a): the architecture-facts section's three remaining bullet
+// families join the pin — and the fresh-eyes walk's live finding (the
+// stale #111827 foreground sentence, stale since the s13 S13-P9 flip at
+// b2da6bd, surviving at AGENTS.md:157 + the globals.css comment + the
+// SKILL §4.1 prose) makes this the first census round since s208
+// BORN-RED at the doc arm: it-1 runs RED at the stale tree, D-216a1
+// (the three-sentence flip) is the cure, then GREEN. The pin keeps the
+// s215 forms: the boundary-guarded bullet slices, the wrap-blind
+// flattening, the comment-stripped CSS face, the live-read doctrine.
+// ---------------------------------------------------------------------------
+describe("session-216 (D-216a2): the ink/sqlite/store-bullet semantic census (F-216a — the architecture-facts section's three remaining bullet families join the pin, and the stale #111827 sentence rides no more)", () => {
+  const agents = read("AGENTS.md");
+  const skill = read("neo-crm_SKILL.md");
+  const globals = read("src/app/globals.css");
+  // the comment-stripped CSS face (the s215 M7 lesson) — the TOKEN lines;
+  // the ink-family COMMENT is itself a claim face, read raw below
+  const css = noComments(globals);
+  // the @theme block (the s215 slice form: the directive to the first
+  // column-0 close)
+  const themeStart = css.indexOf("@theme {");
+  const themeEnd = css.indexOf("\n}", themeStart);
+  expect(themeStart, "the @theme block must exist in globals.css").toBeGreaterThan(-1);
+  const theme = css.slice(themeStart, themeEnd);
+
+  // the bullet slices (the s215 boundary-guard + wrap-flatten form) — the
+  // end > start guard makes a rotted boundary LOUD instead of vacuous
+  const slice = (startMark: string, endMark: string) => {
+    const start = agents.indexOf(startMark);
+    expect(start, `${startMark} must exist in AGENTS.md`).toBeGreaterThan(0);
+    const end = agents.indexOf(endMark, start);
+    expect(end, `${endMark} must exist after ${startMark}`).toBeGreaterThan(start);
+    return agents.slice(start, end).replace(/\s+/g, " ");
+  };
+  const inkBullet = slice(
+    "**Stock-primitive inks (session-10)**",
+    "**`tw-animate-css` is vendored at",
+  );
+  const sqliteBullet = slice(
+    "**SQLite path normalization**",
+    "**Schema changes use `db push`, not migrations**",
+  );
+  // the three store/effects bullets run as a block (envelope · one store ·
+  // no-setState-in-effect) from the envelope bullet to the Tailwind bullet
+  const storeBullets = slice("**API envelope is", "**Tailwind CSS v4 is CSS-first**");
+
+  // the SKILL §4.1 prose slice (the same boundary-guard form)
+  const skStart = skill.indexOf("**Stock-primitive inks (S10-2):**");
+  const skEnd = skill.indexOf("**Chart defaults (S10-4/5/11):**", skStart);
+  expect(skStart, "the SKILL §4.1 inks prose must exist").toBeGreaterThan(0);
+  expect(skEnd, "the SKILL §4.1 inks prose end boundary must exist").toBeGreaterThan(skStart);
+  const skillInks = skill.slice(skStart, skEnd).replace(/\s+/g, " ");
+
+  it("the FOREGROUND correction holds at every claim site (the stale #111827 sentence retired · the live token · the h1 arm)", () => {
+    // the retirement negative — the pre-s13 sentence is GONE from all
+    // three claim sites (AGENTS carries the backticked form, the globals
+    // comment the bare form — both banned)
+    for (const stale of ["keeps `--color-foreground` #111827", "keeps --color-foreground #111827"]) {
+      expect(agents, `AGENTS.md must not carry the stale form "${stale}"`).not.toContain(stale);
+      expect(skill, `neo-crm_SKILL.md must not carry the stale form "${stale}"`).not.toContain(stale);
+      expect(globals, `globals.css must not carry the stale form "${stale}"`).not.toContain(stale);
+    }
+    // the corrected doc faces — the live truth narrated at both doc sites
+    // (page-level text rides #0a0a0a — the reference's body default; only
+    // its page h1s are EXPLICIT gray-900 #111827)
+    expect(inkBullet).toContain("--color-foreground` #0a0a0a");
+    expect(inkBullet).toContain("h1s are EXPLICIT gray-900 #111827");
+    expect(skillInks).toContain("`--color-foreground` #0a0a0a");
+    // the live faces — the token itself (comment-stripped: the real CSS
+    // line) + the h1 arm (the PAGE_HEADER titles carry the explicit
+    // gray-900 — the flip's own mirror)
+    expect(theme).toContain("--color-foreground: #0a0a0a;");
+    expect(PAGE_HEADER.standard.title).toContain("text-gray-900");
+  });
+
+  it("the INK/MUTED-INK family mirrors the live tokens (the input-text pair · the s13 convergence)", () => {
+    // the doc face
+    expect(inkBullet).toContain("`--color-ink` #0a0a0a (text-ink)");
+    expect(inkBullet).toContain("`--color-muted-ink` #737373");
+    expect(inkBullet).toContain("placeholder:text-muted-ink");
+    // the SKILL's convergence form (post-s13 the ink and foreground
+    // tokens coincide at #0a0a0a — --color-ink kept as the input-text
+    // token to guard future drift)
+    expect(skillInks).toContain("--color-ink` #0a0a0a");
+    expect(skillInks).toContain("--color-muted-ink` #737373");
+    expect(skillInks).toMatch(/COINCIDE at #0a0a0a/);
+    // the live faces — both tokens in the @theme block + the shared
+    // Input's three ink arms
+    expect(theme).toContain("--color-ink: #0a0a0a;");
+    expect(theme).toContain("--color-muted-ink: #737373;");
+    expect(INPUT_BASE.bg).toBe("bg-transparent");
+    expect(INPUT_BASE.ink).toBe("text-ink");
+    expect(INPUT_BASE.placeholder).toBe("placeholder:text-muted-ink");
+  });
+
+  it("the SELECT-TRIGGER stock claims mirror the live tokens (rounded-md · no gap-2 · transparent · NO base w-full · the topbar search)", () => {
+    // the doc face
+    expect(inkBullet).toContain(
+      "The Select trigger is stock: `rounded-md`, no `gap-2`, transparent, NO base `w-full`",
+    );
+    expect(inkBullet).toContain(
+      "the topbar search is the shared Input + `pl-10 bg-gray-50 border-gray-200`",
+    );
+    // the live faces — the trigger base carries the four stock arms …
+    expect(SELECT_TRIGGER.base).toContain("rounded-md");
+    expect(SELECT_TRIGGER.base, "no gap-2 in the trigger base (justify-between only)").not.toContain("gap-2");
+    expect(SELECT_TRIGGER.base).toContain("bg-transparent");
+    expect(SELECT_TRIGGER.base, "no base w-full — the per-surface doctrine").not.toContain("w-full");
+    // … and the topbar search rides the shared Input + the exact extras
+    expect(SEARCH_INPUT.extras).toBe("pl-10 bg-gray-50 border-gray-200");
+    expect(SEARCH_INPUT.usesStockInput).toBe(true);
+  });
+
+  it("the SQLITE-PATH doc face mirrors the live seam (the schema rule · the re-anchor · the wrapper · the one constructor site)", () => {
+    // the doc face
+    expect(sqliteBullet).toContain("relative `file:` URLs resolve against `prisma/schema.prisma`");
+    expect(sqliteBullet).toContain(
+      "`runtimeDatabaseUrl()` detects exactly that signature and re-anchors on the schema rule",
+    );
+    expect(sqliteBullet).toContain("`mkdir -p` the `db/` folder");
+    expect(sqliteBullet).toContain("`db:push` routes through the `scripts/prisma-env.ts` wrapper");
+    expect(sqliteBullet).toContain(
+      "Always import `db` from `@/lib/db`; never construct `PrismaClient` directly",
+    );
+    // the live faces — the named resolvers, the wrapper, the routing …
+    const dbPath = read("src/lib/db-path.ts");
+    expect(dbPath).toContain("export function urlForRoot");
+    expect(dbPath).toContain("export function effectiveDatabaseUrl");
+    expect(dbPath).toContain("export function runtimeDatabaseUrl");
+    expect(
+      existsSync(join(root, "tests/db-path.test.ts")),
+      "the bullet's own pinned-by claim — tests/db-path.test.ts exists",
+    ).toBe(true);
+    expect(existsSync(join(root, "scripts/prisma-env.ts")), "the prisma-env wrapper exists").toBe(true);
+    const pkg = JSON.parse(read("package.json")) as { scripts: Record<string, string> };
+    expect(pkg.scripts["db:push"]).toBe("bun scripts/prisma-env.ts db push --accept-data-loss");
+    // … and the one-constructor census: ZERO raw PrismaClient in src/
+    // outside lib/db.ts (the comment-stripped walk — the sanctioned seam)
+    const rawConstructors = walk("src")
+      .filter((f) => /\.[jt]sx?$/.test(f) && f !== "src/lib/db.ts")
+      .filter((f) => /new PrismaClient\s*\(/.test(noComments(read(f))));
+    expect(
+      rawConstructors,
+      "no raw PrismaClient constructors in src/ outside lib/db.ts — always import db from @/lib/db",
+    ).toEqual([]);
+  });
+
+  it("the API-ENVELOPE claims mirror the live seam (ok()/fail()/ERR.* · the call() helper)", () => {
+    // the doc face
+    expect(storeBullets).toContain(
+      "**API envelope is `{ ok, data } | { ok, error: { code, message } }`**",
+    );
+    expect(storeBullets).toContain("`ok()` / `fail()` / `ERR.*` from `src/lib/api.ts`");
+    expect(storeBullets).toContain(
+      "The store's `call()` helper (`src/stores/crm-store.ts`) is the only sanctioned client",
+    );
+    // the live faces — the builders + the union's exact discriminated form …
+    const api = read("src/lib/api.ts");
+    expect(api).toContain("export function ok<");
+    expect(api).toContain("export function fail(");
+    expect(api).toContain("export const ERR");
+    expect(api).toContain("{ ok: true; data: T } | { ok: false; error: ApiError }");
+    // … and the store's module-private call() helper
+    expect(read("src/stores/crm-store.ts")).toContain("async function call<T>(");
+  });
+
+  it("the ONE-STORE claims mirror the live tree (no React Query/SWR · one store file · hydrate once on mount)", () => {
+    // the doc face
+    expect(storeBullets).toContain(
+      "**All server state lives in one Zustand store** — no React Query, no SWR",
+    );
+    expect(storeBullets).toContain("`AppShell` calls `hydrate()` once on mount");
+    // the live faces — the dependency census …
+    const pkg = JSON.parse(read("package.json")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const depNames = [
+      ...Object.keys(pkg.dependencies ?? {}),
+      ...Object.keys(pkg.devDependencies ?? {}),
+    ];
+    expect(
+      depNames.filter((d) => /react-query|swr|@tanstack/.test(d)),
+      "no React Query/SWR/@tanstack anywhere in the dependency tree",
+    ).toEqual([]);
+    // … the stores folder carries EXACTLY the one store …
+    expect(readdirSync(join(root, "src/stores"))).toEqual(["crm-store.ts"]);
+    expect(read("src/stores/crm-store.ts")).toContain(
+      "export const useCrmStore = create<CrmState>",
+    );
+    // … and the shell hydrates once on mount
+    expect(read("src/components/layout/app-shell.tsx")).toContain("void hydrate();");
+  });
+
+  it("the LINT-RULE claim mirrors the live config (set-state-in-effect an ERROR via the next chain — never disabled)", () => {
+    // the doc face
+    expect(storeBullets).toContain("`useEffect` never calls setState synchronously");
+    expect(storeBullets).toContain("(React 19 lint rule is an ERROR here)");
+    // the live face — the rule rides in via eslint-config-next's
+    // core-web-vitals chain (empirically verified at the s216 audit: a
+    // scratch probe with a synchronous setState-in-effect tripped
+    // react-hooks/set-state-in-effect as an ERROR, exit 1) …
+    const eslint = noComments(read("eslint.config.mjs"));
+    expect(eslint).toContain("eslint-config-next/core-web-vitals");
+    // … and the config never touches the rule itself (any explicit
+    // override — an "off" most dangerously — would be a change to the
+    // chain-carried ERROR state this census documents)
+    expect(eslint).not.toContain('"react-hooks/set-state-in-effect"');
+  });
+
+  it("the THREE PATTERNS mirror the live sources (the key remount · adjust-during-render · the yield)", () => {
+    // the doc face
+    expect(storeBullets).toContain("dialogs remount their form via `key` (`entity-dialogs.tsx`)");
+    expect(storeBullets).toContain("the mobile nav closes on route change via adjust-during-render");
+    expect(storeBullets).toContain("debounced search yields with `await Promise.resolve()`");
+    // the live faces — the key-remount forms (the file lives at
+    // src/components/shared/ — the bullet's shorthand name resolved) …
+    expect(read("src/components/shared/entity-dialogs.tsx")).toContain("key={epoch}");
+    // … the adjust-during-render route-change close in the shell (the full
+    // conditional form — the M11 birth mutation's lesson: a bare substring
+    // assert survives `if (false && prevPathname !== pathname)`) …
+    expect(read("src/components/layout/app-shell.tsx")).toMatch(
+      /if \(prevPathname !== pathname\)/,
+    );
+    // … and the debounced search's yield
+    expect(read("src/app/(app)/reports/reports-page.tsx")).toContain("await Promise.resolve()");
   });
 });

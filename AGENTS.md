@@ -17,7 +17,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | Production server               | `bun run start`                        |
 | Lint                            | `bun run lint`                         |
 | Type check                      | `bun run typecheck`                    |
-|  Unit tests (2886 checks)      | `bun run test`                         |
+|  Unit tests (2894 checks)      | `bun run test`                         |
 |  Unit tests (watch mode)        | `bun run test:watch`                   |
 |  Browser E2E (226 checks)        | `bun run test:e2e` (needs build first) |
 | Smoke the standalone artifact   | `bun run smoke` (needs build first)    |
@@ -33,7 +33,7 @@ remote via `docs/ssh_git_wrapper_v3.py`.
 | The gate + the six drift gates  | `bun run gate:full`                    |
 
 **Gate order before every push:** `bun run lint` → `bun run typecheck` →
-`bun run test` (2886) → `bun run build` → `bun run smoke` (the standalone
+`bun run test` (2894) → `bun run build` → `bun run smoke` (the standalone
 boot + the 14-check ladder, session-170: the web-app-foundation §13.4/§14
 leg — the boot-gate + artifact-hygiene assertions ride it) →
 `bun run test:e2e` (226) — or the one-command `bun run gate` (session-38:
@@ -153,9 +153,11 @@ bun run db:seed && bun run dev`. Demo login: `sepnetflix2023@outlook.com` /
   carry `bg-transparent`, NO text color class (typed text inherits its
   `--foreground` #0a0a0a) and `placeholder:text-muted-foreground` #737373.
   Our tokens: `--color-ink` #0a0a0a (text-ink) + `--color-muted-ink` #737373
-  (placeholder:text-muted-ink) — page-level text keeps `--color-foreground`
-  #111827 (the reference's h1s/body use gray-900 there). The Select trigger
-  is stock: `rounded-md`, no `gap-2`, transparent, NO base `w-full`
+  (placeholder:text-muted-ink) — page-level text rides
+  `--color-foreground` #0a0a0a (the reference's body default; its page
+  h1s are EXPLICIT gray-900 #111827, mirrored by our PAGE_HEADER titles
+  — the session-13 flip). The Select trigger is stock: `rounded-md`, no
+  `gap-2`, transparent, NO base `w-full`
   (`w-full` is per-surface — 270px rails yes / 128px toolbars no; the
   reference's own stock trigger base DOES carry `w-full` and its
   toolbar triggers override with `w-full sm:w-32` — computed-equal
@@ -14932,3 +14934,142 @@ unit** · build · smoke 14/14 · `CI=1 bun run test:e2e` 226/226 ·
 the six drift gates re-run CLEAN (the cures test-side only — no
 src touch, but the house proves it) · db census MATCH · `git
 status` clean of secrets/dbs.
+
+### Session-216 — THE INK-BULLET SEMANTIC-PROSE CENSUS (2026-11-05)
+
+The rotation trigger: the owner's newest commit `41e1873` — the
+session_454 transcript, the s215 close's polished working log. The
+CARRY-OVER-WORKSPACE round (the first since s209 — the sandbox KEPT
+the tree): `git pull` fast-forwarded `d38f6a2..41e1873`; the
+recent-changes audit since the s215 ship — `docs/session_453.md` +
+`docs/session_454.md` added, ZERO src/tests/scripts/config changes.
+The standing environment held: the `.env` contract
+(DATABASE_URL=file:../db/custom.db) · `db/` at the repo root · the
+chromium-1248 cache · NO parent-of-repo `db/` mirror (the s212/s214
+hazard probed clean BEFORE listener reuse) · the scandihaven
+reference at `61711c3`, unchanged.
+
+The baseline gate at the exact s215 ship state: lint 0/0 · tsc 0 ·
+138/2886 unit · build (the 2 warnings the pre-existing Turbopack
+tracing heuristics) · smoke 14/14 · e2e 226/226 CLEAN (8.1m) · db
+census MATCH 15/24/10/23/12 + 4 users · the dev server's DB anchor
+re-probed green (login + dashboard API against the REPO db) ·
+probe:ref STABLE at `46bc2d9c`. The parity re-verification probed
+live with agent-browser 0.41.1 against BOTH apps logged in — **the
+mobile navigation both surfaces working** (the REFERENCE drawer at
+390×844: the "Open navigation" trigger 36px → the dialog "CRM" +
+Close + the "Navigate between your CRM pages" paragraph + the 8
+destinations · the body-only scroll lock `hidden` with main `auto` ·
+the "Leads" ride `/Dashboard` → `/Leads` with auto-close + release ·
+Escape closes AND releases — OURS the same battery PLUS the
+documented supersets: the body+main DUAL lock released to
+`visible/auto` on every close path · the resize-past-md auto-close
+verified live at 769px) + the landing "Toggle navigation" disclosure
+menu on BOTH apps (ours the aria-expanded superset true→false→true
+with the panel unmounting; the reference's toggle carries NO
+aria-expanded; the toggle `display:none` at 1280) + Tailwind v4
+state CLEAN + SEO/sitemap live-verified (the 11-route sitemap 200
+`application/xml` · robots 200 with the Sitemap line · manifest 200
+`application/json` · the OG/Twitter/canonical/description head tags
+· the three security headers) + the hygiene legs clean + the
+react-hooks/set-state-in-effect ERROR claim VERIFIED EMPIRICALLY (a
+scratch probe tripped the rule as an ERROR through the
+eslint-config-next chain, exit 1 — the claim holds; the rule rides
+in via the extends, not the local rules block).
+
+**The round's material — F-216a: THE INK-BULLET STALE-PROSE
+DEFECT** (the fresh-eyes walk's live finding, inside the s215
+close's named candidate family): the stock-primitive-inks family's
+sentence claiming page-level text KEEPS the old #111827 foreground
+value is STALE since the session-13 S13-P9 flip (`b2da6bd`) — the
+live `--color-foreground` is #0a0a0a (the reference's body
+default), only its page h1s are EXPLICIT gray-900 #111827 (pinned
+in PAGE_HEADER). The stale sentence survived at THREE claim sites
+(the AGENTS bullet :157 · the globals.css comment :105 · the SKILL
+§4.1 prose :1433 — the latter additionally carrying the stale
+TWO-BLACKS doctrine, the token pair having CONVERGED at #0a0a0a at
+s13). The exposure: the s13 round added its NEW contract block but
+missed the OLD claim site; the s169 wave re-pinned the token TABLES
+(the doctrine-census stale-cell negatives) but never the prose
+sentences; the design-tokens pin asserts the LIVE token but reads
+no doc face — every unit gate GREEN while the doc face lied.
+
+**D-216a1 — THE THREE-SENTENCE FLIP**: the stale sentence cured at
+all three sites (the s13 flip narrated in its live form; the
+SKILL's two-blacks doctrine reframed to the convergence truth —
+keep `--color-ink` as the input-text token so future drift fails
+the design-tokens pins). **D-216a2 — THE INK/SQLITE/STORE-BULLET
+SEMANTIC CENSUS PIN** (a new describe in `tests/facts-census.test.ts`,
+the D-213a1/D-214a1/D-215a1 home; the F-109a1 live-read doctrine):
+eight its — it-1 the FOREGROUND CORRECTION (the stale-form ban at
+all three sites + the corrected sentences + the live `@theme` token
++ the PAGE_HEADER h1 arm) · it-2 the INK/MUTED-INK family (the doc
+claims + the SKILL convergence form + INPUT_BASE bg/ink/placeholder)
+· it-3 the SELECT-TRIGGER stock claims (rounded-md · no gap-2 ·
+transparent · NO base w-full · SEARCH_INPUT.extras) · it-4 the
+SQLITE-PATH doc face (the schema rule + the re-anchor + the mkdir-p
++ the prisma-env wrapper + the one-constructor src/ census) · it-5
+the API-ENVELOPE claims (ok()/fail()/ERR.* + the call() helper) ·
+it-6 the ONE-STORE claims (the deps census · the stores file census
+· hydrate-once) · it-7 the LINT-RULE claim (the eslint chain carrier
++ the never-disabled census) · it-8 the THREE PATTERNS
+(key={epoch} · the adjust-during-render conditional · the yield).
+
+**BORN-RED AT THE DOC ARM** — the first census round since s208
+with a live defect to catch: exactly 2 RED at the stale tree (it-1 +
+it-2, the stale sentences) → the cure → GREEN. The mutation battery
+then caught ONE birth defect in the pin itself: the SUBSTRING-WEAK
+adjust-during-render assert (a `toContain` survived the
+`if (false && prevPathname !== pathname)` plant; cured with the
+full `/if \(prevPathname !== pathname\)/` conditional form — the
+M11 lesson, the s215 boundary/comment-lesson lineage). The ladder's
+own self-trip caught and cured in-round: the s216 SKILL layer
+narrative initially QUOTED the stale form verbatim — tripping the
+pin's own ban (the ban-safe paraphrase form is now the doctrine).
+**MUTATION-PROVEN ×11**: M1 the AGENTS fg sentence re-staled →
+exactly 1 RED (it-1) · M2 the SKILL fg sentence re-staled → exactly
+1 RED (it-1) · M3 the AGENTS ink value edited → exactly 1 RED (it-2)
+· M4 the AGENTS topbar-search claim edited → exactly 1 RED (it-3) ·
+M5 a raw `new PrismaClient` planted in src/ → exactly 1 RED (it-4)
+· M6 the AGENTS envelope edited → exactly 1 RED (it-5) · M7 a ghost
+store file planted → exactly 1 RED (it-6) · M8 set-state-in-effect
+disabled in eslint.config.mjs → exactly 1 RED (it-7) · M9 the
+epoch-key remounts flipped → 2 RED, the DOCUMENTED co-pinned face
+(it-8 + the s71 dialog-mount-contract — both pins correctly trip
+the same live face) · M10 the reports-page yield removed → exactly
+1 RED (it-8) · M11 the adjust-during-render guard neutered → exactly
+1 RED at the cured pin — each restored → GREEN. **STASH-PROOF**: the
+describe stashed → exactly 138/2886 (the s215 ship state, zero
+collateral) → restored → 138/2894.
+
+The count ladder: UNIT **2886 → 2894 (+8)** · SUITES 138 HELD ·
+E2E 226 HELD · badge **3112 → 3120** (the unit+e2e arithmetic:
+2894+226 — verified against the live unit run: 138/2894 GREEN) +
+`skill-head-216.py` (the SKILL v1.213.0, the s215 layer
+comment-demoted at its ship counts 2886/226, the s216 layer live at
+2894/226, `last_updated` stays 2026-11-05 — the same-day form;
+idempotent — the re-run a verified no-op) + `count-ladder-216.py`
+(assert-first, idempotent, unique-anchor — 26 flips, the re-run all
+no-ops) + THE LINE-CENSUS COLLATERAL RE-ANCHOR (the cure's
+globals.css comment grew the file 482 → 483 — the PAD §11 row + the
+SKILL §4.1 line-count re-anchored, the s211 same-stroke doctrine).
+The docs lockstep: the AGENTS Session-216 section · the PAD §7.1
+s216 inventory row · `docs/session_455.md` (the polished
+transcript — the 454 slot holds the s215 close's working log, this
+round's pair shifts one) · the worklog Task ID 216 entry · the
+plan's execution record.
+
+The captures 737-741 (the round's dev-server set, pixel-signature
+verified: the blue sidebar (37,99,235) on the dashboard at 1280 ·
+the drawer OPEN at 390 with the blue panel across the left edge ·
+the landing mobile menu OPEN at 390 · the near-white login card at
+1280): `737-s216-dev-dashboard-1280.png` · `738-s216-dev-dashboard-390.png`
+· `739-s216-dev-drawer-open-390.png` · `740-s216-dev-landing-mobilemenu-390.png`
+· `741-s216-dev-login-1280.png`.
+
+The final gate at the cured tree: lint 0/0 · tsc 0 · **138/2894
+unit** · build (the 2 warnings the pre-existing Turbopack tracing
+heuristics) · smoke 14/14 · `CI=1 bun run test:e2e` 226/226 · the
+six drift gates re-run CLEAN (the cures test-side + comment-side +
+docs only — no src code touch, but the house proves it) · db census
+MATCH at the repo-root anchor · `git status` clean of secrets/dbs.

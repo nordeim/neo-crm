@@ -7533,3 +7533,94 @@ Stage Summary:
   re-run all no-ops) + the docs lockstep (the AGENTS Session-215
   section · the PAD §7.1 s215 inventory row · docs/session_452.md ·
   the plan's execution record · this entry) + the captures 732-736.
+
+## Task ID 216 — THE INK-BULLET SEMANTIC-PROSE CENSUS (2026-11-05)
+
+- **WP-0 (the audit — the CARRY-OVER-WORKSPACE round, the first
+  since s209)**: `git pull` fast-forwarded `d38f6a2..41e1873` (the
+  owner's newest commit adds docs/session_454.md only — the s215
+  close's polished working log, this round's rotation trigger). The
+  recent-changes audit since the s215 ship: the two session docs
+  added, ZERO src/tests/scripts/config changes — the tree at the
+  exact s215 ship state on the code axis. The standing environment
+  held: the .env contract (DATABASE_URL=file:../db/custom.db) · db/
+  at the repo root · the chromium-1248 cache · NO parent-of-repo db
+  mirror (the s212/s214 hazard probed clean BEFORE listener reuse) ·
+  the scandihaven reference at 61711c3 unchanged. The baseline gate:
+  lint 0/0 · tsc 0 · 138/2886 unit · build (the 2 pre-existing
+  Turbopack warnings) · smoke 14/14 · e2e 226/226 CLEAN (8.1m) · db
+  census MATCH 15/24/10/23/12 + 4 users · the dev server's DB anchor
+  re-probed green (login + dashboard API against the REPO db,
+  leads=24 matching the census) · probe:ref STABLE at 46bc2d9c. The
+  parity battery with agent-browser 0.41.1 against BOTH apps logged
+  in: the mobile navigation both surfaces working (the reference
+  drawer battery — trigger, dialog, 8 destinations, body-only lock,
+  the Leads ride, Escape + release; OURS the same battery PLUS the
+  documented supersets — the body+main dual lock, the resize-past-md
+  auto-close verified live at 769px) · the landing disclosure menu on
+  BOTH apps (ours the aria-expanded superset; the reference's toggle
+  carries NO aria-expanded) · Tailwind v4 state CLEAN · SEO/sitemap
+  live-verified · the hygiene legs clean · the
+  react-hooks/set-state-in-effect ERROR claim VERIFIED EMPIRICALLY
+  (a scratch probe tripped the rule as an ERROR through the
+  eslint-config-next chain, exit 1).
+- **WP-1 (the round's material)**: F-216a — THE INK-BULLET
+  STALE-PROSE DEFECT, the fresh-eyes walk's live finding INSIDE the
+  s215 close's named candidate family: the stock-primitive-inks
+  family's sentence claiming page-level text KEEPS the old #111827
+  foreground value — STALE since the session-13 S13-P9 flip
+  (b2da6bd; the live --color-foreground is #0a0a0a, the reference's
+  body default, with only its page h1s EXPLICIT gray-900 #111827,
+  pinned in PAGE_HEADER) — surviving at THREE claim sites (the AGENTS
+  bullet :157 · the globals.css comment :105 · the SKILL §4.1 prose
+  :1433, the latter additionally carrying the stale TWO-BLACKS
+  doctrine — the token pair CONVERGED at #0a0a0a at s13). The
+  exposure: the s13 round added its new contract block but missed the
+  old claim site; the s169 wave re-pinned the token tables but never
+  the prose sentences; the design-tokens pin asserts the live token
+  but reads no doc face — every unit gate GREEN while the doc face
+  lied.
+- **WP-2 (the cure)**: D-216a1 — the three-sentence flip (the s13
+  flip narrated in its live form at all three sites; the SKILL's
+  two-blacks doctrine reframed to the convergence truth) + D-216a2 —
+  the ink/sqlite/store-bullet semantic census pin
+  (tests/facts-census.test.ts, +8 its: the foreground correction +
+  the ink family + the select-trigger stock claims + the SQLite-path
+  doc face + the API envelope + the one-store claims + the lint-rule
+  claim + the three patterns). **BORN-RED AT THE DOC ARM** — the
+  first census round since s208 with a live defect to catch: exactly
+  2 RED at the stale tree (it-1 + it-2) → the cure → GREEN. The
+  mutation battery then caught ONE birth defect in the pin itself
+  (the SUBSTRING-WEAK adjust-during-render assert — a toContain
+  survived the `if (false && prevPathname !== pathname)` plant; cured
+  with the full conditional-regex form, the M11 lesson) + the
+  ladder's own self-trip caught and cured in-round (the s216 SKILL
+  layer narrative initially QUOTED the stale form verbatim —
+  tripping the pin's own ban; the ban-safe paraphrase is now the
+  doctrine). **MUTATION-PROVEN ×11** (M1 the AGENTS fg sentence
+  re-staled · M2 the SKILL fg sentence re-staled · M3 the AGENTS ink
+  value edited · M4 the AGENTS topbar-search claim edited · M5 a raw
+  new PrismaClient planted in src/ · M6 the AGENTS envelope edited ·
+  M7 a ghost store file planted · M8 set-state-in-effect disabled in
+  eslint.config.mjs · M9 the epoch-key remounts flipped [2 RED — the
+  documented co-pinned face: it-8 + the s71 dialog-mount-contract,
+  both pins correctly trip the same live face] · M10 the
+  reports-page yield removed · M11 the adjust-during-render guard
+  neutered — each exactly 1 RED at its own pin except the documented
+  M9, each restored → GREEN). **STASH-PROOF**: the describe stashed
+  → exactly 138/2886 (the s215 ship state, zero collateral) →
+  restored → 138/2894.
+- **WP-3 (the ladder + the docs lockstep)**: the count ladder UNIT
+  **2886 → 2894** (+8) · SUITES 138 HELD · E2E 226 HELD · badge
+  **3112 → 3120** + `skill-head-216.py` (the SKILL v1.213.0, the
+  s215 layer comment-demoted at its ship 2886/226, the s216 layer
+  live at 2894/226; `last_updated` stays 2026-11-05 — the same-day
+  form; idempotent) + `count-ladder-216.py` (assert-first, idempotent
+  — 26 flips, the re-run all no-ops) + THE LINE-CENSUS COLLATERAL
+  RE-ANCHOR (the cure's globals.css comment grew the file 482 → 483 —
+  the PAD §11 row + the SKILL §4.1 line-count re-anchored, the s211
+  same-stroke doctrine) + the docs lockstep (the AGENTS Session-216
+  section · the PAD §7.1 s216 inventory row · docs/session_455.md
+  [the 454 slot holds the s215 close's working log — this round's
+  pair shifts one] · the plan's execution record · this entry) + the
+  captures 737-741.

@@ -102,8 +102,9 @@
      --muted-foreground `0 0% 45.1%` = #737373 (computed probes on the
      search input: text rgb(10,10,10), ::placeholder rgb(115,115,115)).
      Ours rendered #111827 (text-foreground) and #9ca3af/#6b7280
-     placeholders. Page-level text keeps --color-foreground #111827 (the
-     reference's h1s/body use gray-900 there). */
+     placeholders. Page-level text rides --color-foreground #0a0a0a
+     (the reference's body default — the session-13 S13-P9 flip; its
+     page h1s are EXPLICIT gray-900 #111827, ours via PAGE_HEADER). */
   --color-ink: #0a0a0a;
   --color-muted-ink: #737373;
 
